@@ -47,7 +47,7 @@ public class ExportProfilesConsistencyTest extends AbstractConverterTest {
     private boolean inconsistentProfilesReported(ReporterModel reporter) {
         return reporter.getReports().stream()
                 .map(Report::getReportKey)
-                .anyMatch(key -> key.equals("InconsistentProfilesTPRequired"));
+                .anyMatch(key -> key.equals("inconsistentProfilesTPRequired"));
     }
 
     private Network importNetwork(ReadOnlyDataSource dataSource) {

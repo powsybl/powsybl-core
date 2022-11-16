@@ -147,7 +147,7 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
     private void writeVoltagesForBoundaryNodes() throws XMLStreamException {
         for (DanglingLine dl : context.getNetwork().getDanglingLines()) {
             Bus b = dl.getTerminal().getBusView().getBus();
-            Optional<String> topologicalNode = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
+            Optional<String> topologicalNode = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNode.isPresent()) {
                 if (dl.hasProperty("v") && dl.hasProperty("angle")) {
                     writeVoltage(topologicalNode.get(), Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")));
@@ -165,7 +165,7 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
                 continue;
             }
             TieLine tieLine = (TieLine) l;
-            String topologicalNode = tieLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE)
+            String topologicalNode = tieLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY)
                     .orElseGet(() -> tieLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tieLine.getHalf1().getId() + "." + CgmesNames.TOPOLOGICAL_NODE));
             if (topologicalNode != null) {
                 writeVoltage(topologicalNode, tieLine.getHalf1().getBoundary().getV(), tieLine.getHalf1().getBoundary().getAngle());
@@ -218,12 +218,6 @@ public final class StateVariablesExport extends AbstractCgmesExporter {
                         tl.getTerminal2().getP(), tl.getTerminal2().getQ());
                 writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_Boundary", tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ());
                 writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_Boundary", tl.getHalf2().getBoundary().getP(), tl.getHalf2().getBoundary().getQ());
-                if (tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Boundary") != null) {
-                    throw new PowsyblException("No need for property " + Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Boundary");
-                }
-                if (tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Boundary") != null) {
-                    throw new PowsyblException("No need for property " + Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Boundary");
-                }
             }
         });
 

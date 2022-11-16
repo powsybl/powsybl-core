@@ -43,6 +43,8 @@ public class SecurityAnalysisCommandOptions {
     private Path caseFile;
     private Path contingenciesFile;
     private Path parametersFile;
+    private Path actionsFile;
+    private Path strategiesFile;
     private Integer taskCount;
     private Function<Integer, Path> outputFile;
     private Function<Integer, Path> logFile;
@@ -87,6 +89,16 @@ public class SecurityAnalysisCommandOptions {
 
     public SecurityAnalysisCommandOptions parametersFile(Path parametersFile) {
         this.parametersFile = requireNonNull(parametersFile);
+        return this;
+    }
+
+    public SecurityAnalysisCommandOptions actionsFile(Path actionsFile) {
+        this.actionsFile = actionsFile;
+        return this;
+    }
+
+    public SecurityAnalysisCommandOptions strategiesFile(Path strategiesFile) {
+        this.strategiesFile = strategiesFile;
         return this;
     }
 
@@ -170,6 +182,8 @@ public class SecurityAnalysisCommandOptions {
                 .option(CASE_FILE_OPTION, pathToString(caseFile));
 
         setOptionIfPresent(commandBuilder, PARAMETERS_FILE_OPTION, parametersFile, this::pathToString);
+        setOptionIfPresent(commandBuilder, ACTIONS_FILE, actionsFile, this::pathToString);
+        setOptionIfPresent(commandBuilder, STRATEGIES_FILE, strategiesFile, this::pathToString);
         setOptionIfPresent(commandBuilder, CONTINGENCIES_FILE_OPTION, contingenciesFile, this::pathToString);
         setOptionIfPresent(commandBuilder, OUTPUT_FILE_OPTION, outputFile, this::pathToString);
         setOptionIfPresent(commandBuilder, OUTPUT_FORMAT_OPTION, outputFileFormat);

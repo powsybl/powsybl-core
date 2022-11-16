@@ -385,7 +385,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
             // We are exporting the tap changer as it is modelled in IIDM, always at end 1
             int endNumber = 1;
             // IIDM model always has tap changers (ratio and/or phase) at end 1, and only at end 1.
-            // We have to adjust the aliases for potential original tap changers coming from end 1, end 2.
+            // We have to adjust the aliases for potential original tap changers coming from end 1 or end 2.
             // Potential tc2 is always converted to a tc at end 1.
             // If both tc1 and tc2 were present, tc2 was combined during import (fixed at current step) with tc1. Steps from tc1 were kept.
             // If we only had tc2, it mas moved to end 1.
@@ -564,15 +564,10 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     private void writeDanglingLines() throws XMLStreamException {
         for (DanglingLine danglingLine : context.getNetwork().getDanglingLines()) {
 
-            String substationId = writeDanglingLineSubstation(danglingLine);
+            // We may create fictitious containers for boundary side of dangling lines,
+            // and we consider the situation where the base voltage of a line lying at a boundary has a baseVoltage defined in the IGM,
             String baseVoltageId = writeDanglingLineBaseVoltage(danglingLine);
-            String voltageLevelId = writeDanglingLineVoltageLevel(danglingLine, substationId, baseVoltageId);
-            String connectivityNodeId = writeDanglingLineConnectivity(danglingLine, voltageLevelId);
-
-            // New Load
-            String loadId = CgmesExportUtil.getUniqueId();
-            EnergyConsumerEq.write(CgmesNames.ENERGY_CONSUMER, loadId, danglingLine.getNameOrId() + "_LOAD", null, voltageLevelId, cimNamespace, xmlWriter);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), loadId, connectivityNodeId, 1, cimNamespace, xmlWriter);
+            String connectivityNodeId = writeDanglingLineConnectivity(danglingLine, baseVoltageId);
 
             // New Equivalent Injection
             double minP = 0.0;
@@ -602,20 +597,6 @@ public final class EquipmentExport extends AbstractCgmesExporter {
         }
     }
 
-    private String writeDanglingLineSubstation(DanglingLine danglingLine) throws XMLStreamException {
-        // New Substation
-        // We avoid using the name of the dangling lines for the names of fictitious region and subregion
-        // Because regions and subregions with the same name are merged
-        String geographicalRegionId = CgmesExportUtil.getUniqueId();
-        GeographicalRegionEq.write(geographicalRegionId, danglingLine.getId() + "_GR", cimNamespace, xmlWriter);
-        String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
-        SubGeographicalRegionEq.write(subGeographicalRegionId, danglingLine.getId() + "_SGR", geographicalRegionId, cimNamespace, xmlWriter);
-        String substationId = CgmesExportUtil.getUniqueId();
-        SubstationEq.write(substationId, danglingLine.getNameOrId() + "_SUBSTATION", subGeographicalRegionId, cimNamespace, xmlWriter);
-
-        return substationId;
-    }
-
     private String writeDanglingLineBaseVoltage(DanglingLine danglingLine) throws XMLStreamException {
         double nominalV = danglingLine.getTerminal().getVoltageLevel().getNominalV();
         BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
@@ -627,26 +608,62 @@ public final class EquipmentExport extends AbstractCgmesExporter {
         return baseVoltage.getId();
     }
 
-    private String writeDanglingLineVoltageLevel(DanglingLine danglingLine, String substationId, String baseVoltageId) throws XMLStreamException {
-        // New VoltageLevel
-        String voltageLevelId = CgmesExportUtil.getUniqueId();
-        VoltageLevelEq.write(voltageLevelId, danglingLine.getNameOrId() + "_VL", Double.NaN, Double.NaN, substationId, baseVoltageId, cimNamespace, xmlWriter);
-
-        return voltageLevelId;
-    }
-
-    private String writeDanglingLineConnectivity(DanglingLine danglingLine, String voltageLevelId) throws XMLStreamException {
+    private String writeDanglingLineConnectivity(DanglingLine danglingLine, String baseVoltageId) throws XMLStreamException {
         String connectivityNodeId = null;
-        if (danglingLine.getTerminal().getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-            // New ConnectivityNode
-            connectivityNodeId = CgmesExportUtil.getUniqueId();
-            exportConnectivityNode(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId);
+        if (context.writeConnectivityNodes()) {
+            // We keep the connectivity node from the boundary definition as an alias in the dangling line
+            if (danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY).isPresent()) {
+                connectivityNodeId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
+            } else {
+                // If no information about original boundary has been preserved in the IIDM model,
+                // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
+                LOG.info("Dangling line {}{} is not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created",
+                        danglingLine.getId(), danglingLine.getUcteXnodeCode() != null ? " linked to X-node " + danglingLine.getUcteXnodeCode() : "");
+                connectivityNodeId = CgmesExportUtil.getUniqueId();
+                String connectivityNodeContainerId = createFictitiousContainerFor(danglingLine, baseVoltageId);
+                exportConnectivityNode(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", connectivityNodeContainerId);
+                danglingLine.addAlias(connectivityNodeId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
+            }
+        } else {
+            if (danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY).isEmpty()) {
+                // Also create a container if we will have to create a Topological Node for the boundary
+                LOG.info("Dangling line {}{} is not connected to a topology node in boundaries files: a fictitious substation and voltage level are created",
+                        danglingLine.getId(), danglingLine.getUcteXnodeCode() != null ? " linked to X-node " + danglingLine.getUcteXnodeCode() : "");
+                createFictitiousContainerFor(danglingLine, baseVoltageId);
+            }
         }
         // New Terminal
         String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         TerminalEq.write(terminalId, context.getNamingStrategy().getCgmesId(danglingLine), connectivityNodeId, 2, cimNamespace, xmlWriter);
 
         return connectivityNodeId;
+    }
+
+    private String createFictitiousContainerFor(Identifiable<?> identifiable, String baseVoltageId) throws XMLStreamException {
+        String substationId = writeFictitiousSubstationFor(identifiable);
+        String containerId = writeFictitiousVoltageLevelFor(identifiable, substationId, baseVoltageId);
+        context.setFictitiousContainerFor(identifiable, containerId);
+        return containerId;
+    }
+
+    private String writeFictitiousSubstationFor(Identifiable<?> identifiable) throws XMLStreamException {
+        // New Substation
+        // We avoid using the name of the identifiable for the names of fictitious region and subregion
+        // Because regions and subregions with the same name are merged
+        String geographicalRegionId = CgmesExportUtil.getUniqueId();
+        GeographicalRegionEq.write(geographicalRegionId, identifiable.getId() + "_GR", cimNamespace, xmlWriter);
+        String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
+        SubGeographicalRegionEq.write(subGeographicalRegionId, identifiable.getId() + "_SGR", geographicalRegionId, cimNamespace, xmlWriter);
+        String substationId = CgmesExportUtil.getUniqueId();
+        SubstationEq.write(substationId, identifiable.getNameOrId() + "_SUBSTATION", subGeographicalRegionId, cimNamespace, xmlWriter);
+        return substationId;
+    }
+
+    private String writeFictitiousVoltageLevelFor(Identifiable<?> identifiable, String substationId, String baseVoltageId) throws XMLStreamException {
+        // New VoltageLevel
+        String voltageLevelId = CgmesExportUtil.getUniqueId();
+        VoltageLevelEq.write(voltageLevelId, identifiable.getNameOrId() + "_VL", Double.NaN, Double.NaN, substationId, baseVoltageId, cimNamespace, xmlWriter);
+        return voltageLevelId;
     }
 
     private void writeBranchLimits(Branch<?> branch, String terminalId1, String terminalId2) throws XMLStreamException {
