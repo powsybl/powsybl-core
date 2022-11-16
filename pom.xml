@@ -54,6 +54,7 @@
         <module>cgmes</module>
         <module>cim-anonymiser</module>
         <module>commons</module>
+        <module>commons-test</module>
         <module>computation</module>
         <module>computation-local</module>
         <module>config-classic</module>
@@ -72,15 +73,15 @@
         <module>powerfactory</module>
         <module>psse</module>
         <module>scripting</module>
+        <module>scripting-test</module>
         <module>security-analysis</module>
         <module>sensitivity-analysis-api</module>
         <module>shortcircuit-api</module>
         <module>time-series</module>
         <module>tools</module>
+        <module>tools-test</module>
         <module>triple-store</module>
         <module>ucte</module>
-        <module>commons-test</module>
-        <module>tools-test</module>
     </modules>
 
     <properties>
@@ -396,12 +397,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-iidm-scripting</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-tck</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -522,12 +517,6 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-scripting</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-scripting</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
