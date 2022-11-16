@@ -232,9 +232,9 @@ public final class EquipmentExport extends AbstractCgmesExporter {
         for (VoltageLevel voltageLevel : context.getNetwork().getVoltageLevels()) {
             double nominalV = voltageLevel.getNominalV();
             BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
-            if (!context.exportedBaseVoltagesByNominalV.contains(nominalV) && baseVoltage.getSource().equals(Source.IGM)) {
+            if (baseVoltage.getSource().equals(Source.IGM) && !context.isExportedBaseVoltageFor(nominalV)) {
                 BaseVoltageEq.write(baseVoltage.getId(), nominalV, cimNamespace, xmlWriter);
-                context.exportedBaseVoltagesByNominalV.add(nominalV);
+                context.exportedBaseVoltageFor(nominalV);
             }
             VoltageLevelEq.write(context.getNamingStrategy().getCgmesId(voltageLevel), voltageLevel.getNameOrId(), voltageLevel.getLowVoltageLimit(), voltageLevel.getHighVoltageLimit(),
                     context.getNamingStrategy().getCgmesId(voltageLevel.getNullableSubstation()), baseVoltage.getId(), cimNamespace, xmlWriter);
@@ -252,7 +252,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     // We may receive a warning if we define an empty load group,
     // So we will output only the load groups that have been found during export of loads
     private void writeLoadGroups() throws XMLStreamException {
-        for (LoadGroup loadGroup : context.loadGroups.found()) {
+        for (LoadGroup loadGroup : context.getLoadGroups().found()) {
             CgmesExportUtil.writeStartIdName(loadGroup.className, loadGroup.id, loadGroup.name, cimNamespace, xmlWriter);
             // LoadArea and SubLoadArea are inside the Operation profile
             // In principle they are not required, but we may have to add them
@@ -266,7 +266,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
             if (context.isExportedEquipment(load)) {
                 LoadDetail loadDetail = load.getExtension(LoadDetail.class);
                 String className = CgmesExportUtil.loadClassName(loadDetail);
-                String loadGroup = context.loadGroups.groupFor(className);
+                String loadGroup = context.getLoadGroups().groupFor(className);
                 EnergyConsumerEq.write(className,
                         context.getNamingStrategy().getCgmesId(load),
                         load.getNameOrId(), loadGroup,
@@ -600,9 +600,9 @@ public final class EquipmentExport extends AbstractCgmesExporter {
     private String writeDanglingLineBaseVoltage(DanglingLine danglingLine) throws XMLStreamException {
         double nominalV = danglingLine.getTerminal().getVoltageLevel().getNominalV();
         BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
-        if (!context.exportedBaseVoltagesByNominalV.contains(nominalV) && baseVoltage.getSource().equals(Source.IGM)) {
+        if (baseVoltage.getSource().equals(Source.IGM) && !context.isExportedBaseVoltageFor(nominalV)) {
             BaseVoltageEq.write(baseVoltage.getId(), nominalV, cimNamespace, xmlWriter);
-            context.exportedBaseVoltagesByNominalV.add(nominalV);
+            context.exportedBaseVoltageFor(nominalV);
         }
 
         return baseVoltage.getId();

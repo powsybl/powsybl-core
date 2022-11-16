@@ -63,11 +63,9 @@ public class CgmesExportContext {
     private final BiMap<String, String> regionsIdsByRegionName = HashBiMap.create();
     private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
     private final Map<String, String> fictitiousContainers = new HashMap<>();
-
-    // FIXME(Luma) review these data added to context
-    Set<String> addedTopologicalNodes = new HashSet<>();
-    Set<Double> exportedBaseVoltagesByNominalV = new HashSet<>();
-    LoadGroups loadGroups = new LoadGroups();
+    private final Set<String> exportedTopologicalNodes = new HashSet<>();
+    private final Set<Double> exportedBaseVoltagesByNominalV = new HashSet<>();
+    private final LoadGroups loadGroups = new LoadGroups();
 
     // Update dependencies in a way that:
     // [EQ.dependentOn EQ_BD]
@@ -113,6 +111,26 @@ public class CgmesExportContext {
 
     public Network getNetwork() {
         return this.network;
+    }
+
+    public LoadGroups getLoadGroups() {
+        return loadGroups;
+    }
+
+    public boolean isExportedBaseVoltageFor(double nominalV) {
+        return exportedBaseVoltagesByNominalV.contains(nominalV);
+    }
+
+    public void exportedBaseVoltageFor(double nominalV) {
+        exportedBaseVoltagesByNominalV.add(nominalV);
+    }
+
+    public boolean isExportedTopologicalNode(String tn) {
+        return exportedTopologicalNodes.contains(tn);
+    }
+
+    public void exportedTopologicalNode(String tn) {
+        exportedTopologicalNodes.add(tn);
     }
 
     public static final class ModelDescription {

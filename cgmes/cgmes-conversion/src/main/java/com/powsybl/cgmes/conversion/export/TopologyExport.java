@@ -145,10 +145,10 @@ public final class TopologyExport extends AbstractCgmesExporter {
     }
 
     private void writeTopologicalNode(String tn, String tname, VoltageLevel voltageLevel) throws XMLStreamException {
-        if (context.addedTopologicalNodes.contains(tn)) {
+        if (context.isExportedTopologicalNode(tn)) {
             return;
         }
-        context.addedTopologicalNodes.add(tn);
+        context.exportedTopologicalNode(tn);
         writeTopologicalNode(tn, tname, context.getNamingStrategy().getCgmesId(voltageLevel),
             context.getBaseVoltageByNominalVoltage(voltageLevel.getNominalV()).getId());
     }
