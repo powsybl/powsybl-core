@@ -14,6 +14,7 @@ import com.powsybl.triplestore.api.TripleStore;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -54,7 +55,7 @@ public final class FakeTripleStore implements TripleStore {
 
     @Override
     public PropertyBags query(String query) {
-        return null;
+        return new PropertyBags();
     }
 
     @Override
@@ -74,7 +75,7 @@ public final class FakeTripleStore implements TripleStore {
 
     @Override
     public Set<String> contextNames() {
-        return null;
+        return Collections.emptySet();
     }
 
     @Override
@@ -89,7 +90,7 @@ public final class FakeTripleStore implements TripleStore {
 
     @Override
     public List<PrefixNamespace> getNamespaces() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

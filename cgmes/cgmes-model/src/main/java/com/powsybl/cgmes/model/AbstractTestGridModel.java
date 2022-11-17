@@ -12,7 +12,7 @@ package com.powsybl.cgmes.model;
  */
 public abstract class AbstractTestGridModel implements TestGridModel {
 
-    public AbstractTestGridModel(
+    protected AbstractTestGridModel(
             String name,
             CgmesModel expected) {
         this.name = name;

@@ -283,7 +283,7 @@ public final class FakeCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags fullModel(String cgmesProfile) {
-        return null;
+        return new PropertyBags();
     }
 
     @Override
@@ -314,7 +314,7 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public PropertyBags boundaryNodes() {
         // No need to support boundary nodes in FakeCgmesModel
-        return null;
+        return new PropertyBags();
     }
 
     @Override
@@ -329,7 +329,7 @@ public final class FakeCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags allObjectsOfType(String type) {
-        return null;
+        return new PropertyBags();
     }
 
     @Override
@@ -350,7 +350,7 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public PropertyBags connectivityNodeContainers() {
         // TODO(Luma) refactoring node-breaker conversion temporal
-        return null;
+        return new PropertyBags();
     }
 
     @Override
@@ -436,7 +436,7 @@ public final class FakeCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags nonlinearShuntCompensatorPoints(String scId) {
-        return null;
+        return new PropertyBags();
     }
 
     @Override
@@ -477,31 +477,31 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public PropertyBags reactiveCapabilityCurveData() {
         // FakeCgmesModel does not implement reactive capability curve
-        return null;
+        return new PropertyBags();
     }
 
     @Override
     public PropertyBags ratioTapChangerTablesPoints() {
         // FakeCgmesModel does not implement ratio tap changer tables
-        return null;
+        return new PropertyBags();
     }
 
     @Override
     public PropertyBags phaseTapChangerTablesPoints() {
         // FakeCgmesModel does not implement phase tap changer tables
-        return null;
+        return new PropertyBags();
     }
 
     @Override
     public PropertyBags ratioTapChangerTable(String tableId) {
         // FakeCgmesModel does not implement ratio tap changer tables
-        return null;
+        return new PropertyBags();
     }
 
     @Override
     public PropertyBags phaseTapChangerTable(String tableId) {
         // FakeCgmesModel does not implement phase tap changer tables
-        return null;
+        return new PropertyBags();
     }
 
     @Override
@@ -526,12 +526,12 @@ public final class FakeCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags topologicalIslands() {
-        return null;
+        return new PropertyBags();
     }
 
     @Override
     public PropertyBags graph() {
-        return null;
+        return new PropertyBags();
     }
 
     @Override
