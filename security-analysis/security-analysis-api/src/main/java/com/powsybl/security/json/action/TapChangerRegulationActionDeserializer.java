@@ -69,8 +69,11 @@ public class TapChangerRegulationActionDeserializer extends StdDeserializer<Abst
             }
         });
         if (context.type.equals(PhaseTapChangerRegulationAction.NAME)) {
-            return new PhaseTapChangerRegulationAction(context.id, context.transformerId, context.side, context.regulating,
-                    PhaseTapChanger.RegulationMode.valueOf(context.regulationMode));
+            PhaseTapChanger.RegulationMode mode = null;
+            if (context.regulating) {
+                mode = PhaseTapChanger.RegulationMode.valueOf(context.regulationMode);
+            }
+            return new PhaseTapChangerRegulationAction(context.id, context.transformerId, context.side, context.regulating, mode);
         } else {
             return new RatioTapChangerRegulationAction(context.id, context.transformerId, context.side, context.regulating);
         }

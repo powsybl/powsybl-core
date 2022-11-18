@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * An action modifying the tap position of a type of transformer
+ * An action modifying the tap position of a two or three windings transformer
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */

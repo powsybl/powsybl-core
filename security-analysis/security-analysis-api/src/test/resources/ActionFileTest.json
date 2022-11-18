@@ -106,8 +106,14 @@
     "type" : "PHASE_TAP_CHANGER_REGULATION",
     "id" : "id17",
     "transformerId" : "transformerId5",
-    "regulating" : false,
+    "regulating" : true,
     "side" : "ONE",
     "regulationMode" : "ACTIVE_POWER_CONTROL"
+  }, {
+    "type" : "PHASE_TAP_CHANGER_REGULATION",
+    "id" : "id17",
+    "transformerId" : "transformerId6",
+    "regulating" : false,
+    "side" : "ONE"
   } ]
 }

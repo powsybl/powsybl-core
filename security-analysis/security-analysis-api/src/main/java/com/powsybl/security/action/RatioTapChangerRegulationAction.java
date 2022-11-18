@@ -9,7 +9,7 @@ package com.powsybl.security.action;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 /**
- * An action modifying the regulation of a ratio transformer
+ * An action activating or deactivating the regulation of a ratio transformer
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */

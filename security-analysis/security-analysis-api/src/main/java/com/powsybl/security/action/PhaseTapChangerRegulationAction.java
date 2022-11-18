@@ -9,8 +9,10 @@ package com.powsybl.security.action;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
+import java.util.Optional;
+
 /**
- *  An action modifying the regulation of a phase-shifting transformer
+ * An action modifying the regulation of a phase-shifting transformer
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
@@ -19,9 +21,17 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
     public static final String NAME = "PHASE_TAP_CHANGER_REGULATION";
     private final PhaseTapChanger.RegulationMode regulationMode;
 
+    public PhaseTapChangerRegulationAction(String id, String transformerId, ThreeWindingsTransformer.Side side) {
+        this(id, transformerId, side, false, null);
+    }
+
     public PhaseTapChangerRegulationAction(String id, String transformerId, ThreeWindingsTransformer.Side side, boolean regulating, PhaseTapChanger.RegulationMode regulationMode) {
         super(id, transformerId, side, regulating);
         this.regulationMode = regulationMode;
+        if (!regulating && this.regulationMode != null) {
+            throw new IllegalArgumentException("PhaseTapChangerRegulationAction can not have a regulation mode " +
+                    "if it is not regulating");
+        }
     }
 
     @Override
@@ -29,7 +39,7 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
         return NAME;
     }
 
-    public PhaseTapChanger.RegulationMode getRegulationMode() {
-        return regulationMode;
+    public Optional<PhaseTapChanger.RegulationMode> getRegulationMode() {
+        return Optional.ofNullable(regulationMode);
     }
 }

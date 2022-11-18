@@ -39,8 +39,13 @@ public class TapChangerRegulationActionSerializer extends StdSerializer<Abstract
             }
         });
         if (action.getType().equals(PhaseTapChangerRegulationAction.NAME)) {
-            jsonGenerator.writeStringField("regulationMode",
-                    ((PhaseTapChangerRegulationAction) action).getRegulationMode().toString());
+            ((PhaseTapChangerRegulationAction) action).getRegulationMode().ifPresent(regulationMode -> {
+                try {
+                    jsonGenerator.writeStringField("regulationMode", regulationMode.toString());
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
         }
         jsonGenerator.writeEndObject();
     }

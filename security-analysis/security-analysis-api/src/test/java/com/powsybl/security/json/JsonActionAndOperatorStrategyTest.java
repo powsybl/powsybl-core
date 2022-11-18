@@ -57,7 +57,8 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new RatioTapChangerTapPositionAction("id15", "transformerId5", true, 1));
         actions.add(new RatioTapChangerRegulationAction("id16", "transformerId5", ThreeWindingsTransformer.Side.THREE, true));
         actions.add(new PhaseTapChangerRegulationAction("id17", "transformerId5", ThreeWindingsTransformer.Side.ONE,
-                false, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL));
+                true, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL));
+        actions.add(new PhaseTapChangerRegulationAction("id17", "transformerId6", ThreeWindingsTransformer.Side.ONE));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }
