@@ -20,17 +20,26 @@ import java.io.IOException;
  */
 class FeederResultDeserializer extends StdDeserializer<FeederResult> {
 
+    private static final String CONTEXT_NAME = "FeederResult";
+
     FeederResultDeserializer() {
         super(FeederResult.class);
     }
 
     @Override
     public FeederResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        String version = null;
         String connectableId = null;
         FortescueValue current = null;
+        double voltageDrop = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
+                case "version":
+                    parser.nextToken();
+                    version = parser.readValueAs(String.class);
+                    break;
+
                 case "connectableId":
                     parser.nextToken();
                     connectableId = parser.readValueAs(String.class);
@@ -41,10 +50,16 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> {
                     current = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
                     break;
 
+                case "voltageDrop":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageDrop", version, "1.1");
+                    parser.nextToken();
+                    voltageDrop = parser.readValueAs(Double.class);
+                    break;
+
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FeederResult(connectableId, current);
+        return new FeederResult(connectableId, current, voltageDrop);
     }
 }

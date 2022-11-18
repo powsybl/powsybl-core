@@ -13,19 +13,27 @@ import java.util.Objects;
  */
 public class FeederResult {
 
+    // VERSION = 1.0 connectableId, current
+    // VERSION = 1.1 voltageDrop
+    public static final String VERSION = "1.1";
     private final String connectableId;
 
     private final FortescueValue current;
 
+    private final double voltageDrop;
+
     public FeederResult(String connectableId,
-                        FortescueValue current) {
+                        FortescueValue current,
+                        double voltageDrop) {
         this.connectableId = Objects.requireNonNull(connectableId);
         this.current = current;
+        this.voltageDrop = voltageDrop;
     }
 
     public FeederResult(String connectableId,
-                        double feederThreePhaseCurrent) {
-        this(Objects.requireNonNull(connectableId), new FortescueValue(feederThreePhaseCurrent));
+                        double feederThreePhaseCurrent,
+                        double voltageDrop) {
+        this(Objects.requireNonNull(connectableId), new FortescueValue(feederThreePhaseCurrent), voltageDrop);
     }
 
     /**
@@ -44,5 +52,12 @@ public class FeederResult {
      */
     public double getFeederThreePhaseCurrent() {
         return current.getDirectMagnitude();
+    }
+
+    /**
+     * The voltage drop at the connectable in %.
+     */
+    public double getVoltageDrop() {
+        return voltageDrop;
     }
 }
