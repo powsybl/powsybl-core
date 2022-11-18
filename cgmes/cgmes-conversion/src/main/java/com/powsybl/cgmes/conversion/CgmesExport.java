@@ -31,10 +31,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.inconsistentProfilesTPRequiredReport;
@@ -72,12 +69,11 @@ public class CgmesExport implements Exporter {
         String filenameSv = baseName + "_SV.xml";
         CgmesExportContext context = new CgmesExportContext(
                 network,
-                NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig))
-        )
+                NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)))
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
-                .setBoundaryEqId(Parameter.readString(getFormat(), params, BOUNDARY_EQ_ID_PARAMETER, defaultValueConfig))
-                .setBoundaryTpId(Parameter.readString(getFormat(), params, BOUNDARY_TP_ID_PARAMETER, defaultValueConfig))
+                .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER))
+                .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER))
                 .setReporter(reporter);
         String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
@@ -91,18 +87,36 @@ public class CgmesExport implements Exporter {
                     XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
                     EquipmentExport.write(network, writer, context);
                 }
+            } else {
+                List<String> eqModelIds = new ArrayList<>();
+                eqModelIds.add(context.getNamingStrategy().getCgmesId(network));
+                network.getPropertyNames().stream()
+                        .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EQ_ID"))
+                        .map(network::getProperty)
+                        .forEach(eqModelIds::add);
+                context.getEqModelDescription().setIds(eqModelIds);
             }
             if (profiles.contains("TP")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameTp, false))) {
                     XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
                     TopologyExport.write(network, writer, context);
                 }
+            } else {
+                context.getTpModelDescription().setIds(network.getPropertyNames().stream()
+                        .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "TP_ID"))
+                        .map(network::getProperty)
+                        .collect(Collectors.toList()));
             }
             if (profiles.contains("SSH")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSsh, false))) {
                     XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
                     SteadyStateHypothesisExport.write(network, writer, context);
                 }
+            } else {
+                context.getEqModelDescription().setIds(network.getPropertyNames().stream()
+                        .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "SSH_ID"))
+                        .map(network::getProperty)
+                        .collect(Collectors.toList()));
             }
             if (profiles.contains("SV")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSv, false))) {
@@ -116,6 +130,13 @@ public class CgmesExport implements Exporter {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    private String getBoundaryId(String profile, Network network, Properties params, Parameter parameter) {
+        if (network.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_BD_ID")) {
+            return network.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_BD_ID");
+        }
+        return Parameter.readString(getFormat(), params, parameter, defaultValueConfig);
     }
 
     private static void checkConsistency(List<String> profiles, Network network, CgmesExportContext context) {

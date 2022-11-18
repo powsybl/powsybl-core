@@ -12,13 +12,11 @@ import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.extensions.*;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.joda.time.DateTime;
@@ -337,6 +335,20 @@ public class Conversion {
                 context.nodeBreaker()
                         ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
                         : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
+        PropertyBags modelProfiles = context.cgmes().modelProfiles();
+        String fullModel = "FullModel";
+        modelProfiles.sort(Comparator.comparing(p -> p.getId(fullModel)));
+        for (PropertyBag modelProfile : modelProfiles) {
+            if (modelProfile.getId(fullModel).equals(context.network().getId())) {
+                continue;
+            }
+            String profile = CgmesNamespace.getProfile(modelProfile.getId("profile"));
+            if (profile != null && !"EQ_OP".equals(profile) && !"SV".equals(profile)) {
+                context.network()
+                        .setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID", property -> context.network().hasProperty(property)),
+                                modelProfile.getId(fullModel));
+            }
+        }
         DateTime modelScenarioTime = cgmes.scenarioTime();
         DateTime modelCreated = cgmes.created();
         long forecastDistance = new Duration(modelCreated, modelScenarioTime).getStandardMinutes();
