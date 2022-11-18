@@ -4,5 +4,6 @@
   "withVoltageProfileResult" : false,
   "withFeederResult" : true,
   "studyType" : "TRANSIENT",
-  "minVoltageDropProportionalThreshold" : 0.0
+  "minVoltageDropProportionalThreshold" : 0.0,
+  "withVoltageDropProfileResult" : true
 }

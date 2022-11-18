@@ -42,6 +42,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withFeederResult = DEFAULT_WITH_FEEDER_RESULT;
     private StudyType studyType = DEFAULT_STUDY_TYPE;
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
+    private boolean withVoltageDropProfileResult = DEFAULT_WITH_VOLTAGE_DROP_PROFILE_RESULT;
 
     /**
      * Load parameters from platform default config.
@@ -60,7 +61,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithVoltageProfileResult(config.getBooleanProperty("with-voltage-profile-result", DEFAULT_WITH_VOLTAGE_PROFILE_RESULT))
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
-                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD)));
+                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
+                        .setWithVoltageDropProfileResult(config.getBooleanProperty("with-voltage-drop-profile-result", DEFAULT_WITH_VOLTAGE_DROP_PROFILE_RESULT)));
 
         parameters.readExtensions(platformConfig);
 
@@ -133,6 +135,16 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     public ShortCircuitParameters setMinVoltageDropProportionalThreshold(double minVoltageDropProportionalThreshold) {
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
+        return this;
+    }
+
+    /** Whether results should include the voltage drops. **/
+    public boolean isWithVoltageDropProfileResult() {
+        return withVoltageDropProfileResult;
+    }
+
+    public ShortCircuitParameters setWithVoltageDropProfileResult(boolean withVoltageDropProfileResult) {
+        this.withVoltageDropProfileResult = withVoltageDropProfileResult;
         return this;
     }
 }

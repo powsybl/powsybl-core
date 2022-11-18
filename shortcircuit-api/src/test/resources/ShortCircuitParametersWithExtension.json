@@ -5,6 +5,7 @@
   "withFeederResult" : true,
   "studyType" : "TRANSIENT",
   "minVoltageDropProportionalThreshold" : 0.0,
+  "withVoltageDropProfileResult" : true,
   "extensions" : {
     "dummy-extension" : { }
   }

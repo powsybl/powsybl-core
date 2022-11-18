@@ -55,6 +55,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parameters.setWithVoltageProfileResult(parser.readValueAs(Boolean.class));
                     break;
                 case "withVoltageProfileResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageProfileResult", version, "1.1");
                     parser.nextToken();
                     parameters.setWithVoltageProfileResult(parser.readValueAs(Boolean.class));
                     break;
@@ -69,6 +70,11 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 case "minVoltageDropProportionalThreshold":
                     parser.nextToken();
                     parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));
+                    break;
+                case "withVoltageDropProfileResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageDropProfileResult", version, "1.1");
+                    parser.nextToken();
+                    parameters.setWithVoltageDropProfileResult(parser.readValueAs(Boolean.class));
                     break;
                 case "extensions":
                     parser.nextToken();

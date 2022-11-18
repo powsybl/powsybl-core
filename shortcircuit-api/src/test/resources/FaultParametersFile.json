@@ -3,11 +3,13 @@
   "id" : "f00",
   "withFeederResult" : true,
   "studyType" : "STEADY_STATE",
-  "minVoltageDropProportionalThreshold" : 1.0
+  "minVoltageDropProportionalThreshold" : 1.0,
+  "withVoltageDropProfileResult" : true
 }, {
   "version" : "1.1",
   "id" : "f01",
-  "withVoltageProfileResult" : true
+  "withVoltageProfileResult" : true,
+  "withVoltageDropProfileResult" : true
 }, {
   "version" : "1.1",
   "id" : "f10",

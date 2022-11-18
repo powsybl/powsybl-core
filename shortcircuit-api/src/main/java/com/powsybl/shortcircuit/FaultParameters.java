@@ -40,6 +40,8 @@ public class FaultParameters {
 
     private final double minVoltageDropProportionalThreshold;
 
+    private final boolean withVoltageDropProfileResult;
+
     /** Fault id */
     public String getId() {
         return id;
@@ -70,18 +72,25 @@ public class FaultParameters {
         return minVoltageDropProportionalThreshold;
     }
 
+    /** Override general parameter withVoltageDropProfileResult from {@link ShortCircuitParameters} */
+    public boolean isWithVoltageDropProfileResult() {
+        return withVoltageDropProfileResult;
+    }
+
     public FaultParameters(String id,
                            boolean withLimitViolations,
                            boolean withVoltageProfileResult,
                            boolean withFeederResult,
                            StudyType studyType,
-                           double minVoltageDropProportionalThreshold) {
+                           double minVoltageDropProportionalThreshold,
+                           boolean withVoltageDropProfileResult) {
         this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
         this.withVoltageProfileResult = withVoltageProfileResult;
         this.withFeederResult = withFeederResult;
         this.studyType = studyType;
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
+        this.withVoltageDropProfileResult = withVoltageDropProfileResult;
     }
 
     @Override
@@ -98,12 +107,13 @@ public class FaultParameters {
                 Objects.equals(withVoltageProfileResult, that.withVoltageProfileResult) &&
                 Objects.equals(withFeederResult, that.withFeederResult) &&
                 Objects.equals(studyType, that.studyType) &&
-                Objects.equals(minVoltageDropProportionalThreshold, that.minVoltageDropProportionalThreshold);
+                Objects.equals(minVoltageDropProportionalThreshold, that.minVoltageDropProportionalThreshold) &&
+                Objects.equals(withVoltageDropProfileResult, that.withVoltageDropProfileResult);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, withLimitViolations, withVoltageProfileResult, withFeederResult, studyType, minVoltageDropProportionalThreshold);
+        return Objects.hash(id, withLimitViolations, withVoltageProfileResult, withFeederResult, studyType, minVoltageDropProportionalThreshold, withVoltageDropProfileResult);
     }
 
     @Override
@@ -115,6 +125,7 @@ public class FaultParameters {
                 ", withFeederResult=" + withFeederResult +
                 ", studyType=" + studyType +
                 ", minVoltageDropProportionalThreshold=" + minVoltageDropProportionalThreshold +
+                ", withVoltageDropProfileresult=" + withVoltageDropProfileResult +
                 '}';
     }
 

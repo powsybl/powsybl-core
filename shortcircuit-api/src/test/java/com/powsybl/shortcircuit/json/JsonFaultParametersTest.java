@@ -27,10 +27,10 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
-        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0));
-        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN));
-        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN));
-        parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN));
+        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true));
+        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true));
+        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false));
+        parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false));
         roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
 
         assertNotNull(parameters.get(0));

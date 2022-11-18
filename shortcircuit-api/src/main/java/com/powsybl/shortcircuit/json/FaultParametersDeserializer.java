@@ -36,6 +36,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         boolean withFeederResult = false;
         StudyType type = null;
         double minVoltageDropProportionalThreshold = Double.NaN;
+        boolean withVoltageDropProfileResult = false;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -61,6 +62,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     break;
 
                 case "withVoltageProfileResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageProfileResult", version, "1.1");
                     parser.nextToken();
                     withVoltageProfileResult = parser.readValueAs(Boolean.class);
                     break;
@@ -80,10 +82,16 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
                     break;
 
+                case "withVoltageDropProfileResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageDropProfileResult", version, "1.1");
+                    parser.nextToken();
+                    withVoltageDropProfileResult = parser.readValueAs(Boolean.class);
+                    break;
+
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FaultParameters(id, withLimitViolations, withVoltageProfileResult, withFeederResult, type, minVoltageDropProportionalThreshold);
+        return new FaultParameters(id, withLimitViolations, withVoltageProfileResult, withFeederResult, type, minVoltageDropProportionalThreshold, withVoltageDropProfileResult);
     }
 }
