@@ -14,6 +14,8 @@ import com.powsybl.shortcircuit.FaultParameters;
 
 import java.io.IOException;
 
+import static com.powsybl.shortcircuit.FaultParameters.VERSION;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -27,9 +29,10 @@ public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
     public void serialize(FaultParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
+        jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeStringField("id", parameters.getId());
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withLimitViolations", parameters.isWithLimitViolations(), false);
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageMap", parameters.isWithVoltageMap(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageProfileResult", parameters.isWithVoltageProfileResult(), false);
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withFeederResult", parameters.isWithFeederResult(), false);
         JsonUtil.writeOptionalStringField(jsonGenerator, "studyType", parameters.getStudyType() != null ? parameters.getStudyType().name() : null);
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());

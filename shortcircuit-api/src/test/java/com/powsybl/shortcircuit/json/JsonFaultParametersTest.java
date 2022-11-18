@@ -40,6 +40,60 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
     }
 
     @Test
+    public void readVersion10() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFileVersion10.json"), fileSystem.getPath("/FaultParametersFileVersion10.json"));
+        List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFileVersion10.json"));
+        assertEquals(4, parameters.size());
+
+        FaultParameters firstParam = parameters.get(0);
+        assertEquals("f00", firstParam.getId());
+        assertFalse(firstParam.isWithLimitViolations());
+        assertEquals(StudyType.STEADY_STATE, firstParam.getStudyType());
+        assertTrue(firstParam.isWithFeederResult());
+        assertFalse(firstParam.isWithVoltageProfileResult());
+        assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
+
+        FaultParameters secondParam = parameters.get(1);
+        assertEquals("f01", secondParam.getId());
+        assertFalse(secondParam.isWithLimitViolations());
+        assertNull(secondParam.getStudyType());
+        assertFalse(secondParam.isWithFeederResult());
+        assertTrue(secondParam.isWithVoltageProfileResult());
+        assertEquals(Double.NaN, secondParam.getMinVoltageDropProportionalThreshold(), 0);
+
+        FaultParameters thirdParam = parameters.get(2);
+        assertEquals("f10", thirdParam.getId());
+        assertTrue(thirdParam.isWithLimitViolations());
+        assertNull(thirdParam.getStudyType());
+        assertFalse(thirdParam.isWithFeederResult());
+        assertFalse(thirdParam.isWithVoltageProfileResult());
+        assertEquals(Double.NaN, thirdParam.getMinVoltageDropProportionalThreshold(), 0);
+
+        FaultParameters fourthParam = parameters.get(3);
+        assertEquals("f11", fourthParam.getId());
+        assertTrue(fourthParam.isWithLimitViolations());
+        assertNull(fourthParam.getStudyType());
+        assertFalse(fourthParam.isWithFeederResult());
+        assertTrue(fourthParam.isWithVoltageProfileResult());
+        assertEquals(Double.NaN, fourthParam.getMinVoltageDropProportionalThreshold(), 0);
+    }
+
+    @Test
+    public void readVersion11() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFileVersion11.json"), fileSystem.getPath("/FaultParametersFileVersion11.json"));
+        List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFileVersion11.json"));
+        assertEquals(1, parameters.size());
+
+        FaultParameters firstParam = parameters.get(0);
+        assertEquals("f00", firstParam.getId());
+        assertFalse(firstParam.isWithLimitViolations());
+        assertEquals(StudyType.STEADY_STATE, firstParam.getStudyType());
+        assertTrue(firstParam.isWithFeederResult());
+        assertFalse(firstParam.isWithVoltageProfileResult());
+        assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
+    }
+
+    @Test
     public void readUnexpectedField() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultParametersFileInvalid.json"), fileSystem.getPath("/FaultParametersFileInvalid.json"));
 

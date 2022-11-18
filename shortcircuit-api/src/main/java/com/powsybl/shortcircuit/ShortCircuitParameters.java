@@ -30,14 +30,15 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
             extends ExtensionConfigLoader<ShortCircuitParameters, E> {
     }
 
-    // VERSION = 1.0
-    public static final String VERSION = "1.0";
+    // VERSION = 1.0 withLimitViolations, withVoltageProfileResult, withFeederResult, studyType and minVoltageDropProportionalThreshold
+    // VERSION = 1.1 voltageMapType, nominalVoltageMapType, useResistances, useLoads, useCapacities, useShunts, withVoltageDropProfileResult and withVoltageProfileResult -> withVoltageProfileResult
+    public static final String VERSION = "1.1";
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
             .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "short-circuit-parameters"));
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
-    private boolean withVoltageMap = DEFAULT_WITH_VOLTAGE_MAP;
+    private boolean withVoltageProfileResult = DEFAULT_WITH_VOLTAGE_PROFILE_RESULT;
     private boolean withFeederResult = DEFAULT_WITH_FEEDER_RESULT;
     private StudyType studyType = DEFAULT_STUDY_TYPE;
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
@@ -56,7 +57,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
         platformConfig.getOptionalModuleConfig("short-circuit-parameters").ifPresent(config ->
                 parameters.setWithLimitViolations(config.getBooleanProperty("with-limit-violations", DEFAULT_WITH_LIMIT_VIOLATIONS))
-                        .setWithVoltageMap(config.getBooleanProperty("with-voltage-map", DEFAULT_WITH_VOLTAGE_MAP))
+                        .setWithVoltageProfileResult(config.getBooleanProperty("with-voltage-profile-result", DEFAULT_WITH_VOLTAGE_PROFILE_RESULT))
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
                         .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD)));
@@ -81,12 +82,29 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /**
+     * @deprecated Use {@link #isWithVoltageProfileResult()} instead. Used for backward compatibility.
+     */
+    @Deprecated
     public boolean isWithVoltageMap() {
-        return withVoltageMap;
+        return withVoltageProfileResult;
     }
 
+    /**
+     * @deprecated Use {@link #setWithVoltageProfileResult(boolean)} instead. Used for backward compatibility.
+     */
+    @Deprecated
     public ShortCircuitParameters setWithVoltageMap(boolean withVoltageMap) {
-        this.withVoltageMap = withVoltageMap;
+        this.withVoltageProfileResult = withVoltageMap;
+        return this;
+    }
+
+    public boolean isWithVoltageProfileResult() {
+        return withVoltageProfileResult;
+    }
+
+    public ShortCircuitParameters setWithVoltageProfileResult(boolean withVoltageProfileResult) {
+        this.withVoltageProfileResult = withVoltageProfileResult;
         return this;
     }
 
