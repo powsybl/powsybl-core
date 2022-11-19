@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Test;
@@ -29,7 +29,6 @@ import java.io.InputStream;
 
 import static com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertThrows;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -61,10 +60,11 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readError() {
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Unexpected field: unknownParameter");
-        JsonLoadFlowParameters.read(getClass().getResourceAsStream("/LoadFlowParametersError.json"));
+    public void readError() throws IOException {
+        try (var is = getClass().getResourceAsStream("/LoadFlowParametersError.json")) {
+            AssertionError e = assertThrows(AssertionError.class, () -> JsonLoadFlowParameters.read(is));
+            assertEquals("Unexpected field: unknownParameter", e.getMessage());
+        }
     }
 
     @Test

@@ -13,11 +13,11 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.Test;
@@ -210,10 +210,12 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readError() {
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Unexpected field: unexpected");
-        JsonUtil.readJsonAndUpdate(getClass().getResourceAsStream("/SensitivityAnalysisParametersInvalid.json"), new SensitivityAnalysisParameters(), objectMapper);
+    public void readError() throws IOException {
+        try (var is = getClass().getResourceAsStream("/SensitivityAnalysisParametersInvalid.json")) {
+            SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+            AssertionError e = assertThrows(AssertionError.class, () -> JsonUtil.readJsonAndUpdate(is, parameters, objectMapper));
+            assertEquals("Unexpected field: unexpected", e.getMessage());
+        }
     }
 
     @Test

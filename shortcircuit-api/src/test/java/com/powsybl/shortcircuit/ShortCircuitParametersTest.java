@@ -14,12 +14,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.YamlModuleConfigRepository;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
 import org.junit.Test;
 
@@ -258,9 +258,10 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readError() {
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Unexpected field: unexpected");
-        JsonShortCircuitParameters.read(getClass().getResourceAsStream("/ShortCircuitParametersInvalid.json"));
+    public void readError() throws IOException {
+        try (var is = getClass().getResourceAsStream("/ShortCircuitParametersInvalid.json")) {
+            AssertionError e = assertThrows(AssertionError.class, () -> JsonShortCircuitParameters.read(is));
+            assertEquals("Unexpected field: unexpected", e.getMessage());
+        }
     }
 }

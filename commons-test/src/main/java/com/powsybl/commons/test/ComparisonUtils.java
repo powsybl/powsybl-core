@@ -7,6 +7,8 @@
 package com.powsybl.commons.test;
 
 import com.google.common.io.ByteStreams;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
@@ -24,6 +26,9 @@ import static org.junit.Assert.assertFalse;
  * @author Stanislao Fidanza <stanifidanza98@gmail.com>
  */
 public final class ComparisonUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ComparisonUtils.class);
+
     private ComparisonUtils() {
     }
 
@@ -33,7 +38,7 @@ public final class ComparisonUtils {
         Diff myDiff = DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().build();
         boolean hasDiff = myDiff.hasDifferences();
         if (hasDiff) {
-            System.err.println(myDiff.toString());
+            LOGGER.error("{}", myDiff);
         }
         assertFalse(hasDiff);
     }

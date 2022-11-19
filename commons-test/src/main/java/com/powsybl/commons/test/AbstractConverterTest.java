@@ -10,10 +10,9 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,9 +23,6 @@ import java.util.function.Function;
  */
 
 public abstract class AbstractConverterTest {
-
-    @Rule
-    public ExpectedException expected = ExpectedException.none();
 
     protected FileSystem fileSystem;
     protected Path tmpDir;

@@ -7,8 +7,8 @@
 package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.shortcircuit.FortescueValue;
 import org.junit.Test;
 
@@ -20,6 +20,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -57,8 +60,8 @@ public class JsonFortescueValueTest extends AbstractConverterTest {
     public void readUnexpectedField() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FortescueValueInvalid.json"), fileSystem.getPath("/FortescueValueInvalid.json"));
 
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Unexpected field: unexpected");
-        read(fileSystem.getPath("/FortescueValueInvalid.json"));
+        Path path = fileSystem.getPath("/FortescueValueInvalid.json");
+        AssertionError e = assertThrows(AssertionError.class, () -> read(path));
+        assertEquals("Unexpected field: unexpected", e.getMessage());
     }
 }

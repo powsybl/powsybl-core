@@ -14,8 +14,12 @@ import org.junit.Test;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -35,17 +39,17 @@ public class JsonShortCircuitInputTest extends AbstractConverterTest {
     public void readUnexpectedField() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultsFileInvalid.json"), fileSystem.getPath("/FaultsFileInvalid.json"));
 
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Unexpected field: unexpected");
-        Fault.read(fileSystem.getPath("/FaultsFileInvalid.json"));
+        Path path = fileSystem.getPath("/FaultsFileInvalid.json");
+        AssertionError e = assertThrows(AssertionError.class, () -> Fault.read(path));
+        assertEquals("Unexpected field: unexpected", e.getMessage());
     }
 
     @Test
     public void readNoType() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultsFileNoType.json"), fileSystem.getPath("/FaultsFileNoType.json"));
 
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Required type field is missing");
-        Fault.read(fileSystem.getPath("/FaultsFileNoType.json"));
+        Path path = fileSystem.getPath("/FaultsFileNoType.json");
+        AssertionError e = assertThrows(AssertionError.class, () -> Fault.read(path));
+        assertEquals("Unexpected field: unexpected", e.getMessage());
     }
 }

@@ -17,6 +17,11 @@ import com.powsybl.commons.datasource.ResourceSet;
  */
 public final class Cim14SmallCasesCatalog {
 
+    private static final String CIM_14_DIR = "/cim14/";
+    private static final String ENTSO_E_BOUNDARY_SET_EU_EQ_XML = "ENTSO-E_Boundary_Set_EU_EQ.xml";
+    private static final String ENTSO_E_BOUNDARY_SET_EU_TP_XML = "ENTSO-E_Boundary_Set_EU_TP.xml";
+    private static final String VERSION = "IEC61970CIM14v02";
+
     private Cim14SmallCasesCatalog() {
     }
 
@@ -25,8 +30,8 @@ public final class Cim14SmallCasesCatalog {
                 new ResourceSet("/cim14/tx-from-microBE-adapted/", "tx-from-microBE-adapted_EQ.xml",
                                                                    "tx-from-microBE-adapted_SV.xml",
                                                                    "tx-from-microBE-adapted_TP.xml"),
-                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
-                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
+                new ResourceSet(CIM_14_DIR, ENTSO_E_BOUNDARY_SET_EU_EQ_XML,
+                                            ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
     public static TestGridModelResources small1() {
@@ -34,8 +39,8 @@ public final class Cim14SmallCasesCatalog {
                 new ResourceSet("/cim14/smallcase1/", "case1_EQ.xml",
                                                       "case1_SV.xml",
                                                       "case1_TP.xml"),
-                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
-                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
+                new ResourceSet(CIM_14_DIR, ENTSO_E_BOUNDARY_SET_EU_EQ_XML,
+                                            ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
     public static TestGridModelResources small1PlusInvalidFileContent() {
@@ -47,8 +52,8 @@ public final class Cim14SmallCasesCatalog {
                 new ResourceSet("/cim14/smallcase1/", "case1_EQ.xml",
                                                       "case1_SV.xml",
                                                       "case1_TP.xml"),
-                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
-                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
+                new ResourceSet(CIM_14_DIR, ENTSO_E_BOUNDARY_SET_EU_EQ_XML,
+                                            ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
     public static TestGridModelResources m7buses() {
@@ -56,8 +61,8 @@ public final class Cim14SmallCasesCatalog {
                 new ResourceSet("/cim14/m7buses/", "m7buses_EQ.xml",
                                                    "m7buses_SV.xml",
                                                    "m7buses_TP.xml"),
-                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
-                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
+                new ResourceSet(CIM_14_DIR, ENTSO_E_BOUNDARY_SET_EU_EQ_XML,
+                                            ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
     public static TestGridModelResources m7busesNoSequenceNumbers() {
@@ -67,8 +72,8 @@ public final class Cim14SmallCasesCatalog {
                 new ResourceSet("/cim14/m7buses/",
                         "m7buses_TP.xml",
                         "m7buses_SV.xml"),
-                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
-                        "ENTSO-E_Boundary_Set_EU_TP.xml"));
+                new ResourceSet(CIM_14_DIR, ENTSO_E_BOUNDARY_SET_EU_EQ_XML,
+                                            ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
     public static TestGridModelResources ieee14() {
@@ -76,8 +81,8 @@ public final class Cim14SmallCasesCatalog {
                 new ResourceSet("/cim14/ieee14/", "ieee14bus_EQ.xml",
                                                   "ieee14bus_SV.xml",
                                                   "ieee14bus_TP.xml"),
-                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
-                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
+                new ResourceSet(CIM_14_DIR, ENTSO_E_BOUNDARY_SET_EU_EQ_XML,
+                                            ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
     public static TestGridModelResources nordic32() {
@@ -85,14 +90,14 @@ public final class Cim14SmallCasesCatalog {
                 new ResourceSet("/cim14/nordic32/", "Nordic32_EQ.xml",
                                                     "Nordic32_SV.xml",
                                                     "Nordic32_TP.xml"),
-                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
-                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
+                new ResourceSet(CIM_14_DIR, ENTSO_E_BOUNDARY_SET_EU_EQ_XML,
+                                            ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
     private static CgmesModel expectedSmall1() {
         return new FakeCgmesModel()
                 .modelId("Small1")
-                .version("IEC61970CIM14v02")
+                .version(VERSION)
                 .substations("_GEN______SS", "_INF______SS")
                 .voltageLevels("_GEN______VL", "_GRID_____VL", "_INF______VL")
                 .terminals("_GEN_____-GRID____-1_TW_EX_TE",
@@ -111,7 +116,7 @@ public final class Cim14SmallCasesCatalog {
     private static CgmesModel expectedM7Buses() {
         return new FakeCgmesModel()
                 .modelId("M7Buses")
-                .version("IEC61970CIM14v02")
+                .version(VERSION)
                 .substations("_FP.AND11_SS", "_FS.BIS11_SS", "_FSSV.O11_SS", "_FTILL511_SS",
                         "_FVALDI11_SS", "_FVERGE11_SS")
                 .voltageLevels("_FP.AND11_VL", "_FS.BIS11_VL", "_FSSV.O11_VL", "_FTDPRA11_VL",
@@ -185,7 +190,7 @@ public final class Cim14SmallCasesCatalog {
     private static CgmesModel expectedIeee14() {
         return new FakeCgmesModel()
                 .modelId("IEEE14")
-                .version("IEC61970CIM14v02")
+                .version(VERSION)
                 .substations(
                         "_BUS___10_SS", "_BUS___11_SS", "_BUS___12_SS", "_BUS___13_SS",
                         "_BUS___14_SS", "_BUS____1_SS", "_BUS____2_SS", "_BUS____3_SS",
@@ -271,7 +276,7 @@ public final class Cim14SmallCasesCatalog {
     private static CgmesModel expectedNordic32() {
         return new FakeCgmesModel()
                 .modelId("Nordic32")
-                .version("IEC61970CIM14v02")
+                .version(VERSION)
                 .substations(
                         "_N1011____SS", "_N1012____SS", "_N1022____SS", "_N1041____SS",
                         "_N1044____SS", "_N1045____SS", "_N2031____SS", "_N4032____SS",
