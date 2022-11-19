@@ -104,6 +104,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-model-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- In test scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -128,6 +135,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-commons-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -361,6 +375,13 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-scripting-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-security-analysis-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -399,6 +420,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-tools</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-tools-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
