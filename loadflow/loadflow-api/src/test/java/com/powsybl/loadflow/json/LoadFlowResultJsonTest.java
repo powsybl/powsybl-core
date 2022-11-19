@@ -109,7 +109,7 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
 
     @Test
     public void handleErrorTest() throws IOException {
-        try(var is = getClass().getResourceAsStream("/LoadFlowResultVersion10Error.json")) {
+        try (var is = getClass().getResourceAsStream("/LoadFlowResultVersion10Error.json")) {
             AssertionError e = assertThrows(AssertionError.class, () -> LoadFlowResultDeserializer.read(is));
             assertEquals("Unexpected field: alienAttribute", e.getMessage());
         }

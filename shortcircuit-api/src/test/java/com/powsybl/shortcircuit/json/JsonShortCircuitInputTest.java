@@ -50,6 +50,6 @@ public class JsonShortCircuitInputTest extends AbstractConverterTest {
 
         Path path = fileSystem.getPath("/FaultsFileNoType.json");
         AssertionError e = assertThrows(AssertionError.class, () -> Fault.read(path));
-        assertEquals("Unexpected field: unexpected", e.getMessage());
+        assertEquals("Required type field is missing", e.getMessage());
     }
 }
