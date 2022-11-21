@@ -45,13 +45,15 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private VoltageMapType voltageMapType = DEFAULT_VOLTAGE_MAP_TYPE;
     private NominalVoltageMapType nominalVoltageMapType = DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE;
     /**
-     * useResistance: This option is mainly used for tests purposes. For better accuracy of results, it is recommended to set this option to true
+     * useResistance: This option is mainly used for tests purposes.
+     * For better accuracy of results, it is recommended to set this option to true
      * if this option is false, the resistance values for the quads are not taken into account in the calculations
      * for all sequences direct, inverse and homopolar
      */
     private boolean useResistances = DEFAULT_USE_RESISTANCES;
     /**
-     * useLoads: This option is mainly used for tests purposes. For better accuracy of results, it is recommended to set this option to true
+     * useLoads: This option is mainly used for tests purposes.
+     * For better accuracy of results, it is recommended to set this option to true
      * if this option is true, short circuit computation modules usually convert the P, Q load into an equivalent shunt admittance taking into account the reactance of the transformer connecting the load if any
      * if this option is false, the modelling of the loads:
      *   - in the direct and inverse sequence: loads is ignored and P and Q are considered as zero values
@@ -59,12 +61,14 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
      */
     private boolean useLoads = DEFAULT_USE_LOADS;
     /**
-     * useCapacities: This option is mainly used for tests purposes. For better accuracy of results, it is recommended to set this option to true
+     * useCapacities: This option is mainly used for tests purposes.
+     * For better accuracy of results, it is recommended to set this option to true
      * if this option is false, the shunts at busses are ignored for all sequences direct, inverse and homopolar
      */
     private boolean useCapacities = DEFAULT_USE_CAPACITIES;
     /**
-     * useShunts: This option is mainly used for tests purposes. For better accuracy of results, it is recommended to set this option to true
+     * useShunts: This option is mainly used for tests purposes.
+     * For better accuracy of results, it is recommended to set this option to true
      * if this option is false, the shunt equipments (shunts, SVC) are not taken into account
      * for all sequences direct, inverse and homopolar
      */
