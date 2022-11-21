@@ -44,14 +44,35 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
     private VoltageMapType voltageMapType = DEFAULT_VOLTAGE_MAP_TYPE;
     private NominalVoltageMapType nominalVoltageMapType = DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE;
+    /**
+     * useResistance: This option is mainly used for tests purposes. For better accuracy of results, it is recommended to set this option to true
+     * if this option is false, the resistance values for the quads are not taken into account in the calculations
+     * for all sequences direct, inverse and homopolar
+     */
     private boolean useResistances = DEFAULT_USE_RESISTANCES;
+    /**
+     * useLoads: This option is mainly used for tests purposes. For better accuracy of results, it is recommended to set this option to true
+     * if this option is true, short circuit computation modules usually convert the P, Q load into an equivalent shunt admittance taking into account the reactance of the transformer connecting the load if any
+     * if this option is false, the modelling of the loads:
+     *   - in the direct and inverse sequence: loads is ignored and P and Q are considered as zero values
+     *   - in the homopolar sequence: homopolar admittance of the load should always be taken into account according to additional data associated to the load and describing how the load is grounded
+     */
     private boolean useLoads = DEFAULT_USE_LOADS;
+    /**
+     * useCapacities: This option is mainly used for tests purposes. For better accuracy of results, it is recommended to set this option to true
+     * if this option is false, the shunts at busses are ignored for all sequences direct, inverse and homopolar
+     */
     private boolean useCapacities = DEFAULT_USE_CAPACITIES;
+    /**
+     * useShunts: This option is mainly used for tests purposes. For better accuracy of results, it is recommended to set this option to true
+     * if this option is false, the shunt equipments (shunts, SVC) are not taken into account
+     * for all sequences direct, inverse and homopolar
+     */
     private boolean useShunts = DEFAULT_USE_SHUNTS;
-
     /**
      * Load parameters from platform default config.
      */
+
     public static ShortCircuitParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
