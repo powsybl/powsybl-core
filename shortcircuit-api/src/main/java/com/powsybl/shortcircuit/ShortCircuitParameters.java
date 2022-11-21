@@ -63,7 +63,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     /**
      * useCapacities: This option is mainly used for tests purposes.
      * For better accuracy of results, it is recommended to set this option to true
-     * if this option is false, the shunts at busses are ignored for all sequences direct, inverse and homopolar
+     * if this option is false, the shunts elements induced by the quad modelling are ignored
+     * for all sequences direct, inverse and homopolar (example : in a Pi Model, only R and X will be used for the computations)
      */
     private boolean useCapacities = DEFAULT_USE_CAPACITIES;
     /**
