@@ -248,7 +248,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
     }
 
     /**
-     * Creates a new contingency on the branch whose id is given
+     * Creates a new contingency on the battery whose id is given
      */
     public static Contingency battery(String id) {
         return builder(id).addBattery(id).build();
