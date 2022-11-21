@@ -56,7 +56,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
      * For better accuracy of results, it is recommended to set this option to true
      * if this option is true, short circuit computation modules usually convert the P, Q load into an equivalent shunt admittance taking into account the reactance of the transformer connecting the load if any
      * if this option is false, the modelling of the loads:
-     *   - in the direct and inverse sequence: loads is ignored and P and Q are considered as zero values
+     *   - in the direct and inverse sequence: loads are ignored and P and Q are considered as zero values
      *   - in the homopolar sequence: homopolar admittance of the load should always be taken into account according to additional data associated to the load and describing how the load is grounded
      */
     private boolean useLoads = DEFAULT_USE_LOADS;
