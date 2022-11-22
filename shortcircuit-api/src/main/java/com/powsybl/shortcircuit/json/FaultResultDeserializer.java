@@ -29,8 +29,6 @@ import java.util.List;
  */
 class FaultResultDeserializer {
 
-    private static final String CONTEXT_NAME = "FaultResult";
-
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "short-circuit-analysis"));
 

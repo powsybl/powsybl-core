@@ -31,7 +31,8 @@
       "voltage" : {
         "directMagnitude" : 2004.0,
         "directAngle" : 2005.0
-      }
+      },
+      "voltageDrop" : 70.0
     } ],
     "extensions" : {
       "DummyFaultResultExtension" : { }

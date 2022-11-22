@@ -17,7 +17,8 @@
       "connectableId" : "connectableId",
       "current" : {
         "directMagnitude" : 1.0
-      }
+      },
+      "voltageDrop" : 40.0
     } ],
     "limitViolations" : [ {
       "subjectId" : "id",
