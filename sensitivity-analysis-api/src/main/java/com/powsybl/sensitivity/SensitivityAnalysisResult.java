@@ -50,7 +50,7 @@ public class SensitivityAnalysisResult {
 
     private final Map<String, List<SensitivityValue>> valuesByContingencyId = new HashMap<>();
 
-    private final Map<SensitivityValueKey, SensitivityValue> valuesByContingencyIdAndFunctionAndVariableIdAndType = new HashMap<>();
+    private final Map<SensitivityValueKey, SensitivityValue> valuesByContingencyIdAndFunctionAndVariable = new HashMap<>();
 
     private final Map<Triple<SensitivityFunctionType, String, String>, Double> functionReferenceByContingencyAndFunction = new HashMap<>();
 
@@ -148,7 +148,7 @@ public class SensitivityAnalysisResult {
             String contingencyId = value.getContingencyIndex() != -1 ? contingencyStatuses.get(value.getContingencyIndex()).getContingencyId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
-            valuesByContingencyIdAndFunctionAndVariableIdAndType.put(new SensitivityValueKey(contingencyId, factor.getVariableId(), factor.getFunctionId(), factor.getFunctionType(), factor.getVariableType()), value);
+            valuesByContingencyIdAndFunctionAndVariable.put(new SensitivityValueKey(contingencyId, factor.getVariableId(), factor.getFunctionId(), factor.getFunctionType(), factor.getVariableType()), value);
             functionReferenceByContingencyAndFunction.put(Triple.of(factor.getFunctionType(), contingencyId, factor.getFunctionId()), value.getFunctionReference());
         }
 
@@ -213,7 +213,7 @@ public class SensitivityAnalysisResult {
      * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getSensitivityValue(String contingencyId, String variableId, String functionId, SensitivityFunctionType functionType, SensitivityVariableType variableType) {
-        SensitivityValue value = valuesByContingencyIdAndFunctionAndVariableIdAndType.get(new SensitivityValueKey(contingencyId, variableId, functionId, functionType, variableType));
+        SensitivityValue value = valuesByContingencyIdAndFunctionAndVariable.get(new SensitivityValueKey(contingencyId, variableId, functionId, functionType, variableType));
         if (value != null) {
             return value.getValue();
         }
