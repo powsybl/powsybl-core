@@ -1,7 +1,8 @@
 {
-  "version" : "1.1",
-  "status" : "CONVERGED",
+  "version" : "1.0",
   "faultResults" : [ {
+    "version" : "1.1",
+    "status" : "CONVERGED",
     "fault" : {
       "type" : "BUS",
       "id" : "id",

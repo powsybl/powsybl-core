@@ -44,10 +44,10 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
         busResults.add(new ShortCircuitBusResults(subjectId, "busId", new FortescueValue(2004, 2005)));
         List<FaultResult> faultResults = new ArrayList<>();
-        FaultResult faultResult = new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(1.0), null, busResults, null);
+        FaultResult faultResult = new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(1.0), null, busResults, null, FaultResult.Status.CONVERGED);
         faultResult.addExtension(ShortCircuitAnalysisResultExportersTest.DummyFaultResultExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyFaultResultExtension());
         faultResults.add(faultResult);
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults, ShortCircuitAnalysisResult.Status.CONVERGED);
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);
         shortCircuitAnalysisResult.addExtension(ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension());
         return shortCircuitAnalysisResult;
     }
@@ -100,7 +100,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     }
 
     @Test
-    public void readJsonVersion10() {
+    public void readJsonFaultResultVersion10() {
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version10.json"));
         assertEquals(1, result.getFaultResults().size());
@@ -110,14 +110,13 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     }
 
     @Test
-    public void readJsonVersion11() {
+    public void readJsonFaultResultVersion11() {
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version11.json"));
         assertEquals(1, result.getFaultResults().size());
         assertEquals(1.0, result.getFaultResult("id").getThreePhaseFaultCurrent(), 0);
         assertEquals(1, result.getFaultResult("id").getLimitViolations().size());
         assertEquals(1, result.getFaultResult("id").getFeederResults().size());
-        assertEquals(ShortCircuitAnalysisResult.Status.CONVERGED, result.getStatus());
     }
 
     public void writeCsv(ShortCircuitAnalysisResult result, Path path) {

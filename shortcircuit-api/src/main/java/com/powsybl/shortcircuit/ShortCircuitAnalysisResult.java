@@ -19,22 +19,9 @@ import java.util.*;
  */
 public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitAnalysisResult> {
 
-    public enum Status {
-        CONVERGED,
-        NO_DATA,
-        SOLVER_FAILED,
-        FAILED
-    }
-
-    private Status shortCircuitAnalysisStatus;
     private final Map<String, FaultResult> resultByFaultId = new TreeMap<>();
     private final Map<String, List<FaultResult>> resultByElementId = new TreeMap<>();
 
-    /**
-     *
-     * @deprecated status added in the result, used for backward compatibility only
-     */
-    @Deprecated (forRemoval = false)
     public ShortCircuitAnalysisResult(List<FaultResult> faultResults) {
         Objects.requireNonNull(faultResults);
         faultResults.forEach(r -> {
@@ -43,30 +30,13 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
         });
     }
 
-    public ShortCircuitAnalysisResult(List<FaultResult> faultResults, Status shortCircuitAnalysisStatus) {
-        Objects.requireNonNull(faultResults);
-        faultResults.forEach(r -> {
-            this.resultByFaultId.put(r.getFault().getId(), r);
-            this.resultByElementId.computeIfAbsent(r.getFault().getElementId(), k -> new ArrayList<>()).add(r);
-        });
-        this.shortCircuitAnalysisStatus = Objects.requireNonNull(shortCircuitAnalysisStatus);
-    }
-
     /**
      * The associated fault results.
      */
     public List<FaultResult> getFaultResults() {
         return new ArrayList<>(resultByFaultId.values());
     }
-
-    /**
-     * The computation status. Converged if computation went ok, no data if the transient reactance of generators are missing
-     * and FAILED otherwise.
-     */
-    public Status getStatus() {
-        return shortCircuitAnalysisStatus;
-    }
-
+    
     /**
      * Get a computation result associated to a given fault ID
      *

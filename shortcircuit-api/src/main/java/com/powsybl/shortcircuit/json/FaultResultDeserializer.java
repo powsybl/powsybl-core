@@ -30,6 +30,7 @@ import java.util.List;
  */
 class FaultResultDeserializer extends StdDeserializer<FaultResult> {
 
+    private static final String CONTEXT_NAME = "FaultResult";
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "short-circuit-analysis"));
 
@@ -39,6 +40,8 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
 
     @Override
     public FaultResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        String version = null;
+        FaultResult.Status status = null;
         Fault fault = null;
         double shortCircuitPower = Double.NaN;
         Duration timeConstant = null;
@@ -51,6 +54,11 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
+                case "version":
+                    parser.nextToken();
+                    version = parser.getValueAsString();
+                    break;
+
                 case "fault":
                     parser.nextToken();
                     fault = parser.readValueAs(Fault.class);
@@ -91,6 +99,12 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     shortCircuitBusResults = parser.readValueAs(new TypeReference<List<ShortCircuitBusResults>>() { });
                     break;
 
+                case "status":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status" + parser.getCurrentName(), version, "1.1");
+                    parser.nextToken();
+                    status = FaultResult.Status.valueOf(parser.getValueAsString());
+                    break;
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
@@ -100,7 +114,13 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        FaultResult faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant);
+
+        FaultResult faultResult;
+        if (status != null) {
+            faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status);
+        } else {
+            faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant);
+        }
         SUPPLIER.get().addExtensions(faultResult, extensions);
 
         return faultResult;

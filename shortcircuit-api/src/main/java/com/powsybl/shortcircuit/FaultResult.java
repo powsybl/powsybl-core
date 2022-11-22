@@ -22,6 +22,15 @@ import java.util.Objects;
  */
 public final class FaultResult extends AbstractExtendable<FaultResult> {
 
+    public enum Status {
+        CONVERGED,
+        NO_DATA,
+        SOLVER_FAILED,
+        FAILED
+    }
+
+    private Status faultResultStatus;
+
     private final Fault fault;
 
     private final double shortCircuitPower;
@@ -38,6 +47,10 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final List<ShortCircuitBusResults> shortCircuitBusResults;
 
+    /**
+     * @deprecated status added in the result, used for backward compatibility only
+     */
+    @Deprecated (forRemoval = false)
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
                        Duration timeConstant) {
@@ -52,13 +65,31 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     }
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
-                       List<LimitViolation> limitViolations, FortescueValue current, Duration timeConstant) {
-        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant);
+                       List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
+                       Duration timeConstant, Status faultResultStatus) {
+        this.fault = Objects.requireNonNull(fault);
+        this.shortCircuitPower = shortCircuitPower;
+        this.feederResults = feederResults;
+        this.limitViolations = limitViolations;
+        this.current = Objects.requireNonNull(current);
+        this.voltage = voltage;
+        this.shortCircuitBusResults = shortCircuitBusResults;
+        this.timeConstant = timeConstant;
+        this.faultResultStatus = Objects.requireNonNull(faultResultStatus);
     }
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
-                       List<LimitViolation> limitViolations, FortescueValue current) {
-        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), null);
+                       List<LimitViolation> limitViolations, FortescueValue current, Duration timeConstant, Status faultResultStatus) {
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant, faultResultStatus);
+    }
+
+    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
+                       List<LimitViolation> limitViolations, FortescueValue current, Status faultResultStatus) {
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), null, faultResultStatus);
+    }
+
+    public FaultResult(Fault fault, Status faultResultStatus) {
+        this(fault, Double.NaN, Collections.emptyList(), Collections.emptyList(), null, null, Collections.emptyList(), null, faultResultStatus);
     }
 
     /**
@@ -127,4 +158,13 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     public List<ShortCircuitBusResults> getShortCircuitBusResults() {
         return shortCircuitBusResults;
     }
+
+    /**
+     * The computation status. Converged if computation went ok, no data if the transient reactance of generators are missing
+     * and FAILED otherwise.
+     */
+    public Status getStatus() {
+        return faultResultStatus;
+    }
+
 }
