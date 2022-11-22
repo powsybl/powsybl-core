@@ -1,9 +1,10 @@
-package com.powsybl.cgmes.shortcircuit; /**
+/**
  * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+package com.powsybl.cgmes.shortcircuit;
 
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
@@ -24,6 +25,7 @@ import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -34,16 +36,10 @@ public class CgmesImporterTest {
 
     @Test
     public void testImportCgmesGeneratorShortCircuitData() {
+        Properties p = new Properties();
+        p.put(CgmesImport.POST_PROCESSORS, List.of("shortcircuit"));
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.miniBusBranch().dataSource(),
-            NetworkFactory.findDefault(), new Properties());
-
-        CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
-        Assert.assertNotNull(cgmesModelExtension);
-        CgmesModel cgmesModel = cgmesModelExtension.getCgmesModel();
-        Assert.assertNotNull(cgmesModel);
-
-        CgmesShortCircuitModel cgmesScModel = new CgmesShortCircuitModel(cgmesModel.tripleStore());
-        new CgmesShortCircuitImporter(cgmesScModel, network).importShortcircuitData();
+                NetworkFactory.findDefault(), p);
 
         Generator generator = network.getGenerator("392ea173-4f8e-48fa-b2a3-5c3721e93196");
         Assert.assertNotNull(generator);
@@ -60,7 +56,7 @@ public class CgmesImporterTest {
     @Test
     public void testImportCgmes3GeneratorShortCircuitData() {
         Network network = new CgmesImport().importData(Cgmes3Catalog.miniGrid().dataSource(),
-            NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), new Properties());
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         Assert.assertNotNull(cgmesModelExtension);
@@ -85,7 +81,7 @@ public class CgmesImporterTest {
     @Test
     public void testImportCgmesBranchModelBusbarSectionShortCircuitData() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallGridBusBranchWithBusbarSectionsAndIpMax().dataSource(),
-            NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), new Properties());
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         Assert.assertNotNull(cgmesModelExtension);
@@ -108,7 +104,7 @@ public class CgmesImporterTest {
     @Test
     public void testImportCgmesBusbarSectionShortCircuitData() {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(),
-            NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), new Properties());
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         Assert.assertNotNull(cgmesModelExtension);
@@ -128,7 +124,7 @@ public class CgmesImporterTest {
     @Test
     public void testImportCgmes3BusbarSectionShortCircuitData() {
         Network network = new CgmesImport().importData(Cgmes3Catalog.microGrid().dataSource(),
-            NetworkFactory.findDefault(), new Properties());
+                NetworkFactory.findDefault(), new Properties());
 
         CgmesModelExtension cgmesModelExtension = network.getExtension(CgmesModelExtension.class);
         Assert.assertNotNull(cgmesModelExtension);
