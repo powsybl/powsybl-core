@@ -36,6 +36,7 @@ public class SingleCountryCriterion implements Criterion {
             case SHUNT_COMPENSATOR:
             case STATIC_VAR_COMPENSATOR:
             case BUSBAR_SECTION:
+            case BATTERY:
                 return filterInjection(((Injection) identifiable).getTerminal().getVoltageLevel());
             case SWITCH:
                 return filterInjection(((Switch) identifiable).getVoltageLevel());
