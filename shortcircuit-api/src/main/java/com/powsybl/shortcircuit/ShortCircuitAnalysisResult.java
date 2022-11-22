@@ -36,7 +36,7 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
     public List<FaultResult> getFaultResults() {
         return new ArrayList<>(resultByFaultId.values());
     }
-    
+
     /**
      * Get a computation result associated to a given fault ID
      *
