@@ -10,8 +10,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.*;
+import com.powsybl.shortcircuit.FeederResult;
+import com.powsybl.shortcircuit.FortescueValue;
 
 import java.io.IOException;
 
@@ -20,24 +20,19 @@ import java.io.IOException;
  */
 class FeederResultDeserializer extends StdDeserializer<FeederResult> {
 
-    private static final String CONTEXT_NAME = "FeederResult";
-
     FeederResultDeserializer() {
         super(FeederResult.class);
     }
 
     @Override
     public FeederResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        String version = null;
         String connectableId = null;
         FortescueValue current = null;
-        double voltageDrop = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
-                    parser.nextToken();
-                    version = parser.readValueAs(String.class);
+                    parser.nextToken(); //skip
                     break;
 
                 case "connectableId":
@@ -50,16 +45,10 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> {
                     current = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
                     break;
 
-                case "voltageDrop":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageDrop", version, "1.1");
-                    parser.nextToken();
-                    voltageDrop = parser.readValueAs(Double.class);
-                    break;
-
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FeederResult(connectableId, current, voltageDrop);
+        return new FeederResult(connectableId, current);
     }
 }

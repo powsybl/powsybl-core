@@ -12,7 +12,7 @@ package com.powsybl.shortcircuit;
 public class ShortCircuitBusResults {
 
     // VERSION = 1.0 voltageLevelId, busId, voltage
-    // VERSION = 1.1 voltageDrop
+    // VERSION = 1.1 voltageDropProportional
     public static final String VERSION = "1.1";
 
     private final String voltageLevelId;
@@ -21,16 +21,16 @@ public class ShortCircuitBusResults {
 
     private final FortescueValue voltage;
 
-    private final double voltageDrop;
+    private final double voltageDropProportional;
 
     public ShortCircuitBusResults(String voltageLevelId,
                                   String busId,
                                   FortescueValue voltage,
-                                  double voltageDrop) {
+                                  double voltageDropProportional) {
         this.voltageLevelId = voltageLevelId;
         this.busId = busId;
         this.voltage = voltage;
-        this.voltageDrop = voltageDrop;
+        this.voltageDropProportional = voltageDropProportional;
     }
 
     public String getVoltageLevelId() {
@@ -45,7 +45,7 @@ public class ShortCircuitBusResults {
         return voltage;
     }
 
-    public double getVoltageDrop() {
-        return voltageDrop;
+    public double getVoltageDropProportional() {
+        return voltageDropProportional;
     }
 }

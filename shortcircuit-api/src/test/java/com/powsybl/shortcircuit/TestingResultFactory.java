@@ -59,7 +59,7 @@ public final class TestingResultFactory {
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
         limitViolations.add(limitViolation);
         List<FaultResult> faultResults = new ArrayList<>();
-        FeederResult feederResult = new FeederResult("connectableId", 1, 40);
+        FeederResult feederResult = new FeederResult("connectableId", 1);
         FaultResult faultResult = new FaultResult(fault, 0.1, Collections.singletonList(feederResult), limitViolations,
                 new FortescueValue(1.0), new FortescueValue(2.0), Collections.emptyList(), Duration.ofSeconds(1), FaultResult.Status.SUCCESS);
         faultResults.add(faultResult);

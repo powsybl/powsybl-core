@@ -33,9 +33,6 @@ public class FeederResultSerializer extends StdSerializer<FeederResult> {
         if (result.getCurrent() != null) {
             serializerProvider.defaultSerializeField("current", result.getCurrent(), jsonGenerator);
         }
-        if (!Double.isNaN(result.getVoltageDrop())) {
-            jsonGenerator.writeObjectField("voltageDrop", result.getVoltageDrop());
-        }
         jsonGenerator.writeEndObject();
     }
 }

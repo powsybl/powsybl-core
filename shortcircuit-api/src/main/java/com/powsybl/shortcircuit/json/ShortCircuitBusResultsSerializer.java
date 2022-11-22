@@ -37,8 +37,8 @@ public class ShortCircuitBusResultsSerializer extends StdSerializer<ShortCircuit
         if (busResults.getVoltage() != null) {
             serializerProvider.defaultSerializeField("voltage", busResults.getVoltage(), jsonGenerator);
         }
-        if (!Double.isNaN(busResults.getVoltageDrop())) {
-            serializerProvider.defaultSerializeField("voltageDrop", busResults.getVoltageDrop(), jsonGenerator);
+        if (!Double.isNaN(busResults.getVoltageDropProportional())) {
+            serializerProvider.defaultSerializeField("voltageDrop", busResults.getVoltageDropProportional(), jsonGenerator);
         }
 
         jsonGenerator.writeEndObject();
