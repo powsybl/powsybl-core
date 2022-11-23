@@ -29,6 +29,11 @@ public class ContingencyBuilder {
         return new Contingency(id, elements);
     }
 
+    public ContingencyBuilder addBattery(String id) {
+        elements.add(new BatteryContingency(id));
+        return this;
+    }
+
     public ContingencyBuilder addBranch(String id) {
         elements.add(new BranchContingency(id));
         return this;
