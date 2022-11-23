@@ -47,14 +47,6 @@ public class FaultParameters {
 
     private final ShortCircuitConstants.NominalVoltageMapType nominalVoltageMapType;
 
-    private final boolean useResistances;
-
-    private final boolean useLoads;
-
-    private final boolean useCapacities;
-
-    private final boolean useShunts;
-
     /** Fault id */
     public String getId() {
         return id;
@@ -96,24 +88,6 @@ public class FaultParameters {
     }
 
     /** Override general parameter useResistances from {@link ShortCircuitParameters} */
-    public boolean isUseResistances() {
-        return useResistances;
-    }
-
-    /** Override general parameter useLoads from {@link ShortCircuitParameters} */
-    public boolean isUseLoads() {
-        return useLoads;
-    }
-
-    /** Override general parameter useCapacities from {@link ShortCircuitParameters} */
-    public boolean isUseCapacities() {
-        return useCapacities;
-    }
-
-    /** Override general parameter useShunts from {@link ShortCircuitParameters} */
-    public boolean isUseShunts() {
-        return useShunts;
-    }
 
     public FaultParameters(String id,
                            boolean withLimitViolations,
@@ -122,11 +96,7 @@ public class FaultParameters {
                            StudyType studyType,
                            double minVoltageDropProportionalThreshold,
                            VoltageMapType voltageMapType,
-                           NominalVoltageMapType nominalVoltageMapType,
-                           boolean useResistances,
-                           boolean useLoads,
-                           boolean useCapacities,
-                           boolean useShunts) {
+                           NominalVoltageMapType nominalVoltageMapType) {
         this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
         this.withVoltageMap = withVoltageMap;
@@ -135,10 +105,6 @@ public class FaultParameters {
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
         this.voltageMapType = voltageMapType;
         this.nominalVoltageMapType = nominalVoltageMapType;
-        this.useResistances = useResistances;
-        this.useLoads = useLoads;
-        this.useCapacities = useCapacities;
-        this.useShunts = useShunts;
     }
 
     @Override
@@ -157,17 +123,13 @@ public class FaultParameters {
                 Objects.equals(studyType, that.studyType) &&
                 Objects.equals(minVoltageDropProportionalThreshold, that.minVoltageDropProportionalThreshold) &&
                 Objects.equals(voltageMapType, that.voltageMapType) &&
-                Objects.equals(nominalVoltageMapType, that.nominalVoltageMapType) &&
-                Objects.equals(useResistances, that.useResistances) &&
-                Objects.equals(useLoads, that.useLoads) &&
-                Objects.equals(useCapacities, that.useCapacities) &&
-                Objects.equals(useShunts, that.useShunts);
+                Objects.equals(nominalVoltageMapType, that.nominalVoltageMapType);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, withLimitViolations, withVoltageMap, withFeederResult, studyType, minVoltageDropProportionalThreshold,
-                voltageMapType, nominalVoltageMapType, useResistances, useLoads, useCapacities, useShunts);
+                voltageMapType, nominalVoltageMapType);
     }
 
     @Override
@@ -181,10 +143,6 @@ public class FaultParameters {
                 ", minVoltageDropProportionalThreshold=" + minVoltageDropProportionalThreshold +
                 ", voltageMapType=" + voltageMapType +
                 ", nominalVoltageMapType=" + nominalVoltageMapType +
-                ", useResistances=" + useResistances +
-                ", useLoads=" + useLoads +
-                ", useCapacities=" + useCapacities +
-                ", useShunts=" + useShunts +
                 '}';
     }
 

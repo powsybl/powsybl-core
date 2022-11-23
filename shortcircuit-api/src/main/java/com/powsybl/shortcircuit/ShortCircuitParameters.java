@@ -31,7 +31,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
-    // VERSION = 1.1 voltageMapType, nominalVoltageMapType, useResistances, useLoads, useCapacities, useShunts
+    // VERSION = 1.1 voltageMapType, nominalVoltageMapType
     public static final String VERSION = "1.1";
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
@@ -44,40 +44,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
     private VoltageMapType voltageMapType = DEFAULT_VOLTAGE_MAP_TYPE;
     private NominalVoltageMapType nominalVoltageMapType = DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE;
-    /**
-     * useResistance: This option is mainly used for tests purposes.
-     * For better accuracy of results, it is recommended to set this option to true
-     * if this option is false, the resistance values for the quads are not taken into account in the calculations
-     * for all sequences direct, inverse and homopolar
-     */
-    private boolean useResistances = DEFAULT_USE_RESISTANCES;
-    /**
-     * useLoads: This option is mainly used for tests purposes.
-     * For better accuracy of results, it is recommended to set this option to true
-     * if this option is true, short circuit computation modules usually convert the P, Q load into an equivalent shunt admittance taking into account the reactance of the transformer connecting the load if any
-     * if this option is false, the modelling of the loads:
-     *   - in the direct and inverse sequence: loads are ignored and P and Q are considered as zero values
-     *   - in the homopolar sequence: homopolar admittance of the load should always be taken into account according to additional data associated to the load and describing how the load is grounded
-     */
-    private boolean useLoads = DEFAULT_USE_LOADS;
-    /**
-     * useCapacities: This option is mainly used for tests purposes.
-     * For better accuracy of results, it is recommended to set this option to true
-     * if this option is false, the shunts elements induced by the quad modelling are ignored
-     * for all sequences direct, inverse and homopolar (example : in a Pi Model, only R and X will be used for the computations)
-     */
-    private boolean useCapacities = DEFAULT_USE_CAPACITIES;
-    /**
-     * useShunts: This option is mainly used for tests purposes.
-     * For better accuracy of results, it is recommended to set this option to true
-     * if this option is false, the shunt equipments (shunts, SVC) are not taken into account
-     * for all sequences direct, inverse and homopolar
-     */
-    private boolean useShunts = DEFAULT_USE_SHUNTS;
+
     /**
      * Load parameters from platform default config.
      */
-
     public static ShortCircuitParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
@@ -94,11 +64,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
                         .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
                         .setVoltageMapType(config.getEnumProperty("voltage-map-type", VoltageMapType.class, DEFAULT_VOLTAGE_MAP_TYPE))
-                        .setNominalVoltageMapType(config.getEnumProperty("nominal-voltage-map-type", NominalVoltageMapType.class, DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE))
-                        .setUseResistances(config.getBooleanProperty("use-resistances", DEFAULT_USE_RESISTANCES))
-                        .setUseLoads(config.getBooleanProperty("use-loads", DEFAULT_USE_LOADS))
-                        .setUseCapacities(config.getBooleanProperty("use-capacities", DEFAULT_USE_CAPACITIES))
-                        .setUseShunts(config.getBooleanProperty("use-shunts", DEFAULT_USE_SHUNTS)));
+                        .setNominalVoltageMapType(config.getEnumProperty("nominal-voltage-map-type", NominalVoltageMapType.class, DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE)));
 
         parameters.readExtensions(platformConfig);
 
@@ -180,45 +146,4 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         this.nominalVoltageMapType = nominalVoltageMapType;
         return this;
     }
-
-    /** Whether the calculation should take into account the resistances into the admittance matrix **/
-    public boolean isUseResistances() {
-        return useResistances;
-    }
-
-    public ShortCircuitParameters setUseResistances(boolean useResistances) {
-        this.useResistances = useResistances;
-        return this;
-    }
-
-    /** Whether the calculation should take into account the loads into the admittance matrix **/
-    public boolean isUseLoads() {
-        return useLoads;
-    }
-
-    public ShortCircuitParameters setUseLoads(boolean useLoads) {
-        this.useLoads = useLoads;
-        return this;
-    }
-
-    /** Whether the calculation should take into account the capacities into the admittance matrix **/
-    public boolean isUseCapacities() {
-        return useCapacities;
-    }
-
-    public ShortCircuitParameters setUseCapacities(boolean useCapacities) {
-        this.useCapacities = useCapacities;
-        return this;
-    }
-
-    /** Whether the calculation should take into account the shunts and model it into the admittance matrix **/
-    public boolean isUseShunts() {
-        return useShunts;
-    }
-
-    public ShortCircuitParameters setUseShunts(boolean useShunts) {
-        this.useShunts = useShunts;
-        return this;
-    }
-
 }

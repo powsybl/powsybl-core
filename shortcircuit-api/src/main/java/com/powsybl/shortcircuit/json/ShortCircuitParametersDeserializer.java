@@ -76,26 +76,6 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     parameters.setNominalVoltageMapType(parser.readValueAs(ShortCircuitConstants.NominalVoltageMapType.class));
                     break;
-                case "useResistances":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: useResistances" + parser.getCurrentName(), version, "1.1");
-                    parser.nextToken();
-                    parameters.setUseResistances(parser.readValueAs(Boolean.class));
-                    break;
-                case "useLoads":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: useLoads" + parser.getCurrentName(), version, "1.1");
-                    parser.nextToken();
-                    parameters.setUseLoads(parser.readValueAs(Boolean.class));
-                    break;
-                case "useCapacities":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: useCapacities" + parser.getCurrentName(), version, "1.1");
-                    parser.nextToken();
-                    parameters.setUseCapacities(parser.readValueAs(Boolean.class));
-                    break;
-                case "useShunts":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: useShunts" + parser.getCurrentName(), version, "1.1");
-                    parser.nextToken();
-                    parameters.setUseShunts(parser.readValueAs(Boolean.class));
-                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonShortCircuitParameters.getExtensionSerializers(), parameters);

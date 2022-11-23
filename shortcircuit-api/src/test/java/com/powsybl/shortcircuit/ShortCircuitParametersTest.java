@@ -257,10 +257,6 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
         assertEquals(ShortCircuitConstants.VoltageMapType.NOMINAL, parameters.getVoltageMapType());
         assertEquals(ShortCircuitConstants.NominalVoltageMapType.IEC_909, parameters.getNominalVoltageMapType());
-        assertTrue(parameters.isUseResistances());
-        assertTrue(parameters.isUseLoads());
-        assertTrue(parameters.isUseCapacities());
-        assertTrue(parameters.isUseShunts());
     }
 
     @Test

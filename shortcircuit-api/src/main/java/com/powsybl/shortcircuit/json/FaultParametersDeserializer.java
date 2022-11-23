@@ -39,10 +39,6 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         double minVoltageDropProportionalThreshold = Double.NaN;
         ShortCircuitConstants.VoltageMapType voltageMapType = null;
         ShortCircuitConstants.NominalVoltageMapType nominalVoltageMapType = null;
-        boolean useResistances = false;
-        boolean useLoads = false;
-        boolean useCapacities = false;
-        boolean useShunts = false;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -91,35 +87,12 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     parser.nextToken();
                     nominalVoltageMapType = parser.readValueAs(ShortCircuitConstants.NominalVoltageMapType.class);
                     break;
-                case "useResistances":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: useResistances" + parser.getCurrentName(), version, "1.1");
-                    parser.nextToken();
-                    useResistances = parser.readValueAs(Boolean.class);
-                    break;
-
-                case "useLoads":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: useLoads" + parser.getCurrentName(), version, "1.1");
-                    parser.nextToken();
-                    useLoads = parser.readValueAs(Boolean.class);
-                    break;
-
-                case "useCapacities":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: useCapacities" + parser.getCurrentName(), version, "1.1");
-                    parser.nextToken();
-                    useCapacities = parser.readValueAs(Boolean.class);
-                    break;
-
-                case "useShunts":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: useShunts" + parser.getCurrentName(), version, "1.1");
-                    parser.nextToken();
-                    useShunts = parser.readValueAs(Boolean.class);
-                    break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new FaultParameters(id, withLimitViolations, withVoltageMap, withFeederResult, type, minVoltageDropProportionalThreshold,
-                voltageMapType, nominalVoltageMapType, useResistances, useLoads, useCapacities, useShunts);
+                voltageMapType, nominalVoltageMapType);
     }
 }
