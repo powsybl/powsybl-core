@@ -482,7 +482,7 @@ public final class TopologyModificationUtils {
     }
 
     private static List<Integer> getInjectionOrder(ConnectablePosition<?> position, VoltageLevel voltageLevel, Injection<?> injection, boolean throwException, Reporter reporter) {
-        List<Integer> singleOrder = position.getFeeder().getOrder().map(List::of).orElse(Collections.emptyList());
+        List<Integer> singleOrder = Optional.ofNullable(position.getFeeder()).flatMap(ConnectablePosition.Feeder::getOrder).map(List::of).orElse(Collections.emptyList());
         checkConnectableInVoltageLevel(singleOrder, voltageLevel, injection, throwException, reporter);
         return singleOrder;
     }
@@ -490,10 +490,10 @@ public final class TopologyModificationUtils {
     private static List<Integer> getBranchOrders(ConnectablePosition<?> position, VoltageLevel voltageLevel, Branch<?> branch, boolean throwException, Reporter reporter) {
         List<Integer> orders = new ArrayList<>();
         if (branch.getTerminal1().getVoltageLevel() == voltageLevel) {
-            position.getFeeder1().getOrder().ifPresent(orders::add);
+            Optional.ofNullable(position.getFeeder1()).flatMap(ConnectablePosition.Feeder::getOrder).ifPresent(orders::add);
         }
         if (branch.getTerminal2().getVoltageLevel() == voltageLevel) {
-            position.getFeeder2().getOrder().ifPresent(orders::add);
+            Optional.ofNullable(position.getFeeder2()).flatMap(ConnectablePosition.Feeder::getOrder).ifPresent(orders::add);
         }
         checkConnectableInVoltageLevel(orders, voltageLevel, branch, throwException, reporter);
         Collections.sort(orders);
@@ -503,13 +503,13 @@ public final class TopologyModificationUtils {
     private static List<Integer> get3wtOrders(ConnectablePosition<?> position, VoltageLevel voltageLevel, ThreeWindingsTransformer twt, boolean throwException, Reporter reporter) {
         List<Integer> orders = new ArrayList<>();
         if (twt.getLeg1().getTerminal().getVoltageLevel() == voltageLevel) {
-            position.getFeeder1().getOrder().ifPresent(orders::add);
+            Optional.ofNullable(position.getFeeder1()).flatMap(ConnectablePosition.Feeder::getOrder).ifPresent(orders::add);
         }
         if (twt.getLeg2().getTerminal().getVoltageLevel() == voltageLevel) {
-            position.getFeeder2().getOrder().ifPresent(orders::add);
+            Optional.ofNullable(position.getFeeder2()).flatMap(ConnectablePosition.Feeder::getOrder).ifPresent(orders::add);
         }
         if (twt.getLeg3().getTerminal().getVoltageLevel() == voltageLevel) {
-            position.getFeeder3().getOrder().ifPresent(orders::add);
+            Optional.ofNullable(position.getFeeder3()).flatMap(ConnectablePosition.Feeder::getOrder).ifPresent(orders::add);
         }
         checkConnectableInVoltageLevel(orders, voltageLevel, twt, throwException, reporter);
         Collections.sort(orders);
