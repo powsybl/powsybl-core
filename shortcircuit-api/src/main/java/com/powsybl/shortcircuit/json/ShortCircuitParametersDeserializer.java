@@ -69,12 +69,12 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 case "voltageMapType":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMapType" + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
-                    parameters.setVoltageMapType(parser.readValueAs(ShortCircuitConstants.VoltageMapType.class));
+                    parameters.setInitialVoltageMapType(parser.readValueAs(ShortCircuitConstants.VoltageMapType.class));
                     break;
                 case "nominalVoltageMapType":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: nominalVoltageMapType" + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
-                    parameters.setNominalVoltageMapType(parser.readValueAs(ShortCircuitConstants.NominalVoltageMapType.class));
+                    parameters.setInitialNominalVoltageMapType(parser.readValueAs(ShortCircuitConstants.NominalVoltageMapType.class));
                     break;
                 case "extensions":
                     parser.nextToken();

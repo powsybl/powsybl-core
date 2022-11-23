@@ -17,8 +17,8 @@ public final class ShortCircuitConstants {
     }
 
     public enum NominalVoltageMapType {
-        IEC_909,
-        RTE,
+        IEC_909_IMAX,
+        IEC_909_IMIN,
         NONE
     }
 
@@ -30,7 +30,7 @@ public final class ShortCircuitConstants {
     public static final StudyType DEFAULT_STUDY_TYPE = StudyType.TRANSIENT;
     public static final boolean DEFAULT_WITH_FEEDER_RESULT = true;
     public static final double DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD = 0.0;
-    public static final VoltageMapType DEFAULT_VOLTAGE_MAP_TYPE = VoltageMapType.NOMINAL;
-    public static final NominalVoltageMapType DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE = NominalVoltageMapType.IEC_909;
+    public static final VoltageMapType DEFAULT_INITIAL_VOLTAGE_MAP_TYPE = VoltageMapType.NOMINAL;
+    public static final NominalVoltageMapType DEFAULT_INITIAL_NOMINAL_VOLTAGE_MAP_TYPE = NominalVoltageMapType.IEC_909_IMAX;
 
 }

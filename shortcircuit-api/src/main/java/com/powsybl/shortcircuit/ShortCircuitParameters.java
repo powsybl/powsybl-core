@@ -31,7 +31,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
-    // VERSION = 1.1 voltageMapType, nominalVoltageMapType
+    // VERSION = 1.1 initialVoltageMapType, initialNominalVoltageMapType
     public static final String VERSION = "1.1";
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
@@ -42,8 +42,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withFeederResult = DEFAULT_WITH_FEEDER_RESULT;
     private StudyType studyType = DEFAULT_STUDY_TYPE;
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
-    private VoltageMapType voltageMapType = DEFAULT_VOLTAGE_MAP_TYPE;
-    private NominalVoltageMapType nominalVoltageMapType = DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE;
+    private VoltageMapType initialVoltageMapType = DEFAULT_INITIAL_VOLTAGE_MAP_TYPE;
+    private NominalVoltageMapType initialNominalVoltageMapType = DEFAULT_INITIAL_NOMINAL_VOLTAGE_MAP_TYPE;
 
     /**
      * Load parameters from platform default config.
@@ -63,8 +63,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
                         .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
-                        .setVoltageMapType(config.getEnumProperty("voltage-map-type", VoltageMapType.class, DEFAULT_VOLTAGE_MAP_TYPE))
-                        .setNominalVoltageMapType(config.getEnumProperty("nominal-voltage-map-type", NominalVoltageMapType.class, DEFAULT_NOMINAL_VOLTAGE_MAP_TYPE)));
+                        .setInitialVoltageMapType(config.getEnumProperty("voltage-map-type", VoltageMapType.class, DEFAULT_INITIAL_VOLTAGE_MAP_TYPE))
+                        .setInitialNominalVoltageMapType(config.getEnumProperty("nominal-voltage-map-type", NominalVoltageMapType.class, DEFAULT_INITIAL_NOMINAL_VOLTAGE_MAP_TYPE)));
 
         parameters.readExtensions(platformConfig);
 
@@ -128,22 +128,22 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /** The type of voltage map for the calculation: nominal or previous (voltage values after the loadflow) **/
-    public VoltageMapType getVoltageMapType() {
-        return voltageMapType;
+    public VoltageMapType getInitialVoltageMapType() {
+        return initialVoltageMapType;
     }
 
-    public ShortCircuitParameters setVoltageMapType(VoltageMapType voltageMapType) {
-        this.voltageMapType = voltageMapType;
+    public ShortCircuitParameters setInitialVoltageMapType(VoltageMapType initialVoltageMapType) {
+        this.initialVoltageMapType = initialVoltageMapType;
         return this;
     }
 
     /** If the voltage map used for the calculation is nominal, specifies the values taken **/
-    public NominalVoltageMapType getNominalVoltageMapType() {
-        return nominalVoltageMapType;
+    public NominalVoltageMapType getInitialNominalVoltageMapType() {
+        return initialNominalVoltageMapType;
     }
 
-    public ShortCircuitParameters setNominalVoltageMapType(NominalVoltageMapType nominalVoltageMapType) {
-        this.nominalVoltageMapType = nominalVoltageMapType;
+    public ShortCircuitParameters setInitialNominalVoltageMapType(NominalVoltageMapType initialNominalVoltageMapType) {
+        this.initialNominalVoltageMapType = initialNominalVoltageMapType;
         return this;
     }
 }

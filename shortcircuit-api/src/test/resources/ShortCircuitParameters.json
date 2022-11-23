@@ -6,5 +6,5 @@
   "studyType" : "TRANSIENT",
   "minVoltageDropProportionalThreshold" : 0.0,
   "voltageMapType" : "NOMINAL",
-  "nominalVoltageMapType" : "IEC_909"
+  "nominalVoltageMapType" : "IEC_909_IMAX"
 }
