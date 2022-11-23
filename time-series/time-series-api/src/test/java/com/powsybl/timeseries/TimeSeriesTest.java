@@ -298,7 +298,7 @@ public class TimeSeriesTest {
             fail();
         } catch (IllegalArgumentException ignored) {
         }
-        TimeSeriesIndex index = new TestTimeSeriesIndex(10000, 3);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10002, 1);
         List<DoubleTimeSeries> timeSeriesList = Arrays.asList(TimeSeries.createDouble("ts1", index, 1d, 2d, 3d),
                                                               TimeSeries.createDouble("ts1", index, 4d, 5d, 6d));
         try {

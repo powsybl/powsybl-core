@@ -25,7 +25,7 @@ public class DoubleTimeSeriesTest {
         // ts3 4 4 5 5 5 4 4 4
         //     |   | |   | |
         //     0   2 3   5 6
-        TimeSeriesIndex index = new TestTimeSeriesIndex(10000, 8);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10007, 1);
         DoubleTimeSeries ts1 = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index),
                                                           new CompressedDoubleDataChunk(0, 8, new double[] {1}, new int[] {8}));
         DoubleTimeSeries ts2 = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts2", TimeSeriesDataType.DOUBLE, index),
