@@ -37,8 +37,8 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         boolean withFeederResult = false;
         StudyType type = null;
         double minVoltageDropProportionalThreshold = Double.NaN;
-        ShortCircuitConstants.VoltageMapType voltageMapType = null;
-        ShortCircuitConstants.NominalVoltageMapType nominalVoltageMapType = null;
+        ShortCircuitConstants.InitialVoltageMapType initialVoltageMapType = null;
+        ShortCircuitConstants.InitialNominalVoltageMapType initialNominalVoltageMapType = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -76,16 +76,16 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
                     break;
 
-                case "voltageMapType":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMapType" + parser.getCurrentName(), version, "1.1");
+                case "initialVoltageMapType":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageMapType" + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
-                    voltageMapType = parser.readValueAs(ShortCircuitConstants.VoltageMapType.class);
+                    initialVoltageMapType = parser.readValueAs(ShortCircuitConstants.InitialVoltageMapType.class);
                     break;
 
-                case "nominalVoltageMapType":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: nominalVoltageMapType" + parser.getCurrentName(), version, "1.1");
+                case "initialNominalVoltageMapType":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialNominalVoltageMapType" + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
-                    nominalVoltageMapType = parser.readValueAs(ShortCircuitConstants.NominalVoltageMapType.class);
+                    initialNominalVoltageMapType = parser.readValueAs(ShortCircuitConstants.InitialNominalVoltageMapType.class);
                     break;
 
                 default:
@@ -93,6 +93,6 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
             }
         }
         return new FaultParameters(id, withLimitViolations, withVoltageMap, withFeederResult, type, minVoltageDropProportionalThreshold,
-                voltageMapType, nominalVoltageMapType);
+                initialVoltageMapType, initialNominalVoltageMapType);
     }
 }

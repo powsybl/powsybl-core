@@ -66,15 +66,15 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));
                     break;
-                case "voltageMapType":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMapType" + parser.getCurrentName(), version, "1.1");
+                case "initialVoltageMapType":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageMapType" + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
-                    parameters.setInitialVoltageMapType(parser.readValueAs(ShortCircuitConstants.VoltageMapType.class));
+                    parameters.setInitialVoltageMapType(parser.readValueAs(ShortCircuitConstants.InitialVoltageMapType.class));
                     break;
-                case "nominalVoltageMapType":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: nominalVoltageMapType" + parser.getCurrentName(), version, "1.1");
+                case "initialNominalVoltageMapType":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialNominalVoltageMapType" + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
-                    parameters.setInitialNominalVoltageMapType(parser.readValueAs(ShortCircuitConstants.NominalVoltageMapType.class));
+                    parameters.setInitialNominalVoltageMapType(parser.readValueAs(ShortCircuitConstants.InitialNominalVoltageMapType.class));
                     break;
                 case "extensions":
                     parser.nextToken();

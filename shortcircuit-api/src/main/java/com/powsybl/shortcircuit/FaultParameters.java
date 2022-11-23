@@ -19,8 +19,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.shortcircuit.ShortCircuitConstants.NominalVoltageMapType;
-import static com.powsybl.shortcircuit.ShortCircuitConstants.VoltageMapType;
+import static com.powsybl.shortcircuit.ShortCircuitConstants.InitialNominalVoltageMapType;
+import static com.powsybl.shortcircuit.ShortCircuitConstants.InitialVoltageMapType;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -28,7 +28,7 @@ import static com.powsybl.shortcircuit.ShortCircuitConstants.VoltageMapType;
 public class FaultParameters {
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
-    // VERSION = 1.1 voltageMapType, nominalVoltageMapType, useResistances, useLoads, useCapacities, useShunts
+    // VERSION = 1.1 initialVoltageMapType, initialNominalVoltageMapType
     public static final String VERSION = "1.1";
 
     private final String id;
@@ -43,9 +43,9 @@ public class FaultParameters {
 
     private final double minVoltageDropProportionalThreshold;
 
-    private final ShortCircuitConstants.VoltageMapType voltageMapType;
+    private final InitialVoltageMapType initialVoltageMapType;
 
-    private final ShortCircuitConstants.NominalVoltageMapType nominalVoltageMapType;
+    private final InitialNominalVoltageMapType initialNominalVoltageMapType;
 
     /** Fault id */
     public String getId() {
@@ -77,14 +77,14 @@ public class FaultParameters {
         return minVoltageDropProportionalThreshold;
     }
 
-    /** Override general parameter voltageMapType from {@link ShortCircuitParameters} */
-    public VoltageMapType getVoltageMapType() {
-        return voltageMapType;
+    /** Override general parameter initialVoltageMapType from {@link ShortCircuitParameters} */
+    public InitialVoltageMapType getInitialVoltageMapType() {
+        return initialVoltageMapType;
     }
 
-    /** Override general parameter nominalVoltageMapType from {@link ShortCircuitParameters} */
-    public NominalVoltageMapType getNominalVoltageMapType() {
-        return nominalVoltageMapType;
+    /** Override general parameter initialNominalVoltageMapType from {@link ShortCircuitParameters} */
+    public ShortCircuitConstants.InitialNominalVoltageMapType getInitialNominalVoltageMapType() {
+        return initialNominalVoltageMapType;
     }
 
     /** Override general parameter useResistances from {@link ShortCircuitParameters} */
@@ -95,16 +95,16 @@ public class FaultParameters {
                            boolean withFeederResult,
                            StudyType studyType,
                            double minVoltageDropProportionalThreshold,
-                           VoltageMapType voltageMapType,
-                           NominalVoltageMapType nominalVoltageMapType) {
+                           InitialVoltageMapType initialVoltageMapType,
+                           InitialNominalVoltageMapType initialNominalVoltageMapType) {
         this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
         this.withVoltageMap = withVoltageMap;
         this.withFeederResult = withFeederResult;
         this.studyType = studyType;
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
-        this.voltageMapType = voltageMapType;
-        this.nominalVoltageMapType = nominalVoltageMapType;
+        this.initialVoltageMapType = initialVoltageMapType;
+        this.initialNominalVoltageMapType = initialNominalVoltageMapType;
     }
 
     @Override
@@ -122,14 +122,14 @@ public class FaultParameters {
                 Objects.equals(withFeederResult, that.withFeederResult) &&
                 Objects.equals(studyType, that.studyType) &&
                 Objects.equals(minVoltageDropProportionalThreshold, that.minVoltageDropProportionalThreshold) &&
-                Objects.equals(voltageMapType, that.voltageMapType) &&
-                Objects.equals(nominalVoltageMapType, that.nominalVoltageMapType);
+                Objects.equals(initialVoltageMapType, that.initialVoltageMapType) &&
+                Objects.equals(initialNominalVoltageMapType, that.initialNominalVoltageMapType);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, withLimitViolations, withVoltageMap, withFeederResult, studyType, minVoltageDropProportionalThreshold,
-                voltageMapType, nominalVoltageMapType);
+                initialVoltageMapType, initialNominalVoltageMapType);
     }
 
     @Override
@@ -141,8 +141,8 @@ public class FaultParameters {
                 ", withFeederResult=" + withFeederResult +
                 ", studyType=" + studyType +
                 ", minVoltageDropProportionalThreshold=" + minVoltageDropProportionalThreshold +
-                ", voltageMapType=" + voltageMapType +
-                ", nominalVoltageMapType=" + nominalVoltageMapType +
+                ", initialVoltageMapType=" + initialVoltageMapType +
+                ", initialNominalVoltageMapType=" + initialNominalVoltageMapType +
                 '}';
     }
 

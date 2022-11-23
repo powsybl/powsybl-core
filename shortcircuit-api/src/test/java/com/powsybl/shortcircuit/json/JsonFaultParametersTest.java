@@ -27,9 +27,9 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
-        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, ShortCircuitConstants.VoltageMapType.NOMINAL, ShortCircuitConstants.NominalVoltageMapType.IEC_909_IMAX));
-        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, ShortCircuitConstants.VoltageMapType.PREVIOUS, null));
-        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, ShortCircuitConstants.VoltageMapType.NOMINAL, ShortCircuitConstants.NominalVoltageMapType.NONE));
+        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, ShortCircuitConstants.InitialVoltageMapType.NOMINAL, ShortCircuitConstants.InitialNominalVoltageMapType.IEC_909_IMAX));
+        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, ShortCircuitConstants.InitialVoltageMapType.PREVIOUS, null));
+        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, ShortCircuitConstants.InitialVoltageMapType.NOMINAL, ShortCircuitConstants.InitialNominalVoltageMapType.NONE));
         parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, null, null));
         roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
 
@@ -91,8 +91,8 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
         assertTrue(firstParam.isWithFeederResult());
         assertFalse(firstParam.isWithVoltageMap());
         assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
-        assertEquals(ShortCircuitConstants.VoltageMapType.NOMINAL, firstParam.getVoltageMapType());
-        assertEquals(ShortCircuitConstants.NominalVoltageMapType.IEC_909_IMAX, firstParam.getNominalVoltageMapType());
+        assertEquals(ShortCircuitConstants.InitialVoltageMapType.NOMINAL, firstParam.getInitialVoltageMapType());
+        assertEquals(ShortCircuitConstants.InitialNominalVoltageMapType.IEC_909_IMAX, firstParam.getInitialNominalVoltageMapType());
 
     }
 
