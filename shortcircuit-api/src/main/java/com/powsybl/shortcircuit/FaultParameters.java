@@ -19,8 +19,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.shortcircuit.ShortCircuitConstants.InitialNominalVoltageMapType;
-import static com.powsybl.shortcircuit.ShortCircuitConstants.InitialVoltageMapType;
+import static com.powsybl.shortcircuit.ShortCircuitConstants.InitialNominalVoltageProfileType;
+import static com.powsybl.shortcircuit.ShortCircuitConstants.InitialVoltageProfileType;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -28,14 +28,14 @@ import static com.powsybl.shortcircuit.ShortCircuitConstants.InitialVoltageMapTy
 public class FaultParameters {
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
-    // VERSION = 1.1 initialVoltageMapType, initialNominalVoltageMapType
+    // VERSION = 1.1 initialVoltageProfileType, initialNominalVoltageProfileType, withVoltageMap -> withVoltageProfileResult
     public static final String VERSION = "1.1";
 
     private final String id;
 
     private final boolean withLimitViolations;
 
-    private final boolean withVoltageMap;
+    private final boolean withVoltageProfileResult;
 
     private final boolean withFeederResult;
 
@@ -43,9 +43,9 @@ public class FaultParameters {
 
     private final double minVoltageDropProportionalThreshold;
 
-    private final InitialVoltageMapType initialVoltageMapType;
+    private final InitialVoltageProfileType initialVoltageProfileType;
 
-    private final InitialNominalVoltageMapType initialNominalVoltageMapType;
+    private final InitialNominalVoltageProfileType initialNominalVoltageProfileType;
 
     /** Fault id */
     public String getId() {
@@ -57,9 +57,9 @@ public class FaultParameters {
         return withLimitViolations;
     }
 
-    /** Override general parameter withVoltageMap from {@link ShortCircuitParameters} */
-    public boolean isWithVoltageMap() {
-        return withVoltageMap;
+    /** Override general parameter withVoltageProfileResult from {@link ShortCircuitParameters} */
+    public boolean isWithVoltageProfileResult() {
+        return withVoltageProfileResult;
     }
 
     /** Override general parameter withFeederResult from {@link ShortCircuitParameters} */
@@ -77,34 +77,32 @@ public class FaultParameters {
         return minVoltageDropProportionalThreshold;
     }
 
-    /** Override general parameter initialVoltageMapType from {@link ShortCircuitParameters} */
-    public InitialVoltageMapType getInitialVoltageMapType() {
-        return initialVoltageMapType;
+    /** Override general parameter initialVoltageProfileType from {@link ShortCircuitParameters} */
+    public InitialVoltageProfileType getInitialVoltageProfileType() {
+        return initialVoltageProfileType;
     }
 
-    /** Override general parameter initialNominalVoltageMapType from {@link ShortCircuitParameters} */
-    public ShortCircuitConstants.InitialNominalVoltageMapType getInitialNominalVoltageMapType() {
-        return initialNominalVoltageMapType;
+    /** Override general parameter initialNominalVoltageProfileType from {@link ShortCircuitParameters} */
+    public ShortCircuitConstants.InitialNominalVoltageProfileType getInitialNominalVoltageProfileType() {
+        return initialNominalVoltageProfileType;
     }
-
-    /** Override general parameter useResistances from {@link ShortCircuitParameters} */
 
     public FaultParameters(String id,
                            boolean withLimitViolations,
-                           boolean withVoltageMap,
+                           boolean withVoltageProfileResult,
                            boolean withFeederResult,
                            StudyType studyType,
                            double minVoltageDropProportionalThreshold,
-                           InitialVoltageMapType initialVoltageMapType,
-                           InitialNominalVoltageMapType initialNominalVoltageMapType) {
+                           InitialVoltageProfileType initialVoltageProfileType,
+                           InitialNominalVoltageProfileType initialNominalVoltageProfileType) {
         this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
-        this.withVoltageMap = withVoltageMap;
+        this.withVoltageProfileResult = withVoltageProfileResult;
         this.withFeederResult = withFeederResult;
         this.studyType = studyType;
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
-        this.initialVoltageMapType = initialVoltageMapType;
-        this.initialNominalVoltageMapType = initialNominalVoltageMapType;
+        this.initialVoltageProfileType = initialVoltageProfileType;
+        this.initialNominalVoltageProfileType = initialNominalVoltageProfileType;
     }
 
     @Override
@@ -118,18 +116,18 @@ public class FaultParameters {
         FaultParameters that = (FaultParameters) o;
         return Objects.equals(id, that.id) &&
                 Objects.equals(withLimitViolations, that.withLimitViolations) &&
-                Objects.equals(withVoltageMap, that.withVoltageMap) &&
+                Objects.equals(withVoltageProfileResult, that.withVoltageProfileResult) &&
                 Objects.equals(withFeederResult, that.withFeederResult) &&
                 Objects.equals(studyType, that.studyType) &&
                 Objects.equals(minVoltageDropProportionalThreshold, that.minVoltageDropProportionalThreshold) &&
-                Objects.equals(initialVoltageMapType, that.initialVoltageMapType) &&
-                Objects.equals(initialNominalVoltageMapType, that.initialNominalVoltageMapType);
+                Objects.equals(initialVoltageProfileType, that.initialVoltageProfileType) &&
+                Objects.equals(initialNominalVoltageProfileType, that.initialNominalVoltageProfileType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, withLimitViolations, withVoltageMap, withFeederResult, studyType, minVoltageDropProportionalThreshold,
-                initialVoltageMapType, initialNominalVoltageMapType);
+        return Objects.hash(id, withLimitViolations, withVoltageProfileResult, withFeederResult, studyType, minVoltageDropProportionalThreshold,
+                initialVoltageProfileType, initialNominalVoltageProfileType);
     }
 
     @Override
@@ -137,12 +135,12 @@ public class FaultParameters {
         return "FaultParameters{" +
                 "id=" + id +
                 ", withLimitViolations=" + withLimitViolations +
-                ", withVoltageMap=" + withVoltageMap +
+                ", withVoltageProfileResult=" + withVoltageProfileResult +
                 ", withFeederResult=" + withFeederResult +
                 ", studyType=" + studyType +
                 ", minVoltageDropProportionalThreshold=" + minVoltageDropProportionalThreshold +
-                ", initialVoltageMapType=" + initialVoltageMapType +
-                ", initialNominalVoltageMapType=" + initialNominalVoltageMapType +
+                ", initialVoltageProfileType=" + initialVoltageProfileType +
+                ", initialNominalVoltageProfileType=" + initialNominalVoltageProfileType +
                 '}';
     }
 

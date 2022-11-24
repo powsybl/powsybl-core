@@ -4,22 +4,22 @@
   "withFeederResult" : true,
   "studyType" : "STEADY_STATE",
   "minVoltageDropProportionalThreshold" : 1.0,
-  "initialVoltageMapType" : "NOMINAL",
-  "initialNominalVoltageMapType" : "IEC_909_IMAX"
+  "initialVoltageProfileType" : "NOMINAL",
+  "initialNominalVoltageProfileType" : "IEC_909_IMAX"
 }, {
   "version" : "1.1",
   "id" : "f01",
-  "withVoltageMap" : true,
-  "initialVoltageMapType" : "PREVIOUS"
+  "withVoltageProfileResult" : true,
+  "initialVoltageProfileType" : "PREVIOUS"
 }, {
   "version" : "1.1",
   "id" : "f10",
   "withLimitViolations" : true,
-  "initialVoltageMapType" : "NOMINAL",
-  "initialNominalVoltageMapType" : "NONE"
+  "initialVoltageProfileType" : "NOMINAL",
+  "initialNominalVoltageProfileType" : "NONE"
 }, {
   "version" : "1.1",
   "id" : "f11",
   "withLimitViolations" : true,
-  "withVoltageMap" : true
+  "withVoltageProfileResult" : true
 } ]

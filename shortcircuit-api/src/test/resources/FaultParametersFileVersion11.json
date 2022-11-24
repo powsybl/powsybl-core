@@ -4,6 +4,6 @@
   "withFeederResult" : true,
   "studyType" : "STEADY_STATE",
   "minVoltageDropProportionalThreshold" : 1.0,
-  "initialVoltageMapType" : "NOMINAL",
-  "initialNominalVoltageMapType" : "IEC_909_IMAX"
+  "initialVoltageProfileType" : "NOMINAL",
+  "initialNominalVoltageProfileType" : "IEC_909_IMAX"
 } ]

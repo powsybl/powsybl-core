@@ -28,12 +28,12 @@ public class ShortCircuitParametersSerializer extends StdSerializer<ShortCircuit
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", ShortCircuitParameters.VERSION);
         jsonGenerator.writeBooleanField("withLimitViolations", parameters.isWithLimitViolations());
-        jsonGenerator.writeBooleanField("withVoltageMap", parameters.isWithVoltageMap());
+        jsonGenerator.writeBooleanField("withVoltageProfileResult", parameters.isWithVoltageProfileResult());
         jsonGenerator.writeBooleanField("withFeederResult", parameters.isWithFeederResult());
         jsonGenerator.writeStringField("studyType", parameters.getStudyType().name());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
-        jsonGenerator.writeStringField("initialVoltageMapType", parameters.getInitialVoltageMapType().name());
-        jsonGenerator.writeStringField("initialNominalVoltageMapType", parameters.getInitialNominalVoltageMapType().name());
+        jsonGenerator.writeStringField("initialVoltageProfileType", parameters.getInitialVoltageProfileType().name());
+        jsonGenerator.writeStringField("initialNominalVoltageProfileType", parameters.getInitialNominalVoltageProfileType().name());
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonShortCircuitParameters.getExtensionSerializers());
         jsonGenerator.writeEndObject();

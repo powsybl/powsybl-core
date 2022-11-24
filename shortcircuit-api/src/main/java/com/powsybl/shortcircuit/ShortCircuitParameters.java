@@ -31,19 +31,19 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
-    // VERSION = 1.1 initialVoltageMapType, initialNominalVoltageMapType
+    // VERSION = 1.1 initialVoltageProfileType, initialNominalVoltageProfileType, withVoltageMap -> withVoltageProfileResult
     public static final String VERSION = "1.1";
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
             .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "short-circuit-parameters"));
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
-    private boolean withVoltageMap = DEFAULT_WITH_VOLTAGE_MAP;
+    private boolean withVoltageProfileResult = DEFAULT_WITH_VOLTAGE_PROFILE_RESULT;
     private boolean withFeederResult = DEFAULT_WITH_FEEDER_RESULT;
     private StudyType studyType = DEFAULT_STUDY_TYPE;
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
-    private InitialVoltageMapType initialVoltageMapType = DEFAULT_INITIAL_VOLTAGE_MAP_TYPE;
-    private InitialNominalVoltageMapType initialNominalVoltageMapType = DEFAULT_INITIAL_NOMINAL_VOLTAGE_MAP_TYPE;
+    private InitialVoltageProfileType initialVoltageProfileType = DEFAULT_INITIAL_VOLTAGE_PROFILE_TYPE;
+    private InitialNominalVoltageProfileType initialNominalVoltageProfileType = DEFAULT_INITIAL_NOMINAL_VOLTAGE_PROFILE_TYPE;
 
     /**
      * Load parameters from platform default config.
@@ -59,12 +59,12 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
         platformConfig.getOptionalModuleConfig("short-circuit-parameters").ifPresent(config ->
                 parameters.setWithLimitViolations(config.getBooleanProperty("with-limit-violations", DEFAULT_WITH_LIMIT_VIOLATIONS))
-                        .setWithVoltageMap(config.getBooleanProperty("with-voltage-map", DEFAULT_WITH_VOLTAGE_MAP))
+                        .setWithVoltageProfileResult(config.getBooleanProperty("with-voltage-map", DEFAULT_WITH_VOLTAGE_PROFILE_RESULT))
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
                         .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
-                        .setInitialVoltageMapType(config.getEnumProperty("voltage-map-type", InitialVoltageMapType.class, DEFAULT_INITIAL_VOLTAGE_MAP_TYPE))
-                        .setInitialNominalVoltageMapType(config.getEnumProperty("nominal-voltage-map-type", InitialNominalVoltageMapType.class, DEFAULT_INITIAL_NOMINAL_VOLTAGE_MAP_TYPE)));
+                        .setInitialVoltageProfileType(config.getEnumProperty("voltage-profile-type", InitialVoltageProfileType.class, DEFAULT_INITIAL_VOLTAGE_PROFILE_TYPE))
+                        .setInitialNominalVoltageProfileType(config.getEnumProperty("nominal-voltage-profile-type", InitialNominalVoltageProfileType.class, DEFAULT_INITIAL_NOMINAL_VOLTAGE_PROFILE_TYPE)));
 
         parameters.readExtensions(platformConfig);
 
@@ -87,13 +87,13 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    /** Whether the results should include the voltage map on the whole network */
-    public boolean isWithVoltageMap() {
-        return withVoltageMap;
+    /** Whether the results should include the voltages on every bus of the network */
+    public boolean isWithVoltageProfileResult() {
+        return withVoltageProfileResult;
     }
 
-    public ShortCircuitParameters setWithVoltageMap(boolean withVoltageMap) {
-        this.withVoltageMap = withVoltageMap;
+    public ShortCircuitParameters setWithVoltageProfileResult(boolean withVoltageProfileResult) {
+        this.withVoltageProfileResult = withVoltageProfileResult;
         return this;
     }
 
@@ -128,22 +128,22 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /** The type of voltage map for the calculation: nominal or previous (voltage values after the loadflow) **/
-    public InitialVoltageMapType getInitialVoltageMapType() {
-        return initialVoltageMapType;
+    public InitialVoltageProfileType getInitialVoltageProfileType() {
+        return initialVoltageProfileType;
     }
 
-    public ShortCircuitParameters setInitialVoltageMapType(InitialVoltageMapType initialVoltageMapType) {
-        this.initialVoltageMapType = initialVoltageMapType;
+    public ShortCircuitParameters setInitialVoltageProfileType(InitialVoltageProfileType initialVoltageProfileType) {
+        this.initialVoltageProfileType = initialVoltageProfileType;
         return this;
     }
 
     /** If the voltage map used for the calculation is nominal, specifies the values taken **/
-    public InitialNominalVoltageMapType getInitialNominalVoltageMapType() {
-        return initialNominalVoltageMapType;
+    public InitialNominalVoltageProfileType getInitialNominalVoltageProfileType() {
+        return initialNominalVoltageProfileType;
     }
 
-    public ShortCircuitParameters setInitialNominalVoltageMapType(InitialNominalVoltageMapType initialNominalVoltageMapType) {
-        this.initialNominalVoltageMapType = initialNominalVoltageMapType;
+    public ShortCircuitParameters setInitialNominalVoltageProfileType(InitialNominalVoltageProfileType initialNominalVoltageProfileType) {
+        this.initialNominalVoltageProfileType = initialNominalVoltageProfileType;
         return this;
     }
 }

@@ -33,12 +33,12 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         String version = null;
         String id = null;
         boolean withLimitViolations = false;
-        boolean withVoltageMap = false;
+        boolean withVoltageProfileResult = false;
         boolean withFeederResult = false;
         StudyType type = null;
         double minVoltageDropProportionalThreshold = Double.NaN;
-        ShortCircuitConstants.InitialVoltageMapType initialVoltageMapType = null;
-        ShortCircuitConstants.InitialNominalVoltageMapType initialNominalVoltageMapType = null;
+        ShortCircuitConstants.InitialVoltageProfileType initialVoltageProfileType = null;
+        ShortCircuitConstants.InitialNominalVoltageProfileType initialNominalVoltageProfileType = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -57,8 +57,15 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     break;
 
                 case "withVoltageMap":
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMap", version, "1.1");
                     parser.nextToken();
-                    withVoltageMap = parser.readValueAs(Boolean.class);
+                    withVoltageProfileResult = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "withVoltageProfileResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageProfileResult", version, "1.1");
+                    parser.nextToken();
+                    withVoltageProfileResult = parser.readValueAs(Boolean.class);
                     break;
 
                 case "withFeederResult":
@@ -76,23 +83,23 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
                     break;
 
-                case "initialVoltageMapType":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageMapType" + parser.getCurrentName(), version, "1.1");
+                case "initialVoltageProfileType":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageProfileType" + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
-                    initialVoltageMapType = parser.readValueAs(ShortCircuitConstants.InitialVoltageMapType.class);
+                    initialVoltageProfileType = parser.readValueAs(ShortCircuitConstants.InitialVoltageProfileType.class);
                     break;
 
-                case "initialNominalVoltageMapType":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialNominalVoltageMapType" + parser.getCurrentName(), version, "1.1");
+                case "initialNominalVoltageProfileType":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialNominalVoltageProfileType" + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
-                    initialNominalVoltageMapType = parser.readValueAs(ShortCircuitConstants.InitialNominalVoltageMapType.class);
+                    initialNominalVoltageProfileType = parser.readValueAs(ShortCircuitConstants.InitialNominalVoltageProfileType.class);
                     break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FaultParameters(id, withLimitViolations, withVoltageMap, withFeederResult, type, minVoltageDropProportionalThreshold,
-                initialVoltageMapType, initialNominalVoltageMapType);
+        return new FaultParameters(id, withLimitViolations, withVoltageProfileResult, withFeederResult, type, minVoltageDropProportionalThreshold,
+                initialVoltageProfileType, initialNominalVoltageProfileType);
     }
 }

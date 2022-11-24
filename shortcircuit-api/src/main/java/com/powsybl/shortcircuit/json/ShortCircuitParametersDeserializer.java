@@ -51,8 +51,14 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parameters.setWithLimitViolations(parser.readValueAs(Boolean.class));
                     break;
                 case "withVoltageMap":
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMap", version, "1.1");
                     parser.nextToken();
-                    parameters.setWithVoltageMap(parser.readValueAs(Boolean.class));
+                    parameters.setWithVoltageProfileResult(parser.readValueAs(Boolean.class));
+                    break;
+                case "withVoltageProfileResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageProfileResult", version, "1.1");
+                    parser.nextToken();
+                    parameters.setWithVoltageProfileResult(parser.readValueAs(Boolean.class));
                     break;
                 case "withFeederResult":
                     parser.nextToken();
@@ -66,15 +72,15 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));
                     break;
-                case "initialVoltageMapType":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageMapType" + parser.getCurrentName(), version, "1.1");
+                case "initialVoltageProfileType":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageProfileType" + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
-                    parameters.setInitialVoltageMapType(parser.readValueAs(ShortCircuitConstants.InitialVoltageMapType.class));
+                    parameters.setInitialVoltageProfileType(parser.readValueAs(ShortCircuitConstants.InitialVoltageProfileType.class));
                     break;
-                case "initialNominalVoltageMapType":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialNominalVoltageMapType" + parser.getCurrentName(), version, "1.1");
+                case "initialNominalVoltageProfileType":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialNominalVoltageProfileType" + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
-                    parameters.setInitialNominalVoltageMapType(parser.readValueAs(ShortCircuitConstants.InitialNominalVoltageMapType.class));
+                    parameters.setInitialNominalVoltageProfileType(parser.readValueAs(ShortCircuitConstants.InitialNominalVoltageProfileType.class));
                     break;
                 case "extensions":
                     parser.nextToken();

@@ -11,12 +11,12 @@ package com.powsybl.shortcircuit;
  */
 public final class ShortCircuitConstants {
 
-    public enum InitialVoltageMapType {
+    public enum InitialVoltageProfileType {
         NOMINAL,
         PREVIOUS
     }
 
-    public enum InitialNominalVoltageMapType {
+    public enum InitialNominalVoltageProfileType {
         IEC_909_IMAX,
         IEC_909_IMIN,
         NONE
@@ -26,11 +26,11 @@ public final class ShortCircuitConstants {
     }
 
     public static final boolean DEFAULT_WITH_LIMIT_VIOLATIONS = true;
-    public static final boolean DEFAULT_WITH_VOLTAGE_MAP = true;
+    public static final boolean DEFAULT_WITH_VOLTAGE_PROFILE_RESULT = true;
     public static final StudyType DEFAULT_STUDY_TYPE = StudyType.TRANSIENT;
     public static final boolean DEFAULT_WITH_FEEDER_RESULT = true;
     public static final double DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD = 0.0;
-    public static final InitialVoltageMapType DEFAULT_INITIAL_VOLTAGE_MAP_TYPE = InitialVoltageMapType.NOMINAL;
-    public static final InitialNominalVoltageMapType DEFAULT_INITIAL_NOMINAL_VOLTAGE_MAP_TYPE = InitialNominalVoltageMapType.IEC_909_IMAX;
+    public static final InitialVoltageProfileType DEFAULT_INITIAL_VOLTAGE_PROFILE_TYPE = InitialVoltageProfileType.NOMINAL;
+    public static final InitialNominalVoltageProfileType DEFAULT_INITIAL_NOMINAL_VOLTAGE_PROFILE_TYPE = InitialNominalVoltageProfileType.IEC_909_IMAX;
 
 }

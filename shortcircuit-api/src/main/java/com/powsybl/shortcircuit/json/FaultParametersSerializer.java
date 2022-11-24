@@ -32,12 +32,12 @@ public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
         jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeStringField("id", parameters.getId());
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withLimitViolations", parameters.isWithLimitViolations(), false);
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageMap", parameters.isWithVoltageMap(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageProfileResult", parameters.isWithVoltageProfileResult(), false);
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withFeederResult", parameters.isWithFeederResult(), false);
         JsonUtil.writeOptionalStringField(jsonGenerator, "studyType", parameters.getStudyType() != null ? parameters.getStudyType().name() : null);
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
-        JsonUtil.writeOptionalStringField(jsonGenerator, "initialVoltageMapType", parameters.getInitialVoltageMapType() != null ? parameters.getInitialVoltageMapType().name() : null);
-        JsonUtil.writeOptionalStringField(jsonGenerator, "initialNominalVoltageMapType", parameters.getInitialNominalVoltageMapType() != null ? parameters.getInitialNominalVoltageMapType().name() : null);
+        JsonUtil.writeOptionalStringField(jsonGenerator, "initialVoltageProfileType", parameters.getInitialVoltageProfileType() != null ? parameters.getInitialVoltageProfileType().name() : null);
+        JsonUtil.writeOptionalStringField(jsonGenerator, "initialNominalVoltageProfileType", parameters.getInitialNominalVoltageProfileType() != null ? parameters.getInitialNominalVoltageProfileType().name() : null);
         jsonGenerator.writeEndObject();
     }
 }

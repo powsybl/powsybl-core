@@ -27,9 +27,9 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
-        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, ShortCircuitConstants.InitialVoltageMapType.NOMINAL, ShortCircuitConstants.InitialNominalVoltageMapType.IEC_909_IMAX));
-        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, ShortCircuitConstants.InitialVoltageMapType.PREVIOUS, null));
-        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, ShortCircuitConstants.InitialVoltageMapType.NOMINAL, ShortCircuitConstants.InitialNominalVoltageMapType.NONE));
+        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, ShortCircuitConstants.InitialVoltageProfileType.NOMINAL, ShortCircuitConstants.InitialNominalVoltageProfileType.IEC_909_IMAX));
+        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, ShortCircuitConstants.InitialVoltageProfileType.PREVIOUS, null));
+        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, ShortCircuitConstants.InitialVoltageProfileType.NOMINAL, ShortCircuitConstants.InitialNominalVoltageProfileType.NONE));
         parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, null, null));
         roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
 
@@ -50,7 +50,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
         assertFalse(firstParam.isWithLimitViolations());
         assertEquals(StudyType.STEADY_STATE, firstParam.getStudyType());
         assertTrue(firstParam.isWithFeederResult());
-        assertFalse(firstParam.isWithVoltageMap());
+        assertFalse(firstParam.isWithVoltageProfileResult());
         assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
 
         FaultParameters secondParam = parameters.get(1);
@@ -58,7 +58,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
         assertFalse(secondParam.isWithLimitViolations());
         assertNull(secondParam.getStudyType());
         assertFalse(secondParam.isWithFeederResult());
-        assertTrue(secondParam.isWithVoltageMap());
+        assertTrue(secondParam.isWithVoltageProfileResult());
         assertEquals(Double.NaN, secondParam.getMinVoltageDropProportionalThreshold(), 0);
 
         FaultParameters thirdParam = parameters.get(2);
@@ -66,7 +66,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
         assertTrue(thirdParam.isWithLimitViolations());
         assertNull(thirdParam.getStudyType());
         assertFalse(thirdParam.isWithFeederResult());
-        assertFalse(thirdParam.isWithVoltageMap());
+        assertFalse(thirdParam.isWithVoltageProfileResult());
         assertEquals(Double.NaN, thirdParam.getMinVoltageDropProportionalThreshold(), 0);
 
         FaultParameters fourthParam = parameters.get(3);
@@ -74,7 +74,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
         assertTrue(fourthParam.isWithLimitViolations());
         assertNull(fourthParam.getStudyType());
         assertFalse(fourthParam.isWithFeederResult());
-        assertTrue(fourthParam.isWithVoltageMap());
+        assertTrue(fourthParam.isWithVoltageProfileResult());
         assertEquals(Double.NaN, fourthParam.getMinVoltageDropProportionalThreshold(), 0);
     }
 
@@ -89,10 +89,10 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
         assertFalse(firstParam.isWithLimitViolations());
         assertEquals(StudyType.STEADY_STATE, firstParam.getStudyType());
         assertTrue(firstParam.isWithFeederResult());
-        assertFalse(firstParam.isWithVoltageMap());
+        assertFalse(firstParam.isWithVoltageProfileResult());
         assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
-        assertEquals(ShortCircuitConstants.InitialVoltageMapType.NOMINAL, firstParam.getInitialVoltageMapType());
-        assertEquals(ShortCircuitConstants.InitialNominalVoltageMapType.IEC_909_IMAX, firstParam.getInitialNominalVoltageMapType());
+        assertEquals(ShortCircuitConstants.InitialVoltageProfileType.NOMINAL, firstParam.getInitialVoltageProfileType());
+        assertEquals(ShortCircuitConstants.InitialNominalVoltageProfileType.IEC_909_IMAX, firstParam.getInitialNominalVoltageProfileType());
 
     }
 
