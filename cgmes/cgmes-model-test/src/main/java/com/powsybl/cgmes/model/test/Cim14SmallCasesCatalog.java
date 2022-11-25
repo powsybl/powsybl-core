@@ -9,7 +9,7 @@ package com.powsybl.cgmes.model.test;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.FakeCgmesModel;
-import com.powsybl.cgmes.model.TestGridModelResources;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
 /**
@@ -25,8 +25,8 @@ public final class Cim14SmallCasesCatalog {
     private Cim14SmallCasesCatalog() {
     }
 
-    public static TestGridModelResources txMicroBEAdapted() {
-        return new TestGridModelResources("tx-from-microBE-adapted", null,
+    public static GridModelReferenceResources txMicroBEAdapted() {
+        return new GridModelReferenceResources("tx-from-microBE-adapted", null,
                 new ResourceSet("/cim14/tx-from-microBE-adapted/", "tx-from-microBE-adapted_EQ.xml",
                                                                    "tx-from-microBE-adapted_SV.xml",
                                                                    "tx-from-microBE-adapted_TP.xml"),
@@ -34,8 +34,8 @@ public final class Cim14SmallCasesCatalog {
                                             ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
-    public static TestGridModelResources small1() {
-        return new TestGridModelResources("smallcase1", expectedSmall1(),
+    public static GridModelReferenceResources small1() {
+        return new GridModelReferenceResources("smallcase1", expectedSmall1(),
                 new ResourceSet("/cim14/smallcase1/", "case1_EQ.xml",
                                                       "case1_SV.xml",
                                                       "case1_TP.xml"),
@@ -43,8 +43,8 @@ public final class Cim14SmallCasesCatalog {
                                             ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
-    public static TestGridModelResources small1PlusInvalidFileContent() {
-        return new TestGridModelResources("smallcase1", expectedSmall1(),
+    public static GridModelReferenceResources small1PlusInvalidFileContent() {
+        return new GridModelReferenceResources("smallcase1", expectedSmall1(),
                 new ResourceSet("/", "invalidContent_EQ.xml",
                                      "validRdfInvalidContent_EQ.xml",
                                      "validCim14InvalidContent_EQ.xml",
@@ -56,8 +56,8 @@ public final class Cim14SmallCasesCatalog {
                                             ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
-    public static TestGridModelResources m7buses() {
-        return new TestGridModelResources("7buses", expectedM7Buses(),
+    public static GridModelReferenceResources m7buses() {
+        return new GridModelReferenceResources("7buses", expectedM7Buses(),
                 new ResourceSet("/cim14/m7buses/", "m7buses_EQ.xml",
                                                    "m7buses_SV.xml",
                                                    "m7buses_TP.xml"),
@@ -65,8 +65,8 @@ public final class Cim14SmallCasesCatalog {
                                             ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
-    public static TestGridModelResources m7busesNoSequenceNumbers() {
-        return new TestGridModelResources("7buses-no-sequenceNumbers", expectedM7Buses(),
+    public static GridModelReferenceResources m7busesNoSequenceNumbers() {
+        return new GridModelReferenceResources("7buses-no-sequenceNumbers", expectedM7Buses(),
                 new ResourceSet("/cim14/m7buses-no-sequenceNumbers/",
                         "m7buses-no-sequenceNumbers_EQ.xml"),
                 new ResourceSet("/cim14/m7buses/",
@@ -76,8 +76,8 @@ public final class Cim14SmallCasesCatalog {
                                             ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
-    public static TestGridModelResources ieee14() {
-        return new TestGridModelResources("ieee14", expectedIeee14(),
+    public static GridModelReferenceResources ieee14() {
+        return new GridModelReferenceResources("ieee14", expectedIeee14(),
                 new ResourceSet("/cim14/ieee14/", "ieee14bus_EQ.xml",
                                                   "ieee14bus_SV.xml",
                                                   "ieee14bus_TP.xml"),
@@ -85,8 +85,8 @@ public final class Cim14SmallCasesCatalog {
                                             ENTSO_E_BOUNDARY_SET_EU_TP_XML));
     }
 
-    public static TestGridModelResources nordic32() {
-        return new TestGridModelResources("nordic32", expectedNordic32(),
+    public static GridModelReferenceResources nordic32() {
+        return new GridModelReferenceResources("nordic32", expectedNordic32(),
                 new ResourceSet("/cim14/nordic32/", "Nordic32_EQ.xml",
                                                     "Nordic32_SV.xml",
                                                     "Nordic32_TP.xml"),

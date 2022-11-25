@@ -9,7 +9,7 @@ package com.powsybl.cgmes.model.test.cim14;
 
 import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.cgmes.model.test.CgmesModelTester;
-import com.powsybl.cgmes.model.TestGridModelResources;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ public class Cim14SmallCasesTest {
 
     @Test
     public void small1PlusInvalidFileContent() throws IOException {
-        TestGridModelResources t = Cim14SmallCasesCatalog.small1PlusInvalidFileContent();
+        GridModelReferenceResources t = Cim14SmallCasesCatalog.small1PlusInvalidFileContent();
         // The data source contains invalid files
         CgmesOnDataSource c = new CgmesOnDataSource(t.dataSource());
         assertTrue(t.dataSource().listNames(".*").containsAll(INVALID_CONTENT_FILES));

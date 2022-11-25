@@ -19,7 +19,7 @@ import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -155,7 +155,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(-14.4, ptc.getStep(25).getAlpha(), 0.001);
     }
 
-    private static Network networkModel(TestGridModel testGridModel, Conversion.Config config) {
+    private static Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();

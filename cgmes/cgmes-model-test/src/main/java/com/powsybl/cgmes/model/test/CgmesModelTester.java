@@ -10,7 +10,7 @@ package com.powsybl.cgmes.model.test;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
-import com.powsybl.cgmes.model.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
  */
 public class CgmesModelTester {
 
-    public CgmesModelTester(TestGridModel gm) {
+    public CgmesModelTester(GridModelReference gm) {
         this.gridModel = gm;
     }
 
@@ -128,7 +128,7 @@ public class CgmesModelTester {
         });
     }
 
-    private final TestGridModel gridModel;
+    private final GridModelReference gridModel;
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesModelTester.class);
 }

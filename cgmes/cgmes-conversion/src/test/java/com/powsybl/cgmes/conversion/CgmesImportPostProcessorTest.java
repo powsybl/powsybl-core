@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.model.TestGridModelResources;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.commons.parameters.Parameter;
@@ -51,7 +51,7 @@ public class CgmesImportPostProcessorTest {
 
     private FileSystem fileSystem;
 
-    private TestGridModelResources modelResources;
+    private GridModelReferenceResources modelResources;
 
     private final List<String> activatedPostProcessorNames = new ArrayList<>();
 

@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conformity;
 
-import com.powsybl.cgmes.model.TestGridModelResources;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
 /**
@@ -19,14 +19,14 @@ public final class Cgmes3ModifiedCatalog {
     private Cgmes3ModifiedCatalog() {
     }
 
-    public static TestGridModelResources smallGridBaseCaseTieFlowMappedToSwitch() {
+    public static GridModelReferenceResources smallGridBaseCaseTieFlowMappedToSwitch() {
         String base = CGMES_3_MODIFIED_TEST_MODELS
             + "/SmallGrid/tieFlowMappedToSwitch/";
         String baseOriginal = CGMES_3_TEST_MODELS
             + "/SmallGrid/";
         String baseBoundary = CGMES_3_TEST_MODELS
             + "/SmallGrid/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
             "SmallGrid-TieFlow-Mapped-To-Switch",
             null,
             new ResourceSet(base,
@@ -41,14 +41,14 @@ public final class Cgmes3ModifiedCatalog {
             new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallGridBaseCaseTieFlowMappedToEquivalentInjection() {
+    public static GridModelReferenceResources smallGridBaseCaseTieFlowMappedToEquivalentInjection() {
         String base = CGMES_3_MODIFIED_TEST_MODELS
             + "/SmallGrid/tieFlowMappedToEquivalentInjection/";
         String baseOriginal = CGMES_3_TEST_MODELS
             + "/SmallGrid/";
         String baseBoundary = CGMES_3_TEST_MODELS
             + "/SmallGrid/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
             "SmallGrid-TieFlow-Mapped-To-EquivalentInjection",
             null,
             new ResourceSet(base,
@@ -63,14 +63,14 @@ public final class Cgmes3ModifiedCatalog {
             new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources microGridBaseCaseRegulatingTerminalsDefinedOnSwitches() {
+    public static GridModelReferenceResources microGridBaseCaseRegulatingTerminalsDefinedOnSwitches() {
         String base = CGMES_3_MODIFIED_TEST_MODELS
             + "/MicroGrid/regulatingTerminalsDefinedOnSwitches/";
         String baseOriginal = CGMES_3_TEST_MODELS
             + "/MicroGrid/";
         String baseBoundary = CGMES_3_TEST_MODELS
             + "/MicroGrid/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
             "MicroGrid-regulating-terminals-defined-on-switches",
             null,
             new ResourceSet(base,
@@ -87,10 +87,10 @@ public final class Cgmes3ModifiedCatalog {
             new ResourceSet(baseBoundary, "20171002T0930Z_ENTSO-E_EQ_BD_2.xml"));
     }
 
-    public static TestGridModelResources microGridBaseCaseBESingleFile() {
+    public static GridModelReferenceResources microGridBaseCaseBESingleFile() {
         String base = CGMES_3_MODIFIED_TEST_MODELS
                 + "/MicroGrid/singleFile/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MicroGrid-single-file",
                 null,
                 new ResourceSet(base, "20210209T1930Z_1D_BE_9.xml"));

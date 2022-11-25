@@ -21,7 +21,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.*;
@@ -89,7 +89,7 @@ public class JoinVoltageLevelTest {
         assertEquals("d6056137-34f1-43a9-b029-23fddb913bd5", substationIidm.getAliasFromType("MergedSubstation1").get());
     }
 
-    private static Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
+    private static Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();

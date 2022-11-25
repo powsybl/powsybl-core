@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test.cim14;
 
-import com.powsybl.cgmes.model.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -188,7 +188,7 @@ public final class Cim14SmallCasesNetworkCatalog {
         return loadNetwork(Cim14SmallCasesCatalog.txMicroBEAdapted());
     }
 
-    private static Network loadNetwork(TestGridModel gm) {
+    private static Network loadNetwork(GridModelReference gm) {
         XMLImporter xmli = new XMLImporter();
         ReadOnlyDataSource ds = new ResourceDataSource(gm.name(), new ResourceSet("/cim14", gm.name() + ".xiidm"));
         return xmli.importData(ds, NetworkFactory.findDefault(), null);

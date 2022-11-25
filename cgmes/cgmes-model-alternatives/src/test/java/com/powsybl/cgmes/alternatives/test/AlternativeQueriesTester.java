@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -37,7 +37,7 @@ public class AlternativeQueriesTester {
 
     public AlternativeQueriesTester(List<String> tripleStoreImplementations,
         QueryCatalog queries,
-        TestGridModel gridModel,
+        GridModelReference gridModel,
         Expected expected) {
         // By default, execute the tests without caching the models
         this(tripleStoreImplementations, queries, gridModel, expected, 1, true, null, false);
@@ -45,7 +45,7 @@ public class AlternativeQueriesTester {
 
     public AlternativeQueriesTester(List<String> tripleStoreImplementations,
         QueryCatalog queries,
-        TestGridModel gridModel,
+        GridModelReference gridModel,
         Expected expected,
         boolean cacheModels) {
         this(tripleStoreImplementations, queries, gridModel, expected, 1, true, null, cacheModels);
@@ -53,7 +53,7 @@ public class AlternativeQueriesTester {
 
     public AlternativeQueriesTester(List<String> tripleStoreImplementations,
         QueryCatalog queries,
-        TestGridModel gridModel,
+        GridModelReference gridModel,
         Expected expected, int experiments,
         boolean doAssert,
         Consumer<PropertyBags> consumer,
@@ -204,7 +204,7 @@ public class AlternativeQueriesTester {
     private final boolean cacheModels;
     private final Map<String, CgmesModelTripleStore> cachedModels;
     private final QueryCatalog queries;
-    private final TestGridModel gridModel;
+    private final GridModelReference gridModel;
     private final Expected expected;
     private final int experiments;
     private final boolean doAssert;

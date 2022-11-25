@@ -13,7 +13,7 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
@@ -44,7 +44,7 @@ public class ImportExportPerformanceTest {
         importExport(TripleStoreFactory.onlyDefaultImplementation(), Cim14SmallCasesCatalog.small1());
     }
 
-    private void importExport(List<String> tsImpls, TestGridModel gm) throws IOException {
+    private void importExport(List<String> tsImpls, GridModelReference gm) throws IOException {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             ReadOnlyDataSource ds = gm.dataSource();
 

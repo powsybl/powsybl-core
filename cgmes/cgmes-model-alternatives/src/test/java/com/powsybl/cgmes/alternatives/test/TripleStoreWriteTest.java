@@ -13,7 +13,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.cgmes.model.TestGridModelResources;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
@@ -49,7 +49,7 @@ public class TripleStoreWriteTest {
 
     @Test
     public void testWriteSubset() throws IOException {
-        TestGridModelResources resources = CgmesConformity1Catalog.microGridBaseCaseBE();
+        GridModelReferenceResources resources = CgmesConformity1Catalog.microGridBaseCaseBE();
 
         for (String impl : TripleStoreFactory.allImplementations()) {
             CgmesModel model = CgmesModelFactory.create(resources.dataSource(), impl);

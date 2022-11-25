@@ -9,7 +9,7 @@ package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
-public interface TestGridModel {
+public interface GridModelReference {
 
     CgmesModel expected();
 

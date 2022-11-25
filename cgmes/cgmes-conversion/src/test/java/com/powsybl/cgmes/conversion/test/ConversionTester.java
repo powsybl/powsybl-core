@@ -18,7 +18,7 @@ import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -110,11 +110,11 @@ public class ConversionTester {
         this.validateBusBalancesThreshold = threshold;
     }
 
-    public void testConversion(Network expected, TestGridModel gm) throws IOException {
+    public void testConversion(Network expected, GridModelReference gm) throws IOException {
         testConversion(expected, gm, this.networkComparison);
     }
 
-    public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config)
+    public void testConversion(Network expected, GridModelReference gm, ComparisonConfig config)
         throws IOException {
         if (onlyReport) {
             testConversionOnlyReport(gm);
@@ -130,7 +130,7 @@ public class ConversionTester {
         return lastConvertedNetwork;
     }
 
-    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig config, String impl)
+    private void testConversion(Network expected, GridModelReference gm, ComparisonConfig config, String impl)
         throws IOException {
         Properties iparams = importParams == null ? new Properties() : importParams;
         iparams.put("storeCgmesModelAsNetworkExtension", "true");
@@ -168,7 +168,7 @@ public class ConversionTester {
         }
     }
 
-    private void testConversionOnlyReport(TestGridModel gm) {
+    private void testConversionOnlyReport(GridModelReference gm) {
         String impl = TripleStoreFactory.defaultImplementation();
         CgmesImport i = new CgmesImport();
         Properties params = new Properties();

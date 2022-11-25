@@ -20,9 +20,9 @@ import java.util.Arrays;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class TestGridModelResources extends AbstractTestGridModel {
+public class GridModelReferenceResources extends AbstractGridModelReference {
 
-    public TestGridModelResources(
+    public GridModelReferenceResources(
             String name,
             CgmesModel expected,
             ResourceSet... resourceSets) {
@@ -60,5 +60,5 @@ public class TestGridModelResources extends AbstractTestGridModel {
 
     private final ResourceSet[] resourceSets;
 
-    private static final Logger LOG = LoggerFactory.getLogger(TestGridModelResources.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GridModelReferenceResources.class);
 }

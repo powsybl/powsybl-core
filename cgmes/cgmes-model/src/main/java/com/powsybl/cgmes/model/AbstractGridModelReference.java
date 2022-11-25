@@ -10,9 +10,9 @@ package com.powsybl.cgmes.model;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public abstract class AbstractTestGridModel implements TestGridModel {
+public abstract class AbstractGridModelReference implements GridModelReference {
 
-    protected AbstractTestGridModel(
+    protected AbstractGridModelReference(
             String name,
             CgmesModel expected) {
         this.name = name;
