@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml.extensions;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.network.Line;

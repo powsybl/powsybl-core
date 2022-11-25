@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conformity;
 
-import com.powsybl.cgmes.model.test.TestGridModelResources;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
 /**
@@ -18,9 +18,9 @@ public final class Cgmes3Catalog {
     private Cgmes3Catalog() {
     }
 
-    public static TestGridModelResources microGrid() {
+    public static GridModelReferenceResources microGrid() {
         String base = CGMES_3_TEST_MODELS + "/MicroGrid/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MicroGrid",
                 null,
                 new ResourceSet(base, "" +
@@ -36,9 +36,9 @@ public final class Cgmes3Catalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static TestGridModelResources microGridWithoutTpSv() {
+    public static GridModelReferenceResources microGridWithoutTpSv() {
         String base = CGMES_3_TEST_MODELS + "/MicroGrid/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MicroGrid",
                 null,
                 new ResourceSet(base, "" +
@@ -52,10 +52,10 @@ public final class Cgmes3Catalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static TestGridModelResources miniGrid() {
+    public static GridModelReferenceResources miniGrid() {
         String base = CGMES_3_TEST_MODELS + "/MiniGrid/";
         String baseBoundary = base;
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MiniGrid",
                 null,
                 new ResourceSet(base, "" +
@@ -67,10 +67,10 @@ public final class Cgmes3Catalog {
                 new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources miniGridWithoutTpSv() {
+    public static GridModelReferenceResources miniGridWithoutTpSv() {
         String base = CGMES_3_TEST_MODELS + "/MiniGrid/";
         String baseBoundary = base;
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MiniGrid",
                 null,
                 new ResourceSet(base, "" +
@@ -80,10 +80,10 @@ public final class Cgmes3Catalog {
                 new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallGrid() {
+    public static GridModelReferenceResources smallGrid() {
         String base = CGMES_3_TEST_MODELS + "/SmallGrid/";
         String baseBoundary = base;
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "SmallGrid",
                 null,
                 new ResourceSet(base, "" +
@@ -96,10 +96,10 @@ public final class Cgmes3Catalog {
                 new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallGridWithoutTpSv() {
+    public static GridModelReferenceResources smallGridWithoutTpSv() {
         String base = CGMES_3_TEST_MODELS + "/SmallGrid/";
         String baseBoundary = base;
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "SmallGrid",
                 null,
                 new ResourceSet(base, "" +
@@ -110,9 +110,9 @@ public final class Cgmes3Catalog {
                 new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources svedala() {
+    public static GridModelReferenceResources svedala() {
         String base = CGMES_3_TEST_MODELS + "/Svedala/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "Svedala",
                 null,
                 new ResourceSet(base, "" +
@@ -123,9 +123,9 @@ public final class Cgmes3Catalog {
                     "20201202T1843Z_1D_Svedala Area_TP_001.xml"));
     }
 
-    public static TestGridModelResources svedalaWithoutTpSv() {
+    public static GridModelReferenceResources svedalaWithoutTpSv() {
         String base = CGMES_3_TEST_MODELS + "/Svedala/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "Svedala",
                 null,
                 new ResourceSet(base, "" +

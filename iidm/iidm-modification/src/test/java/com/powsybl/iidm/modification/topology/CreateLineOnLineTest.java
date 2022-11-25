@@ -8,11 +8,11 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateLineOnLineTest extends AbstractXmlConverterTest {
+public class CreateLineOnLineTest extends AbstractConverterTest {
 
     @Test
     public void createLineOnLineNbTest() throws IOException {

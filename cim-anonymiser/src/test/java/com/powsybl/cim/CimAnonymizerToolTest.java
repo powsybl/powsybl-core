@@ -7,7 +7,7 @@
 package com.powsybl.cim;
 
 import com.google.common.io.ByteStreams;
-import com.powsybl.tools.AbstractToolTest;
+import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
 import org.junit.Test;
