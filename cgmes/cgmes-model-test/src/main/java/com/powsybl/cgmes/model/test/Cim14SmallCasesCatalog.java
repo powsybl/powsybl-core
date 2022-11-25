@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.model.test;
 
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.FakeCgmesModel;
+import com.powsybl.cgmes.model.InMemoryCgmesModel;
 import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
@@ -95,7 +95,7 @@ public final class Cim14SmallCasesCatalog {
     }
 
     private static CgmesModel expectedSmall1() {
-        return new FakeCgmesModel()
+        return new InMemoryCgmesModel()
                 .modelId("Small1")
                 .version(VERSION)
                 .substations("_GEN______SS", "_INF______SS")
@@ -114,7 +114,7 @@ public final class Cim14SmallCasesCatalog {
     }
 
     private static CgmesModel expectedM7Buses() {
-        return new FakeCgmesModel()
+        return new InMemoryCgmesModel()
                 .modelId("M7Buses")
                 .version(VERSION)
                 .substations("_FP.AND11_SS", "_FS.BIS11_SS", "_FSSV.O11_SS", "_FTILL511_SS",
@@ -188,7 +188,7 @@ public final class Cim14SmallCasesCatalog {
     }
 
     private static CgmesModel expectedIeee14() {
-        return new FakeCgmesModel()
+        return new InMemoryCgmesModel()
                 .modelId("IEEE14")
                 .version(VERSION)
                 .substations(
@@ -274,7 +274,7 @@ public final class Cim14SmallCasesCatalog {
     }
 
     private static CgmesModel expectedNordic32() {
-        return new FakeCgmesModel()
+        return new InMemoryCgmesModel()
                 .modelId("Nordic32")
                 .version(VERSION)
                 .substations(

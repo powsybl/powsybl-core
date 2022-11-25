@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public final class FakeTripleStore implements TripleStore {
+public final class EmptyTripleStore implements TripleStore {
     @Override
     public void read(InputStream is, String base, String contextName) {
         // do nothing

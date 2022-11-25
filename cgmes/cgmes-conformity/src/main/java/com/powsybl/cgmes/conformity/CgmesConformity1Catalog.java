@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conformity;
 
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.FakeCgmesModel;
+import com.powsybl.cgmes.model.InMemoryCgmesModel;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -288,8 +288,8 @@ public final class CgmesConformity1Catalog {
                 new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
-    public static FakeCgmesModel expectedMicroGridBaseCaseBE() {
-        return new FakeCgmesModel()
+    public static InMemoryCgmesModel expectedMicroGridBaseCaseBE() {
+        return new InMemoryCgmesModel()
                 .modelId("MicroBaseCaseBE")
                 .version("unknown")
                 .substations("37e14a0f-5e34-4647-a062-8bfd9305fa9d",
@@ -505,8 +505,8 @@ public final class CgmesConformity1Catalog {
                         "urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20");
     }
 
-    private static FakeCgmesModel expectedMiniNodeBreaker() {
-        return new FakeCgmesModel()
+    private static InMemoryCgmesModel expectedMiniNodeBreaker() {
+        return new InMemoryCgmesModel()
                 .modelId("MiniNodeBreakerBaseCaseComplete")
                 .version("unknown")
                 .nodeBreaker(true)
@@ -1004,7 +1004,7 @@ public final class CgmesConformity1Catalog {
     }
 
     public static CgmesModel expectedMicroGridType4BE() {
-        FakeCgmesModel m = expectedMicroGridBaseCaseBE();
+        InMemoryCgmesModel m = expectedMicroGridBaseCaseBE();
         m.voltageLevels("69ef0dbd-da79-4eef-a02f-690cb8a28361");
         m.terminals("13dcec71-4b02-4c0c-93a7-8e16db4aa0b7",
                 "67bb74f1-8620-4a32-9d7d-a44092d11d22",
