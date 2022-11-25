@@ -6,17 +6,17 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -26,6 +26,7 @@ import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -74,18 +75,40 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs);
+        test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringControlAreaNetInterchange));
+    }
+
+    @Test
+    public void smallGridHVDC() throws IOException, XMLStreamException {
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                ExportXmlCompare::sameScenarioTime,
+                ExportXmlCompare::ensuringIncreasedModelVersion,
+                ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+        test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringControlAreaNetInterchange,
+                ExportXmlCompare::ignoringHvdcLinePmax));
     }
 
     private void test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffs) throws IOException, XMLStreamException {
+        test(dataSource, version, knownDiffs, DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator));
+    }
+
+    private void test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffsSsh, DifferenceEvaluator knownDiffsIidm) throws IOException, XMLStreamException {
         // Import original
         Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SSH");
+        properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
 
         // Export SSH
         Path exportedSsh = tmpDir.resolve("exportedSsh.xml");
-        try (OutputStream os = Files.newOutputStream(exportedSsh)) {
+        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSsh))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(expected);
             context.getSshModelDescription().setVersion(version);
@@ -94,8 +117,8 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
 
         // Compare the exported SSH with the original one
         try (InputStream expectedssh = Repackager.newInputStream(dataSource, Repackager::ssh);
-                InputStream actualssh = Files.newInputStream(exportedSsh)) {
-            ExportXmlCompare.compareSSH(expectedssh, actualssh, knownDiffs);
+             InputStream actualssh = Files.newInputStream(exportedSsh)) {
+            ExportXmlCompare.compareSSH(expectedssh, actualssh, knownDiffsSsh);
         }
 
         // Zip with new SSH
@@ -110,14 +133,18 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         r.zip(repackaged);
 
         // Import with new SSH
-        Network actual = Importers.loadNetwork(repackaged,
+        Network actual = Network.read(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+
+        // Remove ControlAreas extension
+        expected.removeExtension(CgmesControlAreas.class);
+        actual.removeExtension(CgmesControlAreas.class);
 
         // Export original and with new SSH
         NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
         NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));
+        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffsIidm);
     }
 }

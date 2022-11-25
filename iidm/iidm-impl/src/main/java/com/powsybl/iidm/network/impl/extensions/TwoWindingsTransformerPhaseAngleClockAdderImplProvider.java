@@ -24,6 +24,11 @@ public class TwoWindingsTransformerPhaseAngleClockAdderImplProvider implements
     }
 
     @Override
+    public String getExtensionName() {
+        return TwoWindingsTransformerPhaseAngleClock.NAME;
+    }
+
+    @Override
     public Class<TwoWindingsTransformerPhaseAngleClockAdderImpl> getAdderClass() {
         return TwoWindingsTransformerPhaseAngleClockAdderImpl.class;
     }

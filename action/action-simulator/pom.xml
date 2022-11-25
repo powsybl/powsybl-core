@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-action</artifactId>
-        <version>4.2.0-SNAPSHOT</version>
+        <version>5.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-action-simulator</artifactId>
@@ -127,10 +127,9 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-tools</artifactId>
+            <artifactId>powsybl-tools-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-            <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

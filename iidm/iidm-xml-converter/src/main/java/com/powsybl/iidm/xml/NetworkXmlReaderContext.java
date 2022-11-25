@@ -8,8 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.import_.ImportOptions;
+import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
 import javax.xml.stream.XMLStreamReader;
 import java.util.*;
@@ -60,5 +59,14 @@ public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOpt
 
     public boolean containsExtensionNamespaceUri(String extensionNamespaceUri) {
         return extensionsNamespaceUri.contains(extensionNamespaceUri);
+    }
+
+    public Optional<String> getExtensionVersion(ExtensionXmlSerializer<?, ?> extensionXmlSerializer) {
+        return extensionXmlSerializer.getVersions()
+                .stream()
+                .filter(v -> extensionsNamespaceUri
+                        .stream()
+                        .anyMatch(uri -> extensionXmlSerializer.getNamespaceUri(v).equals(uri)))
+                .findFirst();
     }
 }

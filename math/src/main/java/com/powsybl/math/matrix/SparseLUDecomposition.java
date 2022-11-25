@@ -6,11 +6,14 @@
  */
 package com.powsybl.math.matrix;
 
-import com.powsybl.commons.PowsyblException;
+import com.google.common.base.Stopwatch;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Sparse matrix LU decomposition.
@@ -21,22 +24,31 @@ import java.util.UUID;
  */
 class SparseLUDecomposition implements LUDecomposition {
 
-    private static final double RGROWTH_THRESHOLD = 1e-10;
+    private static final Logger LOGGER = LoggerFactory.getLogger(SparseLUDecomposition.class);
+
+    static final double DEFAULT_RGROWTH_THRESHOLD = 1e-10;
 
     private final SparseMatrix matrix;
 
     private final String id;
 
-    private int valueCount;
+    private final int valueCount;
 
     SparseLUDecomposition(SparseMatrix matrix) {
         this.matrix = Objects.requireNonNull(matrix);
         if (matrix.getRowCount() != matrix.getColumnCount()) {
-            throw new IllegalArgumentException("matrix is not square");
+            throw new MatrixException("matrix is not square");
         }
         this.id = UUID.randomUUID().toString();
-        init(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
+        init(id, matrix);
         valueCount = getMatrixValueCount();
+    }
+
+    private void init(String id, SparseMatrix matrix) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        init(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
+        stopwatch.stop();
+        LOGGER.debug("Sparse LU decomposition done in {} us", stopwatch.elapsed(TimeUnit.MICROSECONDS));
     }
 
     private int getMatrixValueCount() {
@@ -48,7 +60,7 @@ class SparseLUDecomposition implements LUDecomposition {
 
     private native void release(String id);
 
-    private native void update(String id, int[] ap, int[] ai, double[] ax, double rgrowthThreshold);
+    private native double update(String id, int[] ap, int[] ai, double[] ax, double rgrowthThreshold);
 
     private native void solve(String id, double[] b, boolean transpose);
 
@@ -59,7 +71,7 @@ class SparseLUDecomposition implements LUDecomposition {
      */
     private void checkMatrixStructure() {
         if (getMatrixValueCount() != valueCount) {
-            throw new PowsyblException("Elements have been added to the sparse matrix since initial decomposition");
+            throw new MatrixException("Elements have been added to the sparse matrix since initial decomposition");
         }
     }
 
@@ -69,9 +81,14 @@ class SparseLUDecomposition implements LUDecomposition {
      * The structure of the matrix is not supposed to have changed, only non zero values.
      */
     @Override
-    public void update() {
+    public void update(boolean allowIncrementalUpdate) {
         checkMatrixStructure();
-        update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues(), RGROWTH_THRESHOLD);
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        double rgrowthThreshold = allowIncrementalUpdate ? matrix.getRgrowthThreshold() : 0;
+        double rgrowth = update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues(), rgrowthThreshold);
+        stopwatch.stop();
+        LOGGER.debug("Sparse LU decomposition updated (refactor rgrowth is {}, threshold is {}) in {} us",
+                rgrowth, rgrowthThreshold, stopwatch.elapsed(TimeUnit.MICROSECONDS));
     }
 
     @Override

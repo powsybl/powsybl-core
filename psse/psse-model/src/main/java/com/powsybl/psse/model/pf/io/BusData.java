@@ -33,12 +33,12 @@ class BusData extends AbstractRecordGroup<PsseBus> {
     }
 
     @Override
-    public Class<PsseBus> psseTypeClass() {
+    protected Class<PsseBus> psseTypeClass() {
         return PsseBus.class;
     }
 
     private static class BusLegacyText extends RecordGroupIOLegacyText<PsseBus> {
-        public BusLegacyText(AbstractRecordGroup<PsseBus> recordGroup) {
+        protected BusLegacyText(AbstractRecordGroup<PsseBus> recordGroup) {
             super(recordGroup);
         }
 

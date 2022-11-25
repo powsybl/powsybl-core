@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#">
+  <md:FullModel rdf:about="urn:uuid:053e4568-3b53-4239-93ba-361226763008">
+    <md:Model.created>2014-10-24T15:43:47</md:Model.created>
+    <md:Model.scenarioTime>2017-10-02T09:30:00Z</md:Model.scenarioTime>
+    <md:Model.version>1</md:Model.version>
+    <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
+    <md:Model.DependentOn rdf:resource="urn:uuid:eaa2449e-f8f5-4ce2-a228-80fb84e45126"/>
+    <md:Model.description>CGMES Conformity Assessment: MicroGridTestConfiguration T2 (MAS NL). The model is owned by ENTSO-E and is provided by ENTSO-E “as it is”. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall  include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+    <md:Model.modelingAuthoritySet>http://tennet.eu/HVDC/CAS2.0/MicroGridTestConfiguration</md:Model.modelingAuthoritySet>
+    <md:Model.profile>http://entsoe.eu/CIM/GeographicalLocation/2/1</md:Model.profile>
+  </md:FullModel>
+  <cim:CoordinateSystem rdf:ID="_24e2ca6a-71a3-48a3-8bb0-3449d5e0723c">
+    <cim:IdentifiedObject.name>WGS84</cim:IdentifiedObject.name>
+    <cim:CoordinateSystem.crsUrn>urn:ogc:def:crs:EPSG::4326</cim:CoordinateSystem.crsUrn>
+  </cim:CoordinateSystem>
+  <cim:Location rdf:ID="_74a0e048-8710-4e03-93b2-f27d69c74059">
+    <cim:Location.PowerSystemResources rdf:resource="#_9df6213f-c5dc-477c-aab4-74721f7d1fdb"/>
+    <cim:Location.CoordinateSystem rdf:resource="#_24e2ca6a-71a3-48a3-8bb0-3449d5e0723c"/>
+  </cim:Location>
+  <cim:PositionPoint rdf:ID="_76e017dc-d603-4e7c-9201-ebd9687d38b1">
+    <cim:PositionPoint.sequenceNumber>1</cim:PositionPoint.sequenceNumber>
+    <cim:PositionPoint.Location rdf:resource="#_74a0e048-8710-4e03-93b2-f27d69c74059"/>
+    <cim:PositionPoint.xPosition>4.846580</cim:PositionPoint.xPosition>
+    <cim:PositionPoint.yPosition>52.404700</cim:PositionPoint.yPosition>
+  </cim:PositionPoint>
+  <cim:Location rdf:ID="_0f10e1c6-31bd-4f80-8a53-313b13e42310">
+    <cim:Location.PowerSystemResources rdf:resource="#_7cd24a99-42b4-4f30-b30e-9a021fbcc870"/>
+    <cim:Location.CoordinateSystem rdf:resource="#_24e2ca6a-71a3-48a3-8bb0-3449d5e0723c"/>
+  </cim:Location>
+  <cim:PositionPoint rdf:ID="_7e161b18-a594-487f-97fc-19d2631c3193">
+    <cim:PositionPoint.sequenceNumber>1</cim:PositionPoint.sequenceNumber>
+    <cim:PositionPoint.Location rdf:resource="#_0f10e1c6-31bd-4f80-8a53-313b13e42310"/>
+    <cim:PositionPoint.xPosition>4.846580</cim:PositionPoint.xPosition>
+    <cim:PositionPoint.yPosition>52.000000</cim:PositionPoint.yPosition>
+  </cim:PositionPoint>
+</rdf:RDF>

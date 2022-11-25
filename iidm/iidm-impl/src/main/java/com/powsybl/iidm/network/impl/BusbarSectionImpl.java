@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
@@ -14,13 +15,8 @@ import com.powsybl.iidm.network.*;
  */
 class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements BusbarSection {
 
-    BusbarSectionImpl(String id, String name, boolean fictitious) {
-        super(id, name, fictitious);
-    }
-
-    @Override
-    public ConnectableType getType() {
-        return ConnectableType.BUSBAR_SECTION;
+    BusbarSectionImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
+        super(network, id, name, fictitious);
     }
 
     @Override

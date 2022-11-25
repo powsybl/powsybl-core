@@ -15,9 +15,9 @@ import com.powsybl.iidm.network.Line;
 public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXnode>
         implements MergedXnodeAdder {
 
-    private float rdp = Float.NaN; // r divider position 1 -> 2
+    private double rdp = Double.NaN; // r divider position 1 -> 2
 
-    private float xdp = Float.NaN; // x divider position 1 -> 2
+    private double xdp = Double.NaN; // x divider position 1 -> 2
 
     private String line1Name;
 
@@ -27,9 +27,9 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
 
     private double xnodeQ1;
 
-    private float b1dp = Float.NaN; // b1 divider position 1 -> 2
+    private double b1dp = Double.NaN; // b1 divider position 1 -> 2
 
-    private float g1dp = Float.NaN; // g1 divider position 1 -> 2
+    private double g1dp = Double.NaN; // g1 divider position 1 -> 2
 
     private String line2Name;
 
@@ -39,9 +39,9 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
 
     private double xnodeQ2;
 
-    private float b2dp = Float.NaN; // b2 divider position 1 -> 2
+    private double b2dp = Double.NaN; // b2 divider position 1 -> 2
 
-    private float g2dp = Float.NaN; // g2 divider position 1 -> 2
+    private double g2dp = Double.NaN; // g2 divider position 1 -> 2
 
     private String code;
 
@@ -58,13 +58,13 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
     }
 
     @Override
-    public MergedXnodeAdderImpl withRdp(float rdp) {
+    public MergedXnodeAdderImpl withRdp(double rdp) {
         this.rdp = rdp;
         return this;
     }
 
     @Override
-    public MergedXnodeAdderImpl withXdp(float xdp) {
+    public MergedXnodeAdderImpl withXdp(double xdp) {
         this.xdp = xdp;
         return this;
     }
@@ -94,13 +94,13 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
     }
 
     @Override
-    public MergedXnodeAdderImpl withB1dp(float b1dp) {
+    public MergedXnodeAdderImpl withB1dp(double b1dp) {
         this.b1dp = b1dp;
         return this;
     }
 
     @Override
-    public MergedXnodeAdderImpl withG1dp(float g1dp) {
+    public MergedXnodeAdderImpl withG1dp(double g1dp) {
         this.g1dp = g1dp;
         return this;
     }
@@ -130,13 +130,13 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
     }
 
     @Override
-    public MergedXnodeAdderImpl withB2dp(float b2dp) {
+    public MergedXnodeAdderImpl withB2dp(double b2dp) {
         this.b2dp = b2dp;
         return this;
     }
 
     @Override
-    public MergedXnodeAdderImpl withG2dp(float g2dp) {
+    public MergedXnodeAdderImpl withG2dp(double g2dp) {
         this.g2dp = g2dp;
         return this;
     }

@@ -3047,7 +3047,10 @@
     "ptol" : 1.0,
     "arname" : "1           "
   } ],
+  "twoTerminalDcTransmissionLines" : [ ],
+  "voltageSourceConverterDcTransmissionLines" : [ ],
   "transformerImpedanceCorrections" : [ ],
+  "multiTerminalDcTransmissionLines" : [ ],
   "lineGrouping" : [ ],
   "zones" : [ {
     "i" : 1,
@@ -3133,5 +3136,7 @@
     "s6" : 1,
     "s7" : 1,
     "s8" : 1
-  } ]
+  } ],
+  "gneDevice" : [ ],
+  "inductionMachines" : [ ]
 }

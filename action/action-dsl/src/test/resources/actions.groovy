@@ -21,7 +21,7 @@ rule('rule') {
 
 action('action') {
     description 'action description'
-    tasks {
+    modifications {
 
     }
 }

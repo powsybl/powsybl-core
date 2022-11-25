@@ -66,7 +66,7 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
     }
 
     /**
-     * Adds a flag if {@param flagValue} is true.
+     * Adds a flag if {@code flagValue} is true.
      */
     public SimpleCommandBuilder flag(String flagName, boolean flagValue) {
         Objects.requireNonNull(flagName);

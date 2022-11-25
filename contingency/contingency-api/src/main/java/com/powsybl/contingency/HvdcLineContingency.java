@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTrippingTask;
-import com.powsybl.contingency.tasks.HvdcLineTripping;
+import com.powsybl.iidm.modification.tripping.HvdcLineTripping;
+import com.powsybl.iidm.modification.tripping.Tripping;
 
 import java.util.Objects;
 
@@ -30,7 +30,7 @@ public class HvdcLineContingency extends AbstractSidedContingency {
     }
 
     @Override
-    public AbstractTrippingTask toTask() {
+    public Tripping toModification() {
         return new HvdcLineTripping(id, voltageLevelId);
     }
 

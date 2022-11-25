@@ -370,7 +370,7 @@ public class BusAdapterTest {
 
     private DanglingLine createDanglingLine(VoltageLevel vl, String id, String name,
                                             double r, double x, double g, double b, double p0, double q0,
-                                            String ucteXnodeCode, String busId)  {
+                                            String ucteXnodeCode, String busId) {
         return vl.newDanglingLine()
                 .setId(id)
                 .setName(name)
@@ -397,8 +397,11 @@ public class BusAdapterTest {
         assertNotNull(bus);
         assertSame(mergingView, bus.getNetwork());
 
-        Collection<Component> components = busView.getConnectedComponents();
-        assertTrue(components.iterator().hasNext());
+        Collection<Component> connectedComponents = busView.getConnectedComponents();
+        assertTrue(connectedComponents.iterator().hasNext());
+
+        Collection<Component> synchronousComponents = busView.getSynchronousComponents();
+        assertTrue(synchronousComponents.iterator().hasNext());
     }
 
     @Test

@@ -46,7 +46,7 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
     }
 
     public String iidmId() {
-        return context.namingStrategy().getId(type, id);
+        return context.namingStrategy().getIidmId(type, id);
     }
 
     public String iidmName() {
@@ -59,7 +59,15 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         identify(adder, iidmId(), iidmName());
     }
 
+    public void identify(IdentifiableAdder<?> adder, String duplicatedTag) {
+        identify(adder, iidmId() + duplicatedTag, iidmName() + duplicatedTag);
+    }
+
     public void identify(IdentifiableAdder<?> adder, String id, String name) {
+        identify(context, adder, id, name);
+    }
+
+    public static void identify(Context context, IdentifiableAdder<?> adder, String id, String name) {
         adder
                 .setId(id)
                 .setName(name)

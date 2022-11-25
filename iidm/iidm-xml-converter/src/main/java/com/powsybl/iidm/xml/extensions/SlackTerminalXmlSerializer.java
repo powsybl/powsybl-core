@@ -33,25 +33,39 @@ import java.util.List;
 public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<VoltageLevel, SlackTerminal> {
 
     public SlackTerminalXmlSerializer() {
+
         super("slackTerminal", SlackTerminal.class, false, "slt",
-                ImmutableMap.of(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0"),
-                        IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.1"),
-                        IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.2")),
-                ImmutableMap.of("1.0", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0",
-                        "1.1", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_1",
-                        "1.2", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_2"));
+            new ImmutableMap.Builder<IidmXmlVersion, ImmutableSortedSet<String>>()
+                .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0"))
+                .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.1"))
+                .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.2"))
+                .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.3"))
+                .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of("1.4"))
+                .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.5"))
+                .build(),
+            new ImmutableMap.Builder<String, String>()
+                .put("1.0", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0")
+                .put("1.1", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_1")
+                .put("1.2", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_2")
+                .put("1.3", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_3")
+                .put("1.4", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_4")
+                .put("1.5", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5")
+                .build());
     }
 
     @Override
     public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/slackTerminal_V1_2.xsd");
+        return getClass().getResourceAsStream("/xsd/slackTerminal_V1_5.xsd");
     }
 
     @Override
     public List<InputStream> getXsdAsStreamList() {
         return ImmutableList.of(getClass().getResourceAsStream("/xsd/slackTerminal_V1_0.xsd"),
                 getClass().getResourceAsStream("/xsd/slackTerminal_V1_1.xsd"),
-                getClass().getResourceAsStream("/xsd/slackTerminal_V1_2.xsd"));
+                getClass().getResourceAsStream("/xsd/slackTerminal_V1_2.xsd"),
+                getClass().getResourceAsStream("/xsd/slackTerminal_V1_3.xsd"),
+                getClass().getResourceAsStream("/xsd/slackTerminal_V1_4.xsd"),
+                getClass().getResourceAsStream("/xsd/slackTerminal_V1_5.xsd"));
     }
 
     @Override
@@ -68,9 +82,9 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
         String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
         String side = networkContext.getReader().getAttributeValue(null, "side");
         Terminal terminal = TerminalRefXml.readTerminalRef(voltageLevel.getNetwork(), id, side);
-        voltageLevel.newExtension(SlackTerminalAdder.class).withTerminal(terminal).add();
-
-        return voltageLevel.getExtension(SlackTerminal.class);
+        return voltageLevel.newExtension(SlackTerminalAdder.class)
+                .withTerminal(terminal)
+                .add();
     }
 
     /**

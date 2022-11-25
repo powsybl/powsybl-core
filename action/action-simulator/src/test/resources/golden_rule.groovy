@@ -13,7 +13,7 @@ rule('golden') {
 }
 
 action('respect') {
-    tasks {
+    modifications {
         script {
             load('LOAD').p0 += 1
         }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/merged_xnode/1_1"
+           elementFormDefault="qualified">
+    <xs:element name="mergedXnode">
+        <xs:complexType>
+            <xs:attribute name="rdp" use="required" type="xs:double"/>
+            <xs:attribute name="xdp" use="required" type="xs:double"/>
+            <xs:attribute name="xnodeP1" type="xs:double"/>
+            <xs:attribute name="xnodeQ1" type="xs:double"/>
+            <xs:attribute name="xnodeP2" type="xs:double"/>
+            <xs:attribute name="xnodeQ2" type="xs:double"/>
+            <xs:attribute name="code" use="required" type="xs:string"/>
+            <xs:attribute name="line1Name" use="required" type="xs:string"/>
+            <xs:attribute name="line2Name" use="required" type="xs:string"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

@@ -7,11 +7,16 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
+import com.powsybl.cgmes.conversion.RegulatingTerminalMapper.TerminalAndSign;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+
+import static com.powsybl.cgmes.conversion.CgmesReports.badTargetDeadbandRegulatingControlReport;
+import static com.powsybl.cgmes.conversion.CgmesReports.badVoltageTargetValueRegulatingControlReport;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -181,8 +186,8 @@ public class RegulatingControlMappingForTransformers {
 
     private boolean setRtcRegulatingControlVoltage(String rtcId, boolean regulating, RegulatingControl control,
                                                    RatioTapChanger rtc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
-        if (terminal == null) {
+        Optional<Terminal> regulatingTerminal = RegulatingTerminalMapper.mapForVoltageControl(control.cgmesTerminal, context);
+        if (regulatingTerminal.isEmpty()) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
@@ -191,15 +196,21 @@ public class RegulatingControlMappingForTransformers {
         // It targetValue is not valid, emit a warning and deactivate regulating control
         boolean validTargetValue = control.targetValue > 0;
         if (!validTargetValue) {
-            context.invalid(rtcId,
-                "Regulating control has a bad target voltage " + control.targetValue);
+            context.invalid(rtcId, "Regulating control has a bad target voltage " + control.targetValue);
+            badVoltageTargetValueRegulatingControlReport(context.getReporter(), rtcId, control.targetValue);
+        }
+
+        boolean validTargetDeadband = control.targetDeadband >= 0;
+        if (!validTargetDeadband) {
+            context.invalid(rtcId, "Regulating control has a bad target deadband " + control.targetDeadband);
+            badTargetDeadbandRegulatingControlReport(context.getReporter(), rtcId, control.targetDeadband);
         }
 
         // Order is important
-        rtc.setRegulationTerminal(terminal)
+        rtc.setRegulationTerminal(regulatingTerminal.get())
                 .setTargetV(control.targetValue)
-                .setTargetDeadband(control.targetDeadband)
-                .setRegulating(regulating && validTargetValue);
+                .setTargetDeadband(validTargetDeadband ? control.targetDeadband : Double.NaN)
+                .setRegulating(regulating && validTargetValue && validTargetDeadband);
 
         return true;
     }
@@ -212,43 +223,58 @@ public class RegulatingControlMappingForTransformers {
 
         boolean okSet = false;
         if (control.mode.endsWith("currentflow")) {
-            okSet = setPtcRegulatingControlCurrentFlow(regulating, rc.ltcFlag, control, ptc, context);
+            okSet = setPtcRegulatingControlCurrentFlow(rc.id, regulating, rc.ltcFlag, control, ptc, context);
         } else if (control.mode.endsWith("activepower")) {
-            okSet = setPtcRegulatingControlActivePower(regulating, rc.ltcFlag, control, ptc, context);
+            okSet = setPtcRegulatingControlActivePower(rc.id, regulating, rc.ltcFlag, control, ptc, context);
         } else if (!control.mode.endsWith("fixed")) {
             context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
         }
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setPtcRegulatingControlCurrentFlow(boolean regulating, boolean ltcFlag, RegulatingControl control,
+    private boolean setPtcRegulatingControlCurrentFlow(String ptcId, boolean regulating, boolean ltcFlag, RegulatingControl control,
                                                        PhaseTapChanger ptc, Context context) {
         PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
                 PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        return setPtcRegulatingControl(regulating, regulationMode, control, ptc, context);
+        return setPtcRegulatingControl(ptcId, regulating, regulationMode, control, ptc, context);
     }
 
-    private boolean setPtcRegulatingControlActivePower(boolean regulating, boolean ltcFlag, RegulatingControl control,
+    private boolean setPtcRegulatingControlActivePower(String ptcId, boolean regulating, boolean ltcFlag, RegulatingControl control,
                                                        PhaseTapChanger ptc, Context context) {
         PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        return setPtcRegulatingControl(regulating, regulationMode, control, ptc, context);
+        return setPtcRegulatingControl(ptcId, regulating, regulationMode, control, ptc, context);
     }
 
-    private boolean setPtcRegulatingControl(boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
+    private boolean setPtcRegulatingControl(String ptcId, boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
                                             RegulatingControl control, PhaseTapChanger ptc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
-        if (terminal == null) {
+        TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
+                .mapForFlowControl(control.cgmesTerminal, context)
+                .orElseGet(() -> new TerminalAndSign(null, 1));
+
+        if (mappedRegulatingTerminal.getTerminal() == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
 
+        boolean fixedRegulating = regulating;
+        if (regulating && regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
+            context.fixed(ptcId, "RegulationMode: regulating is set to true whereas regulationMode is set to FIXED_TAP: regulating fixed to false");
+            fixedRegulating = false;
+        }
+
+        boolean validTargetDeadband = control.targetDeadband >= 0;
+        if (!validTargetDeadband) {
+            context.invalid(ptcId, "Regulating control has a bad target deadband " + control.targetDeadband);
+            badTargetDeadbandRegulatingControlReport(context.getReporter(), ptcId, control.targetDeadband);
+        }
+
         // Order is important
-        ptc.setRegulationTerminal(terminal)
-                .setRegulationValue(control.targetValue)
-                .setTargetDeadband(control.targetDeadband)
+        ptc.setRegulationTerminal(mappedRegulatingTerminal.getTerminal())
+                .setRegulationValue(control.targetValue * mappedRegulatingTerminal.getSign())
+                .setTargetDeadband(validTargetDeadband ? control.targetDeadband : Double.NaN)
                 .setRegulationMode(regulationMode)
-                .setRegulating(regulating);
+                .setRegulating(fixedRegulating && validTargetDeadband);
 
         return true;
     }

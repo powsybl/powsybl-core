@@ -19,7 +19,7 @@ import javax.xml.stream.XMLStreamWriter;
 public final class TerminalRefXml {
 
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
-        writeTerminalRef(t, context, context.getVersion().getNamespaceURI(), elementName);
+        writeTerminalRef(t, context, context.getVersion().getNamespaceURI(context.isValid()), elementName);
     }
 
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) throws XMLStreamException {
@@ -64,6 +64,9 @@ public final class TerminalRefXml {
 
     public static Terminal readTerminalRef(Network network, String id, String side) {
         Identifiable identifiable = network.getIdentifiable(id);
+        if (identifiable == null) {
+            throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
+        }
         if (identifiable instanceof Injection) {
             return ((Injection) identifiable).getTerminal();
         } else if (identifiable instanceof Branch) {
@@ -73,7 +76,7 @@ public final class TerminalRefXml {
             ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
             return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
         } else {
-            throw new AssertionError("Unexpected Identifiable instance: " + identifiable.getClass());
+            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }
     }
 

@@ -44,7 +44,7 @@ public class UcteNetworkImplTest {
         List<UcteNodeCode> codes = network.getNodes().stream().map(UcteNode::getCode).collect(Collectors.toList());
         assertTrue(codes.containsAll(Arrays.asList(code1, code2, code3)));
         UcteNode node = network.getNode(code1);
-        assertEquals(1000.0f, node.getActivePowerGeneration(), 0.0f);
+        assertEquals(1000.0, node.getActivePowerGeneration(), 0.0);
         assertNotNull(network.getNode(code1));
         assertThrows("Node " + code4.toString() + " not found", UcteException.class, () -> network.getNode(code4));
 

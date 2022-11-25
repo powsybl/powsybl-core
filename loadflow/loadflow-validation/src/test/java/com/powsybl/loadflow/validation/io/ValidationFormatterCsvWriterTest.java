@@ -11,7 +11,7 @@ import java.util.Locale;
 
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.iidm.network.util.TwtTestData;
+import com.powsybl.loadflow.validation.util.TwtTestData;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
@@ -387,7 +387,7 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
                                        "maxP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "minQ" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "maxQ" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
-                                       AbstractValidationFormatterWriter.MAIN_COMPONENT +  AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
+                                       AbstractValidationFormatterWriter.MAIN_COMPONENT + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        AbstractValidationFormatterWriter.VALIDATION + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", generatorId,
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
@@ -426,7 +426,7 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
                                        "maxP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "minQ" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "maxQ" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
-                                       AbstractValidationFormatterWriter.MAIN_COMPONENT +  AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
+                                       AbstractValidationFormatterWriter.MAIN_COMPONENT + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        AbstractValidationFormatterWriter.VALIDATION + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherGeneratorId,
                                        "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
@@ -717,7 +717,7 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
                                        "regulationMode" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "bMin" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "bMax" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
-                                       AbstractValidationFormatterWriter.MAIN_COMPONENT +  AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
+                                       AbstractValidationFormatterWriter.MAIN_COMPONENT + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        AbstractValidationFormatterWriter.VALIDATION + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", svcId,
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
@@ -756,7 +756,7 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
                                        "regulationMode" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "bMin" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "bMax" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
-                                       AbstractValidationFormatterWriter.MAIN_COMPONENT +  AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
+                                       AbstractValidationFormatterWriter.MAIN_COMPONENT + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        AbstractValidationFormatterWriter.VALIDATION + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherSvcId,
                                        "", "", "", "", "", "", "", "", "", "", "", "", "",

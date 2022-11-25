@@ -7,39 +7,39 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Supplier;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcMapping;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Context {
 
-    // Log messages
-    private static final String FIXED_REASON = "Fixed {}. Reason: {}";
-    private static final String INVALID_REASON = "Invalid {}. Reason: {}";
-    private static final String IGNORED_REASON = "Ignored {}. Reason: {}";
-
     public Context(CgmesModel cgmes, Config config, Network network) {
+        this(cgmes, config, network, Reporter.NO_OP);
+    }
+
+    public Context(CgmesModel cgmes, Config config, Network network, Reporter reporter) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.network = Objects.requireNonNull(network);
+        this.reporter = Objects.requireNonNull(reporter);
 
         // Even if the CGMES model is node-breaker,
         // we could decide to ignore the connectivity nodes and
@@ -48,7 +48,7 @@ public class Context {
         // based on existing node-breaker info
         nodeBreaker = cgmes.isNodeBreaker() && config.useNodeBreaker();
 
-        namingStrategy = new NamingStrategy.Identity();
+        namingStrategy = config.getNamingStrategy();
         cgmesBoundary = new CgmesBoundary(cgmes);
         substationIdMapping = new SubstationIdMapping(this);
         terminalMapping = new TerminalMapping();
@@ -99,7 +99,7 @@ public class Context {
     }
 
     private boolean setPQAllowed(Terminal t) {
-        return t.getConnectable().getType() != ConnectableType.BUSBAR_SECTION;
+        return t.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION;
     }
 
     public NodeMapping nodeMapping() {
@@ -203,69 +203,98 @@ public class Context {
         return phaseTapChangerTables.get(tableId);
     }
 
+    // Handling issues found during conversion
+
+    public Reporter getReporter() {
+        return reporter;
+    }
+
+    private enum ConversionIssueCategory {
+        INVALID("Invalid"),
+        IGNORED("Ignored"),
+        MISSING("Missing"),
+        FIXED("Fixed"),
+        PENDING("Pending");
+
+        ConversionIssueCategory(String description) {
+            this.description = description;
+        }
+
+        @Override
+        public String toString() {
+            return description;
+        }
+
+        private final String description;
+    }
+
     public void invalid(String what, String reason) {
-        LOG.warn(INVALID_REASON, what, reason);
+        handleIssue(ConversionIssueCategory.INVALID, what, reason);
     }
 
     public void invalid(String what, Supplier<String> reason) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn(INVALID_REASON, what, reason.get());
-        }
-    }
-
-    public void invalid(Supplier<String> what, Supplier<String> reason) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn(INVALID_REASON, what.get(), reason.get());
-        }
+        handleIssue(ConversionIssueCategory.INVALID, what, reason);
     }
 
     public void ignored(String what, String reason) {
-        LOG.warn(IGNORED_REASON, what, reason);
+        handleIssue(ConversionIssueCategory.IGNORED, what, reason);
     }
 
     public void ignored(String what, Supplier<String> reason) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn(IGNORED_REASON, what, reason.get());
-        }
+        handleIssue(ConversionIssueCategory.IGNORED, what, reason);
     }
 
     public void pending(String what, Supplier<String> reason) {
-        if (LOG.isInfoEnabled()) {
-            LOG.info("PENDING {}. Reason: {}", what, reason.get());
-        }
+        handleIssue(ConversionIssueCategory.PENDING, what, reason);
     }
 
     public void fixed(String what, String reason) {
-        LOG.warn(FIXED_REASON, what, reason);
-    }
-
-    public void fixed(Supplier<String> what, String reason) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn(FIXED_REASON, what.get(), reason);
-        }
+        handleIssue(ConversionIssueCategory.FIXED, what, reason);
     }
 
     public void fixed(String what, Supplier<String> reason) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn(FIXED_REASON, what, reason.get());
-        }
+        handleIssue(ConversionIssueCategory.FIXED, what, reason);
     }
 
     public void fixed(String what, String reason, double wrong, double fixed) {
-        LOG.warn("Fixed {}. Reason: {}. Wrong {}, fixed {}", what, reason, wrong, fixed);
+        Supplier<String> reason1 = () -> String.format("%s. Wrong %.4f, was fixed to %.4f", reason, wrong, fixed);
+        handleIssue(ConversionIssueCategory.FIXED, what, reason1);
     }
 
     public void missing(String what) {
-        LOG.warn("Missing {}", what);
+        String reason1 = "";
+        handleIssue(ConversionIssueCategory.MISSING, what, reason1);
+    }
+
+    public void missing(String what, Supplier<String> reason) {
+        handleIssue(ConversionIssueCategory.MISSING, what, reason);
     }
 
     public void missing(String what, double defaultValue) {
-        LOG.warn("Missing {}. Used default value {}", what, defaultValue);
+        Supplier<String> reason1 = () -> String.format("Using default value %.4f", defaultValue);
+        handleIssue(ConversionIssueCategory.MISSING, what, reason1);
+    }
+
+    private void handleIssue(ConversionIssueCategory category, String what, String reason) {
+        handleIssue(category, what, () -> reason);
+    }
+
+    private void handleIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
+        logIssue(category, what, reason);
+    }
+
+    private static void logIssue(ConversionIssueCategory category, String what, Supplier<String> reason) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("{}: {}. Reason: {}", category, what, reason.get());
+        }
     }
 
     private final CgmesModel cgmes;
     private final Network network;
     private final Config config;
+
+    private final Reporter reporter;
+
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;
     private final SubstationIdMapping substationIdMapping;

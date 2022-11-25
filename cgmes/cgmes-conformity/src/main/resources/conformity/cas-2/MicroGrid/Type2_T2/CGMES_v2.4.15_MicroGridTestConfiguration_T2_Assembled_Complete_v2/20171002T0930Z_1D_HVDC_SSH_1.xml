@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#">
+  <md:FullModel rdf:about="urn:uuid:33935aa1-9721-4097-a7e9-fdeca6399a88">
+    <md:Model.created>2014-10-24T15:43:46</md:Model.created>
+    <md:Model.scenarioTime>2017-10-02T09:30:00Z</md:Model.scenarioTime>
+    <md:Model.version>1</md:Model.version>
+    <md:Model.DependentOn rdf:resource="urn:uuid:eaa2449e-f8f5-4ce2-a228-80fb84e45126"/>
+    <md:Model.description>CGMES Conformity Assessment: MicroGridTestConfiguration T2 (MAS NL). The model is owned by ENTSO-E and is provided by ENTSO-E “as it is”. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall  include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+    <md:Model.modelingAuthoritySet>http://tennet.eu/HVDC/CAS2.0/MicroGridTestConfiguration</md:Model.modelingAuthoritySet>
+    <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+  </md:FullModel>
+  <cim:Terminal rdf:about="#_2e47e822-459d-41fc-babd-bfa083d91e69">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_b67eba20-5e8e-4d1a-954d-fa7938de74a3">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_f5cfda4b-3087-4bd3-9752-7a6b4f1bec2d">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_608ea2f0-a506-4c39-904a-3f5b726dfe3f">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_fd64173b-8fb5-4b66-afe5-9a832e6bcb45">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_5b52e14e-550a-4084-91cc-14ec5d38e042">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_a2a8f829-f6fd-441f-b4c1-b354316e141f">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_44132906-2926-4018-b7d0-2997c0d0d678">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_7f8e72f1-9595-4b2a-9f02-40a72fbd8904">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#_26e50b4b-9a19-420d-98ce-bc4f11971cd7">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:DCTerminal rdf:about="#_3ed56d3d-f113-4b51-b45a-fb681ae880a5">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:DCTerminal>
+  <cim:DCTerminal rdf:about="#_5da31c8a-9f57-46d4-947d-49faa64d6c1d">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:DCTerminal>
+  <cim:DCTerminal rdf:about="#_6e975317-3a8b-488d-915b-386324031791">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:DCTerminal>
+  <cim:DCTerminal rdf:about="#_2da6bc1b-86bc-42f0-90de-16d51e6f1931">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:DCTerminal>
+  <cim:Terminal rdf:about="#_efdb79f6-ae2f-49ab-a561-397fb88faca7">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:ACDCConverterDCTerminal rdf:about="#_a44c960a-3281-47a6-b064-ce88fe0139c0">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:ACDCConverterDCTerminal>
+  <cim:ACDCConverterDCTerminal rdf:about="#_201a58d2-80ca-4d91-a086-d53feb5aa77b">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:ACDCConverterDCTerminal>
+  <cim:Terminal rdf:about="#_385fa00a-808d-4973-a415-e93bcdfd3d52">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:Terminal>
+  <cim:ACDCConverterDCTerminal rdf:about="#_846ca997-4c1e-4244-85a6-ad967450a2c8">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:ACDCConverterDCTerminal>
+  <cim:ACDCConverterDCTerminal rdf:about="#_4cefd102-4e85-4d1a-b5c1-78c55cecda95">
+    <cim:ACDCTerminal.connected>true</cim:ACDCTerminal.connected>
+  </cim:ACDCConverterDCTerminal>
+  <cim:RatioTapChanger rdf:about="#_f6b6428b-d201-4170-89f3-4f630c662b7c">
+    <cim:TapChanger.step>-2</cim:TapChanger.step>
+    <cim:TapChanger.controlEnabled>false</cim:TapChanger.controlEnabled>
+  </cim:RatioTapChanger>
+  <cim:RatioTapChanger rdf:about="#_f11b9b1d-96df-4f20-af1c-a51d4cdb7467">
+    <cim:TapChanger.step>0</cim:TapChanger.step>
+    <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+  </cim:RatioTapChanger>
+  <cim:VsConverter rdf:about="#_76eeb38f-a3ef-4444-9c65-6cb46a7a94da">
+    <cim:ACDCConverter.p>150.000000</cim:ACDCConverter.p>
+    <cim:ACDCConverter.q>0</cim:ACDCConverter.q>
+    <cim:ACDCConverter.targetPpcc>150.000000</cim:ACDCConverter.targetPpcc>
+    <cim:ACDCConverter.targetUdc>0e+000</cim:ACDCConverter.targetUdc>
+    <cim:VsConverter.droop>0e+000</cim:VsConverter.droop>
+    <cim:VsConverter.droopCompensation>0e+000</cim:VsConverter.droopCompensation>
+    <cim:VsConverter.pPccControl rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.pPcc"/>
+    <cim:VsConverter.qPccControl rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.reactivePcc"/>
+    <cim:VsConverter.qShare>1.000000</cim:VsConverter.qShare>
+    <cim:VsConverter.targetQpcc>40.000000</cim:VsConverter.targetQpcc>
+    <cim:VsConverter.targetUpcc>0e+000</cim:VsConverter.targetUpcc>
+  </cim:VsConverter>
+  <cim:VsConverter rdf:about="#_0f05e270-37ea-471d-89fe-aee8a55b932b">
+    <cim:ACDCConverter.p>0e+000</cim:ACDCConverter.p>
+    <cim:ACDCConverter.q>0</cim:ACDCConverter.q>
+    <cim:ACDCConverter.targetPpcc>0e+000</cim:ACDCConverter.targetPpcc>
+    <cim:ACDCConverter.targetUdc>150.000000</cim:ACDCConverter.targetUdc>
+    <cim:VsConverter.droop>0e+000</cim:VsConverter.droop>
+    <cim:VsConverter.droopCompensation>0e+000</cim:VsConverter.droopCompensation>
+    <cim:VsConverter.pPccControl rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#VsPpccControlKind.udc"/>
+    <cim:VsConverter.qPccControl rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#VsQpccControlKind.reactivePcc"/>
+    <cim:VsConverter.qShare>1.000000</cim:VsConverter.qShare>
+    <cim:VsConverter.targetQpcc>-40.000000</cim:VsConverter.targetQpcc>
+    <cim:VsConverter.targetUpcc>0e+000</cim:VsConverter.targetUpcc>
+  </cim:VsConverter>
+  <cim:EquivalentInjection rdf:about="#_13f467d5-1d14-4fe0-8d51-a5972dd72535">
+    <cim:EquivalentInjection.p>-150.051937</cim:EquivalentInjection.p>
+    <cim:EquivalentInjection.q>-60.125342</cim:EquivalentInjection.q>
+    <cim:EquivalentInjection.regulationStatus>false</cim:EquivalentInjection.regulationStatus>
+    <cim:EquivalentInjection.regulationTarget>0.0</cim:EquivalentInjection.regulationTarget>
+  </cim:EquivalentInjection>
+  <cim:EquivalentInjection rdf:about="#_820d95d7-26d4-4311-8b1f-026f8605b86d">
+    <cim:EquivalentInjection.p>140.978004</cim:EquivalentInjection.p>
+    <cim:EquivalentInjection.q>22.280755</cim:EquivalentInjection.q>
+    <cim:EquivalentInjection.regulationStatus>false</cim:EquivalentInjection.regulationStatus>
+    <cim:EquivalentInjection.regulationTarget>0.0</cim:EquivalentInjection.regulationTarget>
+  </cim:EquivalentInjection>
+  <cim:TapChangerControl rdf:about="#_da7fa470-044a-42e6-afb7-c6c01e028a07">
+    <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+    <cim:RegulatingControl.targetDeadband>0.500000</cim:RegulatingControl.targetDeadband>
+    <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>
+    <cim:RegulatingControl.enabled>false</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.targetValue>123.900000</cim:RegulatingControl.targetValue>
+  </cim:TapChangerControl>
+  <cim:TapChangerControl rdf:about="#_40f04fde-8eb3-413b-a594-c4b3eb16b69f">
+    <cim:RegulatingControl.discrete>true</cim:RegulatingControl.discrete>
+    <cim:RegulatingControl.targetDeadband>0.500000</cim:RegulatingControl.targetDeadband>
+    <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k"/>
+    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.targetValue>123.900000</cim:RegulatingControl.targetValue>
+  </cim:TapChangerControl>
+</rdf:RDF>

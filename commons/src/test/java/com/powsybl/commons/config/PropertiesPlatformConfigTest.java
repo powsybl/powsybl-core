@@ -16,9 +16,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -54,10 +56,11 @@ public class PropertiesPlatformConfigTest extends MapModuleConfigTest {
             prop1.store(w, null);
         }
         PlatformConfig propsConfig = new PlatformConfig(new PropertiesModuleConfigRepository(cfgDir), cfgDir);
-        ModuleConfig modConfig = propsConfig.getModuleConfig("mod");
-        assertModConfig(modConfig);
+        Optional<ModuleConfig> modConfig = propsConfig.getOptionalModuleConfig("mod");
+        assertTrue(modConfig.isPresent());
+        assertModConfig(modConfig.get());
 
-        assertEquals(Sets.newHashSet("p", "b", "c", "s", "d", "dt", "e", "el", "pl2", "sl2", "sl1", "i", "it", "l", "pl"), modConfig.getPropertyNames());
-
+        assertEquals(Sets.newHashSet("p", "b", "c", "s", "d", "dt", "e", "el", "pl2", "sl2", "sl1", "i", "it", "l", "pl"),
+                modConfig.get().getPropertyNames());
     }
 }

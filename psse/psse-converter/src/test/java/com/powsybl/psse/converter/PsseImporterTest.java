@@ -6,11 +6,11 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.*;
 
@@ -83,7 +84,7 @@ public class PsseImporterTest extends AbstractConverterTest {
         Assert.assertFalse(importer.exists(dsCaseInvalidx));
     }
 
-    public void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
+    private void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
         Properties properties = new Properties();
         properties.put("psse.import.ignore-base-voltage", ignoreBaseVoltage);
 
@@ -100,6 +101,11 @@ public class PsseImporterTest extends AbstractConverterTest {
     @Test
     public void importTest24() throws IOException {
         importTest("IEEE_24_bus", "IEEE_24_bus.raw", false);
+    }
+
+    @Test
+    public void importTest30() throws IOException {
+        importTest("IEEE_30_bus", "IEEE_30_bus.raw", false);
     }
 
     @Test
@@ -140,6 +146,16 @@ public class PsseImporterTest extends AbstractConverterTest {
     @Test
     public void importTest14IsolatedBuses() throws IOException {
         importTest("IEEE_14_isolated_buses", "IEEE_14_isolated_buses.raw", false);
+    }
+
+    @Test
+    public void twoTerminalDc() throws IOException {
+        importTest("twoTerminalDc", "twoTerminalDc.raw", false);
+    }
+
+    @Test
+    public void twoWindingsTransformerPhase() throws IOException {
+        importTest("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
     }
 
     @Test

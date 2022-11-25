@@ -9,6 +9,7 @@ package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
 import org.joda.time.DateTime;
@@ -135,8 +136,6 @@ public interface CgmesModel {
 
     PropertyBags dcTerminals();
 
-    PropertyBags dcTerminalsTP();
-
     default PropertyBags tieFlows() {
         return new PropertyBags();
     }
@@ -177,11 +176,11 @@ public interface CgmesModel {
         throw new UnsupportedOperationException();
     }
 
-    void read(ReadOnlyDataSource ds);
+    void read(ReadOnlyDataSource ds, Reporter reporter);
 
-    void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary);
+    void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter);
 
-    void read(InputStream is, String baseName, String contextName);
+    void read(InputStream is, String baseName, String contextName, Reporter reporter);
 
     // Helper mappings
 

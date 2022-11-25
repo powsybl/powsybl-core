@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
@@ -16,12 +15,12 @@ import com.powsybl.iidm.network.Network;
  */
 public interface CgmesModelExtension extends Extension<Network> {
 
-    CgmesModel getCgmesModel();
+    String NAME = "CgmesModel";
 
-    CgmesUpdate getCgmesUpdate();
+    CgmesModel getCgmesModel();
 
     @Override
     default String getName() {
-        return "CgmesModel";
+        return NAME;
     }
 }

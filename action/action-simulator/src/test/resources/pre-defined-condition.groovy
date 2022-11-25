@@ -18,6 +18,6 @@ rule('rule1') {
 }
 
 action('action1') {
-    tasks {
+    modifications {
     }
 }

@@ -6,11 +6,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.impl.util.Ref;
+
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,8 +24,8 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
 
     private float lossFactor = Float.NaN;
 
-    AbstractHvdcConverterStation(String id, String name, boolean fictitious, float lossFactor) {
-        super(id, name, fictitious);
+    AbstractHvdcConverterStation(Ref<NetworkImpl> network, String id, String name, boolean fictitious, float lossFactor) {
+        super(network, id, name, fictitious);
         this.hvdcLine = null;
         this.lossFactor = lossFactor;
     }
@@ -44,11 +46,6 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.HVDC_CONVERTER_STATION;
-    }
-
-    @Override
     public float getLossFactor() {
         return lossFactor;
     }
@@ -60,6 +57,15 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
         this.lossFactor = lossFactor;
         notifyUpdate("lossFactor", oldValue, lossFactor);
         return (T) this;
+    }
+
+    @Override
+    public Optional<? extends HvdcConverterStation<?>> getOtherConverterStation() {
+        if (hvdcLine != null) {
+            return hvdcLine.getConverterStation1() == this ? Optional.ofNullable(hvdcLine.getConverterStation2()) : Optional.ofNullable(hvdcLine.getConverterStation1());
+        } else {
+            return Optional.empty();
+        }
     }
 
     @Override

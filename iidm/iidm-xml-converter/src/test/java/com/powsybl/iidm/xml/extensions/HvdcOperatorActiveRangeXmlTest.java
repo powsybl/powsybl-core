@@ -8,7 +8,7 @@
 
 package com.powsybl.iidm.xml.extensions;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
@@ -33,8 +33,7 @@ public class HvdcOperatorActiveRangeXmlTest extends AbstractConverterTest {
         Network network = HvdcTestNetwork.createLcc();
 
         HvdcLine hvdcLine = network.getHvdcLine("L");
-        hvdcLine.newExtension(HvdcOperatorActivePowerRangeAdder.class).withOprFromCS1toCS2(1.0f).withOprFromCS2toCS1(2.0f).add();
-        HvdcOperatorActivePowerRange extension = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
+        HvdcOperatorActivePowerRange extension = hvdcLine.newExtension(HvdcOperatorActivePowerRangeAdder.class).withOprFromCS1toCS2(1.0f).withOprFromCS2toCS1(2.0f).add();
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,

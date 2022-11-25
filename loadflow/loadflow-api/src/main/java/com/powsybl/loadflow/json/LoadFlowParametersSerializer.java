@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.io.IOException;
@@ -34,14 +35,22 @@ public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParamete
         jsonGenerator.writeBooleanField("phaseShifterRegulationOn", parameters.isPhaseShifterRegulationOn());
         jsonGenerator.writeBooleanField("noGeneratorReactiveLimits", parameters.isNoGeneratorReactiveLimits());
         jsonGenerator.writeBooleanField("twtSplitShuntAdmittance", parameters.isTwtSplitShuntAdmittance());
-        jsonGenerator.writeBooleanField("simulShunt", parameters.isSimulShunt());
+        jsonGenerator.writeBooleanField("shuntCompensatorVoltageControlOn", parameters.isShuntCompensatorVoltageControlOn());
         jsonGenerator.writeBooleanField("readSlackBus", parameters.isReadSlackBus());
         jsonGenerator.writeBooleanField("writeSlackBus", parameters.isWriteSlackBus());
         jsonGenerator.writeBooleanField("dc", parameters.isDc());
         jsonGenerator.writeBooleanField("distributedSlack", parameters.isDistributedSlack());
         jsonGenerator.writeStringField("balanceType", parameters.getBalanceType().name());
+        jsonGenerator.writeBooleanField("dcUseTransformerRatio", parameters.isDcUseTransformerRatio());
+        jsonGenerator.writeArrayFieldStart("countriesToBalance");
+        for (Country arg : parameters.getCountriesToBalance()) {
+            jsonGenerator.writeString(arg.name());
+        }
+        jsonGenerator.writeEndArray();
+        jsonGenerator.writeStringField("connectedComponentMode", parameters.getConnectedComponentMode().name());
+        jsonGenerator.writeBooleanField("hvdcAcEmulation", parameters.isHvdcAcEmulation());
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonLoadFlowParameters.getExtensionSerializers());
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonLoadFlowParameters.getExtensionSerializers()::get);
 
         jsonGenerator.writeEndObject();
     }

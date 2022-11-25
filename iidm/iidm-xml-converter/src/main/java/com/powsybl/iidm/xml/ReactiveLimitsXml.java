@@ -30,9 +30,9 @@ public class ReactiveLimitsXml {
         switch (holder.getReactiveLimits().getKind()) {
             case CURVE:
                 ReactiveCapabilityCurve curve = holder.getReactiveLimits(ReactiveCapabilityCurve.class);
-                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), ELEM_REACTIVE_CAPABILITY_CURVE);
+                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), ELEM_REACTIVE_CAPABILITY_CURVE);
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "point");
+                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "point");
                     XmlUtil.writeDouble("p", point.getP(), context.getWriter());
                     XmlUtil.writeDouble(ATTR_MIN_Q, point.getMinQ(), context.getWriter());
                     XmlUtil.writeDouble(ATTR_MAX_Q, point.getMaxQ(), context.getWriter());
@@ -42,7 +42,7 @@ public class ReactiveLimitsXml {
 
             case MIN_MAX:
                 MinMaxReactiveLimits limits = holder.getReactiveLimits(MinMaxReactiveLimits.class);
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), ELEM_MIN_MAX_REACTIVE_LIMITS);
+                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), ELEM_MIN_MAX_REACTIVE_LIMITS);
                 XmlUtil.writeDouble(ATTR_MIN_Q, limits.getMinQ(), context.getWriter());
                 XmlUtil.writeDouble(ATTR_MAX_Q, limits.getMaxQ(), context.getWriter());
                 break;

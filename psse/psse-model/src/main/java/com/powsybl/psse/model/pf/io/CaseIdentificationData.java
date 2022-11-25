@@ -35,12 +35,12 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
     }
 
     @Override
-    public Class<PsseCaseIdentification> psseTypeClass() {
+    protected Class<PsseCaseIdentification> psseTypeClass() {
         return PsseCaseIdentification.class;
     }
 
     private static class CaseIdentificationLegacyText extends RecordGroupIOLegacyText<PsseCaseIdentification> {
-        public CaseIdentificationLegacyText(AbstractRecordGroup<PsseCaseIdentification> recordGroup) {
+        protected CaseIdentificationLegacyText(AbstractRecordGroup<PsseCaseIdentification> recordGroup) {
             super(recordGroup);
         }
 

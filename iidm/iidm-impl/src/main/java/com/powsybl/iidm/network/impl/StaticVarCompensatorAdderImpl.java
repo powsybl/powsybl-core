@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensatorAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
@@ -84,20 +81,21 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     @Override
     public StaticVarCompensatorImpl add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkSvcRegulator(this, voltageSetpoint, reactivePowerSetpoint, regulationMode);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSvcRegulator(this, voltageSetpoint, reactivePowerSetpoint, regulationMode, network.getMinValidationLevel()));
         StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageSetpoint, reactivePowerSetpoint,
                 regulationMode, regulatingTerminal != null ? regulatingTerminal : terminal,
-                getNetwork().getRef());
+                network.getRef());
         svc.addTerminal(terminal);
         vl.attach(terminal, false);
-        getNetwork().getIndex().checkAndAdd(svc);
-        getNetwork().getListeners().notifyCreation(svc);
+        network.getIndex().checkAndAdd(svc);
+        network.getListeners().notifyCreation(svc);
         return svc;
     }
 

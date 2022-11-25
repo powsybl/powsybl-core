@@ -12,16 +12,19 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractConverterTest;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -90,6 +93,19 @@ public class ExtensionTest extends AbstractConverterTest {
         assertNull(foo.getExtension(BarExt.class));
     }
 
+    private void assertBadExtensionJsonThrows(ThrowingRunnable runnable) {
+        PowsyblException exception = assertThrows(PowsyblException.class, runnable);
+        assertTrue("Exception should be about bad field exceptions, but got: " + exception.getMessage(),
+                exception.getMessage().contains("\"extensions\""));
+    }
+
+    @Test
+    public void testBadReadJson() throws IOException {
+        assertBadExtensionJsonThrows(() -> {
+            Foo foo = FooDeserializer.read(getClass().getResourceAsStream("/BadExtensions.json"));
+        });
+    }
+
     @Test
     public void testWriteJson() throws IOException {
         Files.createFile(tmpDir.resolve("extensions.json"));
@@ -119,6 +135,14 @@ public class ExtensionTest extends AbstractConverterTest {
         FooDeserializer.update(getClass().getResourceAsStream("/extensionsUpdate.json"), foo);
         assertTrue(foo.getExtension(FooExt.class).getValue());
         assertEquals("Hello", foo.getExtension(FooExt.class).getValue2());
+    }
+
+    @Test
+    public void testBadUpdateAndDeserialize() throws IOException {
+        assertBadExtensionJsonThrows(() -> {
+            Foo foo = new Foo();
+            FooDeserializer.update(getClass().getResourceAsStream("/BadExtensions.json"), foo);
+        });
     }
 
     @Test

@@ -37,6 +37,23 @@ public interface Matrix {
     }
 
     /**
+     * Utility method for creating a single row matrix from a java array.
+     *
+     * @param r a row array
+     * @param matrixFactory matrix factory to allow creating the matrix with different implementations.
+     * @return the single row matrix
+     */
+    static Matrix createFromRow(double[] r, MatrixFactory matrixFactory) {
+        Objects.requireNonNull(r);
+        Objects.requireNonNull(matrixFactory);
+        Matrix m = matrixFactory.create(1, r.length, r.length);
+        for (int j = 0; j < r.length; j++) {
+            m.set(0, j, r[j]);
+        }
+        return m;
+    }
+
+    /**
      * An element of the matrix.
      * Used to later update a value.
      */
@@ -147,6 +164,48 @@ public interface Matrix {
     Element addAndGetElement(int i, int j, double value);
 
     /**
+     * Add value at row {@code i} and column {@code j} and get an element index to later update the element.
+     *
+     * @param i row index
+     * @param j column index
+     * @param value the value to add at row {@code i} and column {@code j}
+     * @return an element index corresponding to row {@code i} and column {@code j}
+     */
+    int addAndGetIndex(int i, int j, double value);
+
+    /**
+     * Set value at element index {@code index}.
+     *
+     * @param index element index
+     * @param value the value to set at element index {@code index}
+     */
+    void setAtIndex(int index, double value);
+
+    /**
+     * Set value at element index {@code index} without doing any bound checking.
+     *
+     * @param index element index
+     * @param value the value to set at element index {@code index}
+     */
+    void setQuickAtIndex(int index, double value);
+
+    /**
+     * Add value at element index {@code index}.
+     *
+     * @param index element index
+     * @param value the value to add at element index {@code index}
+     */
+    void addAtIndex(int index, double value);
+
+    /**
+     * Add value at element index {@code index} without doing any bound checking.
+     *
+     * @param index element index
+     * @param value the value to add at element index {@code index}
+     */
+    void addQuickAtIndex(int index, double value);
+
+    /**
      * @deprecated Use {@link #add(int, int, double)} instead.
      */
     @Deprecated
@@ -167,12 +226,43 @@ public interface Matrix {
     LUDecomposition decomposeLU();
 
     /**
-     * Multiply the matrix by another one (this*other).
+     * Multiply the matrix by another one and by a scalar (this*other*scalar). The resulting matrix has the same implementation as
+     * this matrix.
+     *
+     * @param other the other matrix
+     * @param scalar a scalar to multiply the result matrix
+     * @return the result of the multiplication of this matrix by the other one
+     */
+    Matrix times(Matrix other, double scalar);
+
+    /**
+     * Multiply the matrix by another one. The resulting matrix has the same implementation as
+     * this matrix.
      *
      * @param other the other matrix
      * @return the result of the multiplication of this matrix by the other one
      */
     Matrix times(Matrix other);
+
+    /**
+     * Addition the matrix with another one (alpha * this + beta * other). The resulting matrix has the same
+     * implementation as this matrix.
+     *
+     * @param other the other matrix
+     * @param alpha a scalar to multiply this matrix
+     * @param beta a scalar to multiply other matrix
+     * @return the result of the addition of this matrix and the other one
+     */
+    Matrix add(Matrix other, double alpha, double beta);
+
+    /**
+     * Addition the matrix with another one (this + other). The resulting matrix has the same implementation as
+     * this matrix.
+     *
+     * @param other the other matrix
+     * @return the result of the addition of this matrix and the other one
+     */
+    Matrix add(Matrix other);
 
     /**
      * Iterate over non zero values of the matrix. At each non zero value {@link ElementHandler#onElement(int, int, double)}
@@ -223,6 +313,13 @@ public interface Matrix {
      * @return a copy of the matrix
      */
     Matrix copy(MatrixFactory factory);
+
+    /**
+     * Calculate the transposed matrix.
+     *
+     * @return the transposed matrix
+     */
+    Matrix transpose();
 
     /**
      * Print the matrix to a stream. Row and column names are also printed to facilitate debugging.

@@ -6,39 +6,75 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
+import gnu.trove.list.array.TFloatArrayList;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
-public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractExtension<T>
+public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMultiVariantIdentifiableExtension<T>
         implements ActivePowerControl<T> {
 
-    private boolean participate;
+    private TBooleanArrayList participate;
 
-    private float droop;
+    private TFloatArrayList droop;
 
     public ActivePowerControlImpl(T component, boolean participate, float droop) {
         super(component);
-        this.participate = participate;
-        this.droop = droop;
+        int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
+        this.participate = new TBooleanArrayList(variantArraySize);
+        this.droop = new TFloatArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.participate.add(participate);
+            this.droop.add(droop);
+        }
     }
 
     public boolean isParticipate() {
-        return participate;
+        return participate.get(getVariantIndex());
     }
 
     public void setParticipate(boolean participate) {
-        this.participate = participate;
+        this.participate.set(getVariantIndex(), participate);
     }
 
     public float getDroop() {
-        return droop;
+        return droop.get(getVariantIndex());
     }
 
     public void setDroop(float droop) {
-        this.droop = droop;
+        this.droop.set(getVariantIndex(), droop);
+    }
+
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        participate.ensureCapacity(participate.size() + number);
+        droop.ensureCapacity(droop.size() + number);
+        for (int i = 0; i < number; ++i) {
+            participate.add(participate.get(sourceIndex));
+            droop.add(droop.get(sourceIndex));
+        }
+    }
+
+    @Override
+    public void reduceVariantArraySize(int number) {
+        participate.remove(participate.size() - number, number);
+        droop.remove(droop.size() - number, number);
+    }
+
+    @Override
+    public void deleteVariantArrayElement(int index) {
+        // Does nothing
+    }
+
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        for (int index : indexes) {
+            participate.set(index, participate.get(sourceIndex));
+            droop.set(index, droop.get(sourceIndex));
+        }
     }
 }

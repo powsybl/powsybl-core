@@ -6,11 +6,13 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -19,16 +21,19 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.CIM_14_NAMESPACE;
-import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class CgmesExportContextTest {
+
+    @Test
+    public void testExporter() {
+        var exporter = new CgmesExport();
+        assertEquals("ENTSO-E CGMES version 2.4.15", exporter.getComment());
+        assertEquals(8, exporter.getParameters().size());
+    }
 
     @Test
     public void networkConstructor() {
@@ -37,7 +42,7 @@ public class CgmesExportContextTest {
         CgmesExportContext context1 = new CgmesExportContext(network);
 
         assertEquals(16, context1.getCimVersion());
-        assertEquals(CIM_16_NAMESPACE, context1.getCimNamespace());
+        assertEquals(CgmesNamespace.CIM_16_NAMESPACE, context1.getCim().getNamespace());
         assertEquals(CgmesTopologyKind.BUS_BRANCH, context1.getTopologyKind());
         assertEquals(network.getCaseDate(), context1.getScenarioTime());
         assertEquals("SV Model", context1.getSvModelDescription().getDescription());
@@ -46,21 +51,21 @@ public class CgmesExportContextTest {
         assertEquals("powsybl.org", context1.getSvModelDescription().getModelingAuthoritySet());
 
         network.newExtension(CimCharacteristicsAdder.class)
-                .setCimVersion(14)
-                .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
-                .add();
+            .setCimVersion(14)
+            .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
+            .add();
         network.newExtension(CgmesSvMetadataAdder.class)
-                .setDescription("test")
-                .setSvVersion(2)
-                .addDependency("powsybl.test.org")
-                .addDependency("cgmes")
-                .setModelingAuthoritySet("cgmes.org")
-                .add();
+            .setDescription("test")
+            .setSvVersion(2)
+            .addDependency("powsybl.test.org")
+            .addDependency("cgmes")
+            .setModelingAuthoritySet("cgmes.org")
+            .add();
 
         CgmesExportContext context2 = new CgmesExportContext(network);
 
         assertEquals(14, context2.getCimVersion());
-        assertEquals(CIM_14_NAMESPACE, context2.getCimNamespace());
+        assertEquals(CgmesNamespace.CIM_14_NAMESPACE, context2.getCim().getNamespace());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, context2.getTopologyKind());
         assertEquals(network.getCaseDate(), context2.getScenarioTime());
         assertEquals("test", context2.getSvModelDescription().getDescription());
@@ -75,32 +80,33 @@ public class CgmesExportContextTest {
     public void emptyConstructor() {
         CgmesExportContext context = new CgmesExportContext();
         assertEquals(16, context.getCimVersion());
-        assertEquals(CIM_16_NAMESPACE, context.getCimNamespace());
+        assertEquals(CgmesNamespace.CIM_16_NAMESPACE, context.getCim().getNamespace());
         assertEquals(CgmesTopologyKind.BUS_BRANCH, context.getTopologyKind());
         assertTrue(new Duration(DateTime.now(), context.getScenarioTime()).getStandardMinutes() < 1);
         assertEquals("SV Model", context.getSvModelDescription().getDescription());
         assertEquals(1, context.getSvModelDescription().getVersion());
         assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
         assertEquals("powsybl.org", context.getSvModelDescription().getModelingAuthoritySet());
-        assertFalse(context.exportBoundaryPowerFlows());
+        assertTrue(context.exportBoundaryPowerFlows());
     }
 
     @Test
     public void getSet() {
         CgmesExportContext context = new CgmesExportContext()
-                .setCimVersion(14)
-                .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
-                .setScenarioTime(DateTime.parse("2020-09-22T17:21:11.381+02:00"))
-                .setExportBoundaryPowerFlows(true);
+            .setCimVersion(14)
+            .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
+            .setScenarioTime(DateTime.parse("2020-09-22T17:21:11.381+02:00"))
+            .setExportBoundaryPowerFlows(true)
+            .setExportFlowsForSwitches(false);
         context.getSvModelDescription()
-                .setDescription("test")
-                .setVersion(2)
-                .addDependency("powsybl.test.org")
-                .addDependency("cgmes")
-                .setModelingAuthoritySet("cgmes.org");
+            .setDescription("test")
+            .setVersion(2)
+            .addDependency("powsybl.test.org")
+            .addDependency("cgmes")
+            .setModelingAuthoritySet("cgmes.org");
 
         assertEquals(14, context.getCimVersion());
-        assertEquals(CIM_14_NAMESPACE, context.getCimNamespace());
+        assertEquals(CgmesNamespace.CIM_14_NAMESPACE, context.getCim().getNamespace());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, context.getTopologyKind());
         assertEquals(DateTime.parse("2020-09-22T17:21:11.381+02:00"), context.getScenarioTime());
         assertEquals("test", context.getSvModelDescription().getDescription());

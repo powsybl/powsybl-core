@@ -8,18 +8,18 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.network.util.Networks;
 import org.joda.time.DateTime;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -76,10 +76,25 @@ public abstract class AbstractNetworkTest {
         assertNotNull(voltageLevel1);
         assertEquals(VOLTAGE_LEVEL1, voltageLevel1.getId());
         assertEquals(400.0, voltageLevel1.getNominalV(), 0.0);
-        assertSame(substation1, voltageLevel1.getSubstation());
+        assertSame(substation1, voltageLevel1.getSubstation().orElse(null));
         assertSame(TopologyKind.NODE_BREAKER, voltageLevel1.getTopologyKind());
 
         NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
+
+        assertEquals(0.0, topology1.getFictitiousP0(0), 0.0);
+        assertEquals(0.0, topology1.getFictitiousQ0(0), 0.0);
+        topology1.setFictitiousP0(0, 1.0).setFictitiousQ0(0, 2.0);
+        assertEquals(1.0, topology1.getFictitiousP0(0), 0.0);
+        assertEquals(2.0, topology1.getFictitiousQ0(0), 0.0);
+        Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(voltageLevel1);
+        nodesByBus.forEach((busId, nodes) -> {
+            if (nodes.contains(0)) {
+                assertEquals(1.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
+            } else if (nodes.contains(1)) {
+                assertEquals(2.0, voltageLevel1.getBusView().getBus(busId).getFictitiousP0(), 0.0);
+            }
+        });
+
         assertEquals(6, topology1.getMaximumNodeIndex());
         assertEquals(2, Iterables.size(topology1.getBusbarSections()));
         assertEquals(2, topology1.getBusbarSectionCount());
@@ -97,6 +112,12 @@ public abstract class AbstractNetworkTest {
         assertEquals(VOLTAGE_LEVEL1_BUSBAR_SECTION2, voltageLevel1BusbarSection2.getId());
         assertEquals(5, Iterables.size(topology1.getSwitches()));
         assertEquals(5, topology1.getSwitchCount());
+
+        assertEquals(Arrays.asList(network.getSwitch("generator1Disconnector1"), network.getSwitch("generator1Breaker1")),
+            topology1.getSwitches(6));
+        assertEquals(Arrays.asList(network.getSwitch("load1Disconnector1"), network.getSwitch("load1Breaker1")),
+            topology1.getSwitchStream(3).collect(Collectors.toList()));
+        assertEquals(Collections.singletonList(network.getSwitch("load1Disconnector1")), topology1.getSwitches(2));
 
         assertEquals(5, Iterables.size(network.getSwitches()));
         assertEquals(5, network.getSwitchCount());
@@ -196,6 +217,29 @@ public abstract class AbstractNetworkTest {
         busCalc.setProperty(key, value);
         // Check no notification
         verifyNoMoreInteractions(mockedListener);
+
+        // validation
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.runValidationChecks();
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.getLoad("load1").setP0(0.0);
+        voltageLevel1.newLoad()
+                .setId("unchecked")
+                .setP0(1.0)
+                .setQ0(1.0)
+                .setNode(3)
+                .add();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        Load unchecked2 = voltageLevel1.newLoad()
+                .setId("unchecked2")
+                .setNode(10)
+                .add();
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+        unchecked2.setP0(0.0).setQ0(0.0);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
     @Test
@@ -239,7 +283,7 @@ public abstract class AbstractNetworkTest {
         assertNotNull(voltageLevel1);
         assertEquals(VLGEN, voltageLevel1.getId());
         assertEquals(400.0, voltageLevel1.getNominalV(), 0.0);
-        assertSame(substation1, voltageLevel1.getSubstation());
+        assertSame(substation1, voltageLevel1.getSubstation().orElse(null));
         assertSame(TopologyKind.BUS_BREAKER, voltageLevel1.getTopologyKind());
 
         Bus bus1 = voltageLevel1.getBusBreakerView().getBus("NGEN");
@@ -270,7 +314,7 @@ public abstract class AbstractNetworkTest {
         assertNotNull(voltageLevel2);
         assertEquals(VLBAT, voltageLevel2.getId());
         assertEquals(400.0, voltageLevel2.getNominalV(), 0.0);
-        assertSame(substation2, voltageLevel2.getSubstation());
+        assertSame(substation2, voltageLevel2.getSubstation().orElse(null));
         assertSame(TopologyKind.BUS_BREAKER, voltageLevel2.getTopologyKind());
 
         Bus bus2 = voltageLevel2.getBusBreakerView().getBus("NBAT");
@@ -279,8 +323,8 @@ public abstract class AbstractNetworkTest {
         Battery battery1 = network.getBattery("BAT");
         assertNotNull(battery1);
         assertEquals("BAT", battery1.getId());
-        assertEquals(9999.99, battery1.getP0(), 0.0);
-        assertEquals(9999.99, battery1.getQ0(), 0.0);
+        assertEquals(9999.99, battery1.getTargetP(), 0.0);
+        assertEquals(9999.99, battery1.getTargetQ(), 0.0);
         assertEquals(-9999.99, battery1.getMinP(), 0.0);
         assertEquals(9999.99, battery1.getMaxP(), 0.0);
         assertEquals(bus2.getId(), battery1.getTerminal().getBusBreakerView().getBus().getId());
@@ -288,8 +332,8 @@ public abstract class AbstractNetworkTest {
         Battery battery2 = network.getBattery("BAT2");
         assertNotNull(battery2);
         assertEquals("BAT2", battery2.getId());
-        assertEquals(100, battery2.getP0(), 0.0);
-        assertEquals(200, battery2.getQ0(), 0.0);
+        assertEquals(100, battery2.getTargetP(), 0.0);
+        assertEquals(200, battery2.getTargetQ(), 0.0);
         assertEquals(-200, battery2.getMinP(), 0.0);
         assertEquals(200, battery2.getMaxP(), 0.0);
         assertEquals(bus2.getId(), battery2.getTerminal().getBusBreakerView().getBus().getId());
@@ -318,6 +362,15 @@ public abstract class AbstractNetworkTest {
         assertNotNull(n.getVoltageLevel(VLLOAD).getConnectable(NHV2_NLOAD, Branch.class));
         assertNull(n.getVoltageLevel(VLGEN).getConnectable("LOAD", Load.class));
         assertNull(n.getVoltageLevel(VLGEN).getConnectable(NHV2_NLOAD, Branch.class));
+    }
+
+    @Test
+    public void testGetConnectable() {
+        Network n = EurostagTutorialExample1Factory.create();
+        assertEquals(6, n.getConnectableCount());
+        assertNotNull(n.getConnectable("GEN"));
+        assertTrue(n.getConnectable("GEN") instanceof Generator);
+        assertEquals("GEN", n.getConnectable("GEN").getId());
     }
 
     @Test
@@ -534,6 +587,40 @@ public abstract class AbstractNetworkTest {
             fail();
         } catch (PowsyblException ignored) {
             // ignore
+        }
+    }
+
+    @Test
+    public void testScadaNetwork() {
+        Network network = ScadaNetworkFactory.create();
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+
+        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
+
+        ReporterModel reporter = new ReporterModel("testReportScadaNetwork", "Test reporting of SCADA network", Collections.emptyMap());
+        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reporter));
+        List<ReporterModel> subReporters = reporter.getSubReporters();
+        assertEquals(1, subReporters.size());
+        ReporterModel subReporter = subReporters.get(0);
+        assertEquals("IIDMValidation", subReporter.getTaskKey());
+        assertEquals("Running validation checks on IIDM network scada", subReporter.getDefaultName());
+        Collection<Report> reports = subReporter.getReports();
+        assertFalse(reports.isEmpty());
+
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+
+        try {
+            network.runValidationChecks();
+            fail();
+        } catch (ValidationException e) {
+            // Ignore
+        }
+
+        try {
+            network.setMinimumAcceptableValidationLevel(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+            fail();
+        } catch (ValidationException e) {
+            // Ignore
         }
     }
 }

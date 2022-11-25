@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" id="Transformer-VlVh-GB-Non-Neutral" caseDate="2021-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="POWER-FACTORY" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S8">
+        <iidm:voltageLevel id="VL8" nominalV="220.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL8_1 Bus 1-Slack" node="0"/>
+                <iidm:switch id="VL8_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL8_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:bus v="233.19998168945312" angle="0.0" nodes="0,1,2"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="sym_1_1" energySource="OTHER" minP="0.0" maxP="51.5099983215332" voltageRegulatorOn="true" targetP="51.5099983215332" targetV="233.19998741149902" targetQ="0.0" node="2">
+                <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S9">
+        <iidm:voltageLevel id="VL9" nominalV="220.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL9_2 Bus 2" node="0"/>
+                <iidm:switch id="VL9_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL9_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:bus v="228.9239044189453" angle="-1.4022903442382812" nodes="0,1,2"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VL10" nominalV="110.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL10_3 Bus 2-Load" node="0"/>
+                <iidm:switch id="VL10_Switch" kind="BREAKER" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="VL10_Switch#0" kind="BREAKER" retained="false" open="false" node1="0" node2="2"/>
+                <iidm:bus v="105.55027770996094" angle="-2.9006764888763428" nodes="0,1,2"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="lod_3_1" loadType="UNDEFINED" p0="50.0" q0="25.0" node="1"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="trf_2_3_1" r="0.1286532096916801" x="5.926544933071275" g="9.78133388988724E-5" b="-7.768645070724027E-4" ratedU1="220.0" ratedU2="103.11399841308594" ratedS="200.0" node1="2" voltageLevelId1="VL9" node2="2" voltageLevelId2="VL10">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="5" loadTapChangingCapabilities="false">
+                <iidm:step r="-17.86908215542723" x="-17.86908215542723" g="21.756827543609415" b="21.756827543609415" rho="0.9062610983848571"/>
+                <iidm:step r="-14.435857431157995" x="-14.435857431157995" g="16.87138677226081" b="16.87138677226081" rho="0.9250088787078856"/>
+                <iidm:step r="-10.93233685348065" x="-10.93233685348065" g="12.27419297562189" b="12.27419297562189" rho="0.9437566590309143"/>
+                <iidm:step r="-7.358520422395198" x="-7.358520422395198" g="7.943008311121624" b="7.943008311121624" rho="0.9625044393539429"/>
+                <iidm:step r="-3.7144081379016702" x="-3.7144081379016702" g="3.8576988166843185" b="3.8576988166843185" rho="0.9812522196769713"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+                <iidm:step r="3.7847039913097458" x="3.7847039913097458" g="-3.6466876579680285" b="-3.6466876579680285" rho="1.0187477803230285"/>
+                <iidm:step r="7.639703836027656" x="7.639703836027656" g="-7.0974775698617325" b="-7.0974775698617325" rho="1.0374955606460572"/>
+                <iidm:step r="11.56499953415362" x="11.56499953415362" g="-10.36615388557699" b="-10.36615388557699" rho="1.0562433409690857"/>
+                <iidm:step r="15.56059108568768" x="15.56059108568768" g="-13.465309358057509" b="-13.465309358057509" rho="1.0749911212921142"/>
+                <iidm:step r="19.626478490629907" x="19.626478490629907" g="-16.40646681091361" b="-16.40646681091361" rho="1.0937389016151429"/>
+                <iidm:step r="23.762661748980207" x="23.762661748980207" g="-19.200186399656204" b="-19.200186399656204" rho="1.1124866819381714"/>
+                <iidm:step r="27.96914086073865" x="27.96914086073865" g="-21.856160534183655" b="-21.856160534183655" rho="1.1312344622612"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:line id="lne_1_2_1" r="9.379916191101074" x="28.638273239135742" g1="0.0" b1="3.5752053070068355E-4" g2="0.0" b2="3.5752053070068355E-4" node1="1" voltageLevelId1="VL8" node2="1" voltageLevelId2="VL9"/>
+</iidm:network>

@@ -8,12 +8,12 @@
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEnd;
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEndType;
@@ -30,27 +30,49 @@ class Hvdc {
         this.hvdcData = new ArrayList<>();
     }
 
-    void add(TPnodeEquipments tpNodeEquipments, IslandEndHvdc islandEndHvdc1, IslandEndHvdc islandEndHvdc2) {
-        islandEndHvdc1.getHvdc().forEach(h -> add(tpNodeEquipments, h, islandEndHvdc2));
+    void add(NodeEquipment nodeEquipment, IslandEndHvdc islandEndHvdc1, IslandEndHvdc islandEndHvdc2) {
+        Associations associations = createAssociations(islandEndHvdc1, islandEndHvdc2);
+
+        associations.associationList.forEach(match -> {
+            HvdcEnd hvdcEnd1 = HvdcEnd.joinAll(match.end1);
+            HvdcEnd hvdcEnd2 = HvdcEnd.joinAll(match.end2);
+
+            add(nodeEquipment, hvdcEnd1, hvdcEnd2);
+        });
     }
 
-    private void add(TPnodeEquipments tpNodeEquipments, HvdcEnd hvdc1, IslandEndHvdc islandEndHvdc2) {
-        HvdcEnd hvdc2 = islandEndHvdc2.selectSymmetricHvdcEnd(hvdc1);
-        if (hvdc2 == null) {
+    // There is not a one to one mapping between the HvdcEnds of side 1 and side 2
+    // In some configurations it is necessary to join several hvdcEnds on one side to map the hvdcEnd of the other side
+    // See the configuration described in IslandsEnds class
+    // Two hvdcEnds are associated if they share one or more dcLineSegments
+    private static Associations createAssociations(IslandEndHvdc islandEndHvdc1, IslandEndHvdc islandEndHvdc2) {
+        Associations associations = new Associations();
+        islandEndHvdc1.getHvdc().forEach(hvdcEnd -> {
+            List<HvdcEnd> associatedEnd2 = islandEndHvdc2.getHvdc().stream()
+                .filter(otherHvdcEnd -> otherHvdcEnd.isAssociatedWith(hvdcEnd)).collect(Collectors.toList());
+
+            associatedEnd2.forEach(otherHvdcEnd -> associations.add(hvdcEnd, otherHvdcEnd));
+        });
+        return associations;
+    }
+
+    private void add(NodeEquipment nodeEquipment, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+        if (!hvdc1.isMatchingTo(hvdc2)) {
             return;
         }
         HvdcEndType type = hvdc1.computeType();
         switch (type) {
-            case HVDC_T0_C1_LS1:
-            case HVDC_T1_C1_LS1:
-            case HVDC_T1_C1_LS2:
+            case HVDC_TN_C1_LS1:
                 addC1LSn(hvdc1, hvdc2);
                 break;
-            case HVDC_T2_C2_LS1:
-                addC2LS1(tpNodeEquipments, hvdc1, hvdc2);
+            case HVDC_TN_C2_LS1:
+                addC2LS1(nodeEquipment, hvdc1, hvdc2);
                 break;
             case HVDC_TN_CN_LSN:
-                addCnLSn(tpNodeEquipments, hvdc1, hvdc2);
+                addCnLSn(nodeEquipment, hvdc1, hvdc2);
+                break;
+            case HVDC_TN_CN_LS2N:
+                addCnLS2n(nodeEquipment, hvdc1, hvdc2);
                 break;
         }
     }
@@ -64,10 +86,10 @@ class Hvdc {
         this.hvdcData.add(hvdcEq);
     }
 
-    private void addC2LS1(TPnodeEquipments tpNodeEquipments, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+    private void addC2LS1(NodeEquipment nodeEquipment, HvdcEnd hvdc1, HvdcEnd hvdc2) {
 
         String dcLineSegment = hvdc1.dcLineSegmentsEnd.iterator().next();
-        HvdcConverter hvdcConverter1 = computeConverter(tpNodeEquipments, dcLineSegment, hvdc1, hvdc2);
+        HvdcConverter hvdcConverter1 = computeConverter(nodeEquipment, dcLineSegment, hvdc1, hvdc2);
         if (hvdcConverter1 == null) {
             return;
         }
@@ -81,10 +103,10 @@ class Hvdc {
         this.hvdcData.add(hvdcEq);
     }
 
-    private void addCnLSn(TPnodeEquipments tpNodeEquipments, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+    private void addCnLSn(NodeEquipment nodeEquipment, HvdcEnd hvdc1, HvdcEnd hvdc2) {
 
         hvdc1.dcLineSegmentsEnd.forEach(dcLineSegment -> {
-            HvdcConverter hvdcConverter = computeConverter(tpNodeEquipments, dcLineSegment, hvdc1, hvdc2);
+            HvdcConverter hvdcConverter = computeConverter(nodeEquipment, dcLineSegment, hvdc1, hvdc2);
             if (hvdcConverter == null) {
                 return;
             }
@@ -94,13 +116,45 @@ class Hvdc {
         });
     }
 
-    private static HvdcConverter computeConverter(TPnodeEquipments tpNodeEquipments, String dcLineSegment, HvdcEnd hvdc1,
+    private void addCnLS2n(NodeEquipment nodeEquipment, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+
+        Set<String> used = new HashSet<>();
+        Optional<String> dcLineSegment1 = nextDcLineSegment(hvdc1, used);
+
+        while (dcLineSegment1.isPresent()) {
+            used.add(dcLineSegment1.get());
+
+            HvdcConverter hvdcConverter = computeConverter(nodeEquipment, dcLineSegment1.get(), hvdc1, hvdc2);
+            if (hvdcConverter != null && !used.contains(hvdcConverter.acDcConvertersEnd1) && !used.contains(hvdcConverter.acDcConvertersEnd2)) {
+                used.add(hvdcConverter.acDcConvertersEnd1);
+                used.add(hvdcConverter.acDcConvertersEnd2);
+
+                String dcLineSegment2 = computeOtherDcLineSegment(nodeEquipment, dcLineSegment1.get(), hvdcConverter,
+                    hvdc1, hvdc2).orElseThrow();
+                used.add(dcLineSegment2);
+
+                HvdcEquipment hvdcEq = new HvdcEquipment();
+                hvdcEq.add(hvdcConverter);
+                hvdcEq.add(dcLineSegment1.get());
+                hvdcEq.add(dcLineSegment2);
+                this.hvdcData.add(hvdcEq);
+            }
+
+            dcLineSegment1 = nextDcLineSegment(hvdc1, used);
+        }
+    }
+
+    private static Optional<String> nextDcLineSegment(HvdcEnd hvdc1, Set<String> used) {
+        return hvdc1.dcLineSegmentsEnd.stream().filter(adConverterEnd -> !used.contains(adConverterEnd)).findAny();
+    }
+
+    private static HvdcConverter computeConverter(NodeEquipment nodeEquipment, String dcLineSegment, HvdcEnd hvdc1,
         HvdcEnd hvdc2) {
-        String acDcConverter1 = computeEquipmentConnectedToEquipment(tpNodeEquipments, dcLineSegment, hvdc1.acDcConvertersEnd, hvdc1.topologicalNodesEnd);
+        String acDcConverter1 = computeEquipmentConnectedToEquipment(nodeEquipment, dcLineSegment, hvdc1.acDcConvertersEnd, hvdc1.nodesEnd);
         if (acDcConverter1 == null) {
             return null;
         }
-        String acDcConverter2 = computeEquipmentConnectedToEquipment(tpNodeEquipments, dcLineSegment, hvdc2.acDcConvertersEnd, hvdc2.topologicalNodesEnd);
+        String acDcConverter2 = computeEquipmentConnectedToEquipment(nodeEquipment, dcLineSegment, hvdc2.acDcConvertersEnd, hvdc2.nodesEnd);
         if (acDcConverter2 == null) {
             return null;
         }
@@ -119,21 +173,37 @@ class Hvdc {
         return new HvdcConverter(acDcConverter1, acDcConverter2);
     }
 
-    private static String computeEquipmentConnectedToEquipment(TPnodeEquipments tpNodeEquipments, String equipment,
-        Set<String> connectedEquipments, List<String> topologicalNodes) {
-        return connectedEquipments.stream()
-            .filter(eq -> tpNodeEquipments.connectedEquipments(equipment, eq, topologicalNodes))
+    private static Optional<String> computeOtherDcLineSegment(NodeEquipment nodeEquipment, String dcLineSegment,
+        HvdcConverter converter, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+        return hvdc1.dcLineSegmentsEnd.stream()
+            .filter(otherDcLineSegment -> isOtherDcLineSegment(nodeEquipment, otherDcLineSegment, dcLineSegment,
+                converter, hvdc1, hvdc2))
+            .findAny();
+    }
+
+    private static boolean isOtherDcLineSegment(NodeEquipment nodeEquipment, String otherDcLineSegment,
+        String dcLineSegment, HvdcConverter converter, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+        if (otherDcLineSegment.equals(dcLineSegment)) {
+            return false;
+        }
+        HvdcConverter sameConverter = computeConverter(nodeEquipment, otherDcLineSegment, hvdc1, hvdc2);
+        if (sameConverter == null) {
+            return false;
+        }
+        return converter.acDcConvertersEnd1.equals(sameConverter.acDcConvertersEnd1)
+            && converter.acDcConvertersEnd2.equals(sameConverter.acDcConvertersEnd2);
+    }
+
+    private static String computeEquipmentConnectedToEquipment(NodeEquipment nodeEquipment, String equipment,
+        Set<String> connectedEquipment, List<String> nodes) {
+        return connectedEquipment.stream()
+            .filter(eq -> nodeEquipment.connectedEquipment(equipment, eq, nodes))
             .findFirst()
             .orElse(null);
     }
 
     List<HvdcEquipment> getHvdcData() {
         return hvdcData;
-    }
-
-    void debug() {
-        LOG.debug("Hvdc");
-        hvdcData.forEach(HvdcEquipment::debug);
     }
 
     static class HvdcEquipment {
@@ -157,14 +227,6 @@ class Hvdc {
         void add(String dcLineSegment) {
             this.dcLineSegments.add(dcLineSegment);
         }
-
-        void debug() {
-            LOG.debug("    Converters:");
-            this.converters.forEach(HvdcConverter::debug);
-            LOG.debug("    dcLineSegments");
-            this.dcLineSegments.forEach(ls -> LOG.debug("    {} ", ls));
-            LOG.debug("---");
-        }
     }
 
     static class HvdcConverter {
@@ -177,11 +239,33 @@ class Hvdc {
             this.acDcConvertersEnd1 = acDcConvertersEnd1;
             this.acDcConvertersEnd2 = acDcConvertersEnd2;
         }
-
-        void debug() {
-            LOG.debug("    End1: {} End2: {}", this.acDcConvertersEnd1, this.acDcConvertersEnd2);
-        }
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(Hvdc.class);
+    private static final class Associations {
+        private final List<Association> associationList = new ArrayList<>();
+
+        private void add(HvdcEnd hvdcEnd1, HvdcEnd hvdcEnd2) {
+            Optional<Association> association1 = this.associationList.stream().filter(m -> m.end1.contains(hvdcEnd1)).findFirst();
+            if (association1.isPresent() && !association1.get().end2.contains(hvdcEnd2)) {
+                association1.get().end2.add(hvdcEnd2);
+                return;
+            }
+            Optional<Association> association2 = this.associationList.stream().filter(m -> m.end2.contains(hvdcEnd2)).findFirst();
+            if (association2.isPresent() && !association2.get().end1.contains(hvdcEnd1)) {
+                association2.get().end1.add(hvdcEnd1);
+                return;
+            }
+            this.associationList.add(new Association(hvdcEnd1, hvdcEnd2));
+        }
+
+        private static final class Association {
+            private final List<HvdcEnd> end1 = new ArrayList<>();
+            private final List<HvdcEnd> end2 = new ArrayList<>();
+
+            private Association(HvdcEnd hvdcEnd1, HvdcEnd hvdcEnd2) {
+                this.end1.add(hvdcEnd1);
+                this.end2.add(hvdcEnd2);
+            }
+        }
+    }
 }

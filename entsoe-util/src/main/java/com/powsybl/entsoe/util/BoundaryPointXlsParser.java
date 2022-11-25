@@ -98,7 +98,9 @@ public class BoundaryPointXlsParser {
     }
 
     public Map<String, BoundaryPoint> parseDefault() throws IOException {
-        Path defaultBoundaryPoint = PlatformConfig.defaultConfig().getConfigDir().resolve("BoundaryPoint.xls");
+        Path defaultBoundaryPoint = PlatformConfig.defaultConfig().getConfigDir()
+                .map(configDir -> configDir.resolve("BoundaryPoint.xls"))
+                .orElseThrow(() -> new PowsyblException("Cannot access boundary point sheet as configuration directory is not defined in platform config"));
         if (!Files.exists(defaultBoundaryPoint)) {
             throw new PowsyblException("Boundary point sheet " + defaultBoundaryPoint + " not found");
         }

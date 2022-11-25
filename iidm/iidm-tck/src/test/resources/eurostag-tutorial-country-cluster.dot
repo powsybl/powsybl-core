@@ -1,0 +1,28 @@
+digraph G {
+	node [shape=box];
+	compound=true;
+	label="sim1";
+	n2 [label="VLHV1_0",shape="ellipse",style="filled",fontsize="10",fillcolor="#7AF385",tooltip="load=0MW&#13;&#10;max generation=0MW&#13;&#10;cc=0"];
+	n3 [label="VLHV2_0",shape="ellipse",style="filled",fontsize="10",fillcolor="#7AF385",tooltip="load=0MW&#13;&#10;max generation=0MW&#13;&#10;cc=0"];
+	n0 [label="VLGEN_0",shape="ellipse",style="filled",fontsize="10",fillcolor="#7AF385",tooltip="load=0MW&#13;&#10;max generation=20000MW&#13;&#10;cc=0"];
+	n5 [label="VLLOAD_0",shape="ellipse",style="filled",fontsize="10",fillcolor="#7AF385",tooltip="load=600MW&#13;&#10;max generation=0MW&#13;&#10;cc=0"];
+	n2 -> n3 [label="NHV1_NHV2_1\lNHV1_NHV2_2\l"];
+	n0 -> n2 [label="NGEN_NHV1\l"];
+	n3 -> n5 [label="NHV2_NLOAD\l"];
+	subgraph cluster_c4 {
+		// scope=1234250905
+		cluster_c4 [label="",shape=point,style=invis];
+		label="BE";
+		style="rounded";
+		n3;
+		n5;
+	}
+	subgraph cluster_c1 {
+		// scope=1234250905
+		cluster_c1 [label="",shape=point,style=invis];
+		label="FR";
+		style="rounded";
+		n2;
+		n0;
+	}
+}

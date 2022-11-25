@@ -93,6 +93,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             return this;
         }
 
+        @Override
         public TieLineAdderImpl add() {
             if (id == null || id.isEmpty()) {
                 throw new ValidationException(this, String.format("id is not set for half line %d", num));
@@ -122,6 +123,11 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
                 TieLineAdderImpl.this.halfLineAdder2 = this;
             }
             return TieLineAdderImpl.this;
+        }
+
+        private TieLineImpl.HalfLineImpl build() {
+            Branch.Side side = (num == 1) ? Branch.Side.ONE : Branch.Side.TWO;
+            return new TieLineImpl.HalfLineImpl(id, name, fictitious, r, x, g1, b1, g2, b2, side);
         }
 
         @Override
@@ -188,33 +194,14 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             throw new ValidationException(this, "half line 2 is not set");
         }
 
-        TieLineImpl.HalfLineImpl half1 = new TieLineImpl.HalfLineImpl();
-        half1.id = halfLineAdder1.id;
-        half1.name = halfLineAdder1.name;
-        half1.fictitious = halfLineAdder1.fictitious;
-        half1.r = halfLineAdder1.r;
-        half1.x = halfLineAdder1.x;
-        half1.g1 = halfLineAdder1.g1;
-        half1.g2 = halfLineAdder1.g2;
-        half1.b1 = halfLineAdder1.b1;
-        half1.b2 = halfLineAdder1.b2;
-
-        TieLineImpl.HalfLineImpl half2 = new TieLineImpl.HalfLineImpl();
-        half2.id = halfLineAdder2.id;
-        half2.name = halfLineAdder2.name;
-        half2.fictitious = halfLineAdder2.fictitious;
-        half2.r = halfLineAdder2.r;
-        half2.x = halfLineAdder2.x;
-        half2.g1 = halfLineAdder2.g1;
-        half2.g2 = halfLineAdder2.g2;
-        half2.b1 = halfLineAdder2.b1;
-        half2.b2 = halfLineAdder2.b2;
+        TieLineImpl.HalfLineImpl half1 = halfLineAdder1.build();
+        TieLineImpl.HalfLineImpl half2 = halfLineAdder2.build();
 
         // check that the line is attachable on both side
         voltageLevel1.attach(terminal1, true);
         voltageLevel2.attach(terminal2, true);
 
-        TieLineImpl line = new TieLineImpl(id, getName(), isFictitious(), ucteXnodeCode, half1, half2);
+        TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious(), ucteXnodeCode, half1, half2);
         terminal1.setNum(1);
         terminal2.setNum(2);
         line.addTerminal(terminal1);
@@ -222,7 +209,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         voltageLevel1.attach(terminal1, false);
         voltageLevel2.attach(terminal2, false);
         network.getIndex().checkAndAdd(line);
-        getNetwork().getListeners().notifyCreation(line);
+        network.getListeners().notifyCreation(line);
         return line;
     }
 

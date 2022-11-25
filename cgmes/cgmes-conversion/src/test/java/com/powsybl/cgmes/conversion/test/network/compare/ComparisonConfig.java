@@ -14,6 +14,7 @@ public final class ComparisonConfig {
 
     public ComparisonConfig() {
         checkNetworkId = true;
+        incremented = false;
         differences = new DifferencesFail();
         networkMappingFactory = NetworkMapping::new;
         checkVoltageLevelLimits = true;
@@ -25,6 +26,11 @@ public final class ComparisonConfig {
 
     public ComparisonConfig checkNetworkId(boolean checkNetworkId) {
         this.checkNetworkId = checkNetworkId;
+        return this;
+    }
+
+    public ComparisonConfig incrementVersions(boolean incremented) {
+        this.incremented = incremented;
         return this;
     }
 
@@ -66,6 +72,7 @@ public final class ComparisonConfig {
     }
 
     boolean checkNetworkId;
+    boolean incremented;
     Differences differences;
     NetworkMappingFactory networkMappingFactory;
     boolean checkVoltageLevelLimits;

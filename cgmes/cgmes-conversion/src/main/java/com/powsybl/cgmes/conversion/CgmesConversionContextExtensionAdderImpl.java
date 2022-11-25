@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
  */
-public class CgmesConversionContextExtensionAdderImpl  extends AbstractExtensionAdder<Network, CgmesConversionContextExtension>
+public class CgmesConversionContextExtensionAdderImpl extends AbstractExtensionAdder<Network, CgmesConversionContextExtension>
         implements CgmesConversionContextExtensionAdder {
 
     private Context context;

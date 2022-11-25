@@ -158,4 +158,23 @@ public abstract class AbstractMergeNetworkTest {
         assertEquals(MERGE2, merge.getId());
         assertEquals("hybrid", merge.getSourceFormat());
     }
+
+    @Test
+    public void mergeThenCloneVariantBug() {
+        addSubstationAndVoltageLevel();
+        addDanglingLine("dl1", "code", "dl2", "code");
+        Load ld2 = n2.getVoltageLevel("vl2").newLoad()
+                .setId("ld2")
+                .setConnectableBus("b2")
+                .setBus("b2")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .add();
+        n1.merge(n2);
+        n1.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "test");
+        n1.getVariantManager().setWorkingVariant("test");
+        ld2.setP0(10);
+        n1.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(0, ld2.getP0(), 0);
+    }
 }

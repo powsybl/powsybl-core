@@ -57,7 +57,6 @@ public class EnvironmentModuleConfigRepositoryTest extends MapModuleConfigTest {
         fakeEnvMap.put("UPPER_CAMEL__UPPER_CAMEL", "UpperCamel");
 
         EnvironmentModuleConfigRepository sut = new EnvironmentModuleConfigRepository(fakeEnvMap, fileSystem);
-        assertTrue(sut.moduleExists("mod"));
         Optional<ModuleConfig> modConfigOpt = sut.getModuleConfig("mod");
         assertTrue(modConfigOpt.isPresent());
         ModuleConfig modConfig = modConfigOpt.get();
@@ -70,21 +69,24 @@ public class EnvironmentModuleConfigRepositoryTest extends MapModuleConfigTest {
         ModuleConfig moduleConfig = moduleConfigOpt.get();
         assertEquals(7, moduleConfig.getIntProperty("max-iterations"));
 
-        assertTrue(sut.moduleExists(lowerCamel));
-        ModuleConfig moduleConfig1 = sut.getModuleConfig(lowerCamel).get();
-        assertEquals("asfd", moduleConfig1.getStringProperty(lowerCamel));
+        Optional<ModuleConfig> moduleConfig1 = sut.getModuleConfig(lowerCamel);
+        assertTrue(moduleConfig1.isPresent());
+        assertEquals("asfd", moduleConfig1.get().getStringProperty(lowerCamel));
 
-        assertTrue(sut.moduleExists(snakeCaseMod));
-        assertEquals(3, sut.getModuleConfig(snakeCaseMod).get().getIntProperty("snake_length"));
+        Optional<ModuleConfig> moduleConfig2 = sut.getModuleConfig(snakeCaseMod);
+        assertTrue(moduleConfig2.isPresent());
+        assertEquals(3, moduleConfig2.get().getIntProperty("snake_length"));
 
-        assertTrue(sut.moduleExists(upperCamel));
-        assertEquals("UpperCamel", sut.getModuleConfig(upperCamel).get().getStringProperty("UpperCamel"));
+        Optional<ModuleConfig> moduleConfig3 = sut.getModuleConfig(upperCamel);
+        assertTrue(moduleConfig3.isPresent());
+        assertEquals("UpperCamel", moduleConfig3.get().getStringProperty("UpperCamel"));
 
-        assertTrue(sut.moduleExists("ab__cd"));
-        assertEquals("fio", sut.getModuleConfig("ab__cd").get().getStringProperty("ef"));
-        assertTrue(sut.moduleExists("ab"));
+        Optional<ModuleConfig> moduleConfig4 = sut.getModuleConfig("ab__cd");
+        assertTrue(moduleConfig4.isPresent());
+        assertEquals("fio", moduleConfig4.get().getStringProperty("ef"));
+        assertTrue(sut.getModuleConfig("ab").isPresent());
 
-        assertFalse(sut.moduleExists(""));
+        assertFalse(sut.getModuleConfig("").isPresent());
         try {
             modConfig.getPropertyNames();
             fail();

@@ -125,8 +125,8 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
         private static List<DoubleTimeSeries> build(List<DoubleTimeSeries> list, String... scriptLines) {
             String script = Arrays.stream(scriptLines).collect(Collectors.joining(System.lineSeparator()));
             ReadOnlyTimeSeriesStore store = new ReadOnlyTimeSeriesStoreCache(list);
-            return new CalculatedTimeSeriesDslLoader(script)
-                    .load(store)
+            return CalculatedTimeSeriesDslLoader.find()
+                    .load(script, store)
                     .entrySet()
                     .stream()
                     .map(e -> new CalculatedTimeSeries(e.getKey(), e.getValue(), new FromStoreTimeSeriesNameResolver(store, -1)))

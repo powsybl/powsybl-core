@@ -38,7 +38,7 @@ public class LccConverterStationAdapterTest {
         lcc.setLossFactor(0.022f);
         assertEquals(0.022f, lcc.getLossFactor(), 0.0f);
         assertNotNull(lcc.getTerminal());
-        assertEquals(ConnectableType.HVDC_CONVERTER_STATION, lcc.getType());
+        assertEquals(IdentifiableType.HVDC_CONVERTER_STATION, lcc.getType());
         assertEquals(1, lcc.getTerminals().size());
 
         lcc.setPowerFactor(1.0f);

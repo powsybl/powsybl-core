@@ -12,14 +12,14 @@ package com.powsybl.ucte.network;
  */
 public class UcteAngleRegulation {
 
-    private float du;
-    private float theta;
+    private double du;
+    private double theta;
     private Integer n; // FIXME: should not be null (strictly positive?)
     private Integer np; // FIXME: should not be null (should be in [-n, n])
-    private float p;
+    private double p;
     private UcteAngleRegulationType type; // FIXME: should not be null (see. UcteRegulation.fix())
 
-    public UcteAngleRegulation(float du, float theta, Integer n, Integer np, float p, UcteAngleRegulationType type) {
+    public UcteAngleRegulation(double du, double theta, Integer n, Integer np, double p, UcteAngleRegulationType type) {
         this.du = du;
         this.theta = theta;
         this.n = n;
@@ -32,7 +32,7 @@ public class UcteAngleRegulation {
      * Gets δu (%).
      * @return δu (%)
      */
-    public float getDu() {
+    public double getDu() {
         return du;
     }
 
@@ -40,7 +40,7 @@ public class UcteAngleRegulation {
      * Sets δu (%).
      * @param du δu (%)
      */
-    public void setDu(float du) {
+    public void setDu(double du) {
         this.du = du;
     }
 
@@ -48,7 +48,7 @@ public class UcteAngleRegulation {
      * Gets Θ (°).
      * @return Θ (°)
      */
-    public float getTheta() {
+    public double getTheta() {
         return theta;
     }
 
@@ -56,7 +56,7 @@ public class UcteAngleRegulation {
      * Sets Θ (°).
      * @param theta Θ (°)
      */
-    public void setTheta(float theta) {
+    public void setTheta(double theta) {
         this.theta = theta;
     }
 
@@ -105,7 +105,7 @@ public class UcteAngleRegulation {
      * <p>(optional).
      * @return on load tap changer active power flow target (MW)
      */
-    public float getP() {
+    public double getP() {
         return p;
     }
 
@@ -114,7 +114,7 @@ public class UcteAngleRegulation {
      * <p>(optional).
      * @param p on load tap changer active power flow target (MW)
      */
-    public void setP(float p) {
+    public void setP(double p) {
         this.p = p;
     }
 

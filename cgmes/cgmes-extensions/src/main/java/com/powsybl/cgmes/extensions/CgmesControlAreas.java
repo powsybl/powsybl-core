@@ -16,6 +16,8 @@ import com.powsybl.iidm.network.Network;
  */
 public interface CgmesControlAreas extends Extension<Network> {
 
+    String NAME = "cgmesControlAreas";
+
     CgmesControlAreaAdder newCgmesControlArea();
 
     Collection<CgmesControlArea> getCgmesControlAreas();
@@ -32,7 +34,7 @@ public interface CgmesControlAreas extends Extension<Network> {
 
     @Override
     default String getName() {
-        return "cgmesControlAreas";
+        return NAME;
     }
 
 }

@@ -22,7 +22,7 @@ public final class AliasesXml {
     public static void write(Identifiable<?> identifiable, String rootElementName, NetworkXmlWriterContext context) throws XMLStreamException {
         IidmXmlUtil.assertMinimumVersionIfNotDefault(!identifiable.getAliases().isEmpty(), rootElementName, ALIAS, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
         for (String alias : identifiable.getAliases()) {
-            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), ALIAS);
+            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), ALIAS);
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> identifiable.getAliasType(alias).ifPresent(type -> {
                 try {
                     context.getWriter().writeAttribute("type", type);

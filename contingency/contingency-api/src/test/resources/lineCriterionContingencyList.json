@@ -1,0 +1,30 @@
+{
+  "type" : "lineCriterion",
+  "version" : "1.0",
+  "name" : "list2",
+  "countryCriterion" : {
+    "type" : "TWO_COUNTRY",
+    "countries1" : [ "FR" ],
+    "countries2" : [ "BE" ]
+  },
+  "nominalVoltageCriterion" : {
+    "type" : "SINGLE_NOMINAL_VOLTAGE",
+    "voltageInterval" : {
+      "nominalVoltageLowBound" : 200.0,
+      "nominalVoltageHighBound" : 230.0,
+      "lowClosed" : true,
+      "highClosed" : true
+    }
+  },
+  "propertyCriteria" : [ {
+    "type" : "PROPERTY",
+    "propertyKey" : "propertyKey",
+    "propertyValue" : [ "value" ],
+    "equipmentToCheck" : "VOLTAGE_LEVEL",
+    "sideToCheck" : "BOTH"
+  } ],
+  "regexCriterion" : {
+    "type" : "REGEX",
+    "regex" : "regex"
+  }
+}

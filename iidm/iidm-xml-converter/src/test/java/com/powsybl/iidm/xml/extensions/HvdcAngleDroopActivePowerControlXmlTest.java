@@ -8,7 +8,7 @@
 
 package com.powsybl.iidm.xml.extensions;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
@@ -33,8 +33,7 @@ public class HvdcAngleDroopActivePowerControlXmlTest extends AbstractConverterTe
         Network network = HvdcTestNetwork.createLcc();
 
         HvdcLine hvdcLine = network.getHvdcLine("L");
-        hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class).withEnabled(true).withDroop(0.1f).withP0(200).add();
-        HvdcAngleDroopActivePowerControl extension = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
+        HvdcAngleDroopActivePowerControl extension = hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class).withEnabled(true).withDroop(0.1f).withP0(200).add();
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,

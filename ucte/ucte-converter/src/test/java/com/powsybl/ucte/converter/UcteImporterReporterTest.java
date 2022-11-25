@@ -6,14 +6,17 @@
  */
 package com.powsybl.ucte.converter;
 
+import com.fasterxml.jackson.databind.InjectableValues;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.reporter.*;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.TestUtil;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.Test;
@@ -35,10 +38,6 @@ import static org.junit.Assert.*;
 public class UcteImporterReporterTest extends AbstractConverterTest {
 
     private static final String WORK_DIR = "/tmp";
-
-    protected static String normalizeLineSeparator(String str) {
-        return str.replace("\r\n", "\n").replace("\r", "\n");
-    }
 
     @Test
     public void testReportElementName() throws Exception {
@@ -62,8 +61,8 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         reporter.export(sw);
 
         InputStream refStream = getClass().getResourceAsStream("/elementNameImportReport.txt");
-        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = normalizeLineSeparator(sw.toString());
+        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
+        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
         assertEquals(refLogExport, logExport);
     }
 
@@ -72,8 +71,33 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         String filename = "frVoltageRegulatingXnode.uct";
         ReporterModel reporter = new ReporterModel("roundTripReporterJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct");
         reporter.report("novalueReport", "No value report");
-        Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), reporter);
+        Network.read(filename, getClass().getResourceAsStream("/" + filename), reporter);
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
+
+        // Testing deserializing with unknown specified dictionary
+        ReporterModel rm = ReporterModelDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
+        assertEquals(1, rm.getReports().size());
+        assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
+        assertEquals(1, rm.getSubReporters().size());
+        assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
+    }
+
+    @Test
+    public void jsonDeserializeNoSpecifiedDictionary() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new ReporterModelJsonModule());
+        ReporterModel rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
+        assertEquals(1, rm.getReports().size());
+        assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
+        assertEquals(1, rm.getSubReporters().size());
+        assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
+
+        mapper.setInjectableValues(new InjectableValues.Std().addValue("foo", "bar"));
+        rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
+        assertEquals(1, rm.getReports().size());
+        assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
+        assertEquals(1, rm.getSubReporters().size());
+        assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
     }
 
     @Test

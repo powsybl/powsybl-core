@@ -24,7 +24,7 @@ class InterareaTransferData extends AbstractRecordGroup<PsseInterareaTransfer> {
     }
 
     @Override
-    public Class<PsseInterareaTransfer> psseTypeClass() {
+    protected Class<PsseInterareaTransfer> psseTypeClass() {
         return PsseInterareaTransfer.class;
     }
 }

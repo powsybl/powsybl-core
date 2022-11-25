@@ -1,0 +1,10 @@
+{
+  "id" : "id",
+  "variables" : [ {
+    "id" : "v1",
+    "weight" : 3.4
+  }, {
+    "id" : "v2",
+    "weight" : 2.1
+  } ]
+}

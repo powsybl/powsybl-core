@@ -148,8 +148,8 @@ public class AmplNetworkReader {
     private Void readBattery(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
-        double p0 = readDouble(tokens[3]);
-        double q0 = readDouble(tokens[4]);
+        double targetP = readDouble(tokens[3]);
+        double targetQ = readDouble(tokens[4]);
         double p = readDouble(tokens[5]);
         double q = readDouble(tokens[6]);
 
@@ -158,8 +158,8 @@ public class AmplNetworkReader {
         if (b == null) {
             throw new AmplException("Invalid battery id '" + id + "'");
         }
-        b.setP0(p0);
-        b.setQ0(q0);
+        b.setTargetP(targetP);
+        b.setTargetQ(targetQ);
 
         Terminal t = b.getTerminal();
         t.setP(p).setQ(q);

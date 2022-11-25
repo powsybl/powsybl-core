@@ -9,8 +9,7 @@ package com.powsybl.triplestore.impl.rdf4j;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.*;
-import org.eclipse.rdf4j.IsolationLevels;
-import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.common.transaction.IsolationLevels;
 import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.URIUtil;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
@@ -46,6 +45,11 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     static final String NAME = "rdf4j";
 
     public TripleStoreRDF4J() {
+        this(new TripleStoreOptions());
+    }
+
+    public TripleStoreRDF4J(TripleStoreOptions options) {
+        super(options);
         repo = new SailRepository(new MemoryStore());
         repo.init();
     }
@@ -70,7 +74,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
             // Report invalid identifiers but do not fail
             // (sometimes RDF identifiers contain spaces or begin with #)
-            // This is the default behavior for other triple store engines (Jena)
+            // This is the default behavior for other triple store engines (e.g. Jena)
             conn.getParserConfig().addNonFatalError(XMLParserSettings.FAIL_ON_INVALID_NCNAME);
             conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_URI_SYNTAX);
             conn.getParserConfig().addNonFatalError(XMLParserSettings.FAIL_ON_DUPLICATE_RDF_ID);
@@ -146,7 +150,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     @Override
     public Set<String> contextNames() {
         try (RepositoryConnection conn = repo.getConnection()) {
-            return Iterations.stream(conn.getContextIDs()).map(Resource::stringValue).collect(Collectors.toSet());
+            return conn.getContextIDs().stream().map(Resource::stringValue).collect(Collectors.toSet());
         }
     }
 
@@ -183,7 +187,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                 List<String> names = r.getBindingNames();
                 while (r.hasNext()) {
                     BindingSet s = r.next();
-                    PropertyBag result = new PropertyBag(names);
+                    PropertyBag result = new PropertyBag(names, getOptions().isRemoveInitialUnderscoreForIdentifiers());
 
                     names.forEach(name -> {
                         if (s.hasBinding(name)) {
@@ -211,13 +215,13 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                     copyNamespacesToRepository(sourceConn, targetConn);
                     // copy statements
                     RepositoryResult<Resource> contexts = sourceConn.getContextIDs();
-                    for (Resource sourceContext : Iterations.asList(contexts)) {
+                    for (Resource sourceContext : contexts) {
                         Resource targetContext = context(targetConn, sourceContext.stringValue());
 
                         RepositoryResult<Statement> statements;
                         statements = sourceConn.getStatements(null, null, null, sourceContext);
                         // add statements to the new repository
-                        for (Statement statement : Iterations.asList(statements)) {
+                        for (Statement statement : statements) {
                             targetConn.add(statement, targetContext);
                         }
                     }
@@ -231,7 +235,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     private static void copyNamespacesToRepository(RepositoryConnection sourceConn, RepositoryConnection targetConn) {
         RepositoryResult<Namespace> ns = sourceConn.getNamespaces();
-        for (Namespace namespace : Iterations.asList(ns)) {
+        for (Namespace namespace : ns) {
             targetConn.setNamespace(namespace.getPrefix(), namespace.getName());
         }
     }
@@ -268,15 +272,16 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         if (objType.equals(rdfDescriptionClass())) {
             resource = cnx.getValueFactory().createIRI("urn:uuid:" + UUID.randomUUID().toString());
         } else {
+            // Identifiers stored in the triplestore are RDF:ids
             resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"),
-                "_" + UUID.randomUUID().toString());
+                AbstractPowsyblTripleStore.createRdfId());
         }
         IRI parentPredicate = RDF.TYPE;
         IRI parentObject = cnx.getValueFactory().createIRI(objNs + objType);
         Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
         cnx.add(parentSt, context);
         // add rest of statements for subject
-        createStatements(cnx, objNs, objType, statement, context,  resource);
+        createStatements(cnx, objNs, objType, statement, context, resource);
         return resource.getLocalName();
     }
 

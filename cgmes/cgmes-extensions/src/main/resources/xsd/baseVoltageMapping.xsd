@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:bv="http://www.powsybl.org/schema/iidm/ext/base_voltage_mapping/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/base_voltage_mapping/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:complexType name="BaseVoltage">
+        <xs:attribute name="nominalVoltage" use="required" type="xs:double"/>
+        <xs:attribute name="source" use="required" type="bv:nonEmptyString"/>
+        <xs:attribute name="id" use="required" type="bv:nonEmptyString"/>
+    </xs:complexType>
+    <xs:element name="baseVoltageMapping">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="baseVoltage" type="bv:BaseVoltage" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

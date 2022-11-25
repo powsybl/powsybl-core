@@ -16,6 +16,8 @@ import java.util.List;
  */
 public interface CgmesSvMetadata extends Extension<Network> {
 
+    String NAME = "cgmesSvMetadata";
+
     String getDescription();
 
     int getSvVersion();
@@ -26,6 +28,6 @@ public interface CgmesSvMetadata extends Extension<Network> {
 
     @Override
     default String getName() {
-        return "cgmesSvMetadata";
+        return NAME;
     }
 }

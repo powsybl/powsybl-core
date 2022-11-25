@@ -53,16 +53,14 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonSensitivityAnalysisParameters.getExtensionSerializers(), parameters);
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonSensitivityAnalysisParameters.getExtensionSerializers()::get, parameters);
                     break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-
-        JsonSensitivityAnalysisParameters.getExtensionSerializers().addExtensions(parameters, extensions);
-
+        extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
         return parameters;
     }
 

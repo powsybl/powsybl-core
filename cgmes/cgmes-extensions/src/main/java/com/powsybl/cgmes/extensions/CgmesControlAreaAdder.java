@@ -19,5 +19,5 @@ public interface CgmesControlAreaAdder {
 
     CgmesControlAreaAdder setNetInterchange(double netInterchange);
 
-    CgmesControlAreaImpl add();
+    CgmesControlArea add();
 }

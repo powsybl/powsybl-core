@@ -7,7 +7,6 @@
 
 package com.powsybl.iidm.xml;
 
-import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -15,6 +14,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
+
+import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -31,7 +32,7 @@ public class SkipExtensionTest extends AbstractXmlConverterTest {
 
         // Write the file
         Path networkFile = tmpDir.resolve("noExtension.xiidm");
-        Exporters.export("XIIDM", network, properties, networkFile);
+        network.write("XIIDM", properties, networkFile);
 
         // Compare
         compareXml(getVersionedNetworkAsStream("noExtension.xml", IidmXmlVersion.V_1_0), Files.newInputStream(networkFile));

@@ -6,8 +6,14 @@
  */
 package com.powsybl.triplestore.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.triplestore.api.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,19 +22,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.triplestore.api.PrefixNamespace;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStore;
-import com.powsybl.triplestore.api.TripleStoreFactory;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -43,8 +38,8 @@ public class ExportTest {
     private final double nominalVoltage = 380;
     private final String vl1Name = "S1 380kV";
     private final String vl2Name = "S2 380kV";
-    private final String substation1Id = "_af9a4ae3-ba2e-4c34-8e47-5af894ee20f4";
-    private final String substation2Id = "_d6056127-34f1-43a9-b029-23fddb913bd5";
+    private final String substation1Id = "af9a4ae3-ba2e-4c34-8e47-5af894ee20f4";
+    private final String substation2Id = "d6056127-34f1-43a9-b029-23fddb913bd5";
     private final String query = "SELECT ?voltageLevel ?vlName ?substation ?baseVoltage ?bvName ?nominalVoltage" + System.lineSeparator() +
             "{" + System.lineSeparator() +
             "    ?voltageLevel" + System.lineSeparator() +
@@ -102,13 +97,15 @@ public class ExportTest {
             String contextName = networkId + "_" + "EQ" + "_" + implementation + ".xml";
             // add statements to triple stores
             // add base voltage statements
-            String baseVoltageId = exportTripleStore.add(contextName, cimNamespace, "BaseVoltage", createBaseVoltageProperties());
+            String baseVoltageRdfId = exportTripleStore.add(contextName, cimNamespace, "BaseVoltage", createBaseVoltageProperties());
+            assertEquals('_', baseVoltageRdfId.charAt(0));
             // add voltage levels statements
             PropertyBags voltageLevelsProperties = new PropertyBags();
-            voltageLevelsProperties.add(createVoltageLevelProperties(baseVoltageId, vl1Name, substation1Id));
-            voltageLevelsProperties.add(createVoltageLevelProperties(baseVoltageId, vl2Name, substation2Id));
+            voltageLevelsProperties.add(createVoltageLevelProperties(baseVoltageRdfId, vl1Name, substation1Id));
+            voltageLevelsProperties.add(createVoltageLevelProperties(baseVoltageRdfId, vl2Name, substation2Id));
             exportTripleStore.add(contextName, cimNamespace, "VoltageLevel", voltageLevelsProperties);
-            checkRepository(exportTripleStore, baseVoltageId);
+            String baseVoltageMasterResourceId = baseVoltageRdfId.substring(1);
+            checkRepository(exportTripleStore, baseVoltageMasterResourceId);
 
             // export triple store
             DataSource dataSource = new FileDataSource(exportFolder, networkId + "_" + implementation);
@@ -120,11 +117,12 @@ public class ExportTest {
             try (InputStream is = dataSource.newInputStream(contextName)) {
                 importTripleStore.read(is, "http://" + networkId, contextName);
             }
-            checkRepository(importTripleStore, baseVoltageId);
+            checkRepository(importTripleStore, baseVoltageMasterResourceId);
         }
     }
 
-    private void checkRepository(TripleStore tripleStore, String baseVoltageId) {
+    private void checkRepository(TripleStore tripleStore, String baseVoltageMasterResourceId) {
+        String baseVoltageRdfId = "_" + baseVoltageMasterResourceId;
         // check namespaces
         assertTrue(tripleStore.getNamespaces().contains(new PrefixNamespace("data", baseNamespace)));
         assertTrue(tripleStore.getNamespaces().contains(new PrefixNamespace("cim", cimNamespace)));
@@ -137,8 +135,8 @@ public class ExportTest {
             assertTrue(Arrays.asList(vl1Name, vl2Name).contains(result.getId("vlName")));
             assertTrue(Arrays.asList(baseNamespace + substation1Id, baseNamespace + substation2Id).contains(result.get("substation")));
             assertTrue(Arrays.asList(substation1Id, substation2Id).contains(result.getId("substation")));
-            assertEquals(baseNamespace + baseVoltageId, result.get("baseVoltage"));
-            assertEquals(baseVoltageId, result.getId("baseVoltage"));
+            assertEquals(baseNamespace + baseVoltageRdfId, result.get("baseVoltage"));
+            assertEquals(baseVoltageMasterResourceId, result.getId("baseVoltage"));
             assertEquals(bvName, result.get("bvName"));
             assertEquals(nominalVoltage, result.asDouble("nominalVoltage"), 0);
         });

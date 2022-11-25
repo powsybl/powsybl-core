@@ -38,7 +38,7 @@ public class ScalableActionTest {
         Action action = actionDb.getAction("actionScale"); // scale to 15000
         assertEquals(607.0, g1.getTargetP(), 0.0);
         assertEquals(9999.99, g1.getMaxP(), 0.0);
-        action.run(network, null);
+        action.run(network);
         assertEquals(9999.99, g1.getTargetP(), 0.0);
     }
 
@@ -48,7 +48,7 @@ public class ScalableActionTest {
         Action action = actionDb.getAction("testCompatible"); // scale to 15000
         assertEquals(607.0, g1.getTargetP(), 0.0);
         assertEquals(9999.99, g1.getMaxP(), 0.0);
-        action.run(network, null);
+        action.run(network);
         assertEquals(9999.99, g1.getTargetP(), 0.0);
     }
 
@@ -58,7 +58,7 @@ public class ScalableActionTest {
         Action action = actionDb.getAction("testProportional"); // scale to 15000
         assertEquals(607.0, g1.getTargetP(), 0.0);
         assertEquals(9999.99, g1.getMaxP(), 0.0);
-        action.run(network, null);
+        action.run(network);
         assertEquals(7500.0, g1.getTargetP(), 0.0);
         assertEquals(3000.0, g2.getTargetP(), 0.0);
         assertEquals(4500.0, g3.getTargetP(), 0.0);

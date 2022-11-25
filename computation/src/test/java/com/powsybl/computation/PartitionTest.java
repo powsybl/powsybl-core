@@ -7,8 +7,10 @@
 package com.powsybl.computation;
 
 import org.junit.Test;
+import com.powsybl.commons.PowsyblException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author Yichen Tang <yichen.tang at rte-france.com>
@@ -43,5 +45,35 @@ public class PartitionTest {
         assertEquals(3, p2of3.endIndex(5)); // 2 * 5 / 3
         assertEquals(3, p3of3.startIndex(5)); // (3-1) * 5 / 3
         assertEquals(5, p3of3.endIndex(5)); // 3 * 5 / 3
+    }
+
+    private void assertPartitionInvalid(String s) {
+        PowsyblException exception = assertThrows(PowsyblException.class,
+            () -> Partition.parse(s));
+        assertEquals(s + " is not valid", exception.getMessage());
+    }
+
+    @Test
+    public void testInvalid() {
+        //parsing
+        assertPartitionInvalid("a");
+        assertPartitionInvalid("/");
+        assertPartitionInvalid("1");
+        assertPartitionInvalid("12");
+        assertPartitionInvalid("/1");
+        assertPartitionInvalid("1/");
+        assertPartitionInvalid("1|2");
+        assertPartitionInvalid("-1/2");
+        assertPartitionInvalid("+1/+2/foo0/0bar");
+        assertPartitionInvalid("foo/1/2");
+        assertPartitionInvalid("a1/2");
+        assertPartitionInvalid(" 1/2 ");
+        assertPartitionInvalid("+1/2");
+        assertPartitionInvalid("1/2/foo");
+        assertPartitionInvalid("-0/2");
+
+        //invalid values
+        assertPartitionInvalid("2/1");
+        assertPartitionInvalid("0/2");
     }
 }

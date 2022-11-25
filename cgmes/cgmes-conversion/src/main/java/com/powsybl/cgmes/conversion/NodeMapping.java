@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
@@ -65,7 +66,7 @@ public class NodeMapping {
                     .setNode2(iidmNodeForConnectivityNode)
                     .add();
         } else {
-            vl.getNodeBreakerView().newSwitch()
+            Switch sw = vl.getNodeBreakerView().newSwitch()
                     .setFictitious(true)
                     // Use the id and name of terminal
                     .setId(t.id() + "_SW_fict")
@@ -75,6 +76,7 @@ public class NodeMapping {
                     .setOpen(true)
                     .setKind(SwitchKind.BREAKER)
                     .add();
+            sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
         }
 
         return iidmNodeForConductingEquipment;

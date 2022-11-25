@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2021, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:dm="http://www.powsybl.org/schema/iidm/ext/discrete_measurements/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/discrete_measurements/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="valueType">
+        <xs:union>
+            <xs:simpleType>
+                <xs:restriction base="xs:int"/>
+            </xs:simpleType>
+            <xs:simpleType>
+                <xs:restriction base="dm:nonEmptyString"/>
+            </xs:simpleType>
+            <xs:simpleType>
+                <xs:restriction base="xs:boolean"/>
+            </xs:simpleType>
+        </xs:union>
+    </xs:simpleType>
+    <xs:element name="discreteMeasurements">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="discreteMeasurement"  minOccurs="1" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="property" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="name" use="required" type="dm:nonEmptyString"/>
+                                    <xs:attribute name="value" use="required" type="dm:nonEmptyString"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="id" use="optional" type="dm:nonEmptyString"/>
+                        <xs:attribute name="type" use="required" type="dm:nonEmptyString"/>
+                        <xs:attribute name="tapChanger" use="optional" type="dm:nonEmptyString"/>
+                        <xs:attribute name="valueType" use="required" type="dm:nonEmptyString"/>
+                        <xs:attribute name="value" use="optional" type="dm:valueType"/>
+                        <xs:attribute name="valid" use="required" type="xs:boolean"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

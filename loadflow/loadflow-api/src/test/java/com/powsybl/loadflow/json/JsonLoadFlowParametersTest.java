@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.loadflow.json;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -7,18 +13,19 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.auto.service.AutoService;
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.ComparisonUtils;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 
 import java.io.IOError;
 import java.io.IOException;
+import java.io.InputStream;
 
 import static com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES;
 import static org.junit.Assert.*;
@@ -27,9 +34,6 @@ import static org.junit.Assert.*;
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 public class JsonLoadFlowParametersTest extends AbstractConverterTest {
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
 
     @Test
     public void roundTrip() throws IOException {
@@ -44,7 +48,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     public void writeExtension() throws IOException {
         LoadFlowParameters parameters = new LoadFlowParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonLoadFlowParameters::write, AbstractConverterTest::compareTxt, "/LoadFlowParametersWithExtension.json");
+        writeTest(parameters, JsonLoadFlowParameters::write, ComparisonUtils::compareTxt, "/LoadFlowParametersWithExtension.json");
     }
 
     @Test
@@ -56,10 +60,11 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readError() {
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Unexpected field: unknownParameter");
-        JsonLoadFlowParameters.read(getClass().getResourceAsStream("/LoadFlowParametersError.json"));
+    public void readError() throws IOException {
+        try (var is = getClass().getResourceAsStream("/LoadFlowParametersError.json")) {
+            AssertionError e = assertThrows(AssertionError.class, () -> JsonLoadFlowParameters.read(is));
+            assertEquals("Unexpected field: unknownParameter", e.getMessage());
+        }
     }
 
     @Test
@@ -87,7 +92,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     public void readJsonVersion13() {
         LoadFlowParameters parameters = JsonLoadFlowParameters
                 .read(getClass().getResourceAsStream("/LoadFlowParametersVersion13.json"));
-        assertTrue(parameters.isSimulShunt());
+        assertTrue(parameters.isShuntCompensatorVoltageControlOn());
         assertTrue(parameters.isReadSlackBus());
         assertTrue(parameters.isWriteSlackBus());
     }
@@ -102,24 +107,49 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     }
 
     @Test
+    public void readJsonVersion15() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion15.json"));
+        assertTrue(parameters.isDcUseTransformerRatio());
+        assertEquals(2, parameters.getCountriesToBalance().size());
+        assertTrue(parameters.getCountriesToBalance().contains(Country.FR));
+        assertTrue(parameters.getCountriesToBalance().contains(Country.KI));
+        assertEquals(LoadFlowParameters.ConnectedComponentMode.MAIN, parameters.getConnectedComponentMode());
+    }
+
+    @Test
+    public void readJsonVersion16() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion16.json"));
+        assertFalse(parameters.isShuntCompensatorVoltageControlOn());
+    }
+
+    @Test
+    public void readJsonVersion17() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion17.json"));
+        assertTrue(parameters.isHvdcAcEmulation());
+    }
+
+    @Test
     public void readJsonVersion10Exception() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0");
-        JsonLoadFlowParameters.read(getClass().getResourceAsStream("/LoadFlowParametersVersion10Exception.json"));
+        InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion10Exception.json");
+        assertThrows("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0",
+                PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream));
     }
 
     @Test
     public void readJsonVersion11Exception() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0");
-        JsonLoadFlowParameters.read(getClass().getResourceAsStream("/LoadFlowParametersVersion11Exception.json"));
+        InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion11Exception.json");
+        assertThrows("LoadFlowParameters. Tag: specificCompatibility is not valid for version 1.1. Version should be <= 1.0",
+                PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream));
     }
 
     @Test
     public void readJsonVersion12Exception() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.2. Version should be <= 1.1");
-        JsonLoadFlowParameters.read(getClass().getResourceAsStream("/LoadFlowParametersVersion12Exception.json"));
+        InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion12Exception.json");
+        assertThrows("LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.2. Version should be <= 1.1",
+                PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream));
     }
 
     public static class DummyExtension extends AbstractExtension<LoadFlowParameters> {
@@ -127,7 +157,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
         public boolean parameterBoolean;
         public String parameterString;
 
-        DummyExtension() {
+        public DummyExtension() {
             super();
         }
 
@@ -186,8 +216,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
         assertNotEquals(oldExtension.getParameterString(), extension.getParameterString());
     }
 
-    @AutoService(JsonLoadFlowParameters.ExtensionSerializer.class)
-    public static class DummySerializer implements JsonLoadFlowParameters.ExtensionSerializer<DummyExtension> {
+    public static class DummySerializer implements ExtensionJsonSerializer<LoadFlowParameters, DummyExtension> {
 
         @Override
         public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {

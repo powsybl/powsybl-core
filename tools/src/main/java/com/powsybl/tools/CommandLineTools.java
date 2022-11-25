@@ -35,7 +35,7 @@ public class CommandLineTools {
     private final Iterable<Tool> tools;
 
     public CommandLineTools() {
-        this(ServiceLoader.load(Tool.class));
+        this(ServiceLoader.load(Tool.class, CommandLineTools.class.getClassLoader()));
     }
 
     public CommandLineTools(Iterable<Tool> tools) {

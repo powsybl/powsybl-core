@@ -11,6 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author c.biasuzzi@techrain.it
@@ -36,20 +37,12 @@ public class TableFormatterConfig {
     }
 
     public static TableFormatterConfig load(PlatformConfig platformConfig) {
-        String language = DEFAULT_LANGUAGE;
-        String separator = Character.toString(DEFAULT_CSV_SEPARATOR);
-        String invalidString = DEFAULT_INVALID_STRING;
-        boolean printHeader = DEFAULT_PRINT_HEADER;
-        boolean printTitle = DEFAULT_PRINT_TITLE;
-
-        if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
-            ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            language = config.getStringProperty("language", DEFAULT_LANGUAGE);
-            separator = config.getStringProperty("separator", Character.toString(DEFAULT_CSV_SEPARATOR));
-            invalidString = config.getStringProperty("invalid-string", DEFAULT_INVALID_STRING);
-            printHeader = config.getBooleanProperty("print-header", DEFAULT_PRINT_HEADER);
-            printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
-        }
+        Optional<ModuleConfig> config = platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME);
+        String language = config.flatMap(c -> c.getOptionalStringProperty("language")).orElse(DEFAULT_LANGUAGE);
+        String separator = config.flatMap(c -> c.getOptionalStringProperty("separator")).orElse(Character.toString(DEFAULT_CSV_SEPARATOR));
+        String invalidString = config.flatMap(c -> c.getOptionalStringProperty("invalid-string")).orElse(DEFAULT_INVALID_STRING);
+        boolean printHeader = config.flatMap(c -> c.getOptionalBooleanProperty("print-header")).orElse(DEFAULT_PRINT_HEADER);
+        boolean printTitle = config.flatMap(c -> c.getOptionalBooleanProperty("print-title")).orElse(DEFAULT_PRINT_TITLE);
 
         Locale locale = Locale.forLanguageTag(language);
         return new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle);

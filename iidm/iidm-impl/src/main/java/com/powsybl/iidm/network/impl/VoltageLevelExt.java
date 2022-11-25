@@ -36,8 +36,6 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     @Override BusViewExt getBusView();
 
-    @Override SubstationImpl getSubstation();
-
     NetworkImpl getNetwork();
 
     /**

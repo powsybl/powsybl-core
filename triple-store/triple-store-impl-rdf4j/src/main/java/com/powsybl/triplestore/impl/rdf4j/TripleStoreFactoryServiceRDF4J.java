@@ -10,6 +10,7 @@ package com.powsybl.triplestore.impl.rdf4j;
 import com.google.auto.service.AutoService;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreFactoryService;
+import com.powsybl.triplestore.api.TripleStoreOptions;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -23,8 +24,13 @@ public class TripleStoreFactoryServiceRDF4J implements TripleStoreFactoryService
     }
 
     @Override
+    public TripleStore create(TripleStoreOptions options) {
+        return new TripleStoreRDF4J(options);
+    }
+
+    @Override
     public TripleStore copy(TripleStore source) {
-        TripleStore ts = new TripleStoreRDF4J();
+        TripleStore ts = new TripleStoreRDF4J(source.getOptions());
         ts.add(source);
         return ts;
     }

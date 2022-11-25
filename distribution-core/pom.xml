@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>4.2.0-SNAPSHOT</version>
+        <version>5.1.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -68,6 +68,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-conformity</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cgmes-conversion</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -78,18 +84,31 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- In test scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-cgmes-conformity</artifactId>
+            <artifactId>powsybl-cgmes-gl</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
+            <scope>runtime</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-measurements</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cgmes-model</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-model-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- In test scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
@@ -102,6 +121,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-shortcircuit</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cim-anonymiser</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -110,6 +135,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-commons-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -207,12 +239,6 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-converter-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-extensions</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -305,12 +331,45 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-modification</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-psse-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-psse-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-psse-model-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-powerfactory-converter</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-powerfactory-db</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-powerfactory-dgs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-powerfactory-model</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -322,8 +381,22 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-scripting-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-security-analysis-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-security-analysis-default</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
@@ -334,7 +407,18 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-shortcircuit-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-time-series-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-time-series-dsl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -342,6 +426,13 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-tools</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-tools-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -355,26 +446,6 @@
             <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-triple-store-impl-jena</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-triple-store-impl-blazegraph</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>jline</groupId>
-                    <artifactId>jline</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->

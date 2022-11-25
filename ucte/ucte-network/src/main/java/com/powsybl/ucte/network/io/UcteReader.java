@@ -62,19 +62,19 @@ public class UcteReader {
         String geographicalName = parser.parseString(9, 21).trim();
         UcteNodeStatus status = parser.parseEnumOrdinal(22, UcteNodeStatus.class);
         UcteNodeTypeCode typeCode = parser.parseEnumOrdinal(24, UcteNodeTypeCode.class);
-        float voltageReference = parser.parseFloat(26, 32);
-        float activeLoad = parser.parseFloat(33, 40);
-        float reactiveLoad = parser.parseFloat(41, 48);
-        float activePowerGeneration = parser.parseFloat(49, 56);
-        float reactivePowerGeneration = parser.parseFloat(57, 64);
-        float minimumPermissibleActivePowerGeneration = parser.parseFloat(65, 72);
-        float maximumPermissibleActivePowerGeneration = parser.parseFloat(73, 80);
-        float minimumPermissibleReactivePowerGeneration = parser.parseFloat(81, 88);
-        float maximumPermissibleReactivePowerGeneration = parser.parseFloat(89, 96);
-        float staticOfPrimaryControl = parser.parseFloat(97, 102);
-        float nominalPowerPrimaryControl = parser.parseFloat(103, 110);
-        float threePhaseShortCircuitPower = parser.parseFloat(111, 118);
-        float xrRatio = parser.parseFloat(119, 126);
+        double voltageReference = parser.parseDouble(26, 32);
+        double activeLoad = parser.parseDouble(33, 40);
+        double reactiveLoad = parser.parseDouble(41, 48);
+        double activePowerGeneration = parser.parseDouble(49, 56);
+        double reactivePowerGeneration = parser.parseDouble(57, 64);
+        double minimumPermissibleActivePowerGeneration = parser.parseDouble(65, 72);
+        double maximumPermissibleActivePowerGeneration = parser.parseDouble(73, 80);
+        double minimumPermissibleReactivePowerGeneration = parser.parseDouble(81, 88);
+        double maximumPermissibleReactivePowerGeneration = parser.parseDouble(89, 96);
+        double staticOfPrimaryControl = parser.parseDouble(97, 102);
+        double nominalPowerPrimaryControl = parser.parseDouble(103, 110);
+        double threePhaseShortCircuitPower = parser.parseDouble(111, 118);
+        double xrRatio = parser.parseDouble(119, 126);
         UctePowerPlantType powerPlantType = parser.parseEnumValue(127, UctePowerPlantType.class);
 
         UcteNode node = new UcteNode(id, geographicalName, status, typeCode, voltageReference,
@@ -114,9 +114,9 @@ public class UcteReader {
     private void parseLine(UcteRecordParser parser, UcteNetwork network) {
         UcteElementId id = parseElementId(parser);
         UcteElementStatus status = UcteElementStatus.fromCode(parser.parseInt(20));
-        float resistance = parser.parseFloat(22, 28);
-        float reactance = parser.parseFloat(29, 35);
-        float susceptance = (float) (parser.parseFloat(36, 44) * Math.pow(10, -6));
+        double resistance = parser.parseDouble(22, 28);
+        double reactance = parser.parseDouble(29, 35);
+        double susceptance = parser.parseDouble(36, 44) * Math.pow(10, -6);
         Integer currentLimit = parser.parseInt(45, 51);
         String elementName = parser.parseString(52, 64);
 
@@ -138,13 +138,13 @@ public class UcteReader {
     private void parseTransformer(UcteRecordParser parser, UcteNetwork network) {
         UcteElementId id = parseElementId(parser);
         UcteElementStatus status = UcteElementStatus.fromCode(parser.parseInt(20));
-        float ratedVoltage1 = parser.parseFloat(22, 27);
-        float ratedVoltage2 = parser.parseFloat(28, 33);
-        float nominalPower = parser.parseFloat(34, 39);
-        float resistance = parser.parseFloat(40, 46);
-        float reactance = parser.parseFloat(47, 53);
-        float susceptance = (float) (parser.parseFloat(54, 62) * Math.pow(10, -6));
-        float conductance = (float) (parser.parseFloat(63, 69) * Math.pow(10, -6));
+        double ratedVoltage1 = parser.parseDouble(22, 27);
+        double ratedVoltage2 = parser.parseDouble(28, 33);
+        double nominalPower = parser.parseDouble(34, 39);
+        double resistance = parser.parseDouble(40, 46);
+        double reactance = parser.parseDouble(47, 53);
+        double susceptance = parser.parseDouble(54, 62) * Math.pow(10, -6);
+        double conductance = parser.parseDouble(63, 69) * Math.pow(10, -6);
         Integer currentLimit = parser.parseInt(70, 76);
         String elementName = parser.parseString(77, 89);
 
@@ -165,24 +165,24 @@ public class UcteReader {
     }
 
     private UctePhaseRegulation parsePhaseRegulation(UcteRecordParser parser) {
-        float du = parser.parseFloat(20, 25);
+        double du = parser.parseDouble(20, 25);
         Integer n = parser.parseInt(26, 28);
         Integer np = parser.parseInt(29, 32);
-        float u = parser.parseFloat(33, 38);
-        if (!Float.isNaN(du) || n != null || np != null || !Float.isNaN(u)) {
+        double u = parser.parseDouble(33, 38);
+        if (!Double.isNaN(du) || n != null || np != null || !Double.isNaN(u)) {
             return new UctePhaseRegulation(du, n, np, u);
         }
         return null;
     }
 
     private UcteAngleRegulation parseAngleRegulation(UcteRecordParser parser) {
-        float du = parser.parseFloat(39, 44);
-        float theta = parser.parseFloat(45, 50);
+        double du = parser.parseDouble(39, 44);
+        double theta = parser.parseDouble(45, 50);
         Integer n = parser.parseInt(51, 53);
         Integer np = parser.parseInt(54, 57);
-        float p = parser.parseFloat(58, 63);
+        double p = parser.parseDouble(58, 63);
         UcteAngleRegulationType type = parser.parseEnumValue(64, 68, UcteAngleRegulationType.class);
-        if (!Float.isNaN(du) || !Float.isNaN(theta) || n != null || np != null || !Float.isNaN(p) || type != null) {
+        if (!Double.isNaN(du) || !Double.isNaN(theta) || n != null || np != null || !Double.isNaN(p) || type != null) {
             return new UcteAngleRegulation(du, theta, n, np, p, type);
         }
         return null;

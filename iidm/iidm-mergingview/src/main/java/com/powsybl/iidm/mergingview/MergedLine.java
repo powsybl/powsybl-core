@@ -11,8 +11,10 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 class MergedLine implements TieLine {
 
@@ -43,7 +46,9 @@ class MergedLine implements TieLine {
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
         this.half1 = new HalfLineAdapter(dl1, Side.ONE, index);
-        this.half2 = new HalfLineAdapter(dl2, Side.TWO, index);
+        // must be reoriented. TieLine is defined as networkNode1-boundaryNode--boundaryNode-networkNode2
+        // and in danglingLines the networkNode is always at end1
+        this.half2 = new HalfLineAdapter(dl2, Side.TWO, index, true);
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildIdOrName(dl1.getId(), dl2.getId()), index::contains) : buildIdOrName(dl1.getId(), dl2.getId());
         this.name = buildName(dl1, dl2);
         mergeProperties(dl1, dl2);
@@ -94,11 +99,6 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.LINE;
-    }
-
-    @Override
     public boolean isTieLine() {
         return true;
     }
@@ -139,33 +139,13 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits1() {
-        return getDanglingLine1().getOperationalLimits();
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits1() {
-        return getDanglingLine1().getCurrentLimits();
-    }
-
-    @Override
     public CurrentLimitsAdder newCurrentLimits1() {
         return getDanglingLine1().newCurrentLimits();
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits1() {
-        return getDanglingLine1().getActivePowerLimits();
-    }
-
-    @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
         return getDanglingLine1().newActivePowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getApparentPowerLimits1() {
-        return getDanglingLine1().getApparentPowerLimits();
     }
 
     @Override
@@ -179,8 +159,33 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public CurrentLimits getCurrentLimits2() {
+    public Optional<CurrentLimits> getCurrentLimits2() {
         return getDanglingLine2().getCurrentLimits();
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits2() {
+        return getDanglingLine2().getNullableCurrentLimits();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits2() {
+        return getDanglingLine2().getActivePowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits2() {
+        return getDanglingLine2().getNullableActivePowerLimits();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
+        return getDanglingLine2().getApparentPowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        return getDanglingLine2().getNullableApparentPowerLimits();
     }
 
     @Override
@@ -189,18 +194,8 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public ActivePowerLimits getActivePowerLimits2() {
-        return getDanglingLine2().getActivePowerLimits();
-    }
-
-    @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
         return getDanglingLine2().newActivePowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getApparentPowerLimits2() {
-        return getDanglingLine2().getApparentPowerLimits();
     }
 
     @Override
@@ -221,70 +216,62 @@ class MergedLine implements TieLine {
 
     @Override
     public double getR() {
-        return half1.getR() + half2.getR();
+        return TieLineUtil.getR(half1, half2);
     }
 
     @Override
     public Line setR(final double r) {
-        half1.setR(r / 2);
-        half2.setR(r / 2);
-        return this;
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
     public double getX() {
-        return half1.getX() + half2.getX();
+        return TieLineUtil.getX(half1, half2);
     }
 
     @Override
     public Line setX(final double x) {
-        half1.setX(x / 2);
-        half2.setX(x / 2);
-        return this;
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
     public double getG1() {
-        return getDanglingLine1().getG();
+        return TieLineUtil.getG1(half1, half2);
     }
 
     @Override
     public Line setG1(final double g1) {
-        half1.setG(g1);
-        return this;
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
     public double getG2() {
-        return getDanglingLine2().getG();
+        return TieLineUtil.getG2(half1, half2);
     }
 
     @Override
     public Line setG2(final double g2) {
-        half2.setG(g2);
-        return this;
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
     public double getB1() {
-        return getDanglingLine1().getB();
+        return TieLineUtil.getB1(half1, half2);
     }
 
     @Override
     public Line setB1(final double b1) {
-        half1.setB(b1);
-        return this;
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
     public double getB2() {
-        return getDanglingLine2().getB();
+        return TieLineUtil.getB2(half1, half2);
     }
 
     @Override
     public Line setB2(final double b2) {
-        half2.setB(b2);
-        return this;
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
@@ -325,33 +312,68 @@ class MergedLine implements TieLine {
     }
 
     @Override
+    public Collection<OperationalLimits> getOperationalLimits1() {
+        return getDanglingLine1().getOperationalLimits();
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits1() {
+        return getDanglingLine1().getCurrentLimits();
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits1() {
+        return getDanglingLine1().getNullableCurrentLimits();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits1() {
+        return getDanglingLine1().getActivePowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits1() {
+        return getDanglingLine1().getNullableActivePowerLimits();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
+        return getDanglingLine1().getApparentPowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits1() {
+        return getDanglingLine1().getNullableApparentPowerLimits();
+    }
+
+    @Override
     public boolean isOverloaded() {
         return isOverloaded(1.0f);
     }
 
     @Override
     public boolean isOverloaded(final float limitReduction) {
-        return checkPermanentLimit1(limitReduction) || checkPermanentLimit2(limitReduction);
+        return checkPermanentLimit1(limitReduction, LimitType.CURRENT) || checkPermanentLimit2(limitReduction, LimitType.CURRENT);
     }
 
     @Override
     public int getOverloadDuration() {
-        Branch.Overload o1 = checkTemporaryLimits1();
-        Branch.Overload o2 = checkTemporaryLimits2();
+        Branch.Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
+        Branch.Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
         int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         return Math.min(duration1, duration2);
     }
 
     @Override
-    public boolean checkPermanentLimit(final Side side, final float limitReduction) {
+    public boolean checkPermanentLimit(final Side side, final float limitReduction, LimitType type) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
-                return checkPermanentLimit1(limitReduction);
+                return checkPermanentLimit1(limitReduction, type);
 
             case TWO:
-                return checkPermanentLimit2(limitReduction);
+                return checkPermanentLimit2(limitReduction, type);
 
             default:
                 throw new AssertionError(UNEXPECTED_SIDE_VALUE + side);
@@ -359,39 +381,39 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public boolean checkPermanentLimit(final Side side) {
-        return checkPermanentLimit(side, 1f);
+    public boolean checkPermanentLimit(final Side side, LimitType type) {
+        return checkPermanentLimit(side, 1f, type);
     }
 
     @Override
-    public boolean checkPermanentLimit1(final float limitReduction) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getTerminal1().getI());
+    public boolean checkPermanentLimit1(final float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
-    public boolean checkPermanentLimit1() {
-        return checkPermanentLimit1(1f);
+    public boolean checkPermanentLimit1(LimitType type) {
+        return checkPermanentLimit1(1f, type);
     }
 
     @Override
-    public boolean checkPermanentLimit2(final float limitReduction) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getTerminal2().getI());
+    public boolean checkPermanentLimit2(final float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
-    public boolean checkPermanentLimit2() {
-        return checkPermanentLimit2(1f);
+    public boolean checkPermanentLimit2(LimitType type) {
+        return checkPermanentLimit2(1f, type);
     }
 
     @Override
-    public Overload checkTemporaryLimits(final Side side, final float limitReduction) {
+    public Overload checkTemporaryLimits(final Side side, final float limitReduction, LimitType type) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
-                return checkTemporaryLimits1(limitReduction);
+                return checkTemporaryLimits1(limitReduction, type);
 
             case TWO:
-                return checkTemporaryLimits2(limitReduction);
+                return checkTemporaryLimits2(limitReduction, type);
 
             default:
                 throw new AssertionError(UNEXPECTED_SIDE_VALUE + side);
@@ -399,28 +421,28 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public Overload checkTemporaryLimits(final Side side) {
-        return checkTemporaryLimits(side, 1f);
+    public Overload checkTemporaryLimits(final Side side, LimitType type) {
+        return checkTemporaryLimits(side, 1f, type);
     }
 
     @Override
-    public Overload checkTemporaryLimits1(final float limitReduction) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getTerminal1().getI());
+    public Overload checkTemporaryLimits1(final float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
-    public Overload checkTemporaryLimits1() {
-        return checkTemporaryLimits1(1f);
+    public Overload checkTemporaryLimits1(LimitType type) {
+        return checkTemporaryLimits1(1f, type);
     }
 
     @Override
-    public Overload checkTemporaryLimits2(final float limitReduction) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getTerminal2().getI());
+    public Overload checkTemporaryLimits2(final float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
-    public Overload checkTemporaryLimits2() {
-        return checkTemporaryLimits2(1f);
+    public Overload checkTemporaryLimits2(LimitType type) {
+        return checkTemporaryLimits2(1f, type);
     }
 
     @Override
@@ -481,6 +503,14 @@ class MergedLine implements TieLine {
         getDanglingLine1().setProperty(key, value);
         getDanglingLine2().setProperty(key, value);
         return (String) properties.setProperty(key, value);
+    }
+
+    @Override
+    public boolean removeProperty(String key) {
+        boolean removed1 = getDanglingLine1().removeProperty(key);
+        boolean removed2 = getDanglingLine2().removeProperty(key);
+        properties.remove(key);
+        return removed1 || removed2;
     }
 
     // -------------------------------
@@ -556,5 +586,23 @@ class MergedLine implements TieLine {
             default:
                 throw new AssertionError("Unknown branch side " + side);
         }
+    }
+
+    public double getValueForLimit(Terminal t, LimitType type) {
+        switch (type) {
+            case ACTIVE_POWER:
+                return t.getP();
+            case APPARENT_POWER:
+                return Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
+            case CURRENT:
+                return t.getI();
+            case VOLTAGE:
+            default:
+                throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+        }
+    }
+
+    private static ValidationException createNotSupportedForMergedLines() {
+        throw new PowsyblException("direct modification of characteristics not supported for MergedLines");
     }
 }

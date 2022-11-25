@@ -18,7 +18,9 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
     public static class ComponentResultImpl implements ComponentResult {
 
-        private final int componentNum;
+        private final int connectedComponentNum;
+
+        private final int synchronousComponentNum;
 
         private final Status status;
 
@@ -28,12 +30,17 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
         private final double slackBusActivePowerMismatch;
 
-        public ComponentResultImpl(int componentNum, Status status, int iterationCount, String slackBusId, double slackBusActivePowerMismatch) {
-            this.componentNum = checkComponentNum(componentNum);
+        private final double distributedActivePower;
+
+        public ComponentResultImpl(int connectedComponentNum, int synchronousComponentNum, Status status, int iterationCount,
+                                   String slackBusId, double slackBusActivePowerMismatch, double distributedActivePower) {
+            this.connectedComponentNum = checkComponentNum(connectedComponentNum);
+            this.synchronousComponentNum = checkComponentNum(synchronousComponentNum);
             this.status = Objects.requireNonNull(status);
             this.iterationCount = checkIterationCount(iterationCount);
             this.slackBusId = Objects.requireNonNull(slackBusId);
             this.slackBusActivePowerMismatch = slackBusActivePowerMismatch;
+            this.distributedActivePower = distributedActivePower;
         }
 
         private static int checkComponentNum(int componentNum) {
@@ -51,8 +58,13 @@ public class LoadFlowResultImpl implements LoadFlowResult {
         }
 
         @Override
-        public int getComponentNum() {
-            return componentNum;
+        public int getConnectedComponentNum() {
+            return connectedComponentNum;
+        }
+
+        @Override
+        public int getSynchronousComponentNum() {
+            return synchronousComponentNum;
         }
 
         @Override
@@ -73,6 +85,11 @@ public class LoadFlowResultImpl implements LoadFlowResult {
         @Override
         public double getSlackBusActivePowerMismatch() {
             return slackBusActivePowerMismatch;
+        }
+
+        @Override
+        public double getDistributedActivePower() {
+            return distributedActivePower;
         }
     }
 

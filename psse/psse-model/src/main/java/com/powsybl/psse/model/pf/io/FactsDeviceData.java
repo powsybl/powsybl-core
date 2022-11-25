@@ -34,7 +34,7 @@ class FactsDeviceData extends AbstractRecordGroup<PsseFacts> {
     }
 
     @Override
-    public Class<PsseFacts> psseTypeClass() {
+    protected Class<PsseFacts> psseTypeClass() {
         return PsseFacts.class;
     }
 }

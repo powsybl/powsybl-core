@@ -6,13 +6,9 @@
  */
 package com.powsybl.sensitivity;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionConfigLoader;
-import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.Objects;
@@ -26,16 +22,6 @@ import java.util.Objects;
 public class SensitivityAnalysisParameters extends AbstractExtendable<SensitivityAnalysisParameters> {
 
     public static final String VERSION = "1.0";
-
-    /**
-     * A configuration loader interface for the SecurityAnalysisParameters extensions loaded from the platform configuration
-     * @param <E> The extension class
-     */
-    public interface ConfigLoader<E extends Extension<SensitivityAnalysisParameters>> extends ExtensionConfigLoader<SensitivityAnalysisParameters, E> {
-    }
-
-    private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "sensitivity-parameters"));
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
 
@@ -61,8 +47,9 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
     }
 
     private void readExtensions(PlatformConfig platformConfig) {
-        for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
-            addExtension(provider.getExtensionClass(), provider.load(platformConfig));
+        for (SensitivityAnalysisProvider provider : new ServiceLoaderCache<>(SensitivityAnalysisProvider.class).getServices()) {
+            provider.loadSpecificParameters(platformConfig).ifPresent(sensitivityAnalysisParametersExtension ->
+                    addExtension((Class) sensitivityAnalysisParametersExtension.getClass(), sensitivityAnalysisParametersExtension));
         }
     }
 

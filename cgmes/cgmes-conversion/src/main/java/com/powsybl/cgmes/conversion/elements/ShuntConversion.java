@@ -31,13 +31,13 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private int getSections(PropertyBag p, int normalSections) {
-        switch (context.config().getProfileUsedForInitialStateValues()) {
+        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
             case SSH:
                 return fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
             case SV:
                 return fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
             default:
-                throw new PowsyblException("Unexpected profile used for initial state values");
+                throw new PowsyblException("Unexpected profile used for initial values");
         }
     }
 
@@ -52,11 +52,6 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         String shuntType = p.getId("type");
         if ("LinearShuntCompensator".equals(shuntType)) {
             double bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, Float.MIN_VALUE);
-            if (bPerSection == 0) {
-                double bPerSectionFixed = Double.MIN_VALUE;
-                fixed(CgmesNames.B_PER_SECTION, "Can not be zero", bPerSection, bPerSectionFixed);
-                bPerSection = bPerSectionFixed;
-            }
             double gPerSection = p.asDouble("gPerSection", Double.NaN);
             adder.newLinearModel()
                     .setBPerSection(bPerSection)
@@ -85,14 +80,9 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         ShuntCompensator shunt = adder.add();
         addAliasesAndProperties(shunt);
 
-        // At a shunt terminal, only Q can be set
-        PowerFlow f = powerFlow();
-        if (f.defined()) {
-            double q = f.q();
-            if (context.config().changeSignForShuntReactivePowerFlowInitialState()) {
-                q = -q;
-            }
-            f = new PowerFlow(Double.NaN, q);
+        PowerFlow f = powerFlowSV();
+        if (f.defined() && context.config().changeSignForShuntReactivePowerFlowInitialState()) {
+            f = new PowerFlow(-f.p(), -f.q());
         }
         context.convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
         context.regulatingControlMapping().forShuntCompensators().add(shunt.getId(), p);

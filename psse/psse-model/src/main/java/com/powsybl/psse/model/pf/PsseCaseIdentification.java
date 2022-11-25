@@ -127,7 +127,7 @@ public class PsseCaseIdentification {
         }
     }
 
-    public static class RevisionSerializer extends JsonSerializer<Float> {
+    private static class RevisionSerializer extends JsonSerializer<Float> {
         @Override
         public void serialize(Float value, JsonGenerator generator, SerializerProvider provider) throws IOException {
             String rev = PsseVersion.fromRevision(value).toString();

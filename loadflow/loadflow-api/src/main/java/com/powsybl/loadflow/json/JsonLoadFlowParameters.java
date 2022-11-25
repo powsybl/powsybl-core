@@ -12,13 +12,12 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.LoadFlowProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,7 +25,10 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Provides methods to read and write LoadFlowParameters from and to JSON.
@@ -35,28 +37,14 @@ import java.util.Objects;
  */
 public final class JsonLoadFlowParameters {
 
-    /**
-     * A configuration loader interface for the LoadFlowParameters extensions loaded from the platform configuration
-     *
-     * @param <E> The extension class
-     */
-    public interface ExtensionSerializer<E extends Extension<LoadFlowParameters>> extends ExtensionJsonSerializer<LoadFlowParameters, E> {
-    }
-
-    /**
-     * Lazily initialized list of extension serializers.
-     */
-    private static final Supplier<ExtensionProviders<ExtensionSerializer>> SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "loadflow-parameters"));
-
-    /**
-     * Gets the known extension serializers.
-     */
-    public static ExtensionProviders<ExtensionSerializer> getExtensionSerializers() {
-        return SUPPLIER.get();
-    }
-
     private JsonLoadFlowParameters() {
+    }
+
+    public static Map<String, ExtensionJsonSerializer> getExtensionSerializers() {
+        List<LoadFlowProvider> providers = new ServiceLoaderCache<>(LoadFlowProvider.class).getServices();
+        return providers.stream()
+            .flatMap(loadFlowProvider -> loadFlowProvider.getSpecificParametersSerializer().stream())
+            .collect(Collectors.toMap(ExtensionProvider::getExtensionName, loadFlowProvider -> loadFlowProvider));
     }
 
     /**

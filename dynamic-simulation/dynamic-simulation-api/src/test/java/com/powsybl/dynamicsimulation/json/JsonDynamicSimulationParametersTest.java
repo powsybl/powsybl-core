@@ -11,15 +11,15 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -38,7 +38,7 @@ public class JsonDynamicSimulationParametersTest extends AbstractConverterTest {
     public void writeExtension() throws IOException {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonDynamicSimulationParameters::write, AbstractConverterTest::compareTxt, "/DynamicSimulationParametersWithExtension.json");
+        writeTest(parameters, JsonDynamicSimulationParameters::write, ComparisonUtils::compareTxt, "/DynamicSimulationParametersWithExtension.json");
     }
 
     @Test
@@ -50,10 +50,11 @@ public class JsonDynamicSimulationParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readError() {
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Unexpected field: unknownParameter");
-        JsonDynamicSimulationParameters.read(getClass().getResourceAsStream("/DynamicSimulationParametersError.json"));
+    public void readError() throws IOException {
+        try (var is = getClass().getResourceAsStream("/DynamicSimulationParametersError.json")) {
+            AssertionError e = assertThrows(AssertionError.class, () -> JsonDynamicSimulationParameters.read(is));
+            assertEquals("Unexpected field: unknownParameter", e.getMessage());
+        }
     }
 
     static class DummyExtension extends AbstractExtension<DynamicSimulationParameters> {

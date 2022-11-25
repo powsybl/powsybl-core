@@ -97,7 +97,7 @@ public class LocalComputationManager implements ComputationManager {
         this(LocalComputationConfig.load(platformConfig));
     }
 
-    public LocalComputationManager(Path localDir)  throws IOException {
+    public LocalComputationManager(Path localDir) throws IOException {
         this(new LocalComputationConfig(localDir));
     }
 
@@ -161,8 +161,11 @@ public class LocalComputationManager implements ComputationManager {
                             preProcess(workingDir, command, idx);
                             int exitValue = process(workingDir, commandExecution, idx, variables, computationParameters);
                             postProcess(workingDir, commandExecution, idx, exitValue, errors, monitor);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            LOGGER.warn(e.getMessage(), e);
                         } catch (Exception e) {
-                            LOGGER.warn(e.getMessage());
+                            LOGGER.warn(e.getMessage(), e);
                         } finally {
                             latch.countDown();
                             exit();

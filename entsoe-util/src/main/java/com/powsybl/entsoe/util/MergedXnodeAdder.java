@@ -19,11 +19,11 @@ public interface MergedXnodeAdder extends ExtensionAdder<Line, MergedXnode> {
         return MergedXnode.class;
     }
 
-    default MergedXnodeAdder withRdp(float rdp) {
+    default MergedXnodeAdder withRdp(double rdp) {
         return this;
     }
 
-    default MergedXnodeAdder withXdp(float xdp) {
+    default MergedXnodeAdder withXdp(double xdp) {
         return this;
     }
 
@@ -37,11 +37,11 @@ public interface MergedXnodeAdder extends ExtensionAdder<Line, MergedXnode> {
 
     MergedXnodeAdder withXnodeQ1(double xnodeQ1);
 
-    default MergedXnodeAdder withB1dp(float b1dp) {
+    default MergedXnodeAdder withB1dp(double b1dp) {
         return this;
     }
 
-    default MergedXnodeAdder withG1dp(float g1dp) {
+    default MergedXnodeAdder withG1dp(double g1dp) {
         return this;
     }
 
@@ -55,11 +55,11 @@ public interface MergedXnodeAdder extends ExtensionAdder<Line, MergedXnode> {
 
     MergedXnodeAdder withXnodeQ2(double xnodeQ2);
 
-    default MergedXnodeAdder withB2dp(float b2dp) {
+    default MergedXnodeAdder withB2dp(double b2dp) {
         return this;
     }
 
-    default MergedXnodeAdder withG2dp(float g2dp) {
+    default MergedXnodeAdder withG2dp(double g2dp) {
         return this;
     }
 

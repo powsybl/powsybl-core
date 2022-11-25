@@ -23,6 +23,11 @@ public class CgmesModelExtensionAdderImplProvider implements
     }
 
     @Override
+    public String getExtensionName() {
+        return CgmesModelExtension.NAME;
+    }
+
+    @Override
     public Class<CgmesModelExtensionAdderImpl> getAdderClass() {
         return CgmesModelExtensionAdderImpl.class;
     }

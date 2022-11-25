@@ -1,0 +1,49 @@
+#
+# Copyright (c) 2019, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: substationPosition
+SELECT ?powerSystemResource ?name ?crsName ?crsUrn ?x ?y ?seq
+{
+    ?location
+        a cim:Location ;
+        cim:Location.PowerSystemResources ?powerSystemResource ;
+        cim:Location.CoordinateSystem ?coordinateSystem .
+    ?powerSystemResource
+        a cim:Substation ;
+        cim:IdentifiedObject.name ?name .
+    ?coordinateSystem
+        a cim:CoordinateSystem ;
+        cim:IdentifiedObject.name ?crsName ;
+        cim:CoordinateSystem.crsUrn ?crsUrn .
+    ?positionPoint
+        a cim:PositionPoint ;
+        cim:PositionPoint.Location ?location ;
+        cim:PositionPoint.xPosition ?x ;
+        cim:PositionPoint.yPosition ?y .
+}
+
+# query: linePosition
+SELECT ?powerSystemResource ?name ?crsName ?crsUrn ?x ?y ?seq
+{
+    ?location
+        a cim:Location ;
+        cim:Location.PowerSystemResources ?powerSystemResource ;
+        cim:Location.CoordinateSystem ?coordinateSystem .
+    ?powerSystemResource
+        a cim:ACLineSegment ;
+        cim:IdentifiedObject.name ?name .
+    ?coordinateSystem
+        a cim:CoordinateSystem ;
+        cim:IdentifiedObject.name ?crsName ;
+        cim:CoordinateSystem.crsUrn ?crsUrn .
+    ?positionPoint
+        a cim:PositionPoint ;
+        cim:PositionPoint.Location ?location ;
+        cim:PositionPoint.sequenceNumber ?seq ;
+        cim:PositionPoint.xPosition ?x ;
+        cim:PositionPoint.yPosition ?y .
+}

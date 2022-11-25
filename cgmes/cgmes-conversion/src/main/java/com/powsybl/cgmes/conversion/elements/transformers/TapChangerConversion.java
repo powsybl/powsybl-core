@@ -7,13 +7,12 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
-import java.util.Objects;
-
-import org.apache.commons.math3.complex.Complex;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.transformers.TapChanger.Step;
 import com.powsybl.cgmes.model.CgmesModelException;
+import org.apache.commons.math3.complex.Complex;
+
+import java.util.Objects;
 
 /**
  * TapChangerTypes
@@ -136,7 +135,7 @@ public class TapChangerConversion {
     */
     private TapChanger tapChangerFixPosition(TapChanger tc) {
         if (tc.getLowTapPosition() != tc.getHighTapPosition()) {
-            context.fixed(() -> String.format("TapChanger Id %s fixed tap at position %d ", tc.getId(), tc.getTapPosition()), "");
+            context.fixed("TapChanger", () -> String.format("%s fixed tap at position %d ", tc.getId(), tc.getTapPosition()));
         }
         TapChanger tapChanger = baseCloneTapChanger(tc);
         tapChanger.setLowTapPosition(tapChanger.getTapPosition());
@@ -239,7 +238,7 @@ public class TapChangerConversion {
     }
 
     // not used at the moment
-    protected static TapChanger  moveTapChangerFrom1To2(TapChanger tc) {
+    protected static TapChanger moveTapChangerFrom1To2(TapChanger tc) {
         return moveTapChangerFromOneEndToTheOther(tc);
     }
 

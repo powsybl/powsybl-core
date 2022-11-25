@@ -6,7 +6,7 @@
  */
 
 action('unknown generator') {
-    tasks {
+    modifications {
         generatorModification('UNKNOWN') {
             targetP 50.0
         }
@@ -14,7 +14,7 @@ action('unknown generator') {
 }
 
 action('targetV and targetQ with voltageRegulator OFF') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             minP 20.0
             maxP 60.0
@@ -27,7 +27,7 @@ action('targetV and targetQ with voltageRegulator OFF') {
 }
 
 action('targetV and targetQ with voltageRegulator ON') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             targetV 10.0
             targetQ 25.0
@@ -37,7 +37,7 @@ action('targetV and targetQ with voltageRegulator ON') {
 }
 
 action('deltaTargetP within boundaries') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             deltaTargetP(-1.0)
         }
@@ -45,7 +45,7 @@ action('deltaTargetP within boundaries') {
 }
 
 action('deltaTargetP lower boundary overflow') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             deltaTargetP(-30000.0)
         }
@@ -53,7 +53,7 @@ action('deltaTargetP lower boundary overflow') {
 }
 
 action('deltaTargetP upper boundary overflow') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             deltaTargetP 30000.0
         }
@@ -61,7 +61,7 @@ action('deltaTargetP upper boundary overflow') {
 }
 
 action('targetP lower boundary overflow') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             targetP(-50000.0)
         }
@@ -69,7 +69,7 @@ action('targetP lower boundary overflow') {
 }
 
 action('targetP upper boundary overflow') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             targetP 50000.0
         }
@@ -77,7 +77,7 @@ action('targetP upper boundary overflow') {
 }
 
 action('connect') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             connected true
         }
@@ -85,7 +85,7 @@ action('connect') {
 }
 
 action('connect with targetP change') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             connected true
             targetP 100.0
@@ -94,7 +94,7 @@ action('connect with targetP change') {
 }
 
 action('disconnect') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             connected false
         }
@@ -102,7 +102,7 @@ action('disconnect') {
 }
 
 action('disconnect with targetP change') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             connected false
             targetP 50.0
@@ -111,7 +111,7 @@ action('disconnect with targetP change') {
 }
 
 action('connect with targetV change') {
-    tasks {
+    modifications {
         generatorModification('GEN') {
             connected true
             targetV 1234.56

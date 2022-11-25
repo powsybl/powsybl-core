@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -66,9 +67,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setR(double r) {
-            if (Double.isNaN(r)) {
-                throw new ValidationException(this, "r is invalid");
-            }
+            ValidationUtil.checkR(this, r);
             double oldValue = this.r;
             this.r = r;
             transformer.notifyUpdate(() -> getLegAttribute() + ".r", oldValue, r);
@@ -80,9 +79,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setX(double x) {
-            if (Double.isNaN(x)) {
-                throw new ValidationException(this, "x is invalid");
-            }
+            ValidationUtil.checkX(this, x);
             double oldValue = this.x;
             this.x = x;
             transformer.notifyUpdate(() -> getLegAttribute() + ".x", oldValue, x);
@@ -94,9 +91,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setG(double g) {
-            if (Double.isNaN(g)) {
-                throw new ValidationException(this, "g is invalid");
-            }
+            ValidationUtil.checkG(this, g);
             double oldValue = this.g;
             this.g = g;
             transformer.notifyUpdate(() -> getLegAttribute() + ".g", oldValue, g);
@@ -108,9 +103,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setB(double b) {
-            if (Double.isNaN(b)) {
-                throw new ValidationException(this, "b is invalid");
-            }
+            ValidationUtil.checkB(this, b);
             double oldValue = this.b;
             this.b = b;
             transformer.notifyUpdate(() -> getLegAttribute() + ".b", oldValue, b);
@@ -167,8 +160,18 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public CurrentLimits getCurrentLimits() {
+        public Collection<OperationalLimits> getOperationalLimits() {
+            return operationalLimitsHolder.getOperationalLimits();
+        }
+
+        @Override
+        public Optional<CurrentLimits> getCurrentLimits() {
             return operationalLimitsHolder.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+        }
+
+        @Override
+        public CurrentLimits getNullableCurrentLimits() {
+            return operationalLimitsHolder.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
         }
 
         @Override
@@ -177,8 +180,13 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public ApparentPowerLimits getApparentPowerLimits() {
+        public Optional<ApparentPowerLimits> getApparentPowerLimits() {
             return operationalLimitsHolder.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+        }
+
+        @Override
+        public ApparentPowerLimits getNullableApparentPowerLimits() {
+            return operationalLimitsHolder.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
         }
 
         @Override
@@ -187,18 +195,18 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public ActivePowerLimits getActivePowerLimits() {
+        public Optional<ActivePowerLimits> getActivePowerLimits() {
             return operationalLimitsHolder.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+        }
+
+        @Override
+        public ActivePowerLimits getNullableActivePowerLimits() {
+            return operationalLimitsHolder.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
         }
 
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
             return operationalLimitsHolder.newActivePowerLimits();
-        }
-
-        @Override
-        public Collection<OperationalLimits> getOperationalLimits() {
-            return operationalLimitsHolder.getOperationalLimits();
         }
 
         protected String getTypeDescription() {
@@ -228,8 +236,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public Set<TapChanger> getAllTapChangers() {
-            Set<TapChanger> tapChangers = new HashSet<>();
+        public Set<TapChanger<?, ?>> getAllTapChangers() {
+            Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
             transformer.leg1.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
             transformer.leg1.getOptionalPhaseTapChanger().ifPresent(tapChangers::add);
             transformer.leg2.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
@@ -272,8 +280,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     private double ratedU0;
 
-    ThreeWindingsTransformerImpl(String id, String name, boolean fictitious, LegImpl leg1, LegImpl leg2, LegImpl leg3, double ratedU0) {
-        super(id, name, fictitious);
+    ThreeWindingsTransformerImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, LegImpl leg1, LegImpl leg2, LegImpl leg3, double ratedU0) {
+        super(network, id, name, fictitious);
         this.leg1 = Objects.requireNonNull(leg1);
         this.leg2 = Objects.requireNonNull(leg2);
         this.leg3 = Objects.requireNonNull(leg3);
@@ -281,13 +289,21 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.THREE_WINDINGS_TRANSFORMER;
+    public Optional<Substation> getSubstation() {
+        return getLegStream()
+                .map(leg -> leg.getTerminal().getVoltageLevel().getSubstation())
+                .filter(Optional::isPresent)
+                .findFirst()
+                .orElseGet(Optional::empty);
     }
 
     @Override
-    public SubstationImpl getSubstation() {
-        return leg1.getTerminal().getVoltageLevel().getSubstation();
+    public Substation getNullableSubstation() {
+        return getLegStream()
+                .map(leg -> leg.getTerminal().getVoltageLevel().getNullableSubstation())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

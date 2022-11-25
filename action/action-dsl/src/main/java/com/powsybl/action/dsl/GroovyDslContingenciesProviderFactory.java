@@ -7,7 +7,7 @@
 package com.powsybl.action.dsl;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.contingency.ContingenciesProviderFactory;
 
@@ -22,8 +22,9 @@ public class GroovyDslContingenciesProviderFactory implements ContingenciesProvi
 
     @Override
     public GroovyDslContingenciesProvider create() {
-        ModuleConfig config = PlatformConfig.defaultConfig().getModuleConfig("groovy-dsl-contingencies");
-        Path dslFile = config.getPathProperty("dsl-file");
+        Path dslFile = PlatformConfig.defaultConfig().getOptionalModuleConfig("groovy-dsl-contingencies")
+                .map(config -> config.getOptionalPathProperty("dsl-file").orElseThrow(() -> new PowsyblException("PlatformConfig incomplete: property dsl-file not found in module groovy-dsl-contingencies")))
+                .orElseThrow(() -> new PowsyblException("PlatformConfig incomplete: Module groovy-dsl-contingencies not found"));
         return new GroovyDslContingenciesProvider(dslFile);
     }
 

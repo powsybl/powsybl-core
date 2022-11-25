@@ -122,8 +122,8 @@ public final class BatteryNetworkFactory {
                 .setId("BAT")
                 .setBus(nbat.getId())
                 .setConnectableBus(nbat.getId())
-                .setP0(9999.99)
-                .setQ0(9999.99)
+                .setTargetP(9999.99)
+                .setTargetQ(9999.99)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .add();
@@ -137,8 +137,8 @@ public final class BatteryNetworkFactory {
                 .setId("BAT2")
                 .setBus(nbat.getId())
                 .setConnectableBus(nbat.getId())
-                .setP0(100)
-                .setQ0(200)
+                .setTargetP(100)
+                .setTargetQ(200)
                 .setMinP(-200)
                 .setMaxP(200)
                 .add();

@@ -178,8 +178,7 @@ public abstract class AbstractSlackTerminalTest {
 
         // First adding a terminal in the right voltage level...
         Terminal terminal = network.getBusBreakerView().getBus("NHV1").getConnectedTerminals().iterator().next();
-        slackTerminalAdder.withTerminal(terminal).add();
-        SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
+        SlackTerminal slackTerminal = slackTerminalAdder.withTerminal(terminal).add();
         assertNotNull(slackTerminal);
 
         // ... then setting a terminal in the wrong voltage level

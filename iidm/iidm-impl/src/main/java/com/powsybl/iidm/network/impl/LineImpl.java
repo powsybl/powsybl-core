@@ -6,12 +6,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class LineImpl extends AbstractBranch<Line> implements Line {
@@ -28,19 +27,14 @@ class LineImpl extends AbstractBranch<Line> implements Line {
 
     private double b2;
 
-    LineImpl(String id, String name, boolean fictitious, double r, double x, double g1, double b1, double g2, double b2) {
-        super(id, name, fictitious);
+    LineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double r, double x, double g1, double b1, double g2, double b2) {
+        super(network, id, name, fictitious);
         this.r = r;
         this.x = x;
         this.g1 = g1;
         this.b1 = b1;
         this.g2 = g2;
         this.b2 = b2;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        return ConnectableType.LINE;
     }
 
     @Override

@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 
@@ -41,6 +42,16 @@ public class VscConverterStationAdderAdapter extends AbstractHvdcConverterStatio
     @Override
     public VscConverterStationAdder setReactivePowerSetpoint(final double reactivePowerSetpoint) {
         getDelegate().setReactivePowerSetpoint(reactivePowerSetpoint);
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdder setRegulatingTerminal(final Terminal regulatingTerminal) {
+        Terminal terminal = regulatingTerminal;
+        if (terminal instanceof TerminalAdapter) {
+            terminal = ((TerminalAdapter) terminal).getDelegate();
+        }
+        getDelegate().setRegulatingTerminal(terminal);
         return this;
     }
 }

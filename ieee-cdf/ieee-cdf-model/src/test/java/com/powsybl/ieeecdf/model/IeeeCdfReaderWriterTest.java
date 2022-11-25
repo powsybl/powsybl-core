@@ -7,6 +7,7 @@
 package com.powsybl.ieeecdf.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.After;
@@ -29,7 +30,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class IeeeCdfReaderWriterTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     private FileSystem fileSystem;
 
@@ -95,6 +96,11 @@ public class IeeeCdfReaderWriterTest {
     @Test
     public void testIeee300() throws IOException {
         testIeeeFile("ieee300cdf.txt");
+    }
+
+    @Test
+    public void testIeee9zeroimpedance() throws IOException {
+        testIeeeFile("ieee9zeroimpedancecdf.txt");
     }
 
     @Test

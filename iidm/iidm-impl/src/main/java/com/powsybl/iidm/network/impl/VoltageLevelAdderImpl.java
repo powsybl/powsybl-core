@@ -6,10 +6,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevelAdder;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.impl.util.Ref;
+
+import java.util.Optional;
 
 /**
  *
@@ -17,6 +21,7 @@ import com.powsybl.iidm.network.ValidationUtil;
  */
 class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderImpl> implements VoltageLevelAdder {
 
+    private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
 
     private double nominalV = Double.NaN;
@@ -28,12 +33,22 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
     private TopologyKind topologyKind;
 
     VoltageLevelAdderImpl(SubstationImpl substation) {
+        networkRef = null;
         this.substation = substation;
+    }
+
+    VoltageLevelAdderImpl(Ref<NetworkImpl> networkRef) {
+        this.networkRef = networkRef;
+        substation = null;
     }
 
     @Override
     protected NetworkImpl getNetwork() {
-        return substation.getNetwork();
+        return Optional.ofNullable(networkRef)
+                .map(Ref::get)
+                .orElseGet(() -> Optional.ofNullable(substation)
+                        .map(SubstationImpl::getNetwork)
+                        .orElseThrow(() -> new PowsyblException("Voltage level has no container")));
     }
 
     @Override
@@ -83,16 +98,16 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         VoltageLevelExt voltageLevel;
         switch (topologyKind) {
             case NODE_BREAKER:
-                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             case BUS_BREAKER:
-                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             default:
                 throw new AssertionError();
         }
         getNetwork().getIndex().checkAndAdd(voltageLevel);
-        substation.addVoltageLevel(voltageLevel);
+        Optional.ofNullable(substation).ifPresent(s -> s.addVoltageLevel(voltageLevel));
         getNetwork().getListeners().notifyCreation(voltageLevel);
         return voltageLevel;
     }

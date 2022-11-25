@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -23,99 +21,124 @@ import org.slf4j.LoggerFactory;
 class IslandsEnds {
     private final List<IslandEnd> islandsEndsNodes;
 
-    // The island includes dcTopologicalNodes and first acTopologicalNode
+    // The island includes dcNodes and first acNode
     IslandsEnds() {
         islandsEndsNodes = new ArrayList<>();
     }
 
-    void add(Adjacency adjacency, List<String> islandNodes) {
+    void add(Adjacency adjacency, NodeEquipment nodeEquipment, List<String> islandNodes) {
         if (islandNodes.isEmpty()) {
             return;
         }
-        Set<String> visitedTopologicalNodes = new HashSet<>();
+        Set<String> visitedNodes = new HashSet<>();
 
-        String topologicalNodeEnd1 = islandNodes.get(0);
-        List<String> adjacentTopologicalNodeEnd1 = computeAdjacentTopologicalNodes(topologicalNodeEnd1,
-            adjacency, visitedTopologicalNodes);
+        String nodeEnd1 = islandNodes.get(0);
+        List<String> adjacentNodeEnd1 = computeAdjacentNodes(nodeEnd1, adjacency, visitedNodes);
 
-        String topologicalNodeEnd2 = getTopologicalNodeOtherEnd(islandNodes, visitedTopologicalNodes);
-        if (topologicalNodeEnd2 == null) {
+        String nodeEnd2 = getNodeOtherEnd(nodeEquipment, islandNodes, visitedNodes);
+        if (nodeEnd2 == null) {
             return;
         }
-        List<String> adjacentTopologicalNodeEnd2 = computeAdjacentTopologicalNodes(topologicalNodeEnd2,
-            adjacency, visitedTopologicalNodes);
+        List<String> adjacentNodeEnd2 = computeAdjacentNodes(nodeEnd2, adjacency, visitedNodes);
 
-        IslandEnd islandEnd = new IslandEnd(adjacentTopologicalNodeEnd1, adjacentTopologicalNodeEnd2);
+        // Consider configurations where DcLinks are only connected to AC network only in one of both substations
+        // In this configuration DcLink1 and DcLink2 are connected in s2 but not in s1,
+        // on this side they are connected in an adjacent substation sn.
+        // Hvdc configuration analysis only considers the sub-network between s1 and s2
+        // so we can have disconnected components in one side that are connected trough the other side
+        //
+        //     --- LN1 --- s1 --- AcDc11 --- DcLink 1 --- AcDc12 ----
+        //  sn |                                                     |- s2
+        //     --- LN2 --- s1 --- AcDc21 --- DcLink 2 --- AcDc22 ----
+        //
+        // Process unassigned components and assign them to the right end.
+        for (String node : islandNodes) {
+            if (visitedNodes.contains(node)) {
+                continue;
+            }
+            List<String> adjacentNodeEnd = computeAdjacentNodes(node, adjacency, visitedNodes);
+            addToRightEnd(nodeEquipment, adjacentNodeEnd1, adjacentNodeEnd2, adjacentNodeEnd);
+        }
 
+        IslandEnd islandEnd = new IslandEnd(adjacentNodeEnd1, adjacentNodeEnd2);
         islandsEndsNodes.add(islandEnd);
     }
 
-    private static String getTopologicalNodeOtherEnd(List<String> islandNodes, Set<String> visitedTopologicalNodes) {
+    private static String getNodeOtherEnd(NodeEquipment nodeEquipment, List<String> islandNodes, Set<String> visitedNodes) {
         return islandNodes.stream()
-            .filter(n -> !visitedTopologicalNodes.contains(n))
+            .filter(n -> isNodeOtherEnd(nodeEquipment, visitedNodes, n))
             .findFirst()
             .orElse(null);
     }
 
-    private static List<String> computeAdjacentTopologicalNodes(String topologicalNodeId,
-        Adjacency adjacency, Set<String> visitedTopologicalNodes) {
+    private static boolean isNodeOtherEnd(NodeEquipment nodeEquipment, Set<String> visitedNodes, String node) {
+        if (visitedNodes.contains(node)) {
+            return false;
+        }
+        return visitedNodes.stream().anyMatch(n -> nodeEquipment.existDcLineSegmentBetweenBothNodes(n, node));
+    }
 
-        List<String> adjacentTopologicalNodes = new ArrayList<>();
-        adjacentTopologicalNodes.add(topologicalNodeId);
-        visitedTopologicalNodes.add(topologicalNodeId);
+    private static void addToRightEnd(NodeEquipment nodeEquipment, List<String> nodesEnd1, List<String> nodesEnd2, List<String> nodes) {
+        List<String> nodesConnectedToEnd2 = nodes.stream()
+            .filter(n -> nodesEnd2.stream().anyMatch(n2 -> nodeEquipment.existDcLineSegmentBetweenBothNodes(n, n2)))
+            .collect(Collectors.toList());
+        List<String> nodesConnectedToEnd1 = nodes.stream()
+            .filter(n -> nodesEnd1.stream().anyMatch(n1 -> nodeEquipment.existDcLineSegmentBetweenBothNodes(n, n1)))
+            .collect(Collectors.toList());
+
+        if (nodesConnectedToEnd1.isEmpty() && !nodesConnectedToEnd2.isEmpty()) {
+            nodesEnd1.addAll(nodes);
+        } else if (!nodesConnectedToEnd1.isEmpty() && nodesConnectedToEnd2.isEmpty()) {
+            nodesEnd2.addAll(nodes);
+        }
+    }
+
+    private static List<String> computeAdjacentNodes(String nodeId,
+        Adjacency adjacency, Set<String> visitedNodes) {
+
+        List<String> adjacentNodes = new ArrayList<>();
+        adjacentNodes.add(nodeId);
+        visitedNodes.add(nodeId);
 
         int k = 0;
-        while (k < adjacentTopologicalNodes.size()) {
-            String topologicalNode = adjacentTopologicalNodes.get(k);
-            if (adjacency.get().containsKey(topologicalNode)) {
-                adjacency.get().get(topologicalNode).forEach(adjacent -> {
+        while (k < adjacentNodes.size()) {
+            String node = adjacentNodes.get(k);
+            if (adjacency.get().containsKey(node)) {
+                adjacency.get().get(node).forEach(adjacent -> {
                     if (Adjacency.isDcLineSegment(adjacent.type)) {
                         return;
                     }
-                    if (visitedTopologicalNodes.contains(adjacent.topologicalNode)) {
+                    if (visitedNodes.contains(adjacent.node)) {
                         return;
                     }
-                    adjacentTopologicalNodes.add(adjacent.topologicalNode);
-                    visitedTopologicalNodes.add(adjacent.topologicalNode);
+                    adjacentNodes.add(adjacent.node);
+                    visitedNodes.add(adjacent.node);
                 });
             }
             k++;
         }
-        return adjacentTopologicalNodes;
+        return adjacentNodes;
     }
 
     List<IslandEnd> getIslandsEndsNodes() {
         return islandsEndsNodes;
     }
 
-    void debug() {
-        LOG.debug("IslandsEnds");
-        islandsEndsNodes.forEach(IslandEnd::debug);
-    }
-
     static class IslandEnd {
-        private final List<String> topologicalNodes1;
-        private final List<String> topologicalNodes2;
+        private final List<String> nodes1;
+        private final List<String> nodes2;
 
-        IslandEnd(List<String> topologicalNodes1, List<String> topologicalNodes2) {
-            this.topologicalNodes1 = topologicalNodes1;
-            this.topologicalNodes2 = topologicalNodes2;
+        IslandEnd(List<String> nodes1, List<String> nodes2) {
+            this.nodes1 = nodes1;
+            this.nodes2 = nodes2;
         }
 
-        List<String> getTopologicalNodes1() {
-            return topologicalNodes1;
+        List<String> getNodes1() {
+            return nodes1;
         }
 
-        List<String> getTopologicalNodes2() {
-            return topologicalNodes2;
-        }
-
-        void debug() {
-            LOG.debug("    topologicalNodes1: {}", this.topologicalNodes1);
-            LOG.debug("    topologicalNodes2: {}", this.topologicalNodes2);
-            LOG.debug("---");
+        List<String> getNodes2() {
+            return nodes2;
         }
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(IslandsEnds.class);
 }

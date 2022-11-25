@@ -8,6 +8,7 @@ package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.Rule;
@@ -304,5 +305,25 @@ public class DefaultNetworkReducerTest {
                 .withReductionOptions(new ReductionOptions())
                 .build();
         reducer.reduce(network);
+    }
+
+    @Test
+    public void testNodeBreaker() {
+        Network network = FictitiousSwitchFactory.create();
+
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("C"))
+                .build();
+        reducer.reduce(network);
+
+        assertEquals(1, network.getSubstationCount());
+        assertEquals(1, network.getVoltageLevelCount());
+        assertEquals(0, network.getTwoWindingsTransformerCount());
+        assertEquals(0, network.getLineCount());
+        assertEquals(0, network.getGeneratorCount());
+        assertEquals(2, network.getLoadCount());
+        assertEquals(0, network.getDanglingLineCount());
+        assertEquals(4, network.getSwitchCount());
+        assertEquals(1, network.getBusbarSectionCount());
     }
 }

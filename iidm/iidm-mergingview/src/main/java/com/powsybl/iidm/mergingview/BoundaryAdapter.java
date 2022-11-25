@@ -58,7 +58,7 @@ class BoundaryAdapter extends AbstractAdapter<Boundary> implements Boundary {
     }
 
     @Override
-    public VoltageLevel getVoltageLevel() {
-        return getIndex().getVoltageLevel(getDelegate().getVoltageLevel());
+    public VoltageLevel getNetworkSideVoltageLevel() {
+        return getIndex().getVoltageLevel(getDelegate().getNetworkSideVoltageLevel());
     }
 }

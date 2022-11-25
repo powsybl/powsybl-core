@@ -1,0 +1,3 @@
+moduleName = powsybl-node-calc-module
+moduleVersion = 1.0
+extensionClasses = com.powsybl.timeseries.dsl.NodeCalcGroovyExtensionModule

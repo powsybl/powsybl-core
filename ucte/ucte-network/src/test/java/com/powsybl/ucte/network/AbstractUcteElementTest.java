@@ -23,14 +23,14 @@ abstract class AbstractUcteElementTest {
         element.setStatus(REAL_ELEMENT_OUT_OF_OPERATION);
         assertEquals(REAL_ELEMENT_OUT_OF_OPERATION, element.getStatus());
 
-        element.setResistance(1.1f);
-        assertEquals(1.1f, element.getResistance(), 0.0f);
+        element.setResistance(1.1);
+        assertEquals(1.1, element.getResistance(), 0.0);
 
-        element.setReactance(2.1f);
-        assertEquals(2.1f, element.getReactance(), 0.0f);
+        element.setReactance(2.1);
+        assertEquals(2.1, element.getReactance(), 0.0);
 
-        element.setSusceptance(3.1f);
-        assertEquals(3.1f, element.getSusceptance(), 0.0f);
+        element.setSusceptance(3.1);
+        assertEquals(3.1, element.getSusceptance(), 0.0);
 
         element.setCurrentLimit(2000);
         assertEquals(Integer.valueOf(2000), element.getCurrentLimit());

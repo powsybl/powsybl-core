@@ -14,24 +14,26 @@ import com.powsybl.iidm.network.Load;
  */
 public interface LoadDetail extends Extension<Load> {
 
+    String NAME = "detail";
+
     @Override
     default String getName() {
-        return "detail";
+        return NAME;
     }
 
-    float getFixedActivePower();
+    double getFixedActivePower();
 
-    LoadDetail setFixedActivePower(float fixedActivePower);
+    LoadDetail setFixedActivePower(double fixedActivePower);
 
-    float getFixedReactivePower();
+    double getFixedReactivePower();
 
-    LoadDetail setFixedReactivePower(float fixedReactivePower);
+    LoadDetail setFixedReactivePower(double fixedReactivePower);
 
-    float getVariableActivePower();
+    double getVariableActivePower();
 
-    LoadDetail setVariableActivePower(float variableActivePower);
+    LoadDetail setVariableActivePower(double variableActivePower);
 
-    float getVariableReactivePower();
+    double getVariableReactivePower();
 
-    LoadDetail setVariableReactivePower(float variableReactivePower);
+    LoadDetail setVariableReactivePower(double variableReactivePower);
 }

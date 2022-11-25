@@ -20,17 +20,17 @@ import com.powsybl.psse.model.pf.PsseBus;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class VoltageLevelConverter extends AbstractConverter {
+class VoltageLevelConverter extends AbstractConverter {
 
-    public VoltageLevelConverter(PsseBus psseBus, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
+    VoltageLevelConverter(PsseBus psseBus, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
         super(containerMapping, network);
         this.psseBus = Objects.requireNonNull(psseBus);
         this.perUnitContext = Objects.requireNonNull(perUnitContext);
     }
 
-    public VoltageLevel create(Substation substation) {
+    VoltageLevel create(Substation substation) {
         String voltageLevelId = getContainersMapping().getVoltageLevelId(psseBus.getI());
-        double nominalV = perUnitContext.isIgnoreBaseVoltage() || psseBus.getBaskv() == 0 ? 1 : psseBus.getBaskv();
+        double nominalV = getNominalV(psseBus, perUnitContext.isIgnoreBaseVoltage());
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
 
         if (voltageLevel == null) {
@@ -41,6 +41,10 @@ public class VoltageLevelConverter extends AbstractConverter {
                 .add();
         }
         return voltageLevel;
+    }
+
+    static double getNominalV(PsseBus psseBus, boolean isIgnoreBaseVoltage) {
+        return isIgnoreBaseVoltage || psseBus.getBaskv() == 0 ? 1 : psseBus.getBaskv();
     }
 
     private final PsseBus psseBus;

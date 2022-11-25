@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-cgmes</artifactId>
-        <version>4.2.0-SNAPSHOT</version>
+        <version>5.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-cgmes-model</artifactId>
@@ -35,13 +35,6 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
@@ -90,18 +83,6 @@
         </dependency>
 
         <!-- Test dependencies include all considered triple store engines -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-triple-store-impl-blazegraph</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-triple-store-impl-jena</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>

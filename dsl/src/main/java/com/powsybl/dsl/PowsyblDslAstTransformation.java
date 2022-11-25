@@ -6,43 +6,19 @@
  */
 package com.powsybl.dsl;
 
-import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassCodeExpressionTransformer;
-import org.codehaus.groovy.ast.MethodNode;
-import org.codehaus.groovy.ast.ModuleNode;
 import org.codehaus.groovy.ast.expr.*;
-import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.control.SourceUnit;
-import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @GroovyASTTransformation
-public class PowsyblDslAstTransformation implements ASTTransformation {
+public class PowsyblDslAstTransformation extends AbstractPowsyblDslAstTransformation {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(PowsyblDslAstTransformation.class);
-
-    protected void visit(SourceUnit sourceUnit, ClassCodeExpressionTransformer transformer) {
-        LOGGER.trace("Apply AST transformation");
-        ModuleNode ast = sourceUnit.getAST();
-        BlockStatement blockStatement = ast.getStatementBlock();
-
-        List<MethodNode> methods = ast.getMethods();
-        for (MethodNode methodNode : methods) {
-            methodNode.getCode().visit(transformer);
-        }
-
-        blockStatement.visit(transformer);
-    }
-
-    public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
-        visit(sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit));
+    public PowsyblDslAstTransformation() {
+        super(CustomClassCodeExpressionTransformer::new);
     }
 
     static class CustomClassCodeExpressionTransformer extends ClassCodeExpressionTransformer {

@@ -26,7 +26,14 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
 
     @Override
     public void convert() {
-        LoadType loadType = id.contains("fict") ? LoadType.FICTITIOUS : LoadType.UNDEFINED;
+        LoadType loadType;
+        if (loadKind.endsWith("StationSupply")) {
+            loadType = LoadType.AUXILIARY;
+        } else if (id.contains("fict")) {
+            loadType = LoadType.FICTITIOUS;
+        } else {
+            loadType = LoadType.UNDEFINED;
+        }
         LoadAdder adder = voltageLevel().newLoad()
                 .setP0(p0())
                 .setQ0(q0())
@@ -37,14 +44,6 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         addAliasesAndProperties(load);
         convertedTerminals(load.getTerminal());
         setLoadDetail(loadKind, load);
-    }
-
-    private double p0() {
-        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", Double.NaN);
-    }
-
-    private double q0() {
-        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", Double.NaN);
     }
 
     private static void setLoadDetail(String type, Load load) {
@@ -64,6 +63,16 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
                     .add();
         }
         // else: EnergyConsumer - undefined
+    }
+
+    @Override
+    protected double p0() {
+        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", 0.0);
+    }
+
+    @Override
+    protected double q0() {
+        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", 0.0);
     }
 
     private final String loadKind;

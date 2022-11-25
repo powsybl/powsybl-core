@@ -17,14 +17,14 @@ import com.powsybl.psse.model.pf.PsseBus;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class SubstationConverter extends AbstractConverter {
+class SubstationConverter extends AbstractConverter {
 
-    public SubstationConverter(PsseBus psseBus, ContainersMapping containerMapping, Network network) {
+    SubstationConverter(PsseBus psseBus, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
         this.psseBus = Objects.requireNonNull(psseBus);
     }
 
-    public Substation create() {
+    Substation create() {
         String voltageLevelId = getContainersMapping().getVoltageLevelId(psseBus.getI());
         String substationId = getContainersMapping().getSubstationId(voltageLevelId);
 

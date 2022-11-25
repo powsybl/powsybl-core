@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -69,6 +70,11 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     @Override
     public String setProperty(final String key, final String value) {
         return getDelegate().setProperty(key, value);
+    }
+
+    @Override
+    public boolean removeProperty(String key) {
+        return getDelegate().removeProperty(key);
     }
 
     @Override
@@ -164,5 +170,10 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     @Override
     public boolean hasAliases() {
         return getDelegate().hasAliases();
+    }
+
+    @Override
+    public IdentifiableType getType() {
+        return getDelegate().getType();
     }
 }

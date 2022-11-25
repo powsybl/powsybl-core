@@ -7,11 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements.hvdc;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -30,25 +26,25 @@ class AcDcConverterNodes {
         this.converterNodes = new HashMap<>();
 
         cgmesModel.acDcConverters().forEach(c -> computeAcDcConverter(cgmesModel, c));
-        cgmesModel.dcTerminals().forEach(this::computeDcTerminalToAcDcConverter);
+        cgmesModel.dcTerminals().forEach(c -> computeDcTerminalToAcDcConverter(cgmesModel, c));
     }
 
     private void computeAcDcConverter(CgmesModel cgmesModel, PropertyBag c) {
         String id = c.getId("ACDCConverter");
         CgmesTerminal t = cgmesModel.terminal(c.getId("Terminal"));
-        String acTopologicalNode = t.topologicalNode();
+        String acNode = CgmesDcConversion.getAcNode(cgmesModel, t);
 
-        converterNodes.computeIfAbsent(id, k -> new AcDcConverterNode(id, acTopologicalNode));
+        converterNodes.computeIfAbsent(id, k -> new AcDcConverterNode(id, acNode));
     }
 
-    private void computeDcTerminalToAcDcConverter(PropertyBag t) {
+    private void computeDcTerminalToAcDcConverter(CgmesModel cgmesModel, PropertyBag t) {
         CgmesDcTerminal dcTerminal = new CgmesDcTerminal(t);
         if (dcTerminal.dcConductingEquipmentType().equals("CsConverter") ||
             dcTerminal.dcConductingEquipmentType().equals("VsConverter")) {
 
             AcDcConverterNode acDcConverter = converterNodes.get(dcTerminal.dcConductingEquipment());
             if (acDcConverter != null) {
-                acDcConverter.addDcTopologicalNode(dcTerminal.dcTopologicalNode());
+                acDcConverter.addDcNode(CgmesDcConversion.getDcNode(cgmesModel, dcTerminal));
             }
         }
     }
@@ -57,21 +53,25 @@ class AcDcConverterNodes {
         return converterNodes;
     }
 
+    List<String> getDcNodes(String acDcConverterId) {
+        return Optional.ofNullable(converterNodes.get(acDcConverterId).dcNode).orElse(Collections.emptyList());
+    }
+
     static class AcDcConverterNode {
         final String id;
-        final String acTopologicalNode;
-        final List<String> dcTopologicalNode;
+        final String acNode;
+        final List<String> dcNode;
 
-        AcDcConverterNode(String id, String acTopologicalNode) {
+        AcDcConverterNode(String id, String acNode) {
             Objects.requireNonNull(id);
-            Objects.requireNonNull(acTopologicalNode);
+            Objects.requireNonNull(acNode);
             this.id = id;
-            this.acTopologicalNode = acTopologicalNode;
-            this.dcTopologicalNode = new ArrayList<>();
+            this.acNode = acNode;
+            this.dcNode = new ArrayList<>();
         }
 
-        void addDcTopologicalNode(String dcTopologicalNode) {
-            this.dcTopologicalNode.add(dcTopologicalNode);
+        void addDcNode(String dcNode) {
+            this.dcNode.add(dcNode);
         }
     }
 }

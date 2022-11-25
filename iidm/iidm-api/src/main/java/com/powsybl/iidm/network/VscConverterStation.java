@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  * VSC converter station.
  *
  * <p>
- *  Characteristics
+ * Characteristics
  * </p>
  * <table style="border: 1px solid black; border-collapse: collapse">
  *     <thead>
@@ -83,7 +83,7 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @param voltageRegulatorOn the new voltage regulator status
      * @return the converter itself to allow method chaining
      */
-    HvdcConverterStation setVoltageRegulatorOn(boolean voltageRegulatorOn);
+    VscConverterStation setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
      * Get the voltage setpoint (Kv).
@@ -96,7 +96,7 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @param voltageSetpoint the voltage setpoint
      * @return the converter itself to allow method chaining
      */
-    HvdcConverterStation setVoltageSetpoint(double voltageSetpoint);
+    VscConverterStation setVoltageSetpoint(double voltageSetpoint);
 
     /**
      * Get the reactive power setpoint (MVar).
@@ -109,5 +109,17 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return the converter itself to allow method chaining
      */
-    HvdcConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint);
+    VscConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint);
+
+    /**
+     * Get the terminal used for regulation.
+     * @return the terminal used for regulation
+     */
+    default Terminal getRegulatingTerminal() {
+        return this.getTerminal();
+    }
+
+    default VscConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
+        return this;
+    }
 }

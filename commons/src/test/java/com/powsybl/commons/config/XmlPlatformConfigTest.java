@@ -46,16 +46,16 @@ public class XmlPlatformConfigTest {
                 prop2.store(w, null);
             }
             PlatformConfig propsConfig = new PlatformConfig(new PropertiesModuleConfigRepository(cfgDir), cfgDir);
-            assertEquals("hello", propsConfig.getModuleConfig("mod1").getStringProperty("a"));
-            assertEquals("bye", propsConfig.getModuleConfig("mod1").getStringProperty("b"));
-            assertEquals("thanks", propsConfig.getModuleConfig("mod2").getStringProperty("c"));
+            assertEquals("hello", propsConfig.getOptionalModuleConfig("mod1").flatMap(c -> c.getOptionalStringProperty("a")).orElse(""));
+            assertEquals("bye", propsConfig.getOptionalModuleConfig("mod1").flatMap(c -> c.getOptionalStringProperty("b")).orElse(""));
+            assertEquals("thanks", propsConfig.getOptionalModuleConfig("mod2").flatMap(c -> c.getOptionalStringProperty("c")).orElse(""));
             Path xmlConfigFile = cfgDir.resolve("config.xml");
             PropertiesModuleConfigRepository.writeXml(cfgDir, xmlConfigFile);
 
             PlatformConfig xmlConfig = new PlatformConfig(new XmlModuleConfigRepository(xmlConfigFile), cfgDir);
-            assertEquals("hello", xmlConfig.getModuleConfig("mod1").getStringProperty("a"));
-            assertEquals("bye", xmlConfig.getModuleConfig("mod1").getStringProperty("b"));
-            assertEquals("thanks", xmlConfig.getModuleConfig("mod2").getStringProperty("c"));
+            assertEquals("hello", xmlConfig.getOptionalModuleConfig("mod1").flatMap(c -> c.getOptionalStringProperty("a")).orElse(""));
+            assertEquals("bye", xmlConfig.getOptionalModuleConfig("mod1").flatMap(c -> c.getOptionalStringProperty("b")).orElse(""));
+            assertEquals("thanks", xmlConfig.getOptionalModuleConfig("mod2").flatMap(c -> c.getOptionalStringProperty("c")).orElse(""));
         }
     }
 

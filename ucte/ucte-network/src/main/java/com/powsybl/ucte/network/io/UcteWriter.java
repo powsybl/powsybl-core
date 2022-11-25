@@ -68,19 +68,19 @@ public class UcteWriter {
                 writer.writeString(node.getGeographicalName(), 9, 21);
                 writer.writeEnumOrdinal(node.getStatus(), 22);
                 writer.writeEnumOrdinal(node.getTypeCode(), 24);
-                writer.writeFloat(node.getVoltageReference(), 26, 32);
-                writer.writeFloat(node.getActiveLoad(), 33, 40);
-                writer.writeFloat(node.getReactiveLoad(), 41, 48);
-                writer.writeFloat(node.getActivePowerGeneration(), 49, 56);
-                writer.writeFloat(node.getReactivePowerGeneration(), 57, 64);
-                writer.writeFloat(node.getMinimumPermissibleActivePowerGeneration(), 65, 72);
-                writer.writeFloat(node.getMaximumPermissibleActivePowerGeneration(), 73, 80);
-                writer.writeFloat(node.getMinimumPermissibleReactivePowerGeneration(), 81, 88);
-                writer.writeFloat(node.getMaximumPermissibleReactivePowerGeneration(), 89, 96);
-                writer.writeFloat(node.getStaticOfPrimaryControl(), 97, 102);
-                writer.writeFloat(node.getNominalPowerPrimaryControl(), 103, 110);
-                writer.writeFloat(node.getThreePhaseShortCircuitPower(), 111, 118);
-                writer.writeFloat(node.getXrRatio(), 119, 126);
+                writer.writeDouble(node.getVoltageReference(), 26, 32);
+                writer.writeDouble(node.getActiveLoad(), 33, 40);
+                writer.writeDouble(node.getReactiveLoad(), 41, 48);
+                writer.writeDouble(node.getActivePowerGeneration(), 49, 56);
+                writer.writeDouble(node.getReactivePowerGeneration(), 57, 64);
+                writer.writeDouble(node.getMinimumPermissibleActivePowerGeneration(), 65, 72);
+                writer.writeDouble(node.getMaximumPermissibleActivePowerGeneration(), 73, 80);
+                writer.writeDouble(node.getMinimumPermissibleReactivePowerGeneration(), 81, 88);
+                writer.writeDouble(node.getMaximumPermissibleReactivePowerGeneration(), 89, 96);
+                writer.writeDouble(node.getStaticOfPrimaryControl(), 97, 102);
+                writer.writeDouble(node.getNominalPowerPrimaryControl(), 103, 110);
+                writer.writeDouble(node.getThreePhaseShortCircuitPower(), 111, 118);
+                writer.writeDouble(node.getXrRatio(), 119, 126);
                 writer.writeEnumValue(node.getPowerPlantType(), 127);
                 writer.newLine();
             }
@@ -101,9 +101,9 @@ public class UcteWriter {
         for (UcteLine ucteLine : lines) {
             writeElementId(ucteLine.getId(), writer);
             writer.writeInteger(ucteLine.getStatus().getCode(), 20);
-            writer.writeFloat(ucteLine.getResistance(), 22, 28);
-            writer.writeFloat(ucteLine.getReactance(), 29, 35);
-            writer.writeFloat((float) (ucteLine.getSusceptance() / Math.pow(10, -6)), 36, 44);
+            writer.writeDouble(ucteLine.getResistance(), 22, 28);
+            writer.writeDouble(ucteLine.getReactance(), 29, 35);
+            writer.writeDouble(ucteLine.getSusceptance() / Math.pow(10, -6), 36, 44);
             writer.writeInteger(ucteLine.getCurrentLimit(), 45, 51);
             writer.writeString(ucteLine.getElementName(), 52, 64);
             writer.newLine();
@@ -119,13 +119,13 @@ public class UcteWriter {
         for (UcteTransformer t : transformersList) {
             writeElementId(t.getId(), writer);
             writer.writeInteger(t.getStatus().getCode(), 20);
-            writer.writeFloat(t.getRatedVoltage1(), 22, 27);
-            writer.writeFloat(t.getRatedVoltage2(), 28, 33);
-            writer.writeFloat(t.getNominalPower(), 34, 39);
-            writer.writeFloat(t.getResistance(), 40, 46);
-            writer.writeFloat(t.getReactance(), 47, 53);
-            writer.writeFloat((float) (t.getSusceptance() / Math.pow(10, -6)), 54, 62);
-            writer.writeFloat((float) (t.getConductance() / Math.pow(10, -6)), 63, 69);
+            writer.writeDouble(t.getRatedVoltage1(), 22, 27);
+            writer.writeDouble(t.getRatedVoltage2(), 28, 33);
+            writer.writeDouble(t.getNominalPower(), 34, 39);
+            writer.writeDouble(t.getResistance(), 40, 46);
+            writer.writeDouble(t.getReactance(), 47, 53);
+            writer.writeDouble(t.getSusceptance() / Math.pow(10, -6), 54, 62);
+            writer.writeDouble(t.getConductance() / Math.pow(10, -6), 63, 69);
             writer.writeInteger(t.getCurrentLimit(), 70, 76);
             writer.writeString(t.getElementName(), 77, 89);
             writer.newLine();
@@ -133,18 +133,18 @@ public class UcteWriter {
     }
 
     private void writePhaseRegulation(UctePhaseRegulation pr, UcteRecordWriter writer) {
-        writer.writeFloat(pr != null ? pr.getDu() : Float.NaN, 20, 25);
+        writer.writeDouble(pr != null ? pr.getDu() : Double.NaN, 20, 25);
         writer.writeInteger(pr != null ? pr.getN() : null, 26, 28);
         writer.writeInteger(pr != null ? pr.getNp() : null, 29, 32);
-        writer.writeFloat(pr != null ? pr.getU() : Float.NaN, 33, 38);
+        writer.writeDouble(pr != null ? pr.getU() : Double.NaN, 33, 38);
     }
 
     private void writeAngleRegulation(UcteAngleRegulation ar, UcteRecordWriter writer) {
-        writer.writeFloat(ar != null ? ar.getDu() : Float.NaN, 39, 44);
-        writer.writeFloat(ar != null ? ar.getTheta() : Float.NaN, 45, 50);
+        writer.writeDouble(ar != null ? ar.getDu() : Double.NaN, 39, 44);
+        writer.writeDouble(ar != null ? ar.getTheta() : Double.NaN, 45, 50);
         writer.writeInteger(ar != null ? ar.getN() : null, 51, 53);
         writer.writeInteger(ar != null ? ar.getNp() : null, 54, 57);
-        writer.writeFloat(ar != null ? ar.getP() : Float.NaN, 58, 63);
+        writer.writeDouble(ar != null ? ar.getP() : Double.NaN, 58, 63);
         writer.writeEnumValue(ar != null ? ar.getType() : null, 64, 68);
     }
 

@@ -12,15 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class SwitchConversion extends AbstractConnectorConversion {
+public class SwitchConversion extends AbstractConductingEquipmentConversion implements EquipmentAtBoundaryConversion {
 
     public SwitchConversion(PropertyBag sw, Context context) {
-        super("Switch", sw, context);
+        super("Switch", sw, context, 2);
     }
 
     @Override
@@ -37,9 +38,9 @@ public class SwitchConversion extends AbstractConnectorConversion {
         }
         if ((isBoundary(1) || isBoundary(2)) && LOG.isWarnEnabled()) {
             LOG.warn("Switch {} has at least one end in the boundary", id);
-            LOG.warn("    busId1, voltageLevel1 : {} {}", busId(1), voltageLevel(1));
+            LOG.warn("    busId1, voltageLevel1 : {} {}", busId(1), voltageLevel(1).orElse(null));
             LOG.warn("    side 1 is boundary    : {}", isBoundary(1));
-            LOG.warn("    busId2, voltageLevel2 : {} {}", busId(2), voltageLevel(2));
+            LOG.warn("    busId2, voltageLevel2 : {} {}", busId(2), voltageLevel(2).orElse(null));
             LOG.warn("    side 2 is boundary    : {}", isBoundary(2));
         }
         return true;
@@ -47,22 +48,23 @@ public class SwitchConversion extends AbstractConnectorConversion {
 
     @Override
     public void convert() {
+        convertToSwitch();
+    }
+
+    @Override
+    public void convertAtBoundary() {
         if (isBoundary(1)) {
             convertSwitchAtBoundary(1);
         } else if (isBoundary(2)) {
             convertSwitchAtBoundary(2);
         } else {
-            convertToSwitch();
+            throw new ConversionException("Boundary must be at one end of the switch");
         }
     }
 
-    private void convertSwitchAtBoundary(int boundarySide) {
-        if (context.config().convertBoundary()) {
-            convertToSwitch().setRetained(true);
-        } else {
-            warnDanglingLineCreated();
-            convertToDanglingLine(boundarySide);
-        }
+    @Override
+    public BoundaryLine asBoundaryLine(String node) {
+        return super.createBoundaryLine(node);
     }
 
     private Switch convertToSwitch() {
@@ -73,6 +75,8 @@ public class SwitchConversion extends AbstractConnectorConversion {
             VoltageLevel.NodeBreakerView.SwitchAdder adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
             identify(adder);
             connect(adder, open);
+            boolean retained = p.asBoolean("retained", false);
+            adder.setRetained(retained);
             s = adder.add();
         } else {
             VoltageLevel.BusBreakerView.SwitchAdder adder = voltageLevel().getBusBreakerView().newSwitch();
@@ -82,6 +86,15 @@ public class SwitchConversion extends AbstractConnectorConversion {
         }
         addAliasesAndProperties(s);
         return s;
+    }
+
+    private void convertSwitchAtBoundary(int boundarySide) {
+        if (context.config().convertBoundary()) {
+            convertToSwitch().setRetained(true);
+        } else {
+            warnDanglingLineCreated();
+            convertToDanglingLine(boundarySide);
+        }
     }
 
     private SwitchKind kind() {

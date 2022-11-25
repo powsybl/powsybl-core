@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.model;
 
+import java.util.Set;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -62,6 +64,7 @@ public final class CgmesNames {
 
     public static final String TERMINAL1 = "Terminal1";
     public static final String TERMINAL2 = "Terminal2";
+    public static final String TERMINAL3 = "Terminal3";
 
     public static final String TOPOLOGICAL_ISLAND = "TopologicalIsland";
     public static final String ANGLEREF_TOPOLOGICALNODE = "AngleRefTopologicalNode";
@@ -99,6 +102,17 @@ public final class CgmesNames {
     public static final String TCUL_CONTROL_MODE = "tculControlMode";
     public static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
     public static final String PHASE_TAP_CHANGER_TABULAR = "PhaseTapChangerTabular";
+
+    public static final Set<String> SWITCH_TYPES = Set.of(SWITCH, "Breaker", "Disconnector", "LoadBreakSwitch", "ProtectedSwitch", "GroundDisconnector");
+
+    public static final String CONFORM_LOAD = "ConformLoad";
+    public static final String NONCONFORM_LOAD = "NonConformLoad";
+    public static final String ENERGY_CONSUMER = "EnergyConsumer";
+    public static final String CONFORM_LOAD_GROUP = "ConformLoadGroup";
+    public static final String NONCONFORM_LOAD_GROUP = "NonConformLoadGroup";
+
+    public static final String CONNECTIVITY_NODE_BOUNDARY = "ConnectivityNode_Boundary";
+    public static final String TOPOLOGICAL_NODE_BOUNDARY = "TopologicalNode_Boundary";
 
     private CgmesNames() {
     }

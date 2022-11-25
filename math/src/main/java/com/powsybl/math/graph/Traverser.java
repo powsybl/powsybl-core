@@ -12,5 +12,13 @@ package com.powsybl.math.graph;
  */
 public interface Traverser {
 
+    /**
+     * Called for each traversal step
+     * @param v1 the node the traversal comes from
+     * @param e the edge encountered
+     * @param v2 the node the traversal will go to, if the returned TraverseResult is {@link TraverseResult#CONTINUE}
+     * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH} to stop
+     * the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+     */
     TraverseResult traverse(int v1, int e, int v2);
 }

@@ -232,4 +232,9 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
     default StaticVarCompensator setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException("Not implemented");
     }
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.STATIC_VAR_COMPENSATOR;
+    }
 }

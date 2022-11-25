@@ -15,16 +15,10 @@ import java.util.List;
  */
 public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
 
-    /**
-     * Get the connectable type.
-     */
-    ConnectableType getType();
-
     List<? extends Terminal> getTerminals();
 
     /**
-     * Remove the equipment.
+     * Remove the connectable from the voltage level (dangling switches are kept).
      */
     void remove();
-
 }

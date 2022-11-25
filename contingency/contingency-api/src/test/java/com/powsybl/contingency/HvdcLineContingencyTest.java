@@ -7,9 +7,10 @@
 package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
-import com.powsybl.contingency.tasks.HvdcLineTripping;
+import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.modification.tripping.HvdcLineTripping;
 import org.junit.Test;
 
 import java.util.List;
@@ -28,8 +29,8 @@ public class HvdcLineContingencyTest {
         assertNull(contingency.getVoltageLevelId());
         assertEquals(ContingencyElementType.HVDC_LINE, contingency.getType());
 
-        assertNotNull(contingency.toTask());
-        assertTrue(contingency.toTask() instanceof HvdcLineTripping);
+        assertNotNull(contingency.toModification());
+        assertTrue(contingency.toModification() instanceof HvdcLineTripping);
 
         contingency = new HvdcLineContingency("id", "voltageLevelId");
         assertEquals("voltageLevelId", contingency.getVoltageLevelId());

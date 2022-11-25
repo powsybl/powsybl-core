@@ -63,17 +63,13 @@ public class LocalComputationConfig {
     public static LocalComputationConfig load(PlatformConfig platformConfig, FileSystem fileSystem) {
         Objects.requireNonNull(platformConfig);
 
-        Path localDir = getDefaultLocalDir(fileSystem);
-        int availableCore = DEFAULT_AVAILABLE_CORE;
-        if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
-            ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            localDir = getTmpDir(config, "tmp-dir")
-                           .orElseGet(() -> getTmpDir(config, "tmpDir")
-                                                .orElseGet(() -> getDefaultLocalDir(fileSystem)));
-            availableCore = config.getOptionalIntProperty("available-core")
-                                  .orElseGet(() -> config.getOptionalIntProperty("availableCore")
-                                                         .orElse(DEFAULT_AVAILABLE_CORE));
-        }
+        Optional<ModuleConfig> config = platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME);
+        Path localDir = config.flatMap(c -> getTmpDir(c, "tmp-dir").or(() -> getTmpDir(c, "tmpDir")))
+                .orElse(getDefaultLocalDir(fileSystem));
+        int availableCore = config.map(c -> c.getOptionalIntProperty("available-core")
+                .orElse(c.getOptionalIntProperty("availableCore").orElse(DEFAULT_AVAILABLE_CORE)))
+                .orElse(DEFAULT_AVAILABLE_CORE);
+
         if (availableCore <= 0) {
             availableCore = Runtime.getRuntime().availableProcessors();
         }

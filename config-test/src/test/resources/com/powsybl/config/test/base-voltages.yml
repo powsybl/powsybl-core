@@ -1,0 +1,7 @@
+baseVoltages:
+  - name: "test"
+    minValue: 0
+    maxValue: 500
+    profile: "Default"
+
+defaultProfile: "Default"

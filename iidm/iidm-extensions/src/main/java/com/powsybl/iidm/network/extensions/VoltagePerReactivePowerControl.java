@@ -14,14 +14,17 @@ import com.powsybl.iidm.network.StaticVarCompensator;
  */
 public interface VoltagePerReactivePowerControl extends Extension<StaticVarCompensator> {
 
+    String NAME = "voltagePerReactivePowerControl";
+
     @Override
     default String getName() {
-        return "voltagePerReactivePowerControl";
+        return NAME;
     }
 
     /**
      * Get the slope of the StaticVarCompensator, that defines how the reactive power output changes
-     * in proportion to the difference between the controlled bus voltage and the controller bus voltage.
+     * in proportion to the difference between the controlled bus target voltage and the controlled bus voltage.
+     * The slope is in kV by MVar.
      */
     double getSlope();
 

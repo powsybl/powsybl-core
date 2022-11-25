@@ -7,18 +7,14 @@
 
 package com.powsybl.triplestore.api.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import com.powsybl.triplestore.api.PropertyBag;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import com.powsybl.triplestore.api.PropertyBag;
+import static org.junit.Assert.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -27,7 +23,7 @@ public class PropertyBagTest {
 
     @BeforeClass
     public static void setUp() {
-        localsWithUnderscore = new PropertyBag(Arrays.asList("id", "name", "enum"));
+        localsWithUnderscore = new PropertyBag(Arrays.asList("id", "name", "enum"), false);
         locals = new PropertyBag(Arrays.asList("id", "name", "enum"), true);
         numbers = new PropertyBag(Collections.singletonList("value"));
         booleans = new PropertyBag(Collections.singletonList("value"));
@@ -197,6 +193,15 @@ public class PropertyBagTest {
         // No spaces allowed
         booleans.put("value", " true ");
         assertFalse(booleans.asBoolean("value", true));
+    }
+
+    @Test
+    public void testCopy() {
+        // Ensure we can change a value in the copy and the original is not modified
+        PropertyBag locals1 = locals.copy();
+        locals1.put("id", "http://example.com/#_id0-id1-id2-0");
+        assertEquals("_id0-id1-id2", locals.getLocal("id"));
+        assertEquals("_id0-id1-id2-0", locals1.getLocal("id"));
     }
 
     private static PropertyBag localsWithUnderscore;

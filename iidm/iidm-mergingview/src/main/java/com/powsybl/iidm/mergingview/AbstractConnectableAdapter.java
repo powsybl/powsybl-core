@@ -8,7 +8,6 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.List;
@@ -21,11 +20,6 @@ abstract class AbstractConnectableAdapter<I extends Connectable<I>> extends Abst
 
     protected AbstractConnectableAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);
-    }
-
-    @Override
-    public final ConnectableType getType() {
-        return getDelegate().getType();
     }
 
     @Override

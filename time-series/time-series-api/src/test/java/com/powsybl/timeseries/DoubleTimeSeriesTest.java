@@ -9,7 +9,6 @@ package com.powsybl.timeseries;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
-import java.time.Instant;
 import java.util.Iterator;
 
 import static org.junit.Assert.*;
@@ -26,7 +25,7 @@ public class DoubleTimeSeriesTest {
         // ts3 4 4 5 5 5 4 4 4
         //     |   | |   | |
         //     0   2 3   5 6
-        TimeSeriesIndex index = new TestTimeSeriesIndex(10000, 8);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10007, 1);
         DoubleTimeSeries ts1 = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index),
                                                           new CompressedDoubleDataChunk(0, 8, new double[] {1}, new int[] {8}));
         DoubleTimeSeries ts2 = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts2", TimeSeriesDataType.DOUBLE, index),
@@ -67,14 +66,5 @@ public class DoubleTimeSeriesTest {
         assertEquals(4d, point6.getValue(2), 0d);
 
         assertFalse(it.hasNext());
-    }
-
-    @Test
-    public void builderTest() {
-        DoubleTimeSeries a = TimeSeries.createDouble("a", IrregularTimeSeriesIndex.create(Instant.now()), 5d);
-        DoubleTimeSeries b = DoubleTimeSeries.fromTimeSeries(a)
-                                             .build("ts['b'] = ts['a'] + 1")
-                                             .get(0);
-        assertArrayEquals(new double[] {6d}, b.toArray(), 0d);
     }
 }

@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2018, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.timeseries;
 
 import com.google.common.collect.Sets;
@@ -16,7 +22,7 @@ public class ReadOnlyTimeSeriesStoreAggregatorTest {
 
     @Test
     public void test() {
-        TestTimeSeriesIndex index = new TestTimeSeriesIndex(10000, 2);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10001, 1);
         DoubleTimeSeries ts1 = TimeSeries.createDouble("ts1", index, 1d, 2d);
         DoubleTimeSeries ts2 = TimeSeries.createDouble("ts2", index, 3d, 4d);
         ReadOnlyTimeSeriesStore store1 = new ReadOnlyTimeSeriesStoreCache(ts1);

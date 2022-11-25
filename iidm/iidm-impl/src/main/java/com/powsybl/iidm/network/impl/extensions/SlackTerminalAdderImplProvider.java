@@ -24,6 +24,11 @@ public class SlackTerminalAdderImplProvider implements
     }
 
     @Override
+    public String getExtensionName() {
+        return SlackTerminal.NAME;
+    }
+
+    @Override
     public Class<SlackTerminalAdderImpl> getAdderClass() {
         return SlackTerminalAdderImpl.class;
     }

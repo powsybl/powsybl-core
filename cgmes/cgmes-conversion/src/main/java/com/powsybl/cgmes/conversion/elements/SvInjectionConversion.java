@@ -74,8 +74,8 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
         if (associatedTerminal == null) {
             cgmesTerminal = context.cgmes().terminal(context.terminalMapping().findCgmesTerminalFromTopologicalNode(topologicalNode));
             if (cgmesTerminal == null || context.cgmes().voltageLevel(cgmesTerminal, context.nodeBreaker()) == null) {
-                context.invalid(id, () ->
-                        String.format("The CGMES terminal and/or the voltage level associated to the topological node %slinked to the SV injection %s is missing",
+                context.missing(id, () ->
+                        String.format("The CGMES terminal and/or the voltage level associated to the topological node %s linked to the SV injection %s is missing",
                                 topologicalNode, id));
                 return false;
             }
@@ -87,7 +87,7 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private void findBusId(String topologicalNode) {
-        busId = context.namingStrategy().getId("Bus", topologicalNode);
+        busId = context.namingStrategy().getIidmId("Bus", topologicalNode);
     }
 
     private void findNode(String topologicalNode) {

@@ -40,49 +40,17 @@ public abstract class AbstractMatrixTest {
 
     @Test
     public void checkBoundsTest() {
-        try {
-            getMatrixFactory().create(-1, 1, 1);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            getMatrixFactory().create(1, -1, 1);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
+        MatrixFactory matrixFactory = getMatrixFactory();
+        assertThrows(MatrixException.class, () -> matrixFactory.create(-1, 1, 1));
+        assertThrows(MatrixException.class, () -> matrixFactory.create(1, -1, 1));
 
-        Matrix a = getMatrixFactory().create(1, 1, 1);
-        try {
-            a.set(-1, 0, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            a.set(0, -1, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            a.set(2, 0, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            a.set(0, 1, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            a.add(2, 0, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            a.add(0, 1, 0);
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-
+        Matrix a = matrixFactory.create(1, 1, 1);
+        assertThrows(MatrixException.class, () -> a.set(-1, 0, 0));
+        assertThrows(MatrixException.class, () -> a.set(0, -1, 0));
+        assertThrows(MatrixException.class, () -> a.set(2, 0, 0));
+        assertThrows(MatrixException.class, () -> a.set(0, 1, 0));
+        assertThrows(MatrixException.class, () -> a.add(2, 0, 0));
+        assertThrows(MatrixException.class, () -> a.add(0, 1, 0));
     }
 
     @Test
@@ -100,6 +68,88 @@ public abstract class AbstractMatrixTest {
         assertEquals(4, c.get(0, 0), EPSILON);
         assertEquals(15, c.get(1, 0), EPSILON);
         assertEquals(8, c.get(2, 0), EPSILON);
+
+        Matrix cs2 = a.times(b, 2);
+        DenseMatrix c2 = cs2.toDense();
+
+        assertEquals(3, c2.getRowCount());
+        assertEquals(1, c2.getColumnCount());
+        assertEquals(8, c2.get(0, 0), EPSILON);
+        assertEquals(30, c2.get(1, 0), EPSILON);
+        assertEquals(16, c2.get(2, 0), EPSILON);
+    }
+
+    @Test
+    public void testAddition() {
+        /*
+        1 0
+        0 3
+        2 0
+         */
+        Matrix a = createA(getMatrixFactory());
+        /*
+        4 0
+        5 0
+        0 0
+         */
+        Matrix b = getMatrixFactory().create(3, 2, 3);
+        b.set(0, 0, 4);
+        b.set(1, 0, 5);
+
+        Matrix cs = a.add(b);
+        DenseMatrix c = cs.toDense();
+
+        assertEquals(3, c.getRowCount());
+        assertEquals(2, c.getColumnCount());
+        assertEquals(5, c.get(0, 0), EPSILON);
+        assertEquals(5, c.get(1, 0), EPSILON);
+        assertEquals(2, c.get(2, 0), EPSILON);
+        assertEquals(0, c.get(0, 1), EPSILON);
+        assertEquals(3, c.get(1, 1), EPSILON);
+        assertEquals(0, c.get(2, 1), EPSILON);
+
+        // in case of sparse matrix check, we only have 4 values
+        if (cs instanceof SparseMatrix) {
+            assertEquals(4, ((SparseMatrix) cs).getValues().length);
+        }
+    }
+
+    @Test
+    public void testAdditionWithEmptyColumnInTheMiddle() {
+        /*
+        1 0 0
+        0 0 3
+        2 0 0
+         */
+        Matrix a = getMatrixFactory().create(3, 3, 3);
+        a.set(0, 0, 1);
+        a.set(2, 0, 2);
+        a.set(1, 2, 3);
+
+        /*
+        4 0 6
+        5 0 0
+        0 0 0
+         */
+        Matrix b = getMatrixFactory().create(3, 3, 3);
+        b.set(0, 0, 4);
+        b.set(1, 0, 5);
+        b.set(0, 2, 6);
+
+        Matrix cs = a.add(b);
+        DenseMatrix c = cs.toDense();
+
+        assertEquals(3, c.getRowCount());
+        assertEquals(3, c.getColumnCount());
+        assertEquals(5, c.get(0, 0), EPSILON);
+        assertEquals(5, c.get(1, 0), EPSILON);
+        assertEquals(2, c.get(2, 0), EPSILON);
+        assertEquals(0, c.get(0, 1), EPSILON);
+        assertEquals(0, c.get(1, 1), EPSILON);
+        assertEquals(0, c.get(2, 1), EPSILON);
+        assertEquals(6, c.get(0, 2), EPSILON);
+        assertEquals(3, c.get(1, 2), EPSILON);
+        assertEquals(0, c.get(2, 2), EPSILON);
     }
 
     @Test
@@ -212,6 +262,16 @@ public abstract class AbstractMatrixTest {
         }
     }
 
+    @Test(expected = MatrixException.class)
+    public void testDecompositionFailure() {
+        Matrix matrix = getMatrixFactory().create(5, 5, 12);
+
+        try (LUDecomposition decomposition = matrix.decomposeLU()) {
+            double[] x = {0, 0, 0, 0, 0};
+            decomposition.solve(x);
+        }
+    }
+
     @Test
     public void testTransposedDecompose() {
         // 2  3  0  0  0
@@ -269,15 +329,15 @@ public abstract class AbstractMatrixTest {
         }
     }
 
+    private static void decomposeThenSolve(Matrix matrix, double[] b) {
+        LUDecomposition luDecomposition = matrix.decomposeLU();
+        luDecomposition.solve(b);
+    }
+
     @Test
     public void testDecomposeNonSquare() {
         Matrix matrix = getMatrixFactory().create(1, 2, 4);
-        try {
-            LUDecomposition luDecomposition = matrix.decomposeLU();
-            luDecomposition.solve(new double[] {});
-            fail();
-        } catch (Exception ignored) {
-        }
+        assertThrows(MatrixException.class, () -> decomposeThenSolve(matrix, new double[] {}));
     }
 
     @Test
@@ -377,5 +437,53 @@ public abstract class AbstractMatrixTest {
         assertEquals(1d, a.toDense().get(0, 1), 0d);
         a.addValue(0, 1, 2d);
         assertEquals(3d, a.toDense().get(0, 1), 0d);
+    }
+
+    @Test
+    public void testAddAndGetIndex() {
+        Matrix a = getMatrixFactory().create(3, 3, 3);
+        // 1 0 4
+        // 0 2 0
+        // 0 3 0
+        int index1 = a.addAndGetIndex(0, 0, 1d);
+        int index2 = a.addAndGetIndex(1, 1, 2d);
+        int index3 = a.addAndGetIndex(2, 1, 3d);
+        int index4 = a.addAndGetIndex(0, 2, 4d);
+
+        assertEquals(1d, a.toDense().get(0, 0), 0d);
+        assertEquals(0d, a.toDense().get(1, 0), 0d);
+        assertEquals(0d, a.toDense().get(2, 0), 0d);
+        assertEquals(0d, a.toDense().get(0, 1), 0d);
+        assertEquals(2d, a.toDense().get(1, 1), 0d);
+        assertEquals(3d, a.toDense().get(2, 1), 0d);
+        assertEquals(4d, a.toDense().get(0, 2), 0d);
+        assertEquals(0d, a.toDense().get(1, 2), 0d);
+        assertEquals(0d, a.toDense().get(2, 2), 0d);
+
+        a.setAtIndex(index1, 9);
+        a.addAtIndex(index2, 1);
+        a.setAtIndex(index3, 10);
+        a.addAtIndex(index4, 1);
+
+        assertEquals(9d, a.toDense().get(0, 0), 0d);
+        assertEquals(3d, a.toDense().get(1, 1), 0d);
+        assertEquals(10d, a.toDense().get(2, 1), 0d);
+        assertEquals(5d, a.toDense().get(0, 2), 0d);
+
+        assertThrows(MatrixException.class, () -> a.setAtIndex(10, 0));
+    }
+
+    @Test
+    public void testTranspose() {
+        Matrix a = createA(getMatrixFactory());
+        DenseMatrix at = a.transpose().toDense();
+        assertEquals(2, at.getRowCount());
+        assertEquals(3, at.getColumnCount());
+        assertEquals(1d, at.get(0, 0), 0d);
+        assertEquals(0d, at.get(0, 1), 0d);
+        assertEquals(2d, at.get(0, 2), 0d);
+        assertEquals(0d, at.get(1, 0), 0d);
+        assertEquals(3d, at.get(1, 1), 0d);
+        assertEquals(0d, at.get(1, 2), 0d);
     }
 }

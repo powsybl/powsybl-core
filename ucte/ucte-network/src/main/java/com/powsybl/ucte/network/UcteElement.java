@@ -22,13 +22,13 @@ public class UcteElement implements UcteRecord {
 
     private final UcteElementId id;
     private UcteElementStatus status;
-    private float resistance;
-    private float reactance;
-    private float susceptance;
+    private double resistance;
+    private double reactance;
+    private double susceptance;
     private Integer currentLimit; // FIXME: should not be null
     private String elementName;
 
-    protected UcteElement(UcteElementId id, UcteElementStatus status, float resistance, float reactance, float susceptance, Integer currentLimit, String elementName) {
+    protected UcteElement(UcteElementId id, UcteElementStatus status, double resistance, double reactance, double susceptance, Integer currentLimit, String elementName) {
         this.id = Objects.requireNonNull(id);
         this.status = Objects.requireNonNull(status);
         this.resistance = resistance;
@@ -66,7 +66,7 @@ public class UcteElement implements UcteRecord {
      * Gets resistance R (Ω).
      * @return resistance R (Ω)
      */
-    public float getResistance() {
+    public double getResistance() {
         return resistance;
     }
 
@@ -74,7 +74,7 @@ public class UcteElement implements UcteRecord {
      * Sets resistance R (Ω).
      * @param resistance resistance R (Ω)
      */
-    public void setResistance(float resistance) {
+    public void setResistance(double resistance) {
         this.resistance = resistance;
     }
 
@@ -84,7 +84,7 @@ public class UcteElement implements UcteRecord {
      * equal to 0.050 Ω (to avoid division by values near to zero in load flow calculation)
      * @return reactance X (Ω)
      */
-    public float getReactance() {
+    public double getReactance() {
         return reactance;
     }
 
@@ -94,7 +94,7 @@ public class UcteElement implements UcteRecord {
      * equal to 0.050 Ω (to avoid division by values near to zero in load flow calculation)
      * @param reactance reactance X (Ω)
      */
-    public void setReactance(float reactance) {
+    public void setReactance(double reactance) {
         this.reactance = reactance;
     }
 
@@ -102,7 +102,7 @@ public class UcteElement implements UcteRecord {
      * Gets susceptance B (μS).
      * @return susceptance B (μS)
      */
-    public float getSusceptance() {
+    public double getSusceptance() {
         return susceptance;
     }
 
@@ -110,7 +110,7 @@ public class UcteElement implements UcteRecord {
      * Sets susceptance B (μS).
      * @param susceptance susceptance B (μS)
      */
-    public void setSusceptance(float susceptance) {
+    public void setSusceptance(double susceptance) {
         this.susceptance = susceptance;
     }
 
@@ -146,7 +146,7 @@ public class UcteElement implements UcteRecord {
         this.elementName = elementName;
     }
 
-    private static final float MIN_X = 0.05f;
+    private static final double MIN_X = 0.05;
 
     @Override
     public void fix(Reporter reporter) {
@@ -156,7 +156,7 @@ public class UcteElement implements UcteRecord {
             case REAL_ELEMENT_IN_OPERATION:
             case REAL_ELEMENT_OUT_OF_OPERATION:
                 if (Math.abs(reactance) < MIN_X) {
-                    float oldReactance = reactance;
+                    double oldReactance = reactance;
                     reactance = reactance >= 0 ? MIN_X : -MIN_X;
                     LOGGER.warn("Small reactance {} of element '{}' fixed to {}", oldReactance, id, reactance);
                 }

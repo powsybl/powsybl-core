@@ -54,6 +54,24 @@ public interface Bus extends Identifiable<Bus> {
      */
     double getQ();
 
+    default double getFictitiousP0() {
+        return 0.0;
+    }
+
+    default Bus setFictitiousP0(double p0) {
+        // do nothing
+        return this;
+    }
+
+    default double getFictitiousQ0() {
+        return 0.0;
+    }
+
+    default Bus setFictitiousQ0(double q0) {
+        // do nothing
+        return this;
+    }
+
     /**
      * Get the connected component that the bus is part of.
      */
@@ -255,4 +273,8 @@ public interface Bus extends Identifiable<Bus> {
         return Stream.empty();
     }
 
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.BUS;
+    }
 }

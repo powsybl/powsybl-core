@@ -35,11 +35,7 @@ public class DenseMatrixTest extends AbstractMatrixTest {
 
     @Test
     public void invalidBufferCapacity() {
-        try {
-            new DenseMatrix(2, 2, () -> ByteBuffer.allocate(3));
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
+        assertThrows(MatrixException.class, () -> new DenseMatrix(2, 2, () -> ByteBuffer.allocate(3)));
     }
 
     @Test
@@ -77,6 +73,16 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
+    public void testCreateFromRow() {
+        DenseMatrix a = Matrix.createFromRow(new double[] {1d, 2d, 3d}, matrixFactory).toDense();
+        assertEquals(1, a.getRowCount());
+        assertEquals(3, a.getColumnCount());
+        assertEquals(1d, a.get(0, 0), 0d);
+        assertEquals(2d, a.get(0, 1), 0d);
+        assertEquals(3d, a.get(0, 2), 0d);
+    }
+
+    @Test
     public void testToSparse() {
         DenseMatrix a = (DenseMatrix) createA(matrixFactory);
         SparseMatrix a2 = a.toSparse();
@@ -84,5 +90,21 @@ public class DenseMatrixTest extends AbstractMatrixTest {
         assertSame(a2, a2.toSparse());
         DenseMatrix a3 = a2.toDense();
         assertEquals(a, a3);
+    }
+
+    @Test
+    public void testDenseMultiplication() {
+        DenseMatrix a = new DenseMatrix(2, 1);
+        a.set(0, 0, 4);
+        a.set(1, 0, 5);
+        DenseMatrix b = new DenseMatrix(1, 2);
+        b.set(0, 0, 3);
+        DenseMatrix c = a.times(b);
+        assertEquals(2, c.getRowCount());
+        assertEquals(2, c.getColumnCount());
+        assertEquals(12, c.get(0, 0), EPSILON);
+        assertEquals(15, c.get(1, 0), EPSILON);
+        assertEquals(0, c.get(0, 1), EPSILON);
+        assertEquals(0, c.get(1, 1), EPSILON);
     }
 }

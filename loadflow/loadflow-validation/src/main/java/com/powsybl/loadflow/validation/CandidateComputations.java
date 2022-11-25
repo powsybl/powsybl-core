@@ -24,7 +24,7 @@ public final class CandidateComputations {
 
     //Lazy initialization of the list of computations
     private static final Supplier<List<CandidateComputation>> COMPUTATIONS =
-            Suppliers.memoize(() -> ImmutableList.copyOf(ServiceLoader.load(CandidateComputation.class)));
+            Suppliers.memoize(() -> ImmutableList.copyOf(ServiceLoader.load(CandidateComputation.class, CandidateComputations.class.getClassLoader())));
 
     private CandidateComputations() {
     }

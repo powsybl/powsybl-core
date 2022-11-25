@@ -7,13 +7,13 @@
 
 package com.powsybl.triplestore.api;
 
+import com.powsybl.commons.datasource.DataSource;
+
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
-
-import com.powsybl.commons.datasource.DataSource;
 
 /**
  * A Triplestore database.
@@ -24,6 +24,14 @@ import com.powsybl.commons.datasource.DataSource;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public interface TripleStore {
+
+    /**
+     * Obtain the options that have been used to configure this Triplestore
+     * @return options Triplestore configuration options
+     */
+    default TripleStoreOptions getOptions() {
+        return null;
+    }
 
     /**
      * Read statements from an input stream and store them in the Triplestore under the given context name.
@@ -131,7 +139,7 @@ public interface TripleStore {
       /**
      * Perform a SPARQL update on the Triplestore.
      *
-     * @param query the text of the query, written in SPARQL Update language
+     * @param queryText the text of the query, written in SPARQL Update language
      */
     void update(String queryText);
 

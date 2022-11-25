@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -71,6 +72,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractXmlConverterTest {
         adder.setTapPosition(2)
                 .setLowTapPosition(1)
                 .setRegulating(false)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                 .beginStep().setRho(1.f).setAlpha(-50f).setR(0.1f).setX(0.1f).setG(0.1f).setB(0.1f).endStep()
                 .beginStep().setRho(1.f).setAlpha(-25f).setR(0.1f).setX(0.1f).setG(0.1f).setB(0.1f).endStep()
                 .add();

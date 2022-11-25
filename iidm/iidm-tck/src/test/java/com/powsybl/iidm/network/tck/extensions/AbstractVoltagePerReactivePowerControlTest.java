@@ -37,10 +37,9 @@ public abstract class AbstractVoltagePerReactivePowerControlTest {
 
     @Test
     public void test() {
-        svc.newExtension(VoltagePerReactivePowerControlAdder.class)
+        VoltagePerReactivePowerControl control = svc.newExtension(VoltagePerReactivePowerControlAdder.class)
                 .withSlope(0.2)
                 .add();
-        VoltagePerReactivePowerControl control = svc.getExtension(VoltagePerReactivePowerControl.class);
         assertEquals(0.2, control.getSlope(), 0.0);
         control.setSlope(0.5);
         assertEquals(0.5, control.getSlope(), 0.0);

@@ -29,6 +29,11 @@ public class ContingencyBuilder {
         return new Contingency(id, elements);
     }
 
+    public ContingencyBuilder addBattery(String id) {
+        elements.add(new BatteryContingency(id));
+        return this;
+    }
+
     public ContingencyBuilder addBranch(String id) {
         elements.add(new BranchContingency(id));
         return this;
@@ -91,6 +96,21 @@ public class ContingencyBuilder {
 
     public ContingencyBuilder addDanglingLine(String id) {
         elements.add(new DanglingLineContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addThreeWindingsTransformer(String id) {
+        elements.add(new ThreeWindingsTransformerContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addLoad(String id) {
+        elements.add(new LoadContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addSwitch(String id) {
+        elements.add(new SwitchContingency(id));
         return this;
     }
 }

@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -19,8 +20,8 @@ class LccConverterStationImpl extends AbstractHvdcConverterStation<LccConverterS
 
     private float powerFactor;
 
-    LccConverterStationImpl(String id, String name, boolean fictitious, float lossFactor, float powerFactor) {
-        super(id, name, fictitious, lossFactor);
+    LccConverterStationImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, float lossFactor, float powerFactor) {
+        super(network, id, name, fictitious, lossFactor);
         this.powerFactor = powerFactor;
     }
 

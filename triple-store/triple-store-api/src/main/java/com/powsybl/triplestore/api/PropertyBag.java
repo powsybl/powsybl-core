@@ -7,17 +7,12 @@
 
 package com.powsybl.triplestore.api;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -25,13 +20,13 @@ import org.slf4j.LoggerFactory;
 public class PropertyBag extends HashMap<String, String> {
 
     public PropertyBag(List<String> propertyNames) {
-        this(propertyNames, false);
+        this(propertyNames, true);
     }
 
-    public PropertyBag(List<String> propertyNames, boolean removeUnderscore) {
+    public PropertyBag(List<String> propertyNames, boolean removeInitialUnderscoreForIdentifiers) {
         super(propertyNames.size());
         this.propertyNames = propertyNames;
-        this.removeInitialUnderscoreForIdentifiers = removeUnderscore;
+        this.removeInitialUnderscoreForIdentifiers = removeInitialUnderscoreForIdentifiers;
     }
 
     public List<String> propertyNames() {
@@ -49,7 +44,7 @@ public class PropertyBag extends HashMap<String, String> {
         if (value == null) {
             return null;
         }
-        return value.replaceAll("^.*#", "");
+        return removePrefix(value, false);
     }
 
     public String getId(String property) {
@@ -57,17 +52,11 @@ public class PropertyBag extends HashMap<String, String> {
         if (value == null) {
             return null;
         }
-        // rdf:ID is the mRID plus an underscore added at the beginning of the string
-        // We may decide if we want to preserve or not the underscore
-        if (removeInitialUnderscoreForIdentifiers) {
-            return value.replaceAll("^.*#_?", "");
-        } else {
-            return value.replaceAll("^.*#", "");
-        }
+        return removePrefix(value, true);
     }
 
     public String getId0(String property) {
-        // Return the first part of the Id (before he first hyphen)
+        // Return the first part of the Identifier (before the first hyphen)
         String id = getId(property);
         if (id == null) {
             return null;
@@ -149,9 +138,18 @@ public class PropertyBag extends HashMap<String, String> {
         return "";
     }
 
-    private static String padr(String s, int size) {
-        String format = String.format("%%-%ds", size);
-        return String.format(format, s);
+    private String removePrefix(String s, boolean isIdentifier) {
+        String s1 = s;
+        int iHash = s.indexOf('#');
+        if (iHash >= 0) {
+            s1 = s.substring(iHash + 1);
+        }
+        // rdf:ID is the mRID plus an underscore added at the beginning of the string
+        // We may decide if we want to preserve or not the underscore
+        if (isIdentifier && removeInitialUnderscoreForIdentifiers && s1.length() > 0 && s1.charAt(0) == '_') {
+            s1 = s1.substring(1);
+        }
+        return s1;
     }
 
     @Override
@@ -175,7 +173,6 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public boolean isResource(String name) {
-        // TODO do not rely on property name, use metadata or answer based on value?
         return RESOURCE_NAMES.contains(name) || resourceNames.contains(name);
     }
 
@@ -205,6 +202,16 @@ public class PropertyBag extends HashMap<String, String> {
 
     public boolean isMultivaluedProperty(String name) {
         return multiValuedPropertyNames.contains(name);
+    }
+
+    public PropertyBag copy() {
+        // Create just a shallow copy of this property bag
+        PropertyBag pb1 = new PropertyBag(propertyNames, removeInitialUnderscoreForIdentifiers);
+        pb1.setResourceNames(resourceNames);
+        pb1.setClassPropertyNames(classPropertyNames);
+        pb1.setMultivaluedProperty(multiValuedPropertyNames);
+        pb1.putAll(this);
+        return pb1;
     }
 
     private final List<String> propertyNames;

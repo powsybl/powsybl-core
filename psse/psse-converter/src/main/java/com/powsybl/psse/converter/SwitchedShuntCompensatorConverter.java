@@ -7,23 +7,19 @@
 package com.powsybl.psse.converter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorAdder;
-import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.PsseSwitchedShunt;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
@@ -31,15 +27,15 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class SwitchedShuntCompensatorConverter extends AbstractConverter {
+class SwitchedShuntCompensatorConverter extends AbstractConverter {
 
-    public SwitchedShuntCompensatorConverter(PsseSwitchedShunt psseSwitchedShunt, ContainersMapping containerMapping, Network network, PsseVersion version) {
+    SwitchedShuntCompensatorConverter(PsseSwitchedShunt psseSwitchedShunt, ContainersMapping containerMapping, Network network, PsseVersion version) {
         super(containerMapping, network);
         this.psseSwitchedShunt = Objects.requireNonNull(psseSwitchedShunt);
         this.version = Objects.requireNonNull(version);
     }
 
-    public void create() {
+    void create() {
         List<ShuntBlock> shuntBlocks = defineShuntBlocks(psseSwitchedShunt, version);
         if (shuntBlocks.isEmpty()) {
             return;
@@ -68,7 +64,7 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
         adder.add();
     }
 
-    public void addControl() {
+    void addControl() {
         String busId = getBusId(psseSwitchedShunt.getI());
         String id = defineShuntId(psseSwitchedShunt, version);
         ShuntCompensator shunt = getNetwork().getShuntCompensator(getShuntId(busId, id));
@@ -265,6 +261,37 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
 
     private static String getShuntId(String busId, String id) {
         return busId + "-SwSH" + id;
+    }
+
+    // At the moment we do not consider new switchedShunts
+    static void updateSwitchedShunts(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+        PsseVersion version = PsseVersion.fromRevision(updatePsseModel.getCaseIdentification().getRev());
+        psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> {
+            updatePsseModel.addSwitchedShunts(Collections.singletonList(psseSwitchedShunt));
+            PsseSwitchedShunt updatePsseSwitchedShunt = updatePsseModel.getSwitchedShunts().get(updatePsseModel.getSwitchedShunts().size() - 1);
+
+            String switchedShuntId = getShuntId(getBusId(updatePsseSwitchedShunt.getI()), defineShuntId(updatePsseSwitchedShunt, version));
+            ShuntCompensator switchedShunt = network.getShuntCompensator(switchedShuntId);
+            if (switchedShunt == null) {
+                updatePsseSwitchedShunt.setStat(0);
+            } else {
+                updatePsseSwitchedShunt.setStat(getStatus(switchedShunt));
+                updatePsseSwitchedShunt.setBinit(getQ(switchedShunt));
+            }
+        });
+    }
+
+    private static int getStatus(ShuntCompensator switchedShunt) {
+        if (switchedShunt.getTerminal().isConnected()) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    private static double getQ(ShuntCompensator switchedShunt) {
+        return shuntAdmittanceToPower(switchedShunt.getB(switchedShunt.getSectionCount()),
+            switchedShunt.getTerminal().getVoltageLevel().getNominalV());
     }
 
     private final PsseSwitchedShunt psseSwitchedShunt;

@@ -18,10 +18,6 @@ abstract class AbstractModuleConfigRepository implements ModuleConfigRepository 
 
     protected final Map<String, MapModuleConfig> configs = new HashMap<>();
 
-    public boolean moduleExists(String name) {
-        return configs.containsKey(name);
-    }
-
     public Optional<ModuleConfig> getModuleConfig(String name) {
         return Optional.ofNullable(configs.get(name));
     }

@@ -15,28 +15,35 @@ import com.powsybl.timeseries.TimeSeries.TimeFormat;
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public class TimeSeriesCsvConfig {
+    private static final int DEFAULT_MAX_COLUMNS = 20000;
     private final DateTimeFormatter dateTimeFormatter;
     private final boolean versioned;
     private final TimeFormat timeFormat;
     private final char separator;
+    private final int maxColumns;
 
     public TimeSeriesCsvConfig() {
-        this(ZoneId.systemDefault(), TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME);
+        this(ZoneId.systemDefault(), TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME, DEFAULT_MAX_COLUMNS);
     }
 
     public TimeSeriesCsvConfig(ZoneId zoneId) {
-        this(zoneId, TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME);
+        this(zoneId, TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME, DEFAULT_MAX_COLUMNS);
     }
 
     public TimeSeriesCsvConfig(char separator, boolean versioned, TimeFormat timeFormat) {
-        this(ZoneId.systemDefault(), separator, versioned, timeFormat);
+        this(ZoneId.systemDefault(), separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS);
     }
 
     public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat) {
+        this(zoneId, separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS);
+    }
+
+    public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat, int maxColumns) {
         this.dateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId);
         this.separator = separator;
         this.versioned = versioned;
         this.timeFormat = timeFormat;
+        this.maxColumns = maxColumns;
     }
 
     public char separator() {
@@ -55,4 +62,7 @@ public class TimeSeriesCsvConfig {
         return dateTimeFormatter;
     }
 
+    public int getMaxColumns() {
+        return maxColumns;
+    }
 }

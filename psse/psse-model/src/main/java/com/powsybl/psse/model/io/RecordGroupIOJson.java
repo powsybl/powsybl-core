@@ -32,7 +32,7 @@ import static com.powsybl.psse.model.io.RecordGroupIdentification.JsonObjectType
 public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
     private final AbstractRecordGroup<T> recordGroup;
 
-    public RecordGroupIOJson(AbstractRecordGroup<T> recordGroup) {
+    protected RecordGroupIOJson(AbstractRecordGroup<T> recordGroup) {
         Objects.requireNonNull(recordGroup);
         this.recordGroup = recordGroup;
     }
@@ -90,7 +90,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         throw new PsseException("Json node not found: " + nodeName);
     }
 
-    public List<T> readJson(JsonNode networkNode, Context context) {
+    private List<T> readJson(JsonNode networkNode, Context context) {
         // Records in Json file format have arbitrary order for fields.
         // Fields present in the record group are defined explicitly in a header.
         // Order and number of field names is relevant for parsing,
@@ -107,7 +107,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         return recordGroup.parseRecords(records, actualFieldNames, context);
     }
 
-    static String[] readFieldNames(JsonNode n) {
+    private static String[] readFieldNames(JsonNode n) {
         JsonNode fieldsNode = n.get("fields");
         if (!fieldsNode.isArray()) {
             throw new PowsyblException("Expecting array reading fields");

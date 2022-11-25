@@ -13,12 +13,13 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
+import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class ImportExportPerformanceTest {
         importExport(TripleStoreFactory.onlyDefaultImplementation(), Cim14SmallCasesCatalog.small1());
     }
 
-    private void importExport(List<String> tsImpls, TestGridModel gm) throws IOException {
+    private void importExport(List<String> tsImpls, GridModelReference gm) throws IOException {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             ReadOnlyDataSource ds = gm.dataSource();
 
@@ -71,7 +72,7 @@ public class ImportExportPerformanceTest {
         Properties importParameters = new Properties();
         importParameters.put("powsyblTripleStore", ts);
         importParameters.put("storeCgmesModelAsNetworkExtension", "true");
-        Network n = i.importData(ds, importParameters);
+        Network n = i.importData(ds, NetworkFactory.findDefault(), importParameters);
         CgmesModel cgmes = n.getExtension(CgmesModelExtension.class).getCgmesModel();
         cgmes.print(LOG::info);
 
@@ -79,7 +80,9 @@ public class ImportExportPerformanceTest {
         Path exportFolder = fs.getPath("impl-" + ts);
         Files.createDirectories(exportFolder);
         DataSource exportDataSource = new FileDataSource(exportFolder, "");
-        e.export(n, new Properties(), exportDataSource);
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.CIM_VERSION, "16");
+        e.export(n, exportParameters, exportDataSource);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(ImportExportPerformanceTest.class);

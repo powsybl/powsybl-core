@@ -8,13 +8,10 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
+import com.powsybl.math.graph.TraverseResult;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
@@ -44,12 +41,28 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
             assertEquals(expecteds2[i], internalConnections.get(i).getNode2());
         }
 
+        Iterator<Integer> nodeIterator7 = vl.getNodeBreakerView().getNodesInternalConnectedTo(7).iterator();
+        assertEquals(0, (int) nodeIterator7.next());
+        assertFalse(nodeIterator7.hasNext());
+
+        Iterator<Integer> nodeIterator2 = vl.getNodeBreakerView().getNodesInternalConnectedTo(2).iterator();
+        assertEquals(5, (int) nodeIterator2.next());
+        assertEquals(9, (int) nodeIterator2.next());
+        assertFalse(nodeIterator2.hasNext());
+
+        List<Integer> nodesInternallyConnectedTo3 = vl.getNodeBreakerView().getNodeInternalConnectedToStream(3).boxed().collect(Collectors.toList());
+        assertEquals(Arrays.asList(6, 4), nodesInternallyConnectedTo3);
+
+        // Find the first internal connection encountered
+        InternalConnections firstInternalConnectionFound = findFirstInternalConnections(vl);
+        assertEquals(new InternalConnections().add(0, 7), firstInternalConnectionFound);
+
+        // Find the internal connections encountered before encountering a terminal
         InternalConnections foundStoppingAtTerminals = findInternalConnectionsTraverseStoppingAtTerminals(vl);
         // If we stop traversal at terminals
         // some internal connections are expected to be missing
-        InternalConnections expectedMissing = new InternalConnections();
-        expectedMissing.add(5, 2);
-        expectedMissing.add(4, 3);
+        InternalConnections expectedMissing = new InternalConnections().add(6, 3).add(9, 2).add(4, 3);
+
         // Compute all missing connections
         Set<String> actualMissing = all.stream()
                 .filter(c -> !foundStoppingAtTerminals.contains(c))
@@ -59,6 +72,7 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         InternalConnections actual = findInternalConnections(vl);
         InternalConnections expected = all;
         assertEquals(expected, actual);
+
     }
 
     @Test
@@ -209,9 +223,10 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
     }
 
     static class InternalConnections extends HashSet<String> {
-        void add(int node1, int node2) {
+        InternalConnections add(int node1, int node2) {
             add(node1 + "-" + node2);
             add(node2 + "-" + node1);
+            return this;
         }
     }
 
@@ -219,43 +234,46 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         InternalConnections cs = new InternalConnections();
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        int[] nodes = topo.getNodes();
-        final TIntSet explored = new TIntHashSet();
-        for (int n : nodes) {
-            if (explored.contains(n) || topo.getTerminal(n) == null) {
-                continue;
-            }
-            explored.add(n);
-            topo.traverse(n, (n1, sw, n2) -> {
-                explored.add(n2);
+        topo.traverse(topo.getNodes(), (n1, sw, n2) -> {
+            if (topo.getTerminal(n2) == null) {
                 if (sw == null) {
                     cs.add(n1, n2);
                 }
-                return topo.getTerminal(n2) == null;
-            });
-        }
+                return TraverseResult.CONTINUE;
+            } else {
+                return TraverseResult.TERMINATE_PATH;
+            }
+        });
+
         return cs;
     }
 
     private InternalConnections findInternalConnections(VoltageLevel vl) {
-        InternalConnections cs = new InternalConnections();
-
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        int[] nodes = topo.getNodes();
-        final TIntSet explored = new TIntHashSet();
-        for (int n : nodes) {
-            if (explored.contains(n)) {
-                continue;
+
+        InternalConnections cs = new InternalConnections();
+        topo.traverse(topo.getNodes(), (n1, sw, n2) -> {
+            if (sw == null) {
+                cs.add(n1, n2);
             }
-            explored.add(n);
-            topo.traverse(n, (n1, sw, n2) -> {
-                explored.add(n2);
-                if (sw == null) {
-                    cs.add(n1, n2);
-                }
-                return true;
-            });
-        }
+            return TraverseResult.CONTINUE;
+        });
+
+        return cs;
+    }
+
+    private InternalConnections findFirstInternalConnections(VoltageLevel vl) {
+        VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
+
+        InternalConnections cs = new InternalConnections();
+        topo.traverse(topo.getNodes(), (n1, sw, n2) -> {
+            if (sw == null) {
+                cs.add(n1, n2);
+                return TraverseResult.TERMINATE_TRAVERSER;
+            }
+            return TraverseResult.CONTINUE;
+        });
+
         return cs;
     }
 }

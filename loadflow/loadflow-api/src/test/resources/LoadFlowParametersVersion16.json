@@ -1,0 +1,17 @@
+{
+  "version" : "1.6",
+  "voltageInitMode" : "PREVIOUS_VALUES",
+  "transformerVoltageControlOn" : true,
+  "phaseShifterRegulationOn" : false,
+  "noGeneratorReactiveLimits" : true,
+  "twtSplitShuntAdmittance" : false,
+  "shuntCompensatorVoltageControlOn" : false,
+  "readSlackBus" : false,
+  "writeSlackBus" : false,
+  "dc" : false,
+  "distributedSlack" : true,
+  "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
+  "dcUseTransformerRatio" : true,
+  "countriesToBalance" : [ "FR" , "KI" ],
+  "connectedComponentMode" : "MAIN"
+}

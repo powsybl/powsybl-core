@@ -151,6 +151,30 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
+    public double getFictitiousP0() {
+        return buses.stream().map(Bus::getFictitiousP0).reduce(0.0, Double::sum);
+    }
+
+    @Override
+    public Bus setFictitiousP0(double p0) {
+        buses.forEach(b -> b.setFictitiousP0(0.0));
+        buses.iterator().next().setFictitiousP0(p0);
+        return this;
+    }
+
+    @Override
+    public double getFictitiousQ0() {
+        return buses.stream().map(Bus::getFictitiousQ0).reduce(0.0, Double::sum);
+    }
+
+    @Override
+    public Bus setFictitiousQ0(double q0) {
+        buses.forEach(b -> b.setFictitiousQ0(0.0));
+        buses.iterator().next().setFictitiousQ0(q0);
+        return this;
+    }
+
+    @Override
     public void setConnectedComponentNumber(int connectedComponentNumber) {
         checkValidity();
         for (ConfiguredBus bus : buses) {

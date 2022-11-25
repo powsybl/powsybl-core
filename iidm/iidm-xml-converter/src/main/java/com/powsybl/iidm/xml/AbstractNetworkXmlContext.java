@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.iidm.AbstractConverterContext;
-import com.powsybl.iidm.anonymizer.Anonymizer;
+import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
 import java.util.Objects;
 

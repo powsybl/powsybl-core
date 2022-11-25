@@ -1,4 +1,5 @@
 {
+  "type" : "default",
   "version" : "1.0",
   "name" : "list",
   "contingencies" : [ {

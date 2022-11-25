@@ -78,6 +78,13 @@ public abstract class AbstractLccTest {
         assertSame(cs1, hvdcLine.getConverterStation(HvdcLine.Side.ONE));
         assertSame(cs2, hvdcLine.getConverterStation2());
         assertSame(cs2, hvdcLine.getConverterStation(HvdcLine.Side.TWO));
+
+        if (cs1.getOtherConverterStation().isPresent()) {
+            assertEquals(cs2, cs1.getOtherConverterStation().get());
+        }
+        if (cs2.getOtherConverterStation().isPresent()) {
+            assertEquals(cs1, cs2.getOtherConverterStation().get());
+        }
     }
 
     @Test

@@ -14,10 +14,12 @@ import com.powsybl.iidm.network.Network;
  */
 public interface CgmesConversionContextExtension extends Extension<Network> {
 
+    String NAME = "CgmesConversionContext";
+
     Context getContext();
 
     @Override
     default String getName() {
-        return "CgmesConversionContext";
+        return NAME;
     }
 }

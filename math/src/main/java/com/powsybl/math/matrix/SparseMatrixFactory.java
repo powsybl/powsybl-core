@@ -15,8 +15,20 @@ package com.powsybl.math.matrix;
  */
 public class SparseMatrixFactory implements MatrixFactory {
 
+    private final double rgrowthThreshold;
+
+    public SparseMatrixFactory() {
+        this(SparseLUDecomposition.DEFAULT_RGROWTH_THRESHOLD);
+    }
+
+    public SparseMatrixFactory(double rgrowthThreshold) {
+        this.rgrowthThreshold = rgrowthThreshold;
+    }
+
     @Override
     public SparseMatrix create(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
-        return new SparseMatrix(rowCount, columnCount, estimatedNonZeroValueCount);
+        SparseMatrix m = new SparseMatrix(rowCount, columnCount, estimatedNonZeroValueCount);
+        m.setRgrowthThreshold(rgrowthThreshold);
+        return m;
     }
 }

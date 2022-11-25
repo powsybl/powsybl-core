@@ -1,0 +1,1038 @@
+{
+  "name" : "Tower",
+  "time" : "1970-01-01T00:00:00Z",
+  "classes" : [ {
+    "name" : "StaSwitch",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "for_name",
+      "type" : "STRING"
+    }, {
+      "name" : "fold_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "on_off",
+      "type" : "INTEGER"
+    }, {
+      "name" : "typ_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "aUsage",
+      "type" : "STRING"
+    } ]
+  }, {
+    "name" : "ElmSym",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "for_name",
+      "type" : "STRING"
+    }, {
+      "name" : "fold_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "typ_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "cCategory",
+      "type" : "STRING"
+    }, {
+      "name" : "ngnum",
+      "type" : "INTEGER"
+    }, {
+      "name" : "i_mot",
+      "type" : "INTEGER"
+    }, {
+      "name" : "pgini",
+      "type" : "FLOAT"
+    }, {
+      "name" : "qgini",
+      "type" : "FLOAT"
+    }, {
+      "name" : "cosgini",
+      "type" : "FLOAT"
+    }, {
+      "name" : "usetp",
+      "type" : "FLOAT"
+    }, {
+      "name" : "pf_recap",
+      "type" : "INTEGER"
+    }, {
+      "name" : "q_min",
+      "type" : "FLOAT"
+    }, {
+      "name" : "q_max",
+      "type" : "FLOAT"
+    }, {
+      "name" : "outserv",
+      "type" : "INTEGER"
+    }, {
+      "name" : "av_mode",
+      "type" : "STRING"
+    }, {
+      "name" : "phtech",
+      "type" : "INTEGER"
+    } ]
+  }, {
+    "name" : "TypLod",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "for_name",
+      "type" : "STRING"
+    }, {
+      "name" : "fold_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "systp",
+      "type" : "INTEGER"
+    }, {
+      "name" : "phtech",
+      "type" : "INTEGER"
+    }, {
+      "name" : "aP",
+      "type" : "FLOAT"
+    }, {
+      "name" : "bP",
+      "type" : "FLOAT"
+    }, {
+      "name" : "kpu0",
+      "type" : "FLOAT"
+    }, {
+      "name" : "kpu1",
+      "type" : "FLOAT"
+    }, {
+      "name" : "kpu",
+      "type" : "FLOAT"
+    }, {
+      "name" : "aQ",
+      "type" : "FLOAT"
+    }, {
+      "name" : "bQ",
+      "type" : "FLOAT"
+    }, {
+      "name" : "kqu0",
+      "type" : "FLOAT"
+    }, {
+      "name" : "kqu1",
+      "type" : "FLOAT"
+    }, {
+      "name" : "kqu",
+      "type" : "FLOAT"
+    } ]
+  }, {
+    "name" : "ElmTerm",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "for_name",
+      "type" : "STRING"
+    }, {
+      "name" : "fold_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "typ_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "systype",
+      "type" : "INTEGER"
+    }, {
+      "name" : "iUsage",
+      "type" : "INTEGER"
+    }, {
+      "name" : "uknom",
+      "type" : "FLOAT"
+    }, {
+      "name" : "unknom",
+      "type" : "FLOAT"
+    }, {
+      "name" : "iminus",
+      "type" : "INTEGER"
+    }, {
+      "name" : "outserv",
+      "type" : "INTEGER"
+    }, {
+      "name" : "GPSlat",
+      "type" : "FLOAT"
+    }, {
+      "name" : "GPSlon",
+      "type" : "FLOAT"
+    }, {
+      "name" : "vtarget",
+      "type" : "FLOAT"
+    } ]
+  }, {
+    "name" : "ElmNet",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "for_name",
+      "type" : "STRING"
+    }, {
+      "name" : "fold_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "frnom",
+      "type" : "FLOAT"
+    }, {
+      "name" : "pDiagram",
+      "type" : "OBJECT"
+    } ]
+  }, {
+    "name" : "ElmTow",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "for_name",
+      "type" : "STRING"
+    }, {
+      "name" : "fold_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "outserv",
+      "type" : "INTEGER"
+    }, {
+      "name" : "i_dist",
+      "type" : "INTEGER"
+    }, {
+      "name" : "ngeo",
+      "type" : "INTEGER"
+    }, {
+      "name" : "pGeo",
+      "type" : "OBJECT_VECTOR"
+    }, {
+      "name" : "plines",
+      "type" : "OBJECT_VECTOR"
+    }, {
+      "name" : "dpolar",
+      "type" : "DOUBLE_VECTOR"
+    }, {
+      "name" : "pCon_e",
+      "type" : "OBJECT_VECTOR"
+    }, {
+      "name" : "sag_c",
+      "type" : "DOUBLE_VECTOR"
+    }, {
+      "name" : "ctransp",
+      "type" : "DOUBLE_VECTOR"
+    }, {
+      "name" : "pCon_c",
+      "type" : "OBJECT_VECTOR"
+    } ]
+  }, {
+    "name" : "ElmLod",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "for_name",
+      "type" : "STRING"
+    }, {
+      "name" : "fold_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "typ_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "mode_inp",
+      "type" : "STRING"
+    }, {
+      "name" : "slini",
+      "type" : "FLOAT"
+    }, {
+      "name" : "plini",
+      "type" : "FLOAT"
+    }, {
+      "name" : "qlini",
+      "type" : "FLOAT"
+    }, {
+      "name" : "coslini",
+      "type" : "FLOAT"
+    }, {
+      "name" : "pf_recap",
+      "type" : "INTEGER"
+    }, {
+      "name" : "scale0",
+      "type" : "FLOAT"
+    }, {
+      "name" : "i_scale",
+      "type" : "INTEGER"
+    }, {
+      "name" : "outserv",
+      "type" : "INTEGER"
+    }, {
+      "name" : "classif",
+      "type" : "STRING"
+    } ]
+  }, {
+    "name" : "TypSym",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "for_name",
+      "type" : "STRING"
+    }, {
+      "name" : "fold_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "sgn",
+      "type" : "FLOAT"
+    }, {
+      "name" : "ugn",
+      "type" : "FLOAT"
+    }, {
+      "name" : "cosn",
+      "type" : "FLOAT"
+    }, {
+      "name" : "xd",
+      "type" : "FLOAT"
+    }, {
+      "name" : "xq",
+      "type" : "FLOAT"
+    }, {
+      "name" : "xdsss",
+      "type" : "FLOAT"
+    }, {
+      "name" : "rstr",
+      "type" : "FLOAT"
+    }, {
+      "name" : "xdsat",
+      "type" : "FLOAT"
+    }, {
+      "name" : "satur",
+      "type" : "INTEGER"
+    }, {
+      "name" : "nphase",
+      "type" : "INTEGER"
+    }, {
+      "name" : "nslty",
+      "type" : "INTEGER"
+    }, {
+      "name" : "x0sy",
+      "type" : "FLOAT"
+    }, {
+      "name" : "r0sy",
+      "type" : "FLOAT"
+    }, {
+      "name" : "x2sy",
+      "type" : "FLOAT"
+    }, {
+      "name" : "r2sy",
+      "type" : "FLOAT"
+    }, {
+      "name" : "iopt_data",
+      "type" : "INTEGER"
+    }, {
+      "name" : "xds",
+      "type" : "FLOAT"
+    }, {
+      "name" : "xqs",
+      "type" : "FLOAT"
+    }, {
+      "name" : "xl",
+      "type" : "FLOAT"
+    }, {
+      "name" : "xdss",
+      "type" : "FLOAT"
+    }, {
+      "name" : "xqss",
+      "type" : "FLOAT"
+    }, {
+      "name" : "xrlq",
+      "type" : "FLOAT"
+    }, {
+      "name" : "tds",
+      "type" : "FLOAT"
+    }, {
+      "name" : "tqs",
+      "type" : "FLOAT"
+    }, {
+      "name" : "tdss",
+      "type" : "FLOAT"
+    }, {
+      "name" : "tqss",
+      "type" : "FLOAT"
+    } ]
+  }, {
+    "name" : "StaCubic",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "for_name",
+      "type" : "STRING"
+    }, {
+      "name" : "fold_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "obj_bus",
+      "type" : "INTEGER"
+    }, {
+      "name" : "obj_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "it2p1",
+      "type" : "INTEGER"
+    }, {
+      "name" : "it2p2",
+      "type" : "INTEGER"
+    }, {
+      "name" : "it2p3",
+      "type" : "INTEGER"
+    } ]
+  }, {
+    "name" : "TypLne",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "for_name",
+      "type" : "STRING"
+    }, {
+      "name" : "fold_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "uline",
+      "type" : "FLOAT"
+    }, {
+      "name" : "sline",
+      "type" : "FLOAT"
+    }, {
+      "name" : "InomAir",
+      "type" : "FLOAT"
+    }, {
+      "name" : "cohl_",
+      "type" : "INTEGER"
+    }, {
+      "name" : "rline",
+      "type" : "FLOAT"
+    }, {
+      "name" : "xline",
+      "type" : "FLOAT"
+    }, {
+      "name" : "rline0",
+      "type" : "FLOAT"
+    }, {
+      "name" : "xline0",
+      "type" : "FLOAT"
+    }, {
+      "name" : "Ithr",
+      "type" : "FLOAT"
+    }, {
+      "name" : "tmax",
+      "type" : "FLOAT"
+    }, {
+      "name" : "rtemp",
+      "type" : "FLOAT"
+    }, {
+      "name" : "systp",
+      "type" : "INTEGER"
+    }, {
+      "name" : "nlnph",
+      "type" : "INTEGER"
+    }, {
+      "name" : "nneutral",
+      "type" : "INTEGER"
+    }, {
+      "name" : "frnom",
+      "type" : "FLOAT"
+    }, {
+      "name" : "mlei",
+      "type" : "STRING"
+    }, {
+      "name" : "bline",
+      "type" : "FLOAT"
+    }, {
+      "name" : "bline0",
+      "type" : "FLOAT"
+    } ]
+  }, {
+    "name" : "ElmLne",
+    "attributes" : [ {
+      "name" : "loc_name",
+      "type" : "STRING"
+    }, {
+      "name" : "for_name",
+      "type" : "STRING"
+    }, {
+      "name" : "fold_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "typ_id",
+      "type" : "OBJECT"
+    }, {
+      "name" : "dline",
+      "type" : "FLOAT"
+    }, {
+      "name" : "fline",
+      "type" : "FLOAT"
+    }, {
+      "name" : "GPScoords",
+      "type" : "DOUBLE_MATRIX"
+    }, {
+      "name" : "nlnum",
+      "type" : "INTEGER"
+    }, {
+      "name" : "inAir",
+      "type" : "INTEGER"
+    } ]
+  } ],
+  "objects" : [ {
+    "id" : 7,
+    "className" : "ElmNet",
+    "values" : {
+      "loc_name" : "1 aux_1",
+      "frnom" : 60.0
+    },
+    "children" : [ {
+      "id" : 2,
+      "className" : "ElmLne",
+      "values" : {
+        "loc_name" : "lne_1_2_1",
+        "fold_id" : 7,
+        "typ_id" : 34,
+        "dline" : 52.0,
+        "fline" : 1.0,
+        "nlnum" : 1,
+        "inAir" : 0
+      }
+    }, {
+      "id" : 3,
+      "className" : "ElmLne",
+      "values" : {
+        "loc_name" : "lne_1_3_1",
+        "fold_id" : 7,
+        "typ_id" : 35,
+        "dline" : 52.0,
+        "fline" : 1.0,
+        "nlnum" : 1,
+        "inAir" : 0
+      }
+    }, {
+      "id" : 4,
+      "className" : "ElmLne",
+      "values" : {
+        "loc_name" : "lne_2_3_1",
+        "fold_id" : 7,
+        "dline" : 52.0,
+        "fline" : 1.0,
+        "nlnum" : 1,
+        "inAir" : 0
+      }
+    }, {
+      "id" : 5,
+      "className" : "ElmLne",
+      "values" : {
+        "loc_name" : "lne_2_3_2",
+        "fold_id" : 7,
+        "dline" : 52.0,
+        "fline" : 1.0,
+        "nlnum" : 1,
+        "inAir" : 0
+      }
+    }, {
+      "id" : 6,
+      "className" : "ElmLod",
+      "values" : {
+        "loc_name" : "lod_3_1",
+        "fold_id" : 7,
+        "typ_id" : 36,
+        "mode_inp" : "PQ",
+        "slini" : 55.9017,
+        "plini" : 50.0,
+        "qlini" : 25.0,
+        "coslini" : 0.894427,
+        "pf_recap" : 0,
+        "scale0" : 1.0,
+        "i_scale" : 0,
+        "outserv" : 0
+      }
+    }, {
+      "id" : 8,
+      "className" : "ElmSym",
+      "values" : {
+        "loc_name" : "sym_1_1",
+        "fold_id" : 7,
+        "typ_id" : 37,
+        "cCategory" : "Others",
+        "ngnum" : 1,
+        "i_mot" : 0,
+        "pgini" : 50.29,
+        "qgini" : 0.0,
+        "cosgini" : 1.0,
+        "usetp" : 1.06,
+        "pf_recap" : 0,
+        "q_min" : 0.0,
+        "q_max" : 0.0,
+        "outserv" : 0,
+        "av_mode" : "constv",
+        "phtech" : 1
+      }
+    }, {
+      "id" : 9,
+      "className" : "ElmTerm",
+      "values" : {
+        "loc_name" : "1 Bus 1-Slack",
+        "fold_id" : 7,
+        "systype" : 0,
+        "iUsage" : 0,
+        "uknom" : 400.0,
+        "unknom" : 230.9401,
+        "iminus" : 0,
+        "outserv" : 0,
+        "GPSlat" : 0.0,
+        "GPSlon" : 0.0,
+        "vtarget" : 1.0
+      },
+      "children" : [ {
+        "id" : 14,
+        "className" : "StaCubic",
+        "values" : {
+          "loc_name" : "lne_1_2_1",
+          "fold_id" : 9,
+          "obj_bus" : 0,
+          "obj_id" : 2,
+          "it2p1" : 0,
+          "it2p2" : 1,
+          "it2p3" : 2
+        },
+        "children" : [ {
+          "id" : 24,
+          "className" : "StaSwitch",
+          "values" : {
+            "loc_name" : "Switch",
+            "fold_id" : 14,
+            "on_off" : 1,
+            "aUsage" : "cbk"
+          }
+        } ]
+      }, {
+        "id" : 15,
+        "className" : "StaCubic",
+        "values" : {
+          "loc_name" : "lne_1_3_1",
+          "fold_id" : 9,
+          "obj_bus" : 0,
+          "obj_id" : 3,
+          "it2p1" : 0,
+          "it2p2" : 1,
+          "it2p3" : 2
+        },
+        "children" : [ {
+          "id" : 25,
+          "className" : "StaSwitch",
+          "values" : {
+            "loc_name" : "Switch",
+            "fold_id" : 15,
+            "on_off" : 1,
+            "aUsage" : "cbk"
+          }
+        } ]
+      }, {
+        "id" : 16,
+        "className" : "StaCubic",
+        "values" : {
+          "loc_name" : "sym_1_1",
+          "fold_id" : 9,
+          "obj_bus" : 0,
+          "obj_id" : 8,
+          "it2p1" : 0,
+          "it2p2" : 1,
+          "it2p3" : 2
+        },
+        "children" : [ {
+          "id" : 26,
+          "className" : "StaSwitch",
+          "values" : {
+            "loc_name" : "Switch",
+            "fold_id" : 16,
+            "on_off" : 1,
+            "aUsage" : "cbk"
+          }
+        } ]
+      } ]
+    }, {
+      "id" : 10,
+      "className" : "ElmTerm",
+      "values" : {
+        "loc_name" : "2 Bus 2",
+        "fold_id" : 7,
+        "systype" : 0,
+        "iUsage" : 0,
+        "uknom" : 400.0,
+        "unknom" : 230.9401,
+        "iminus" : 0,
+        "outserv" : 0,
+        "GPSlat" : 0.0,
+        "GPSlon" : 0.0,
+        "vtarget" : 1.0
+      },
+      "children" : [ {
+        "id" : 17,
+        "className" : "StaCubic",
+        "values" : {
+          "loc_name" : "lne_1_2_1",
+          "fold_id" : 10,
+          "obj_bus" : 1,
+          "obj_id" : 2,
+          "it2p1" : 0,
+          "it2p2" : 1,
+          "it2p3" : 2
+        },
+        "children" : [ {
+          "id" : 27,
+          "className" : "StaSwitch",
+          "values" : {
+            "loc_name" : "Switch",
+            "fold_id" : 17,
+            "on_off" : 1,
+            "aUsage" : "cbk"
+          }
+        } ]
+      }, {
+        "id" : 18,
+        "className" : "StaCubic",
+        "values" : {
+          "loc_name" : "lne_2_3_1",
+          "fold_id" : 10,
+          "obj_bus" : 0,
+          "obj_id" : 4,
+          "it2p1" : 0,
+          "it2p2" : 1,
+          "it2p3" : 2
+        },
+        "children" : [ {
+          "id" : 28,
+          "className" : "StaSwitch",
+          "values" : {
+            "loc_name" : "Switch",
+            "fold_id" : 18,
+            "on_off" : 1,
+            "aUsage" : "cbk"
+          }
+        } ]
+      }, {
+        "id" : 22,
+        "className" : "StaCubic",
+        "values" : {
+          "loc_name" : "lne_2_3_2",
+          "fold_id" : 10,
+          "obj_bus" : 0,
+          "obj_id" : 5,
+          "it2p1" : 0,
+          "it2p2" : 1,
+          "it2p3" : 2
+        },
+        "children" : [ {
+          "id" : 32,
+          "className" : "StaSwitch",
+          "values" : {
+            "loc_name" : "Switch",
+            "fold_id" : 22,
+            "on_off" : 1,
+            "aUsage" : "cbk"
+          }
+        } ]
+      } ]
+    }, {
+      "id" : 11,
+      "className" : "ElmTerm",
+      "values" : {
+        "loc_name" : "3 Bus 2-Load",
+        "fold_id" : 7,
+        "systype" : 0,
+        "iUsage" : 0,
+        "uknom" : 400.0,
+        "unknom" : 230.9401,
+        "iminus" : 0,
+        "outserv" : 0,
+        "GPSlat" : 0.0,
+        "GPSlon" : 0.0,
+        "vtarget" : 1.0
+      },
+      "children" : [ {
+        "id" : 19,
+        "className" : "StaCubic",
+        "values" : {
+          "loc_name" : "lne_1_3_1",
+          "fold_id" : 11,
+          "obj_bus" : 1,
+          "obj_id" : 3,
+          "it2p1" : 0,
+          "it2p2" : 1,
+          "it2p3" : 2
+        },
+        "children" : [ {
+          "id" : 29,
+          "className" : "StaSwitch",
+          "values" : {
+            "loc_name" : "Switch",
+            "fold_id" : 19,
+            "on_off" : 1,
+            "aUsage" : "cbk"
+          }
+        } ]
+      }, {
+        "id" : 20,
+        "className" : "StaCubic",
+        "values" : {
+          "loc_name" : "lod_3_1",
+          "fold_id" : 11,
+          "obj_bus" : 0,
+          "obj_id" : 6,
+          "it2p1" : 0,
+          "it2p2" : 1,
+          "it2p3" : 2
+        },
+        "children" : [ {
+          "id" : 30,
+          "className" : "StaSwitch",
+          "values" : {
+            "loc_name" : "Switch",
+            "fold_id" : 20,
+            "on_off" : 1,
+            "aUsage" : "cbk"
+          }
+        } ]
+      }, {
+        "id" : 21,
+        "className" : "StaCubic",
+        "values" : {
+          "loc_name" : "lne_2_3_1",
+          "fold_id" : 11,
+          "obj_bus" : 1,
+          "obj_id" : 4,
+          "it2p1" : 0,
+          "it2p2" : 1,
+          "it2p3" : 2
+        },
+        "children" : [ {
+          "id" : 31,
+          "className" : "StaSwitch",
+          "values" : {
+            "loc_name" : "Switch",
+            "fold_id" : 21,
+            "on_off" : 1,
+            "aUsage" : "cbk"
+          }
+        } ]
+      }, {
+        "id" : 23,
+        "className" : "StaCubic",
+        "values" : {
+          "loc_name" : "lne_2_3_2",
+          "fold_id" : 11,
+          "obj_bus" : 1,
+          "obj_id" : 5,
+          "it2p1" : 0,
+          "it2p2" : 1,
+          "it2p3" : 2
+        },
+        "children" : [ {
+          "id" : 33,
+          "className" : "StaSwitch",
+          "values" : {
+            "loc_name" : "Switch",
+            "fold_id" : 23,
+            "on_off" : 1,
+            "aUsage" : "cbk"
+          }
+        } ]
+      }, {
+        "id" : 34,
+        "className" : "TypLne",
+        "values" : {
+          "loc_name" : "tlne_1_2_1",
+          "fold_id" : 11,
+          "uline" : 400.0,
+          "sline" : 7.216878,
+          "InomAir" : 1.0,
+          "cohl_" : 0,
+          "rline" : 0.596307,
+          "xline" : 1.820615,
+          "rline0" : 999999.0,
+          "xline0" : 999999.0,
+          "Ithr" : 0.0,
+          "tmax" : 80.0,
+          "rtemp" : 80.0,
+          "systp" : 0,
+          "nlnph" : 3,
+          "nneutral" : 0,
+          "frnom" : 60.0,
+          "mlei" : "Cu",
+          "bline" : 4.159616,
+          "bline0" : 0.0
+        }
+      }, {
+        "id" : 35,
+        "className" : "TypLne",
+        "values" : {
+          "loc_name" : "tlne_1_3_1",
+          "fold_id" : 11,
+          "uline" : 400.0,
+          "sline" : 7.216878,
+          "InomAir" : 1.0,
+          "cohl_" : 0,
+          "rline" : 0.596307,
+          "xline" : 1.820615,
+          "rline0" : 999999.0,
+          "xline0" : 999999.0,
+          "Ithr" : 0.0,
+          "tmax" : 80.0,
+          "rtemp" : 80.0,
+          "systp" : 0,
+          "nlnph" : 3,
+          "nneutral" : 0,
+          "frnom" : 60.0,
+          "mlei" : "Cu",
+          "bline" : 4.159616,
+          "bline0" : 0.0
+        }
+      }, {
+        "id" : 36,
+        "className" : "TypLod",
+        "values" : {
+          "loc_name" : "lodtyp_pq",
+          "fold_id" : 11,
+          "systp" : 0,
+          "phtech" : 0,
+          "aP" : 1.0,
+          "bP" : 0.0,
+          "kpu0" : 0.0,
+          "kpu1" : 1.0,
+          "kpu" : 2.0,
+          "aQ" : 1.0,
+          "bQ" : 0.0,
+          "kqu0" : 0.0,
+          "kqu1" : 1.0,
+          "kqu" : 2.0
+        }
+      }, {
+        "id" : 37,
+        "className" : "TypSym",
+        "values" : {
+          "loc_name" : "tsym_1_1",
+          "fold_id" : 11,
+          "sgn" : 615.0,
+          "ugn" : 400.0,
+          "cosn" : 1.0,
+          "xd" : 2.0,
+          "xq" : 2.0,
+          "xdsss" : 1.0,
+          "rstr" : 0.0,
+          "xdsat" : 1.2,
+          "satur" : 0,
+          "nphase" : 3,
+          "nslty" : 2,
+          "x0sy" : 1.0,
+          "r0sy" : 0.0,
+          "x2sy" : 1.0,
+          "r2sy" : 0.0,
+          "iopt_data" : 1,
+          "xds" : 0.3,
+          "xqs" : 0.3,
+          "xl" : 0.1,
+          "xdss" : 1.0,
+          "xqss" : 1.0,
+          "xrlq" : 0.0,
+          "tds" : 1.0,
+          "tqs" : 0.0,
+          "tdss" : 0.05,
+          "tqss" : 0.05
+        }
+      } ]
+    }, {
+      "id" : 12,
+      "className" : "ElmTow",
+      "values" : {
+        "loc_name" : "tow_2_3",
+        "fold_id" : 7,
+        "outserv" : 0,
+        "i_dist" : 0,
+        "ngeo" : 1,
+        "pGeo" : [ 38 ],
+        "plines" : [ 4, 5 ],
+        "dpolar" : [ 0.0, 0.0 ],
+        "sag_c" : [ 0.0, 0.0 ],
+        "ctransp" : [ 0.0, 0.0 ]
+      }
+    } ]
+  }, {
+    "id" : 13,
+    "className" : "ElmZone",
+    "values" : {
+      "loc_name" : "1_aux_1",
+      "icolor" : 1,
+      "curscale" : 1.0
+    }
+  }, {
+    "id" : 38,
+    "className" : "TypTow",
+    "values" : {
+      "loc_name" : "typtow_2_3",
+      "frnom" : 50.0,
+      "nlear" : 1,
+      "nlcir" : 2,
+      "gearth" : 100.0,
+      "i_mode" : 0,
+      "pcond_e" : [ 3753 ],
+      "nphas" : [ 3.0, 3.0 ],
+      "ktrto" : [ 0.0, 0.0 ],
+      "pcond_c" : [ 3753, 3753 ],
+      "xy_e" : {
+        "rowCount" : 1,
+        "columnCount" : 2,
+        "data" : [ 0.0, 50.20000076293945 ]
+      },
+      "xy_c" : {
+        "rowCount" : 2,
+        "columnCount" : 6,
+        "data" : [ -10.75, -7.75, -14.25, 34.70000076293945, 23.700000762939453, 23.700000762939453, 10.75, 7.75, 14.25, 34.70000076293945, 23.700000762939453, 23.700000762939453 ]
+      },
+      "R_c0" : {
+        "rowCount" : 2,
+        "columnCount" : 2,
+        "data" : [ 0.13601063191890717, 0.0817907452583313, 0.0817907452583313, 0.13601063191890717 ]
+      },
+      "X_c0" : {
+        "rowCount" : 2,
+        "columnCount" : 2,
+        "data" : [ 1.0637041330337524, 0.4836491644382477, 0.4836491644382477, 1.0637041330337524 ]
+      },
+      "R_c1" : {
+        "rowCount" : 2,
+        "columnCount" : 2,
+        "data" : [ 0.05419216305017471, 6.486487109214067E-5, 6.486487109214067E-5, 0.05419216305017471 ]
+      },
+      "X_c1" : {
+        "rowCount" : 2,
+        "columnCount" : 2,
+        "data" : [ 0.4155580699443817, 0.006114718969911337, 0.006114718969911337, 0.4155580699443817 ]
+      },
+      "B_c0" : {
+        "rowCount" : 2,
+        "columnCount" : 2,
+        "data" : [ 1.644338607788086, -0.35540971159935, -0.35540971159935, 1.644338607788086 ]
+      },
+      "B_c1" : {
+        "rowCount" : 2,
+        "columnCount" : 2,
+        "data" : [ 2.7661361694335938, -0.036765117198228836, -0.036765117198228836, 2.7661361694335938 ]
+      },
+      "G_c0" : {
+        "rowCount" : 2,
+        "columnCount" : 2,
+        "data" : [ 0.0, 0.0, 0.0, 0.0 ]
+      }
+    }
+  } ],
+  "elmNets" : [ 7 ]
+}

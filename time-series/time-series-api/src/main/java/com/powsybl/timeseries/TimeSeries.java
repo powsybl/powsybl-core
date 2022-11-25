@@ -420,6 +420,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         settings.getFormat().setDelimiter(timeSeriesCsvConfig.separator());
         settings.getFormat().setQuoteEscape('"');
         settings.getFormat().setLineSeparator(System.lineSeparator());
+        settings.setMaxColumns(timeSeriesCsvConfig.getMaxColumns());
         CsvParser csvParser = new CsvParser(settings);
         ResultIterator<String[], ParsingContext> iterator = csvParser.iterate(reader).iterator();
         CsvParsingContext context = readCsvHeader(iterator, timeSeriesCsvConfig);

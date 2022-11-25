@@ -90,26 +90,27 @@ SELECT *
 }}
 
 # query: boundaryNodes
-# All topological nodes belonging to a graph that has a modelProfile that contains the string "TopologyBoundary"
-# Union all connectivity nodes belonging to a graph that has profile EquipmentBoundaryOperation
+# All pairs (Connectiviy Node, Topological Node) from instance files that have boundary profile and attribute boundaryPoint set to true
+# We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
 {
-{ GRAPH ?graphBDTP {
-    ?FullModel md:Model.profile ?modelProfile .
-    FILTER (regex(?modelProfile, "TopologyBoundary", "i"))
-    ?Node
-        a cim:TopologicalNode ;
-        cim:IdentifiedObject.name ?Name
-}}
-UNION
-{ GRAPH ?graphBDEQ {
+GRAPH ?graphBDEQ {
     ?FullModel md:Model.profile ?modelProfile .
     FILTER (regex(?modelProfile, "EquipmentBoundaryOperation", "i"))
-    ?Node
+    ?ConnectivityNode
         a cim:ConnectivityNode ;
-        cim:IdentifiedObject.name ?Name
-}}
+        cim:IdentifiedObject.name ?name ;
+        cim:ConnectivityNode.ConnectivityNodeContainer ?container ;
+        entsoe:ConnectivityNode.boundaryPoint "true" .
+    OPTIONAL { ?ConnectivityNode entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
+    OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
+    OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }
+}
+GRAPH ?grapBDTP {
+    ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
+    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
+}
 }
 
 # query: baseVoltages
@@ -333,15 +334,23 @@ WHERE {
         a ?type ;
         cim:IdentifiedObject.name ?name ;
         cim:Equipment.EquipmentContainer ?EquipmentContainer .
-    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch } .
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector } .
+    OPTIONAL {
+        ?Switch cim:Switch.retained ?retained
+    }
+    OPTIONAL {
+        ?Switch cim:Switch.normalOpen ?normalOpen
+    }
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:Terminal.ConductingEquipment ?Switch .
+    OPTIONAL { ?Terminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:Terminal.ConductingEquipment ?Switch .
+    OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
 }}
 OPTIONAL { GRAPH ?graphSSH {
     ?Switch cim:Switch.open ?open
@@ -363,12 +372,20 @@ WHERE {
     }
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:Terminal.ConductingEquipment ?ACLineSegment .
+    OPTIONAL { ?Terminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:Terminal.ConductingEquipment ?ACLineSegment .
+    OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
+    OPTIONAL {
+        ?ACLineSegment cim:Equipment.EquipmentContainer ?Line .
+        ?Line
+            a cim:Line ;
+            cim:IdentifiedObject.name ?lineName
+    }
 }}
 }
 
@@ -380,7 +397,8 @@ WHERE {
         a cim:EquivalentBranch ;
         cim:IdentifiedObject.name ?name ;
         cim:EquivalentBranch.r ?r ;
-        cim:EquivalentBranch.x ?x .
+        cim:EquivalentBranch.x ?x ;
+        cim:ConductingEquipment.BaseVoltage ?BaseVoltage .
     OPTIONAL {
         ?EquivalentBranch
             cim:EquivalentBranch.r21 ?r21 ;
@@ -395,8 +413,12 @@ WHERE {
         cim:Terminal.ConductingEquipment ?EquivalentBranch ;
         cim:ACDCTerminal.sequenceNumber "2" .
 }}
+{ GRAPH ?graph2 {
+    ?BaseVoltage
+        a cim:BaseVoltage ;
+        cim:BaseVoltage.nominalVoltage ?baseVoltageNominalVoltage .
+}}
 }
-
 
 # query: seriesCompensators
 SELECT *
@@ -409,12 +431,14 @@ WHERE {
         cim:IdentifiedObject.name ?name .
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?SeriesCompensator ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:Terminal.ConductingEquipment ?SeriesCompensator .
+    OPTIONAL { ?Terminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?SeriesCompensator ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:Terminal.ConductingEquipment ?SeriesCompensator .
+    OPTIONAL { ?Terminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?Terminal1) < str(?Terminal2) )
 }}
 }
 
@@ -620,7 +644,7 @@ WHERE {
         cim:RegulatingControl.mode ?mode ;
         cim:RegulatingControl.Terminal ?Terminal .
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?RegulatingControl
         cim:RegulatingControl.enabled ?enabled ;
         cim:RegulatingControl.targetValue ?targetValue ;
@@ -637,12 +661,12 @@ WHERE {
     ?EnergyConsumer
         a ?type ;
         cim:IdentifiedObject.name ?name .
-    VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad }
+    VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad cim:StationSupply }
     ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer .
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.qfixed ?qfixed }
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?EnergyConsumer
         cim:EnergyConsumer.p ?p ;
         cim:EnergyConsumer.q ?q
@@ -658,7 +682,7 @@ WHERE {
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?EnergySource
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?EnergySource
         cim:EnergySource.activePower ?p ;
         cim:EnergySource.reactivePower ?q
@@ -723,6 +747,7 @@ WHERE {
         cim:GeneratingUnit.maxOperatingP ?maxP ;
         cim:GeneratingUnit.initialP ?initialP ;
         cim:IdentifiedObject.name ?nameGeneratingUnit .
+    OPTIONAL { ?GeneratingUnit cim:IdentifiedObject.description ?generatingUnitDescription }
     ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }
@@ -736,7 +761,9 @@ OPTIONAL { GRAPH ?graphSSH {
         cim:RotatingMachine.q ?q ;
         cim:SynchronousMachine.referencePriority ?referencePriority ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled .
-    OPTIONAL { ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF }
+}}
+OPTIONAL { GRAPH ?graphSSH2 {
+    ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF
 }}
 }
 
@@ -839,7 +866,7 @@ WHERE {
         ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl
     }
 }}
-{ GRAPH ?graphSSH  {
+OPTIONAL { GRAPH ?graphSSH  {
     ?StaticVarCompensator
         cim:StaticVarCompensator.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
@@ -871,8 +898,8 @@ WHERE {
     ?ControlArea
         a cim:ControlArea ;
         cim:IdentifiedObject.name ?name ;
-        entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic ;
-        cim:ControlArea.type ?controlAreaType
+        cim:ControlArea.type ?controlAreaType .
+        OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
     FILTER (regex(STR(?controlAreaType), "Interchange", "i"))
         
 }}
@@ -893,14 +920,20 @@ WHERE {
     ?Terminal cim:Terminal.ConductingEquipment ?ACDCConverter .
     # ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
     VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
+    OPTIONAL {
+        ?ACDCConverter cim:ACDCConverter.PccTerminal ?PccTerminal
+    }
+    OPTIONAL {
+        ?ACDCConverter cim:VsConverter.CapabilityCurve ?ReactiveCapabilityCurve
+    }
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?ACDCConverter
         cim:ACDCConverter.targetPpcc ?targetPpcc ;
         cim:ACDCConverter.p ?p ;
         cim:ACDCConverter.q ?q .
 }}
-{ GRAPH ?graphSV {
+OPTIONAL { GRAPH ?graphSV {
     ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
 }}
 # For Current Source Converter
@@ -967,12 +1000,14 @@ WHERE {
     OPTIONAL { ?DCLineSegment cim:DCLineSegment.length ?length }
     ?DCTerminal1
         a cim:DCTerminal ;
-        cim:DCTerminal.DCConductingEquipment ?DCLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:DCTerminal.DCConductingEquipment ?DCLineSegment .
+    OPTIONAL { ?DCTerminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
     ?DCTerminal2
         a cim:DCTerminal ;
-        cim:DCTerminal.DCConductingEquipment ?DCLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:DCTerminal.DCConductingEquipment ?DCLineSegment .
+    OPTIONAL { ?DCTerminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
+    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
+        || !bound(?seq1) && !bound(?seq2) && str(?DCTerminal1) < str(?DCTerminal2) )
 }}
 }
 

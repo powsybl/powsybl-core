@@ -12,7 +12,7 @@ rule('rule1') {
 
 action('action1') {
     description 'hello'
-    tasks {
+    modifications {
         script {
             i = branch('NHV1_NHV2_2').terminal1.i
             load('LOAD').p0 += 1

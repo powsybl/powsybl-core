@@ -32,7 +32,7 @@ import com.google.common.jimfs.Jimfs;
  */
 public abstract class AbstractDataSourceTest {
 
-    private FileSystem fileSystem;
+    protected FileSystem fileSystem;
 
     protected Path testDir;
 

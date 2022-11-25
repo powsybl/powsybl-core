@@ -63,7 +63,7 @@ public interface DataSourceUtil {
         Objects.requireNonNull(fileNameOrBaseName);
 
         if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            return new ZipFileDataSource(directory, fileNameOrBaseName, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
         } else if (fileNameOrBaseName.endsWith(".gz")) {
             return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
         } else if (fileNameOrBaseName.endsWith(".bz2")) {

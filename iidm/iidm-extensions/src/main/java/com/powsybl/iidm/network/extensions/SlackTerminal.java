@@ -21,6 +21,8 @@ import java.util.Objects;
  */
 public interface SlackTerminal extends Extension<VoltageLevel> {
 
+    String NAME = "slackTerminal";
+
     /**
      * Set the terminal of all SlackTerminal extensions from the given network to null. If the extension is empty,
      * meaning that for each variant the terminal is null, this method automatically remove the extension.
@@ -66,7 +68,7 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
 
     @Override
     default String getName() {
-        return "slackTerminal";
+        return NAME;
     }
 
     /**

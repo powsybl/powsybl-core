@@ -130,6 +130,7 @@ public final class HvdcTestNetwork {
                 .setLossFactor(1.1f)
                 .setReactivePowerSetpoint(123)
                 .setVoltageRegulatorOn(false)
+                .setRegulatingTerminal(cs1.getTerminal())
                 .add();
         cs2.newMinMaxReactiveLimits()
                 .setMinQ(0.0)

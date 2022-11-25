@@ -20,7 +20,7 @@ rule('rule2') {
 }
 
 action('action1') {
-    tasks {
+    modifications {
         script {
             println "hi action1"
             load('LOAD').p0 += 1
@@ -29,7 +29,7 @@ action('action1') {
 }
 
 action('action2') {
-    tasks {
+    modifications {
         script {
             println "hi action2"
             load('LOAD').p0 += 1
@@ -38,7 +38,7 @@ action('action2') {
 }
 
 action('action3') {
-    tasks {
+    modifications {
         script {
             println "hi action3"
             generator('GEN').targetP += 1

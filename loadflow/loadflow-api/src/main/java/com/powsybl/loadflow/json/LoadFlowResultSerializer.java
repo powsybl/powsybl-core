@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
 
-    private static final String VERSION = "1.1";
+    private static final String VERSION = "1.3";
 
     LoadFlowResultSerializer() {
         super(LoadFlowResult.class);
@@ -53,11 +53,13 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
 
     public void serialize(LoadFlowResult.ComponentResult componentResult, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("componentNum", componentResult.getComponentNum());
+        jsonGenerator.writeNumberField("connectedComponentNum", componentResult.getConnectedComponentNum());
+        jsonGenerator.writeNumberField("synchronousComponentNum", componentResult.getSynchronousComponentNum());
         jsonGenerator.writeStringField("status", componentResult.getStatus().name());
         jsonGenerator.writeNumberField("iterationCount", componentResult.getIterationCount());
         jsonGenerator.writeStringField("slackBusId", componentResult.getSlackBusId());
         jsonGenerator.writeNumberField("slackBusActivePowerMismatch", componentResult.getSlackBusActivePowerMismatch());
+        jsonGenerator.writeNumberField("distributedActivePower", componentResult.getDistributedActivePower());
         jsonGenerator.writeEndObject();
     }
 

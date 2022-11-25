@@ -7,30 +7,53 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.TieLineUtil;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 class TieLineImpl extends LineImpl implements TieLine {
 
     static class HalfLineImpl implements HalfLine {
+        private final String id;
+        private final String name;
+        private boolean fictitious;
+        private double r;
+        private double x;
+        private double g1;
+        private double g2;
+        private double b1;
+        private double b2;
+
+        private final HalfLineBoundaryImpl boundary;
+
         TieLineImpl parent;
-        String id;
-        String name;
-        boolean fictitious = false;
-        double r = Double.NaN;
-        double x = Double.NaN;
-        double g1 = Double.NaN;
-        double g2 = Double.NaN;
-        double b1 = Double.NaN;
-        double b2 = Double.NaN;
-        HalfLineBoundaryImpl boundary;
+
+        HalfLineImpl(String id, String name, boolean fictitious, double r, double x, double g1, double b1, double g2, double b2, Branch.Side side) {
+            this.id = Objects.requireNonNull(id);
+            this.name = name;
+            this.fictitious = fictitious;
+            this.r = r;
+            this.x = x;
+            this.g1 = g1;
+            this.b1 = b1;
+            this.g2 = g2;
+            this.b2 = b2;
+            this.boundary = new HalfLineBoundaryImpl(this, side);
+        }
+
+        TieLineImpl getParent() {
+            return parent;
+        }
 
         private void setParent(TieLineImpl parent) {
             this.parent = parent;
@@ -59,6 +82,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setR(double r) {
+            ValidationUtil.checkR(parent, r);
             double oldValue = this.r;
             this.r = r;
             notifyUpdate("r", oldValue, r);
@@ -72,9 +96,11 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setX(double x) {
+            ValidationUtil.checkX(parent, x);
             double oldValue = this.x;
             this.x = x;
             notifyUpdate("x", oldValue, x);
+
             return this;
         }
 
@@ -85,6 +111,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setG1(double g1) {
+            ValidationUtil.checkG1(parent, g1);
             double oldValue = this.g1;
             this.g1 = g1;
             notifyUpdate("g1", oldValue, g1);
@@ -98,6 +125,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setG2(double g2) {
+            ValidationUtil.checkG2(parent, g2);
             double oldValue = this.g2;
             this.g2 = g2;
             notifyUpdate("g2", oldValue, g2);
@@ -111,6 +139,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setB1(double b1) {
+            ValidationUtil.checkB1(parent, b1);
             double oldValue = this.b1;
             this.b1 = b1;
             notifyUpdate("b1", oldValue, b1);
@@ -124,6 +153,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setB2(double b2) {
+            ValidationUtil.checkB2(parent, b2);
             double oldValue = this.b2;
             this.b2 = b2;
             notifyUpdate("b2", oldValue, b2);
@@ -159,16 +189,15 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     private final HalfLineImpl half2;
 
-    TieLineImpl(String id, String name, boolean fictitious, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
-        super(id, name, fictitious, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    TieLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
+        super(network, id, name, fictitious, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
         this.ucteXnodeCode = ucteXnodeCode;
-        this.half1 = attach(half1, Side.ONE, this::getTerminal1);
-        this.half2 = attach(half2, Side.TWO, this::getTerminal2);
+        this.half1 = attach(half1);
+        this.half2 = attach(half2);
     }
 
-    private HalfLineImpl attach(HalfLineImpl half, Branch.Side side, Supplier<Terminal> terminalSupplier) {
+    private HalfLineImpl attach(HalfLineImpl half) {
         half.setParent(this);
-        half.boundary = new HalfLineBoundaryImpl(this, side, terminalSupplier);
         return half;
     }
 
@@ -204,9 +233,10 @@ class TieLineImpl extends LineImpl implements TieLine {
         }
     }
 
+    // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getR() {
-        return half1.getR() + half2.getR();
+        return TieLineUtil.getR(half1, half2);
     }
 
     private ValidationException createNotSupportedForTieLines() {
@@ -218,9 +248,10 @@ class TieLineImpl extends LineImpl implements TieLine {
         throw createNotSupportedForTieLines();
     }
 
+    // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getX() {
-        return half1.getX() + half2.getX();
+        return TieLineUtil.getX(half1, half2);
     }
 
     @Override
@@ -230,7 +261,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG1() {
-        return half1.getG1() + half1.getG2();
+        return TieLineUtil.getG1(half1, half2);
     }
 
     @Override
@@ -240,7 +271,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB1() {
-        return half1.getB1() + half1.getB2();
+        return TieLineUtil.getB1(half1, half2);
     }
 
     @Override
@@ -250,7 +281,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG2() {
-        return half2.getG1() + half2.getG2();
+        return TieLineUtil.getG2(half1, half2);
     }
 
     @Override
@@ -260,7 +291,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB2() {
-        return half2.getB1() + half2.getB2();
+        return TieLineUtil.getB2(half1, half2);
     }
 
     @Override

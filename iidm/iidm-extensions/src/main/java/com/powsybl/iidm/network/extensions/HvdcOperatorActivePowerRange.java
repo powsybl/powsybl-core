@@ -17,9 +17,11 @@ import com.powsybl.iidm.network.HvdcLine;
  */
 public interface HvdcOperatorActivePowerRange extends Extension<HvdcLine> {
 
+    String NAME = "hvdcOperatorActivePowerRange";
+
     @Override
     default String getName() {
-        return "hvdcOperatorActivePowerRange";
+        return NAME;
     }
 
     float getOprFromCS1toCS2();

@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-core</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>4.2.0-SNAPSHOT</version>
+        <version>5.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-scripting</artifactId>
@@ -34,13 +34,6 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
@@ -111,10 +104,9 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-tools</artifactId>
+            <artifactId>powsybl-tools-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-            <type>test-jar</type>
         </dependency>
     </dependencies>
 

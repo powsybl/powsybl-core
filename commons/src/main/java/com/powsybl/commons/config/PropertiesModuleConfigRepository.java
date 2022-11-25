@@ -40,12 +40,6 @@ public class PropertiesModuleConfigRepository implements ModuleConfigRepository 
     }
 
     @Override
-    public boolean moduleExists(String name) {
-        Path path = getModulePath(name);
-        return Files.exists(path);
-    }
-
-    @Override
     public Optional<ModuleConfig> getModuleConfig(String name) {
         Path path = getModulePath(name);
         if (!Files.exists(path)) {

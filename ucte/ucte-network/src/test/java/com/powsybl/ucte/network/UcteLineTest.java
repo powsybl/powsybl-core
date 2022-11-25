@@ -27,15 +27,15 @@ public class UcteLineTest extends AbstractUcteElementTest {
     @Test
     public void test() {
         UcteElementId id = createElementId();
-        UcteLine line = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 1.0f, 2.0f, 3.0f, 1000, "Line");
+        UcteLine line = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 1.0, 2.0, 3.0, 1000, "Line");
 
         // Test the constructor
         assertEquals(id, line.getId());
         assertEquals(id.toString(), line.toString());
         assertEquals(REAL_ELEMENT_IN_OPERATION, line.getStatus());
-        assertEquals(1.0f, line.getResistance(), 0.0f);
-        assertEquals(2.0f, line.getReactance(), 0.0f);
-        assertEquals(3.0f, line.getSusceptance(), 0.0f);
+        assertEquals(1.0, line.getResistance(), 0.0);
+        assertEquals(2.0, line.getReactance(), 0.0);
+        assertEquals(3.0, line.getSusceptance(), 0.0);
         assertEquals(Integer.valueOf(1000), line.getCurrentLimit());
 
         // Test getters and setters
@@ -45,12 +45,12 @@ public class UcteLineTest extends AbstractUcteElementTest {
     @Test
     public void testFix() {
         UcteElementId id = createElementId();
-        UcteLine invalidLine1 = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 0.0f, 0.0f, 0.0f, -1, null);
+        UcteLine invalidLine1 = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 0.0, 0.0, 0.0, -1, null);
         invalidLine1.fix(Reporter.NO_OP);
-        Assert.assertEquals(0.05f, invalidLine1.getReactance(), 0.0f);
+        Assert.assertEquals(0.05, invalidLine1.getReactance(), 0.0);
 
-        UcteLine invalidLine2 = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 0.0f, -0.01f, 0.0f, null, null);
+        UcteLine invalidLine2 = new UcteLine(id, REAL_ELEMENT_IN_OPERATION, 0.0, -0.01, 0.0, null, null);
         invalidLine2.fix(Reporter.NO_OP);
-        Assert.assertEquals(-0.05f, invalidLine2.getReactance(), 0.0f);
+        Assert.assertEquals(-0.05, invalidLine2.getReactance(), 0.0);
     }
 }

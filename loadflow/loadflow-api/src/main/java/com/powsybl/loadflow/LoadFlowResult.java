@@ -30,10 +30,16 @@ public interface LoadFlowResult {
         }
 
         /**
-         * Get component number.
+         * Get connected component number.
+         * @return connected component number
+         */
+        int getConnectedComponentNum();
+
+        /**
+         * Get synchronous component number.
          * @return component number
          */
-        int getComponentNum();
+        int getSynchronousComponentNum();
 
         /**
          * Get detailed status of the computation on this component.
@@ -58,6 +64,13 @@ public interface LoadFlowResult {
          * @return the slack bus active power mismatch in MW
          */
         double getSlackBusActivePowerMismatch();
+
+        /**
+         * If distributed slack is activated {@link LoadFlowParameters#isDistributedSlack()}, the active power in MW
+         * that has been distributed from slack bus to generators/loads (depending of {@link LoadFlowParameters#getBalanceType()} value)
+         * @return the active power in MW that has been distributed
+         */
+        double getDistributedActivePower();
     }
 
     /**

@@ -18,15 +18,15 @@ public class UcteAngleRegulationTest {
 
     @Test
     public void test() {
-        UcteAngleRegulation angleRegulation = new UcteAngleRegulation(1.0f, 2.0f, 3, 4, 5.0f, UcteAngleRegulationType.ASYM);
+        UcteAngleRegulation angleRegulation = new UcteAngleRegulation(1.0, 2.0, 3, 4, 5.0, UcteAngleRegulationType.ASYM);
 
-        assertEquals(1.0f, angleRegulation.getDu(), 0.0f);
-        angleRegulation.setDu(1.1f);
-        assertEquals(1.1f, angleRegulation.getDu(), 0.0f);
+        assertEquals(1.0, angleRegulation.getDu(), 0.0);
+        angleRegulation.setDu(1.1);
+        assertEquals(1.1, angleRegulation.getDu(), 0.0);
 
-        assertEquals(2.0f, angleRegulation.getTheta(), 0.0f);
-        angleRegulation.setTheta(2.1f);
-        assertEquals(2.1f, angleRegulation.getTheta(), 0.0f);
+        assertEquals(2.0, angleRegulation.getTheta(), 0.0);
+        angleRegulation.setTheta(2.1);
+        assertEquals(2.1, angleRegulation.getTheta(), 0.0);
 
         assertEquals(Integer.valueOf(3), angleRegulation.getN());
         angleRegulation.setN(-3);
@@ -40,9 +40,9 @@ public class UcteAngleRegulationTest {
         angleRegulation.setNp(null);
         assertNull(angleRegulation.getNp());
 
-        assertEquals(5.0f, angleRegulation.getP(), 0.0f);
-        angleRegulation.setP(5.1f);
-        assertEquals(5.1f, angleRegulation.getP(), 0.0f);
+        assertEquals(5.0, angleRegulation.getP(), 0.0);
+        angleRegulation.setP(5.1);
+        assertEquals(5.1, angleRegulation.getP(), 0.0);
 
         assertEquals(UcteAngleRegulationType.ASYM, angleRegulation.getType());
         angleRegulation.setType(UcteAngleRegulationType.SYMM);

@@ -19,7 +19,7 @@ rule('rule1') {
 
 action('action1') {
     description 'hello'
-    tasks {
+    modifications {
         script {
             load('LOAD').p0 += 1
         }

@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-iidm</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>4.2.0-SNAPSHOT</version>
+        <version>5.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-iidm-scripting</artifactId>
@@ -34,13 +34,6 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
@@ -59,11 +52,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-converter-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -102,6 +90,12 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-extensions</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
@@ -120,11 +114,9 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-scripting</artifactId>
+            <artifactId>powsybl-scripting-test</artifactId>
             <version>${project.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

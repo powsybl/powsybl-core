@@ -104,8 +104,12 @@ public final class BusesValidation {
         double tltP = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();
         double tltQ = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
         boolean mainComponent = bus.isInMainConnectedComponent();
-        return checkBuses(bus.getId(), loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        return checkBuses(bus.getId(), loadP, loadQ, getValue(genP), getValue(genQ), batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                 lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config, busesWriter);
+    }
+
+    private static double getValue(double value) {
+        return Double.isNaN(value) ? 0.0 : value;
     }
 
     private static Terminal getBranchTerminal(Branch branch, Bus bus) {

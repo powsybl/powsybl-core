@@ -6,20 +6,19 @@
  */
 package com.powsybl.loadflow.validation.io;
 
-import static org.junit.Assert.assertEquals;
+import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.util.TwtData;
+import com.powsybl.loadflow.validation.util.TwtTestData;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Locale;
 
-import org.junit.Test;
-
-import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.util.TwtData;
-import com.powsybl.iidm.network.util.TwtTestData;
+import static org.junit.Assert.assertEquals;
 
 /**
  *
@@ -274,28 +273,28 @@ public abstract class AbstractValidationFormatterWriterTest {
 
     @Test
     public void testBusesCompare() throws Exception {
-        testBuses(getBusesCompareContent(), false, true, busId,  busId);
+        testBuses(getBusesCompareContent(), false, true, busId, busId);
     }
 
     protected abstract String getBusesCompareContent();
 
     @Test
     public void testBusesCompareDifferentIds() throws Exception {
-        testBuses(getBusesCompareDifferentIdsContent(), false, true, busId,  otherBusId);
+        testBuses(getBusesCompareDifferentIdsContent(), false, true, busId, otherBusId);
     }
 
     protected abstract String getBusesCompareDifferentIdsContent();
 
     @Test
     public void testBusesCompareVerbose() throws Exception {
-        testBuses(getBusesCompareVerboseContent(), true, true, busId,  busId);
+        testBuses(getBusesCompareVerboseContent(), true, true, busId, busId);
     }
 
     protected abstract String getBusesCompareVerboseContent();
 
     @Test
     public void testBusesCompareDifferentIdsVerbose() throws Exception {
-        testBuses(getBusesCompareDifferentIdsVerboseContent(), true, true, busId,  otherBusId);
+        testBuses(getBusesCompareDifferentIdsVerboseContent(), true, true, busId, otherBusId);
     }
 
     protected abstract String getBusesCompareDifferentIdsVerboseContent();
@@ -385,7 +384,7 @@ public abstract class AbstractValidationFormatterWriterTest {
 
     @Test
     public void testShuntsVerbose() throws Exception {
-        testShunts(getShuntsVerboseContent(), true, false, shuntId,  null);
+        testShunts(getShuntsVerboseContent(), true, false, shuntId, null);
     }
 
     protected abstract String getShuntsVerboseContent();

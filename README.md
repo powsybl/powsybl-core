@@ -1,11 +1,12 @@
 # PowSyBl Core
 
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4795/badge)](https://bestpractices.coreinfrastructure.org/projects/4795)
 [![Actions Status](https://github.com/powsybl/powsybl-core/workflows/CI/badge.svg)](https://github.com/powsybl/powsybl-core/actions)
-[![Coverage Status](https://coveralls.io/repos/github/powsybl/powsybl-core/badge.svg?branch=master)](https://coveralls.io/github/powsybl/powsybl-core?branch=master)
 [![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-core&metric=coverage)](https://sonarcloud.io/component_measures?id=com.powsybl%3Apowsybl-core&metric=coverage)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-core&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.powsybl%3Apowsybl-core)
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 [![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/powsybl)
+[![Slack](https://img.shields.io/badge/slack-powsybl-blueviolet.svg?logo=slack)](https://join.slack.com/t/powsybl/shared_invite/zt-rzvbuzjk-nxi0boim1RKPS5PjieI0rA)
 [![Javadocs](https://www.javadoc.io/badge/com.powsybl/powsybl-core.svg?color=blue)](https://www.javadoc.io/doc/com.powsybl/powsybl-core)
 
 PowSyBl (**Pow**er **Sy**stem **Bl**ocks) is an open source framework written in Java, that makes it easy to write complex
@@ -16,12 +17,12 @@ PowSyBl is part of the LF Energy Foundation, a project of The Linux Foundation t
 within the energy and electricity sectors.
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/powsybl/powsybl-gse/master/gse-spi/src/main/resources/images/logo_lfe_powsybl.svg?sanitize=true" alt="PowSyBl Logo" width="50%"/>
+<img src="https://raw.githubusercontent.com/powsybl/powsybl-gse/main/gse-spi/src/main/resources/images/logo_lfe_powsybl.svg?sanitize=true" alt="PowSyBl Logo" width="50%"/>
 </p>
 
 Read more at https://www.powsybl.org !
 
-This project and everyone participating in it is governed by the [PowSyBl Code of Conduct](https://github.com/powsybl/.github/blob/master/CODE_OF_CONDUCT.md).
+This project and everyone participating in it is governed by the [PowSyBl Code of Conduct](https://github.com/powsybl/.github/blob/main/CODE_OF_CONDUCT.md).
 By participating, you are expected to uphold this code. Please report unacceptable behavior to [powsybl-tsc@lists.lfenergy.org](mailto:powsybl-tsc@lists.lfenergy.org).
 
 ## PowSyBl vs PowSyBl Core
@@ -41,7 +42,7 @@ https://github.com/powsybl/powsybl-gse page.
 ## Environment requirements
 
 Powsybl-core project is fully written in Java, so you only need few requirements:
-- JDK *(1.8 or greater)*
+- JDK *(11 or greater)*
 - Maven *(3.3.9 or greater)*
 
 To run all the tests, simply launch the following command from the root of the repository:
@@ -53,7 +54,7 @@ Modify some existing tests or create your own new tests to experiment with the f
 the project in an IDE and use the IDE to launch your own main classes. If you know java and maven and want to do things
 manually, you can also use maven directly to compute the classpath of all the project jars and run anything you want with it.
 
-Read [Contributing.md](https://github.com/powsybl/.github/blob/master/CONTRIBUTING.md) for more in-depth explanations
+Read [Contributing.md](https://github.com/powsybl/.github/blob/main/CONTRIBUTING.md) for more in-depth explanations
 on how to run code.
 
 Read [Install](#install) to generate an installed iTools distribution, a standalone external folder that contains all

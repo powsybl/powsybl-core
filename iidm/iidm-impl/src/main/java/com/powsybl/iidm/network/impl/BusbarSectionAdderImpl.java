@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.BusbarSectionAdder;
+import com.powsybl.iidm.network.ValidationException;
 
 /**
  *
@@ -42,8 +43,11 @@ class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdde
     @Override
     public BusbarSection add() {
         String id = checkAndGetUniqueId();
+        if (node == null) {
+            throw new ValidationException(this, "node is not set");
+        }
         TerminalExt terminal = new NodeTerminal(getNetwork().getRef(), node);
-        BusbarSectionImpl section = new BusbarSectionImpl(id, getName(), isFictitious());
+        BusbarSectionImpl section = new BusbarSectionImpl(getNetwork().getRef(), id, getName(), isFictitious());
         section.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(section);

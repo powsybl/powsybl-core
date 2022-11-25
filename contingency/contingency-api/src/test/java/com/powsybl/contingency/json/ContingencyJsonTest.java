@@ -13,11 +13,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
+import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Before;
@@ -59,6 +61,10 @@ public class ContingencyJsonTest extends AbstractConverterTest {
                                              .addStaticVarCompensator("SVC")
                                              .addBusbarSection("BBS1")
                                              .addDanglingLine("DL1")
+                                             .addLine("LINE1")
+                                             .addTwoWindingsTransformer("TRANSFO1")
+                                             .addThreeWindingsTransformer("TWT3")
+                                             .addLoad("LOAD")
                                              .build();
 
         contingency.addExtension(DummyExtension.class, new DummyExtension());

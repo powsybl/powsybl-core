@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2021, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_4"
+           elementFormDefault="qualified">
+    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_7" schemaLocation="iidm_V1_7.xsd"/>
+    <xs:element name="slackTerminal">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="iidm:TerminalRef"/>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

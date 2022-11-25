@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.contingency.tasks.AbstractTrippingTask;
-import com.powsybl.contingency.tasks.TwoWindingsTransformerTripping;
+import com.powsybl.iidm.modification.tripping.Tripping;
+import com.powsybl.iidm.modification.tripping.TwoWindingsTransformerTripping;
 
 import java.util.Objects;
 
@@ -30,7 +30,7 @@ public class TwoWindingsTransformerContingency extends AbstractSidedContingency 
     }
 
     @Override
-    public AbstractTrippingTask toTask() {
+    public Tripping toModification() {
         return new TwoWindingsTransformerTripping(id, voltageLevelId);
     }
 

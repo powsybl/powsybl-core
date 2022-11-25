@@ -7,17 +7,19 @@
 
 package com.powsybl.cgmes.model;
 
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -25,6 +27,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 public abstract class AbstractCgmesModel implements CgmesModel {
 
     protected AbstractCgmesModel() {
+        // FIXME(Luma) we must remove properties from here. They are not used!
         this.properties = new Properties();
     }
 
@@ -98,6 +101,17 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         if (cachedContainers == null) {
             cachedContainers = computeContainers();
         }
+        if (cachedContainers.get(containerId) == null) { // container ID is substation
+            String fixedContainerId = connectivityNodeContainers().stream()
+                    .filter(p -> p.containsKey(SUBSTATION))
+                    .filter(p -> p.getId(SUBSTATION).equals(containerId))
+                    .findFirst()
+                    .map(p -> p.getId("VoltageLevel"))
+                    .orElseThrow(() -> new CgmesModelException(containerId + " should be a connectivity node container containing at least one voltage level"));
+            LOG.warn("{} is a substation, not a voltage level, a line or a bay but contains nodes. " +
+                    "The first CGMES voltage level found in this substation ({}}) is used instead.", containerId, fixedContainerId);
+            cachedContainers.put(containerId, cachedContainers.get(fixedContainerId));
+        }
         return cachedContainers.get(containerId);
     }
 
@@ -149,7 +163,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                 if (end.getId("PhaseTapChanger") != null) {
                     powerTransformerPhaseTapChanger.computeIfAbsent(id, s -> new String[3]);
                     powerTransformerPhaseTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("PhaseTapChanger");
-                } else if (end.getId("RatioTapChanger") != null) {
+                }
+                if (end.getId("RatioTapChanger") != null) {
                     powerTransformerRatioTapChanger.computeIfAbsent(id, s -> new String[3]);
                     powerTransformerRatioTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
                 }
@@ -209,7 +224,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         connectivityNodeContainers().forEach(c -> {
             String id = c.getId("ConnectivityNodeContainer");
             String voltageLevel = c.getId("VoltageLevel");
-            String substation = c.getId("Substation");
+            String substation = c.getId(SUBSTATION);
             cs.put(id, new CgmesContainer(voltageLevel, substation));
         });
         return cs;
@@ -228,21 +243,28 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary) {
+    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter) {
         setBasename(CgmesModel.baseName(mainDataSource));
-        read(mainDataSource);
+        read(mainDataSource, reporter);
         if (!hasBoundary() && alternativeDataSourceForBoundary != null) {
-            read(alternativeDataSourceForBoundary);
+            read(alternativeDataSourceForBoundary, reporter);
         }
     }
 
     @Override
-    public void read(ReadOnlyDataSource ds) {
+    public void read(ReadOnlyDataSource ds, Reporter reporter) {
+        Objects.requireNonNull(reporter);
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
+            reporter.report(Report.builder()
+                    .withKey("CGMESFileRead")
+                    .withDefaultMessage("Instance file ${instanceFile}")
+                    .withTypedValue("instanceFile", name, TypedValue.FILENAME)
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .build());
             try (InputStream is = cds.dataSource().newInputStream(name)) {
-                read(is, baseName, name);
+                read(is, baseName, name, reporter);
             } catch (IOException e) {
                 String msg = String.format("Reading [%s]", name);
                 LOG.warn(msg);
@@ -269,4 +291,5 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, CgmesDcTerminal> cachedDcTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
+    private static final String SUBSTATION = "Substation";
 }

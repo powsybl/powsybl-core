@@ -1,0 +1,152 @@
+{
+  "type" : "list",
+  "version" : "1.0",
+  "name" : "listslist1",
+  "contingencyLists" : [ {
+    "type" : "lineCriterion",
+    "version" : "1.0",
+    "name" : "list1",
+    "countryCriterion" : {
+      "type" : "TWO_COUNTRY",
+      "countries1" : [ "FR" ],
+      "countries2" : [ "BE" ]
+    },
+    "nominalVoltageCriterion" : {
+      "type" : "SINGLE_NOMINAL_VOLTAGE",
+      "voltageInterval" : {
+        "nominalVoltageLowBound" : 200.0,
+        "nominalVoltageHighBound" : 230.0,
+        "lowClosed" : true,
+        "highClosed" : true
+      }
+    },
+    "propertyCriteria" : [ ],
+    "regexCriterion" : {
+      "type" : "REGEX",
+      "regex" : "regex"
+    }
+  }, {
+    "type" : "default",
+    "version" : "1.0",
+    "name" : "",
+    "contingencies" : [ {
+      "id" : "contingency1",
+      "elements" : [ {
+        "id" : "GEN",
+        "type" : "GENERATOR"
+      } ]
+    } ]
+  }, {
+    "type" : "injectionCriterion",
+    "version" : "1.0",
+    "name" : "list3",
+    "identifiableType" : "LOAD",
+    "countryCriterion" : {
+      "type" : "SINGLE_COUNTRY",
+      "countries" : [ "DE" ]
+    },
+    "nominalVoltageCriterion" : {
+      "type" : "SINGLE_NOMINAL_VOLTAGE",
+      "voltageInterval" : {
+        "nominalVoltageLowBound" : 200.0,
+        "nominalVoltageHighBound" : 230.0,
+        "lowClosed" : true,
+        "highClosed" : true
+      }
+    },
+    "propertyCriteria" : [ ],
+    "regexCriterion" : null
+  }, {
+    "type" : "hvdcCriterion",
+    "version" : "1.0",
+    "name" : "list4",
+    "countryCriterion" : {
+      "type" : "TWO_COUNTRY",
+      "countries1" : [ "FR" ],
+      "countries2" : [ "BE" ]
+    },
+    "nominalVoltageCriterion" : {
+      "type" : "TWO_NOMINAL_VOLTAGE",
+      "voltageInterval1" : {
+        "nominalVoltageLowBound" : 200.0,
+        "nominalVoltageHighBound" : 230.0,
+        "lowClosed" : true,
+        "highClosed" : true
+      },
+      "voltageInterval2" : {
+        "nominalVoltageLowBound" : 100.0,
+        "nominalVoltageHighBound" : 120.0,
+        "lowClosed" : true,
+        "highClosed" : true
+      }
+    },
+    "propertyCriteria" : [ ],
+    "regexCriterion" : null
+  }, {
+    "type" : "twoWindingsTransformerCriterion",
+    "version" : "1.0",
+    "name" : "list5",
+    "countryCriterion" : {
+      "type" : "SINGLE_COUNTRY",
+      "countries" : [ "DE" ]
+    },
+    "nominalVoltageCriterion" : {
+      "type" : "TWO_NOMINAL_VOLTAGE",
+      "voltageInterval1" : {
+        "nominalVoltageLowBound" : 200.0,
+        "nominalVoltageHighBound" : 230.0,
+        "lowClosed" : true,
+        "highClosed" : true
+      },
+      "voltageInterval2" : {
+        "nominalVoltageLowBound" : 100.0,
+        "nominalVoltageHighBound" : 120.0,
+        "lowClosed" : true,
+        "highClosed" : true
+      }
+    },
+    "propertyCriteria" : [ ],
+    "regexCriterion" : null
+  }, {
+    "type" : "threeWindingsTransformerCriterion",
+    "version" : "1.0",
+    "name" : "list6",
+    "countryCriterion" : {
+      "type" : "SINGLE_COUNTRY",
+      "countries" : [ "DE" ]
+    },
+    "nominalVoltageCriterion" : {
+      "type" : "THREE_NOMINAL_VOLTAGE",
+      "voltageInterval1" : {
+        "nominalVoltageLowBound" : 200.0,
+        "nominalVoltageHighBound" : 230.0,
+        "lowClosed" : true,
+        "highClosed" : true
+      },
+      "voltageInterval3" : {
+        "nominalVoltageLowBound" : 380.0,
+        "nominalVoltageHighBound" : 430.0,
+        "lowClosed" : true,
+        "highClosed" : true
+      }
+    },
+    "propertyCriteria" : [ ],
+    "regexCriterion" : null
+  }, {
+    "type" : "list",
+    "version" : "1.0",
+    "name" : "listslist2",
+    "contingencyLists" : [ {
+      "type" : "default",
+      "version" : "1.0",
+      "name" : "",
+      "contingencies" : [ {
+        "id" : "contingency2",
+        "elements" : [ {
+          "id" : "HVDC1",
+          "type" : "HVDC_LINE"
+        } ]
+      } ]
+    } ]
+  } ]
+}

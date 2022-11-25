@@ -9,6 +9,7 @@ package com.powsybl.cgmes.model.triplestore;
 
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.*;
 import org.apache.commons.lang3.EnumUtils;
 import org.joda.time.DateTime;
@@ -26,23 +27,30 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.powsybl.cgmes.model.CgmesNamespace.CGMES_EQ_3_OR_GREATER_PREFIX;
+import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     public CgmesModelTripleStore(String cimNamespace, TripleStore tripleStore) {
+        super();
         this.cimNamespace = cimNamespace;
         this.cimVersion = cimVersionFromCimNamespace(cimNamespace);
         this.tripleStore = tripleStore;
         tripleStore.defineQueryPrefix("cim", cimNamespace);
         tripleStore.defineQueryPrefix("entsoe", CgmesNamespace.ENTSOE_NAMESPACE);
+        tripleStore.defineQueryPrefix("eu", CgmesNamespace.EU_NAMESPACE);
         queryCatalog = queryCatalogFor(cimVersion);
         Objects.requireNonNull(queryCatalog);
     }
 
     @Override
-    public void read(InputStream is, String baseName, String contextName) {
+    public void read(InputStream is, String baseName, String contextName, Reporter reporter) {
+        // Reset cached nodeBreaker value everytime we read new data
+        nodeBreaker = null;
         tripleStore.read(is, baseName, contextName);
     }
 
@@ -76,6 +84,14 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     // Queries
 
+    private static boolean isEquipmentCore(String profile) {
+        return profile.contains("/EquipmentCore/") || profile.contains("/CIM/CoreEquipment");
+    }
+
+    private static boolean isEquipmentOperation(String profile) {
+        return profile.contains("/EquipmentOperation/") || profile.contains("/CIM/Operation");
+    }
+
     @Override
     public boolean hasEquipmentCore() {
         if (queryCatalog.containsKey(MODEL_PROFILES)) {
@@ -85,7 +101,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             }
             for (PropertyBag m : r) {
                 String p = m.get(PROFILE);
-                if (p != null && p.contains("/EquipmentCore/")) {
+                if (p != null && isEquipmentCore(p)) {
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Model contains Equipment Core data profile in model {}",
                                 m.get(CgmesNames.FULL_MODEL));
@@ -136,6 +152,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public boolean isNodeBreaker() {
+        if (nodeBreaker == null) {
+            nodeBreaker = computeIsNodeBreaker();
+        }
+        return nodeBreaker;
+    }
+
+    private boolean computeIsNodeBreaker() {
         // Optimization hint: consider caching the results of the query for model
         // profiles
         if (!queryCatalog.containsKey(MODEL_PROFILES)) {
@@ -145,39 +168,82 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         if (r == null) {
             return false;
         }
+        if (allEqCgmes3OrGreater(r)) {
+            return true;
+        }
         // Only consider is node breaker if all models that have profile
         // EquipmentCore or EquipmentBoundary
         // also have EquipmentOperation or EquipmentBoundaryOperation
-        Map<String, Boolean> eqModelHasEquipmentOperationProfile = new HashMap<>();
-        for (PropertyBag mp : r) {
-            String m = mp.get("FullModel");
+        Map<String, Boolean> modelHasOperationProfile = computeModelHasOperationProfile(r);
+        boolean consideredNodeBreaker = modelHasOperationProfile.values().stream().allMatch(Boolean::valueOf);
+        if (LOG.isInfoEnabled()) {
+            logNodeBreaker(consideredNodeBreaker, modelHasOperationProfile);
+        }
+        return consideredNodeBreaker;
+    }
+
+    private boolean allEqCgmes3OrGreater(PropertyBags modelProfiles) {
+        for (PropertyBag mp : modelProfiles) {
             String p = mp.get(PROFILE);
-            if (p != null) {
-                if (p.contains("/EquipmentCore/") || p.contains("/EquipmentBoundary/")) {
-                    eqModelHasEquipmentOperationProfile.putIfAbsent(m, false);
-                }
-                if (p.contains("/EquipmentOperation/") || p.contains("/EquipmentBoundaryOperation/")) {
-                    eqModelHasEquipmentOperationProfile.put(m, true);
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Model {} is considered node-breaker", m);
-                    }
-                }
+            if (p != null && isEquipmentCore(p) && !isEqCgmes3OrGreater(p)) {
+                return false;
             }
         }
-        boolean isNodeBreaker = eqModelHasEquipmentOperationProfile.values().stream().allMatch(Boolean::valueOf);
-        if (isNodeBreaker) {
+        return true;
+    }
+
+    private static boolean isEqCgmes3OrGreater(String profile) {
+        return profile.startsWith(CGMES_EQ_3_OR_GREATER_PREFIX) && profile.compareTo(CIM_100_EQ_PROFILE) >= 0;
+    }
+
+    private void logNodeBreaker(boolean consideredNodeBreaker, Map<String, Boolean> modelHasOperationProfile) {
+        if (consideredNodeBreaker) {
             LOG.info(
                     "All FullModel objects have EquipmentOperation profile, so conversion will be considered node-breaker");
         } else {
             LOG.info(
                     "Following FullModel objects do not have EquipmentOperation profile, so conversion will not be considered node-breaker:");
-            eqModelHasEquipmentOperationProfile.entrySet().forEach(meqop -> {
+            modelHasOperationProfile.entrySet().forEach(meqop -> {
                 if (!meqop.getValue()) {
                     LOG.info("    {}", meqop.getKey());
                 }
             });
         }
-        return isNodeBreaker;
+    }
+
+    private Map<String, Boolean> computeModelHasOperationProfile(PropertyBags modelProfiles) {
+        // A bus/branch model with a single instance file where its node/breaker boundary has been assembled
+        // Must not be considered as node-breaker
+        Map<String, Boolean> modelHasOperationProfile = new HashMap<>();
+        Map<String, Boolean> modelHasBoundaryOperationProfile = new HashMap<>();
+        for (PropertyBag mp : modelProfiles) {
+            String m = mp.get("FullModel");
+            String p = mp.get(PROFILE);
+            if (p != null) {
+                updateModelHasOperationProfile(modelHasOperationProfile, modelHasBoundaryOperationProfile, m, p);
+            }
+        }
+        modelHasBoundaryOperationProfile.forEach((m, v) -> modelHasOperationProfile.merge(m, v, (vm, vbd) -> vm && vbd));
+        return modelHasOperationProfile;
+    }
+
+    private void updateModelHasOperationProfile(Map<String, Boolean> modelHasOperationProfile, Map<String, Boolean> modelHasBoundaryOperationProfile, String model, String profile) {
+        if (isEquipmentCore(profile)) {
+            // Set to false only if we do not have a value already
+            modelHasOperationProfile.putIfAbsent(model, false);
+        }
+        if (isEquipmentOperation(profile)) {
+            modelHasOperationProfile.put(model, true);
+            LOG.info("Model {} is considered node-breaker", model);
+        }
+        if (profile.contains("/EquipmentBoundary/")) {
+            // Set to false only if we do not have a value already
+            modelHasBoundaryOperationProfile.putIfAbsent(model, false);
+        }
+        if (profile.contains("/EquipmentBoundaryOperation/")) {
+            modelHasBoundaryOperationProfile.put(model, true);
+            LOG.info("Model {} boundary is considered node-breaker", model);
+        }
     }
 
     @Override
@@ -226,7 +292,12 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 String s = r.get(0).get(propertyName);
                 if (s != null && !s.isEmpty()) {
                     // Assume date time given as UTC if no explicit zone is specified
-                    d = DateTime.parse(s, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
+                    try {
+                        d = DateTime.parse(s, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
+                    } catch (IllegalArgumentException e) {
+                        LOG.error("Invalid date: {}. The date has been fixed to {}.", s, defaultValue);
+                        return defaultValue;
+                    }
                 }
             }
         }
@@ -463,11 +534,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags dcTerminalsTP() {
-        return namedQuery("dcTerminalsTP");
-    }
-
-    @Override
     public PropertyBags tieFlows() {
         return namedQuery("tieFlows");
     }
@@ -619,15 +685,20 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             .findFirst().orElse(def).getNamespace();
     }
 
-    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN = Pattern.compile("^.*CIM-schema-cim([0-9]*)#$");
+    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_UNTIL_16 = Pattern.compile("^.*CIM-schema-cim([0-9]+)#$");
+    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_FROM_100 = Pattern.compile("^.*/CIM([0-9]+)#$");
 
     private static int cimVersionFromCimNamespace(String cimNamespace) {
-        Matcher m = CIM_NAMESPACE_VERSION_PATTERN.matcher(cimNamespace);
+        Matcher m = CIM_NAMESPACE_VERSION_PATTERN_UNTIL_16.matcher(cimNamespace);
         if (m.matches()) {
             return Integer.valueOf(m.group(1));
         } else {
-            return -1;
+            m = CIM_NAMESPACE_VERSION_PATTERN_FROM_100.matcher(cimNamespace);
+            if (m.matches()) {
+                return Integer.valueOf(m.group(1));
+            }
         }
+        return -1;
     }
 
     private String contextNameFor(CgmesSubset subset) {
@@ -669,6 +740,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final int cimVersion;
     private final TripleStore tripleStore;
     private final QueryCatalog queryCatalog;
+    private Boolean nodeBreaker = null;
 
     private static final String MODEL_PROFILES = "modelProfiles";
     private static final String PROFILE = "profile";

@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.DanglingLine;
  */
 public interface Xnode extends Extension<DanglingLine> {
 
+    String NAME = "xnode";
+
     @Override
     default String getName() {
-        return "xnode";
+        return NAME;
     }
 
     String getCode();

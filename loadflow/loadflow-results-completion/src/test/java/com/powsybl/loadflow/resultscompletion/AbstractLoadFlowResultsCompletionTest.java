@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Bus;
@@ -36,42 +35,42 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  */
 public abstract class AbstractLoadFlowResultsCompletionTest {
 
-    protected String                   lineId  = "line";
-    protected double                   lineP1  = -42.051187;
-    protected double                   lineQ1  = -19.516002;
-    protected double                   lineP2  = 42.0684589;
-    protected double                   lineQ2  = 18.8650876;
-    protected Terminal                 lineTerminal1;
-    protected Terminal                 lineTerminal2;
-    protected Line                     line;
+    protected String lineId = "line";
+    protected double lineP1 = -42.051187;
+    protected double lineQ1 = -19.516002;
+    protected double lineP2 = 42.0684589;
+    protected double lineQ2 = 18.8650876;
+    protected Terminal lineTerminal1;
+    protected Terminal lineTerminal2;
+    protected Line line;
 
-    protected String                   twtId   = "twt";
-    protected double                   twtP1   = 436.548434;
-    protected double                   twtQ1   = 43.472170;
-    protected double                   twtP2   = -436.4087165;
-    protected double                   twtQ2   = 11.837290;
-    protected Terminal                 twtTerminal1;
-    protected Terminal                 twtTerminal2;
-    protected TwoWindingsTransformer   transformer;
+    protected String twtId = "twt";
+    protected double twtP1 = 436.548434;
+    protected double twtQ1 = 43.472170;
+    protected double twtP2 = -436.4087165;
+    protected double twtQ2 = 11.837290;
+    protected Terminal twtTerminal1;
+    protected Terminal twtTerminal2;
+    protected TwoWindingsTransformer transformer;
 
-    protected String                   shuntId = "shunt";
-    protected double                   shuntQ  = -21.2566;
-    protected Terminal                 shuntTerminal;
-    protected ShuntCompensator         shunt;
+    protected String shuntId = "shunt";
+    protected double shuntQ = -21.2566;
+    protected Terminal shuntTerminal;
+    protected ShuntCompensator shunt;
 
-    protected String                   twt3wId = "twt3w";
-    protected double                   leg1P   = 99.218431;
-    protected double                   leg1Q   = 2.747147;
-    protected double                   leg2P   = -216.19819;
-    protected double                   leg2Q   = -85.368180;
-    protected double                   leg3P   = 118;
-    protected double                   leg3Q   = 92.612077;
-    protected Terminal                 leg1Terminal;
-    protected Terminal                 leg2Terminal;
-    protected Terminal                 leg3Terminal;
+    protected String twt3wId = "twt3w";
+    protected double leg1P = 99.218431;
+    protected double leg1Q = 2.747147;
+    protected double leg2P = -216.19819;
+    protected double leg2Q = -85.368180;
+    protected double leg3P = 118;
+    protected double leg3Q = 92.612077;
+    protected Terminal leg1Terminal;
+    protected Terminal leg2Terminal;
+    protected Terminal leg3Terminal;
     protected ThreeWindingsTransformer twt3w;
 
-    protected Network                  network;
+    protected Network network;
 
     @Before
     public void setUp() {
@@ -306,15 +305,15 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         assertEquals(lineP1, setterCaptor.getValue(), 0.0001);
         Mockito.verify(lineTerminal1, Mockito.times(1)).setQ(setterCaptor.capture());
         assertEquals(lineQ1, setterCaptor.getValue(), 0.0001);
-        Mockito.verify(lineTerminal2, Mockito.times(0)).setP(Matchers.anyDouble());
-        Mockito.verify(lineTerminal2, Mockito.times(0)).setQ(Matchers.anyDouble());
+        Mockito.verify(lineTerminal2, Mockito.times(0)).setP(Mockito.anyDouble());
+        Mockito.verify(lineTerminal2, Mockito.times(0)).setQ(Mockito.anyDouble());
 
         Mockito.verify(twtTerminal1, Mockito.times(1)).setP(setterCaptor.capture());
         assertEquals(twtP1, setterCaptor.getValue(), 0.0001);
         Mockito.verify(twtTerminal1, Mockito.times(1)).setQ(setterCaptor.capture());
         assertEquals(twtQ1, setterCaptor.getValue(), 0.0001);
-        Mockito.verify(twtTerminal2, Mockito.times(0)).setP(Matchers.anyDouble());
-        Mockito.verify(twtTerminal2, Mockito.times(0)).setQ(Matchers.anyDouble());
+        Mockito.verify(twtTerminal2, Mockito.times(0)).setP(Mockito.anyDouble());
+        Mockito.verify(twtTerminal2, Mockito.times(0)).setQ(Mockito.anyDouble());
 
         Mockito.verify(shuntTerminal, Mockito.times(1)).setQ(setterCaptor.capture());
         assertEquals(shuntQ, setterCaptor.getValue(), 0.0001);
@@ -323,8 +322,8 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         assertEquals(leg1P, setterCaptor.getValue(), 0.3);
         Mockito.verify(leg1Terminal, Mockito.times(1)).setQ(setterCaptor.capture());
         assertEquals(leg1Q, setterCaptor.getValue(), 0.3);
-        Mockito.verify(leg2Terminal, Mockito.times(0)).setP(Matchers.anyDouble());
-        Mockito.verify(leg2Terminal, Mockito.times(0)).setQ(Matchers.anyDouble());
+        Mockito.verify(leg2Terminal, Mockito.times(0)).setP(Mockito.anyDouble());
+        Mockito.verify(leg2Terminal, Mockito.times(0)).setQ(Mockito.anyDouble());
         Mockito.verify(leg3Terminal, Mockito.times(1)).setP(setterCaptor.capture());
         assertEquals(leg3P, setterCaptor.getValue(), 0.3);
         Mockito.verify(leg3Terminal, Mockito.times(1)).setQ(setterCaptor.capture());

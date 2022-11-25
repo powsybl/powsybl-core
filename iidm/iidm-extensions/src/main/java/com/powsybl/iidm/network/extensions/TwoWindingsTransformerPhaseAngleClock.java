@@ -14,9 +14,11 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  */
 public interface TwoWindingsTransformerPhaseAngleClock extends Extension<TwoWindingsTransformer> {
 
+    String NAME = "twoWindingsTransformerPhaseAngleClock";
+
     @Override
     default String getName() {
-        return "twoWindingsTransformerPhaseAngleClock";
+        return NAME;
     }
 
     /**

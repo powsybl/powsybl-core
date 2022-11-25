@@ -121,6 +121,16 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     }
 
     /**
+     * Update object name.
+     *
+     * @param name new name of the object (could be null to erase the name)
+     * @return the object itself
+     */
+    default I setName(String name) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
      * Check that this object has some properties.
      */
     boolean hasProperty();
@@ -156,6 +166,14 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     String setProperty(String key, String value);
 
     /**
+     * Remove property with specified key.
+     *
+     * @param key the property key
+     * @return {@code true} if property exists and has been removed, {@code false} otherwise
+     */
+    boolean removeProperty(String key);
+
+    /**
      * Get properties key values.
      */
     Set<String> getPropertyNames();
@@ -173,4 +191,11 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     default void setFictitious(boolean fictitious) {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * Get identifiable type.
+     *
+     * @return the identifiable type
+     */
+    IdentifiableType getType();
 }

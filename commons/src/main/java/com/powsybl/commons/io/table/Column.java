@@ -75,6 +75,6 @@ public class Column {
         if (colspan < 1) {
             throw new IllegalArgumentException("colspan must be greater than 0");
         }
-        return  colspan;
+        return colspan;
     }
 }
