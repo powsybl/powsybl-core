@@ -1,4 +1,5 @@
 module com.powsybl.commons {
+    requires com.fasterxml.jackson.annotation; // Real module
     requires com.fasterxml.jackson.databind; // Real module
     requires com.google.common;
     requires java.xml; // Real module
