@@ -17,10 +17,17 @@ module com.powsybl.commons {
     exports com.powsybl.commons;
     exports com.powsybl.commons.compress;
     exports com.powsybl.commons.config;
+    exports com.powsybl.commons.datasource;
     exports com.powsybl.commons.exceptions;
     exports com.powsybl.commons.extensions;
     exports com.powsybl.commons.io.table;
     exports com.powsybl.commons.json;
+    exports com.powsybl.commons.net;
     exports com.powsybl.commons.util;
     exports com.powsybl.commons.util.trove;
+
+    uses com.powsybl.commons.config.PlatformConfigProvider;
+    uses com.powsybl.commons.extensions.ExtensionAdderProvider;
+    uses com.powsybl.commons.extensions.ExtensionJsonSerializer;
+    uses com.powsybl.commons.plugins.PluginInfo;
 }
