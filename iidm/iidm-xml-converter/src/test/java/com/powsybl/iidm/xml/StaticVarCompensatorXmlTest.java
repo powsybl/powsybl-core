@@ -9,6 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

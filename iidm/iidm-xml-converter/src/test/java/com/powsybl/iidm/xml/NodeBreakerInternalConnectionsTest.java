@@ -8,6 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

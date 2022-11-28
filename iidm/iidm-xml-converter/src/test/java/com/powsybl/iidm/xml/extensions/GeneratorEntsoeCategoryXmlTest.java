@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml.extensions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategoryAdder;
-import com.powsybl.iidm.xml.AbstractXmlConverterTest;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;

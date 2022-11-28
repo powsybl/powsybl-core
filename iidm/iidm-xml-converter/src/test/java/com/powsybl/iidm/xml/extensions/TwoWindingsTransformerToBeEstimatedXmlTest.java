@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.xml.AbstractXmlConverterTest;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;

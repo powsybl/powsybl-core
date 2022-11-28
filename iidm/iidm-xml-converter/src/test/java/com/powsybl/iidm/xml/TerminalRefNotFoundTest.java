@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

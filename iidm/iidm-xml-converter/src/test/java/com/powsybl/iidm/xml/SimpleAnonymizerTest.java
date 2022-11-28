@@ -11,6 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

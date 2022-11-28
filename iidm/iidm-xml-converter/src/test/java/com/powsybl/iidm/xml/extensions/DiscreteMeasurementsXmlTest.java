@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.xml.AbstractXmlConverterTest;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXml;

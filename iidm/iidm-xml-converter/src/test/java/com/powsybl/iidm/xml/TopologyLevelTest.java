@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TopologyLevel;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.junit.Test;
 
 import java.io.IOException;

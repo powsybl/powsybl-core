@@ -10,6 +10,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

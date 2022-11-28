@@ -4,10 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.xml;
+package com.powsybl.iidm.xml.test;
 
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.xml.ExportOptions;
+import com.powsybl.iidm.xml.IidmXmlVersion;
+import com.powsybl.iidm.xml.NetworkXml;
 
 import java.io.IOException;
 import java.io.InputStream;

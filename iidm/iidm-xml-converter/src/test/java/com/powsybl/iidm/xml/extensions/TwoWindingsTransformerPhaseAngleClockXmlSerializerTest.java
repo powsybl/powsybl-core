@@ -18,7 +18,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
+import static com.powsybl.iidm.xml.test.AbstractXmlConverterTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

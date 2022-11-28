@@ -9,6 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

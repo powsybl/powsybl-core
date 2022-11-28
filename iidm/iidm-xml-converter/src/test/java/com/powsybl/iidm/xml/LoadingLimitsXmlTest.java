@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

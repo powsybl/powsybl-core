@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

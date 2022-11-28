@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.BusbarSectionExt;
 import com.powsybl.iidm.network.test.ScadaNetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.LoadZipModel;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import com.powsybl.iidm.network.test.TerminalMockExt;
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

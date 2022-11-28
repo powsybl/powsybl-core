@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.iidm.xml.test.AbstractXmlConverterTest;
 import org.junit.Test;
 
 import java.io.IOException;
