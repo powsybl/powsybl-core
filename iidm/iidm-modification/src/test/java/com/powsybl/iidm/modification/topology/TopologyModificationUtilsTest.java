@@ -12,18 +12,18 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.extensions.ConnectablePosition;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getFeederPositionsByConnectable;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getFeedersByConnectable;
+import static org.junit.Assert.*;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
@@ -61,6 +61,32 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
+    public void testGetFeedersByConnectable() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        Map<String, List<ConnectablePosition.Feeder>> feeders = getFeedersByConnectable(network.getVoltageLevel("vl1"));
+        assertFalse(feeders.isEmpty());
+        assertEquals(13, feeders.size());
+        assertTrue(feeders.containsKey("trf5"));
+        List<ConnectablePosition.Feeder> feeder = feeders.get("trf6");
+        assertEquals(1, feeder.size());
+        assertEquals("trf61", feeder.get(0).getName());
+        assertEquals(Optional.of(50), feeder.get(0).getOrder());
+    }
+
+    @Test
+    public void testGetFeedersByConnectableWithInternalLine() {
+        Network network = Network.read("network-node-breaker-with-new-internal-line.xml", getClass().getResourceAsStream("/network-node-breaker-with-new-internal-line.xml"));
+        Map<String, List<ConnectablePosition.Feeder>> feeders = getFeedersByConnectable(network.getVoltageLevel("vl1"));
+        assertEquals(2, feeders.get("lineTest").size());
+        assertEquals(14, feeders.size());
+        List<ConnectablePosition.Feeder> feedersLineTest = feeders.get("lineTest");
+        List<Integer> ordersLineTest = new ArrayList<>();
+        feedersLineTest.forEach(feeder -> ordersLineTest.add(feeder.getOrder().orElse(0)));
+        Collections.sort(ordersLineTest);
+        assertEquals(List.of(14, 105), ordersLineTest);
+    }
+
+    @Test
     public void testGetUnusedPositionsWithEmptyVoltageLevel() {
         Network network = Network.create("n", "test");
         VoltageLevel vl1 = network.newVoltageLevel().setId("vl1").setNominalV(400).setTopologyKind(TopologyKind.NODE_BREAKER).add();
@@ -87,5 +113,18 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsBefore.map(Range::getMaximum).orElse(-1));
         assertEquals(0, (int) unusedOrderPositionsAfter.map(Range::getMinimum).orElse(-1));
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter.map(Range::getMaximum).orElse(-1));
+    }
+
+    @Test
+    public void testInvalidFeederReturnsNoPosition() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        network.getLoad("LD1").newExtension(ConnectablePositionAdder.class)
+                .newFeeder1()
+                .withName("LD1")
+                .withOrder(0)
+                .withDirection(ConnectablePosition.Direction.TOP)
+                .add();
+        Set<Integer> feederOrders = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("S1VL1"));
+        assertEquals(0, feederOrders.size());
     }
 }
