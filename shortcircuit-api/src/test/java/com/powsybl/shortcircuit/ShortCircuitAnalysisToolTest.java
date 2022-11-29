@@ -7,7 +7,7 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.shortcircuit.tools.ShortCircuitAnalysisTool;
-import com.powsybl.tools.AbstractToolTest;
+import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import org.junit.Before;
 import org.junit.Test;

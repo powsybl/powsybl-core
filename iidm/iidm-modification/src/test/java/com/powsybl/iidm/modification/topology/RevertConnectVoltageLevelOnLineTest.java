@@ -8,27 +8,21 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.xml.AbstractXmlConverterTest;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
+public class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
 
     @Test
     public void revertConnectVoltageLevelOnLineNbTest() throws IOException {

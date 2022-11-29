@@ -7,8 +7,8 @@
 package com.powsybl.loadflow.json;
 
 import com.google.common.collect.ImmutableMap;
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.Rule;
@@ -109,8 +109,9 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
 
     @Test
     public void handleErrorTest() throws IOException {
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Unexpected field: alienAttribute");
-        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion10Error.json"));
+        try (var is = getClass().getResourceAsStream("/LoadFlowResultVersion10Error.json")) {
+            AssertionError e = assertThrows(AssertionError.class, () -> LoadFlowResultDeserializer.read(is));
+            assertEquals("Unexpected field: alienAttribute", e.getMessage());
+        }
     }
 }

@@ -6,13 +6,14 @@
  */
 package com.powsybl.shortcircuit.json;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.StudyType;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,8 +43,8 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
     public void readUnexpectedField() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultParametersFileInvalid.json"), fileSystem.getPath("/FaultParametersFileInvalid.json"));
 
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Unexpected field: unexpected");
-        FaultParameters.read(fileSystem.getPath("/FaultParametersFileInvalid.json"));
+        Path path = fileSystem.getPath("/FaultParametersFileInvalid.json");
+        AssertionError e = assertThrows(AssertionError.class, () -> FaultParameters.read(path));
+        assertEquals("Unexpected field: unexpected", e.getMessage());
     }
 }

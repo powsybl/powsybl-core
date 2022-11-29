@@ -19,6 +19,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Properties;
+
 import static org.junit.Assert.*;
 
 /**
@@ -271,6 +273,20 @@ public class UcteImporterTest {
         Line l = network.getLine("F_SU1_12 F_SU1_11 1");
         assertNotNull(l);
         assertFalse(l.hasProperty(UcteConstants.ELEMENT_NAME_PROPERTY_KEY));
+    }
+
+    @Test
+    public void combineRtcAndPtc() {
+        ResourceDataSource dataSource = new ResourceDataSource("combineRtcAndPtc", new ResourceSet("/", "combineRtcAndPtc.uct"));
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        assertEquals(1.948, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getAlpha(), 0.001);
+        assertEquals(1.0, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getRho(), 0.0000001);
+
+        Properties parameters = new Properties();
+        parameters.put("ucte.import.combine-phase-angle-regulation", "true");
+        Network network2 = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), parameters);
+        assertEquals(1.92419, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getAlpha(), 0.001);
+        assertEquals(1.00000694, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getRho(), 0.0000001); // FIXME, symmetrical no impact
     }
 }
 

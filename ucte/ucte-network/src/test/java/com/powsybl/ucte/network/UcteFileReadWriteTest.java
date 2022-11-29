@@ -6,7 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.ucte.network.io.UcteReader;
 import com.powsybl.ucte.network.io.UcteWriter;

@@ -110,10 +110,9 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-tools</artifactId>
+            <artifactId>powsybl-tools-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
-            <type>test-jar</type>
         </dependency>
     </dependencies>
 

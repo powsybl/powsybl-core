@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
 import org.junit.Test;

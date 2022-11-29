@@ -82,8 +82,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-commons</artifactId>
-            <type>test-jar</type>
+            <artifactId>powsybl-commons-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -119,12 +118,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-loadflow-validation</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-matpower-model</artifactId>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
