@@ -6,10 +6,13 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
-import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import org.apache.commons.lang3.Range;
 import org.junit.Test;
 
@@ -26,7 +29,7 @@ import static org.junit.Assert.assertTrue;
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class TopologyModificationUtilsTest extends AbstractXmlConverterTest {
+public class TopologyModificationUtilsTest extends AbstractConverterTest {
 
     @Test
     public void testFeederOrders() {

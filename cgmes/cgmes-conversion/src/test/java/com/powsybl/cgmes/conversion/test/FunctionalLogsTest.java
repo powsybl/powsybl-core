@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.Importers;
@@ -53,11 +53,11 @@ public class FunctionalLogsTest {
                 importReport(CgmesConformity1Catalog.miniNodeBreaker(), importParams));
     }
 
-    private ReporterModel importReport(TestGridModel testCase) {
+    private ReporterModel importReport(GridModelReference testCase) {
         return importReport(testCase, null);
     }
 
-    private ReporterModel importReport(TestGridModel testCase, Properties importParams) {
+    private ReporterModel importReport(GridModelReference testCase, Properties importParams) {
         ReporterModel reporter = new ReporterModel("testFunctionalLogs",
                 "Test importing ${name}", Map.of("name", new TypedValue(testCase.name(), TypedValue.UNTYPED)));
         Importers.importData("CGMES", testCase.dataSource(), importParams, reporter);

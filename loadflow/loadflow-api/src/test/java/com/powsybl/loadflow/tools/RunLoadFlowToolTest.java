@@ -6,7 +6,7 @@
  */
 package com.powsybl.loadflow.tools;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -18,7 +18,7 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Locale;
 
-import static com.powsybl.commons.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 
 /**
  *

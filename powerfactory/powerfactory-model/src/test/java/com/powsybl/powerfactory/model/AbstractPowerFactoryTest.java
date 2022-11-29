@@ -6,7 +6,7 @@
  */
 package com.powsybl.powerfactory.model;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import org.apache.commons.math3.linear.BlockRealMatrix;
 import org.junit.Before;
 

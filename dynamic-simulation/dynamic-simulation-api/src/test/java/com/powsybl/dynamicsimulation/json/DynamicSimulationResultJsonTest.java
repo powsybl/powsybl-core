@@ -6,17 +6,19 @@
  */
 package com.powsybl.dynamicsimulation.json;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.timeseries.RegularTimeSeriesIndex;
 import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
-
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -59,9 +61,10 @@ public class DynamicSimulationResultJsonTest extends AbstractConverterTest {
 
     @Test
     public void handleErrorTest() throws IOException {
-        expected.expect(AssertionError.class);
-        expected.expectMessage("Unexpected field: metrics");
-        DynamicSimulationResultDeserializer.read(getClass().getResourceAsStream("/DynamicSimulationResultError.json"));
+        try (var is = getClass().getResourceAsStream("/DynamicSimulationResultError.json")) {
+            AssertionError e = assertThrows(AssertionError.class, () -> DynamicSimulationResultDeserializer.read(is));
+            assertEquals("Unexpected field: metrics", e.getMessage());
+        }
     }
 
 }
