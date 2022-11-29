@@ -165,7 +165,7 @@ public class RemoveFeederBayTest {
                 .setQ0(0);
         NetworkModification modification = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
-                .withBusOrBusBarSectionId("BBS_TEST_1_1")
+                .withBusOrBusbarSectionId("BBS_TEST_1_1")
                 .withInjectionPositionOrder(10)
                 .withInjectionFeederName("L1")
                 .withInjectionDirection(BOTTOM)
@@ -179,7 +179,7 @@ public class RemoveFeederBayTest {
                 .setQ0(0);
         NetworkModification modification2 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder2)
-                .withBusOrBusBarSectionId("BBS_TEST_1_1")
+                .withBusOrBusbarSectionId("BBS_TEST_1_1")
                 .withInjectionPositionOrder(20)
                 .withInjectionFeederName("L2")
                 .withInjectionDirection(BOTTOM)
@@ -200,7 +200,7 @@ public class RemoveFeederBayTest {
                 .setQ0(0);
         NetworkModification modification3 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder3)
-                .withBusOrBusBarSectionId("BBS_TEST_1_1")
+                .withBusOrBusbarSectionId("BBS_TEST_1_1")
                 .withInjectionPositionOrder(30)
                 .withInjectionFeederName("L3")
                 .withInjectionDirection(BOTTOM)
