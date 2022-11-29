@@ -452,8 +452,7 @@ public final class TopologyModificationUtils {
      */
     public static Map<String, List<Integer>> getFeederPositionsByConnectable(VoltageLevel voltageLevel) {
         Map<String, List<Integer>> feederPositionsOrders = new HashMap<>();
-        Map<String, List<ConnectablePosition.Feeder>> feedersByConnectable = getFeedersByConnectable(voltageLevel);
-        feedersByConnectable.forEach((k, v) -> {
+        getFeedersByConnectable(voltageLevel).forEach((k, v) -> {
             List<Integer> orders = new ArrayList<>();
             v.forEach(feeder -> feeder.getOrder().ifPresent(orders::add));
             if (orders.size() > 1) {
@@ -480,7 +479,7 @@ public final class TopologyModificationUtils {
     }
 
     /**
-     * Utility method to get all the feeder on a voltage level by connectable.
+     * Utility method to get all the feeders on a voltage level by connectable.
      */
     public static Map<String, List<ConnectablePosition.Feeder>> getFeedersByConnectable(VoltageLevel voltageLevel) {
         Map<String, List<ConnectablePosition.Feeder>> feedersByConnectable = new HashMap<>();
