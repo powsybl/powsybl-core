@@ -40,6 +40,7 @@ public final class SteadyStateHypothesisExport extends AbstractCgmesExporter {
         super(context, xmlWriter);
     }
 
+    @Override
     public void export() {
         try {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), xmlWriter);

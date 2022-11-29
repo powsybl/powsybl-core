@@ -56,6 +56,7 @@ public final class EquipmentExport extends AbstractCgmesExporter {
         writeInitialP = context.getCim().writeGeneratingUnitInitialP();
     }
 
+    @Override
     public void export() {
         context.setExportEquipment(true);
         try {
