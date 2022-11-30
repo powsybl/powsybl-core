@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
+import static com.powsybl.triplestore.api.TripleStoreUtils.queryTripleStore;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -29,26 +31,17 @@ public class CgmesMeasurementsModel {
     }
 
     public PropertyBags analogs() {
-        LOG.info("Querying triplestore for Analogs");
-        return queryTripleStore("analogs");
+        LOG.trace("Querying triplestore for Analogs");
+        return queryTripleStore("analogs", queryCatalog, tripleStore);
     }
 
     public PropertyBags bays() {
-        LOG.info("Querying triplestore for Bays");
-        return queryTripleStore("bays");
+        LOG.trace("Querying triplestore for Bays");
+        return queryTripleStore("bays", queryCatalog, tripleStore);
     }
 
     public PropertyBags discretes() {
-        LOG.info("Querying triplestore for Discretes");
-        return queryTripleStore("discretes");
-    }
-
-    private PropertyBags queryTripleStore(String queryKey) {
-        String query = queryCatalog.get(queryKey);
-        if (query == null) {
-            LOG.warn("Query [{}] not found in catalog", queryKey);
-            return new PropertyBags();
-        }
-        return tripleStore.query(query);
+        LOG.trace("Querying triplestore for Discretes");
+        return queryTripleStore("discretes", queryCatalog, tripleStore);
     }
 }
