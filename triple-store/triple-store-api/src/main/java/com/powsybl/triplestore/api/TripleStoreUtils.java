@@ -17,6 +17,7 @@ public final class TripleStoreUtils {
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreUtils.class);
 
     public static PropertyBags queryTripleStore(String queryKey, QueryCatalog queryCatalog, TripleStore tripleStore) {
+        LOG.trace("Querying triplestore for {}", queryKey);
         String query = queryCatalog.get(queryKey);
         if (query == null) {
             LOG.warn("Query [{}] not found in catalog", queryKey);

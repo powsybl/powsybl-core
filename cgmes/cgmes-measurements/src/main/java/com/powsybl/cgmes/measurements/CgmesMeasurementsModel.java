@@ -9,8 +9,6 @@ package com.powsybl.cgmes.measurements;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -21,8 +19,6 @@ import static com.powsybl.triplestore.api.TripleStoreUtils.queryTripleStore;
  */
 public class CgmesMeasurementsModel {
 
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesMeasurementsModel.class);
-
     private final TripleStore tripleStore;
     private final QueryCatalog queryCatalog = new QueryCatalog("CGMES-Meas.sparql");
 
@@ -31,17 +27,14 @@ public class CgmesMeasurementsModel {
     }
 
     public PropertyBags analogs() {
-        LOG.trace("Querying triplestore for Analogs");
         return queryTripleStore("analogs", queryCatalog, tripleStore);
     }
 
     public PropertyBags bays() {
-        LOG.trace("Querying triplestore for Bays");
         return queryTripleStore("bays", queryCatalog, tripleStore);
     }
 
     public PropertyBags discretes() {
-        LOG.trace("Querying triplestore for Discretes");
         return queryTripleStore("discretes", queryCatalog, tripleStore);
     }
 }
