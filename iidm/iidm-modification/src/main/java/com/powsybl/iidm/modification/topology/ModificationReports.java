@@ -87,7 +87,7 @@ final class ModificationReports {
                 .withKey("newCouplingDeviceAdded")
                 .withDefaultMessage("New coupling device was created on voltage level ${voltageLevelId}. It connects busbar sections ${bbsId1} and ${bbsId2} with closed disconnectors" +
                         "and ${nbOpenDisconnectors} were created on parallel busbar sections.")
-                .withValue(voltageLevelId, voltageLevelId)
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withValue("bbsId1", bbsId1)
                 .withValue("bbsId2", bbsId2)
                 .withValue("nbOpenDisconnectors", nbOpenDisconnectors)
@@ -251,7 +251,7 @@ final class ModificationReports {
     static void removeFeederBayBusbarSectionReport(Reporter reporter, String busbarSectionConnectableId) {
         reporter.report(Report.builder()
                 .withKey("removeBayBusbarSectionConnectable")
-                .withDefaultMessage("Cannot remove feeder bay for connectable ${busbarSectionConnectableId}, as it is a busbarSection")
+                .withDefaultMessage("Cannot remove feeder bay for connectable ${connectableId}, as it is a busbarSection")
                 .withValue(CONNECTABLE_ID, busbarSectionConnectableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
