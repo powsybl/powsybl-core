@@ -10,6 +10,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.impl.extensions.ConnectablePositionImpl;
+import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -105,9 +106,9 @@ public class ConnectablePositionXmlTest extends AbstractConverterTest {
         line.addExtension(ConnectablePosition.class, linePosition);
 
         Network network2 = roundTripXmlTest(network,
-                                            NetworkXml::writeAndValidate,
-                                            NetworkXml::read,
-                                            "/connectablePositionRef.xml");
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                "/connectablePositionRef_V1_1.xml");
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator);
@@ -137,5 +138,11 @@ public class ConnectablePositionXmlTest extends AbstractConverterTest {
         linePosition2.getFeeder1().setOrder(20);
         assertEquals(linePosition2.getFeeder1().getDirection(), linePosition2.getFeeder2().getDirection());
         assertEquals(linePosition2.getFeeder1().getOrder(), linePosition2.getFeeder2().getOrder());
+
+        // test v 1.0
+        roundTripXmlTest(network, (n, p) -> {
+            ExportOptions options = new ExportOptions().addExtensionVersion(ConnectablePosition.NAME, "1.0");
+            NetworkXml.writeAndValidate(n, options, p);
+        }, NetworkXml::read, "/connectablePositionRef_V1_0.xml");
     }
 }

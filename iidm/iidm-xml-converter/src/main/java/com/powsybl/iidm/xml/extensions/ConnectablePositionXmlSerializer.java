@@ -56,7 +56,9 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
     }
 
     private void writePosition(String connectableId, ConnectablePosition.Feeder feeder, Integer i, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeEmptyElement(getNamespaceUri(), "feeder" + (i != null ? i : ""));
+        context.getWriter().writeEmptyElement(context.getExtensionVersion(ConnectablePosition.NAME)
+                .map(this::getNamespaceUri)
+                .orElseGet(this::getNamespaceUri), "feeder" + (i != null ? i : ""));
         String extVersionStr = context.getExtensionVersion(ConnectablePosition.NAME)
                 .orElseGet(() -> getVersion(context.getVersion()));
         switch (extVersionStr) {
