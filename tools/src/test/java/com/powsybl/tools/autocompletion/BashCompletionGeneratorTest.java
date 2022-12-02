@@ -6,7 +6,7 @@
  */
 package com.powsybl.tools.autocompletion;
 
-import com.powsybl.commons.TestUtil;
+import com.powsybl.commons.test.TestUtil;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
