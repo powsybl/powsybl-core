@@ -23,6 +23,7 @@
 
     <modules>
         <module>psse-model</module>
+        <module>psse-model-test</module>
         <module>psse-converter</module>
     </modules>
 

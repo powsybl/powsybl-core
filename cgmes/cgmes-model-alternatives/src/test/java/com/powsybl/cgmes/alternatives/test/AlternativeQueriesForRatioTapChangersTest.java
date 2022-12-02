@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.alternatives.test.AlternativeQueriesTester.Expected;
-import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.cgmes.model.test.TestGridModelResources;
+import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -30,7 +30,7 @@ public class AlternativeQueriesForRatioTapChangersTest {
 
     @BeforeClass
     public static void setUp() {
-        TestGridModel model = new TestGridModelResources(
+        GridModelReference model = new GridModelReferenceResources(
                 "not_all_tap_changers_have_control",
                 null,
                 new ResourceSet("/sample_not_all_tap_changers_have_control", "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",

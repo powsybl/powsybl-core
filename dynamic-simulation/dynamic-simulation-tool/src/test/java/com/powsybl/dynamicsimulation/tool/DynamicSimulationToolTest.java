@@ -10,7 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.dynamicsimulation.*;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.tools.AbstractToolTest;
+import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import org.junit.Before;

@@ -6,8 +6,8 @@
  */
 package com.powsybl.iidm.xml.extensions;
 
-import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.ComparisonUtils;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;

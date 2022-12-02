@@ -7,7 +7,7 @@
 package com.powsybl.ucte.converter;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -22,7 +22,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
 
-import static com.powsybl.commons.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static org.junit.Assert.*;
 
 /**

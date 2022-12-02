@@ -10,7 +10,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.TestUtil;
+import com.powsybl.commons.test.TestUtil;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.junit.After;
 import org.junit.Before;

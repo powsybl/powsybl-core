@@ -17,7 +17,7 @@ import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
@@ -319,7 +319,7 @@ public class Cgmes3ConversionTest {
         balanceCheck(network, 0.0001);
     }
 
-    private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();
 

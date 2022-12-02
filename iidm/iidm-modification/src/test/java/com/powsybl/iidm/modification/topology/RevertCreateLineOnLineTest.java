@@ -8,31 +8,21 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.xml.AbstractXmlConverterTest;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.BBS;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createBbNetwork;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbBbNetwork;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetworkWithBusbarSection;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
+import static org.junit.Assert.*;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
+public class RevertCreateLineOnLineTest extends AbstractConverterTest {
 
     @Test
     public void revertCreateLineOnLineNbTest() throws IOException {
@@ -104,7 +94,7 @@ public class RevertCreateLineOnLineTest extends AbstractXmlConverterTest {
                 .withLineToBeDeletedId("LINE34")
                 .withMergedLineId("CJ")
                 .build();
-        assertThrows("Unable to find the attachment point and the attached voltage level from lines CJ_1, CJ_2 and LINE34", PowsyblException.class, () -> modificationWithError4.apply(network, true, Reporter.NO_OP));
+        assertThrows("Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34", PowsyblException.class, () -> modificationWithError4.apply(network, true, Reporter.NO_OP));
         final NetworkModification modificationWithError41 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
