@@ -90,7 +90,6 @@ public class ConnectablePositionXmlTest extends AbstractConverterTest {
         assertNotNull(generator);
         generator.newExtension(ConnectablePositionAdder.class)
                 .newFeeder()
-                .withName("G")
                 .withOrder(10)
                 .withDirection(ConnectablePosition.Direction.TOP)
                 .add()
