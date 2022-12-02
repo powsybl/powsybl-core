@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml.extensions;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.impl.extensions.ConnectablePositionImpl;
+import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
@@ -88,22 +88,29 @@ public class ConnectablePositionXmlTest extends AbstractConverterTest {
         // extend generator
         Generator generator = network.getGenerator("G");
         assertNotNull(generator);
-        ConnectablePosition<Generator> generationPosition = new ConnectablePositionImpl<>(generator,
-                new ConnectablePositionImpl.FeederImpl("G", 10, ConnectablePosition.Direction.TOP),
-                null,
-                null,
-                null);
-        generator.addExtension(ConnectablePosition.class, generationPosition);
+        generator.newExtension(ConnectablePositionAdder.class)
+                .newFeeder()
+                .withName("G")
+                .withOrder(10)
+                .withDirection(ConnectablePosition.Direction.TOP)
+                .add()
+                .add();
 
         // extend line
         Line line = network.getLine("L");
         assertNotNull(line);
-        ConnectablePosition<Line> linePosition = new ConnectablePositionImpl<>(line,
-                null,
-                new ConnectablePositionImpl.FeederImpl("L", 10, ConnectablePosition.Direction.TOP),
-                new ConnectablePositionImpl.FeederImpl("L", 20, ConnectablePosition.Direction.BOTTOM),
-                null);
-        line.addExtension(ConnectablePosition.class, linePosition);
+        line.newExtension(ConnectablePositionAdder.class)
+                .newFeeder1()
+                .withName("L")
+                .withOrder(10)
+                .withDirection(ConnectablePosition.Direction.TOP)
+                .add()
+                .newFeeder2()
+                .withName("L")
+                .withOrder(20)
+                .withDirection(ConnectablePosition.Direction.BOTTOM)
+                .add()
+                .add();
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
@@ -118,8 +125,8 @@ public class ConnectablePositionXmlTest extends AbstractConverterTest {
         assertNull(generatorPosition2.getFeeder1());
         assertNull(generatorPosition2.getFeeder2());
         assertNull(generatorPosition2.getFeeder3());
-        assertEquals(generatorPosition2.getFeeder().getOrder(), generationPosition.getFeeder().getOrder());
-        assertEquals(generatorPosition2.getFeeder().getDirection(), generationPosition.getFeeder().getDirection());
+        assertEquals(10, (int) generatorPosition2.getFeeder().getOrder().orElse(-1));
+        assertEquals(ConnectablePosition.Direction.TOP, generatorPosition2.getFeeder().getDirection());
 
         Line line2 = network2.getLine("L");
         assertNotNull(line2);
@@ -129,10 +136,10 @@ public class ConnectablePositionXmlTest extends AbstractConverterTest {
         assertNotNull(linePosition2.getFeeder1());
         assertNotNull(linePosition2.getFeeder2());
         assertNull(linePosition2.getFeeder3());
-        assertEquals(linePosition2.getFeeder1().getOrder(), linePosition.getFeeder1().getOrder());
-        assertEquals(linePosition2.getFeeder1().getDirection(), linePosition.getFeeder1().getDirection());
-        assertEquals(linePosition2.getFeeder2().getOrder(), linePosition.getFeeder2().getOrder());
-        assertEquals(linePosition2.getFeeder2().getDirection(), linePosition.getFeeder2().getDirection());
+        assertEquals(10, (int) linePosition2.getFeeder1().getOrder().orElse(-1));
+        assertEquals(ConnectablePosition.Direction.TOP, linePosition2.getFeeder1().getDirection());
+        assertEquals(20, (int) linePosition2.getFeeder2().getOrder().orElse(-1));
+        assertEquals(ConnectablePosition.Direction.BOTTOM, linePosition2.getFeeder2().getDirection());
 
         linePosition2.getFeeder1().setDirection(ConnectablePosition.Direction.BOTTOM);
         linePosition2.getFeeder1().setOrder(20);
