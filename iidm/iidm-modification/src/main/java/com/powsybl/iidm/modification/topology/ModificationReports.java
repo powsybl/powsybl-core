@@ -174,6 +174,15 @@ final class ModificationReports {
                 .build());
     }
 
+    static void connectableHasNoOrderReport(Reporter reporter, Connectable<?> connectable) {
+        reporter.report(Report.builder()
+                .withKey("connectableHasNoOrders")
+                .withDefaultMessage("Given connectable {connectableId} has no orders")
+                .withValue("connectableId", connectable.getId())
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void noConnectablePositionExtension(Reporter reporter, VoltageLevel voltageLevel) {
         reporter.report(Report.builder()
                 .withKey("noConnectablePositionExtensions")
