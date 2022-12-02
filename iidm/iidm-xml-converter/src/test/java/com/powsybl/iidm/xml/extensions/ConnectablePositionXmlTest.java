@@ -112,7 +112,7 @@ public class ConnectablePositionXmlTest extends AbstractConverterTest {
 
         Generator generator2 = network2.getGenerator("G");
         assertNotNull(generator);
-        ConnectablePosition generatorPosition2 = generator2.getExtension(ConnectablePosition.class);
+        ConnectablePosition<Generator> generatorPosition2 = generator2.getExtension(ConnectablePosition.class);
         assertNotNull(generatorPosition2);
         assertNotNull(generatorPosition2.getFeeder());
         assertNull(generatorPosition2.getFeeder1());
@@ -123,7 +123,7 @@ public class ConnectablePositionXmlTest extends AbstractConverterTest {
 
         Line line2 = network2.getLine("L");
         assertNotNull(line2);
-        ConnectablePosition linePosition2 = line2.getExtension(ConnectablePosition.class);
+        ConnectablePosition<Line> linePosition2 = line2.getExtension(ConnectablePosition.class);
         assertNotNull(linePosition2);
         assertNull(linePosition2.getFeeder());
         assertNotNull(linePosition2.getFeeder1());
