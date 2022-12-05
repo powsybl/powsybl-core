@@ -26,8 +26,8 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     private final BranchAdder<?> branchAdder;
     private final String busOrBbsId1;
     private final String busOrBbsId2;
-    private final int positionOrder1;
-    private final int positionOrder2;
+    private final Integer positionOrder1;
+    private final Integer positionOrder2;
     private final String feederName1;
     private final String feederName2;
     private final ConnectablePosition.Direction direction1;
@@ -39,8 +39,8 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         this.branchAdder = Objects.requireNonNull(branchAdder);
         this.busOrBbsId1 = Objects.requireNonNull(busOrBbsId1);
         this.busOrBbsId2 = Objects.requireNonNull(busOrBbsId2);
-        this.positionOrder1 = Objects.requireNonNull(positionOrder1);
-        this.positionOrder2 = Objects.requireNonNull(positionOrder2);
+        this.positionOrder1 = positionOrder1;
+        this.positionOrder2 = positionOrder2;
         this.feederName1 = feederName1;
         this.feederName2 = feederName2;
         this.direction1 = Objects.requireNonNull(direction1);
@@ -104,7 +104,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     }
 
     @Override
-    protected int getPositionOrder(int side) {
+    protected Integer getPositionOrder(int side) {
         if (side == 1) {
             return positionOrder1;
         }

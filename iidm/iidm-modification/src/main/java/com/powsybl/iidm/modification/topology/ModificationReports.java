@@ -146,6 +146,16 @@ final class ModificationReports {
     }
 
     // WARN
+    static void ignoredPositionOrder(Reporter reporter, int positionOrder, VoltageLevel voltageLevel) {
+        reporter.report(Report.builder()
+                .withKey("ignoredPositionOrder")
+                .withDefaultMessage("Voltage level ${voltageLevelId} is BUS_BREAKER. Position order ${positionOrder} is ignored.")
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
+                .withValue("positionOrder", positionOrder)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
     static void noBusbarSectionPositionExtensionReport(Reporter reporter, BusbarSection bbs) {
         reporter.report(Report.builder()
                 .withKey("noBusbarSectionPositionExtension")
@@ -343,6 +353,15 @@ final class ModificationReports {
                 .withDefaultMessage("Unsupported type ${identifiableType} for identifiable ${identifiableId}")
                 .withValue("identifiableType", type.name())
                 .withValue("identifiableId", identifiableId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void unexpectedNullPositionOrder(Reporter reporter, VoltageLevel voltageLevel) {
+        reporter.report(Report.builder()
+                .withKey("unexpectedNullPositionOrder")
+                .withDefaultMessage("Position order is null for attachment in node-breaker voltage level ${voltageLevelId}")
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }

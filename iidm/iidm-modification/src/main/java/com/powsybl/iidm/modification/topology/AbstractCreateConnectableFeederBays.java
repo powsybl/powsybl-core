@@ -43,7 +43,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     protected abstract VoltageLevel getVoltageLevel(int side, Connectable<?> connectable);
 
-    protected abstract int getPositionOrder(int side);
+    protected abstract Integer getPositionOrder(int side);
 
     protected abstract Optional<String> getFeederName(int side);
 
@@ -73,6 +73,24 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         createExtensionAndTopology(connectable, network, reporter);
     }
 
+    private boolean checkOrders(int side, VoltageLevel voltageLevel, Reporter reporter, boolean throwException) {
+        TopologyKind topologyKind = voltageLevel.getTopologyKind();
+        Integer positionOrder = getPositionOrder(side);
+        if (positionOrder == null && topologyKind == TopologyKind.NODE_BREAKER) {
+            unexpectedNullPositionOrder(reporter, voltageLevel);
+            LOGGER.error("Position order is null for attachment in node-breaker voltage level {}", voltageLevel.getId());
+            if (throwException) {
+                throw new PowsyblException("Position order is null for attachment in node-breaker voltage level " + voltageLevel.getId());
+            }
+            return false;
+        }
+        if (positionOrder != null && topologyKind == TopologyKind.BUS_BREAKER) {
+            ignoredPositionOrder(reporter, positionOrder, voltageLevel);
+            LOGGER.warn("Voltage level {} is BUS_BREAKER. Position order {} is ignored", voltageLevel.getId(), positionOrder);
+        }
+        return true;
+    }
+
     private boolean setAdderConnectivity(Network network, Reporter reporter, boolean throwException) {
         Map<VoltageLevel, Integer> firstAvailableNodes = new HashMap<>();
         for (int side : sides) {
@@ -88,10 +106,14 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             }
             if (busOrBusbarSection instanceof Bus) {
                 Bus bus = (Bus) busOrBusbarSection; // if bus is an identifiable, the voltage level is BUS_BREAKER
+                checkOrders(side, bus.getVoltageLevel(), reporter, throwException); // is always true, can only return a warning
                 setBus(side, bus, bus.getVoltageLevel().getId());
             } else if (busOrBusbarSection instanceof BusbarSection) {
                 BusbarSection bbs = (BusbarSection) busOrBusbarSection; // if bbs exists, the voltage level is NODE_BREAKER: no necessary topology kind check
                 VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
+                if (!checkOrders(side, voltageLevel, reporter, throwException)) {
+                    return false;
+                }
                 int connectableNode = firstAvailableNodes.compute(voltageLevel, (vl, node) -> node == null ? vl.getNodeBreakerView().getMaximumNodeIndex() + 1 : node + 1);
                 setNode(side, connectableNode, voltageLevel.getId());
             } else {
