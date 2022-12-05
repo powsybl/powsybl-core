@@ -156,4 +156,18 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
         Map<String, List<ConnectablePosition.Feeder>> feedersByConnectable = getFeedersByConnectable(network.getVoltageLevel("VLTEST"));
         assertEquals(0, feedersByConnectable.size());
     }
+
+    @Test
+    public void testGetFeederPositionsWithoutPositionInExtension() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        network.getLoad("LD1").newExtension(ConnectablePositionAdder.class)
+                .newFeeder()
+                .withName("LD1")
+                .withDirection(ConnectablePosition.Direction.TOP)
+                .add()
+                .add();
+        Set<Integer> feederOrders = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("S1VL1"));
+        assertEquals(0, feederOrders.size());
+
+    }
 }
