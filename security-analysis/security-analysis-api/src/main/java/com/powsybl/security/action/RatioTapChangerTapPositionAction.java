@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
  * An action modifying the tap position of a ratio transformer
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Anne Tilloy <anne.tilloy@rte-france.com>
  */
 public class RatioTapChangerTapPositionAction extends AbstractTapChangerTapPositionAction {
     public static final String NAME = "RATIO_TAP_CHANGER_TAP_POSITION";

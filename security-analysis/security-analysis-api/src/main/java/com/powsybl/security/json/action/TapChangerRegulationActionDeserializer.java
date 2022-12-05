@@ -20,6 +20,7 @@ import java.io.IOException;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Anne Tilloy <anne.tilloy@rte-france.com>
  */
 public class TapChangerRegulationActionDeserializer extends StdDeserializer<AbstractTapChangerRegulationAction> {
 

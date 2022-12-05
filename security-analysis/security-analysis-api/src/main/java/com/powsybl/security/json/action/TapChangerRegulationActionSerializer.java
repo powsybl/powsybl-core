@@ -18,6 +18,7 @@ import java.io.UncheckedIOException;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Anne Tilloy <anne.tilloy@rte-france.com>
  */
 public class TapChangerRegulationActionSerializer extends StdSerializer<AbstractTapChangerRegulationAction> {
 

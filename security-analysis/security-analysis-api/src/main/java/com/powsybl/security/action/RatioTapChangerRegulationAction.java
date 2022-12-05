@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
  * An action activating or deactivating the regulation of a ratio transformer
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ * @author Anne Tilloy <anne.tilloy@rte-france.com>
  */
 public class RatioTapChangerRegulationAction extends AbstractTapChangerRegulationAction {
 
