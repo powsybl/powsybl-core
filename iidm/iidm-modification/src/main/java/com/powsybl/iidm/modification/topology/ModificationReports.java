@@ -174,15 +174,6 @@ final class ModificationReports {
                 .build());
     }
 
-    static void connectableHasNoOrderReport(Reporter reporter, Connectable<?> connectable) {
-        reporter.report(Report.builder()
-                .withKey("connectableHasNoOrders")
-                .withDefaultMessage("Given connectable {connectableId} has no orders")
-                .withValue("connectableId", connectable.getId())
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
     static void noConnectablePositionExtension(Reporter reporter, VoltageLevel voltageLevel) {
         reporter.report(Report.builder()
                 .withKey("noConnectablePositionExtensions")
@@ -371,6 +362,15 @@ final class ModificationReports {
                 .withKey("unexpectedNullPositionOrder")
                 .withDefaultMessage("Position order is null for attachment in node-breaker voltage level ${voltageLevelId}")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void connectableHasNoOrderReport(Reporter reporter, Connectable<?> connectable) {
+        reporter.report(Report.builder()
+                .withKey("connectableHasNoOrders")
+                .withDefaultMessage("Given connectable {connectableId} has no orders")
+                .withValue("connectableId", connectable.getId())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
