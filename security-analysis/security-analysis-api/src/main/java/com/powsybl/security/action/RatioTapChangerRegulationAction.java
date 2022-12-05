@@ -19,6 +19,10 @@ public class RatioTapChangerRegulationAction extends AbstractTapChangerRegulatio
 
     public static final String NAME = "RATIO_TAP_CHANGER_REGULATION";
 
+    public RatioTapChangerRegulationAction(String id, String transformerId, boolean regulating) {
+        super(id, transformerId, null, regulating);
+    }
+
     public RatioTapChangerRegulationAction(String id, String transformerId, ThreeWindingsTransformer.Side side, boolean regulating) {
         super(id, transformerId, side, regulating);
     }

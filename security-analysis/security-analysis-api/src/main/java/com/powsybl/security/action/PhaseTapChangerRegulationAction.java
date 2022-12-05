@@ -23,10 +23,6 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
     public static final String NAME = "PHASE_TAP_CHANGER_REGULATION";
     private final PhaseTapChanger.RegulationMode regulationMode;
 
-    public PhaseTapChangerRegulationAction(String id, String transformerId, ThreeWindingsTransformer.Side side) {
-        this(id, transformerId, side, false, null);
-    }
-
     public PhaseTapChangerRegulationAction(String id, String transformerId, ThreeWindingsTransformer.Side side, boolean regulating, PhaseTapChanger.RegulationMode regulationMode) {
         super(id, transformerId, side, regulating);
         this.regulationMode = regulationMode;
@@ -43,5 +39,21 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
 
     public Optional<PhaseTapChanger.RegulationMode> getRegulationMode() {
         return Optional.ofNullable(regulationMode);
+    }
+
+    public static PhaseTapChangerRegulationAction activateRegulation(String id, String transformerId, PhaseTapChanger.RegulationMode regulationMode) {
+        return new PhaseTapChangerRegulationAction(id, transformerId, null, true, regulationMode);
+    }
+
+    public static PhaseTapChangerRegulationAction activateRegulation(String id, String transformerId, ThreeWindingsTransformer.Side side, PhaseTapChanger.RegulationMode regulationMode) {
+        return new PhaseTapChangerRegulationAction(id, transformerId, side, true, regulationMode);
+    }
+
+    public static PhaseTapChangerRegulationAction deactivateRegulation(String id, String transformerId) {
+        return new PhaseTapChangerRegulationAction(id, transformerId, null, false, null);
+    }
+
+    public static PhaseTapChangerRegulationAction deactivateRegulation(String id, String transformerId, ThreeWindingsTransformer.Side side) {
+        return new PhaseTapChangerRegulationAction(id, transformerId, side, false, null);
     }
 }

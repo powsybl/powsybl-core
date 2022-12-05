@@ -24,7 +24,7 @@ public class PhaseTapChangerRegulationActionTest {
                 false, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)).getMessage();
         Assert.assertEquals("PhaseTapChangerRegulationAction can not have a regulation mode " +
                 "if it is not regulating", message);
-        PhaseTapChangerRegulationAction action = new PhaseTapChangerRegulationAction("id17", "transformerId5",
+        PhaseTapChangerRegulationAction action = PhaseTapChangerRegulationAction.deactivateRegulation("id17", "transformerId5",
                 ThreeWindingsTransformer.Side.ONE);
         Assert.assertFalse(action.isRegulating());
         Assert.assertTrue(action.getRegulationMode().isEmpty());
