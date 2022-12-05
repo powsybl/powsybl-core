@@ -370,7 +370,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("connectableHasNoOrders")
                 .withDefaultMessage("Given connectable {connectableId} has no orders")
-                .withValue("connectableId", connectable.getId())
+                .withValue(CONNECTABLE_ID, connectable.getId())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }

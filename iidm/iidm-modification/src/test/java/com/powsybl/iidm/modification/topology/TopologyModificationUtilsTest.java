@@ -72,6 +72,12 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
         assertEquals(1, feeder.size());
         assertEquals("trf61", feeder.get(0).getName());
         assertEquals(Optional.of(50), feeder.get(0).getOrder());
+        Map<String, List<ConnectablePosition.Feeder>> feedersVl3 = getFeedersByConnectable(network.getVoltageLevel("vl3"));
+        assertFalse(feedersVl3.isEmpty());
+        assertTrue(feedersVl3.containsKey("trf7"));
+        List<ConnectablePosition.Feeder> trf7Vl2 = feedersVl3.get("trf7");
+        assertEquals(1, trf7Vl2.size());
+        assertEquals(Optional.of(30), trf7Vl2.get(0).getOrder());
     }
 
     @Test
@@ -143,8 +149,8 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
         BusbarSection firstBbs = getFirstBusbarSection(network.getVoltageLevel("S1VL2"));
         assertEquals("S1VL2_BBS1", firstBbs.getId());
         Network networkWithoutExtensions = FourSubstationsNodeBreakerFactory.create();
-        BusbarSection firstBbsWithoutExtensions = getFirstBusbarSection(network.getVoltageLevel("S1VL2"));
-        assertEquals("S1VL2_BBS1", firstBbs.getId());
+        BusbarSection firstBbsWithoutExtensions = getFirstBusbarSection(networkWithoutExtensions.getVoltageLevel("S1VL2"));
+        assertEquals("S1VL2_BBS1", firstBbsWithoutExtensions.getId());
         network.newVoltageLevel().setId("VLTEST").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         assertThrows(PowsyblException.class, () -> getFirstBusbarSection(network.getVoltageLevel("VLTEST")));
     }
