@@ -81,7 +81,7 @@ public class TimeSeriesTableTest {
 
     @Test
     public void testVersionedCSV() {
-        TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
         TimeSeriesTable table = createTimeSeriesTable(index);
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"));
 
@@ -98,7 +98,7 @@ public class TimeSeriesTableTest {
 
     @Test
     public void testUnversionedCSV() {
-        TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
         TimeSeriesTable table = createTimeSeriesTable(index);
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.FRACTIONS_OF_SECOND);
 
@@ -114,7 +114,7 @@ public class TimeSeriesTableTest {
 
     @Test
     public void testMillisCSV() {
-        TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
         TimeSeriesTable table = createTimeSeriesTable(index);
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS);
 
@@ -223,7 +223,7 @@ public class TimeSeriesTableTest {
         exception.expect(TimeSeriesException.class);
         exception.expectMessage("toVersion (0) is expected to be greater than fromVersion (1)");
 
-        TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
         // load time series in the table
         new TimeSeriesTable(1, 0, index);
     }

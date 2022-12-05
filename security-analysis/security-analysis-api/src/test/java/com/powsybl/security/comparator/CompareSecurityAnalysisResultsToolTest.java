@@ -8,7 +8,7 @@ package com.powsybl.security.comparator;
 
 import java.util.Collections;
 
-import com.powsybl.tools.AbstractToolTest;
+import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 

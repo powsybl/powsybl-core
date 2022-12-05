@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
@@ -358,7 +358,7 @@ public class HvdcConversionTest {
             "b46bfb8e-7af6-459e-acf3-53a42c943a7c", "b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.5, 184.2));
     }
 
-    private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();

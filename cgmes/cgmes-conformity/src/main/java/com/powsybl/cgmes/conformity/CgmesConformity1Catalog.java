@@ -8,9 +8,9 @@
 package com.powsybl.cgmes.conformity;
 
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.test.FakeCgmesModel;
-import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.cgmes.model.test.TestGridModelResources;
+import com.powsybl.cgmes.model.InMemoryCgmesModel;
+import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
 import java.util.Arrays;
@@ -32,9 +32,9 @@ public final class CgmesConformity1Catalog {
                 "MicroGridTestConfiguration_TP_BD.xml");
     }
 
-    public static TestGridModelResources microGridBaseCaseBE() {
+    public static GridModelReferenceResources microGridBaseCaseBE() {
         String base = ENTSOE_CONFORMITY_1 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MicroGrid-BaseCase-BE",
                 expectedMicroGridBaseCaseBE(),
                 new ResourceSet(base, "MicroGridTestConfiguration_BC_BE_DL_V2.xml",
@@ -47,10 +47,10 @@ public final class CgmesConformity1Catalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static TestGridModel microGridType4BE() {
+    public static GridModelReference microGridType4BE() {
         String base = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/Type4_T4/CGMES_v2.4.15_MicroGridTestConfiguration_T4_BE_BB_Complete_v2/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MicroGrid-Type4-BE",
                 expectedMicroGridType4BE(),
                 new ResourceSet(base, "MicroGridTestConfiguration_T4_BE_DL_V2.xml",
@@ -63,10 +63,10 @@ public final class CgmesConformity1Catalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static TestGridModel microGridType4BEOnlyEqTpSsh() {
+    public static GridModelReference microGridType4BEOnlyEqTpSsh() {
         String base = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/Type4_T4/CGMES_v2.4.15_MicroGridTestConfiguration_T4_BE_BB_Complete_v2/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MicroGrid-Type4-BE",
                 expectedMicroGridType4BE(),
                 new ResourceSet(base,
@@ -76,9 +76,9 @@ public final class CgmesConformity1Catalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static TestGridModelResources microGridBaseCaseNL() {
+    public static GridModelReferenceResources microGridBaseCaseNL() {
         String base = ENTSOE_CONFORMITY_1 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MicroGrid-BaseCase-NL",
                 null,
                 new ResourceSet(base, "MicroGridTestConfiguration_BC_NL_DL_V2.xml",
@@ -91,10 +91,10 @@ public final class CgmesConformity1Catalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static TestGridModelResources microGridBaseCaseAssembled() {
+    public static GridModelReferenceResources microGridBaseCaseAssembled() {
         String base = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_Assembled_v2/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MicroGrid-BaseCase-Assembled",
                 null,
                 new ResourceSet(base, "MicroGridTestConfiguration_BC_Assembled_DL_V2.xml",
@@ -112,9 +112,9 @@ public final class CgmesConformity1Catalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static TestGridModelResources miniBusBranch() {
+    public static GridModelReferenceResources miniBusBranch() {
         String base = ENTSOE_CONFORMITY_1 + "/MiniGrid/BusBranch/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_v3/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MiniGrid-BusBranch",
                 null,
                 new ResourceSet(base,
@@ -124,12 +124,12 @@ public final class CgmesConformity1Catalog {
                         "MiniGridTestConfiguration_BC_TP_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources miniNodeBreaker() {
+    public static GridModelReferenceResources miniNodeBreaker() {
         String base = ENTSOE_CONFORMITY_1
                 + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MiniGrid-NodeBreaker",
                 expectedMiniNodeBreaker(),
                 new ResourceSet(base,
@@ -141,24 +141,24 @@ public final class CgmesConformity1Catalog {
                         "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources miniNodeBreakerOnlyEQ() {
+    public static GridModelReferenceResources miniNodeBreakerOnlyEQ() {
         String base = ENTSOE_CONFORMITY_1
                 + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "MiniGrid-NodeBreaker-Only-EQ",
                 expectedMiniNodeBreaker(),
                 new ResourceSet(base, "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
                 new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallBusBranch() {
+    public static GridModelReferenceResources smallBusBranch() {
         String base = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "SmallGrid-BusBranch",
                 null,
                 new ResourceSet(base, "SmallGridTestConfiguration_BC_DL_v3.0.0.xml",
@@ -171,12 +171,12 @@ public final class CgmesConformity1Catalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallBusBranchEqTp() {
+    public static GridModelReferenceResources smallBusBranchEqTp() {
         String base = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "SmallGrid-BusBranch-EQ-TP",
                 null,
                 new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
@@ -185,12 +185,12 @@ public final class CgmesConformity1Catalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBreaker() {
+    public static GridModelReferenceResources smallNodeBreaker() {
         String base = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "SmallGrid-NodeBreaker",
                 null,
                 new ResourceSet(base, "SmallGridTestConfiguration_BC_DL_v3.0.0.xml",
@@ -203,12 +203,12 @@ public final class CgmesConformity1Catalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBreakerEqTp() {
+    public static GridModelReferenceResources smallNodeBreakerEqTp() {
         String base = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "SmallGrid-NodeBreaker-EQ-TP",
                 null,
                 new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
@@ -217,12 +217,12 @@ public final class CgmesConformity1Catalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBreakerEqTpSsh() {
+    public static GridModelReferenceResources smallNodeBreakerEqTpSsh() {
         String base = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "SmallGrid-NodeBreaker-EQ-TP",
                 null,
                 new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
@@ -232,12 +232,12 @@ public final class CgmesConformity1Catalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBreakerHvdcEqTp() {
+    public static GridModelReferenceResources smallNodeBreakerHvdcEqTp() {
         String base = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "SmallGrid-NodeBreaker-HVDC-EQ-TP",
                 null,
                 new ResourceSet(base, "SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml",
@@ -246,12 +246,12 @@ public final class CgmesConformity1Catalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBreakerHvdc() {
+    public static GridModelReferenceResources smallNodeBreakerHvdc() {
         String base = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "SmallGrid-NodeBreaker-HVDC",
                 null,
                 new ResourceSet(base, "SmallGridTestConfiguration_HVDC_DL_v3.0.0.xml",
@@ -264,32 +264,32 @@ public final class CgmesConformity1Catalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBreakerOnlyEQ() {
+    public static GridModelReferenceResources smallNodeBreakerOnlyEQ() {
         String base = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "SmallGrid-NodeBreaker-Only-EQ",
                 null,
                 new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml"),
                 new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBreakerHvdcOnlyEQ() {
+    public static GridModelReferenceResources smallNodeBreakerHvdcOnlyEQ() {
         String base = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
-        return new TestGridModelResources(
+        return new GridModelReferenceResources(
                 "SmallGrid-NodeBreaker-HVDC-Only-EQ",
                 null,
                 new ResourceSet(base, "SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml"),
                 new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
-    public static FakeCgmesModel expectedMicroGridBaseCaseBE() {
-        return new FakeCgmesModel()
+    public static InMemoryCgmesModel expectedMicroGridBaseCaseBE() {
+        return new InMemoryCgmesModel()
                 .modelId("MicroBaseCaseBE")
                 .version("unknown")
                 .substations("37e14a0f-5e34-4647-a062-8bfd9305fa9d",
@@ -505,8 +505,8 @@ public final class CgmesConformity1Catalog {
                         "urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20");
     }
 
-    private static FakeCgmesModel expectedMiniNodeBreaker() {
-        return new FakeCgmesModel()
+    private static InMemoryCgmesModel expectedMiniNodeBreaker() {
+        return new InMemoryCgmesModel()
                 .modelId("MiniNodeBreakerBaseCaseComplete")
                 .version("unknown")
                 .nodeBreaker(true)
@@ -1004,7 +1004,7 @@ public final class CgmesConformity1Catalog {
     }
 
     public static CgmesModel expectedMicroGridType4BE() {
-        FakeCgmesModel m = expectedMicroGridBaseCaseBE();
+        InMemoryCgmesModel m = expectedMicroGridBaseCaseBE();
         m.voltageLevels("69ef0dbd-da79-4eef-a02f-690cb8a28361");
         m.terminals("13dcec71-4b02-4c0c-93a7-8e16db4aa0b7",
                 "67bb74f1-8620-4a32-9d7d-a44092d11d22",

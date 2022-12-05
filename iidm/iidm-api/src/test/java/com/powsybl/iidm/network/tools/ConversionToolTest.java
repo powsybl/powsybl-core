@@ -12,7 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.NetworkFactoryMock;
-import com.powsybl.tools.AbstractToolTest;
+import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
 import org.junit.Before;
