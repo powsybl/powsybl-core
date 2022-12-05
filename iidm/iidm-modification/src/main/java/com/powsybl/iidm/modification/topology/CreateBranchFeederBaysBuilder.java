@@ -15,8 +15,8 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 public class CreateBranchFeederBaysBuilder {
 
     private BranchAdder<?> branchAdder = null;
-    private String bbsId1 = null;
-    private String bbsId2 = null;
+    private String busOrBbs1 = null;
+    private String busOrBbs2 = null;
     private Integer positionOrder1 = null;
     private Integer positionOrder2 = null;
     private String feederName1 = null;
@@ -25,7 +25,7 @@ public class CreateBranchFeederBaysBuilder {
     private ConnectablePosition.Direction direction2 = ConnectablePosition.Direction.TOP;
 
     public CreateBranchFeederBays build() {
-        return new CreateBranchFeederBays(branchAdder, bbsId1, bbsId2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2);
+        return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2);
     }
 
     public CreateBranchFeederBaysBuilder withBranchAdder(BranchAdder<?> branchAdder) {
@@ -33,21 +33,47 @@ public class CreateBranchFeederBaysBuilder {
         return this;
     }
 
-    public CreateBranchFeederBaysBuilder withBbsId1(String bbsId1) {
-        this.bbsId1 = bbsId1;
+    /**
+     * @deprecated Use {@link #withBusOrBusbarSectionId1(String)} instead.
+     */
+    @Deprecated(since = "5.1.0")
+    public CreateBranchFeederBaysBuilder withBbs1(String bbs1) {
+        return withBusOrBusbarSectionId1(bbs1);
+    }
+
+    public CreateBranchFeederBaysBuilder withBusOrBusbarSectionId1(String busOrBbs1) {
+        this.busOrBbs1 = busOrBbs1;
         return this;
     }
 
+    /**
+     * @deprecated Use {@link #withBusOrBusbarSectionId2(String)} instead.
+     */
+    @Deprecated(since = "5.1.0")
     public CreateBranchFeederBaysBuilder withBbsId2(String bbsId2) {
-        this.bbsId2 = bbsId2;
+        return withBusOrBusbarSectionId2(bbsId2);
+    }
+
+    public CreateBranchFeederBaysBuilder withBusOrBusbarSectionId2(String busOrBbs2) {
+        this.busOrBbs2 = busOrBbs2;
         return this;
     }
 
+    /**
+     * Set position order for end 1.
+     * Should not be defined if voltage level attached to end 1 is BUS_BREAKER (ignored if it is).
+     * Required if the latter is NODE_BREAKER.
+     */
     public CreateBranchFeederBaysBuilder withPositionOrder1(int positionOrder1) {
         this.positionOrder1 = positionOrder1;
         return this;
     }
 
+    /**
+     * Set position orders for end 2.
+     * Should not be defined if voltage level attached to end 2 is BUS_BREAKER (ignored if it is).
+     * Required if the latter is NODE_BREAKER.
+     */
     public CreateBranchFeederBaysBuilder withPositionOrder2(int positionOrder2) {
         this.positionOrder2 = positionOrder2;
         return this;
