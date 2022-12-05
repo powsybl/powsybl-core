@@ -23,10 +23,10 @@ import java.util.Objects;
 public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     public enum Status {
-        CONVERGED,
-        NO_DATA,
-        SOLVER_FAILED,
-        FAILED
+        SUCCESS,
+        NO_SHORTCIRCUIT_DATA,
+        SOLVER_FAILURE,
+        FAILURE
     }
 
     private Status faultResultStatus;
