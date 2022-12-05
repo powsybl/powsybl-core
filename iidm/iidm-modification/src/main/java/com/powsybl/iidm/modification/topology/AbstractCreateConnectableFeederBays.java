@@ -76,13 +76,13 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     private boolean setAdderConnectivity(Network network, Reporter reporter, boolean throwException) {
         Map<VoltageLevel, Integer> firstAvailableNodes = new HashMap<>();
         for (int side : sides) {
-            String busorBusbarSectionId = getBusOrBusbarSectionId(side);
-            Identifiable<?> busOrBusbarSection = network.getIdentifiable(busorBusbarSectionId);
+            String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
+            Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
             if (busOrBusbarSection == null) {
-                LOGGER.error("Identifiable {} not found.", busorBusbarSectionId);
-                notFoundIdentifiableReport(reporter, busorBusbarSectionId);
+                LOGGER.error("Identifiable {} not found.", busOrBusbarSectionId);
+                notFoundIdentifiableReport(reporter, busOrBusbarSectionId);
                 if (throwException) {
-                    throw new PowsyblException(String.format("Identifiable %s not found.", busorBusbarSectionId));
+                    throw new PowsyblException(String.format("Identifiable %s not found.", busOrBusbarSectionId));
                 }
                 return false;
             }
@@ -95,10 +95,10 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 int connectableNode = firstAvailableNodes.compute(voltageLevel, (vl, node) -> node == null ? vl.getNodeBreakerView().getMaximumNodeIndex() + 1 : node + 1);
                 setNode(side, connectableNode, voltageLevel.getId());
             } else {
-                LOGGER.error("Unsupported type {} for identifiable {}", busOrBusbarSection.getType(), busorBusbarSectionId);
-                unsupportedIdentifiableType(reporter, busOrBusbarSection.getType(), busorBusbarSectionId);
+                LOGGER.error("Unsupported type {} for identifiable {}", busOrBusbarSection.getType(), busOrBusbarSectionId);
+                unsupportedIdentifiableType(reporter, busOrBusbarSection.getType(), busOrBusbarSectionId);
                 if (throwException) {
-                    throw new PowsyblException(String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(), busorBusbarSectionId));
+                    throw new PowsyblException(String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(), busOrBusbarSectionId));
                 }
                 return false;
             }
