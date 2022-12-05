@@ -82,14 +82,22 @@ final class ModificationReports {
                 .build());
     }
 
-    static void newCouplingDeviceAddedReport(Reporter reporter, String voltageLevelId, String bbsId1, String bbsId2, int nbOpenDisconnectors) {
+    static void newCouplingDeviceAddedReport(Reporter reporter, String voltageLevelId, String busOrBbsId1, String busOrBbsId2) {
         reporter.report(Report.builder()
                 .withKey("newCouplingDeviceAdded")
-                .withDefaultMessage("New coupling device was created on voltage level ${voltageLevelId}. It connects busbar sections ${bbsId1} and ${bbsId2} with closed disconnectors" +
-                        "and ${nbOpenDisconnectors} were created on parallel busbar sections.")
+                .withDefaultMessage("New coupling device was created on voltage level ${voltageLevelId}. It connects ${busOrBbsId1} and ${busOrBbsId2} with closed disconnectors")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
-                .withValue("bbsId1", bbsId1)
-                .withValue("bbsId2", bbsId2)
+                .withValue("busOrBbsId1", busOrBbsId1)
+                .withValue("busOrBbsId2", busOrBbsId2)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    static void openDisconnectorsAddedReport(Reporter reporter, String voltageLevelId, int nbOpenDisconnectors) {
+        reporter.report(Report.builder()
+                .withKey("openDisconnectorsAdded")
+                .withDefaultMessage("${nbOpenDisconnectors} open disconnectors created on parallel busbar sections in voltage level ${voltageLevelId}")
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withValue("nbOpenDisconnectors", nbOpenDisconnectors)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
@@ -317,21 +325,21 @@ final class ModificationReports {
                 .build());
     }
 
-    static void noCouplingDeviceOnSameBusbarSection(Reporter reporter, String busbarSectionId) {
+    static void noCouplingDeviceOnSameBusOrBusbarSection(Reporter reporter, String busbarSectionId) {
         reporter.report(Report.builder()
-                .withKey("noCouplingDeviceOnSameBusbarSection")
-                .withDefaultMessage("No coupling device can be created on a same busbar section (${bbsId}).")
-                .withValue(BBS_ID, busbarSectionId)
+                .withKey("noCouplingDeviceOnSameBusOrBusbarSection")
+                .withDefaultMessage("No coupling device can be created on a same bus or busbar section (${busOrBbsId}).")
+                .withValue("busOrBbsId", busbarSectionId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
 
-    static void busbarsInDifferentVoltageLevels(Reporter reporter, String busbarSectionId1, String busbarSectionId2) {
+    static void unexpectedDifferentVoltageLevels(Reporter reporter, String busbarSectionId1, String busbarSectionId2) {
         reporter.report(Report.builder()
-                .withKey("busbarsInDifferentVoltageLevels")
-                .withDefaultMessage("Busbar sections ${busbarSectionId1} and ${busbarSectionId2} are in two different voltage levels.")
-                .withValue("busbarSectionId1", busbarSectionId1)
-                .withValue("busbarSectionId2", busbarSectionId2)
+                .withKey("unexpectedDifferentVoltageLevels")
+                .withDefaultMessage("${busOrBbsId1} and ${busOrBbsId2} are in two different voltage levels.")
+                .withValue("busOrBbsId1", busbarSectionId1)
+                .withValue("busOrBbsId2", busbarSectionId2)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -362,6 +370,16 @@ final class ModificationReports {
                 .withKey("unexpectedNullPositionOrder")
                 .withDefaultMessage("Position order is null for attachment in node-breaker voltage level ${voltageLevelId}")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void unexpectedIdentifiableType(Reporter reporter, Identifiable<?> identifiable) {
+        reporter.report(Report.builder()
+                .withKey("unexpectedIdentifiableType")
+                .withDefaultMessage("Unexpected type of identifiable ${identifiableId}: ${identifiableType}")
+                .withValue("identifiableId", identifiable.getId())
+                .withValue("identifiableType", identifiable.getType().name())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }

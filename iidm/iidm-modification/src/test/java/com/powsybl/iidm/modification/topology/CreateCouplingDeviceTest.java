@@ -28,8 +28,8 @@ public class CreateCouplingDeviceTest extends AbstractConverterTest {
     public void createCouplingDevice2BusbarSectionsSameSectionIndex() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         NetworkModification couplingDeviceModif = new CreateCouplingDeviceBuilder()
-                .withBusbarSectionId1("bbs1")
-                .withBusbarSectionId2("bbs3")
+                .withBusOrBusbarSectionId1("bbs1")
+                .withBusOrBusbarSectionId2("bbs3")
                 .withSwitchPrefixId("sw")
                 .build();
         couplingDeviceModif.apply(network);
@@ -41,8 +41,8 @@ public class CreateCouplingDeviceTest extends AbstractConverterTest {
     public void createCouplingDevice2BusbarSectionsDifferentSectionIndex() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         NetworkModification couplingDeviceModif = new CreateCouplingDeviceBuilder()
-                .withBusbarSectionId1("bbs1")
-                .withBusbarSectionId2("bbs2")
+                .withBusOrBusbarSectionId1("bbs1")
+                .withBusOrBusbarSectionId2("bbs2")
                 .build();
         couplingDeviceModif.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
@@ -54,33 +54,33 @@ public class CreateCouplingDeviceTest extends AbstractConverterTest {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
         NetworkModification couplingDeviceModifWrongBbs = new CreateCouplingDeviceBuilder()
-                .withBusbarSectionId1("bbs")
-                .withBusbarSectionId2("bbs2")
+                .withBusOrBusbarSectionId1("bbs")
+                .withBusOrBusbarSectionId2("bbs2")
                 .build();
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> couplingDeviceModifWrongBbs.apply(network, true, Reporter.NO_OP));
-        assertEquals("Busbar section bbs not found.", e0.getMessage());
+        assertEquals("Identifiable bbs not found.", e0.getMessage());
 
         NetworkModification couplingDeviceModifBbsInDifferentVl = new CreateCouplingDeviceBuilder()
-                .withBusbarSectionId1("bbs1")
-                .withBusbarSectionId2("bbs5")
+                .withBusOrBusbarSectionId1("bbs1")
+                .withBusOrBusbarSectionId2("bbs5")
                 .build();
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> couplingDeviceModifBbsInDifferentVl.apply(network, true, Reporter.NO_OP));
-        assertEquals("Busbar sections bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
+        assertEquals("bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
 
         NetworkModification sameBusbarSection = new CreateCouplingDeviceBuilder()
-                .withBusbarSectionId1("bbs1")
-                .withBusbarSectionId2("bbs1")
+                .withBusOrBusbarSectionId1("bbs1")
+                .withBusOrBusbarSectionId2("bbs1")
                 .build();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> sameBusbarSection.apply(network, true, Reporter.NO_OP));
-        assertEquals("No coupling device can be created on a same busbar section (bbs1)", e2.getMessage());
+        assertEquals("No coupling device can be created on a same bus or busbar section (bbs1)", e2.getMessage());
     }
 
     @Test
     public void createCouplingDeviceWithoutPositionExtensions() throws IOException {
         Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
         NetworkModification modification = new CreateCouplingDeviceBuilder()
-                .withBusbarSectionId1("bbs1")
-                .withBusbarSectionId2("bbs2")
+                .withBusOrBusbarSectionId1("bbs1")
+                .withBusOrBusbarSectionId2("bbs2")
                 .build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
@@ -91,8 +91,8 @@ public class CreateCouplingDeviceTest extends AbstractConverterTest {
     public void createCouplingDevice3BusbarSections() throws IOException {
         Network network = Network.read("testNetwork3BusbarSections.xiidm", getClass().getResourceAsStream("/testNetwork3BusbarSections.xiidm"));
         NetworkModification modification = new CreateCouplingDeviceBuilder()
-                .withBusbarSectionId1("VLTEST13")
-                .withBusbarSectionId2("VLTEST23")
+                .withBusOrBusbarSectionId1("VLTEST13")
+                .withBusOrBusbarSectionId2("VLTEST23")
                 .build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
