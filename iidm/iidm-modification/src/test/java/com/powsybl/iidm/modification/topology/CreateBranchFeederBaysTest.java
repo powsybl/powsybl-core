@@ -81,7 +81,6 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withDirection1(BOTTOM)
                 .withFeederName1("lineTestFeeder1")
                 .withBusOrBusbarSectionId2("NHV1")
-                .withPositionOrder2(75)
                 .withFeederName2("lineTestFeeder2")
                 .withDirection2(TOP)
                 .build();
