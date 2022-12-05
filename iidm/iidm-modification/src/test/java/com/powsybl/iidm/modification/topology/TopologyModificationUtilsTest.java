@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
@@ -14,6 +15,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.extensions.FourSubstationsNodeBreakerWithExtensionsFactory;
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.apache.commons.lang3.Range;
@@ -21,8 +23,7 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getFeederPositionsByConnectable;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getFeedersByConnectable;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 import static org.junit.Assert.*;
 
 /**
@@ -126,5 +127,33 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
                 .add();
         Set<Integer> feederOrders = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("S1VL1"));
         assertEquals(0, feederOrders.size());
+    }
+
+    @Test
+    public void testGetFeederPositionsWithInternalLine() {
+        Network network = Network.read("network-node-breaker-with-new-internal-line.xml", getClass().getResourceAsStream("/network-node-breaker-with-new-internal-line.xml"));
+        Set<Integer> feederOrders = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vl1"));
+        assertEquals(15, feederOrders.size());
+
+    }
+
+    @Test
+    public void testGetFirstBbs() {
+        Network network = FourSubstationsNodeBreakerWithExtensionsFactory.create();
+        BusbarSection firstBbs = getFirstBusbarSection(network.getVoltageLevel("S1VL2"));
+        assertEquals("S1VL2_BBS1", firstBbs.getId());
+        Network networkWithoutExtensions = FourSubstationsNodeBreakerFactory.create();
+        BusbarSection firstBbsWithoutExtensions = getFirstBusbarSection(network.getVoltageLevel("S1VL2"));
+        assertEquals("S1VL2_BBS1", firstBbs.getId());
+        network.newVoltageLevel().setId("VLTEST").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        assertThrows(PowsyblException.class, () -> getFirstBusbarSection(network.getVoltageLevel("VLTEST")));
+    }
+
+    @Test
+    public void testGetFeedersByConnectableReturnEmptyListIfEmptyVoltageLevel() {
+        Network network = FourSubstationsNodeBreakerWithExtensionsFactory.create();
+        network.newVoltageLevel().setId("VLTEST").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        Map<String, List<ConnectablePosition.Feeder>> feedersByConnectable = getFeedersByConnectable(network.getVoltageLevel("VLTEST"));
+        assertEquals(0, feedersByConnectable.size());
     }
 }
