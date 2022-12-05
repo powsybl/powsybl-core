@@ -59,11 +59,21 @@ public class CreateBranchFeederBaysBuilder {
         return this;
     }
 
+    /**
+     * Set position order for end 1.
+     * Should not be defined if voltage level attached to end 1 is BUS_BREAKER (ignored if it is).
+     * Required if the latter is NODE_BREAKER.
+     */
     public CreateBranchFeederBaysBuilder withPositionOrder1(int positionOrder1) {
         this.positionOrder1 = positionOrder1;
         return this;
     }
 
+    /**
+     * Set position orders for end 2.
+     * Should not be defined if voltage level attached to end 2 is BUS_BREAKER (ignored if it is).
+     * Required if the latter is NODE_BREAKER.
+     */
     public CreateBranchFeederBaysBuilder withPositionOrder2(int positionOrder2) {
         this.positionOrder2 = positionOrder2;
         return this;

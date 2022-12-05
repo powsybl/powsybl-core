@@ -42,6 +42,11 @@ public class CreateFeederBayBuilder {
         return this;
     }
 
+    /**
+     * Set position order.
+     * Should not be defined in BUS_BREAKER (ignored if they are).
+     * Required in NODE_BREAKER.
+     */
     public CreateFeederBayBuilder withInjectionPositionOrder(int injectionPositionOrder) {
         this.injectionPositionOrder = injectionPositionOrder;
         return this;
