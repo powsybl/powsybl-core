@@ -160,8 +160,8 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     }
 
     /**
-     * The computation status. Converged if computation went ok, no data if the transient reactance of generators are missing
-     * and FAILED otherwise.
+     * The computation status. SUCCESS if computation went ok, NO_SHORTCIRCUIT if the transient reactance of every generators is missing,
+     * SOLVER_FAILURE if the computation failed due to an error in the solver and FAILURE if the computation failed due to anything else.
      */
     public Status getStatus() {
         return faultResultStatus;
