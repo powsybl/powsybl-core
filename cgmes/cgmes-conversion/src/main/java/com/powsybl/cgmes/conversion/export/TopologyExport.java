@@ -210,15 +210,14 @@ public final class TopologyExport {
         String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
-        if (topologicalNode != null) {
-            // Topological nodes of boundaries are published by external entities and should be ok,
-            // we do not make an additional effort to ensure a valid CGMES id has been assigned
-            if (boundaryId != null) {
-                writeTerminal(boundaryId, topologicalNode, cimNamespace, writer);
-            }
-            if (equivalentInjectionTerminalId != null) {
-                writeTerminal(equivalentInjectionTerminalId, topologicalNode, cimNamespace, writer);
-            }
+        // Topological nodes of boundaries are published by external entities and should be ok,
+        // we do not make an additional effort to ensure a valid CGMES id has been assigned
+        // If not defined it has already been created above so topological node is never null
+        if (boundaryId != null) {
+            writeTerminal(boundaryId, topologicalNode, cimNamespace, writer);
+        }
+        if (equivalentInjectionTerminalId != null) {
+            writeTerminal(equivalentInjectionTerminalId, topologicalNode, cimNamespace, writer);
         }
     }
 
