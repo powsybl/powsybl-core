@@ -31,6 +31,7 @@ class ShortCircuitBusResultsDeserializer extends StdDeserializer<ShortCircuitBus
         String version = null;
         String voltageLevelId = null;
         String busId = null;
+        Double initialVoltageMagnitude = Double.NaN;
         FortescueValue voltage = null;
         Double voltageDropProportional = Double.NaN;
 
@@ -62,10 +63,16 @@ class ShortCircuitBusResultsDeserializer extends StdDeserializer<ShortCircuitBus
                     voltageDropProportional = parser.readValueAs(Double.class);
                     break;
 
+                case "initialVoltageMagnitude":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageMagnitude", version, "1.1");
+                    parser.nextToken();
+                    initialVoltageMagnitude = parser.readValueAs(Double.class);
+                    break;
+
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new ShortCircuitBusResults(voltageLevelId, busId, voltage, voltageDropProportional);
+        return new ShortCircuitBusResults(voltageLevelId, busId, initialVoltageMagnitude, voltage, voltageDropProportional);
     }
 }
