@@ -34,11 +34,14 @@ public final class TopologyModificationUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TopologyModificationUtils.class);
 
+    private TopologyModificationUtils() {
+    }
+
     static final class LoadingLimitsBags {
 
-        private LoadingLimitsBag activePowerLimits;
-        private LoadingLimitsBag apparentPowerLimits;
-        private LoadingLimitsBag currentLimits;
+        private final LoadingLimitsBag activePowerLimits;
+        private final LoadingLimitsBag apparentPowerLimits;
+        private final LoadingLimitsBag currentLimits;
 
         LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
                           Supplier<Optional<CurrentLimits>> currentLimitsGetter) {
@@ -68,7 +71,7 @@ public final class TopologyModificationUtils {
 
     private static final class LoadingLimitsBag {
 
-        private double permanentLimit;
+        private final double permanentLimit;
         private List<TemporaryLimitsBag> temporaryLimits = new ArrayList<>();
 
         private LoadingLimitsBag(LoadingLimits limits) {
@@ -340,6 +343,16 @@ public final class TopologyModificationUtils {
     }
 
     /**
+     * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
+     */
+    static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
+        bbsList.forEach(b -> {
+            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
+            createNBDisconnector(forkNode, bbsNode, "_" + forkNode + "_" + bbsNode, baseId, voltageLevel.getNodeBreakerView(), true);
+        });
+    }
+
+    /**
      * Get all the unused positions before the lowest used position on the busbar section bbs.
      * It is a range between the maximum used position on the busbar section with the highest section index lower than the section
      * index of the given busbar section and the minimum position on the given busbar section.
@@ -547,19 +560,6 @@ public final class TopologyModificationUtils {
             throw new PowsyblException(String.format("Voltage level %s has no busbar section.", voltageLevel.getId()));
         }
         return bbs;
-    }
-
-    /**
-     * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
-     */
-    static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
-        bbsList.forEach(b -> {
-            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, "_" + forkNode + "_" + bbsNode, baseId, voltageLevel.getNodeBreakerView(), true);
-        });
-    }
-
-    private TopologyModificationUtils() {
     }
 
     private static Optional<LoadingLimitsBag> mergeLimits(String lineId,
