@@ -26,7 +26,7 @@ jobs:
 
       - name: Build with Maven
         if: matrix.os == 'ubuntu-latest'
-        run: mvn --batch-mode -Pjacoco,docker-unit-tests install
+        run: mvn --batch-mode -Dpowsybl.docker-unit-tests.skip=false -Pjacoco install
 
       - name: Build with Maven
         if: matrix.os != 'ubuntu-latest'
