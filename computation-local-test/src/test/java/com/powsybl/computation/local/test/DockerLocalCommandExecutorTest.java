@@ -9,8 +9,6 @@ package com.powsybl.computation.local.test;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.test.DockerTests;
 import com.powsybl.computation.*;
-import com.powsybl.computation.local.LocalComputationConfig;
-import com.powsybl.computation.local.LocalComputationManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -22,7 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -35,7 +32,7 @@ public class DockerLocalCommandExecutorTest {
     private static final String COMMAND_ID = "test";
 
     @Rule
-    public TemporaryFolder tempFolder = new TemporaryFolder();
+    public final TemporaryFolder tempFolder = new TemporaryFolder();
 
     private ComputationManager computationManager;
 
@@ -44,8 +41,7 @@ public class DockerLocalCommandExecutorTest {
         Path localDir = tempFolder.getRoot().toPath();
         Path dockerDir = Path.of("/tmp");
         ComputationDockerConfig config = ComputationDockerConfig.load(PlatformConfig.defaultConfig());
-        computationManager = new LocalComputationManager(new LocalComputationConfig(localDir),
-                new DockerLocalCommandExecutor(localDir, dockerDir, config), Executors.newCachedThreadPool());
+        computationManager = new DockerLocalComputationManager(localDir, dockerDir, config);
     }
 
     @After
