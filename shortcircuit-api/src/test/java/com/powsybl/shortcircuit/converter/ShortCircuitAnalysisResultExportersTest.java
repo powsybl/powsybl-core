@@ -74,6 +74,28 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         return new ShortCircuitAnalysisResult(faultResults);
     }
 
+    private static ShortCircuitAnalysisResult createResultWithSimpleShortCircuitBusResult() {
+        Fault fault = new BusFault("id", "busId", 0.0, 0.0);
+        List<LimitViolation> limitViolations = new ArrayList<>();
+        String subjectId = "vlId";
+        LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
+        float limit = 2000;
+        float limitReduction = 1;
+        float value = 2500;
+        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        limitViolation.addExtension(ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension());
+        limitViolations.add(limitViolation);
+        List<SimpleShortCircuitBusResults> busResults = new ArrayList<>();
+        busResults.add(new SimpleShortCircuitBusResults(subjectId, "busId", 2004, 100));
+        List<FaultResult> faultResults = new ArrayList<>();
+        FaultResult faultResult = new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(1.0), null, busResults);
+        faultResult.addExtension(ShortCircuitAnalysisResultExportersTest.DummyFaultResultExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyFaultResultExtension());
+        faultResults.add(faultResult);
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);
+        shortCircuitAnalysisResult.addExtension(ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension());
+        return shortCircuitAnalysisResult;
+    }
+
     @Test
     public void testGetFormats() {
         assertEquals("[ASCII, CSV, JSON]", ShortCircuitAnalysisResultExporters.getFormats().toString());
@@ -150,6 +172,12 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     public void testWriteCsv() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
         writeTest(result, this::writeCsv, ComparisonUtils::compareTxt, "/shortcircuit-results.csv");
+    }
+
+    @Test
+    public void testWithSimpleShortCircuitBusResult() throws IOException {
+        ShortCircuitAnalysisResult result = createResultWithSimpleShortCircuitBusResult();
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-with-simple-bus-results.json");
     }
 
     @Test

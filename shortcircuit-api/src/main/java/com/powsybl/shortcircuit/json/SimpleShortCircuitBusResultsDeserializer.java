@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.json;
 
@@ -10,35 +11,31 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.*;
+import com.powsybl.shortcircuit.SimpleShortCircuitBusResults;
 
 import java.io.IOException;
 
 /**
- * @author Thomas Adam <tadam at silicom.fr>
+ * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-class ShortCircuitBusResultsDeserializer extends StdDeserializer<ShortCircuitBusResults> {
+public class SimpleShortCircuitBusResultsDeserializer extends StdDeserializer<SimpleShortCircuitBusResults> {
+    private static final String CONTEXT_NAME = "SimpleShortCircuitBusResults";
 
-    private static final String CONTEXT_NAME = "ShortCircuitBusResults";
-
-    ShortCircuitBusResultsDeserializer() {
-        super(ShortCircuitBusResults.class);
+    SimpleShortCircuitBusResultsDeserializer() {
+        super(SimpleShortCircuitBusResults.class);
     }
 
     @Override
-    public ShortCircuitBusResults deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        String version = null;
+    public SimpleShortCircuitBusResults deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String voltageLevelId = null;
         String busId = null;
-        FortescueValue voltage = null;
+        Double voltage = Double.NaN;
         Double voltageDropProportional = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version" :
-                    parser.nextToken();
-                    version = parser.readValueAs(String.class);
+                case "version":
+                    parser.nextToken(); //skip
                     break;
 
                 case "voltageLevelId":
@@ -53,11 +50,10 @@ class ShortCircuitBusResultsDeserializer extends StdDeserializer<ShortCircuitBus
 
                 case "voltage":
                     parser.nextToken();
-                    voltage = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
+                    voltage = parser.readValueAs(Double.class);
                     break;
 
                 case "voltageDropProportional":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageDropProportional", version, "1.1");
                     parser.nextToken();
                     voltageDropProportional = parser.readValueAs(Double.class);
                     break;
@@ -66,6 +62,6 @@ class ShortCircuitBusResultsDeserializer extends StdDeserializer<ShortCircuitBus
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new ShortCircuitBusResults(voltageLevelId, busId, voltage, voltageDropProportional);
+        return new SimpleShortCircuitBusResults(voltageLevelId, busId, voltage, voltageDropProportional);
     }
 }

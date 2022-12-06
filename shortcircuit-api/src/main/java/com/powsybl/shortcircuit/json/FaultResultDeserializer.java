@@ -29,6 +29,8 @@ import java.util.List;
  */
 class FaultResultDeserializer {
 
+    private static final String CONTEXT_NAME = "FaultResult";
+
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "short-circuit-analysis"));
 
@@ -46,6 +48,7 @@ class FaultResultDeserializer {
             FortescueValue current = null;
             FortescueValue voltage = null;
             List<ShortCircuitBusResults> shortCircuitBusResults = Collections.emptyList();
+            List<SimpleShortCircuitBusResults> simpleShortCircuitBusResults = Collections.emptyList();
 
             while (parser.nextToken() != JsonToken.END_OBJECT) {
                 switch (parser.getCurrentName()) {
@@ -95,6 +98,12 @@ class FaultResultDeserializer {
                         status = FaultResult.Status.valueOf(parser.getValueAsString());
                         break;
 
+                    case "simpleShortCircuitBusResults":
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: simpleShortCircuitBusResults", version, "1.1");
+                        parser.nextToken();
+                        simpleShortCircuitBusResults = parser.readValueAs(new TypeReference<List<SimpleShortCircuitBusResults>>() { });
+                        break;
+
                     case "extensions":
                         parser.nextToken();
                         extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
@@ -109,12 +118,12 @@ class FaultResultDeserializer {
             if (status == null) {
                 JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "No status", version, "1.0");
                 if (current == null) {
-                    faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.FAILURE);
+                    faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.FAILURE, simpleShortCircuitBusResults);
                 } else {
-                    faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.SUCCESS);
+                    faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.SUCCESS, simpleShortCircuitBusResults);
                 }
             } else {
-                faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status);
+                faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status, simpleShortCircuitBusResults);
             }
 
             SUPPLIER.get().addExtensions(faultResult, extensions);

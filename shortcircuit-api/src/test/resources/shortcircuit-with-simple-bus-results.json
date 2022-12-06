@@ -1,7 +1,7 @@
 {
-  "version" : "1.1",
+  "version" : "1.0",
   "faultResults" : [ {
-    "status" : "SUCCESS",
+    "version" : "1.1",
     "fault" : {
       "type" : "BUS",
       "id" : "id",
@@ -25,14 +25,12 @@
     "current" : {
       "directMagnitude" : 1.0
     },
-    "shortCircuitBusResults" : [ {
+    "simpleShortCircuitBusResults" : [ {
+      "version" : "1.0",
       "voltageLevelId" : "vlId",
       "busId" : "busId",
-      "voltage" : {
-        "directMagnitude" : 2004.0,
-        "directAngle" : 2005.0
-      },
-      "voltageDropProportional" : 70.0
+      "voltage" : 2004.0,
+      "voltageDropProportional" : 100.0
     } ],
     "extensions" : {
       "DummyFaultResultExtension" : { }
