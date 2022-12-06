@@ -494,14 +494,6 @@ public final class TopologyModificationUtils {
     }
 
     private static List<Integer> getOrderPositions(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, Reporter reporter) {
-        if (connectable.getTerminals().stream().noneMatch(t -> t.getVoltageLevel() == voltageLevel)) {
-            LOGGER.error("Given connectable {} not in voltageLevel {}", connectable.getId(), voltageLevel.getId());
-            connectableNotInVoltageLevel(reporter, connectable, voltageLevel);
-            if (throwException) {
-                throw new AssertionError(String.format("Given connectable %s not in voltageLevel %s ", connectable.getId(), voltageLevel.getId()));
-            }
-            return Collections.emptyList();
-        }
         List<ConnectablePosition.Feeder> feeders;
         if (connectable instanceof Injection) {
             feeders = getInjectionFeeder(position);
@@ -519,7 +511,6 @@ public final class TopologyModificationUtils {
         }
         List<Integer> orders = new ArrayList<>();
         feeders.forEach(feeder -> feeder.getOrder().ifPresent(orders::add));
-        checkOrdersExist(orders, connectable, throwException, reporter);
         if (orders.size() > 1) {
             Collections.sort(orders);
         }
@@ -570,16 +561,6 @@ public final class TopologyModificationUtils {
             Optional.ofNullable(position.getFeeder3()).ifPresent(feeders::add);
         }
         return feeders;
-    }
-
-    private static void checkOrdersExist(List<Integer> orders, Connectable<?> connectable, boolean throwException, Reporter reporter) {
-        if (orders.isEmpty()) {
-            LOGGER.error("Given connectable {} has no orders", connectable.getId());
-            connectableHasNoOrderReport(reporter, connectable);
-            if (throwException) {
-                throw new AssertionError(String.format("Given connectable %s has no orders", connectable.getId()));
-            }
-        }
     }
 
     /**

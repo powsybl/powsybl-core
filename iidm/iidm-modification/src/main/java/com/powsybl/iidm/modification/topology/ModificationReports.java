@@ -366,15 +366,6 @@ final class ModificationReports {
                 .build());
     }
 
-    static void connectableHasNoOrderReport(Reporter reporter, Connectable<?> connectable) {
-        reporter.report(Report.builder()
-                .withKey("connectableHasNoOrders")
-                .withDefaultMessage("Given connectable {connectableId} has no orders")
-                .withValue(CONNECTABLE_ID, connectable.getId())
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
     private ModificationReports() {
     }
 }
