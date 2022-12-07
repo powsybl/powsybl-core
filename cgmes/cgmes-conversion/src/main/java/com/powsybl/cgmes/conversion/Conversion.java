@@ -601,10 +601,14 @@ public class Conversion {
                 convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
                 // Log ignored AcLineSegments
                 beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).collect(Collectors.toList())
-                    .forEach(beq -> context.ignored("convertEquipmentAtBoundaryNode",
-                        String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is ignored", node, beq.getAcLineSegmentId())));
+                    .forEach(beq -> {
+                        context.fixed("convertEquipmentAtBoundaryNode",
+                                String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as dangling lines", node, beq.getAcLineSegmentId()));
+                        beq.createConversion(context).convertAtBoundary();
+                    });
             } else {
-                context.invalid(node, "Too many equipment at boundary node");
+                context.fixed(node, "More than two connected AcLineSegments at boundary: only dangling lines are created");
+                beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
             }
         }
     }
