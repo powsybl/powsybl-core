@@ -17,10 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -76,8 +73,9 @@ public final class TopologyExport {
     }
 
     private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        List<String> exported = new ArrayList<>();
         for (DanglingLine dl : network.getDanglingLines()) {
-            writeBoundaryTerminal(dl, cimNamespace, writer, context);
+            writeBoundaryTerminal(dl, exported, cimNamespace, writer, context);
         }
     }
 
@@ -206,7 +204,7 @@ public final class TopologyExport {
         writer.writeEndElement();
     }
 
-    private static void writeBoundaryTerminal(DanglingLine dl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeBoundaryTerminal(DanglingLine dl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
@@ -216,8 +214,9 @@ public final class TopologyExport {
         if (boundaryId != null) {
             writeTerminal(boundaryId, topologicalNode, cimNamespace, writer);
         }
-        if (equivalentInjectionTerminalId != null) {
+        if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) {
             writeTerminal(equivalentInjectionTerminalId, topologicalNode, cimNamespace, writer);
+            exported.add(equivalentInjectionTerminalId);
         }
     }
 
