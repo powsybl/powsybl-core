@@ -884,13 +884,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         // try to find dangling lines couples
         List<MergedLine> lines = new ArrayList<>();
-        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
-            Map<String, DanglingLine> dl1byXnodeCode = new HashMap<>();
-            for (DanglingLine dl1 : getDanglingLines()) {
-                if (dl1.getUcteXnodeCode() != null) {
-                    dl1byXnodeCode.put(dl1.getUcteXnodeCode(), dl1);
-                }
+        Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
+        for (DanglingLine dl1 : getDanglingLines()) {
+            if (dl1.getUcteXnodeCode() != null) {
+                dl1byXnodeCode.computeIfAbsent(dl1.getUcteXnodeCode(), k -> new ArrayList<>()).add(dl1);
             }
+        }
+        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
             DanglingLine dl1 = getDanglingLineByTheOther(dl2, dl1byXnodeCode);
             mergeDanglingLines(lines, dl1, dl2);
         }
@@ -920,12 +920,23 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private DanglingLine getDanglingLineByTheOther(DanglingLine dl2, Map<String, DanglingLine> dl1byXnodeCode) {
+    private DanglingLine getDanglingLineByTheOther(DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
         DanglingLine dl1 = getDanglingLine(dl2.getId());
         if (dl1 == null) {
             // mapping by ucte xnode code
             if (dl2.getUcteXnodeCode() != null) {
-                dl1 = dl1byXnodeCode.get(dl2.getUcteXnodeCode());
+                List<DanglingLine> dls = dl1byXnodeCode.get(dl2.getUcteXnodeCode());
+                if (dls != null) {
+                    if (dls.size() == 1) {
+                        return dls.get(0);
+                    }
+                    if (dls.size() > 1) {
+                        List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
+                        if (connectedDls.size() == 1) {
+                            return connectedDls.get(0);
+                        }
+                    }
+                }
             }
         } else {
             // mapping by id

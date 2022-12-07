@@ -77,16 +77,36 @@ class MergingViewIndex {
     void checkNewDanglingLine(final DanglingLine dll2) {
         Objects.requireNonNull(dll2, "DanglingLine is null");
         // Manage DanglingLines
-        final String code = dll2.getUcteXnodeCode();
-        if (code == null) {
-            return;
-        }
-        // Find other DanglingLine if exist
-        final Set<DanglingLine> danglingLines = getNetworkStream().flatMap(Network::getDanglingLineStream).filter(d -> d.getUcteXnodeCode().equals(code)).collect(Collectors.toSet());
-        for (DanglingLine dll1 : danglingLines) {
-            if (dll1 != dll2) {
-                // Create MergedLine from 2 dangling lines
-                mergedLineCached.computeIfAbsent(code, key -> new MergedLine(this, dll1, dll2));
+        DanglingLine dl1 = getNetworkStream().map(n -> n.getDanglingLine(dll2.getId()))
+                .filter(Objects::nonNull)
+                .filter(dl -> dl != dll2)
+                .findFirst()
+                .orElse(null);
+        if (dl1 != null) {
+            mergedLineCached.computeIfAbsent(Optional.ofNullable(dl1.getUcteXnodeCode())
+                    .or(() -> Optional.ofNullable(dll2.getUcteXnodeCode()))
+                    .orElseGet(dll2::getId), key -> new MergedLine(this, dl1, dll2));
+        } else {
+            final String code = dll2.getUcteXnodeCode();
+            if (code == null) {
+                return;
+            }
+            // Find other DanglingLine if exist
+            final List<DanglingLine> danglingLines = getNetworkStream()
+                    .flatMap(Network::getDanglingLineStream)
+                    .filter(d -> d.getUcteXnodeCode().equals(code))
+                    .filter(d -> d != dll2)
+                    .filter(d -> d.getNetwork() != dll2.getNetwork())
+                    .distinct()
+                    .collect(Collectors.toList());
+            if (danglingLines.size() == 1) {
+                mergedLineCached.computeIfAbsent(code, key -> new MergedLine(this, danglingLines.get(0), dll2));
+            }
+            if (danglingLines.size() > 1) {
+                List<DanglingLine> connectedDls = danglingLines.stream().filter(d -> d.getTerminal().isConnected()).collect(Collectors.toList());
+                if (connectedDls.size() == 1) {
+                    mergedLineCached.computeIfAbsent(code, key -> new MergedLine(this, connectedDls.get(0), dll2));
+                }
             }
         }
     }
