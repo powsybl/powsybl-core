@@ -55,9 +55,9 @@ public class DockerLocalCommandExecutor implements LocalCommandExecutor {
                 arguments.add(0, program);
                 container.start();
                 execResult = container.execInContainer(arguments.toArray(new String[0]));
-                container.stop();
                 Files.write(errFile, execResult.getStderr().getBytes(StandardCharsets.UTF_8));
                 Files.write(outFile, execResult.getStdout().getBytes(StandardCharsets.UTF_8));
+                container.stop();
             } finally {
                 containers.remove(workingDir);
             }
