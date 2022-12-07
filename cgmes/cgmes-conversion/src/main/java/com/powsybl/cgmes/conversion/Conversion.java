@@ -615,7 +615,13 @@ public class Conversion {
         BoundaryLine boundaryLine1 = conversion1.asBoundaryLine(node);
         BoundaryLine boundaryLine2 = conversion2.asBoundaryLine(node);
         if (boundaryLine1 != null && boundaryLine2 != null) {
-            if (boundaryLine1.getModelIidmVoltageLevelId().equals(boundaryLine2.getModelIidmVoltageLevelId())) {
+            String regionName1 = context.network().getVoltageLevel(boundaryLine1.getModelIidmVoltageLevelId()).getSubstation()
+                    .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
+                    .orElse(null);
+            String regionName2 = context.network().getVoltageLevel(boundaryLine2.getModelIidmVoltageLevelId()).getSubstation()
+                    .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
+                    .orElse(null);
+            if (regionName1 != null && regionName1.equals(regionName2)) {
                 context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
                 conversion1.convertAtBoundary();
                 conversion2.convertAtBoundary();
