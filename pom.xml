@@ -294,6 +294,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-computation-local-test</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-config-classic</artifactId>
                 <version>${project.version}</version>
             </dependency>
