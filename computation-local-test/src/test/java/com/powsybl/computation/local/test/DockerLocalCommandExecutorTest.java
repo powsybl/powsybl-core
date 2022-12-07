@@ -17,6 +17,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -67,5 +68,27 @@ public class DockerLocalCommandExecutorTest {
             }
         }).join();
         assertEquals(List.of("bin", "dev", "etc", "home", "lib", "media", "mnt", "opt", "proc", "root", "run", "sbin", "srv", "sys", "tmp", "usr", "var"), lines);
+    }
+
+    @Test
+    public void testInputFile() {
+        List<String> lines = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<List<String>>() {
+            @Override
+            public List<CommandExecution> before(Path workingDir) throws IOException {
+                Files.write(workingDir.resolve("test.txt"), "hello".getBytes(StandardCharsets.UTF_8));
+                return List.of(new CommandExecution(new SimpleCommandBuilder()
+                        .id(COMMAND_ID)
+                        .program("cat")
+                        .arg("test.txt")
+                        .inputFiles(new InputFile("test.txt"))
+                        .build(), 1));
+            }
+
+            @Override
+            public List<String> after(Path workingDir, ExecutionReport report) throws IOException {
+                return Files.readAllLines(workingDir.resolve(COMMAND_ID + "_0.out"));
+            }
+        }).join();
+        assertEquals(List.of("hello"), lines);
     }
 }
