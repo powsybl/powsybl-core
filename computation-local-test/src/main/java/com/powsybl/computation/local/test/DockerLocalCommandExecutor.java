@@ -49,8 +49,8 @@ public class DockerLocalCommandExecutor implements LocalCommandExecutor {
             try {
                 env.entrySet().stream().filter(entry -> !entry.getKey().equals("PATH"))
                         .forEach(entry -> container.withEnv(entry.getKey(), entry.getValue()));
-                container.withWorkingDirectory(containerVolumePath.resolve(hostVolumePath
-                        .relativize(workingDir)).toString());
+                String containerWorkingDir = containerVolumePath.resolve(hostVolumePath.relativize(workingDir)).toString();
+                container.withWorkingDirectory(containerWorkingDir);
                 List<String> arguments = new ArrayList<>(args);
                 arguments.add(0, program);
                 container.start();
