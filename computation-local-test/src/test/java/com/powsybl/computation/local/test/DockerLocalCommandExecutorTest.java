@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -90,5 +91,26 @@ public class DockerLocalCommandExecutorTest {
             }
         }).join();
         assertEquals(List.of("hello"), lines);
+    }
+
+    @Test
+    public void testOutputFile() {
+        Boolean exists = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Boolean>() {
+            @Override
+            public List<CommandExecution> before(Path workingDir) {
+                return List.of(new CommandExecution(new SimpleCommandBuilder()
+                        .id(COMMAND_ID)
+                        .program("touch")
+                        .args("result.txt")
+                        .outputFiles(new OutputFile("result.txt"))
+                        .build(), 1));
+            }
+
+            @Override
+            public Boolean after(Path workingDir, ExecutionReport report) {
+                return Files.exists(workingDir.resolve("result.txt"));
+            }
+        }).join();
+        assertTrue(exists);
     }
 }
