@@ -21,7 +21,7 @@
     </xs:simpleType>
     <xs:complexType name="Feeder">
         <xs:attribute name="name" use="required" type="xs:string"/>
-        <xs:attribute name="order" use="required" type="xs:integer"/>
+        <xs:attribute name="order" use="optional" type="xs:integer"/>
         <xs:attribute name="direction" use="required" type="cp:Direction"/>
     </xs:complexType>
     <xs:element name="position">
