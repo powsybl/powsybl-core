@@ -42,6 +42,7 @@ public class DockerLocalCommandExecutor implements LocalCommandExecutor {
     public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
         try (GenericContainer<?> container = new GenericContainer<>(DockerImageName.parse(dockerImage))
                 .withFileSystemBind(hostVolumePath.toString(), containerVolumePath.toString(), BindMode.READ_WRITE)
+                .withCreateContainerCmdModifier(cmd -> cmd.withUser("root"))
                 .withCommand("sleep", "infinity")) {
             Container.ExecResult execResult;
             containers.put(workingDir, container);
