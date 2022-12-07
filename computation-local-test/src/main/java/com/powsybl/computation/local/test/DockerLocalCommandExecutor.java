@@ -42,6 +42,8 @@ public class DockerLocalCommandExecutor implements LocalCommandExecutor {
     public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
         try (GenericContainer<?> container = new GenericContainer<>(DockerImageName.parse(dockerImage))
                 .withFileSystemBind(hostVolumePath.toString(), containerVolumePath.toString(), BindMode.READ_WRITE)
+                // some containers are configured to ran by default as a non root user, so we force to always run
+                // as root to avoid permission denied on host mounted directory
                 .withCreateContainerCmdModifier(cmd -> cmd.withUser("root"))
                 .withCommand("sleep", "infinity")) {
             Container.ExecResult execResult;
@@ -55,6 +57,13 @@ public class DockerLocalCommandExecutor implements LocalCommandExecutor {
                 arguments.add(0, program);
                 container.start();
                 execResult = container.execInContainer(arguments.toArray(new String[0]));
+                // we need to chmod 777 all created files because of potential directories created by the program
+                // executed by the command:
+                //  - containerWorkingDir is created by host, so all files created in this directory inside the container
+                //  will be deletable byt host
+                //  - subdirectories of containerWorkingDir created inside the container WON'T BE DELETABLE BY THE HOST,
+                //  so we need to change their permissions
+                container.execInContainer("chmod", "-R", "777", containerWorkingDir);
                 Files.write(errFile, execResult.getStderr().getBytes(StandardCharsets.UTF_8));
                 Files.write(outFile, execResult.getStdout().getBytes(StandardCharsets.UTF_8));
                 container.stop();

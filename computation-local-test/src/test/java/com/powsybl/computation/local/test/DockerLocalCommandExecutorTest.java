@@ -32,6 +32,7 @@ import static org.junit.Assert.assertTrue;
 public class DockerLocalCommandExecutorTest {
 
     private static final String COMMAND_ID = "test";
+    private static final String COMMAND_ID_2 = "test2";
 
     @Rule
     public final TemporaryFolder tempFolder = new TemporaryFolder();
@@ -109,6 +110,33 @@ public class DockerLocalCommandExecutorTest {
             @Override
             public Boolean after(Path workingDir, ExecutionReport report) {
                 return Files.exists(workingDir.resolve("result.txt"));
+            }
+        }).join();
+        assertTrue(exists);
+    }
+
+    @Test
+    public void testOutputDir() {
+        Boolean exists = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Boolean>() {
+            @Override
+            public List<CommandExecution> before(Path workingDir) {
+                var cmd1 = new CommandExecution(new SimpleCommandBuilder()
+                        .id(COMMAND_ID)
+                        .program("mkdir")
+                        .args("mydir")
+                        .build(), 1);
+                var cmd2 = new CommandExecution(new SimpleCommandBuilder()
+                        .id(COMMAND_ID_2)
+                        .program("touch")
+                        .args("mydir/result.txt")
+                        .outputFiles(new OutputFile("mydir/result.txt"))
+                        .build(), 1);
+                return List.of(cmd1, cmd2);
+            }
+
+            @Override
+            public Boolean after(Path workingDir, ExecutionReport report) {
+                return Files.exists(workingDir.resolve("mydir/result.txt"));
             }
         }).join();
         assertTrue(exists);
