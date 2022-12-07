@@ -10,6 +10,8 @@ package com.powsybl.cgmes.conformity;
 import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.commons.datasource.ResourceSet;
 
+import static com.powsybl.cgmes.conformity.CgmesCatalogsConstants.*;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -19,11 +21,10 @@ public final class Cgmes3Catalog {
     }
 
     public static GridModelReferenceResources microGrid() {
-        String base = CGMES_3_TEST_MODELS + "/MicroGrid/";
         return new GridModelReferenceResources(
                 "MicroGrid",
                 null,
-                new ResourceSet(base, "" +
+                new ResourceSet(CGMES_3_MICRO_GRID_BASE,
                     "20210209T1930Z_1D_ASSEMBLED_DL_9.xml",
                     "20210209T1930Z_1D_ASSEMBLED_SV_9.xml",
                     "20210209T1930Z_1D_BE_EQ_9.xml",
@@ -37,11 +38,10 @@ public final class Cgmes3Catalog {
     }
 
     public static GridModelReferenceResources microGridWithoutTpSv() {
-        String base = CGMES_3_TEST_MODELS + "/MicroGrid/";
         return new GridModelReferenceResources(
                 "MicroGrid",
                 null,
-                new ResourceSet(base, "" +
+                new ResourceSet(CGMES_3_MICRO_GRID_BASE,
                     "20210209T1930Z_1D_ASSEMBLED_DL_9.xml",
                     "20210209T1930Z_1D_BE_EQ_9.xml",
                     "20210209T1930Z_1D_BE_GL_9.xml",
@@ -53,69 +53,60 @@ public final class Cgmes3Catalog {
     }
 
     public static GridModelReferenceResources miniGrid() {
-        String base = CGMES_3_TEST_MODELS + "/MiniGrid/";
-        String baseBoundary = base;
         return new GridModelReferenceResources(
                 "MiniGrid",
                 null,
-                new ResourceSet(base, "" +
+                new ResourceSet(CGMES_3_MINI_GRID_BASE,
                     "20210202T1930Z_1D_ASSEMBLED_DL_7.xml",
                     "20210202T1930Z_1D_ASSEMBLED_SV_7.xml",
                     "20210202T1930Z_1D_AA_EQ_7.xml",
                     "20210202T1930Z_1D_AA_SSH_7.xml",
                     "20210202T1930Z_1D_AA_TP_7.xml"),
-                new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml"));
+                new ResourceSet(CGMES_3_MINI_GRID_BASE, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
     public static GridModelReferenceResources miniGridWithoutTpSv() {
-        String base = CGMES_3_TEST_MODELS + "/MiniGrid/";
-        String baseBoundary = base;
         return new GridModelReferenceResources(
                 "MiniGrid",
                 null,
-                new ResourceSet(base, "" +
+                new ResourceSet(CGMES_3_MINI_GRID_BASE,
                     "20210202T1930Z_1D_ASSEMBLED_DL_7.xml",
                     "20210202T1930Z_1D_AA_EQ_7.xml",
                     "20210202T1930Z_1D_AA_SSH_7.xml"),
-                new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml"));
+                new ResourceSet(CGMES_3_MINI_GRID_BASE, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
     public static GridModelReferenceResources smallGrid() {
-        String base = CGMES_3_TEST_MODELS + "/SmallGrid/";
-        String baseBoundary = base;
         return new GridModelReferenceResources(
                 "SmallGrid",
                 null,
-                new ResourceSet(base, "" +
+                new ResourceSet(CGMES_3_SMALL_GRID_BASE,
                     "20210112T1742Z_1D_GB_DL_001.xml",
                     "20210112T1742Z_1D_GB_SV_001.xml",
-                    "20210112T1742Z_1D_GB_EQ_001.xml",
+                    CGMES_3_SMALL_GRID_EQ,
                     "20210112T1742Z_1D_GB_GL_001.xml",
                     "20210112T1742Z_1D_GB_SSH_001.xml",
                     "20210112T1742Z_1D_GB_TP_001.xml"),
-                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
+                new ResourceSet(CGMES_3_SMALL_GRID_BASE, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
     public static GridModelReferenceResources smallGridWithoutTpSv() {
-        String base = CGMES_3_TEST_MODELS + "/SmallGrid/";
-        String baseBoundary = base;
         return new GridModelReferenceResources(
                 "SmallGrid",
                 null,
-                new ResourceSet(base, "" +
+                new ResourceSet(CGMES_3_SMALL_GRID_BASE,
                     "20210112T1742Z_1D_GB_DL_001.xml",
-                    "20210112T1742Z_1D_GB_EQ_001.xml",
+                    CGMES_3_SMALL_GRID_EQ,
                     "20210112T1742Z_1D_GB_GL_001.xml",
                     "20210112T1742Z_1D_GB_SSH_001.xml"),
-                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
+                new ResourceSet(CGMES_3_SMALL_GRID_BASE, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
     }
 
     public static GridModelReferenceResources svedala() {
-        String base = CGMES_3_TEST_MODELS + "/Svedala/";
         return new GridModelReferenceResources(
                 "Svedala",
                 null,
-                new ResourceSet(base, "" +
+                new ResourceSet(CGMES_3_SVEDALA_BASE,
                     "20201202T1843Z_1D_Svedala Area_DL_001.xml",
                     "20201202T1843Z_1D_Svedala Area_SV_001.xml",
                     "20201202T1843Z_1D_Svedala Area_EQ_001.xml",
@@ -124,20 +115,16 @@ public final class Cgmes3Catalog {
     }
 
     public static GridModelReferenceResources svedalaWithoutTpSv() {
-        String base = CGMES_3_TEST_MODELS + "/Svedala/";
         return new GridModelReferenceResources(
                 "Svedala",
                 null,
-                new ResourceSet(base, "" +
+                new ResourceSet(CGMES_3_SVEDALA_BASE,
                     "20201202T1843Z_1D_Svedala Area_DL_001.xml",
                     "20201202T1843Z_1D_Svedala Area_EQ_001.xml",
                     "20201202T1843Z_1D_Svedala Area_SSH_001.xml"));
     }
 
     public static ResourceSet microGridBaseCaseBoundaries() {
-        String base = CGMES_3_TEST_MODELS + "/MicroGrid/";
-        return new ResourceSet(base, "20171002T0930Z_ENTSO-E_EQ_BD_2.xml");
+        return new ResourceSet(CGMES_3_MICRO_GRID_BASE, "20171002T0930Z_ENTSO-E_EQ_BD_2.xml");
     }
-
-    private static final String CGMES_3_TEST_MODELS = "/cgmes3-test-models";
 }
