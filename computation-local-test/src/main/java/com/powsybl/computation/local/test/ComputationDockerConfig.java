@@ -36,8 +36,9 @@ public class ComputationDockerConfig {
         return new ComputationDockerConfig().update(properties);
     }
 
-    public void setDockerImageId(String dockerImageId) {
-        this.dockerImageId = dockerImageId;
+    public ComputationDockerConfig setDockerImageId(String dockerImageId) {
+        this.dockerImageId = Objects.requireNonNull(dockerImageId);
+        return this;
     }
 
     public ComputationDockerConfig update(Map<String, String> properties) {
