@@ -472,22 +472,39 @@ public class DanglingLineAdapterTest {
         }
     }
 
+    @Test
+    public void multipleDanglingLines() {
+        createDanglingLine(noEquipNetwork, "vl1", "dl1", "dl1_name", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busA");
+        createDanglingLine(eurostagNetwork, "VLHV1", "dl2", "dl2_name", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "NHV1");
+        createDanglingLine(eurostagNetwork, "VLHV1", "dl3", "dl3_name", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", null, "NHV1");
+        mergingView.merge(noEquipNetwork, eurostagNetwork);
+        assertNotNull(mergingView.getLine("dl1 + dl2"));
+        assertEquals("dl1_name + dl2_name", mergingView.getLine("dl1 + dl2").getOptionalName().orElse(null));
+        assertEquals("dl1_name + dl2_name", mergingView.getLine("dl1 + dl2").getNameOrId());
+    }
+
     private static DanglingLine createDanglingLine(Network n, String vlId, String id, String name, double r, double x, double g, double b,
                                                    double p0, double q0, String ucteCode, String busId) {
 
+        return createDanglingLine(n, vlId, id, name, r, x, g, b, p0, q0, ucteCode, busId, busId);
+    }
+
+    private static DanglingLine createDanglingLine(Network n, String vlId, String id, String name, double r, double x, double g, double b,
+                                                   double p0, double q0, String ucteCode, String busId, String connectableBusId) {
+
         return n.getVoltageLevel(vlId).newDanglingLine()
-                                                     .setId(id)
-                                                     .setName(name)
-                                                     .setR(r)
-                                                     .setX(x)
-                                                     .setG(g)
-                                                     .setB(b)
-                                                     .setP0(p0)
-                                                     .setQ0(q0)
-                                                     .setUcteXnodeCode(ucteCode)
-                                                     .setBus(busId)
-                                                     .setConnectableBus(busId)
-                                                     .setEnsureIdUnicity(false)
-                                                 .add();
+                .setId(id)
+                .setName(name)
+                .setR(r)
+                .setX(x)
+                .setG(g)
+                .setB(b)
+                .setP0(p0)
+                .setQ0(q0)
+                .setUcteXnodeCode(ucteCode)
+                .setBus(busId)
+                .setConnectableBus(connectableBusId)
+                .setEnsureIdUnicity(false)
+                .add();
     }
 }
