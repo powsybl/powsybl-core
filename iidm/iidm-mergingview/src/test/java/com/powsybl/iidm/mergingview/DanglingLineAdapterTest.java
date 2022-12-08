@@ -434,8 +434,8 @@ public class DanglingLineAdapterTest {
         double p0 = 1.0;
         double q0 = 1.0;
         Network network = EurostagTutorialExample1Factory.create();
-        createDanglingLine(network, "VLGEN", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "NGEN");
-        createDanglingLine(noEquipNetwork, "vl1", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+        createDanglingLine(network, "VLGEN", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, null, "NGEN");
+        createDanglingLine(noEquipNetwork, "vl1", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, null, "busA");
         mergingView.merge(network, noEquipNetwork);
         assertNull(mergingView.getDanglingLine("dl"));
         Line merged = mergingView.getLine("dl");

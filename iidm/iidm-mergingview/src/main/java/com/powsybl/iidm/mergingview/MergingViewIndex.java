@@ -344,7 +344,7 @@ class MergingViewIndex {
     }
 
     boolean isMerged(final DanglingLine dl) {
-        return mergedLineCached.containsKey(dl.getUcteXnodeCode());
+        return mergedLineCached.containsKey(dl.getUcteXnodeCode()) || mergedLineCached.containsKey(dl.getId());
     }
 
     Stream<DanglingLine> getDanglingLineStream() {
