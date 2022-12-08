@@ -77,7 +77,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
         assertTrue(feedersVl3.containsKey("trf7"));
         List<ConnectablePosition.Feeder> trf7Vl2 = feedersVl3.get("trf7");
         assertEquals(1, trf7Vl2.size());
-        assertEquals(30, trf7Vl2.get(0).getOrder().orElse(0),0);
+        assertEquals(30, trf7Vl2.get(0).getOrder().orElse(0), 0);
     }
 
     @Test
