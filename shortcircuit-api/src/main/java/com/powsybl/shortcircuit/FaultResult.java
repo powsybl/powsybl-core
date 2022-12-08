@@ -23,13 +23,25 @@ import java.util.Objects;
 public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     public enum Status {
+        /**
+         * The computation went ok and no error were returned
+         */
         SUCCESS,
+        /**
+         * Data useful to shortcircuit calculation is missing, typically the transient reactance of generators
+         */
         NO_SHORTCIRCUIT_DATA,
+        /**
+         * The computation failed due to an error in the solver.
+         */
         SOLVER_FAILURE,
+        /**
+         *  The computation failed due to something not related to the solver.
+         */
         FAILURE
     }
 
-    private Status faultResultStatus;
+    private Status status;
 
     private final Fault fault;
 
@@ -66,7 +78,7 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
-                       Duration timeConstant, Status faultResultStatus) {
+                       Duration timeConstant, Status status) {
         this.fault = Objects.requireNonNull(fault);
         this.shortCircuitPower = shortCircuitPower;
         this.feederResults = feederResults;
@@ -75,21 +87,21 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
         this.voltage = voltage;
         this.shortCircuitBusResults = shortCircuitBusResults;
         this.timeConstant = timeConstant;
-        this.faultResultStatus = Objects.requireNonNull(faultResultStatus);
+        this.status = Objects.requireNonNull(status);
     }
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
-                       List<LimitViolation> limitViolations, FortescueValue current, Duration timeConstant, Status faultResultStatus) {
-        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant, faultResultStatus);
+                       List<LimitViolation> limitViolations, FortescueValue current, Duration timeConstant, Status status) {
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant, status);
     }
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
-                       List<LimitViolation> limitViolations, FortescueValue current, Status faultResultStatus) {
-        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), null, faultResultStatus);
+                       List<LimitViolation> limitViolations, FortescueValue current, Status status) {
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), null, status);
     }
 
-    public FaultResult(Fault fault, Status faultResultStatus) {
-        this(fault, Double.NaN, Collections.emptyList(), Collections.emptyList(), null, null, Collections.emptyList(), null, faultResultStatus);
+    public FaultResult(Fault fault, Status status) {
+        this(fault, Double.NaN, Collections.emptyList(), Collections.emptyList(), null, null, Collections.emptyList(), null, status);
     }
 
     /**
@@ -160,11 +172,10 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     }
 
     /**
-     * The computation status. SUCCESS if computation went ok, NO_SHORTCIRCUIT if the transient reactance of every generators is missing,
-     * SOLVER_FAILURE if the computation failed due to an error in the solver and FAILURE if the computation failed due to anything else.
+     * The computation status.
      */
     public Status getStatus() {
-        return faultResultStatus;
+        return status;
     }
 
 }
