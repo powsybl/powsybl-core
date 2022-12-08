@@ -70,7 +70,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
         assertTrue(feeders.containsKey("trf5"));
         List<ConnectablePosition.Feeder> feeder = feeders.get("trf6");
         assertEquals(1, feeder.size());
-        assertEquals("trf61", feeder.get(0).getName());
+        assertEquals(Optional.of("trf61"), feeder.get(0).getName());
         assertEquals(Optional.of(50), feeder.get(0).getOrder());
         Map<String, List<ConnectablePosition.Feeder>> feedersVl3 = getFeedersByConnectable(network.getVoltageLevel("vl3"));
         assertFalse(feedersVl3.isEmpty());
