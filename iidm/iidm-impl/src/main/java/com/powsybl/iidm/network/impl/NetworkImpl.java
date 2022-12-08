@@ -925,15 +925,24 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         if (dl1 == null) {
             // mapping by ucte xnode code
             if (dl2.getUcteXnodeCode() != null) {
+                if (dl2.getNetwork().getDanglingLineStream()
+                        .filter(d -> d != dl2)
+                        .filter(d -> d.getUcteXnodeCode() != null)
+                        .filter(d -> d.getUcteXnodeCode().equals(dl2.getUcteXnodeCode()))
+                        .anyMatch(d -> d.getTerminal().isConnected())) {
+                    return null;
+                }
                 List<DanglingLine> dls = dl1byXnodeCode.get(dl2.getUcteXnodeCode());
                 if (dls != null) {
                     if (dls.size() == 1) {
-                        return dls.get(0);
+                        dl1 = dls.get(0);
+                        dl1byXnodeCode.remove(dl2.getUcteXnodeCode());
                     }
                     if (dls.size() > 1) {
                         List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
                         if (connectedDls.size() == 1) {
-                            return connectedDls.get(0);
+                            dl1 = connectedDls.get(0);
+                            dl1byXnodeCode.get(dl2.getUcteXnodeCode()).remove(dl1);
                         }
                     }
                 }

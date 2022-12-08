@@ -87,6 +87,13 @@ class MergingViewIndex {
                     .or(() -> Optional.ofNullable(dll2.getUcteXnodeCode()))
                     .orElseGet(dll2::getId), key -> new MergedLine(this, dl1, dll2));
         } else {
+            if (dll2.getNetwork().getDanglingLineStream()
+                    .filter(d -> d != dll2)
+                    .filter(d -> d.getUcteXnodeCode() != null)
+                    .filter(d -> d.getUcteXnodeCode().equals(dll2.getUcteXnodeCode()))
+                    .anyMatch(d -> d.getTerminal().isConnected())) {
+                return;
+            }
             final String code = dll2.getUcteXnodeCode();
             if (code == null) {
                 return;
