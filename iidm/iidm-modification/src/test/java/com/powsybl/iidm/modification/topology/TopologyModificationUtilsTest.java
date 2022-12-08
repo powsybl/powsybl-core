@@ -152,7 +152,8 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
         BusbarSection firstBbsWithoutExtensions = getFirstBusbarSection(networkWithoutExtensions.getVoltageLevel("S1VL2"));
         assertEquals("S1VL2_BBS1", firstBbsWithoutExtensions.getId());
         network.newVoltageLevel().setId("VLTEST").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
-        assertThrows(PowsyblException.class, () -> getFirstBusbarSection(network.getVoltageLevel("VLTEST")));
+        VoltageLevel vl = network.getVoltageLevel("VLTEST");
+        assertThrows(PowsyblException.class, () -> getFirstBusbarSection(vl));
     }
 
     @Test
