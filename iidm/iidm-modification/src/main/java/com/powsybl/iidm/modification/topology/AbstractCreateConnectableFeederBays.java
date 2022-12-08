@@ -167,7 +167,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                     positionOrderAlreadyTakenReport(reporter, positionOrder);
                 }
             } else {
-                LOGGER.warn("No extensions found on voltageLevel {}. The extension is not created.", voltageLevel.getId());
+                LOGGER.warn("No order positions found on voltageLevel {}. The extension is not created.", voltageLevel.getId());
                 noConnectablePositionExtension(reporter, voltageLevel);
             }
             // create switches and a breaker linking the connectable to the busbar sections.
