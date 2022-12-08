@@ -120,7 +120,7 @@ public class ContingencyBuilder {
 
     public ContingencyBuilder addIdentifiable(String id, Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(id);
-        if (Objects.isNull(identifiable)) {
+        if (identifiable == null) {
             throw new PowsyblException(String.format("Element %s has not been found in the network", id));
         }
         return addIdentifiable(identifiable);
