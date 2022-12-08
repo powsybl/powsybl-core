@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -140,5 +141,27 @@ public class DockerLocalCommandExecutorTest {
             }
         }).join();
         assertTrue(exists);
+    }
+
+    @Test
+    public void testEnvVar() {
+        ExecutionEnvironment env = ExecutionEnvironment.createDefault()
+                .setVariables(Map.of("FOO", "BAR"));
+        List<String> lines = computationManager.execute(env, new AbstractExecutionHandler<List<String>>() {
+            @Override
+            public List<CommandExecution> before(Path workingDir) {
+                return List.of(new CommandExecution(new SimpleCommandBuilder()
+                        .id(COMMAND_ID)
+                        .program("printenv")
+                        .args("FOO")
+                        .build(), 1));
+            }
+
+            @Override
+            public List<String> after(Path workingDir, ExecutionReport report) throws IOException {
+                return Files.readAllLines(workingDir.resolve(COMMAND_ID + "_0.out"));
+            }
+        }).join();
+        assertEquals(List.of("BAR"), lines);
     }
 }

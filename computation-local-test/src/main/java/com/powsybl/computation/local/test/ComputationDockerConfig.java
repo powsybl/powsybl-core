@@ -27,7 +27,7 @@ public class ComputationDockerConfig {
     public static ComputationDockerConfig load(PlatformConfig config) {
         Map<String, String> properties = new HashMap<>();
         ModuleConfig module = config.getOptionalModuleConfig(MODULE).orElseThrow(() ->
-                new ConfigurationException("Module " + MODULE + "  is missing in your configuration file"));
+                new ConfigurationException("Module " + MODULE + " is missing in your configuration file"));
         module.getOptionalStringProperty(IMAGE).ifPresent(value -> properties.put(IMAGE, value));
         return load(properties);
     }
