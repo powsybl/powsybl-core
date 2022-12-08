@@ -125,7 +125,7 @@ public class FaultParameters {
                 ", withFeederResult=" + withFeederResult +
                 ", studyType=" + studyType +
                 ", minVoltageDropProportionalThreshold=" + minVoltageDropProportionalThreshold +
-                ", withVoltageDropProfileresult=" + withVoltageDropProfileResult +
+                ", withVoltageDropProfileResult=" + withVoltageDropProfileResult +
                 '}';
     }
 
