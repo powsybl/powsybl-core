@@ -21,7 +21,7 @@ public class CgmesLineBoundaryNodeXmlSerializerTest extends AbstractConverterTes
 
     @Test
     public void test() throws IOException {
-        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        Network network = EurostagTutorialExample1Factory.createWithTieLines();
         network.getLine("NHV1_NHV2_1").newExtension(CgmesLineBoundaryNodeAdder.class)
                 .setHvdc(true)
                 .setLineEnergyIdentificationCodeEic("EIC_CODE")

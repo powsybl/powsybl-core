@@ -188,7 +188,15 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    /**
+     * @deprecated Use {@link #createWithTieLines()} instead.
+     */
+    @Deprecated(since = "5.1.0")
     public static Network createWithTieLine() {
+        return createWithTieLines(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithTieLines() {
         return createWithTieLines(NetworkFactory.findDefault());
     }
 

@@ -948,11 +948,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
             MergedLine l = new MergedLine();
             l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
-            l.aliases = new HashSet<>();
-            l.aliases.add(dl1.getId());
-            l.aliases.add(dl2.getId());
-            l.aliases.addAll(dl1.getAliases());
-            l.aliases.addAll(dl2.getAliases());
+            l.aliases = new HashMap<>();
+            l.aliases.put(dl1.getId(), null);
+            l.aliases.put(dl2.getId(), null);
+            dl1.getAliases().forEach(alias -> dl1.getAliasType(alias).ifPresentOrElse(type -> l.aliases.put(alias, type), () -> l.aliases.put(alias, null)));
+            dl2.getAliases().forEach(alias -> dl2.getAliasType(alias).ifPresentOrElse(type -> l.aliases.put(alias, type), () -> l.aliases.put(alias, null)));
             Terminal t1 = dl1.getTerminal();
             Terminal t2 = dl2.getTerminal();
             VoltageLevel vl1 = t1.getVoltageLevel();
@@ -1086,7 +1086,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
             l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
             mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-            mergedLine.aliases.forEach(l::addAlias);
+            mergedLine.aliases.forEach((alias, type) -> {
+                if (type != null) {
+                    l.addAlias(alias, type);
+                } else {
+                    l.addAlias(alias);
+                }
+            });
 
             mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
         }
@@ -1094,7 +1100,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     class MergedLine {
         String id;
-        Set<String> aliases;
+        Map<String, String> aliases;
         String voltageLevel1;
         String voltageLevel2;
         String xnode;

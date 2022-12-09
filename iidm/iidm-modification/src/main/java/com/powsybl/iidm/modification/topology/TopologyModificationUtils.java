@@ -37,17 +37,16 @@ public final class TopologyModificationUtils {
     private TopologyModificationUtils() {
     }
 
-    static final class LoadingLimitsBags {
+    public static final class LoadingLimitsBags {
 
         private final LoadingLimitsBag activePowerLimits;
         private final LoadingLimitsBag apparentPowerLimits;
         private final LoadingLimitsBag currentLimits;
 
-        LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
+        public LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
                           Supplier<Optional<CurrentLimits>> currentLimitsGetter) {
-            activePowerLimits = activePowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
-            apparentPowerLimits = apparentPowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
-            currentLimits = currentLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
+            this(activePowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null), apparentPowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null),
+                    currentLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null));
         }
 
         LoadingLimitsBags(LoadingLimitsBag activePowerLimits, LoadingLimitsBag apparentPowerLimits, LoadingLimitsBag currentLimits) {
@@ -56,15 +55,15 @@ public final class TopologyModificationUtils {
             this.currentLimits = currentLimits;
         }
 
-        Optional<LoadingLimitsBag> getActivePowerLimits() {
+        public Optional<LoadingLimitsBag> getActivePowerLimits() {
             return Optional.ofNullable(activePowerLimits);
         }
 
-        Optional<LoadingLimitsBag> getApparentPowerLimits() {
+        public Optional<LoadingLimitsBag> getApparentPowerLimits() {
             return Optional.ofNullable(apparentPowerLimits);
         }
 
-        Optional<LoadingLimitsBag> getCurrentLimits() {
+        public Optional<LoadingLimitsBag> getCurrentLimits() {
             return Optional.ofNullable(currentLimits);
         }
     }
@@ -170,7 +169,13 @@ public final class TopologyModificationUtils {
         }
     }
 
-    static void addLoadingLimits(Line created, LoadingLimitsBags limits, Branch.Side side) {
+    public static void addLoadingLimits(DanglingLine created, LoadingLimitsBags limits) {
+        limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits(), lim));
+        limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits(), lim));
+        limits.getCurrentLimits().ifPresent(lim -> addLoadingLimits(created.newCurrentLimits(), lim));
+    }
+
+    public static void addLoadingLimits(Line created, LoadingLimitsBags limits, Branch.Side side) {
         if (side == Branch.Side.ONE) {
             limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
             limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));

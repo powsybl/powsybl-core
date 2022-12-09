@@ -191,7 +191,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
 
     @Test
     public void writeTieLine() throws IOException {
-        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        Network network = EurostagTutorialExample1Factory.createWithTieLines();
 
         Properties properties = new Properties();
         properties.put("iidm.export.ampl.with-xnodes", "true");
