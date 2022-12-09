@@ -28,6 +28,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.util.TieLineUtil.buildMergedId;
+import static com.powsybl.iidm.network.util.TieLineUtil.buildMergedName;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -967,7 +970,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(dl2.getR(), dl2.getX(), dl2.getG(), dl2.getB(), 0.0, 0.0);
 
             MergedLine l = new MergedLine();
-            l.id = getMergedId(dl1.getId(), dl2.getId());
+            l.id = buildMergedId(dl1.getId(), dl2.getId());
             l.aliases = new HashSet<>();
             l.aliases.add(dl1.getId());
             l.aliases.add(dl2.getId());
@@ -1062,7 +1065,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
             TieLineAdderImpl la = newTieLine()
                     .setId(mergedLine.id)
-                    .setName(getMergedName(mergedLine.half1.id, mergedLine.half2.id, mergedLine.half1.name, mergedLine.half2.name))
+                    .setName(buildMergedName(mergedLine.half1.id, mergedLine.half2.id, mergedLine.half1.name, mergedLine.half2.name))
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .newHalfLine1().setId(mergedLine.half1.id)
@@ -1110,38 +1113,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
             mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
         }
-    }
-
-    private static String getMergedId(String id1, String id2) {
-        if (id1.compareTo(id2) < 0) {
-            return id1 + " + " + id2;
-        }
-        if (id1.compareTo(id2) > 0) {
-            return id2 + " + " + id1;
-        }
-        return id1;
-    }
-
-    private static String getMergedName(String id1, String id2, String name1, String name2) {
-        if (name1 == null) {
-            return name2;
-        }
-        if (name2 == null) {
-            return name1;
-        }
-        if (name1.compareTo(name2) == 0) {
-            return name1;
-        }
-        if (id1.compareTo(id2) < 0) {
-            return name1 + " + " + name2;
-        }
-        if (id1.compareTo(id2) > 0) {
-            return name2 + " + " + name1;
-        }
-        if (name1.compareTo(name2) < 0) {
-            return name1 + " + " + name2;
-        }
-        return name2 + " + " + name1;
     }
 
     class MergedLine {

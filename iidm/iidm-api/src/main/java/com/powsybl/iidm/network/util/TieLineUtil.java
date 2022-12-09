@@ -22,6 +22,38 @@ public final class TieLineUtil {
     private TieLineUtil() {
     }
 
+    public static String buildMergedId(String id1, String id2) {
+        if (id1.compareTo(id2) < 0) {
+            return id1 + " + " + id2;
+        }
+        if (id1.compareTo(id2) > 0) {
+            return id2 + " + " + id1;
+        }
+        return id1;
+    }
+
+    public static String buildMergedName(String id1, String id2, String name1, String name2) {
+        if (name1 == null) {
+            return name2;
+        }
+        if (name2 == null) {
+            return name1;
+        }
+        if (name1.compareTo(name2) == 0) {
+            return name1;
+        }
+        if (id1.compareTo(id2) < 0) {
+            return name1 + " + " + name2;
+        }
+        if (id1.compareTo(id2) > 0) {
+            return name2 + " + " + name1;
+        }
+        if (name1.compareTo(name2) < 0) {
+            return name1 + " + " + name2;
+        }
+        return name2 + " + " + name1;
+    }
+
     public static double getR(TieLine.HalfLine half1, TieLine.HalfLine half2) {
         LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
         // Add 0.0 to avoid negative zero, tests where the R value is compared as text, fail

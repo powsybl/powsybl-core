@@ -21,6 +21,9 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.network.util.TieLineUtil.buildMergedId;
+import static com.powsybl.iidm.network.util.TieLineUtil.buildMergedName;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -49,52 +52,13 @@ class MergedLine implements TieLine {
         // must be reoriented. TieLine is defined as networkNode1-boundaryNode--boundaryNode-networkNode2
         // and in danglingLines the networkNode is always at end1
         this.half2 = new HalfLineAdapter(dl2, Side.TWO, index, true);
-        this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildId(dl1.getId(), dl2.getId()), index::contains) : buildId(dl1.getId(), dl2.getId());
-        this.name = buildName(dl1, dl2);
+        this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildMergedId(dl1.getId(), dl2.getId()), index::contains) : buildMergedId(dl1.getId(), dl2.getId());
+        this.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
         mergeProperties(dl1, dl2);
     }
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2) {
         this(index, dl1, dl2, false);
-    }
-
-    private static String buildName(final DanglingLine dl1, final DanglingLine dl2) {
-        Optional<String> optName1 = dl1.getOptionalName();
-        Optional<String> optName2 = dl2.getOptionalName();
-        if (optName1.isEmpty()) {
-            return optName2.orElse(null);
-        }
-        if (optName2.isEmpty()) {
-            return optName1.orElse(null);
-        }
-        String name1 = optName1.get();
-        String name2 = optName2.get();
-        String id1 = dl1.getId();
-        String id2 = dl2.getId();
-        if (name1.compareTo(name2) == 0) {
-            return name1;
-        }
-        if (id1.compareTo(id2) < 0) {
-            return name1 + " + " + name2;
-        }
-        if (id1.compareTo(id2) > 0) {
-            return name2 + " + " + name1;
-        }
-        if (name1.compareTo(name2) < 0) {
-            return name1 + " + " + name2;
-        }
-        return name2 + " + " + name1;
-    }
-
-    private static String buildId(String idOrName1, String idOrName2) {
-        int compareResult = idOrName1.compareTo(idOrName2);
-        if (compareResult == 0) {
-            return idOrName1;
-        } else if (compareResult < 0) {
-            return idOrName1 + " + " + idOrName2;
-        } else {
-            return idOrName2 + " + " + idOrName1;
-        }
     }
 
     private void mergeProperties(DanglingLine dl1, DanglingLine dl2) {
