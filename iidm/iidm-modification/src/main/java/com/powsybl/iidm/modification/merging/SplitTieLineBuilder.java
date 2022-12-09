@@ -23,9 +23,6 @@ public class SplitTieLineBuilder {
     private final Set<String> aliasTypes2 = new HashSet<>();
     private Branch.Side defaultSideForAliases = Branch.Side.ONE;
 
-    public SplitTieLineBuilder() {
-    }
-
     public SplitTieLine build() {
         return new SplitTieLine(tieLineId, aliasTypes1, aliasTypes2, defaultSideForAliases);
     }
