@@ -127,8 +127,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
             isLine2Reoriented(boundaryLine2.getBoundarySide()));
 
         TieLineAdder adder = context.network().newTieLine()
-            .setId(context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(boundaryLine1.getId(), boundaryLine2.getId())))
-            .setName(TieLineUtil.buildMergedName(boundaryLine1.getId(), boundaryLine2.getId(), boundaryLine1.getName(), boundaryLine2.getName()))
             .newHalfLine1()
             .setId(boundaryLine1.getId())
             .setName(boundaryLine1.getName())
@@ -150,7 +148,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
             .setB2(brp2.getB2())
             .add()
             .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
-        identify(context, adder, boundaryLine1.getId() + " + " + boundaryLine2.getId(), boundaryLine1.getName() + " + " + boundaryLine2.getName());
+        identify(context, adder, context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(boundaryLine1.getId(), boundaryLine2.getId())),
+                TieLineUtil.buildMergedName(boundaryLine1.getId(), boundaryLine2.getId(), boundaryLine1.getName(), boundaryLine2.getName()));
         connect(context, adder, boundaryLine1.getModelIidmVoltageLevelId(), boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(),
             boundaryLine1.getModelNode(), boundaryLine2.getModelIidmVoltageLevelId(), boundaryLine2.getModelBus(),
             boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
