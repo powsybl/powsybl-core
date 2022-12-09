@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.psse.model.PsseException;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -119,6 +118,15 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         return fields.toArray(new String[0]);
     }
 
+    private static String readArrayContent(JsonNode jrecord) {
+        String srecord = jrecord.toString();
+        if (jrecord.isArray()) {
+            // Remove square brackets
+            return srecord.substring(1, srecord.length() - 1);
+        }
+        return srecord;
+    }
+
     private List<String> readRecords(JsonNode n) {
         JsonNode dataNode = n.get("data");
         if (!dataNode.isArray()) {
@@ -127,11 +135,11 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         List<String> records = new ArrayList<>();
         switch (recordGroup.getIdentification().getJsonObjectType()) {
             case PARAMETER_SET:
-                records.add(StringUtils.substringBetween(dataNode.toString(), "[", "]"));
+                records.add(readArrayContent(dataNode));
                 break;
             case DATA_TABLE:
                 for (JsonNode r : dataNode) {
-                    records.add(StringUtils.substringBetween(r.toString(), "[", "]"));
+                    records.add(readArrayContent(r));
                 }
                 break;
             default:

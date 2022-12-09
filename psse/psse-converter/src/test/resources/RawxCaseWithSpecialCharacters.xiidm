@@ -13,7 +13,7 @@
     <iidm:substation id="S102">
         <iidm:voltageLevel id="VL102" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="B102" name="Sink[" v="1.0" angle="0.0"/>
+                <iidm:bus id="B102" name="Sink[]{}:º" v="1.0" angle="0.0"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B102-L1" loadType="UNDEFINED" p0="500.0" q0="200.0" bus="B102" connectableBus="B102"/>
         </iidm:voltageLevel>
