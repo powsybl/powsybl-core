@@ -425,8 +425,8 @@ public class DanglingLineAdapterTest {
         assertEquals(1, mergingView.getLineCount());
         final Line line = mergingView.getLine("testListener1 + testListener2");
         final MergedLine mergedLine = (MergedLine) line;
-        assertEquals("testListener1 + testListener2", mergedLine.getOptionalName().orElse(null));
-        assertEquals("testListener1 + testListener2", mergedLine.getNameOrId());
+        assertEquals("testListener2 + testListener1", mergedLine.getOptionalName().orElse(null));
+        assertEquals("testListener2 + testListener1", mergedLine.getNameOrId());
     }
 
     @Test
@@ -435,11 +435,26 @@ public class DanglingLineAdapterTest {
         double q0 = 1.0;
         Network network = EurostagTutorialExample1Factory.create();
         createDanglingLine(network, "VLGEN", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, null, "NGEN");
-        createDanglingLine(noEquipNetwork, "vl1", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, null, "busA");
+        createDanglingLine(noEquipNetwork, "vl1", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
         mergingView.merge(network, noEquipNetwork);
         assertNull(mergingView.getDanglingLine("dl"));
         Line merged = mergingView.getLine("dl");
         assertNotNull(merged);
+    }
+
+    @Test
+    public void failDanglingLinesWithSameIdAndNullXnodeCode() {
+        double p0 = 1.0;
+        double q0 = 1.0;
+        Network network = EurostagTutorialExample1Factory.create();
+        createDanglingLine(network, "VLGEN", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, null, "NGEN");
+        createDanglingLine(noEquipNetwork, "vl1", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, null, "busA");
+        try {
+            mergingView.merge(network, noEquipNetwork);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Dangling line couple dl have inconsistent Xnodes (null,null)", e.getMessage());
+        }
     }
 
     @Test
@@ -453,7 +468,7 @@ public class DanglingLineAdapterTest {
             mergingView.merge(network, noEquipNetwork);
             fail();
         } catch (PowsyblException e) {
-            assertEquals("Dangling line couple dl have inconsistent Xnodes (code!=code2)", e.getMessage());
+            assertEquals("Dangling line couple dl have inconsistent Xnodes (code,code2)", e.getMessage());
         }
     }
 

@@ -949,8 +949,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             }
         } else {
             // if dangling line with same ID present, there is only one: they are associated if the X-node code is identical (if not: throw exception)
-            if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null
-                    && !dl1.getUcteXnodeCode().equals(dl2.getUcteXnodeCode())) {
+            if ((dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null
+                    && !dl1.getUcteXnodeCode().equals(dl2.getUcteXnodeCode())) || (dl1.getUcteXnodeCode() == null && dl2.getUcteXnodeCode() == null)) {
                 throw new PowsyblException("Dangling line couple " + dl1.getId()
                         + " have inconsistent Xnodes (" + dl1.getUcteXnodeCode()
                         + "!=" + dl2.getUcteXnodeCode() + ")");
@@ -967,7 +967,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(dl2.getR(), dl2.getX(), dl2.getG(), dl2.getB(), 0.0, 0.0);
 
             MergedLine l = new MergedLine();
-            l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
+            l.id = getMergedId(dl1.getId(), dl2.getId());
             l.aliases = new HashSet<>();
             l.aliases.add(dl1.getId());
             l.aliases.add(dl2.getId());
@@ -979,9 +979,9 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             VoltageLevel vl2 = t2.getVoltageLevel();
             l.voltageLevel1 = vl1.getId();
             l.voltageLevel2 = vl2.getId();
-            l.xnode = dl1.getUcteXnodeCode();
+            l.xnode = Optional.ofNullable(dl1.getUcteXnodeCode()).orElseGet(dl2::getUcteXnodeCode);
             l.half1.id = dl1.getId();
-            l.half1.name = dl1.getNameOrId();
+            l.half1.name = dl1.getOptionalName().orElse(null);
             l.half1.r = dl1.getR();
             l.half1.x = dl1.getX();
             l.half1.g1 = dl1.getG();
@@ -990,7 +990,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.b2 = 0;
             l.half1.fictitious = dl1.isFictitious();
             l.half2.id = dl2.getId();
-            l.half2.name = dl2.getNameOrId();
+            l.half2.name = dl2.getOptionalName().orElse(null);
             l.half2.r = brp2.getR();
             l.half2.x = brp2.getX();
             l.half2.g1 = brp2.getG1();
@@ -1062,7 +1062,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
             TieLineAdderImpl la = newTieLine()
                     .setId(mergedLine.id)
-                    .setName(mergedLine.half1.name + " + " + mergedLine.half2.name)
+                    .setName(getMergedName(mergedLine.half1.id, mergedLine.half2.id, mergedLine.half1.name, mergedLine.half2.name))
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .newHalfLine1().setId(mergedLine.half1.id)
@@ -1110,6 +1110,38 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
             mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
         }
+    }
+
+    private static String getMergedId(String id1, String id2) {
+        if (id1.compareTo(id2) < 0) {
+            return id1 + " + " + id2;
+        }
+        if (id1.compareTo(id2) > 0) {
+            return id2 + " + " + id1;
+        }
+        return id1;
+    }
+
+    private static String getMergedName(String id1, String id2, String name1, String name2) {
+        if (name1 == null) {
+            return name2;
+        }
+        if (name2 == null) {
+            return name1;
+        }
+        if (name1.compareTo(name2) == 0) {
+            return name1;
+        }
+        if (id1.compareTo(id2) < 0) {
+            return name1 + " + " + name2;
+        }
+        if (id1.compareTo(id2) > 0) {
+            return name2 + " + " + name1;
+        }
+        if (name1.compareTo(name2) < 0) {
+            return name1 + " + " + name2;
+        }
+        return name2 + " + " + name1;
     }
 
     class MergedLine {

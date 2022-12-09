@@ -84,9 +84,7 @@ class MergingViewIndex {
                 .orElse(null);
         if (dl1 != null) {
             // if dangling line with same ID present, merge it (already checked that X-node are identical)
-            mergedLineCached.computeIfAbsent(Optional.ofNullable(dl1.getUcteXnodeCode())
-                    .or(() -> Optional.ofNullable(dll2.getUcteXnodeCode()))
-                    .orElseGet(dll2::getId), key -> new MergedLine(this, dl1, dll2));
+            mergedLineCached.computeIfAbsent(dl1.getId(), key -> new MergedLine(this, dl1, dll2));
         } else { // if dangling line with same ID not present, find dangling line(s) with same X-node code in merging network if present
             final String code = dll2.getUcteXnodeCode();
             if (code == null) {

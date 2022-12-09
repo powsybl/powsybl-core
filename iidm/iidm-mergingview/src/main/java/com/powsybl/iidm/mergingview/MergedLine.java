@@ -49,7 +49,7 @@ class MergedLine implements TieLine {
         // must be reoriented. TieLine is defined as networkNode1-boundaryNode--boundaryNode-networkNode2
         // and in danglingLines the networkNode is always at end1
         this.half2 = new HalfLineAdapter(dl2, Side.TWO, index, true);
-        this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildIdOrName(dl1.getId(), dl2.getId()), index::contains) : buildIdOrName(dl1.getId(), dl2.getId());
+        this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildId(dl1.getId(), dl2.getId()), index::contains) : buildId(dl1.getId(), dl2.getId());
         this.name = buildName(dl1, dl2);
         mergeProperties(dl1, dl2);
     }
@@ -59,14 +59,34 @@ class MergedLine implements TieLine {
     }
 
     private static String buildName(final DanglingLine dl1, final DanglingLine dl2) {
-        return dl1.getOptionalName()
-                .map(name1 -> dl2.getOptionalName()
-                        .map(name2 -> buildIdOrName(name1, name2))
-                        .orElse(name1))
-                .orElseGet(() -> dl2.getOptionalName().orElse(null));
+        Optional<String> optName1 = dl1.getOptionalName();
+        Optional<String> optName2 = dl2.getOptionalName();
+        if (optName1.isEmpty()) {
+            return optName2.orElse(null);
+        }
+        if (optName2.isEmpty()) {
+            return optName1.orElse(null);
+        }
+        String name1 = optName1.get();
+        String name2 = optName2.get();
+        String id1 = dl1.getId();
+        String id2 = dl2.getId();
+        if (name1.compareTo(name2) == 0) {
+            return name1;
+        }
+        if (id1.compareTo(id2) < 0) {
+            return name1 + " + " + name2;
+        }
+        if (id1.compareTo(id2) > 0) {
+            return name2 + " + " + name1;
+        }
+        if (name1.compareTo(name2) < 0) {
+            return name1 + " + " + name2;
+        }
+        return name2 + " + " + name1;
     }
 
-    private static String buildIdOrName(String idOrName1, String idOrName2) {
+    private static String buildId(String idOrName1, String idOrName2) {
         int compareResult = idOrName1.compareTo(idOrName2);
         if (compareResult == 0) {
             return idOrName1;
@@ -563,7 +583,7 @@ class MergedLine implements TieLine {
 
     @Override
     public String getUcteXnodeCode() {
-        return getDanglingLine1().getUcteXnodeCode();
+        return Optional.ofNullable(getDanglingLine1().getUcteXnodeCode()).orElseGet(() -> getDanglingLine2().getUcteXnodeCode());
     }
 
     @Override

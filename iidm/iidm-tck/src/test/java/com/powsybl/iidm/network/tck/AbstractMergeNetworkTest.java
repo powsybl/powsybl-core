@@ -72,6 +72,17 @@ public abstract class AbstractMergeNetworkTest {
         assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getNameOrId());
     }
 
+    @Test
+    public void testMergeSameId() {
+        addSubstationAndVoltageLevel();
+        addDanglingLines("dl", null, "dl", "code");
+        merge.merge(n1, n2);
+        assertNotNull(merge.getLine("dl"));
+        assertEquals("dl", merge.getLine("dl").getId());
+        assertEquals("dl_name", merge.getLine("dl").getOptionalName().orElse(null));
+        assertEquals("dl_name", merge.getLine("dl").getNameOrId());
+    }
+
     private void addSubstation(Network network, String substationId) {
         network.newSubstation()
                             .setId(substationId)
