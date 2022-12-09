@@ -20,4 +20,12 @@ public interface ActivePowerControlAdder<I extends Injection<I>>
     ActivePowerControlAdder<I> withParticipate(boolean participate);
 
     ActivePowerControlAdder<I> withDroop(float droop);
+
+    ActivePowerControlAdder<I> withShortPF(float shortPF);
+
+    ActivePowerControlAdder<I> withNormalPF(float normalPF);
+
+    ActivePowerControlAdder<I> withLongPF(float longPF);
+
+    ActivePowerControlAdder<I> withReferencePriority(int referencePriority);
 }

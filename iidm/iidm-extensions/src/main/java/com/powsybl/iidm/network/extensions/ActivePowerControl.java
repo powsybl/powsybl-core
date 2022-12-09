@@ -25,8 +25,66 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
 
     void setParticipate(boolean participate);
 
+    /**
+     * This is the change in generator power output divided by the change in frequency
+     * normalized by the nominal power of the generator and the nominal frequency and
+     * expressed in percent and negated. A positive value of speed change droop provides
+     * additional generator output upon a drop in frequency.
+     * @return Governor Speed Changer Droop.
+     */
     float getDroop();
 
+    /**
+     * @param droop new Governor Speed Changer Droop value
+     */
     void setDroop(float droop);
+
+    /**
+     * The sum of the participation factors across generating units does not have to sum to one.
+     * It is used for representing distributed slack participation factor.
+     * The attribute shall be a positive value or zero.
+     * @return Generating unit short term economic participation factor.
+     */
+    float getShortPF();
+
+    /**
+     * @param shortPF new short term economic participation factor value
+     */
+    void setShortPF(float shortPF);
+
+    /**
+     * The sum of the participation factors across generating units does not have to sum to one.
+     * It is used for representing distributed slack participation factor.
+     * The attribute shall be a positive value or zero.
+     * @return Generating unit economic participation factor.
+     */
+    float getNormalPF();
+
+    void setNormalPF(float normalPF);
+
+    /**
+     * The sum of the participation factors across generating units does not have to sum to one.
+     * It is used for representing distributed slack participation factor.
+     * The attribute shall be a positive value or zero.
+     * @return Generating unit long term economic participation factor.
+     */
+    float getLongPF();
+
+    /**
+     * @param longPF new long term economic participation factor value
+     */
+    void setLongPF(float longPF);
+
+    /**
+     * Priority for use as powerflow voltage phase angle reference bus selection.
+     * 0 = don't care (default) 1 = highest priority. 2 is less than 1 and so on.
+     * @return reference priority
+     */
+    int getReferencePriority();
+
+    /**
+     * @param referencePriority new reference priority value
+     */
+    void setReferencePriority(int referencePriority);
 
 }

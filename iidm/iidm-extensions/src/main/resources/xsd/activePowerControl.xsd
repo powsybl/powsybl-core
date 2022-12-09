@@ -15,6 +15,10 @@
         <xs:complexType>
             <xs:attribute name="participate" use="required" type="xs:boolean"/>
             <xs:attribute name="droop" use="required" type="xs:double"/>
+            <xs:attribute name="shortPF" type="xs:double"/>
+            <xs:attribute name="normalPF" type="xs:double"/>
+            <xs:attribute name="longPF" type="xs:double"/>
+            <xs:attribute name="referencePriority" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

@@ -18,6 +18,10 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
     private boolean participate;
 
     private float droop;
+    private float shortPF;
+    private float normalPF;
+    private float longPF;
+    private int referencePriority;
 
     protected ActivePowerControlAdderImpl(I extendable) {
         super(extendable);
@@ -25,7 +29,7 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
 
     @Override
     protected ActivePowerControlImpl<I> createExtension(I extendable) {
-        return new ActivePowerControlImpl<>(extendable, participate, droop);
+        return new ActivePowerControlImpl<>(extendable, participate, droop, shortPF, normalPF, longPF, referencePriority);
     }
 
     @Override
@@ -37,6 +41,30 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
     @Override
     public ActivePowerControlAdder<I> withDroop(float droop) {
         this.droop = droop;
+        return this;
+    }
+
+    @Override
+    public ActivePowerControlAdder<I> withShortPF(float shortPF) {
+        this.shortPF = shortPF;
+        return this;
+    }
+
+    @Override
+    public ActivePowerControlAdder<I> withNormalPF(float normalPF) {
+        this.normalPF = normalPF;
+        return this;
+    }
+
+    @Override
+    public ActivePowerControlAdder<I> withLongPF(float longPF) {
+        this.longPF = longPF;
+        return this;
+    }
+
+    @Override
+    public ActivePowerControlAdder<I> withReferencePriority(int referencePriority) {
+        this.referencePriority = referencePriority;
         return this;
     }
 

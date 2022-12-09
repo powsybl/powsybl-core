@@ -33,15 +33,27 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
     public void write(ActivePowerControl activePowerControl, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("participate", Boolean.toString(activePowerControl.isParticipate()));
         XmlUtil.writeFloat("droop", activePowerControl.getDroop(), context.getWriter());
+        XmlUtil.writeFloat("shortPF", activePowerControl.getShortPF(), context.getWriter());
+        XmlUtil.writeFloat("normalPF", activePowerControl.getNormalPF(), context.getWriter());
+        XmlUtil.writeFloat("longPF", activePowerControl.getLongPF(), context.getWriter());
+        XmlUtil.writeInt("referencePriority", activePowerControl.getReferencePriority(), context.getWriter());
     }
 
     @Override
     public ActivePowerControl<T> read(T identifiable, XmlReaderContext context) {
         boolean participate = XmlUtil.readBoolAttribute(context.getReader(), "participate");
         float droop = XmlUtil.readFloatAttribute(context.getReader(), "droop");
+        float shortPF = XmlUtil.readOptionalFloatAttribute(context.getReader(), "shortPF", 0f);
+        float normalPF = XmlUtil.readOptionalFloatAttribute(context.getReader(), "normalPF", 0f);
+        float longPF = XmlUtil.readOptionalFloatAttribute(context.getReader(), "longPF", 0f);
+        int referencePriority = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "referencePriority", 0);
         ActivePowerControlAdder<T> activePowerControlAdder = identifiable.newExtension(ActivePowerControlAdder.class);
         return activePowerControlAdder.withParticipate(participate)
                 .withDroop(droop)
+                .withShortPF(shortPF)
+                .withNormalPF(normalPF)
+                .withLongPF(longPF)
+                .withReferencePriority(referencePriority)
                 .add();
     }
 }

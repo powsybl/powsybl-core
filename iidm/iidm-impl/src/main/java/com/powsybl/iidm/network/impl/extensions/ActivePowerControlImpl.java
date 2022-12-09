@@ -11,6 +11,9 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TIntArrayList;
+
+import java.util.List;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
@@ -18,18 +21,39 @@ import gnu.trove.list.array.TFloatArrayList;
 public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMultiVariantIdentifiableExtension<T>
         implements ActivePowerControl<T> {
 
-    private TBooleanArrayList participate;
+    private final TBooleanArrayList participate;
 
-    private TFloatArrayList droop;
+    private final TFloatArrayList droop;
+    private final TFloatArrayList shortPF;
+    private final TFloatArrayList normalPF;
+    private final TFloatArrayList longPF;
+    private final TIntArrayList referencePriority;
 
-    public ActivePowerControlImpl(T component, boolean participate, float droop) {
+    private final List<TFloatArrayList> allTFloatArrayLists;
+
+    public ActivePowerControlImpl(T component,
+                                  boolean participate,
+                                  float droop,
+                                  float shortPF,
+                                  float normalPF,
+                                  float longPF,
+                                  int referencePriority) {
         super(component);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.participate = new TBooleanArrayList(variantArraySize);
         this.droop = new TFloatArrayList(variantArraySize);
+        this.shortPF = new TFloatArrayList(variantArraySize);
+        this.normalPF = new TFloatArrayList(variantArraySize);
+        this.longPF = new TFloatArrayList(variantArraySize);
+        this.referencePriority = new TIntArrayList(variantArraySize);
+        this.allTFloatArrayLists = List.of(this.droop, this.shortPF, this.normalPF, this.longPF);
         for (int i = 0; i < variantArraySize; i++) {
             this.participate.add(participate);
             this.droop.add(droop);
+            this.shortPF.add(shortPF);
+            this.normalPF.add(normalPF);
+            this.longPF.add(longPF);
+            this.referencePriority.add(referencePriority);
         }
     }
 
@@ -49,20 +73,56 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         this.droop.set(getVariantIndex(), droop);
     }
 
+    public float getShortPF() {
+        return shortPF.get(getVariantIndex());
+    }
+
+    public void setShortPF(float shortPF) {
+        this.shortPF.set(getVariantIndex(), shortPF);
+    }
+
+    public float getNormalPF() {
+        return normalPF.get(getVariantIndex());
+    }
+
+    public void setNormalPF(float normalPF) {
+        this.normalPF.set(getVariantIndex(), normalPF);
+    }
+
+    public float getLongPF() {
+        return longPF.get(getVariantIndex());
+    }
+
+    public void setLongPF(float longPF) {
+        this.longPF.set(getVariantIndex(), longPF);
+
+    }
+
+    public int getReferencePriority() {
+        return referencePriority.get(getVariantIndex());
+    }
+
+    public void setReferencePriority(int referencePriority) {
+        this.referencePriority.set(getVariantIndex(), referencePriority);
+    }
+
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         participate.ensureCapacity(participate.size() + number);
-        droop.ensureCapacity(droop.size() + number);
+        allTFloatArrayLists.forEach(fl -> fl.ensureCapacity(fl.size() + number));
+        referencePriority.ensureCapacity(referencePriority.size() + number);
         for (int i = 0; i < number; ++i) {
             participate.add(participate.get(sourceIndex));
-            droop.add(droop.get(sourceIndex));
+            allTFloatArrayLists.forEach(fl -> fl.add(fl.get(sourceIndex)));
+            referencePriority.add(referencePriority.get(sourceIndex));
         }
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         participate.remove(participate.size() - number, number);
-        droop.remove(droop.size() - number, number);
+        allTFloatArrayLists.forEach(fl -> fl.remove(fl.size() - number, number));
+        referencePriority.remove(referencePriority.size() - number, number);
     }
 
     @Override
@@ -75,6 +135,8 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         for (int index : indexes) {
             participate.set(index, participate.get(sourceIndex));
             droop.set(index, droop.get(sourceIndex));
+            allTFloatArrayLists.forEach(fl -> fl.set(index, fl.get(sourceIndex)));
+            referencePriority.set(index, referencePriority.get(sourceIndex));
         }
     }
 }
