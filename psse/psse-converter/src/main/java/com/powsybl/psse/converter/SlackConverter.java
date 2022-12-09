@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
+import com.powsybl.iidm.network.util.TerminalFinder;
 import com.powsybl.psse.model.pf.PsseBus;
 
 /**
@@ -32,11 +33,15 @@ class SlackConverter extends AbstractConverter {
             if (psseBus.getIde() == 3) {
                 String busId = AbstractConverter.getBusId(psseBus.getI());
                 Bus bus = getNetwork().getBusBreakerView().getBus(busId);
-                if (bus != null) {
+                if (slackBIsValidForIidm(bus)) {
                     SlackTerminal.attach(bus);
                 }
             }
         }
+    }
+
+    private static boolean slackBIsValidForIidm(Bus bus) {
+        return bus != null && TerminalFinder.getDefault().find(bus.getConnectedTerminals()).isPresent();
     }
 
     private final List<PsseBus> psseBusList;
