@@ -404,7 +404,7 @@ public class DanglingLineAdapterTest {
 
         assertTrue(mergedLine.hasProperty());
         assertTrue(mergedLine.hasProperty("ucteCode"));
-        assertEquals(3, mergedLine.getPropertyNames().size());
+        assertEquals(11, mergedLine.getPropertyNames().size());
         mergedLine.setProperty("key", "value");
         assertEquals("value", mergedLine.getProperty("key"));
         assertEquals("defaultValue", mergedLine.getProperty("noKey", "defaultValue"));

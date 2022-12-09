@@ -6,11 +6,18 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.google.common.collect.Sets;
+import com.powsybl.iidm.network.DanglingLine;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -18,6 +25,8 @@ import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
  */
 
 public final class TieLineUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TieLineUtil.class);
 
     private TieLineUtil() {
     }
@@ -52,6 +61,29 @@ public final class TieLineUtil {
             return name1 + " + " + name2;
         }
         return name2 + " + " + name1;
+    }
+
+    public static void mergeProperties(DanglingLine dl1, DanglingLine dl2, Properties properties) {
+        Set<String> dl1Properties = dl1.getPropertyNames();
+        Set<String> dl2Properties = dl2.getPropertyNames();
+        Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
+        Sets.difference(dl1Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl1.getProperty(prop)));
+        Sets.difference(dl2Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl2.getProperty(prop)));
+        commonProperties.forEach(prop -> {
+            if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
+                properties.setProperty(prop, dl1.getProperty(prop));
+            } else if (dl1.getProperty(prop).isEmpty()) {
+                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
+                properties.setProperty(prop, dl2.getProperty(prop));
+            } else if (dl2.getProperty(prop).isEmpty()) {
+                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
+                properties.setProperty(prop, dl1.getProperty(prop));
+            } else {
+                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
+            }
+        });
+        dl1Properties.forEach(prop -> properties.setProperty(prop + "_1", dl1.getProperty(prop)));
+        dl2Properties.forEach(prop -> properties.setProperty(prop + "_2", dl2.getProperty(prop)));
     }
 
     public static double getR(TieLine.HalfLine half1, TieLine.HalfLine half2) {

@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
@@ -15,22 +14,16 @@ import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.network.util.TieLineUtil.buildMergedId;
-import static com.powsybl.iidm.network.util.TieLineUtil.buildMergedName;
+import static com.powsybl.iidm.network.util.TieLineUtil.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class MergedLine implements TieLine {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(MergedLine.class);
 
     private static final String UNEXPECTED_SIDE_VALUE = "Unexpected side value: ";
 
@@ -54,32 +47,11 @@ class MergedLine implements TieLine {
         this.half2 = new HalfLineAdapter(dl2, Side.TWO, index, true);
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildMergedId(dl1.getId(), dl2.getId()), index::contains) : buildMergedId(dl1.getId(), dl2.getId());
         this.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
-        mergeProperties(dl1, dl2);
+        mergeProperties(dl1, dl2, properties);
     }
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2) {
         this(index, dl1, dl2, false);
-    }
-
-    private void mergeProperties(DanglingLine dl1, DanglingLine dl2) {
-        Set<String> dl1Properties = dl1.getPropertyNames();
-        Set<String> dl2Properties = dl2.getPropertyNames();
-        Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
-        Sets.difference(dl1Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl1.getProperty(prop)));
-        Sets.difference(dl2Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl2.getProperty(prop)));
-        commonProperties.forEach(prop -> {
-            if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else if (dl1.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
-                properties.setProperty(prop, dl2.getProperty(prop));
-            } else if (dl2.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else {
-                LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
-            }
-        });
     }
 
     @Override
