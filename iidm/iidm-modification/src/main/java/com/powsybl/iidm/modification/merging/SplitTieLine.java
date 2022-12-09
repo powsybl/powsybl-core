@@ -80,8 +80,9 @@ public class SplitTieLine extends AbstractNetworkModification {
         });
         addLoadingLimits(dl1, dl1Limits);
         addLoadingLimits(dl2, dl2Limits);
-        // TODO extensions
-        // NB no generation is created
+        // NB:
+        // - extensions are not handled
+        // - no generation is created
     }
 
     private static DanglingLineAdder createDanglingLineAdder(TieLine.HalfLine halfLine) {
