@@ -77,26 +77,27 @@ class MergingViewIndex {
     void checkNewDanglingLine(final DanglingLine dll2) {
         Objects.requireNonNull(dll2, "DanglingLine is null");
         // Manage DanglingLines
-        DanglingLine dl1 = getNetworkStream().map(n -> n.getDanglingLine(dll2.getId()))
+        DanglingLine dl1 = getNetworkStream().map(n -> n.getDanglingLine(dll2.getId())) // find dangling line with same ID in the merging network if present
                 .filter(Objects::nonNull)
                 .filter(dl -> dl != dll2)
                 .findFirst()
                 .orElse(null);
         if (dl1 != null) {
+            // if dangling line with same ID present, merge it (already checked that X-node are identical)
             mergedLineCached.computeIfAbsent(Optional.ofNullable(dl1.getUcteXnodeCode())
                     .or(() -> Optional.ofNullable(dll2.getUcteXnodeCode()))
                     .orElseGet(dll2::getId), key -> new MergedLine(this, dl1, dll2));
-        } else {
+        } else { // if dangling line with same ID not present, find dangling line(s) with same X-node code in merging network if present
+            final String code = dll2.getUcteXnodeCode();
+            if (code == null) {
+                return;
+            }
             if (dll2.getNetwork().getDanglingLineStream()
                     .filter(d -> d != dll2)
                     .filter(d -> d.getUcteXnodeCode() != null)
                     .filter(d -> d.getUcteXnodeCode().equals(dll2.getUcteXnodeCode()))
-                    .anyMatch(d -> d.getTerminal().isConnected())) {
-                return;
-            }
-            final String code = dll2.getUcteXnodeCode();
-            if (code == null) {
-                return;
+                    .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same X-node code in the network to be merged
+                return;                                              // in that case, do nothing
             }
             // Find other DanglingLine if exist
             final List<DanglingLine> danglingLines = getNetworkStream()
@@ -106,12 +107,12 @@ class MergingViewIndex {
                     .filter(d -> d.getNetwork() != dll2.getNetwork())
                     .distinct()
                     .collect(Collectors.toList());
-            if (danglingLines.size() == 1) {
+            if (danglingLines.size() == 1) { // if there is exactly one dangling line in the merging network, merge it
                 mergedLineCached.computeIfAbsent(code, key -> new MergedLine(this, danglingLines.get(0), dll2));
             }
-            if (danglingLines.size() > 1) {
+            if (danglingLines.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
                 List<DanglingLine> connectedDls = danglingLines.stream().filter(d -> d.getTerminal().isConnected()).collect(Collectors.toList());
-                if (connectedDls.size() == 1) {
+                if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
                     mergedLineCached.computeIfAbsent(code, key -> new MergedLine(this, connectedDls.get(0), dll2));
                 }
             }
