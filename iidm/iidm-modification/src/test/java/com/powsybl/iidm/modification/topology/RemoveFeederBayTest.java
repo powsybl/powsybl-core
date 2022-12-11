@@ -55,7 +55,7 @@ public class RemoveFeederBayTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
         addListener(network);
 
-        new RemoveFeederBay("LD1").apply(network);
+        new RemoveFeederBayBuilder().withConnectableId("LD1").build().apply(network);
 
         assertEquals(Set.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), beforeRemovalObjects);
         assertEquals(Set.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), removedObjects);
@@ -165,7 +165,7 @@ public class RemoveFeederBayTest {
                 .setQ0(0);
         NetworkModification modification = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
-                .withBbsId("BBS_TEST_1_1")
+                .withBusOrBusbarSectionId("BBS_TEST_1_1")
                 .withInjectionPositionOrder(10)
                 .withInjectionFeederName("L1")
                 .withInjectionDirection(BOTTOM)
@@ -179,7 +179,7 @@ public class RemoveFeederBayTest {
                 .setQ0(0);
         NetworkModification modification2 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder2)
-                .withBbsId("BBS_TEST_1_1")
+                .withBusOrBusbarSectionId("BBS_TEST_1_1")
                 .withInjectionPositionOrder(20)
                 .withInjectionFeederName("L2")
                 .withInjectionDirection(BOTTOM)
@@ -200,7 +200,7 @@ public class RemoveFeederBayTest {
                 .setQ0(0);
         NetworkModification modification3 = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder3)
-                .withBbsId("BBS_TEST_1_1")
+                .withBusOrBusbarSectionId("BBS_TEST_1_1")
                 .withInjectionPositionOrder(30)
                 .withInjectionFeederName("L3")
                 .withInjectionDirection(BOTTOM)

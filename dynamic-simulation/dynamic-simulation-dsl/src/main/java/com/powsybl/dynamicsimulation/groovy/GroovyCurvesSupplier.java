@@ -17,6 +17,7 @@ import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +39,11 @@ public class GroovyCurvesSupplier implements CurvesSupplier {
 
     public GroovyCurvesSupplier(Path path, List<CurveGroovyExtension> extensions) {
         this.codeSource = GroovyScripts.load(path);
+        this.extensions = Objects.requireNonNull(extensions);
+    }
+
+    public GroovyCurvesSupplier(InputStream is, List<CurveGroovyExtension> extensions) {
+        this.codeSource = GroovyScripts.load(is);
         this.extensions = Objects.requireNonNull(extensions);
     }
 

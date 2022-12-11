@@ -16,8 +16,6 @@ import org.slf4j.Logger;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
-
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */

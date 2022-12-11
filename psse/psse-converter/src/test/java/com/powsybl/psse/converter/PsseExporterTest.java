@@ -7,7 +7,7 @@
 package com.powsybl.psse.converter;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -23,7 +23,7 @@ import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import static com.powsybl.commons.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;

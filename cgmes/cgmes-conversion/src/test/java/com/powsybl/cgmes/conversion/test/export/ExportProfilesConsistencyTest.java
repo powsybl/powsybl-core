@@ -10,7 +10,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.NamingStrategyFactory;
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
@@ -47,7 +47,7 @@ public class ExportProfilesConsistencyTest extends AbstractConverterTest {
     private boolean inconsistentProfilesReported(ReporterModel reporter) {
         return reporter.getReports().stream()
                 .map(Report::getReportKey)
-                .anyMatch(key -> key.equals("InconsistentProfilesTPRequired"));
+                .anyMatch(key -> key.equals("inconsistentProfilesTPRequired"));
     }
 
     private Network importNetwork(ReadOnlyDataSource dataSource) {

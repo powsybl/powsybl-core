@@ -7,6 +7,10 @@
 
 package com.powsybl.contingency;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +31,11 @@ public class ContingencyBuilder {
 
     public Contingency build() {
         return new Contingency(id, elements);
+    }
+
+    public ContingencyBuilder addBattery(String id) {
+        elements.add(new BatteryContingency(id));
+        return this;
     }
 
     public ContingencyBuilder addBranch(String id) {
@@ -106,6 +115,19 @@ public class ContingencyBuilder {
 
     public ContingencyBuilder addSwitch(String id) {
         elements.add(new SwitchContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addIdentifiable(String id, Network network) {
+        Identifiable<?> identifiable = network.getIdentifiable(id);
+        if (identifiable == null) {
+            throw new PowsyblException(String.format("Element %s has not been found in the network", id));
+        }
+        return addIdentifiable(identifiable);
+    }
+
+    public ContingencyBuilder addIdentifiable(Identifiable<?> identifiable) {
+        elements.add(ContingencyElement.of(identifiable));
         return this;
     }
 }

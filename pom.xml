@@ -54,8 +54,10 @@
         <module>cgmes</module>
         <module>cim-anonymiser</module>
         <module>commons</module>
+        <module>commons-test</module>
         <module>computation</module>
         <module>computation-local</module>
+        <module>computation-local-test</module>
         <module>config-classic</module>
         <module>config-test</module>
         <module>contingency</module>
@@ -72,11 +74,13 @@
         <module>powerfactory</module>
         <module>psse</module>
         <module>scripting</module>
+        <module>scripting-test</module>
         <module>security-analysis</module>
         <module>sensitivity-analysis-api</module>
         <module>shortcircuit-api</module>
         <module>time-series</module>
         <module>tools</module>
+        <module>tools-test</module>
         <module>triple-store</module>
         <module>ucte</module>
     </modules>
@@ -121,9 +125,10 @@
         <rdf4j.version>4.1.0</rdf4j.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>1.7.22</slf4j.version>
-        <snakeyaml.version>1.32</snakeyaml.version>
+        <snakeyaml.version>1.33</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <stringtemplate.version>4.3.4</stringtemplate.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
         <threeten.version>1.5.0</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
         <univocity-parsers.version>2.8.3</univocity-parsers.version>
@@ -153,6 +158,26 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>docker-unit-tests</id>
+            <activation>
+                <property>
+                    <name>powsybl.docker-unit-tests.skip</name>
+                    <value>!false</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>com.powsybl.commons.test.DockerTests</excludedGroups>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -209,12 +234,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-cgmes-conversion</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-cgmes-extensions</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -235,20 +254,13 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-cgmes-model</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-cgmes-model-alternatives</artifactId>
+                <artifactId>powsybl-cgmes-model-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-cgmes-model-alternatives</artifactId>
                 <version>${project.version}</version>
-                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -267,9 +279,8 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-commons</artifactId>
+                <artifactId>powsybl-commons-test</artifactId>
                 <version>${project.version}</version>
-                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -279,6 +290,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-computation-local</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-computation-local-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -373,12 +389,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-iidm-api</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-comparator</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -414,12 +424,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-iidm-scripting</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-tck</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -438,12 +442,6 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-xml-converter</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-iidm-xml-converter</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -497,12 +495,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-matpower-model</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-powerfactory</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -538,20 +530,8 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-psse-model</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-scripting</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-scripting</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -562,23 +542,6 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-security-analysis-api</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-security-analysis-api</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-security-analysis-default</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-security-analysis-default</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -602,12 +565,6 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-time-series-api</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-time-series-dsl</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -618,9 +575,8 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-tools</artifactId>
+                <artifactId>powsybl-tools-test</artifactId>
                 <version>${project.version}</version>
-                <type>test-jar</type>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
@@ -860,6 +816,11 @@
                 <groupId>org.scijava</groupId>
                 <artifactId>native-lib-loader</artifactId>
                 <version>${nativelibloader.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.threeten</groupId>

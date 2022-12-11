@@ -10,9 +10,6 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.ReportBuilder;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -21,6 +18,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.function.Supplier;
+
+import static com.powsybl.cgmes.conversion.CgmesReports.invalidAngleVoltageBusReport;
+import static com.powsybl.cgmes.conversion.CgmesReports.invalidAngleVoltageNodeReport;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -223,23 +223,11 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             Supplier<String> message = () -> reason.get() + ". " + location.get();
             context.invalid("SvVoltage", message);
 
-            ReportBuilder rb = Report.builder();
             if (bus != null) {
-                rb.withKey("InvalidVoltageBus")
-                        .withDefaultMessage("Node ${id} in substation ${substation}, voltageLevel ${voltageLevel}, bus ${bus} has invalid value for voltage. Voltage magnitude is ${voltage}, angle is ${angle}")
-                        .withValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
-                        .withValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
-                        .withValue("bus", bus.getId());
+                invalidAngleVoltageBusReport(context.getReporter(), bus, id, v, angle);
             } else {
-                rb.withKey("InvalidVoltageNode")
-                        .withDefaultMessage("Node ${id} has invalid value for voltage. Voltage magnitude is ${voltage}, angle is ${angle}");
+                invalidAngleVoltageNodeReport(context.getReporter(), id, v, angle);
             }
-            context.getReporter().report(rb
-                    .withValue("id", id)
-                    .withTypedValue("voltage", v, TypedValue.VOLTAGE)
-                    .withTypedValue("angle", angle, TypedValue.ANGLE)
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
         }
         return valid;
     }

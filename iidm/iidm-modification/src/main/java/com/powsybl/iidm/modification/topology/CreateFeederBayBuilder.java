@@ -15,13 +15,13 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
 public class CreateFeederBayBuilder {
 
     private InjectionAdder<?> injectionAdder = null;
-    private String bbsId = null;
+    private String busOrBusbarSection = null;
     private Integer injectionPositionOrder = null;
     private String injectionFeederName = null;
     private ConnectablePosition.Direction injectionDirection = ConnectablePosition.Direction.BOTTOM;
 
     public CreateFeederBay build() {
-        return new CreateFeederBay(injectionAdder, bbsId, injectionPositionOrder, injectionFeederName, injectionDirection);
+        return new CreateFeederBay(injectionAdder, busOrBusbarSection, injectionPositionOrder, injectionFeederName, injectionDirection);
     }
 
     public CreateFeederBayBuilder withInjectionAdder(InjectionAdder<?> injectionAdder) {
@@ -29,11 +29,24 @@ public class CreateFeederBayBuilder {
         return this;
     }
 
+    /**
+     * @deprecated Use {@link #withBusOrBusbarSectionId(String)} instead.
+     */
+    @Deprecated(since = "5.1.0")
     public CreateFeederBayBuilder withBbsId(String bbsId) {
-        this.bbsId = bbsId;
+        return withBusOrBusbarSectionId(bbsId);
+    }
+
+    public CreateFeederBayBuilder withBusOrBusbarSectionId(String busOrBusbarSection) {
+        this.busOrBusbarSection = busOrBusbarSection;
         return this;
     }
 
+    /**
+     * Set position order.
+     * Should not be defined in BUS_BREAKER (ignored if they are).
+     * Required in NODE_BREAKER.
+     */
     public CreateFeederBayBuilder withInjectionPositionOrder(int injectionPositionOrder) {
         this.injectionPositionOrder = injectionPositionOrder;
         return this;

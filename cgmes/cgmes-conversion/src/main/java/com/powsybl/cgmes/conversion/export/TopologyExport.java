@@ -12,6 +12,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -25,6 +27,7 @@ import java.util.Set;
  */
 public final class TopologyExport {
 
+    private static final Logger LOG = LoggerFactory.getLogger(TopologyExport.class);
     private static final String TOPOLOGICAL_NODE_CONNECTIVITY_NODE_CONTAINER = "TopologicalNode.ConnectivityNodeContainer";
     private static final String TOPOLOGICAL_NODE_BASE_VOLTAGE = "TopologicalNode.BaseVoltage";
 
@@ -206,7 +209,7 @@ public final class TopologyExport {
     private static void writeBoundaryTerminal(DanglingLine dl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
-        Optional<String> topologicalNode = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
+        Optional<String> topologicalNode = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
         if (topologicalNode.isPresent()) {
             // Topological nodes of boundaries are published by external entities and should be ok,
             // we do not make an additional effort to ensure a valid CGMES id has been assigned
@@ -227,27 +230,38 @@ public final class TopologyExport {
 
     private static void writeTopologicalNodes(Network network, Set<String> addedTopologicalNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writeBusTopologicalNodes(network, addedTopologicalNodes, cimNamespace, writer, context);
-        writeDanglingLineTopologicalNodes(network, cimNamespace, writer, context);
         writeHvdcTopologicalNodes(network, cimNamespace, writer);
+        // We create topological nodes for boundary side of dangling lines that are not mapped to an external boundary node
+        writeDanglingLineTopologicalNodes(network, cimNamespace, writer, context);
+    }
+
+    private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (DanglingLine dl : network.getDanglingLines()) {
+            Optional<String> topologicalNodeId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+            if (topologicalNodeId.isEmpty()) {
+                // If no information about original boundary has been preserved in the IIDM model,
+                // we will create a new TopologicalNode
+                String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
+                // If the EQ has also been exported, a fictitious container should have been created
+                String containerId = context.getFictitiousContainerFor(dl);
+                if (containerId == null) {
+                    // As a last resort, we create the TN in the same container of the dangling line
+                    LOG.error("Dangling line {}{} is not connected to a topology node in boundaries files: EQ profile must be exported for consistent results." +
+                                    " Dangling line {} is considered entirely inside voltage level {}",
+                            dl.getId(), dl.getUcteXnodeCode() != null ? " linked to X-node " + dl.getUcteXnodeCode() : "", dl.getId(), dl.getTerminal().getVoltageLevel().getId());
+                    containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
+                }
+                String fictTopologicalNodeId = CgmesExportUtil.getUniqueId();
+                dl.addAlias(fictTopologicalNodeId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+                writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage, cimNamespace, writer);
+            }
+        }
     }
 
     private static void writeBusTopologicalNodes(Network network, Set<String> addedTopologicalNodes, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus b : network.getBusBreakerView().getBuses()) {
             String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
             writeTopologicalNode(topologicalNodeId, b.getNameOrId(), b.getVoltageLevel(), addedTopologicalNodes, cimNamespace, writer, context);
-        }
-    }
-
-    private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : network.getDanglingLines()) {
-            Optional<String> topologicalNodeId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
-            if (topologicalNodeId.isPresent()) {
-                String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
-                // TODO(Luma) It is wrong to consider the container of boundary topological node to be the same of dangling line
-                //  To be fixed in a separate PR (in fact boundary TNs of dangling lines should not be exported)
-                String containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
-                writeTopologicalNode(topologicalNodeId.get(), dl.getNameOrId(), containerId, baseVoltage, cimNamespace, writer);
-            }
         }
     }
 

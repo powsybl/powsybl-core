@@ -8,9 +8,9 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.Test;
 
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertThrows;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class CreateCouplingDeviceTest extends AbstractXmlConverterTest {
+public class CreateCouplingDeviceTest extends AbstractConverterTest {
 
     @Test
     public void createCouplingDevice2BusbarSectionsSameSectionIndex() throws IOException {
