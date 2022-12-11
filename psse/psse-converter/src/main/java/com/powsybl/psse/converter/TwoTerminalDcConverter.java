@@ -89,7 +89,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
     }
 
     private static String getLccConverterId(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, PsseTwoTerminalDcConverter converter) {
-        return "LccConverter-" + psseTwoTerminalDc.getRectifier().getIp() + "-" + psseTwoTerminalDc.getInverter().getIp() + "-" + converter.getIp();
+        return "LccConverter-" + psseTwoTerminalDc.getRectifier().getIp() + "-" + psseTwoTerminalDc.getInverter().getIp() + "-" + converter.getIp() + "-" + psseTwoTerminalDc.getName();
     }
 
     private static String getTwoTerminalDcId(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc) {
