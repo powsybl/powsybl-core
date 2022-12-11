@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
@@ -21,7 +20,6 @@ import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
-import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
@@ -54,7 +52,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
                         .build());
     }
 
-    private void writePosition(String connectableId, ConnectablePosition.Feeder feeder, Integer i, NetworkXmlWriterContext context) throws XMLStreamException {
+    private void writePosition(String connectableId, ConnectablePosition.Feeder feeder, Integer i, NetworkXmlWriterContext context) {
         context.getWriter().writeStartNode(context.getExtensionVersion(ConnectablePosition.NAME)
                 .map(this::getNamespaceUri)
                 .orElseGet(this::getNamespaceUri), "feeder" + (i != null ? i : ""));
