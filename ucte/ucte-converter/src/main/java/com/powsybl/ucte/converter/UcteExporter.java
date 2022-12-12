@@ -826,7 +826,7 @@ public class UcteExporter implements Exporter {
      * @return P (MW) of the angle regulation for the two windings transformer
      */
     private static double calculateAngleP(TwoWindingsTransformer twoWindingsTransformer) {
-        return twoWindingsTransformer.getPhaseTapChanger().getRegulationValue();
+        return -twoWindingsTransformer.getPhaseTapChanger().getRegulationValue();
     }
 
     /**

@@ -201,4 +201,10 @@ public class UcteExporterTest extends AbstractConverterTest {
         testExporter(network, "/xnodeTwoClosedLine.uct");
     }
 
+    @Test
+    public void roundTripOfNetworkWithPstAngleRegulationMustSucceed() throws IOException {
+        Network network = loadNetworkFromResourceFile("/phaseShifterActivePowerOn.uct");
+        testExporter(network, "/phaseShifterActivePowerOn.uct");
+    }
+
 }
