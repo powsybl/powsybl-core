@@ -118,20 +118,24 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         return fields.toArray(new String[0]);
     }
 
+    // The rest of the process, parse the data and map them to the psse model
+    // is shared by the raw and rawx versions. The input to this process is a
+    // concatenated string of all the fields. If the values are obtained
+    // using the jackson API an array of strings is received and it is necessary
+    // to join them again to obtain the concatenated string.
+    // For this reason only the opening and closing brackets are removed.
     private static String readArrayContent(JsonNode jrecord) {
-        String srecord = jrecord.toString();
-        if (jrecord.isArray()) {
-            // Remove square brackets
-            return srecord.substring(1, srecord.length() - 1);
+        if (!jrecord.isArray()) {
+            throw new PowsyblException("Expecting array reading data");
         }
-        return srecord;
+
+        // Remove square brackets
+        String srecord = jrecord.toString();
+        return srecord.substring(1, srecord.length() - 1);
     }
 
     private List<String> readRecords(JsonNode n) {
         JsonNode dataNode = n.get("data");
-        if (!dataNode.isArray()) {
-            throw new PowsyblException("Expecting array reading data");
-        }
         List<String> records = new ArrayList<>();
         switch (recordGroup.getIdentification().getJsonObjectType()) {
             case PARAMETER_SET:
