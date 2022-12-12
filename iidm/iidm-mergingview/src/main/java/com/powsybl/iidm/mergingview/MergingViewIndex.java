@@ -83,7 +83,7 @@ class MergingViewIndex {
                 .findFirst()
                 .orElse(null), code -> getNetworkStream()
                 .flatMap(Network::getDanglingLineStream)
-                .filter(d -> d.getUcteXnodeCode().equals(code))
+                .filter(d -> code.equals(d.getUcteXnodeCode()))
                 .filter(d -> d != dl2)
                 .filter(d -> d.getNetwork() != dl2.getNetwork())
                 .distinct()

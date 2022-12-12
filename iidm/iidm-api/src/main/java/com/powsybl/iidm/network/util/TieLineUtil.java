@@ -93,6 +93,9 @@ public final class TieLineUtil {
                                               Function<String, List<DanglingLine>> getDanglingLinesByXnodeCode,
                                               BiConsumer<DanglingLine, DanglingLine> mergeDanglingLines) {
         Objects.requireNonNull(dl2);
+        Objects.requireNonNull(getDanglingLineById);
+        Objects.requireNonNull(getDanglingLinesByXnodeCode);
+        Objects.requireNonNull(mergeDanglingLines);
         DanglingLine dl1 = getDanglingLineById.apply(dl2.getId()); // find dangling line with same ID in the merging network if present
         if (dl1 == null) { // if dangling line with same ID not present, find dangling line(s) with same X-node code in merging network if present
             // mapping by ucte xnode code
@@ -124,6 +127,11 @@ public final class TieLineUtil {
                 throw new PowsyblException("Dangling line couple " + dl1.getId()
                         + " have inconsistent Xnodes (" + dl1.getUcteXnodeCode()
                         + "!=" + dl2.getUcteXnodeCode() + ")");
+            }
+            String code = Optional.ofNullable(dl1.getUcteXnodeCode()).orElseGet(dl2::getUcteXnodeCode);
+            List<DanglingLine> dls = getDanglingLinesByXnodeCode.apply(code);
+            if (dls != null && dls.size() > 1) {
+                throw new PowsyblException("Should not have any dangling lines other than " + dl1.getId() + " linked to " + code);
             }
             mergeDanglingLines.accept(dl1, dl2);
         }
