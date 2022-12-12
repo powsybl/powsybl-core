@@ -42,7 +42,7 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
         FAILURE
     }
 
-    private Status status;
+    private final Status status;
 
     private final Fault fault;
 
@@ -59,32 +59,6 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     private final FortescueValue voltage;
 
     private final List<ShortCircuitBusResults> shortCircuitBusResults;
-
-    /**
-     * @deprecated status added in the result, used for backward compatibility only
-     */
-    @Deprecated (since = "5.1.0")
-    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
-                       List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
-                       Duration timeConstant) {
-        this.fault = Objects.requireNonNull(fault);
-        this.shortCircuitPower = shortCircuitPower;
-        this.feederResults = new ArrayList<>();
-        if (feederResults != null) {
-            this.feederResults.addAll(feederResults);
-        }
-        this.limitViolations = new ArrayList<>();
-        if (limitViolations != null) {
-            this.limitViolations.addAll(limitViolations);
-        }
-        this.current = Objects.requireNonNull(current);
-        this.voltage = voltage;
-        this.shortCircuitBusResults = new ArrayList<>();
-        if (shortCircuitBusResults != null) {
-            this.shortCircuitBusResults.addAll(shortCircuitBusResults);
-        }
-        this.timeConstant = timeConstant;
-    }
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
@@ -106,7 +80,7 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
             this.shortCircuitBusResults.addAll(shortCircuitBusResults);
         }
         this.timeConstant = timeConstant;
-        this.status = Objects.requireNonNull(status);
+        this.status = status;
     }
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,

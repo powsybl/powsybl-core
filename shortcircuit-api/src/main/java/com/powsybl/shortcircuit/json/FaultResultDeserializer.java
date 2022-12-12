@@ -110,12 +110,8 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
             }
         }
 
-        FaultResult faultResult;
-        if (status != null) {
-            faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status);
-        } else {
-            faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant);
-        }
+        FaultResult faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status);
+
         SUPPLIER.get().addExtensions(faultResult, extensions);
 
         return faultResult;
