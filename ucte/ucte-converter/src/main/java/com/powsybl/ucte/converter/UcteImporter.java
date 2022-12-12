@@ -530,15 +530,16 @@ public class UcteImporter implements Importer {
         int lowerTap = getLowTapPosition(ucteAngleRegulation, transformer);
         PhaseTapChangerAdder ptca = transformer.newPhaseTapChanger()
                 .setLowTapPosition(lowerTap)
-                .setTapPosition(ucteAngleRegulation.getNp())
-                .setRegulationValue(ucteAngleRegulation.getP())
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
-                .setRegulating(false);
+                .setTapPosition(ucteAngleRegulation.getNp());
         if (!Double.isNaN(ucteAngleRegulation.getP())) {
-            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-                    .setTargetDeadband(0.0)
-                    .setRegulationTerminal(transformer.getTerminal1())
-                    .setRegulating(false); // should be set to true but many divergence on files are observed.
+            ptca.setRegulationValue(-ucteAngleRegulation.getP())
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setTargetDeadband(0.0)
+                .setRegulationTerminal(transformer.getTerminal1())
+                .setRegulating(true);
+        } else {
+            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulating(false);
         }
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             double dx = i * ucteAngleRegulation.getDu() / 100 * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
