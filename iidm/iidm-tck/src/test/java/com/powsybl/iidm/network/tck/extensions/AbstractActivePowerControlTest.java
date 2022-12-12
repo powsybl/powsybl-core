@@ -38,7 +38,6 @@ public abstract class AbstractActivePowerControlTest {
                 .withShortPF(1.1f)
                 .withNormalPF(1.2f)
                 .withLongPF(1.3f)
-                .withReferencePriority(1)
                 .add();
         ActivePowerControl<Battery> activePowerControl = bat.getExtension(ActivePowerControl.class);
         assertEquals("activePowerControl", activePowerControl.getName());
@@ -50,7 +49,6 @@ public abstract class AbstractActivePowerControlTest {
         activePowerControl.setShortPF(2f);
         activePowerControl.setNormalPF(3f);
         activePowerControl.setLongPF(4f);
-        activePowerControl.setReferencePriority(0);
         checkValues2(activePowerControl);
     }
 
@@ -69,7 +67,6 @@ public abstract class AbstractActivePowerControlTest {
                 .withShortPF(1.1f)
                 .withNormalPF(1.2f)
                 .withLongPF(1.3f)
-                .withReferencePriority(1)
                 .add();
         ActivePowerControl<Battery> activePowerControl = bat.getExtension(ActivePowerControl.class);
         assertNotNull(activePowerControl);
@@ -87,7 +84,6 @@ public abstract class AbstractActivePowerControlTest {
         activePowerControl.setShortPF(2f);
         activePowerControl.setNormalPF(3f);
         activePowerControl.setLongPF(4f);
-        activePowerControl.setReferencePriority(0);
         checkValues2(activePowerControl);
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
         checkValues1(activePowerControl);
@@ -117,7 +113,6 @@ public abstract class AbstractActivePowerControlTest {
         assertEquals(1.1f, activePowerControl.getShortPF(), 0f);
         assertEquals(1.2f, activePowerControl.getNormalPF(), 0f);
         assertEquals(1.3f, activePowerControl.getLongPF(), 0f);
-        assertEquals(1, activePowerControl.getReferencePriority());
     }
 
     private static void checkValues2(ActivePowerControl<Battery> activePowerControl) {
@@ -126,6 +121,5 @@ public abstract class AbstractActivePowerControlTest {
         assertEquals(2f, activePowerControl.getShortPF(), 0f);
         assertEquals(3f, activePowerControl.getNormalPF(), 0f);
         assertEquals(4f, activePowerControl.getLongPF(), 0f);
-        assertEquals(0, activePowerControl.getReferencePriority());
     }
 }

@@ -75,16 +75,4 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
      */
     void setLongPF(float longPF);
 
-    /**
-     * Priority for use as powerflow voltage phase angle reference bus selection.
-     * 0 = don't care (default) 1 = highest priority. 2 is less than 1 and so on.
-     * @return reference priority
-     */
-    int getReferencePriority();
-
-    /**
-     * @param referencePriority new reference priority value
-     */
-    void setReferencePriority(int referencePriority);
-
 }

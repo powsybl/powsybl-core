@@ -36,7 +36,6 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
         XmlUtil.writeFloat("shortPF", activePowerControl.getShortPF(), context.getWriter());
         XmlUtil.writeFloat("normalPF", activePowerControl.getNormalPF(), context.getWriter());
         XmlUtil.writeFloat("longPF", activePowerControl.getLongPF(), context.getWriter());
-        XmlUtil.writeInt("referencePriority", activePowerControl.getReferencePriority(), context.getWriter());
     }
 
     @Override
@@ -46,14 +45,12 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
         float shortPF = XmlUtil.readOptionalFloatAttribute(context.getReader(), "shortPF", 0f);
         float normalPF = XmlUtil.readOptionalFloatAttribute(context.getReader(), "normalPF", 0f);
         float longPF = XmlUtil.readOptionalFloatAttribute(context.getReader(), "longPF", 0f);
-        int referencePriority = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "referencePriority", 0);
         ActivePowerControlAdder<T> activePowerControlAdder = identifiable.newExtension(ActivePowerControlAdder.class);
         return activePowerControlAdder.withParticipate(participate)
                 .withDroop(droop)
                 .withShortPF(shortPF)
                 .withNormalPF(normalPF)
                 .withLongPF(longPF)
-                .withReferencePriority(referencePriority)
                 .add();
     }
 }

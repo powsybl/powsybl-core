@@ -18,7 +18,6 @@
             <xs:attribute name="shortPF" type="xs:double"/>
             <xs:attribute name="normalPF" type="xs:double"/>
             <xs:attribute name="longPF" type="xs:double"/>
-            <xs:attribute name="referencePriority" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

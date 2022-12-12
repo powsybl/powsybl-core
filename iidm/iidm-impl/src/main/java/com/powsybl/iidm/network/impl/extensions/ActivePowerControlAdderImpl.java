@@ -21,7 +21,6 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
     private float shortPF;
     private float normalPF;
     private float longPF;
-    private int referencePriority;
 
     protected ActivePowerControlAdderImpl(I extendable) {
         super(extendable);
@@ -29,7 +28,7 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
 
     @Override
     protected ActivePowerControlImpl<I> createExtension(I extendable) {
-        return new ActivePowerControlImpl<>(extendable, participate, droop, shortPF, normalPF, longPF, referencePriority);
+        return new ActivePowerControlImpl<>(extendable, participate, droop, shortPF, normalPF, longPF);
     }
 
     @Override
@@ -59,12 +58,6 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
     @Override
     public ActivePowerControlAdder<I> withLongPF(float longPF) {
         this.longPF = longPF;
-        return this;
-    }
-
-    @Override
-    public ActivePowerControlAdder<I> withReferencePriority(int referencePriority) {
-        this.referencePriority = referencePriority;
         return this;
     }
 

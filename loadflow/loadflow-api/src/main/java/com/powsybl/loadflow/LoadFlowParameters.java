@@ -33,14 +33,41 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         DC_VALUES // preprocessing to compute DC angles
     }
 
+    /**
+     * BalanceType enum describes the various options for active power slack distribution
+     */
     public enum BalanceType {
+        /**
+         * active power slack distribution on generators, proportional to generator targetP
+         */
         PROPORTIONAL_TO_GENERATION_P,
+        /**
+         * active power slack distribution on generators, proportional to generator maxP
+         */
         PROPORTIONAL_TO_GENERATION_P_MAX,
+        /**
+         * active power slack distribution on generators, proportional to generator maxP - targetP
+         */
         PROPORTIONAL_TO_GENERATION_REMAINING_MARGIN,
+        /**
+         * active power slack distribution on generators, proportional to shortPF (see ActivePowerControl extension)
+         */
         PROPORTIONAL_TO_GENERATION_SHORT_PF,
+        /**
+         * active power slack distribution on generators, proportional to normalPF (see ActivePowerControl extension)
+         */
         PROPORTIONAL_TO_GENERATION_NORMAL_PF,
+        /**
+         * active power slack distribution on generators, proportional to longPF (see ActivePowerControl extension)
+         */
         PROPORTIONAL_TO_GENERATION_LONG_PF,
+        /**
+         * active power slack distribution on all loads
+         */
         PROPORTIONAL_TO_LOAD,
+        /**
+         * active power slack distribution on conforming loads (see LoadDetails extension)
+         */
         PROPORTIONAL_TO_CONFORM_LOAD,
     }
 

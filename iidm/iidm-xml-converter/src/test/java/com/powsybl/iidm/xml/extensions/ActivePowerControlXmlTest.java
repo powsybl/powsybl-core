@@ -34,11 +34,11 @@ public class ActivePowerControlXmlTest extends AbstractConverterTest {
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
 
-        ActivePowerControl<Battery> activePowerControl = new ActivePowerControlImpl<>(bat, true, 4f, 1.2f, 1.3f, 1.4f, 1);
+        ActivePowerControl<Battery> activePowerControl = new ActivePowerControlImpl<>(bat, true, 4f, 1.2f, 1.3f, 1.4f);
         bat.addExtension(ActivePowerControl.class, activePowerControl);
 
         Generator generator = network.getGenerator("GEN");
-        generator.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(generator, false, 3, 1f, 2f, 3f, 0));
+        generator.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(generator, false, 3, 1f, 2f, 3f));
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
@@ -55,7 +55,6 @@ public class ActivePowerControlXmlTest extends AbstractConverterTest {
         assertEquals(activePowerControl.getShortPF(), activePowerControl2.getShortPF(), 0f);
         assertEquals(activePowerControl.getNormalPF(), activePowerControl2.getNormalPF(), 0f);
         assertEquals(activePowerControl.getLongPF(), activePowerControl2.getLongPF(), 0f);
-        assertEquals(activePowerControl.getReferencePriority(), activePowerControl2.getReferencePriority());
         assertEquals(activePowerControl.getName(), activePowerControl2.getName());
     }
 }
