@@ -893,8 +893,12 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             }
         }
         for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
-            DanglingLine dl1 = getDanglingLineByTheOther(dl2, dl1byXnodeCode);
-            mergeDanglingLines(lines, dl1, dl2);
+            checkAssociatedDanglingLines(dl2, this::getDanglingLine, dl1byXnodeCode::get, (dll1, dll2) -> {
+                if (dll1.getUcteXnodeCode() != null) {
+                    dl1byXnodeCode.get(dll1.getUcteXnodeCode()).remove(dll1);
+                }
+                mergeDanglingLines(lines, dll1, dll2);
+            });
         }
 
         // do not forget to remove the other network from its index!!!

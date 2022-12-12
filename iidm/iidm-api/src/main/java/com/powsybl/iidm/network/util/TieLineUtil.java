@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.Sets;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
 import org.apache.commons.math3.complex.Complex;
 
@@ -16,8 +17,10 @@ import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -84,6 +87,46 @@ public final class TieLineUtil {
         });
         dl1Properties.forEach(prop -> properties.setProperty(prop + "_1", dl1.getProperty(prop)));
         dl2Properties.forEach(prop -> properties.setProperty(prop + "_2", dl2.getProperty(prop)));
+    }
+
+    public static void checkAssociatedDanglingLines(DanglingLine dl2, Function<String, DanglingLine> getDanglingLineById,
+                                              Function<String, List<DanglingLine>> getDanglingLinesByXnodeCode,
+                                              BiConsumer<DanglingLine, DanglingLine> mergeDanglingLines) {
+        Objects.requireNonNull(dl2);
+        DanglingLine dl1 = getDanglingLineById.apply(dl2.getId()); // find dangling line with same ID in the merging network if present
+        if (dl1 == null) { // if dangling line with same ID not present, find dangling line(s) with same X-node code in merging network if present
+            // mapping by ucte xnode code
+            if (dl2.getUcteXnodeCode() != null) { // if X-node code null: no associated dangling line
+                if (dl2.getNetwork().getDanglingLineStream()
+                        .filter(d -> d != dl2)
+                        .filter(d -> d.getUcteXnodeCode() != null)
+                        .filter(d -> d.getUcteXnodeCode().equals(dl2.getUcteXnodeCode()))
+                        .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same X-node code in the network to be merged
+                    return;                                         // in that case, do nothing
+                }
+                List<DanglingLine> dls = getDanglingLinesByXnodeCode.apply(dl2.getUcteXnodeCode());
+                if (dls != null) {
+                    if (dls.size() == 1) { // if there is exactly one dangling line in the merging network, merge it
+                        mergeDanglingLines.accept(dls.get(0), dl2);
+                    }
+                    if (dls.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
+                        List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
+                        if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
+                            mergeDanglingLines.accept(connectedDls.get(0), dl2);
+                        }
+                    }
+                }
+            }
+        } else {
+            // if dangling line with same ID present, there is only one: they are associated if the X-node code is identical (if not: throw exception)
+            if ((dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null
+                    && !dl1.getUcteXnodeCode().equals(dl2.getUcteXnodeCode())) || (dl1.getUcteXnodeCode() == null && dl2.getUcteXnodeCode() == null)) {
+                throw new PowsyblException("Dangling line couple " + dl1.getId()
+                        + " have inconsistent Xnodes (" + dl1.getUcteXnodeCode()
+                        + "!=" + dl2.getUcteXnodeCode() + ")");
+            }
+            mergeDanglingLines.accept(dl1, dl2);
+        }
     }
 
     public static double getR(TieLine.HalfLine half1, TieLine.HalfLine half2) {
