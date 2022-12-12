@@ -1,7 +1,6 @@
 {
-  "version" : "1.0",
+  "version" : "1.1",
   "faultResults" : [ {
-    "version" : "1.1",
     "status" : "SUCCESS",
     "fault" : {
       "type" : "BUS",

@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.security.LimitViolation;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -62,17 +63,26 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     /**
      * @deprecated status added in the result, used for backward compatibility only
      */
-    @Deprecated (forRemoval = false)
+    @Deprecated (since = "5.1.0")
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
                        Duration timeConstant) {
         this.fault = Objects.requireNonNull(fault);
         this.shortCircuitPower = shortCircuitPower;
-        this.feederResults = feederResults;
-        this.limitViolations = limitViolations;
+        this.feederResults = new ArrayList<>();
+        if (feederResults != null) {
+            this.feederResults.addAll(feederResults);
+        }
+        this.limitViolations = new ArrayList<>();
+        if (limitViolations != null) {
+            this.limitViolations.addAll(limitViolations);
+        }
         this.current = Objects.requireNonNull(current);
         this.voltage = voltage;
-        this.shortCircuitBusResults = shortCircuitBusResults;
+        this.shortCircuitBusResults = new ArrayList<>();
+        if (shortCircuitBusResults != null) {
+            this.shortCircuitBusResults.addAll(shortCircuitBusResults);
+        }
         this.timeConstant = timeConstant;
     }
 
@@ -81,11 +91,20 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
                        Duration timeConstant, Status status) {
         this.fault = Objects.requireNonNull(fault);
         this.shortCircuitPower = shortCircuitPower;
-        this.feederResults = feederResults;
-        this.limitViolations = limitViolations;
+        this.feederResults = new ArrayList<>();
+        if (feederResults != null) {
+            this.feederResults.addAll(feederResults);
+        }
+        this.limitViolations = new ArrayList<>();
+        if (limitViolations != null) {
+            this.limitViolations.addAll(limitViolations);
+        }
         this.current = Objects.requireNonNull(current);
         this.voltage = voltage;
-        this.shortCircuitBusResults = shortCircuitBusResults;
+        this.shortCircuitBusResults = new ArrayList<>();
+        if (shortCircuitBusResults != null) {
+            this.shortCircuitBusResults.addAll(shortCircuitBusResults);
+        }
         this.timeConstant = timeConstant;
         this.status = Objects.requireNonNull(status);
     }

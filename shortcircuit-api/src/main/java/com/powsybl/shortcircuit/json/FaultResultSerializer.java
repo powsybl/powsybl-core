@@ -20,10 +20,6 @@ import java.util.Objects;
  */
 public class FaultResultSerializer extends StdSerializer<FaultResult> {
 
-    // VERSION = 1.0 fault, shortCircuitPower, timeConstant, feederResult, limitViolations, current, voltage, shortCircuitBusResults
-    // VERSION = 1.1 status
-    private static final String VERSION = "1.1";
-
     public FaultResultSerializer() {
         super(FaultResult.class);
     }
@@ -34,7 +30,6 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         Objects.requireNonNull(faultResult.getFault());
 
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeStringField("status", String.valueOf(faultResult.getStatus()));
         jsonGenerator.writeObjectField("fault", faultResult.getFault());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "shortCircuitPower", faultResult.getShortCircuitPower());
