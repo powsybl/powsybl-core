@@ -95,6 +95,7 @@ class FaultResultDeserializer extends StdDeserializer<FaultResult> {
                     break;
 
                 case "status":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), ShortCircuitAnalysisResult.VERSION, "1.1");
                     parser.nextToken();
                     status = FaultResult.Status.valueOf(parser.getValueAsString());
                     break;
