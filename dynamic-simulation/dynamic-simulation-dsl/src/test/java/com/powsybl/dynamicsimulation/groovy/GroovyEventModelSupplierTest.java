@@ -7,9 +7,6 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -25,6 +22,8 @@ import com.powsybl.dynamicsimulation.EventModel;
 import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -51,10 +50,27 @@ public class GroovyEventModelSupplierTest {
 
         List<EventModelGroovyExtension> extensions = GroovyExtension.find(EventModelGroovyExtension.class, "dummy");
         assertEquals(1, extensions.size());
-        assertTrue(extensions.get(0) instanceof EventModelGroovyExtension);
+        assertNotNull(extensions.get(0));
 
         EventModelsSupplier supplier = new GroovyEventModelsSupplier(fileSystem.getPath("/eventModels.groovy"), extensions);
 
+        testEventModelsSupplier(network, supplier);
+    }
+
+    @Test
+    public void testWithInputStream() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        List<EventModelGroovyExtension> extensions = GroovyExtension.find(EventModelGroovyExtension.class, "dummy");
+        assertEquals(1, extensions.size());
+        assertNotNull(extensions.get(0));
+
+        EventModelsSupplier supplier = new GroovyEventModelsSupplier(getClass().getResourceAsStream("/eventModels.groovy"), extensions);
+
+        testEventModelsSupplier(network, supplier);
+    }
+
+    private static void testEventModelsSupplier(Network network, EventModelsSupplier supplier) {
         List<EventModel> eventModels = supplier.get(network);
         assertEquals(2, eventModels.size());
 

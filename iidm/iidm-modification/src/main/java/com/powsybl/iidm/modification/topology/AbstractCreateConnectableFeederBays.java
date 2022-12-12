@@ -33,7 +33,9 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     protected final int[] sides;
 
-    protected abstract String getBbsId(int side);
+    protected abstract String getBusOrBusbarSectionId(int side);
+
+    protected abstract void setBus(int side, Bus bus, String voltageLevelId);
 
     protected abstract void setNode(int side, int node, String voltageLevelId);
 
@@ -41,7 +43,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     protected abstract VoltageLevel getVoltageLevel(int side, Connectable<?> connectable);
 
-    protected abstract int getPositionOrder(int side);
+    protected abstract Integer getPositionOrder(int side);
 
     protected abstract Optional<String> getFeederName(int side);
 
@@ -57,24 +59,76 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
-        Map<VoltageLevel, Integer> firstAvailableNodes = new HashMap<>();
-        for (int side : sides) {
-            String bbsId = getBbsId(side);
-            BusbarSection bbs = network.getBusbarSection(bbsId); //If the busbar exists, topology of the associated voltage level is node/breaker
-            if (bbs == null) {
-                LOGGER.error("Busbar section {} not found.", bbsId);
-                notFoundBusbarSectionReport(reporter, bbsId);
-                if (throwException) {
-                    throw new PowsyblException(String.format("Busbar section %s not found.", bbsId));
-                }
-                return;
-            }
-            VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
-            int connectableNode = firstAvailableNodes.compute(voltageLevel, (vl, node) -> node == null ? vl.getNodeBreakerView().getMaximumNodeIndex() + 1 : node + 1);
-            setNode(side, connectableNode, voltageLevel.getId());
+        if (!setAdderConnectivity(network, reporter, throwException)) {
+            return;
+        }
+        Connectable<?> connectable = add();
+        if (!checkNetworks(connectable, network, reporter, throwException)) {
+            return;
         }
 
-        Connectable<?> connectable = add();
+        LOGGER.info("New connectable {} of type {} created", connectable.getId(), connectable.getType());
+        createdConnectable(reporter, connectable);
+
+        createExtensionAndTopology(connectable, network, reporter);
+    }
+
+    private boolean checkOrders(int side, VoltageLevel voltageLevel, Reporter reporter, boolean throwException) {
+        TopologyKind topologyKind = voltageLevel.getTopologyKind();
+        Integer positionOrder = getPositionOrder(side);
+        if (positionOrder == null && topologyKind == TopologyKind.NODE_BREAKER) {
+            unexpectedNullPositionOrder(reporter, voltageLevel);
+            LOGGER.error("Position order is null for attachment in node-breaker voltage level {}", voltageLevel.getId());
+            if (throwException) {
+                throw new PowsyblException("Position order is null for attachment in node-breaker voltage level " + voltageLevel.getId());
+            }
+            return false;
+        }
+        if (positionOrder != null && topologyKind == TopologyKind.BUS_BREAKER) {
+            ignoredPositionOrder(reporter, positionOrder, voltageLevel);
+            LOGGER.warn("Voltage level {} is BUS_BREAKER. Position order {} is ignored", voltageLevel.getId(), positionOrder);
+        }
+        return true;
+    }
+
+    private boolean setAdderConnectivity(Network network, Reporter reporter, boolean throwException) {
+        Map<VoltageLevel, Integer> firstAvailableNodes = new HashMap<>();
+        for (int side : sides) {
+            String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
+            Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
+            if (busOrBusbarSection == null) {
+                LOGGER.error("Identifiable {} not found.", busOrBusbarSectionId);
+                notFoundIdentifiableReport(reporter, busOrBusbarSectionId);
+                if (throwException) {
+                    throw new PowsyblException(String.format("Identifiable %s not found.", busOrBusbarSectionId));
+                }
+                return false;
+            }
+            if (busOrBusbarSection instanceof Bus) {
+                Bus bus = (Bus) busOrBusbarSection; // if bus is an identifiable, the voltage level is BUS_BREAKER
+                checkOrders(side, bus.getVoltageLevel(), reporter, throwException); // is always true, can only return a warning
+                setBus(side, bus, bus.getVoltageLevel().getId());
+            } else if (busOrBusbarSection instanceof BusbarSection) {
+                BusbarSection bbs = (BusbarSection) busOrBusbarSection; // if bbs exists, the voltage level is NODE_BREAKER: no necessary topology kind check
+                VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
+                if (!checkOrders(side, voltageLevel, reporter, throwException)) {
+                    return false;
+                }
+                int connectableNode = firstAvailableNodes.compute(voltageLevel, (vl, node) -> node == null ? vl.getNodeBreakerView().getMaximumNodeIndex() + 1 : node + 1);
+                setNode(side, connectableNode, voltageLevel.getId());
+            } else {
+                LOGGER.error("Unsupported type {} for identifiable {}", busOrBusbarSection.getType(), busOrBusbarSectionId);
+                unsupportedIdentifiableType(reporter, busOrBusbarSection.getType(), busOrBusbarSectionId);
+                if (throwException) {
+                    throw new PowsyblException(String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(), busOrBusbarSectionId));
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkNetworks(Connectable<?> connectable, Network network, Reporter reporter, boolean throwException) {
         if (connectable.getNetwork() != network) {
             connectable.remove();
             LOGGER.error("Network given in parameters and in connectableAdder are different. Connectable '{}' of type {} was added then removed",
@@ -83,14 +137,20 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             if (throwException) {
                 throw new PowsyblException("Network given in parameters and in connectableAdder are different. Connectable was added then removed");
             }
-            return;
+            return false;
         }
-        String connectableId = connectable.getId();
+        return true;
+    }
 
+    private void createExtensionAndTopology(Connectable<?> connectable, Network network, Reporter reporter) {
+        String connectableId = connectable.getId();
         boolean createConnectablePosition = false;
         ConnectablePositionAdder<?> connectablePositionAdder = connectable.newExtension(ConnectablePositionAdder.class);
         for (int side : sides) {
             VoltageLevel voltageLevel = getVoltageLevel(side, connectable);
+            if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+                continue; // no extension nor switches created in bus-breaker topology
+            }
             Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
             int positionOrder = getPositionOrder(side);
             if (!takenFeederPositions.isEmpty() || voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).count() == 1) {
@@ -103,14 +163,11 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                             .add();
                     createConnectablePosition = true;
                 } else {
-                    LOGGER.error("PositionOrder {} already taken.", positionOrder);
+                    LOGGER.warn("PositionOrder {} already taken. No position extension created.", positionOrder);
                     positionOrderAlreadyTakenReport(reporter, positionOrder);
-                    if (throwException) {
-                        throw new PowsyblException(String.format("PositionOrder %d already taken.", positionOrder));
-                    }
                 }
             } else {
-                LOGGER.warn("No extensions found on voltageLevel {}. The extension is not created.", voltageLevel.getId());
+                LOGGER.warn("No order positions found on voltageLevel {}. The extension is not created.", voltageLevel.getId());
                 noConnectablePositionExtension(reporter, voltageLevel);
             }
             // create switches and a breaker linking the connectable to the busbar sections.
@@ -125,7 +182,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     private void createTopology(int side, Network network, VoltageLevel voltageLevel, int connectableNode, int forkNode, Connectable<?> connectable, Reporter reporter) {
         String baseId = connectable.getId() + (side == 0 ? "" : side);
-        String bbsId = getBbsId(side);
+        String bbsId = getBusOrBusbarSectionId(side);
         BusbarSection bbs = network.getBusbarSection(bbsId);
         int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
         createNodeBreakerSwitches(connectableNode, forkNode, bbsNode, baseId, voltageLevel.getNodeBreakerView());
@@ -142,7 +199,8 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             parallelBbsNumber = bbsList.size();
             createTopologyFromBusbarSectionList(voltageLevel, forkNode, baseId, bbsList);
         }
-        LOGGER.info("New connectable {} was added to voltage level {} on busbar section {}", connectable.getId(), voltageLevel.getId(), bbs.getId());
-        newConnectableAddedReport(reporter, voltageLevel.getId(), bbsId, connectable, parallelBbsNumber);
+        LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector" +
+                "and on {} parallel busbar sections with an open disconnector.", connectable.getId(), connectable.getType(), voltageLevel.getId(), bbsId, parallelBbsNumber);
+        createdNodeBreakerFeederBay(reporter, voltageLevel.getId(), bbsId, connectable, parallelBbsNumber);
     }
 }

@@ -31,7 +31,7 @@ public interface ConnectablePosition<C extends Connectable<C>> extends Extension
     }
 
     public interface Feeder {
-        String getName();
+        Optional<String> getName();
 
         Feeder setName(String name);
 
