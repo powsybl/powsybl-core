@@ -926,45 +926,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private DanglingLine getDanglingLineByTheOther(DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
-        DanglingLine dl1 = getDanglingLine(dl2.getId()); // find dangling line with same ID in the merging network if present
-        if (dl1 == null) { // if dangling line with same ID not present, find dangling line(s) with same X-node code in merging network if present
-            // mapping by ucte xnode code
-            if (dl2.getUcteXnodeCode() != null) { // if X-node code null: no associated dangling line
-                if (dl2.getNetwork().getDanglingLineStream()
-                        .filter(d -> d != dl2)
-                        .filter(d -> d.getUcteXnodeCode() != null)
-                        .filter(d -> d.getUcteXnodeCode().equals(dl2.getUcteXnodeCode()))
-                        .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same X-node code in the network to be merged
-                    return null;                                         // in that case, do nothing
-                }
-                List<DanglingLine> dls = dl1byXnodeCode.get(dl2.getUcteXnodeCode());
-                if (dls != null) {
-                    if (dls.size() == 1) { // if there is exactly one dangling line in the merging network, merge it
-                        dl1 = dls.get(0);
-                        dl1byXnodeCode.remove(dl2.getUcteXnodeCode());
-                    }
-                    if (dls.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
-                        List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
-                        if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
-                            dl1 = connectedDls.get(0);
-                            dl1byXnodeCode.get(dl2.getUcteXnodeCode()).remove(dl1);
-                        }
-                    }
-                }
-            }
-        } else {
-            // if dangling line with same ID present, there is only one: they are associated if the X-node code is identical (if not: throw exception)
-            if ((dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null
-                    && !dl1.getUcteXnodeCode().equals(dl2.getUcteXnodeCode())) || (dl1.getUcteXnodeCode() == null && dl2.getUcteXnodeCode() == null)) {
-                throw new PowsyblException("Dangling line couple " + dl1.getId()
-                        + " have inconsistent Xnodes (" + dl1.getUcteXnodeCode()
-                        + "!=" + dl2.getUcteXnodeCode() + ")");
-            }
-        }
-        return dl1;
-    }
-
     private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2) {
         if (dl1 != null) {
 
