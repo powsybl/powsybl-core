@@ -144,6 +144,11 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void switchedShuntWithZeroVswlo() throws IOException {
+        importTest("SwitchedShuntWithZeroVswlo", "SwitchedShuntWithZeroVswlo.raw", false);
+    }
+
+    @Test
     public void importTest14IsolatedBuses() throws IOException {
         importTest("IEEE_14_isolated_buses", "IEEE_14_isolated_buses.raw", false);
     }
