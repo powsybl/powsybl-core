@@ -14,6 +14,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -65,6 +66,10 @@ public class SecurityAnalysisResultBuilderTest {
         builder.contingency(new Contingency("contingency1"), postResultContext)
                 .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network), postViolationContext)
+                .setCreatedComponentCount(1)
+                .setLossOfLoad(0.0)
+                .setLossOfGeneration(0.0)
+                .setElementsLost(Collections.emptySet())
                 .endContingency();
         assertEquals(Security.checkLimits(network).size(), postViolationContext.getCalledCount());
         assertEquals(1, postResultContext.getCalledCount());
@@ -95,12 +100,20 @@ public class SecurityAnalysisResultBuilderTest {
                 .addThreeWindingsTransformerResult(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
                 0, 0, 0, 0, 0, 0, 0, 0, 0))
                 .addViolations(Security.checkLimits(network))
+                .setCreatedComponentCount(1)
+                .setLossOfLoad(10.0)
+                .setLossOfGeneration(20.0)
+                .setElementsLost(Set.of("branchId"))
                 .endContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(520));
         builder.contingency(new Contingency("contingency2"))
                 .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network))
+                .setCreatedComponentCount(2)
+                .setLossOfLoad(10.0)
+                .setLossOfGeneration(15.0)
+                .setElementsLost(Set.of("branchId", "branchId2"))
                 .endContingency();
 
         SecurityAnalysisResult res = builder.build();
@@ -115,6 +128,10 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), res1.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0), res1.getNetworkResult().getThreeWindingsTransformerResult("threeWindingsTransformerId"));
+        assertEquals(1, res1.getCreatedComponentCount());
+        assertEquals(10.0, res1.getLossOfLoad(), 1e-3);
+        assertEquals(20.0, res1.getLossOfGeneration(), 1e-3);
+        assertEquals(Set.of("branchId"), res1.getElementsLost());
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations1 = res1.getLimitViolationsResult().getLimitViolations();
@@ -124,6 +141,10 @@ public class SecurityAnalysisResultBuilderTest {
 
         PostContingencyResult res2 = res.getPostContingencyResults().get(1);
         assertEquals("contingency2", res2.getContingency().getId());
+        assertEquals(2, res2.getCreatedComponentCount());
+        assertEquals(10.0, res2.getLossOfLoad(), 1e-3);
+        assertEquals(15.0, res2.getLossOfGeneration(), 1e-3);
+        assertEquals(Set.of("branchId", "branchId2"), res2.getElementsLost());
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations2 = res2.getLimitViolationsResult().getLimitViolations();

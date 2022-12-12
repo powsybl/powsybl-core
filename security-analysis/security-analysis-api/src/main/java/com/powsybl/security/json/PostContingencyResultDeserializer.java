@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
@@ -44,6 +45,10 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
         NetworkResult networkResult = null;
         PostContingencyComputationStatus status = null;
+        int createdComponentCount = 0;
+        double lossOfLoad = 0.0;
+        double lossOfGeneration = 0.0;
+        Set<String> elementsLost = Collections.emptySet();
 
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version...
@@ -93,6 +98,31 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
                             version, "1.3");
                     status = parser.readValueAs(PostContingencyComputationStatus.class);
                     break;
+                case "createdComponentCount":
+                    parser.nextToken();
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: createdComponentCount",
+                            version, "1.4");
+                    createdComponentCount = parser.getIntValue();
+                    break;
+                case "lossOfLoad":
+                    parser.nextToken();
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: lossOfLoad",
+                            version, "1.4");
+                    lossOfLoad = parser.getDoubleValue();
+                    break;
+                case "lossOfGeneration":
+                    parser.nextToken();
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: lossOfGeneration",
+                            version, "1.4");
+                    lossOfGeneration = parser.getDoubleValue();
+                    break;
+                case "elementsLost":
+                    parser.nextToken();
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: elementsLost",
+                            version, "1.4");
+                    elementsLost = parser.readValueAs(new TypeReference<Set<String>>() {
+                    });
+                    break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
@@ -103,9 +133,10 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
             status = limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED;
         }
         if (networkResult != null) {
-            return new PostContingencyResult(contingency, status, limitViolationsResult, networkResult);
+            return new PostContingencyResult(contingency, status, limitViolationsResult, networkResult, createdComponentCount, lossOfLoad, lossOfGeneration, elementsLost);
         } else {
-            return new PostContingencyResult(contingency, status, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults);
+            return new PostContingencyResult(contingency, status, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults,
+                    createdComponentCount, lossOfLoad, lossOfGeneration, elementsLost);
         }
     }
 }

@@ -42,12 +42,16 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResult> busResults = new ArrayList<>();
         busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults);
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults, 1, 5.0, 10.0, Set.of("Id1", "Id2"));
         assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getNetworkResult().getBranchResult("branchId"));
         assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getNetworkResult().getThreeWindingsTransformerResult("threeWindingsTransformerId"));
         assertEquals(PostContingencyComputationStatus.CONVERGED, postContingencyResult.getStatus());
+        assertEquals(1, postContingencyResult.getCreatedComponentCount());
+        assertEquals(5.0, postContingencyResult.getLossOfLoad());
+        assertEquals(10.0, postContingencyResult.getLossOfGeneration());
+        assertEquals(Set.of("Id1", "Id2"), postContingencyResult.getElementsLost());
     }
 
     @Test
@@ -62,7 +66,7 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResult> busResults = new ArrayList<>();
         busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults);
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults, 1, 5.0, 10.0, Collections.emptySet());
         roundTripTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
     }
 

@@ -239,6 +239,14 @@ public class SecurityAnalysisResultBuilder {
 
         private PostContingencyComputationStatus status;
 
+        private int createdComponentCount;
+
+        private double lossOfLoad;
+
+        private double lossOfGeneration;
+
+        private Set<String> elementsLost;
+
         PostContingencyResultBuilder(Contingency contingency, SecurityAnalysisResultContext resultContext) {
             super(Objects.requireNonNull(resultContext));
             this.contingency = Objects.requireNonNull(contingency);
@@ -257,6 +265,26 @@ public class SecurityAnalysisResultBuilder {
             return this;
         }
 
+        public PostContingencyResultBuilder setCreatedComponentCount(int createdComponentCount) {
+            this.createdComponentCount = createdComponentCount;
+            return this;
+        }
+
+        public PostContingencyResultBuilder setLossOfLoad(double lossOfLoad) {
+            this.lossOfLoad = lossOfLoad;
+            return this;
+        }
+
+        public PostContingencyResultBuilder setLossOfGeneration(double lossOfGeneration) {
+            this.lossOfGeneration = lossOfGeneration;
+            return this;
+        }
+
+        public PostContingencyResultBuilder setElementsLost(Set<String> elementsLost) {
+            this.elementsLost = elementsLost;
+            return this;
+        }
+
         /**
          * Finalize the creation of the PostContingencyResult instance
          *
@@ -265,7 +293,7 @@ public class SecurityAnalysisResultBuilder {
         public SecurityAnalysisResultBuilder endContingency() {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             PostContingencyResult res = new PostContingencyResult(contingency, status, filteredViolations,
-                    branchResults, busResults, threeWindingsTransformerResults);
+                    branchResults, busResults, threeWindingsTransformerResults, createdComponentCount, lossOfLoad, lossOfGeneration, elementsLost);
             interceptors.forEach(i -> i.onPostContingencyResult(res, resultContext));
             addPostContingencyResult(res);
 
