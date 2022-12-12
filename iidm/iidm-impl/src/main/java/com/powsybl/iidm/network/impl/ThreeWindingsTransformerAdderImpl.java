@@ -39,9 +39,9 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected double x = Double.NaN;
 
-        protected double g = Double.NaN;
+        protected double g = 0.0;
 
-        protected double b = Double.NaN;
+        protected double b = 0.0;
 
         protected double ratedU = Double.NaN;
 
@@ -131,7 +131,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected VoltageLevelExt checkAndGetVoltageLevel() {
             if (voltageLevelId == null) {
-                throw new ValidationException(this, "voltage level is not set");
+                String defaultVoltageLevelId = checkAndGetDefaultVoltageLevelId();
+                if (defaultVoltageLevelId == null) {
+                    throw new ValidationException(this, "voltage level is not set");
+                } else {
+                    voltageLevelId = defaultVoltageLevelId;
+                }
             }
             VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
             if (voltageLevel == null) {
@@ -139,6 +144,18 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                     + "' not found");
             }
             return voltageLevel;
+        }
+
+        private String checkAndGetDefaultVoltageLevelId() {
+            if (connectableBus != null) {
+                VoltageLevelExt defaultVoltageLevel = (VoltageLevelExt) getNetwork().getBusBreakerView()
+                        .getBus(connectableBus)
+                        .getVoltageLevel();
+                if (defaultVoltageLevel.getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
+                    return defaultVoltageLevel.getId();
+                }
+            }
+            return null;
         }
 
         public ThreeWindingsTransformerAdderImpl add() {
@@ -207,18 +224,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     @Override
     public LegAdder newLeg2() {
-        LegAdderImpl legAdder = new LegAdderImpl(2);
-        legAdder.g = 0.0;
-        legAdder.b = 0.0;
-        return legAdder;
+        return new LegAdderImpl(2);
     }
 
     @Override
     public LegAdder newLeg3() {
-        LegAdderImpl legAdder = new LegAdderImpl(3);
-        legAdder.g = 0.0;
-        legAdder.b = 0.0;
-        return legAdder;
+        return new LegAdderImpl(3);
     }
 
     @Override

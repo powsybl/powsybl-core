@@ -93,6 +93,29 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     @Test
+    public void testDefaultValuesTwoWindingTransformer() {
+        TwoWindingsTransformer twoWindingsTransformer = substation.newTwoWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setRatedS(7.0)
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
+
+        assertEquals(0.0, twoWindingsTransformer.getG(), 0.0);
+        assertEquals(0.0, twoWindingsTransformer.getB(), 0.0);
+
+        VoltageLevel vl1 = network.getVoltageLevel("vl1");
+        VoltageLevel vl2 = network.getVoltageLevel("vl2");
+        assertSame(vl1, twoWindingsTransformer.getTerminal1().getVoltageLevel());
+        assertSame(vl2, twoWindingsTransformer.getTerminal2().getVoltageLevel());
+        assertEquals(vl1.getNominalV(), twoWindingsTransformer.getRatedU1(), 0.0);
+        assertEquals(vl2.getNominalV(), twoWindingsTransformer.getRatedU2(), 0.0);
+    }
+
+    @Test
     public void invalidSubstationContainer() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("2 windings transformer 'twt': the 2 windings of the transformer shall belong to the substation 'sub'");
@@ -168,20 +191,6 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b is invalid");
         createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0);
-    }
-
-    @Test
-    public void testInvalidRatedU1() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("rated U1 is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0);
-    }
-
-    @Test
-    public void testInvalidRatedU2() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("rated U2 is invalid");
-        createTwoWindingTransformer(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0);
     }
 
     @Test

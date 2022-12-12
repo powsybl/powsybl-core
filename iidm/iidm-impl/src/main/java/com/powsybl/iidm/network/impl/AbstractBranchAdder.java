@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.ValidationException;
 
 /**
@@ -60,7 +61,12 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     protected VoltageLevelExt checkAndGetVoltageLevel1() {
         if (voltageLevelId1 == null) {
-            throw new ValidationException(this, "first voltage level is not set");
+            String defaultVoltageLevelId1 = checkAndGetDefaultVoltageLevelId(connectableBus1);
+            if (defaultVoltageLevelId1 == null) {
+                throw new ValidationException(this, "first voltage level is not set and has no default value");
+            } else {
+                voltageLevelId1 = defaultVoltageLevelId1;
+            }
         }
         VoltageLevelExt voltageLevel1 = getNetwork().getVoltageLevel(voltageLevelId1);
         if (voltageLevel1 == null) {
@@ -100,7 +106,12 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     protected VoltageLevelExt checkAndGetVoltageLevel2() {
         if (voltageLevelId2 == null) {
-            throw new ValidationException(this, "second voltage level is not set");
+            String defaultVoltageLevelId2 = checkAndGetDefaultVoltageLevelId(connectableBus2);
+            if (defaultVoltageLevelId2 == null) {
+                throw new ValidationException(this, "second voltage level is not set and has no default value");
+            } else {
+                voltageLevelId2 = defaultVoltageLevelId2;
+            }
         }
         VoltageLevelExt voltageLevel2 = getNetwork().getVoltageLevel(voltageLevelId2);
         if (voltageLevel2 == null) {
@@ -110,4 +121,14 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         return voltageLevel2;
     }
 
-}
+    private String checkAndGetDefaultVoltageLevelId(String connectableBus) {
+        if (connectableBus != null) {
+            VoltageLevelExt defaultVoltageLevel = (VoltageLevelExt) getNetwork().getBusBreakerView()
+                    .getBus(connectableBus)
+                    .getVoltageLevel();
+            if (defaultVoltageLevel.getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
+                return defaultVoltageLevel.getId();
+            }
+        }
+        return null;
+    }

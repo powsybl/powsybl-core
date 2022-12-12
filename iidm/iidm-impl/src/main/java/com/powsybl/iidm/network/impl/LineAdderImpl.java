@@ -21,13 +21,13 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     private double x = Double.NaN;
 
-    private double g1 = Double.NaN;
+    private double g1 = 0.0;
 
-    private double b1 = Double.NaN;
+    private double b1 = 0.0;
 
-    private double g2 = Double.NaN;
+    private double g2 = 0.0;
 
-    private double b2 = Double.NaN;
+    private double b2 = 0.0;
 
     LineAdderImpl(NetworkImpl network) {
         this.network = network;
