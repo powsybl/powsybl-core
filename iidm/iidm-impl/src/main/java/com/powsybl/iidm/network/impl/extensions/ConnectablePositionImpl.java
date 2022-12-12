@@ -40,19 +40,19 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
         }
 
         public FeederImpl(String name, Integer order, Direction direction) {
-            this.name = Objects.requireNonNull(name);
+            this.name = name;
             this.order = order;
             this.direction = Objects.requireNonNullElse(direction, Direction.UNDEFINED);
         }
 
         @Override
-        public String getName() {
-            return name;
+        public Optional<String> getName() {
+            return Optional.ofNullable(name);
         }
 
         @Override
         public Feeder setName(String name) {
-            this.name = Objects.requireNonNull(name);
+            this.name = name;
             return this;
         }
 
