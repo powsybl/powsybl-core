@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -17,12 +18,12 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
+import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -34,9 +35,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
 
@@ -91,8 +90,8 @@ public class CgmesExportTest {
 
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
-            Exporters.export("CGMES", network, null, tmpDir.resolve("tmp"));
-            Network n2 = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, "tmp"));
+            network.write("CGMES", null, tmpDir.resolve("tmp"));
+            Network n2 = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             VoltageLevel c = n2.getVoltageLevel("C");
             assertNull(Networks.getEquivalentTerminal(c, c.getNodeBreakerView().getNode2("TEST_SW")));
             assertNull(n2.getVscConverterStation("C2").getTerminal().getBusView().getBus());
@@ -108,7 +107,7 @@ public class CgmesExportTest {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
             // Export to CGMES and add boundary EQ for reimport
-            Exporters.export("CGMES", n, null, tmpDir.resolve(baseName));
+            n.write("CGMES", null, tmpDir.resolve(baseName));
             String eqbd = ds.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
             if (eqbd != null) {
                 try (InputStream is = ds.newInputStream(eqbd)) {
@@ -116,11 +115,11 @@ public class CgmesExportTest {
                 }
             }
 
-            Network n2 = Importers.loadNetwork(new GenericReadOnlyDataSource(tmpDir, baseName), null);
+            Network n2 = Network.read(new GenericReadOnlyDataSource(tmpDir, baseName), null);
             Generator g1 = n2.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
             Generator g2 = n2.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
             String gu1 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
-            String gu2 = g1.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
+            String gu2 = g2.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
             assertEquals(gu1, gu2);
         }
     }
@@ -139,14 +138,14 @@ public class CgmesExportTest {
 
             // With original regulating mode the regulating control should be written in the EQ output
             String baseNameWithRc = baseName + "-with-rc";
-            Exporters.export("CGMES", n, null, tmpDir.resolve(baseNameWithRc));
+            n.write("CGMES", null, tmpDir.resolve(baseNameWithRc));
             assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameWithRc, "EQ"));
             assertTrue(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameWithRc, "SSH"));
 
             transformer.getPhaseTapChanger().setRegulating(false);
             transformer.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
             String baseNameNoRc = baseName + "-no-rc";
-            Exporters.export("CGMES", n, null, tmpDir.resolve(baseNameNoRc));
+            n.write("CGMES", null, tmpDir.resolve(baseNameNoRc));
             assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "EQ"));
             assertFalse(cgmesFileContainsRegulatingControl(regulatingControlId, tmpDir, baseNameNoRc, "SSH"));
         }
@@ -216,14 +215,14 @@ public class CgmesExportTest {
             Properties paramsOnlySsh = new Properties();
             paramsOnlySsh.put(CgmesExport.PROFILES, List.of("SSH"));
             paramsOnlySsh.put(CgmesExport.CIM_VERSION, "" + cimVersion);
-            Exporters.export("CGMES", network, paramsOnlySsh, tmpDir.resolve(baseName));
+            network.write("CGMES", paramsOnlySsh, tmpDir.resolve(baseName));
             String typeOnlySsh = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
             assertEquals(typeOriginal, typeOnlySsh);
 
             // If we export EQ and SSH (or all instance fiels), type of tap changer should be changed to tabular
             Properties paramsEqAndSsh = new Properties();
             paramsEqAndSsh.put(CgmesExport.CIM_VERSION, "" + cimVersion);
-            Exporters.export("CGMES", network, paramsEqAndSsh, tmpDir.resolve(baseName));
+            network.write("CGMES", paramsEqAndSsh, tmpDir.resolve(baseName));
             String typeEqAndSsh = CgmesExportUtil.cgmesTapChangerType(transformer, phaseTapChangerId).orElseThrow(RuntimeException::new);
             assertEquals(CgmesNames.PHASE_TAP_CHANGER_TABULAR, typeEqAndSsh);
         }
@@ -253,13 +252,13 @@ public class CgmesExportTest {
 
             // Check that the exported CGMES model does not contain the fictitious switch
             // And that the corresponding terminal is disconnected
-            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, null, TripleStoreFactory.defaultImplementation());
+            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, TripleStoreFactory.defaultImplementation());
             assertTrue(cgmes.isNodeBreaker());
             assertFalse(cgmes.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
             assertFalse(cgmes.terminal(disconnectedTerminalId).connected());
 
             // Verify that the fictitious switch is created again when we re-import the exported CGMES data
-            Network networkReimported = Importers.loadNetwork(exportedCgmes, null);
+            Network networkReimported = Network.read(exportedCgmes, null);
             Switch fictitiousSwitchReimported = networkReimported.getSwitch(fictitiousSwitchId);
             assertNotNull(fictitiousSwitchReimported);
             assertTrue(fictitiousSwitchReimported.isFictitious());
@@ -271,18 +270,18 @@ public class CgmesExportTest {
             fictitiousSwitch.setOpen(false);
             String baseName1 = "testTerminalDisconnectedFictitiousSwitchClosedExported";
             ReadOnlyDataSource exportedCgmes1 = exportAndAddBoundaries(network, tmpDir, baseName1, ds);
-            CgmesModel cgmes1 = CgmesModelFactory.create(exportedCgmes1, null, TripleStoreFactory.defaultImplementation());
+            CgmesModel cgmes1 = CgmesModelFactory.create(exportedCgmes1, TripleStoreFactory.defaultImplementation());
             assertTrue(cgmes1.isNodeBreaker());
             assertFalse(cgmes1.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
             assertTrue(cgmes1.terminal(disconnectedTerminalId).connected());
-            Network networkReimported1 = Importers.loadNetwork(exportedCgmes1, null);
+            Network networkReimported1 = Network.read(exportedCgmes1, null);
             Switch fictitiousSwitchReimported1 = networkReimported1.getSwitch(fictitiousSwitchId);
             assertNull(fictitiousSwitchReimported1);
         }
     }
 
     private static ReadOnlyDataSource exportAndAddBoundaries(Network network, Path tmpDir, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
-        Exporters.export("CGMES", network, null, tmpDir.resolve(baseName));
+        network.write("CGMES", null, tmpDir.resolve(baseName));
         String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
         if (eqbd != null) {
             try (InputStream is = originalDataSource.newInputStream(eqbd)) {
@@ -291,4 +290,175 @@ public class CgmesExportTest {
         }
         return new GenericReadOnlyDataSource(tmpDir, baseName);
     }
+
+    @Test
+    public void testFromIidmDanglingLineBusBranch() throws IOException {
+        // If we want to export an IIDM that contains dangling lines,
+        // we will have to rely on some external boundaries definition
+
+        Network network = DanglingLineNetworkFactory.create();
+        DanglingLine expected = network.getDanglingLine("DL");
+
+        // Before exporting, we have to define to which point
+        // in the external boundary definition we want to associate this dangling line
+        // For this test we chose the Conformity MicroGrid BaseCase
+        ResourceSet boundaries = CgmesConformity1Catalog.microGridBaseCaseBoundaries();
+        String boundaryTN = "d4affe50316740bdbbf4ae9c7cbf3cfd";
+        expected.addAlias(boundaryTN, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        // We also inform the identifiers of the boundaries we depend on
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66");
+        exportParameters.put(CgmesExport.BOUNDARY_TP_ID, "urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66");
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
+            network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
+
+            // To be able to import from the exported CGMES data we must add the external boundary definitions
+            // For bus/branch we need both EQ and TP instance files of boundaries
+            try (InputStream is = boundaries.newInputStream("MicroGridTestConfiguration_EQ_BD.xml")) {
+                Files.copy(is, tmpDir.resolve("tmp_EQ_BD.xml"), StandardCopyOption.REPLACE_EXISTING);
+            }
+            try (InputStream is = boundaries.newInputStream("MicroGridTestConfiguration_TP_BD.xml")) {
+                Files.copy(is, tmpDir.resolve("tmp_TP_BD.xml"), StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
+            DanglingLine actual = networkFromCgmes.getDanglingLine("DL");
+            assertNotNull(actual);
+            checkDanglingLineParams(expected, actual);
+        }
+    }
+
+    @Test
+    public void testFromIidmDanglingLineBusBranchNotBoundary() throws IOException {
+        // If we want to export an IIDM that contains dangling lines,
+        // we will have to rely on some external boundaries definition
+        // If we do not provide this information,
+        // we will re-import it as a regular line
+
+        Network network = DanglingLineNetworkFactory.create();
+        DanglingLine expected = network.getDanglingLine("DL");
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
+            network.write("CGMES", null, tmpDir.resolve("tmp"));
+
+            Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
+            Line actual = networkFromCgmes.getLine("DL");
+            assertNotNull(actual);
+            checkDanglingLineParams(expected, actual);
+            // The dangling line was exported as an ACLS plus an equivalent injection.
+            // Equivalent injections inside an IGM are mapped to generators,
+            // So we have to check that there is a generator at side 2 (boundary) of the line
+            checkDanglingLineEquivalentInjection(expected, actual);
+            checkFictitiousContainerAtBoundary(expected, actual);
+        }
+    }
+
+    @Test
+    public void testFromIidmDanglingLineNodeBreaker() throws IOException {
+        // If we want to export an IIDM that contains dangling lines,
+        // we will have to rely on some external boundaries definition
+
+        Network network = DanglingLineNetworkFactory.create();
+        DanglingLine expected = network.getDanglingLine("DL");
+
+        // Before exporting, we have to define to which point
+        // in the external boundary definition we want to associate this dangling line
+        // For this test we chose the Conformity MicroGrid BaseCase
+        ResourceSet boundaries = Cgmes3Catalog.microGridBaseCaseBoundaries();
+        String boundaryCN = "b675a570-cb6e-11e1-bcee-406c8f32ef58";
+        expected.addAlias(boundaryCN, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
+        // We inform the identifier of the boundaries we depend on
+        Properties exportParameters = new Properties();
+        exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:536f9bf1-3f8f-a546-87e3-7af2272f29b7");
+        exportParameters.put(CgmesExport.CIM_VERSION, "100");
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
+            network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
+
+            // To be able to import from the exported CGMES data we must add the external boundary definitions
+            // Because we work with node/breaker we only need the boundary EQ instance file
+            try (InputStream is = boundaries.newInputStream("20171002T0930Z_ENTSO-E_EQ_BD_2.xml")) {
+                Files.copy(is, tmpDir.resolve("tmp_EQ_BD.xml"), StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
+            DanglingLine actual = networkFromCgmes.getDanglingLine("DL");
+            assertNotNull(actual);
+            checkDanglingLineParams(expected, actual);
+        }
+    }
+
+    @Test
+    public void testFromIidmDanglingLineNodeBreakerNoBoundaries() throws IOException {
+        // If we want to export an IIDM that contains dangling lines,
+        // we will have to rely on some external boundaries definition
+        // If we do not add boundary information
+        // a node in the same voltage level of the dangling line will be created
+        // and the re-imported network will not see it as a dangling line,
+        // but as a regular transmission line
+
+        Network network = DanglingLineNetworkFactory.create();
+        DanglingLine expected = network.getDanglingLine("DL");
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
+            Properties exportParameters = new Properties();
+            exportParameters.put(CgmesExport.CIM_VERSION, "100");
+            network.write("CGMES", exportParameters, tmpDir.resolve("tmp"));
+
+            Network networkFromCgmes = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
+            DanglingLine actualDanglingLine = networkFromCgmes.getDanglingLine("DL");
+            assertNull(actualDanglingLine);
+            Line actual = networkFromCgmes.getLine("DL");
+            checkDanglingLineParams(expected, actual);
+            // non-network end is always exported with terminal sequence 2
+            // at that node there should be only the equipment corresponding to the equivalent injection
+            checkDanglingLineEquivalentInjection(expected, actual);
+            checkFictitiousContainerAtBoundary(expected, actual);
+        }
+    }
+
+    private static void checkDanglingLineParams(DanglingLine expected, DanglingLine actual) {
+        assertEquals(expected.getR(), actual.getR(), EPSILON);
+        assertEquals(expected.getX(), actual.getX(), EPSILON);
+        assertEquals(expected.getG(), actual.getG(), EPSILON);
+        assertEquals(expected.getB(), actual.getB(), EPSILON);
+        assertEquals(expected.getP0(), actual.getP0(), EPSILON);
+        assertEquals(expected.getQ0(), actual.getQ0(), EPSILON);
+    }
+
+    private static void checkDanglingLineParams(DanglingLine expected, Line actual) {
+        assertEquals(expected.getR(), actual.getR(), EPSILON);
+        assertEquals(expected.getX(), actual.getX(), EPSILON);
+        assertEquals(expected.getG(), actual.getG1() + actual.getG2(), EPSILON);
+        assertEquals(expected.getB(), actual.getB1() + actual.getB2(), EPSILON);
+    }
+
+    private static void checkFictitiousContainerAtBoundary(DanglingLine expected, Line actual) {
+        // Check that a fictitious voltage level and substation have been created
+        // Voltage level and substation must be different at both ends of line
+        assertNotEquals(expected.getTerminal().getVoltageLevel().getId(), actual.getTerminal2().getVoltageLevel().getId());
+        assertNotEquals(expected.getTerminal().getVoltageLevel().getSubstation().orElseThrow().getId(), actual.getTerminal2().getVoltageLevel().getSubstation().orElseThrow().getId());
+        // Names should end with known suffixes
+        assertTrue(actual.getTerminal2().getVoltageLevel().getNameOrId().endsWith("_VL"));
+        assertTrue(actual.getTerminal2().getVoltageLevel().getSubstation().orElseThrow().getNameOrId().endsWith("_SUBSTATION"));
+    }
+
+    private static void checkDanglingLineEquivalentInjection(DanglingLine expected, Line actual) {
+        Connectable<?> eqAtEnd2 = actual.getTerminal2().getBusView().getBus().getConnectedTerminalStream()
+                .filter(t -> t.getConnectable() != actual)
+                .findFirst()
+                .map(Terminal::getConnectable)
+                .orElseThrow();
+        assertTrue(eqAtEnd2 instanceof Generator);
+        Generator actualEquivalentInjection = (Generator) eqAtEnd2;
+        assertEquals(expected.getP0(), -actualEquivalentInjection.getTargetP(), EPSILON);
+        assertEquals(expected.getQ0(), -actualEquivalentInjection.getTargetQ(), EPSILON);
+    }
+
+    private static final double EPSILON = 1e-10;
 }

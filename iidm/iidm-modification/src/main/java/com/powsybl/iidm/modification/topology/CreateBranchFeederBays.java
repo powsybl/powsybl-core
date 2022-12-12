@@ -24,23 +24,23 @@ import java.util.Optional;
 public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays {
 
     private final BranchAdder<?> branchAdder;
-    private final String bbsId1;
-    private final String bbsId2;
-    private final int positionOrder1;
-    private final int positionOrder2;
+    private final String busOrBbsId1;
+    private final String busOrBbsId2;
+    private final Integer positionOrder1;
+    private final Integer positionOrder2;
     private final String feederName1;
     private final String feederName2;
     private final ConnectablePosition.Direction direction1;
     private final ConnectablePosition.Direction direction2;
 
-    CreateBranchFeederBays(BranchAdder<?> branchAdder, String bbsId1, String bbsId2, Integer positionOrder1, Integer positionOrder2,
+    CreateBranchFeederBays(BranchAdder<?> branchAdder, String busOrBbsId1, String busOrBbsId2, Integer positionOrder1, Integer positionOrder2,
                            String feederName1, String feederName2, ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2) {
         super(1, 2);
         this.branchAdder = Objects.requireNonNull(branchAdder);
-        this.bbsId1 = Objects.requireNonNull(bbsId1);
-        this.bbsId2 = Objects.requireNonNull(bbsId2);
-        this.positionOrder1 = Objects.requireNonNull(positionOrder1);
-        this.positionOrder2 = Objects.requireNonNull(positionOrder2);
+        this.busOrBbsId1 = Objects.requireNonNull(busOrBbsId1);
+        this.busOrBbsId2 = Objects.requireNonNull(busOrBbsId2);
+        this.positionOrder1 = positionOrder1;
+        this.positionOrder2 = positionOrder2;
         this.feederName1 = feederName1;
         this.feederName2 = feederName2;
         this.direction1 = Objects.requireNonNull(direction1);
@@ -48,14 +48,25 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     }
 
     @Override
-    protected String getBbsId(int side) {
+    protected String getBusOrBusbarSectionId(int side) {
         if (side == 1) {
-            return bbsId1;
+            return busOrBbsId1;
         }
         if (side == 2) {
-            return bbsId2;
+            return busOrBbsId2;
         }
         throw createSideAssertionError(side);
+    }
+
+    @Override
+    protected void setBus(int side, Bus bus, String voltageLevelId) {
+        if (side == 1) {
+            branchAdder.setConnectableBus1(bus.getId()).setBus1(bus.getId()).setVoltageLevel1(voltageLevelId);
+        } else if (side == 2) {
+            branchAdder.setConnectableBus2(bus.getId()).setBus2(bus.getId()).setVoltageLevel2(voltageLevelId);
+        } else {
+            throw createSideAssertionError(side);
+        }
     }
 
     @Override
@@ -93,7 +104,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     }
 
     @Override
-    protected int getPositionOrder(int side) {
+    protected Integer getPositionOrder(int side) {
         if (side == 1) {
             return positionOrder1;
         }

@@ -10,8 +10,10 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
@@ -25,10 +27,9 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.commons.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -78,10 +79,10 @@ public class XMLExporterTest extends AbstractXmlConverterTest {
         Properties params = new Properties();
         params.setProperty(XMLExporter.VERSION, IidmXmlVersion.V_1_2.toString("."));
         params.setProperty(XMLExporter.THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, "true");
-        assertThrows(PowsyblException.class, () -> Exporters.export("XIIDM", network, params,
+        assertThrows(PowsyblException.class, () -> network.write("XIIDM", params,
                 workingDir));
         try {
-            Exporters.export("XIIDM", network, params, workingDir);
+            network.write("XIIDM", params, workingDir);
             fail();
         } catch (PowsyblException exception) {
             assertEquals("Version V_1_2 does not support slackTerminal extension", exception.getMessage());

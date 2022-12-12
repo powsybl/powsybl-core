@@ -7,18 +7,20 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import java.util.Objects;
-import java.util.function.Supplier;
-
-import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
+import java.util.function.Supplier;
+
+import static com.powsybl.cgmes.conversion.CgmesReports.invalidAngleVoltageBusReport;
+import static com.powsybl.cgmes.conversion.CgmesReports.invalidAngleVoltageNodeReport;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -205,13 +207,13 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     private boolean checkValidVoltageAngle(Bus bus) {
         double v = p.asDouble(CgmesNames.VOLTAGE);
         double angle = p.asDouble(CgmesNames.ANGLE);
+        // If no values have been found we do not need to log or report
+        if (Double.isNaN(v) && Double.isNaN(angle)) {
+            return false;
+        }
         boolean valid = valid(v, angle);
         if (!valid) {
-            Supplier<String> reason = () -> String.format(
-                "v = %f, angle = %f. Node %s",
-                v,
-                angle,
-                id);
+            Supplier<String> reason = () -> String.format("v = %f, angle = %f. Node %s", v, angle, id);
             Supplier<String> location = () -> bus == null
                 ? "No bus"
                 : String.format("Bus %s, %sVoltage level %s",
@@ -220,6 +222,12 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                     bus.getVoltageLevel().getNameOrId());
             Supplier<String> message = () -> reason.get() + ". " + location.get();
             context.invalid("SvVoltage", message);
+
+            if (bus != null) {
+                invalidAngleVoltageBusReport(context.getReporter(), bus, id, v, angle);
+            } else {
+                invalidAngleVoltageNodeReport(context.getReporter(), id, v, angle);
+            }
         }
         return valid;
     }

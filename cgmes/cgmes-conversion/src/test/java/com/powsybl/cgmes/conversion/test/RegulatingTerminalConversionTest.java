@@ -12,7 +12,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -89,7 +89,7 @@ public class RegulatingTerminalConversionTest {
         assertEquals(21.987, regulationValue, 0.0);
     }
 
-    private Network networkModel(TestGridModel testGridModel, Conversion.Config config) {
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();

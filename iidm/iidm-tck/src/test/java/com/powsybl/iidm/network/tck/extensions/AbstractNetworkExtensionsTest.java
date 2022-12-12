@@ -75,7 +75,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<Load> load1Position = load1.getExtension(ConnectablePosition.class);
         assertNotNull(load1Position);
         assertNotNull(load1Position.getFeeder());
-        assertEquals("LD1", load1Position.getFeeder().getName());
+        assertEquals("LD1", load1Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, load1Position.getFeeder().getDirection());
         assertEquals(Optional.of(10), load1Position.getFeeder().getOrder());
 
@@ -84,7 +84,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<Load> load2Position = load2.getExtension(ConnectablePosition.class);
         assertNotNull(load2Position);
         assertNotNull(load2Position.getFeeder());
-        assertEquals("LD2", load2Position.getFeeder().getName());
+        assertEquals("LD2", load2Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.BOTTOM, load2Position.getFeeder().getDirection());
         assertEquals(Optional.of(60), load2Position.getFeeder().getOrder());
 
@@ -93,7 +93,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<Load> load3Position = load3.getExtension(ConnectablePosition.class);
         assertNotNull(load3Position);
         assertNotNull(load3Position.getFeeder());
-        assertEquals("LD3", load3Position.getFeeder().getName());
+        assertEquals("LD3", load3Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.BOTTOM, load3Position.getFeeder().getDirection());
         assertEquals(Optional.of(70), load3Position.getFeeder().getOrder());
 
@@ -102,7 +102,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<Load> load4Position = load4.getExtension(ConnectablePosition.class);
         assertNotNull(load4Position);
         assertNotNull(load4Position.getFeeder());
-        assertEquals("LD4", load4Position.getFeeder().getName());
+        assertEquals("LD4", load4Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.BOTTOM, load4Position.getFeeder().getDirection());
         assertEquals(Optional.of(80), load4Position.getFeeder().getOrder());
 
@@ -111,7 +111,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<Load> load5Position = load5.getExtension(ConnectablePosition.class);
         assertNotNull(load5Position);
         assertNotNull(load5Position.getFeeder());
-        assertEquals("LD5", load5Position.getFeeder().getName());
+        assertEquals("LD5", load5Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, load5Position.getFeeder().getDirection());
         assertEquals(Optional.of(20), load5Position.getFeeder().getOrder());
 
@@ -120,7 +120,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<Load> load6Position = load6.getExtension(ConnectablePosition.class);
         assertNotNull(load6Position);
         assertNotNull(load6Position.getFeeder());
-        assertEquals("LD6", load6Position.getFeeder().getName());
+        assertEquals("LD6", load6Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, load6Position.getFeeder().getDirection());
         assertEquals(Optional.of(10), load6Position.getFeeder().getOrder());
 
@@ -130,7 +130,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<Generator> generatorH1Position = generatorH1.getExtension(ConnectablePosition.class);
         assertNotNull(generatorH1Position);
         assertNotNull(generatorH1Position.getFeeder());
-        assertEquals("GH1", generatorH1Position.getFeeder().getName());
+        assertEquals("GH1", generatorH1Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, generatorH1Position.getFeeder().getDirection());
         assertEquals(Optional.of(30), generatorH1Position.getFeeder().getOrder());
 
@@ -139,7 +139,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<Generator> generatorH2Position = generatorH2.getExtension(ConnectablePosition.class);
         assertNotNull(generatorH2Position);
         assertNotNull(generatorH2Position.getFeeder());
-        assertEquals("GH2", generatorH2Position.getFeeder().getName());
+        assertEquals("GH2", generatorH2Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, generatorH2Position.getFeeder().getDirection());
         assertEquals(Optional.of(40), generatorH2Position.getFeeder().getOrder());
 
@@ -148,7 +148,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<Generator> generatorH3Position = generatorH3.getExtension(ConnectablePosition.class);
         assertNotNull(generatorH3Position);
         assertNotNull(generatorH3Position.getFeeder());
-        assertEquals("GH3", generatorH3Position.getFeeder().getName());
+        assertEquals("GH3", generatorH3Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, generatorH3Position.getFeeder().getDirection());
         assertEquals(Optional.of(50), generatorH3Position.getFeeder().getOrder());
 
@@ -157,7 +157,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<Generator> generatorTH1Position = generatorTH1.getExtension(ConnectablePosition.class);
         assertNotNull(generatorTH1Position);
         assertNotNull(generatorTH1Position.getFeeder());
-        assertEquals("GTH1", generatorTH1Position.getFeeder().getName());
+        assertEquals("GTH1", generatorTH1Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, generatorTH1Position.getFeeder().getDirection());
         assertEquals(Optional.of(10), generatorTH1Position.getFeeder().getOrder());
 
@@ -166,7 +166,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<Generator> generatorTH2Position = generatorTH2.getExtension(ConnectablePosition.class);
         assertNotNull(generatorTH2Position);
         assertNotNull(generatorTH2Position.getFeeder());
-        assertEquals("GTH2", generatorTH2Position.getFeeder().getName());
+        assertEquals("GTH2", generatorTH2Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, generatorTH2Position.getFeeder().getDirection());
         assertEquals(Optional.of(30), generatorTH2Position.getFeeder().getOrder());
 
@@ -176,7 +176,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<ShuntCompensator> shuntPosition = shunt.getExtension(ConnectablePosition.class);
         assertNotNull(shuntPosition);
         assertNotNull(shuntPosition.getFeeder());
-        assertEquals("SHUNT", shuntPosition.getFeeder().getName());
+        assertEquals("SHUNT", shuntPosition.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, shuntPosition.getFeeder().getDirection());
         assertEquals(Optional.of(90), shuntPosition.getFeeder().getOrder());
 
@@ -186,7 +186,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<StaticVarCompensator> svcPosition = svc.getExtension(ConnectablePosition.class);
         assertNotNull(svcPosition);
         assertNotNull(svcPosition.getFeeder());
-        assertEquals("SVC", svcPosition.getFeeder().getName());
+        assertEquals("SVC", svcPosition.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, svcPosition.getFeeder().getDirection());
         assertEquals(Optional.of(20), svcPosition.getFeeder().getOrder());
 
@@ -196,7 +196,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<VscConverterStation> vsc1Position = vsc1.getExtension(ConnectablePosition.class);
         assertNotNull(vsc1Position);
         assertNotNull(vsc1Position.getFeeder());
-        assertEquals("VSC1", vsc1Position.getFeeder().getName());
+        assertEquals("VSC1", vsc1Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.BOTTOM, vsc1Position.getFeeder().getDirection());
         assertEquals(Optional.of(20), vsc1Position.getFeeder().getOrder());
 
@@ -205,7 +205,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<VscConverterStation> vsc2Position = vsc2.getExtension(ConnectablePosition.class);
         assertNotNull(vsc2Position);
         assertNotNull(vsc2Position.getFeeder());
-        assertEquals("VSC2", vsc2Position.getFeeder().getName());
+        assertEquals("VSC2", vsc2Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, vsc2Position.getFeeder().getDirection());
         assertEquals(Optional.of(20), vsc2Position.getFeeder().getOrder());
 
@@ -215,7 +215,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<LccConverterStation> lcc1Position = lcc1.getExtension(ConnectablePosition.class);
         assertNotNull(lcc1Position);
         assertNotNull(lcc1Position.getFeeder());
-        assertEquals("LCC1", lcc1Position.getFeeder().getName());
+        assertEquals("LCC1", lcc1Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.BOTTOM, lcc1Position.getFeeder().getDirection());
         assertEquals(Optional.of(100), lcc1Position.getFeeder().getOrder());
 
@@ -224,7 +224,7 @@ public abstract class AbstractNetworkExtensionsTest {
         ConnectablePosition<LccConverterStation> lcc2Position = lcc2.getExtension(ConnectablePosition.class);
         assertNotNull(lcc2Position);
         assertNotNull(lcc2Position.getFeeder());
-        assertEquals("LCC2", lcc2Position.getFeeder().getName());
+        assertEquals("LCC2", lcc2Position.getFeeder().getName().orElse(""));
         assertEquals(ConnectablePosition.Direction.TOP, lcc2Position.getFeeder().getDirection());
         assertEquals(Optional.of(50), lcc2Position.getFeeder().getOrder());
 
@@ -237,12 +237,12 @@ public abstract class AbstractNetworkExtensionsTest {
         assertNotNull(feederTwt1);
         assertEquals(ConnectablePosition.Direction.TOP, feederTwt1.getDirection());
         assertEquals(Optional.of(20), feederTwt1.getOrder());
-        assertEquals("TWT", feederTwt1.getName());
+        assertEquals("TWT", feederTwt1.getName().orElse(""));
         ConnectablePosition.Feeder feederTwt2 = twtPosition.getFeeder2();
         assertNotNull(feederTwt2);
         assertEquals(ConnectablePosition.Direction.TOP, feederTwt2.getDirection());
         assertEquals(Optional.of(10), feederTwt2.getOrder());
-        assertEquals("TWT", feederTwt2.getName());
+        assertEquals("TWT", feederTwt2.getName().orElse(""));
 
         //LINES
         Line line1 = network.getLine("LINE_S2S3");
@@ -253,12 +253,12 @@ public abstract class AbstractNetworkExtensionsTest {
         assertNotNull(feederLine11);
         assertEquals(ConnectablePosition.Direction.BOTTOM, feederLine11.getDirection());
         assertEquals(Optional.of(30), feederLine11.getOrder());
-        assertEquals("LINE_S2S3", feederLine11.getName());
+        assertEquals("LINE_S2S3", feederLine11.getName().orElse(""));
         ConnectablePosition.Feeder feederLine12 = line1Position.getFeeder2();
         assertNotNull(feederLine12);
         assertEquals(ConnectablePosition.Direction.BOTTOM, feederLine12.getDirection());
         assertEquals(Optional.of(10), feederLine12.getOrder());
-        assertEquals("LINE_S2S3", feederLine12.getName());
+        assertEquals("LINE_S2S3", feederLine12.getName().orElse(""));
 
         Line line2 = network.getLine("LINE_S3S4");
         assertNotNull(line2);
@@ -268,12 +268,12 @@ public abstract class AbstractNetworkExtensionsTest {
         assertNotNull(feederLine21);
         assertEquals(ConnectablePosition.Direction.BOTTOM, feederLine21.getDirection());
         assertEquals(Optional.of(40), feederLine21.getOrder());
-        assertEquals("LINE_S3S4", feederLine21.getName());
+        assertEquals("LINE_S3S4", feederLine21.getName().orElse(""));
         ConnectablePosition.Feeder feederLine22 = line2Position.getFeeder2();
         assertNotNull(feederLine22);
         assertEquals(ConnectablePosition.Direction.TOP, feederLine22.getDirection());
         assertEquals(Optional.of(30), feederLine22.getOrder());
-        assertEquals("LINE_S3S4", feederLine22.getName());
+        assertEquals("LINE_S3S4", feederLine22.getName().orElse(""));
     }
 
 }

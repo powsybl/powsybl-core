@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -19,7 +20,7 @@ import org.junit.Test;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
@@ -59,7 +60,16 @@ public class EquivalentBranchConversionTest {
         assertEquals(0.0, dl.getB(), 1.0e-6);
     }
 
-    private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
+    @Test
+    public void microGridBaseCaseBEEquivalentBranchWithZeroImpedanceTest() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranchWithZeroImpedanceInsideVoltageLevel(), config);
+
+        Switch sw = n.getSwitch("b58bf21a-096a-4dae-9a01-3f03b60c24c7");
+        assertTrue(sw.isFictitious());
+    }
+
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();

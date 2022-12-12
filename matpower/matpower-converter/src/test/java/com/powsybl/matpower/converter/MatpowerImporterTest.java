@@ -6,9 +6,9 @@
  */
 package com.powsybl.matpower.converter;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -36,7 +36,7 @@ import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.commons.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static org.junit.Assert.*;
 
 /**

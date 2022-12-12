@@ -8,27 +8,21 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.xml.AbstractXmlConverterTest;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTest {
+public class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
 
     @Test
     public void revertConnectVoltageLevelOnLineNbTest() throws IOException {
@@ -151,26 +145,6 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractXmlConverterTes
                 .withLineId("NEW LINE ID")
                 .withLineName("NEW LINE NAME")
                 .build();
-        assertEquals("NEW LINE NAME", modification.getLineName());
-    }
-
-    @Test
-    public void testSetters() {
-        Network network = createNbBbNetwork();
-        Line line1 = network.getLine("NHV1_NHV2_1");
-        Line line2 = network.getLine("NHV1_NHV2_2");
-        RevertConnectVoltageLevelOnLine modification = new RevertConnectVoltageLevelOnLineBuilder()
-                .withLine1Id(line1.getId())
-                .withLine2Id(line2.getId())
-                .withLineId("NEW LINE ID")
-                .build();
-        modification.setLine1Id(line1.getId() + "_A")
-                .setLine2Id(line2.getId() + "_B")
-                .setLineId("NEW LINE ID_C")
-                .setLineName("NEW LINE NAME");
-        assertEquals(line1.getId() + "_A", modification.getLine1Id());
-        assertEquals(line2.getId() + "_B", modification.getLine2Id());
-        assertEquals("NEW LINE ID_C", modification.getLineId());
         assertEquals("NEW LINE NAME", modification.getLineName());
     }
 }

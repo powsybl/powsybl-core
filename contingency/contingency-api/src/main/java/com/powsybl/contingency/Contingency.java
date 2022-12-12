@@ -7,6 +7,7 @@
 package com.powsybl.contingency;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -74,7 +75,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return new NetworkModificationList(elements.stream().map(ContingencyElement::toModification).collect(Collectors.toList()));
     }
 
-    boolean isValid(Network network) {
+    public boolean isValid(Network network) {
         Objects.requireNonNull(network);
         boolean valid = true;
         for (ContingencyElement element : elements) {
@@ -247,6 +248,13 @@ public class Contingency extends AbstractExtendable<Contingency> {
     }
 
     /**
+     * Creates a new contingency on the battery whose id is given
+     */
+    public static Contingency battery(String id) {
+        return builder(id).addBattery(id).build();
+    }
+
+    /**
      * Creates a new contingency on the branch whose id is given
      */
     public static Contingency branch(String id) {
@@ -350,4 +358,5 @@ public class Contingency extends AbstractExtendable<Contingency> {
     public static Contingency load(String loadId) {
         return builder(loadId).addLoad(loadId).build();
     }
+
 }

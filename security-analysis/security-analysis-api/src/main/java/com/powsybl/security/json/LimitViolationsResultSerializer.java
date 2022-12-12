@@ -25,7 +25,6 @@ public class LimitViolationsResultSerializer extends StdSerializer<LimitViolatio
     @Override
     public void serialize(LimitViolationsResult limitViolationsResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeBooleanField("computationOk", limitViolationsResult.isComputationOk());
         jsonGenerator.writeObjectField("limitViolations", limitViolationsResult.getLimitViolations());
         jsonGenerator.writeObjectField("actionsTaken", limitViolationsResult.getActionsTaken());
         jsonGenerator.writeEndObject();

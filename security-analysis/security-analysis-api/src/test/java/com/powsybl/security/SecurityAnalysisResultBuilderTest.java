@@ -4,6 +4,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.interceptors.*;
 import com.powsybl.security.results.*;
@@ -29,9 +30,9 @@ public class SecurityAnalysisResultBuilderTest {
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
                 new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
 
-        SecurityAnalysisResult res = builder.preContingency().setComputationOk(false).endPreContingency().build();
+        SecurityAnalysisResult res = builder.preContingency().setStatus(LoadFlowResult.ComponentResult.Status.FAILED).endPreContingency().build();
 
-        assertFalse(res.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertSame(LoadFlowResult.ComponentResult.Status.FAILED, res.getPreContingencyResult().getStatus());
         assertTrue(res.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertTrue(res.getPostContingencyResults().isEmpty());
     }
@@ -51,6 +52,7 @@ public class SecurityAnalysisResultBuilderTest {
 
         SecurityAnalysisResultBuilder.PreContingencyResultBuilder preContingencyResultBuilder = builder.preContingency(preResultContext);
         preContingencyResultBuilder
+                .setStatus(LoadFlowResult.ComponentResult.Status.CONVERGED)
                 .addViolations(Security.checkLimits(network), preVioContext)
                 .endPreContingency();
         assertEquals(Security.checkLimits(network).size(), preVioContext.getCalledCount());
@@ -61,7 +63,7 @@ public class SecurityAnalysisResultBuilderTest {
         CustomContext postResultContext = new CustomContext(network, "post");
         CustomContext postViolationContext = new CustomContext(network, "post-vio");
         builder.contingency(new Contingency("contingency1"), postResultContext)
-                .setComputationOk(true)
+                .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network), postViolationContext)
                 .endContingency();
         assertEquals(Security.checkLimits(network).size(), postViolationContext.getCalledCount());
@@ -81,13 +83,13 @@ public class SecurityAnalysisResultBuilderTest {
         vl.getBusView().getBusStream().forEach(b -> b.setV(410));
 
         builder.preContingency()
-                .setComputationOk(true)
                 .addViolations(Security.checkLimits(network))
                 .endPreContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(380));
 
-        builder.contingency(new Contingency("contingency1")).setComputationOk(true)
+        builder.contingency(new Contingency("contingency1"))
+                .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addBranchResult(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0))
                 .addBusResult(new BusResult("voltageLevelId", "busId", 400, 3.14))
                 .addThreeWindingsTransformerResult(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
@@ -96,13 +98,14 @@ public class SecurityAnalysisResultBuilderTest {
                 .endContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(520));
-        builder.contingency(new Contingency("contingency2")).setComputationOk(true)
+        builder.contingency(new Contingency("contingency2"))
+                .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network))
                 .endContingency();
 
         SecurityAnalysisResult res = builder.build();
 
-        assertTrue(res.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, res.getPreContingencyResult().getStatus());
         assertEquals(4, res.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         assertEquals(2, res.getPostContingencyResults().size());
 
@@ -163,7 +166,7 @@ public class SecurityAnalysisResultBuilderTest {
     static class MockInterceptor extends DefaultSecurityAnalysisInterceptor {
 
         @Override
-        public void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
+        public void onPreContingencyResult(PreContingencyResult preContingencyResult, SecurityAnalysisResultContext context) {
             if (context instanceof CustomContext) {
                 CustomContext customContext = (CustomContext) context;
                 customContext.foo();
@@ -220,9 +223,9 @@ public class SecurityAnalysisResultBuilderTest {
         LimitViolation violation = LimitViolations.highVoltage().subject("VLHV1").value(425).limit(420).build();
         BusResult busResult = new BusResult("VLHV2", "VLHV2_0", 426.2, 0.12);
         builder.operatorStrategy(operatorStrategy)
-                .setComputationOk(true)
                 .addViolation(violation)
                 .addBusResult(busResult)
+                .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .endOperatorStrategy();
 
         SecurityAnalysisResult result = builder.build();
@@ -233,7 +236,7 @@ public class SecurityAnalysisResultBuilderTest {
         OperatorStrategyResult strategyResult = result.getOperatorStrategyResults().get(0);
         assertSame(operatorStrategy, strategyResult.getOperatorStrategy());
         LimitViolationsResult violationsResult = strategyResult.getLimitViolationsResult();
-        assertTrue(violationsResult.isComputationOk());
+        assertSame(PostContingencyComputationStatus.CONVERGED, strategyResult.getStatus());
         assertEquals(1, violationsResult.getLimitViolations().size());
         assertSame(violation, violationsResult.getLimitViolations().get(0));
         NetworkResult networkResult = strategyResult.getNetworkResult();

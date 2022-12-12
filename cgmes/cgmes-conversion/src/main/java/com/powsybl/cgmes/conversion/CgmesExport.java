@@ -16,11 +16,9 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -38,6 +36,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
+
+import static com.powsybl.cgmes.conversion.CgmesReports.inconsistentProfilesTPRequiredReport;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -76,6 +76,8 @@ public class CgmesExport implements Exporter {
         )
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
+                .setBoundaryEqId(Parameter.readString(getFormat(), params, BOUNDARY_EQ_ID_PARAMETER, defaultValueConfig))
+                .setBoundaryTpId(Parameter.readString(getFormat(), params, BOUNDARY_TP_ID_PARAMETER, defaultValueConfig))
                 .setReporter(reporter);
         String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
@@ -123,12 +125,7 @@ public class CgmesExport implements Exporter {
         if (networkIsNodeBreaker
                 && (profiles.contains("SSH") || profiles.contains("SV"))
                 && !profiles.contains("TP")) {
-            context.getReporter().report(Report.builder()
-                    .withKey("InconsistentProfilesTPRequired")
-                    .withDefaultMessage("Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")
-                    .withValue("networkId", network.getId())
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
+            inconsistentProfilesTPRequiredReport(context.getReporter(), network.getId());
             LOG.error("Network {} contains node/breaker information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.", network.getId());
         }
     }
@@ -159,7 +156,8 @@ public class CgmesExport implements Exporter {
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
-    public static final String WITH_TOPOLOGICAL_MAPPING = "iidm.export.cgmes.with-topological-mapping";
+    public static final String BOUNDARY_EQ_ID = "iidm.export.cgmes.boundary-EQ-identifier";
+    public static final String BOUNDARY_TP_ID = "iidm.export.cgmes.boundary-TP-identifier";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -194,6 +192,16 @@ public class CgmesExport implements Exporter {
             "Profiles to export",
             List.of("EQ", "TP", "SSH", "SV"),
             List.of("EQ", "TP", "SSH", "SV"));
+    private static final Parameter BOUNDARY_EQ_ID_PARAMETER = new Parameter(
+            BOUNDARY_EQ_ID,
+            ParameterType.STRING,
+            "Boundary EQ model identifier",
+            null);
+    private static final Parameter BOUNDARY_TP_ID_PARAMETER = new Parameter(
+            BOUNDARY_TP_ID,
+            ParameterType.STRING,
+            "Boundary TP model identifier",
+            null);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
@@ -201,7 +209,9 @@ public class CgmesExport implements Exporter {
             EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER,
             EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER,
             NAMING_STRATEGY_PARAMETER,
-            PROFILES_PARAMETER);
+            PROFILES_PARAMETER,
+            BOUNDARY_EQ_ID_PARAMETER,
+            BOUNDARY_TP_ID_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }

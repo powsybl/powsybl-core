@@ -9,14 +9,14 @@ package com.powsybl.ucte.converter;
 import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.TestUtil;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.reporter.*;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.TestUtil;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.Test;
@@ -71,7 +71,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         String filename = "frVoltageRegulatingXnode.uct";
         ReporterModel reporter = new ReporterModel("roundTripReporterJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct");
         reporter.report("novalueReport", "No value report");
-        Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), reporter);
+        Network.read(filename, getClass().getResourceAsStream("/" + filename), reporter);
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
 
         // Testing deserializing with unknown specified dictionary

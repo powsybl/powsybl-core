@@ -7,6 +7,7 @@
 package com.powsybl.security.results;
 
 import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.Objects;
@@ -18,18 +19,26 @@ public class OperatorStrategyResult {
 
     private final OperatorStrategy operatorStrategy;
 
+    private final PostContingencyComputationStatus status;
+
     private final LimitViolationsResult limitViolationsResult;
 
     private final NetworkResult networkResult;
 
-    public OperatorStrategyResult(OperatorStrategy operatorStrategy, LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
+    public OperatorStrategyResult(OperatorStrategy operatorStrategy, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult,
+                                  NetworkResult networkResult) {
         this.operatorStrategy = Objects.requireNonNull(operatorStrategy);
+        this.status = Objects.requireNonNull(status);
         this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
         this.networkResult = Objects.requireNonNull(networkResult);
     }
 
     public OperatorStrategy getOperatorStrategy() {
         return operatorStrategy;
+    }
+
+    public PostContingencyComputationStatus getStatus() {
+        return status;
     }
 
     public LimitViolationsResult getLimitViolationsResult() {

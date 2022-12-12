@@ -7,7 +7,7 @@
 package com.powsybl.sensitivity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
