@@ -144,8 +144,8 @@
       "busResults" : [ ],
       "threeWindingsTransformerResults" : [ ]
     },
-    "createdSynchronousComponentCount" : 1,
-    "createdConnectedComponentCount" : 1,
+    "createdSynchronousComponentCount" : 0,
+    "createdConnectedComponentCount" : 0,
     "lossOfActivePowerLoad" : 0.0,
     "lossOfActivePowerGeneration" : 0.0,
     "elementsLost" : [ ]
