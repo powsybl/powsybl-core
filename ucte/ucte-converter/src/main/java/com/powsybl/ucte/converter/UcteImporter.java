@@ -532,15 +532,18 @@ public class UcteImporter implements Importer {
                 .setLowTapPosition(lowerTap)
                 .setTapPosition(ucteAngleRegulation.getNp());
         if (!Double.isNaN(ucteAngleRegulation.getP())) {
-            ptca.setRegulationValue(-ucteAngleRegulation.getP())
+            ptca.setRegulationValue(-ucteAngleRegulation.getP()) // minus because in the UCT model target flow follows generator convention
                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                 .setTargetDeadband(0.0)
-                .setRegulationTerminal(transformer.getTerminal1())
-                .setRegulating(true);
+                .setRegulationTerminal(transformer.getTerminal1());
         } else {
-            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
-                .setRegulating(false);
+            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
         }
+
+        // By default, regulation is disabled because of some data inconsistency in live process
+        // that cause many divergence in subsequent power flow computation
+        ptca.setRegulating(false);
+
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             double dx = i * ucteAngleRegulation.getDu() / 100 * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
             double dy = i * ucteAngleRegulation.getDu() / 100 * Math.sin(Math.toRadians(ucteAngleRegulation.getTheta()));

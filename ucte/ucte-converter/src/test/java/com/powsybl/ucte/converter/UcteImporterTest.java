@@ -258,7 +258,7 @@ public class UcteImporterTest {
         assertEquals(0.0, network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().getTargetDeadband(), 1e-3);
         assertEquals(network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getTerminal1(), network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().getRegulationTerminal());
         assertEquals(-5.0, network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().getRegulationValue(), 1e-3);
-        assertTrue(network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().isRegulating());
+        assertFalse(network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().isRegulating());
     }
 
     @Test
