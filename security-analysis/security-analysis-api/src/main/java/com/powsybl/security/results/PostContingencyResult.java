@@ -55,7 +55,7 @@ public class PostContingencyResult {
         this.status = Objects.requireNonNull(status);
         this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
         this.networkResult = Objects.requireNonNull(networkResult);
-        this.createdSynchronousComponentCount  = createdSynchronousComponentCount;
+        this.createdSynchronousComponentCount = createdSynchronousComponentCount;
         this.createdConnectedComponentCount = createdConnectedComponentCount;
         this.lossOfActivePowerLoad = lossOfActivePowerLoad;
         this.lossOfActivePowerGeneration = lossOfActivePowerGeneration;
