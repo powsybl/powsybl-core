@@ -599,15 +599,17 @@ public class Conversion {
                 .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).collect(Collectors.toList());
             if (connectedBeqs.size() == 2) {
                 convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
-                // Log ignored AcLineSegments
+                // There can be multiple disconnected ACLineSegment to the same X-node (for example, for planning purposes)
                 beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).collect(Collectors.toList())
                     .forEach(beq -> {
                         context.fixed("convertEquipmentAtBoundaryNode",
-                                String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as dangling lines", node, beq.getAcLineSegmentId()));
+                                String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as a dangling line.", node, beq.getAcLineSegmentId()));
                         beq.createConversion(context).convertAtBoundary();
                     });
             } else {
-                context.fixed(node, "More than two connected AcLineSegments at boundary: only dangling lines are created");
+                // This case should not happen and will not result in an equivalent network at the end of the conversion
+                context.fixed(node, "More than two connected AcLineSegments at boundary: only dangling lines are created." +
+                        " Please note that the converted IIDM network will probably not be equivalent to the CGMES network.");
                 beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
             }
         }
