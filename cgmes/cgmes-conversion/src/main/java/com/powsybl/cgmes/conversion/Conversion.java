@@ -615,6 +615,9 @@ public class Conversion {
         BoundaryLine boundaryLine1 = conversion1.asBoundaryLine(node);
         BoundaryLine boundaryLine2 = conversion2.asBoundaryLine(node);
         if (boundaryLine1 != null && boundaryLine2 != null) {
+            // there can be several dangling lines linked to same x-node in one IGM for planning purposes
+            // in this case, we don't merge them
+            // please note that only one of them should be connected
             String regionName1 = context.network().getVoltageLevel(boundaryLine1.getModelIidmVoltageLevelId()).getSubstation()
                     .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
                     .orElse(null);
