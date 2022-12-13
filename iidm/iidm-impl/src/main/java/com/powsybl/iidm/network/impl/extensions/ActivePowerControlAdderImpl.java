@@ -18,9 +18,7 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
     private boolean participate;
 
     private float droop;
-    private float shortPF;
-    private float normalPF;
-    private float longPF;
+    private float participationFactor;
 
     protected ActivePowerControlAdderImpl(I extendable) {
         super(extendable);
@@ -28,7 +26,7 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
 
     @Override
     protected ActivePowerControlImpl<I> createExtension(I extendable) {
-        return new ActivePowerControlImpl<>(extendable, participate, droop, shortPF, normalPF, longPF);
+        return new ActivePowerControlImpl<>(extendable, participate, droop, participationFactor);
     }
 
     @Override
@@ -44,20 +42,8 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
     }
 
     @Override
-    public ActivePowerControlAdder<I> withShortPF(float shortPF) {
-        this.shortPF = shortPF;
-        return this;
-    }
-
-    @Override
-    public ActivePowerControlAdder<I> withNormalPF(float normalPF) {
-        this.normalPF = normalPF;
-        return this;
-    }
-
-    @Override
-    public ActivePowerControlAdder<I> withLongPF(float longPF) {
-        this.longPF = longPF;
+    public ActivePowerControlAdder<I> withParticipationFactor(float participationFactor) {
+        this.participationFactor = participationFactor;
         return this;
     }
 

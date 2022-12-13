@@ -40,39 +40,17 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
     void setDroop(float droop);
 
     /**
+     * Generating unit participation factor.
      * The sum of the participation factors across generating units does not have to sum to one.
      * It is used for representing distributed slack participation factor.
      * The attribute shall be a positive value or zero.
-     * @return Generating unit short term economic participation factor.
+     * @return Generating unit participation factor.
      */
-    float getShortPF();
+    float getParticipationFactor();
 
     /**
-     * @param shortPF new short term economic participation factor value
+     * @param participationFactor new Generating unit participation factor value
      */
-    void setShortPF(float shortPF);
-
-    /**
-     * The sum of the participation factors across generating units does not have to sum to one.
-     * It is used for representing distributed slack participation factor.
-     * The attribute shall be a positive value or zero.
-     * @return Generating unit economic participation factor.
-     */
-    float getNormalPF();
-
-    void setNormalPF(float normalPF);
-
-    /**
-     * The sum of the participation factors across generating units does not have to sum to one.
-     * It is used for representing distributed slack participation factor.
-     * The attribute shall be a positive value or zero.
-     * @return Generating unit long term economic participation factor.
-     */
-    float getLongPF();
-
-    /**
-     * @param longPF new long term economic participation factor value
-     */
-    void setLongPF(float longPF);
+    void setParticipationFactor(float participationFactor);
 
 }

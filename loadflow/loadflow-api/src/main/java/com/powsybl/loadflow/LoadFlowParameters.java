@@ -50,17 +50,9 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
          */
         PROPORTIONAL_TO_GENERATION_REMAINING_MARGIN,
         /**
-         * active power slack distribution on generators, proportional to shortPF (see ActivePowerControl extension)
+         * active power slack distribution on generators, proportional to participationFactor (see ActivePowerControl extension)
          */
-        PROPORTIONAL_TO_GENERATION_SHORT_PF,
-        /**
-         * active power slack distribution on generators, proportional to normalPF (see ActivePowerControl extension)
-         */
-        PROPORTIONAL_TO_GENERATION_NORMAL_PF,
-        /**
-         * active power slack distribution on generators, proportional to longPF (see ActivePowerControl extension)
-         */
-        PROPORTIONAL_TO_GENERATION_LONG_PF,
+        PROPORTIONAL_TO_GENERATION_PARTICIPATION_FACTOR,
         /**
          * active power slack distribution on all loads
          */
