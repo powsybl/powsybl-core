@@ -616,10 +616,25 @@ public class Conversion {
     }
 
     private static void convertTwoEquipmentsAtBoundaryNode(Context context, String node, BoundaryEquipment beq1, BoundaryEquipment beq2) {
-        BoundaryLine boundaryLine1 = beq1.createConversion(context).asBoundaryLine(node);
-        BoundaryLine boundaryLine2 = beq2.createConversion(context).asBoundaryLine(node);
+        EquipmentAtBoundaryConversion conversion1 = beq1.createConversion(context);
+        EquipmentAtBoundaryConversion conversion2 = beq2.createConversion(context);
+        BoundaryLine boundaryLine1 = conversion1.asBoundaryLine(node);
+        BoundaryLine boundaryLine2 = conversion2.asBoundaryLine(node);
         if (boundaryLine1 != null && boundaryLine2 != null) {
-            if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
+            // there can be several dangling lines linked to same x-node in one IGM for planning purposes
+            // in this case, we don't merge them
+            // please note that only one of them should be connected
+            String regionName1 = context.network().getVoltageLevel(boundaryLine1.getModelIidmVoltageLevelId()).getSubstation()
+                    .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
+                    .orElse(null);
+            String regionName2 = context.network().getVoltageLevel(boundaryLine2.getModelIidmVoltageLevelId()).getSubstation()
+                    .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
+                    .orElse(null);
+            if (regionName1 != null && regionName1.equals(regionName2)) {
+                context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
+                conversion1.convertAtBoundary();
+                conversion2.convertAtBoundary();
+            } else if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
                 ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine1, boundaryLine2);
             } else {
                 ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine2, boundaryLine1);
