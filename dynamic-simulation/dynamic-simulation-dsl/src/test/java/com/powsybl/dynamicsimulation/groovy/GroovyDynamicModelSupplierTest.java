@@ -7,9 +7,6 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -25,6 +22,8 @@ import com.powsybl.dynamicsimulation.DynamicModel;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -51,7 +50,7 @@ public class GroovyDynamicModelSupplierTest {
 
         List<DynamicModelGroovyExtension> extensions = GroovyExtension.find(DynamicModelGroovyExtension.class, "dummy");
         assertEquals(1, extensions.size());
-        assertTrue(extensions.get(0) instanceof DynamicModelGroovyExtension);
+        assertNotNull(extensions.get(0));
 
         DynamicModelsSupplier supplier = new GroovyDynamicModelsSupplier(fileSystem.getPath("/dynamicModels.groovy"), extensions);
         testDynamicModels(supplier, network);
@@ -63,7 +62,7 @@ public class GroovyDynamicModelSupplierTest {
 
         List<DynamicModelGroovyExtension> extensions = GroovyExtension.find(DynamicModelGroovyExtension.class, "dummy");
         assertEquals(1, extensions.size());
-        assertTrue(extensions.get(0) instanceof DynamicModelGroovyExtension);
+        assertNotNull(extensions.get(0));
 
         DynamicModelsSupplier supplier = new GroovyDynamicModelsSupplier(getClass().getResourceAsStream("/dynamicModels.groovy"), extensions);
         testDynamicModels(supplier, network);
