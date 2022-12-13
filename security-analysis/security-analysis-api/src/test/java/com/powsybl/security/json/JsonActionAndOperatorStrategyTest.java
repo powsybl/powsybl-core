@@ -55,14 +55,16 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new LoadActionBuilder().withId("id13").withLoadId("loadId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
         actions.add(new RatioTapChangerTapPositionAction("id14", "transformerId4", false, 2, ThreeWindingsTransformer.Side.THREE));
         actions.add(new RatioTapChangerTapPositionAction("id15", "transformerId5", true, 1));
-        actions.add(new RatioTapChangerRegulationAction("id16", "transformerId5", ThreeWindingsTransformer.Side.THREE, true));
-        actions.add(new PhaseTapChangerRegulationAction("id17", "transformerId5", ThreeWindingsTransformer.Side.ONE,
-                true, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL));
-        actions.add(PhaseTapChangerRegulationAction.deactivateRegulation("id17",
+        actions.add(RatioTapChangerRegulationAction.activateRegulation("id16", "transformerId5", ThreeWindingsTransformer.Side.THREE));
+        actions.add(PhaseTapChangerRegulationAction.activateAndChangeRegulationMode("id17", "transformerId5", ThreeWindingsTransformer.Side.ONE,
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 10.0));
+        actions.add(PhaseTapChangerRegulationAction.deactivateRegulation("id18",
                 "transformerId6", ThreeWindingsTransformer.Side.ONE));
-        actions.add(PhaseTapChangerRegulationAction.activateRegulation("id18",
+        actions.add(PhaseTapChangerRegulationAction.activateAndChangeRegulationMode("id19",
                 "transformerId6", ThreeWindingsTransformer.Side.ONE,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL));
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 15.0));
+        actions.add(RatioTapChangerRegulationAction.activateRegulationAndChangeTargetV("id20", "transformerId5", 90.0));
+        actions.add(RatioTapChangerRegulationAction.deactivateRegulation("id21", "transformerId5", ThreeWindingsTransformer.Side.THREE));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }
@@ -93,7 +95,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 ActionList.readJsonInputStream(inputStream)).getMessage());
 
         final InputStream inputStream2 = getClass().getResourceAsStream("/WrongActionFileTest2.json");
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action value field can't equal zero\n" +
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action tapPosition field can't equal zero\n" +
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
                 ActionList.readJsonInputStream(inputStream2)).getMessage());
     }

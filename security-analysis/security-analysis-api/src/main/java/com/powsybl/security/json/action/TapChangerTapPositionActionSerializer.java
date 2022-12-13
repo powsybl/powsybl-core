@@ -30,7 +30,7 @@ public class TapChangerTapPositionActionSerializer extends StdSerializer<Abstrac
 
         jsonGenerator.writeStringField("id", action.getId());
         jsonGenerator.writeStringField("transformerId", action.getTransformerId());
-        jsonGenerator.writeNumberField("value", action.getValue());
+        jsonGenerator.writeNumberField("tapPosition", action.getTapPosition());
         jsonGenerator.writeBooleanField("relativeValue", action.isRelativeValue());
         action.getSide().ifPresent(side -> {
             try {

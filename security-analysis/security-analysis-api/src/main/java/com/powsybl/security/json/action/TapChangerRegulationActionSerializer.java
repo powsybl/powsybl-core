@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.security.action.AbstractTapChangerRegulationAction;
 import com.powsybl.security.action.PhaseTapChangerRegulationAction;
+import com.powsybl.security.action.RatioTapChangerRegulationAction;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -44,6 +45,23 @@ public class TapChangerRegulationActionSerializer extends StdSerializer<Abstract
             ((PhaseTapChangerRegulationAction) action).getRegulationMode().ifPresent(regulationMode -> {
                 try {
                     jsonGenerator.writeStringField("regulationMode", regulationMode.toString());
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+            ((PhaseTapChangerRegulationAction) action).getRegulationValue().ifPresent(regulationValue -> {
+                try {
+                    jsonGenerator.writeNumberField("regulationValue", regulationValue);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+
+        }
+        if (action.getType().equals(RatioTapChangerRegulationAction.NAME)) {
+            ((RatioTapChangerRegulationAction) action).getTargetV().ifPresent(targetV -> {
+                try {
+                    jsonGenerator.writeNumberField("targetV", targetV);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }

@@ -31,7 +31,7 @@ public class TapChangerTapPositionActionDeserializer extends StdDeserializer<Abs
         String id;
         String type;
         String transformerId;
-        int value;
+        int tapPosition;
         Boolean relativeValue;
         ThreeWindingsTransformer.Side side = null;
     }
@@ -55,9 +55,9 @@ public class TapChangerTapPositionActionDeserializer extends StdDeserializer<Abs
                 case "transformerId":
                     context.transformerId = jsonParser.nextTextValue();
                     return true;
-                case "value":
+                case "tapPosition":
                     jsonParser.nextToken();
-                    context.value = jsonParser.getValueAsInt();
+                    context.tapPosition = jsonParser.getValueAsInt();
                     return true;
                 case "relativeValue":
                     jsonParser.nextToken();
@@ -73,13 +73,13 @@ public class TapChangerTapPositionActionDeserializer extends StdDeserializer<Abs
         if (context.relativeValue == null) {
             throw JsonMappingException.from(jsonParser, "for phase tap changer tap position action relative value field can't be null");
         }
-        if (context.value == 0) {
-            throw JsonMappingException.from(jsonParser, "for phase tap changer tap position action value field can't equal zero");
+        if (context.tapPosition == 0) {
+            throw JsonMappingException.from(jsonParser, "for phase tap changer tap position action tapPosition field can't equal zero");
         }
         if (context.type.equals(PhaseTapChangerTapPositionAction.NAME)) {
-            return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.value, context.side);
+            return new PhaseTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.tapPosition, context.side);
         } else {
-            return new RatioTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.value, context.side);
+            return new RatioTapChangerTapPositionAction(context.id, context.transformerId, context.relativeValue, context.tapPosition, context.side);
         }
     }
 }

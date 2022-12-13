@@ -21,15 +21,15 @@ import java.util.Optional;
 public abstract class AbstractTapChangerTapPositionAction extends AbstractAction {
 
     private final String transformerId;
-    private final int value;
+    private final int tapPosition;
     private final boolean relativeValue; // true if relative value chosen, false if absolute value
     private final ThreeWindingsTransformer.Side side;
 
-    protected AbstractTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int value, ThreeWindingsTransformer.Side side) {
+    protected AbstractTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int tapPosition, ThreeWindingsTransformer.Side side) {
         super(id);
         this.transformerId = Objects.requireNonNull(transformerId);
         this.relativeValue = relativeValue;
-        this.value = value;
+        this.tapPosition = tapPosition;
         this.side = side;
     }
 
@@ -37,8 +37,8 @@ public abstract class AbstractTapChangerTapPositionAction extends AbstractAction
         return transformerId;
     }
 
-    public int getValue() {
-        return value;
+    public int getTapPosition() {
+        return tapPosition;
     }
 
     public boolean isRelativeValue() {

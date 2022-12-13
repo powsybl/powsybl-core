@@ -35,6 +35,8 @@ public class TapChangerRegulationActionDeserializer extends StdDeserializer<Abst
         boolean regulating;
         ThreeWindingsTransformer.Side side = null;
         String regulationMode;
+        Double regulationValue = null;
+        Double targetV = null;
     }
 
     @Override
@@ -66,6 +68,14 @@ public class TapChangerRegulationActionDeserializer extends StdDeserializer<Abst
                 case "regulationMode":
                     context.regulationMode = jsonParser.nextTextValue();
                     return true;
+                case "regulationValue":
+                    jsonParser.nextToken();
+                    context.regulationValue = jsonParser.getValueAsDouble();
+                    return true;
+                case "targetV":
+                    jsonParser.nextToken();
+                    context.targetV = jsonParser.getValueAsDouble();
+                    return true;
                 default:
                     return false;
             }
@@ -75,9 +85,9 @@ public class TapChangerRegulationActionDeserializer extends StdDeserializer<Abst
             if (context.regulating) {
                 mode = PhaseTapChanger.RegulationMode.valueOf(context.regulationMode);
             }
-            return new PhaseTapChangerRegulationAction(context.id, context.transformerId, context.side, context.regulating, mode);
+            return new PhaseTapChangerRegulationAction(context.id, context.transformerId, context.side, context.regulating, mode, context.regulationValue);
         } else {
-            return new RatioTapChangerRegulationAction(context.id, context.transformerId, context.side, context.regulating);
+            return new RatioTapChangerRegulationAction(context.id, context.transformerId, context.side, context.regulating, context.targetV);
         }
     }
 }
