@@ -214,7 +214,7 @@ public final class TopologyExport {
         if (boundaryId != null) {
             writeTerminal(boundaryId, topologicalNode, cimNamespace, writer);
         }
-        if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) {
+        if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) { // check if the equivalent injection terminal has already been written (if several dangling lines linked to same X-node)
             writeTerminal(equivalentInjectionTerminalId, topologicalNode, cimNamespace, writer);
             exported.add(equivalentInjectionTerminalId);
         }
