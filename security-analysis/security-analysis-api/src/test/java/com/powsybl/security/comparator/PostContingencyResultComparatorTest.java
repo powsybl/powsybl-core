@@ -29,13 +29,13 @@ public class PostContingencyResultComparatorTest {
     public void compare() {
         Contingency contingency1 = Mockito.mock(Contingency.class);
         Mockito.when(contingency1.getId()).thenReturn("contingency1");
-        PostContingencyResult result1 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, Collections.emptyList(), 1, 0.0, 0.0, Collections.emptySet());
+        PostContingencyResult result1 = new PostContingencyResult(contingency1, PostContingencyComputationStatus.CONVERGED, Collections.emptyList(), 1, 1, 0.0, 0.0, Collections.emptySet());
         Contingency contingency2 = Mockito.mock(Contingency.class);
         Mockito.when(contingency2.getId()).thenReturn("contingency2");
-        PostContingencyResult result2 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, Collections.emptyList(), 1, 0.0, 0.0, Collections.emptySet());
+        PostContingencyResult result2 = new PostContingencyResult(contingency2, PostContingencyComputationStatus.CONVERGED, Collections.emptyList(), 1, 1, 0.0, 0.0, Collections.emptySet());
         Contingency contingency3 = Mockito.mock(Contingency.class);
         Mockito.when(contingency3.getId()).thenReturn("contingency3");
-        PostContingencyResult result3 = new PostContingencyResult(contingency3, PostContingencyComputationStatus.CONVERGED, Collections.emptyList(), 1, 0.0, 0.0, Collections.emptySet());
+        PostContingencyResult result3 = new PostContingencyResult(contingency3, PostContingencyComputationStatus.CONVERGED, Collections.emptyList(), 1, 1, 0.0, 0.0, Collections.emptySet());
 
         List<PostContingencyResult> results = Arrays.asList(result3, result1, result2);
         Collections.sort(results, new PostContingencyResultComparator());

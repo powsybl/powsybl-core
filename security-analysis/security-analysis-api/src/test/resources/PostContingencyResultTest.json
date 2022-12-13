@@ -44,8 +44,9 @@
       "i3" : 0.0
     } ]
   },
-  "createdComponentCount" : 1,
-  "lossOfLoad" : 5.0,
-  "lossOfGeneration" : 10.0,
+  "createdSynchronousComponentCount" : 1,
+  "createdConnectedComponentCount" : 1,
+  "lossOfActivePowerLoad" : 5.0,
+  "lossOfActivePowerGeneration" : 10.0,
   "elementsLost" : [ ]
 }

@@ -27,50 +27,53 @@ public class PostContingencyResult {
 
     private final NetworkResult networkResult;
 
-    private final int createdComponentCount;
+    private final int createdSynchronousComponentCount;
 
-    private final double lossOfLoad;
+    private final int createdConnectedComponentCount;
 
-    private final double lossOfGeneration;
+    private final double lossOfActivePowerLoad;
+
+    private final double lossOfActivePowerGeneration;
 
     private final Set<String> elementsLost;
 
     public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult) {
-        this(contingency, status, limitViolationsResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), 0, 0.0, 0.0, Collections.emptySet());
+        this(contingency, status, limitViolationsResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), 0, 0, 0.0, 0.0, Collections.emptySet());
     }
 
-    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult, int createdComponentCount, double lossOfLoad, double lossOfGeneration, Set<String> elementsLost) {
-        this(contingency, status, limitViolationsResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), createdComponentCount, lossOfLoad, lossOfGeneration, elementsLost);
+    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult, int createdSynchronousComponentCount, int createdConnectedComponentCount, double lossOfActivePowerLoad, double lossOfActivePowerGeneration, Set<String> elementsLost) {
+        this(contingency, status, limitViolationsResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), createdSynchronousComponentCount, createdConnectedComponentCount, lossOfActivePowerLoad, lossOfActivePowerGeneration, elementsLost);
     }
 
     public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult, List<BranchResult> branchResults,
-                                 List<BusResult> busResults, List<ThreeWindingsTransformerResult> threeWindingsTransformerResults, int createdComponentCount, double lossOfLoad, double lossOfGeneration, Set<String> elementsLost) {
-        this(contingency, status, limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), createdComponentCount, lossOfLoad, lossOfGeneration, elementsLost);
+                                 List<BusResult> busResults, List<ThreeWindingsTransformerResult> threeWindingsTransformerResults, int createdSynchronousComponentCount, int createdConnectedComponentCount, double lossOfActivePowerLoad, double lossOfActivePowerGeneration, Set<String> elementsLost) {
+        this(contingency, status, limitViolationsResult, new NetworkResult(branchResults, busResults, threeWindingsTransformerResults), createdSynchronousComponentCount, createdConnectedComponentCount, lossOfActivePowerLoad, lossOfActivePowerGeneration, elementsLost);
     }
 
-    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, int createdComponentCount, double lossOfLoad, double lossOfGeneration, Set<String> elementsLost) {
+    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, int createdSynchronousComponentCount, int createdConnectedComponentCount, double lossOfActivePowerLoad, double lossOfActivePowerGeneration, Set<String> elementsLost) {
         this.contingency = Objects.requireNonNull(contingency);
         this.status = Objects.requireNonNull(status);
         this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
         this.networkResult = Objects.requireNonNull(networkResult);
-        this.createdComponentCount = createdComponentCount;
-        this.lossOfLoad = lossOfLoad;
-        this.lossOfGeneration = lossOfGeneration;
+        this.createdSynchronousComponentCount  = createdSynchronousComponentCount;
+        this.createdConnectedComponentCount = createdConnectedComponentCount;
+        this.lossOfActivePowerLoad = lossOfActivePowerLoad;
+        this.lossOfActivePowerGeneration = lossOfActivePowerGeneration;
         this.elementsLost = elementsLost;
     }
 
     public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, List<LimitViolation> limitViolations,
                                  List<BranchResult> branchResults, List<BusResult> busResults,
-                                 List<ThreeWindingsTransformerResult> threeWindingsTransformerResults, int createdComponentCount, double lossOfLoad, double lossOfGeneration, Set<String> elementsLost) {
-        this(contingency, status, new LimitViolationsResult(limitViolations, Collections.emptyList()), branchResults, busResults, threeWindingsTransformerResults, createdComponentCount, lossOfLoad, lossOfGeneration, elementsLost);
+                                 List<ThreeWindingsTransformerResult> threeWindingsTransformerResults, int createdSynchronousComponentCount, int createdConnectedComponentCount, double lossOfActivePowerLoad, double lossOfActivePowerGeneration, Set<String> elementsLost) {
+        this(contingency, status, new LimitViolationsResult(limitViolations, Collections.emptyList()), branchResults, busResults, threeWindingsTransformerResults, createdSynchronousComponentCount, createdConnectedComponentCount, lossOfActivePowerLoad, lossOfActivePowerGeneration, elementsLost);
     }
 
-    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, List<LimitViolation> limitViolations, int createdComponentCount, double lossOfLoad, double lossOfGeneration, Set<String> elementsLost) {
-        this(contingency, status, new LimitViolationsResult(limitViolations, Collections.emptyList()), createdComponentCount, lossOfLoad, lossOfGeneration, elementsLost);
+    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, List<LimitViolation> limitViolations, int createdSynchronousComponentCount, int createdConnectedComponentCount, double lossOfActivePowerLoad, double lossOfActivePowerGeneration, Set<String> elementsLost) {
+        this(contingency, status, new LimitViolationsResult(limitViolations, Collections.emptyList()), createdSynchronousComponentCount, createdConnectedComponentCount, lossOfActivePowerLoad, lossOfActivePowerGeneration, elementsLost);
     }
 
-    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, List<LimitViolation> limitViolations, List<String> actionsTaken, int createdComponentCount, double lossOfLoad, double lossOfGeneration, Set<String> elementsLost) {
-        this(contingency, status, new LimitViolationsResult(limitViolations, actionsTaken), createdComponentCount, lossOfLoad, lossOfGeneration, elementsLost);
+    public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, List<LimitViolation> limitViolations, List<String> actionsTaken, int createdSynchronousComponentCount, int createdConnectedComponentCount, double lossOfActivePowerLoad, double lossOfActivePowerGeneration, Set<String> elementsLost) {
+        this(contingency, status, new LimitViolationsResult(limitViolations, actionsTaken), createdSynchronousComponentCount, createdConnectedComponentCount, lossOfActivePowerLoad, lossOfActivePowerGeneration, elementsLost);
     }
 
     public Contingency getContingency() {
@@ -89,16 +92,20 @@ public class PostContingencyResult {
         return networkResult;
     }
 
-    public int getCreatedComponentCount() {
-        return createdComponentCount;
+    public int getCreatedSynchronousComponentCount() {
+        return createdSynchronousComponentCount;
     }
 
-    public double getLossOfLoad() {
-        return lossOfLoad;
+    public int getCreatedConnectedComponentCount() {
+        return createdConnectedComponentCount;
     }
 
-    public double getLossOfGeneration() {
-        return lossOfGeneration;
+    public double getLossOfActivePowerLoad() {
+        return lossOfActivePowerLoad;
+    }
+
+    public double getLossOfActivePowerGeneration() {
+        return lossOfActivePowerGeneration;
     }
 
     public Set<String> getElementsLost() {

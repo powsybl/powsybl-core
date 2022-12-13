@@ -224,9 +224,10 @@ public class DefaultSecurityAnalysis {
         SecurityAnalysisResultBuilder.PostContingencyResultBuilder builder =
                 resultBuilder.contingency(contingency)
                         .setStatus(lfResult.isOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED)
-                        .setCreatedComponentCount(0)
-                        .setLossOfLoad(0.0)
-                        .setLossOfGeneration(0.0)
+                        .setCreatedSynchronousComponentCount(0)
+                        .setCreatedConnectedComponentCount(0)
+                        .setLossOfActivePowerLoad(0.0)
+                        .setLossOfActivePowerGeneration(0.0)
                         .setElementsLost(Collections.emptySet());
         if (lfResult.isOk()) {
             violationDetector.checkAll(contingency, network, builder::addViolation);

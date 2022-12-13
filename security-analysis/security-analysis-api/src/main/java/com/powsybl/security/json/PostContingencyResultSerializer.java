@@ -29,9 +29,10 @@ class PostContingencyResultSerializer extends StdSerializer<PostContingencyResul
         jsonGenerator.writeObjectField("status", postContingencyResult.getStatus());
         jsonGenerator.writeObjectField("limitViolationsResult", postContingencyResult.getLimitViolationsResult());
         jsonGenerator.writeObjectField("networkResult", postContingencyResult.getNetworkResult());
-        jsonGenerator.writeObjectField("createdComponentCount", postContingencyResult.getCreatedComponentCount());
-        jsonGenerator.writeObjectField("lossOfLoad", postContingencyResult.getLossOfLoad());
-        jsonGenerator.writeObjectField("lossOfGeneration", postContingencyResult.getLossOfGeneration());
+        jsonGenerator.writeObjectField("createdSynchronousComponentCount", postContingencyResult.getCreatedSynchronousComponentCount());
+        jsonGenerator.writeObjectField("createdConnectedComponentCount", postContingencyResult.getCreatedConnectedComponentCount());
+        jsonGenerator.writeObjectField("lossOfActivePowerLoad", postContingencyResult.getLossOfActivePowerLoad());
+        jsonGenerator.writeObjectField("lossOfActivePowerGeneration", postContingencyResult.getLossOfActivePowerGeneration());
         jsonGenerator.writeObjectField("elementsLost", postContingencyResult.getElementsLost());
         jsonGenerator.writeEndObject();
     }

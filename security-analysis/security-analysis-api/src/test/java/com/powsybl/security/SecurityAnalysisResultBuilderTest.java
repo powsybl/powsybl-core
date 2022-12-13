@@ -66,9 +66,10 @@ public class SecurityAnalysisResultBuilderTest {
         builder.contingency(new Contingency("contingency1"), postResultContext)
                 .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network), postViolationContext)
-                .setCreatedComponentCount(1)
-                .setLossOfLoad(0.0)
-                .setLossOfGeneration(0.0)
+                .setCreatedSynchronousComponentCount(1)
+                .setCreatedConnectedComponentCount(1)
+                .setLossOfActivePowerLoad(0.0)
+                .setLossOfActivePowerGeneration(0.0)
                 .setElementsLost(Collections.emptySet())
                 .endContingency();
         assertEquals(Security.checkLimits(network).size(), postViolationContext.getCalledCount());
@@ -100,9 +101,10 @@ public class SecurityAnalysisResultBuilderTest {
                 .addThreeWindingsTransformerResult(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
                 0, 0, 0, 0, 0, 0, 0, 0, 0))
                 .addViolations(Security.checkLimits(network))
-                .setCreatedComponentCount(1)
-                .setLossOfLoad(10.0)
-                .setLossOfGeneration(20.0)
+                .setCreatedSynchronousComponentCount(1)
+                .setCreatedConnectedComponentCount(2)
+                .setLossOfActivePowerLoad(10.0)
+                .setLossOfActivePowerGeneration(20.0)
                 .setElementsLost(Set.of("branchId"))
                 .endContingency();
 
@@ -110,9 +112,10 @@ public class SecurityAnalysisResultBuilderTest {
         builder.contingency(new Contingency("contingency2"))
                 .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network))
-                .setCreatedComponentCount(2)
-                .setLossOfLoad(10.0)
-                .setLossOfGeneration(15.0)
+                .setCreatedSynchronousComponentCount(2)
+                .setCreatedConnectedComponentCount(4)
+                .setLossOfActivePowerLoad(10.0)
+                .setLossOfActivePowerGeneration(15.0)
                 .setElementsLost(Set.of("branchId", "branchId2"))
                 .endContingency();
 
@@ -128,9 +131,10 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), res1.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0), res1.getNetworkResult().getThreeWindingsTransformerResult("threeWindingsTransformerId"));
-        assertEquals(1, res1.getCreatedComponentCount());
-        assertEquals(10.0, res1.getLossOfLoad(), 1e-3);
-        assertEquals(20.0, res1.getLossOfGeneration(), 1e-3);
+        assertEquals(1, res1.getCreatedSynchronousComponentCount());
+        assertEquals(2, res1.getCreatedConnectedComponentCount());
+        assertEquals(10.0, res1.getLossOfActivePowerLoad(), 1e-3);
+        assertEquals(20.0, res1.getLossOfActivePowerGeneration(), 1e-3);
         assertEquals(Set.of("branchId"), res1.getElementsLost());
         assertEquals(2, res.getPostContingencyResults().size());
 
@@ -141,9 +145,10 @@ public class SecurityAnalysisResultBuilderTest {
 
         PostContingencyResult res2 = res.getPostContingencyResults().get(1);
         assertEquals("contingency2", res2.getContingency().getId());
-        assertEquals(2, res2.getCreatedComponentCount());
-        assertEquals(10.0, res2.getLossOfLoad(), 1e-3);
-        assertEquals(15.0, res2.getLossOfGeneration(), 1e-3);
+        assertEquals(2, res2.getCreatedSynchronousComponentCount());
+        assertEquals(4, res2.getCreatedConnectedComponentCount());
+        assertEquals(10.0, res2.getLossOfActivePowerLoad(), 1e-3);
+        assertEquals(15.0, res2.getLossOfActivePowerGeneration(), 1e-3);
         assertEquals(Set.of("branchId", "branchId2"), res2.getElementsLost());
         assertEquals(2, res.getPostContingencyResults().size());
 
