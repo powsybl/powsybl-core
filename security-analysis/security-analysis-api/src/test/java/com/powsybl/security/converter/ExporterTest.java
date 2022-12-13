@@ -112,6 +112,12 @@ public class ExporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void testCompatibilityV13Deserialization() {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.3.json"));
+        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
+    }
+
+    @Test
     public void roundTripJson() throws IOException {
         SecurityAnalysisResult result = create();
 
