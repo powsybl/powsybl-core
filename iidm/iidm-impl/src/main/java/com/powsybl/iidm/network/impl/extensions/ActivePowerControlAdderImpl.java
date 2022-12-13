@@ -17,8 +17,8 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
 
     private boolean participate;
 
-    private double droop;
-    private double participationFactor;
+    private double droop = Double.NaN;
+    private double participationFactor = Double.NaN;
 
     protected ActivePowerControlAdderImpl(I extendable) {
         super(extendable);
