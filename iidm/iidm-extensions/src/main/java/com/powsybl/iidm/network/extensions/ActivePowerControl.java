@@ -32,12 +32,12 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
      * additional generator output upon a drop in frequency.
      * @return Governor Speed Changer Droop.
      */
-    float getDroop();
+    double getDroop();
 
     /**
      * @param droop new Governor Speed Changer Droop value
      */
-    void setDroop(float droop);
+    void setDroop(double droop);
 
     /**
      * Generating unit participation factor.
@@ -46,11 +46,11 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
      * The attribute shall be a positive value or zero.
      * @return Generating unit participation factor.
      */
-    float getParticipationFactor();
+    double getParticipationFactor();
 
     /**
      * @param participationFactor new Generating unit participation factor value
      */
-    void setParticipationFactor(float participationFactor);
+    void setParticipationFactor(double participationFactor);
 
 }

@@ -32,15 +32,15 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
     @Override
     public void write(ActivePowerControl activePowerControl, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("participate", Boolean.toString(activePowerControl.isParticipate()));
-        XmlUtil.writeFloat("droop", activePowerControl.getDroop(), context.getWriter());
-        XmlUtil.writeFloat("participationFactor", activePowerControl.getParticipationFactor(), context.getWriter());
+        XmlUtil.writeDouble("droop", activePowerControl.getDroop(), context.getWriter());
+        XmlUtil.writeDouble("participationFactor", activePowerControl.getParticipationFactor(), context.getWriter());
     }
 
     @Override
     public ActivePowerControl<T> read(T identifiable, XmlReaderContext context) {
         boolean participate = XmlUtil.readBoolAttribute(context.getReader(), "participate");
-        float droop = XmlUtil.readFloatAttribute(context.getReader(), "droop");
-        float participationFactor = XmlUtil.readOptionalFloatAttribute(context.getReader(), "participationFactor", 0f);
+        double droop = XmlUtil.readDoubleAttribute(context.getReader(), "droop");
+        double participationFactor = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "participationFactor", 0.0);
         ActivePowerControlAdder<T> activePowerControlAdder = identifiable.newExtension(ActivePowerControlAdder.class);
         return activePowerControlAdder.withParticipate(participate)
                 .withDroop(droop)
