@@ -18,6 +18,7 @@ final class DataAttributeNames {
 
     static final String TYP_ID = "typ_id";
     static final String ELMTERM = "ElmTerm";
+    static final String ELMTRFSTAT = "ElmTrfstat";
     static final String ELMSUBSTAT = "ElmSubstat";
     static final String ELMSITE = "ElmSite";
     static final String OBJ_ID = "obj_id";
