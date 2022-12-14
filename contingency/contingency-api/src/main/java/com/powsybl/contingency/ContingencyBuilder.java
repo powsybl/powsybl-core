@@ -118,6 +118,11 @@ public class ContingencyBuilder {
         return this;
     }
 
+    public ContingencyBuilder addBus(String id) {
+        elements.add(new BusContingency(id));
+        return this;
+    }
+
     public ContingencyBuilder addIdentifiable(String id, Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(id);
         if (identifiable == null) {

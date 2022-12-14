@@ -359,4 +359,11 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return builder(loadId).addLoad(loadId).build();
     }
 
+    /**
+     * Creates a new contingency on the bus whose id is given
+     */
+    public static Contingency bus(String busId) {
+        return builder(busId).addBus(busId).build();
+    }
+
 }
