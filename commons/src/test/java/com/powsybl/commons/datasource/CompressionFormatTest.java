@@ -20,15 +20,19 @@ public class CompressionFormatTest {
 
     @Test
     public void test() {
-        assertEquals(3, CompressionFormat.values().length);
-        assertEquals("gz", CompressionFormat.GZIP.getExtension());
+        assertEquals(5, CompressionFormat.values().length);
         assertEquals("bz2", CompressionFormat.BZIP2.getExtension());
+        assertEquals("gz", CompressionFormat.GZIP.getExtension());
+        assertEquals("xz", CompressionFormat.XZ.getExtension());
         assertEquals("zip", CompressionFormat.ZIP.getExtension());
+        assertEquals("zst", CompressionFormat.ZSTD.getExtension());
 
         List<String> formats = Arrays.asList(
-            CompressionFormat.GZIP.name(),
             CompressionFormat.BZIP2.name(),
-            CompressionFormat.ZIP.name());
+            CompressionFormat.GZIP.name(),
+            CompressionFormat.XZ.name(),
+            CompressionFormat.ZIP.name(),
+            CompressionFormat.ZSTD.name());
         assertEquals(formats, CompressionFormat.getFormats());
     }
 }
