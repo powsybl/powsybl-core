@@ -8,7 +8,6 @@ package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -25,7 +24,6 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -46,19 +44,19 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
 
     @Override
     public ShortCircuitAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+        String version = null;
         List<FaultResult> faultResults = null;
         List<Extension<ShortCircuitAnalysisResult>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
-                    parser.nextToken(); //skip
+                    parser.nextToken();
+                    version = parser.readValueAs(String.class);
                     break;
 
                 case "faultResults":
-                    parser.nextToken();
-                    faultResults = parser.readValueAs(new TypeReference<ArrayList<FaultResult>>() {
-                    });
+                    faultResults = new FaultResultDeserializer().deserialize(parser, ctx, version);
                     break;
 
                 case "extensions":

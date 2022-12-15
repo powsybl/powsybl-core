@@ -80,7 +80,7 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
             this.shortCircuitBusResults.addAll(shortCircuitBusResults);
         }
         this.timeConstant = timeConstant;
-        this.status = status;
+        this.status = Objects.requireNonNull(status);
     }
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,

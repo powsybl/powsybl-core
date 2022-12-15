@@ -6,9 +6,9 @@
  */
 package com.powsybl.shortcircuit.converter;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
-import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
@@ -50,6 +50,28 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);
         shortCircuitAnalysisResult.addExtension(ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyShortCircuitAnalysisResultExtension());
         return shortCircuitAnalysisResult;
+    }
+
+    private static ShortCircuitAnalysisResult createResultWithTwoFaultResults() {
+        Fault fault1 = new BusFault("id1", "busId", 0.0, 0.0);
+        Fault fault2 = new BusFault("id2", "busId2", 0.0, 0.0);
+        List<LimitViolation> limitViolations = new ArrayList<>();
+        String subjectId = "vlId";
+        LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
+        float limit = 2000;
+        float limitReduction = 1;
+        float value = 2500;
+        LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReduction, value);
+        limitViolation.addExtension(ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension());
+        limitViolations.add(limitViolation);
+        List<ShortCircuitBusResults> busResults = new ArrayList<>();
+        busResults.add(new ShortCircuitBusResults(subjectId, "busId", new FortescueValue(2004, 2005)));
+        List<FaultResult> faultResults = new ArrayList<>();
+        FaultResult faultResult1 = new FaultResult(fault1, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(1.0), null, busResults, null, FaultResult.Status.SUCCESS);
+        faultResults.add(faultResult1);
+        FaultResult faultResult2 = new FaultResult(fault2, 1.0, Collections.emptyList(), Collections.emptyList(), new FortescueValue(1.0), null, FaultResult.Status.SUCCESS);
+        faultResults.add(faultResult2);
+        return new ShortCircuitAnalysisResult(faultResults);
     }
 
     @Test
@@ -128,6 +150,12 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
     public void testWriteCsv() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
         writeTest(result, this::writeCsv, ComparisonUtils::compareTxt, "/shortcircuit-results.csv");
+    }
+
+    @Test
+    public void testWithTwoFaults() throws IOException {
+        ShortCircuitAnalysisResult result = createResultWithTwoFaultResults();
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-results-with-two-faults.json");
     }
 
     static class DummyFaultResultExtension extends AbstractExtension<FaultResult> {
