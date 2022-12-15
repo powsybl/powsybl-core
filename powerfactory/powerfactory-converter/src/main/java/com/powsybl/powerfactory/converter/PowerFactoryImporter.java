@@ -161,6 +161,8 @@ public class PowerFactoryImporter implements Importer {
 
         LOGGER.info("Creating equipments...");
 
+        List<DataObject> slackObjects = new ArrayList<>();
+
         var objs = studyCase.getElmNets().stream()
                 .flatMap(elmNet -> elmNet.search(".*").stream())
                 .collect(Collectors.toList());
@@ -174,6 +176,9 @@ public class PowerFactoryImporter implements Importer {
                 case "ElmAsm":
                 case "ElmGenstat":
                     new GeneratorConverter(importContext, network).create(obj);
+                    if (GeneratorConverter.isSlack(obj)) {
+                        slackObjects.add(obj);
+                    }
                     break;
 
                 case "ElmLod":
@@ -313,6 +318,9 @@ public class PowerFactoryImporter implements Importer {
 
         // Create Hvdc Links
         hvdcConverter.create();
+
+        // Attach a slack bus
+        new SlackConverter(importContext, network).create(slackObjects);
 
         LOGGER.info("{} substations, {} voltage levels, {} lines, {} 2w-transformers, {} 3w-transformers, {} generators, {} loads, {} shunts have been created",
                 network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
