@@ -88,13 +88,8 @@ public class CgmesExport implements Exporter {
                     EquipmentExport.write(network, writer, context);
                 }
             } else {
-                List<String> eqModelIds = new ArrayList<>();
-                eqModelIds.add(context.getNamingStrategy().getCgmesId(network));
-                network.getPropertyNames().stream()
-                        .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EQ_ID"))
-                        .map(network::getProperty)
-                        .forEach(eqModelIds::add);
-                context.getEqModelDescription().setIds(eqModelIds);
+                addProfilesIdentifiers(network, "EQ", context.getEqModelDescription());
+                context.getEqModelDescription().addId(context.getNamingStrategy().getCgmesId(network));
             }
             if (profiles.contains("TP")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameTp, false))) {
@@ -102,10 +97,7 @@ public class CgmesExport implements Exporter {
                     TopologyExport.write(network, writer, context);
                 }
             } else {
-                context.getTpModelDescription().setIds(network.getPropertyNames().stream()
-                        .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "TP_ID"))
-                        .map(network::getProperty)
-                        .collect(Collectors.toList()));
+                addProfilesIdentifiers(network, "TP", context.getTpModelDescription());
             }
             if (profiles.contains("SSH")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSsh, false))) {
@@ -113,10 +105,7 @@ public class CgmesExport implements Exporter {
                     SteadyStateHypothesisExport.write(network, writer, context);
                 }
             } else {
-                context.getEqModelDescription().setIds(network.getPropertyNames().stream()
-                        .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "SSH_ID"))
-                        .map(network::getProperty)
-                        .collect(Collectors.toList()));
+                addProfilesIdentifiers(network, "SSH", context.getSshModelDescription());
             }
             if (profiles.contains("SV")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSv, false))) {
@@ -137,6 +126,13 @@ public class CgmesExport implements Exporter {
             return network.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_BD_ID");
         }
         return Parameter.readString(getFormat(), params, parameter, defaultValueConfig);
+    }
+
+    private static void addProfilesIdentifiers(Network network, String profile, CgmesExportContext.ModelDescription description) {
+        description.setIds(network.getPropertyNames().stream()
+                .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID"))
+                .map(network::getProperty)
+                .collect(Collectors.toList()));
     }
 
     private static void checkConsistency(List<String> profiles, Network network, CgmesExportContext context) {

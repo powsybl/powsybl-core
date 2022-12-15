@@ -338,12 +338,12 @@ public class Conversion {
         PropertyBags modelProfiles = context.cgmes().modelProfiles();
         String fullModel = "FullModel";
         modelProfiles.sort(Comparator.comparing(p -> p.getId(fullModel)));
-        for (PropertyBag modelProfile : modelProfiles) {
+        for (PropertyBag modelProfile : modelProfiles) { // Import of profiles ID as properties TODO import them in a dedicated extension
             if (modelProfile.getId(fullModel).equals(context.network().getId())) {
                 continue;
             }
             String profile = CgmesNamespace.getProfile(modelProfile.getId("profile"));
-            if (profile != null && !"EQ_OP".equals(profile) && !"SV".equals(profile)) {
+            if (profile != null && !"EQ_OP".equals(profile) && !"SV".equals(profile)) { // don't import EQ_OP and SV profiles as they are not used for CGMES export
                 context.network()
                         .setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID", property -> context.network().hasProperty(property)),
                                 modelProfile.getId(fullModel));

@@ -183,11 +183,15 @@ public class CgmesExportContext {
 
         public void setIds(List<String> ids) {
             this.ids.clear();
-            this.ids.addAll(ids);
+            this.ids.addAll(Objects.requireNonNull(ids));
+        }
+
+        public void addId(String id) {
+            this.ids.add(Objects.requireNonNull(id));
         }
 
         public void setIds(String... ids) {
-            setIds(Arrays.asList(ids));
+            setIds(Arrays.asList(Objects.requireNonNull(ids)));
         }
 
         public Set<String> getIds() {
