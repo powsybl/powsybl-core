@@ -6,11 +6,12 @@
  */
 package com.powsybl.cgmes.model;
 
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +48,8 @@ public final class CgmesNamespace {
     public static final String CIM_16_TP_PROFILE = "http://entsoe.eu/CIM/Topology/4/1";
     public static final String CIM_16_SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
     public static final String CIM_16_SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
+    public static final String CIM_16_EQ_BD_PROFILE = "http://entsoe.eu/CIM/EquipmentBoundary/3/1";
+    public static final String CIM_16_TP_BD_PROFILE = "http://entsoe.eu/CIM/TopologyBoundary/3/1";
 
     public static final String CGMES_EQ_3_OR_GREATER_PREFIX = "http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/";
     public static final String CIM_100_EQ_PROFILE = "http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0";
@@ -54,6 +57,7 @@ public final class CgmesNamespace {
     public static final String CIM_100_TP_PROFILE = "http://iec.ch/TC57/ns/CIM/Topology-EU/3.0";
     public static final String CIM_100_SV_PROFILE = "http://iec.ch/TC57/ns/CIM/StateVariables-EU/3.0";
     public static final String CIM_100_SSH_PROFILE = "http://iec.ch/TC57/ns/CIM/SteadyStateHypothesis-EU/3.0";
+    public static final String CIM_100_EQ_BD_PROFILE = "http://iec.ch/TC57/ns/CIM/EquipmentBoundary-EU/3.0";
 
     public static final Cim CIM_14 = new Cim14();
     public static final Cim CIM_16 = new Cim16();
@@ -74,7 +78,11 @@ public final class CgmesNamespace {
 
         boolean hasProfiles();
 
-        String getProfile(String profile);
+        boolean hasProfileUri(String profileUri);
+
+        String getProfileUri(String profile);
+
+        String getProfile(String profileUri);
 
         String getEuPrefix();
 
@@ -121,7 +129,17 @@ public final class CgmesNamespace {
         }
 
         @Override
-        public String getProfile(String profile) {
+        public boolean hasProfileUri(String profileUri) {
+            return false;
+        }
+
+        @Override
+        public String getProfileUri(String profile) {
+            throw new AssertionError("Unsupported CIM version 14");
+        }
+
+        @Override
+        public String getProfile(String profileUri) {
             throw new AssertionError("Unsupported CIM version 14");
         }
 
@@ -177,7 +195,7 @@ public final class CgmesNamespace {
         private final String limitValueAttributeName;
         private final String limitTypeAttributeName;
         private final String limitKindClassName;
-        private final Map<String, String> profiles = new HashMap<>();
+        private final BiMap<String, String> profiles = HashBiMap.create();
 
         @Override
         public String getEuPrefix() {
@@ -210,8 +228,18 @@ public final class CgmesNamespace {
         }
 
         @Override
-        public String getProfile(String profile) {
+        public boolean hasProfileUri(String profileUri) {
+            return profiles.containsValue(profileUri);
+        }
+
+        @Override
+        public String getProfileUri(String profile) {
             return profiles.get(profile);
+        }
+
+        @Override
+        public String getProfile(String profileUri) {
+            return profiles.inverse().get(profileUri);
         }
 
         private AbstractCim16AndAbove(int version, String namespace, String euPrefix, String euNamespace,
@@ -249,7 +277,8 @@ public final class CgmesNamespace {
                     "OperationalLimitType.limitType", "LimitTypeKind",
                     Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP",
                     CIM_16_EQ_OPERATION_PROFILE, "SSH", CIM_16_SSH_PROFILE, "SV",
-                    CIM_16_SV_PROFILE, "TP", CIM_16_TP_PROFILE));
+                    CIM_16_SV_PROFILE, "TP", CIM_16_TP_PROFILE,
+                    "EQ_BD", CIM_16_EQ_BD_PROFILE, "TP_BD", CIM_16_TP_BD_PROFILE));
         }
     }
 
@@ -274,7 +303,8 @@ public final class CgmesNamespace {
             super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE, "normalValue",
                     "OperationalLimitType.kind", "LimitKind",
                     Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE,
-                    "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE));
+                    "SSH", CIM_100_SSH_PROFILE, "SV", CIM_100_SV_PROFILE, "TP", CIM_100_TP_PROFILE,
+                    "EQ_BD", CIM_100_EQ_BD_PROFILE));
         }
     }
 
@@ -295,4 +325,12 @@ public final class CgmesNamespace {
         }
     }
 
+    public static String getProfile(String profileUri) {
+        for (Cim cim : CIM_LIST) {
+            if (cim.hasProfileUri(profileUri)) {
+                return cim.getProfile(profileUri);
+            }
+        }
+        return null;
+    }
 }
