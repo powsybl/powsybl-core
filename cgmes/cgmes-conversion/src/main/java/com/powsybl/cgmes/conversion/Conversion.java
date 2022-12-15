@@ -611,21 +611,42 @@ public class Conversion {
                 .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).collect(Collectors.toList());
             if (connectedBeqs.size() == 2) {
                 convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
-                // Log ignored AcLineSegments
+                // There can be multiple disconnected ACLineSegment to the same X-node (for example, for planning purposes)
                 beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).collect(Collectors.toList())
-                    .forEach(beq -> context.ignored("convertEquipmentAtBoundaryNode",
-                        String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is ignored", node, beq.getAcLineSegmentId())));
+                    .forEach(beq -> {
+                        context.fixed("convertEquipmentAtBoundaryNode",
+                                String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as a dangling line.", node, beq.getAcLineSegmentId()));
+                        beq.createConversion(context).convertAtBoundary();
+                    });
             } else {
-                context.invalid(node, "Too many equipment at boundary node");
+                // This case should not happen and will not result in an equivalent network at the end of the conversion
+                context.fixed(node, "More than two connected AcLineSegments at boundary: only dangling lines are created." +
+                        " Please note that the converted IIDM network will probably not be equivalent to the CGMES network.");
+                beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
             }
         }
     }
 
     private static void convertTwoEquipmentsAtBoundaryNode(Context context, String node, BoundaryEquipment beq1, BoundaryEquipment beq2) {
-        BoundaryLine boundaryLine1 = beq1.createConversion(context).asBoundaryLine(node);
-        BoundaryLine boundaryLine2 = beq2.createConversion(context).asBoundaryLine(node);
+        EquipmentAtBoundaryConversion conversion1 = beq1.createConversion(context);
+        EquipmentAtBoundaryConversion conversion2 = beq2.createConversion(context);
+        BoundaryLine boundaryLine1 = conversion1.asBoundaryLine(node);
+        BoundaryLine boundaryLine2 = conversion2.asBoundaryLine(node);
         if (boundaryLine1 != null && boundaryLine2 != null) {
-            if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
+            // there can be several dangling lines linked to same x-node in one IGM for planning purposes
+            // in this case, we don't merge them
+            // please note that only one of them should be connected
+            String regionName1 = context.network().getVoltageLevel(boundaryLine1.getModelIidmVoltageLevelId()).getSubstation()
+                    .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
+                    .orElse(null);
+            String regionName2 = context.network().getVoltageLevel(boundaryLine2.getModelIidmVoltageLevelId()).getSubstation()
+                    .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
+                    .orElse(null);
+            if (regionName1 != null && regionName1.equals(regionName2)) {
+                context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
+                conversion1.convertAtBoundary();
+                conversion2.convertAtBoundary();
+            } else if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
                 ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine1, boundaryLine2);
             } else {
                 ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine2, boundaryLine1);

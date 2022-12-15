@@ -54,6 +54,23 @@ public class GroovyCurvesSupplierTest {
 
         CurvesSupplier supplier = new GroovyCurvesSupplier(fileSystem.getPath("/curves.groovy"), extensions);
 
+        testCurveSupplier(network, supplier);
+    }
+
+    @Test
+    public void testWithInputStream() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        List<CurveGroovyExtension> extensions = GroovyExtension.find(CurveGroovyExtension.class, "dummy");
+        assertEquals(1, extensions.size());
+        assertTrue(extensions.get(0) instanceof DummyCurveGroovyExtension);
+
+        CurvesSupplier supplier = new GroovyCurvesSupplier(getClass().getResourceAsStream("/curves.groovy"), extensions);
+
+        testCurveSupplier(network, supplier);
+    }
+
+    private static void testCurveSupplier(Network network, CurvesSupplier supplier) {
         List<Curve> curves = supplier.get(network);
         assertEquals(2, curves.size());
 
