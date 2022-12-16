@@ -26,7 +26,6 @@ public class ShortCircuitAnalysisJsonModule extends SimpleModule {
         addSerializer(Fault.class, new FaultSerializer());
         addDeserializer(Fault.class, new FaultDeserializer());
         addSerializer(FaultResult.class, new FaultResultSerializer());
-        addDeserializer(FaultResult.class, new FaultResultDeserializer());
         addSerializer(ShortCircuitAnalysisResult.class, new ShortCircuitAnalysisResultSerializer());
         addDeserializer(ShortCircuitAnalysisResult.class, new ShortCircuitAnalysisResultDeserializer());
         addSerializer(ShortCircuitParameters.class, new ShortCircuitParametersSerializer());

@@ -60,7 +60,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
         FeederResult feederResult = new FeederResult("GEN", 5);
         LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
         FaultResult faultResult = new FaultResult(fault, 10.0, Collections.singletonList(feederResult), Collections.singletonList(limitViolation),
-                new FortescueValue(10.0), null, Collections.emptyList(), Duration.ofSeconds(1));
+                new FortescueValue(10.0), null, Collections.emptyList(), Duration.ofSeconds(1), FaultResult.Status.SUCCESS);
         return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
     }
 }
