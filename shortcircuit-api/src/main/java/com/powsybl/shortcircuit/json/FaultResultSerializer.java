@@ -30,6 +30,7 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         Objects.requireNonNull(faultResult.getFault());
 
         jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringField("status", String.valueOf(faultResult.getStatus()));
         jsonGenerator.writeObjectField("fault", faultResult.getFault());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "shortCircuitPower", faultResult.getShortCircuitPower());
         if (faultResult.getTimeConstant() != null) {

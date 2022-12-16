@@ -14,12 +14,12 @@ import com.powsybl.shortcircuit.ShortCircuitAnalysisResult;
 
 import java.io.IOException;
 
+import static com.powsybl.shortcircuit.ShortCircuitAnalysisResult.VERSION;
+
 /**
  * @author Teofil-Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class ShortCircuitAnalysisResultSerializer extends StdSerializer<ShortCircuitAnalysisResult> {
-
-    private static final String VERSION = "1.0";
 
     ShortCircuitAnalysisResultSerializer() {
         super(ShortCircuitAnalysisResult.class);
