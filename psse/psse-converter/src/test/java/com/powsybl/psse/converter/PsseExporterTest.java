@@ -186,6 +186,18 @@ public class PsseExporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void importExportRawCaseWithSpecialCharacters() throws IOException {
+        Network network = importTest("RawCaseWithSpecialCharacters", "RawCaseWithSpecialCharacters.raw", false);
+        exportTest(network, "RawCaseWithSpecialCharacters_exported", "RawCaseWithSpecialCharacters_exported.raw");
+    }
+
+    @Test
+    public void importExportRawxCaseWithSpecialCharacters() throws IOException {
+        Network network = importTest("RawxCaseWithSpecialCharacters", "RawxCaseWithSpecialCharacters.rawx", false);
+        exportTest(network, "RawxCaseWithSpecialCharacters_exported", "RawxCaseWithSpecialCharacters_exported.rawx");
+    }
+
+    @Test
     public void exportDataTest() throws IOException {
         PsseExporter psseExporter = new PsseExporter();
 
