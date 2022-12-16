@@ -54,7 +54,7 @@ public class BoundaryLine {
         return name;
     }
 
-    String getModelIidmVoltageLevelId() {
+    public String getModelIidmVoltageLevelId() {
         return modelIidmVoltageLevelId;
     }
 

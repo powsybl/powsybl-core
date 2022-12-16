@@ -33,19 +33,19 @@ public abstract class AbstractActivePowerControlTest {
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
         bat.newExtension(ActivePowerControlAdder.class)
-                .withDroop(4f)
+                .withDroop(4.0)
                 .withParticipate(true)
+                .withParticipationFactor(1.2)
                 .add();
         ActivePowerControl<Battery> activePowerControl = bat.getExtension(ActivePowerControl.class);
         assertEquals("activePowerControl", activePowerControl.getName());
         assertEquals("BAT", activePowerControl.getExtendable().getId());
 
-        assertTrue(activePowerControl.isParticipate());
-        assertEquals(4f, activePowerControl.getDroop(), 0f);
+        checkValues1(activePowerControl);
         activePowerControl.setParticipate(false);
-        assertFalse(activePowerControl.isParticipate());
-        activePowerControl.setDroop(6f);
-        assertEquals(6f, activePowerControl.getDroop(), 0f);
+        activePowerControl.setDroop(6.0);
+        activePowerControl.setParticipationFactor(3.0);
+        checkValues2(activePowerControl);
     }
 
     @Test
@@ -58,8 +58,9 @@ public abstract class AbstractActivePowerControlTest {
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
         bat.newExtension(ActivePowerControlAdder.class)
-                .withDroop(4f)
+                .withDroop(4.0)
                 .withParticipate(true)
+                .withParticipationFactor(1.2)
                 .add();
         ActivePowerControl<Battery> activePowerControl = bat.getExtension(ActivePowerControl.class);
         assertNotNull(activePowerControl);
@@ -69,28 +70,24 @@ public abstract class AbstractActivePowerControlTest {
         variantManager.cloneVariant(INITIAL_VARIANT_ID, variant1);
         variantManager.cloneVariant(variant1, variant2);
         variantManager.setWorkingVariant(variant1);
-        assertTrue(activePowerControl.isParticipate());
-        assertEquals(4f, activePowerControl.getDroop(), 0f);
+        checkValues1(activePowerControl);
 
         // Testing setting different values in the cloned variant and going back to the initial one
-        activePowerControl.setDroop(5f);
+        activePowerControl.setDroop(6.0);
         activePowerControl.setParticipate(false);
-        assertFalse(activePowerControl.isParticipate());
-        assertEquals(5f, activePowerControl.getDroop(), 0f);
+        activePowerControl.setParticipationFactor(3.0);
+        checkValues2(activePowerControl);
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
-        assertTrue(activePowerControl.isParticipate());
-        assertEquals(4f, activePowerControl.getDroop(), 0f);
+        checkValues1(activePowerControl);
 
         // Removes a variant then adds another variant to test variant recycling (hence calling allocateVariantArrayElement)
         variantManager.removeVariant(variant1);
         List<String> targetVariantIds = Arrays.asList(variant1, variant3);
         variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
         variantManager.setWorkingVariant(variant1);
-        assertTrue(activePowerControl.isParticipate());
-        assertEquals(4f, activePowerControl.getDroop(), 0f);
+        checkValues1(activePowerControl);
         variantManager.setWorkingVariant(variant3);
-        assertTrue(activePowerControl.isParticipate());
-        assertEquals(4f, activePowerControl.getDroop(), 0f);
+        checkValues1(activePowerControl);
 
         // Test removing current variant
         variantManager.removeVariant(variant3);
@@ -100,5 +97,17 @@ public abstract class AbstractActivePowerControlTest {
         } catch (PowsyblException e) {
             assertEquals("Variant index not set", e.getMessage());
         }
+    }
+
+    private static void checkValues1(ActivePowerControl<Battery> activePowerControl) {
+        assertTrue(activePowerControl.isParticipate());
+        assertEquals(4.0, activePowerControl.getDroop(), 0.0);
+        assertEquals(1.2, activePowerControl.getParticipationFactor(), 0.0);
+    }
+
+    private static void checkValues2(ActivePowerControl<Battery> activePowerControl) {
+        assertFalse(activePowerControl.isParticipate());
+        assertEquals(6.0, activePowerControl.getDroop(), 0.0);
+        assertEquals(3.0, activePowerControl.getParticipationFactor(), 0.0);
     }
 }
