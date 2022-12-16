@@ -53,12 +53,12 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     // VERSION = 1.5 dcUseTransformerRatio, countriesToBalance, computedConnectedComponentScope
     // VERSION = 1.6 shuntCompensatorVoltageControlOn instead of simulShunt
     // VERSION = 1.7 hvdcAcEmulation
-    // VERSION = 1.8 noGeneratorReactiveLimits -> reactiveLimits
+    // VERSION = 1.8 noGeneratorReactiveLimits -> useReactiveLimits
     public static final String VERSION = "1.8";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
-    public static final boolean DEFAULT_REACTIVE_LIMITS = true;
+    public static final boolean DEFAULT_USE_REACTIVE_LIMITS = true;
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
     public static final boolean DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE = false;
     public static final boolean DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON = false;
@@ -103,8 +103,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .ifPresent(config -> {
                     parameters.setVoltageInitMode(config.getEnumProperty("voltageInitMode", VoltageInitMode.class, DEFAULT_VOLTAGE_INIT_MODE));
                     parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
-                    parameters.setReactiveLimits(!config.getBooleanProperty("noGeneratorReactiveLimits", !DEFAULT_REACTIVE_LIMITS)); // overwritten by reactiveLimits
-                    parameters.setReactiveLimits(config.getBooleanProperty("reactiveLimits", DEFAULT_REACTIVE_LIMITS));
+                    parameters.setNoGeneratorReactiveLimits(!config.getBooleanProperty("noGeneratorReactiveLimits", !DEFAULT_USE_REACTIVE_LIMITS)); // overwritten by reactiveLimits
+                    parameters.setUseReactiveLimits(config.getBooleanProperty("useReactiveLimits", DEFAULT_USE_REACTIVE_LIMITS));
                     parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
                     // keep old tag name "specificCompatibility" for compatibility
                     parameters.setTwtSplitShuntAdmittance(config.getBooleanProperty("twtSplitShuntAdmittance", config.getBooleanProperty("specificCompatibility", DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE)));
@@ -125,7 +125,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private boolean transformerVoltageControlOn;
 
-    private boolean reactiveLimits;
+    private boolean useReactiveLimits;
 
     private boolean phaseShifterRegulationOn;
 
@@ -152,13 +152,13 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     private boolean hvdcAcEmulation;
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-                              boolean reactiveLimits, boolean phaseShifterRegulationOn,
+                              boolean useReactiveLimits, boolean phaseShifterRegulationOn,
                               boolean twtSplitShuntAdmittance, boolean shuntCompensatorVoltageControlOn, boolean readSlackBus, boolean writeSlackBus,
                               boolean dc, boolean distributedSlack, BalanceType balanceType, boolean dcUseTransformerRatio,
                               Set<Country> countriesToBalance, ConnectedComponentMode connectedComponentMode, boolean hvdcAcEmulation) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
-        this.reactiveLimits = reactiveLimits;
+        this.useReactiveLimits = useReactiveLimits;
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
         this.twtSplitShuntAdmittance = twtSplitShuntAdmittance;
         this.shuntCompensatorVoltageControlOn = shuntCompensatorVoltageControlOn;
@@ -174,29 +174,29 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-                              boolean reactiveLimits, boolean phaseShifterRegulationOn,
+                              boolean useReactiveLimits, boolean phaseShifterRegulationOn,
                               boolean twtSplitShuntAdmittance) {
-        this(voltageInitMode, transformerVoltageControlOn, reactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, DEFAULT_READ_SLACK_BUS, DEFAULT_WRITE_SLACK_BUS,
+        this(voltageInitMode, transformerVoltageControlOn, useReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON, DEFAULT_READ_SLACK_BUS, DEFAULT_WRITE_SLACK_BUS,
                 DEFAULT_DC, DEFAULT_DISTRIBUTED_SLACK, DEFAULT_BALANCE_TYPE, DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, DEFAULT_COUNTRIES_TO_BALANCE, DEFAULT_CONNECTED_COMPONENT_MODE, DEFAULT_HVDC_AC_EMULATION_ON);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
-        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE);
+        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_USE_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode) {
-        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE);
+        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_USE_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     public LoadFlowParameters() {
-        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE);
+        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_USE_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE);
     }
 
     protected LoadFlowParameters(LoadFlowParameters other) {
         Objects.requireNonNull(other);
         voltageInitMode = other.voltageInitMode;
         transformerVoltageControlOn = other.transformerVoltageControlOn;
-        reactiveLimits = other.reactiveLimits;
+        useReactiveLimits = other.useReactiveLimits;
         phaseShifterRegulationOn = other.phaseShifterRegulationOn;
         twtSplitShuntAdmittance = other.twtSplitShuntAdmittance;
         shuntCompensatorVoltageControlOn = other.shuntCompensatorVoltageControlOn;
@@ -229,21 +229,21 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    public boolean isReactiveLimits() {
-        return reactiveLimits;
+    public boolean isUseReactiveLimits() {
+        return useReactiveLimits;
     }
 
-    public LoadFlowParameters setReactiveLimits(boolean reactiveLimits) {
-        this.reactiveLimits = reactiveLimits;
+    public LoadFlowParameters setUseReactiveLimits(boolean useReactiveLimits) {
+        this.useReactiveLimits = useReactiveLimits;
         return this;
     }
 
     /**
-     * @deprecated Use {@link #isReactiveLimits} instead.
+     * @deprecated Use {@link #isUseReactiveLimits} instead.
      */
     @Deprecated
     public boolean isNoGeneratorReactiveLimits() {
-        return !reactiveLimits;
+        return !useReactiveLimits;
     }
 
     /**
@@ -251,7 +251,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
      */
     @Deprecated
     public LoadFlowParameters setNoGeneratorReactiveLimits(boolean noGeneratorReactiveLimits) {
-        this.reactiveLimits = !noGeneratorReactiveLimits;
+        this.useReactiveLimits = !noGeneratorReactiveLimits;
         return this;
     }
 
@@ -380,7 +380,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         immutableMapBuilder
                 .put("voltageInitMode", voltageInitMode)
                 .put("transformerVoltageControlOn", transformerVoltageControlOn)
-                .put("reactiveLimits", reactiveLimits)
+                .put("useReactiveLimits", useReactiveLimits)
                 .put("phaseShifterRegulationOn", phaseShifterRegulationOn)
                 .put("twtSplitShuntAdmittance", twtSplitShuntAdmittance)
                 .put("shuntCompensatorVoltageControlOn", shuntCompensatorVoltageControlOn)
