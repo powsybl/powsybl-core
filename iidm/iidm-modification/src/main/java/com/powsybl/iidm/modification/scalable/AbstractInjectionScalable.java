@@ -21,22 +21,17 @@ abstract class AbstractInjectionScalable extends AbstractScalable {
 
     protected final String id;
 
-    protected final double minValue;
-
-    protected final double maxValue;
-
     AbstractInjectionScalable(String id) {
-        this(id, -Double.MAX_VALUE, Double.MAX_VALUE);
+        this(id, -Double.MAX_VALUE, Double.MAX_VALUE, ScalingConvention.GENERATOR);
     }
 
-    AbstractInjectionScalable(String id, double minValue, double maxValue) {
+    AbstractInjectionScalable(String id, double minInjection, double maxInjection, ScalingConvention scalingConvention) {
+        super(minInjection, maxInjection, scalingConvention);
         this.id = Objects.requireNonNull(id);
-        if (maxValue < minValue) {
+        if (maxInjection < minInjection) {
             throw new PowsyblException("Error creating Scalable " + id
-                    + " : maxValue should be bigger than minValue");
+                    + " : maxInjection should be bigger than minInjection");
         }
-        this.minValue = minValue;
-        this.maxValue = maxValue;
     }
 
     protected Injection getInjectionOrNull(Network n) {
@@ -46,5 +41,10 @@ abstract class AbstractInjectionScalable extends AbstractScalable {
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void setInitialInjectionToNetworkValue(Network n) {
+        this.initialInjection = this.getCurrentInjection(n, ScalingConvention.GENERATOR);
     }
 }

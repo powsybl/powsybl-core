@@ -69,6 +69,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     ProportionalScalable(List<Float> percentages, List<Scalable> scalables, boolean iterative) {
+        super(scalables);
         checkPercentages(percentages, scalables);
         this.scalablePercentageList = new ArrayList<>();
         for (int i = 0; i < scalables.size(); i++) {
@@ -161,7 +162,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
             double askedOnScalable = iterationPercentage / 100 * asked;
             double doneOnScalable = 0;
             if (constantPowerFactor) {
-                doneOnScalable = s.scaleWithConstantPowerFactor(n, askedOnScalable);
+                doneOnScalable = s.scaleWithConstantPowerFactor(n, askedOnScalable, scalingConvention);
             } else {
                 doneOnScalable = s.scale(n, askedOnScalable, scalingConvention);
             }
@@ -171,11 +172,6 @@ class ProportionalScalable extends AbstractCompoundScalable {
             done.set(done.get() + doneOnScalable);
         });
         return done.get();
-    }
-
-    @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
     }
 
     @Override
@@ -195,12 +191,21 @@ class ProportionalScalable extends AbstractCompoundScalable {
     public double scale(Network n, double asked, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
+        double done = 0;
+        double remaining = asked;
+        double oldScaled = this.getCurrentInjection(n, scalingConvention) - this.getInitialInjection(scalingConvention);
+        //if oldScaled and asked are of opposite signs
+        if (oldScaled * asked < -1e-6) {
+            this.reset(n);
+            done = -oldScaled;
+            remaining += oldScaled;
+        }
         reinitIterationPercentage();
         updateIterationPercentages();
         if (iterative) {
-            return iterativeScale(n, asked, scalingConvention, false);
+            return done + iterativeScale(n, remaining, scalingConvention, false);
         } else {
-            return scaleIteration(n, asked, scalingConvention, false);
+            return done + scaleIteration(n, remaining, scalingConvention, false);
         }
     }
 

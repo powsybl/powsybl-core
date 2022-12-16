@@ -40,10 +40,10 @@ public class DanglingLineScalableTest {
         network = createNetworkWithDanglingLine();
         dl2 = Scalable.onDanglingLine("dl2");
 
-        dl3 = new DanglingLineScalable("dl2", 20, 100);
-        dl4 = new DanglingLineScalable("dl2", -10, 100);
+        dl3 = new DanglingLineScalable("dl2", 20, 100, GENERATOR);
+        dl4 = new DanglingLineScalable("dl2", -10, 100, GENERATOR);
 
-        dl5 = Scalable.onDanglingLine("dl2", ScalingConvention.LOAD);
+        dl5 = Scalable.onDanglingLine("dl2");
         dl6 = Scalable.onDanglingLine("dl2", 20, 100, ScalingConvention.LOAD);
     }
 
@@ -54,32 +54,37 @@ public class DanglingLineScalableTest {
 
     @Test(expected = PowsyblException.class)
     public void testConstructorInvalidP() {
-        new DanglingLineScalable("dl2", 10, 0);
+        new DanglingLineScalable("dl2", 10, 0, GENERATOR);
     }
 
     @Test
-    public void testInitialValue() {
-        assertEquals(0, dl2.initialValue(network), 1e-3);
+    public void testCurrentInjection() {
+        assertEquals(50., dl2.getCurrentInjection(network, GENERATOR), 1e-3);
+        assertEquals(-50., dl2.getCurrentInjection(network, LOAD), 1e-3);
     }
 
     @Test
     public void testMaximumlValue() {
-        assertEquals(Double.MAX_VALUE, dl2.maximumValue(network, LOAD), 0.);
-        assertEquals(-20, dl3.maximumValue(network), 0.);
-        assertEquals(-20, dl3.maximumValue(network, GENERATOR), 0.);
-        assertEquals(100, dl3.maximumValue(network, LOAD), 0.);
-        assertEquals(Double.MAX_VALUE, dl5.maximumValue(network), 0.);
-        assertEquals(100, dl6.maximumValue(network), 0.);
+        assertEquals(Double.MAX_VALUE, dl2.getMaximumInjection(network, GENERATOR), 0.);
+        assertEquals(Double.MAX_VALUE, dl2.getMaximumInjection(network, LOAD), 0.);
+        assertEquals(100, dl3.getMaximumInjection(network, GENERATOR), 0.);
+        assertEquals(-20, dl3.getMaximumInjection(network, LOAD), 0.);
+        assertEquals(Double.MAX_VALUE, dl5.getMaximumInjection(network, GENERATOR), 0.);
+        assertEquals(Double.MAX_VALUE, dl5.getMaximumInjection(network, LOAD), 0.);
+        assertEquals(-20, dl6.getMaximumInjection(network, GENERATOR), 0.);
+        assertEquals(100, dl6.getMaximumInjection(network, LOAD), 0.);
     }
 
     @Test
     public void testMinimumlValue() {
-        assertEquals(-Double.MAX_VALUE, dl2.minimumValue(network, LOAD), 0.);
-        assertEquals(-100, dl3.minimumValue(network), 0.);
-        assertEquals(-100, dl3.minimumValue(network, GENERATOR), 0.);
-        assertEquals(20, dl3.minimumValue(network, LOAD), 0.);
-        assertEquals(-Double.MAX_VALUE, dl5.minimumValue(network), 0.);
-        assertEquals(20, dl6.minimumValue(network), 0.);
+        assertEquals(-Double.MAX_VALUE, dl2.getMinimumInjection(network, GENERATOR), 0.);
+        assertEquals(-Double.MAX_VALUE, dl2.getMinimumInjection(network, LOAD), 0.);
+        assertEquals(20, dl3.getMinimumInjection(network, GENERATOR), 0.);
+        assertEquals(-100, dl3.getMinimumInjection(network, LOAD), 0.);
+        assertEquals(-Double.MAX_VALUE, dl5.getMinimumInjection(network, GENERATOR), 0.);
+        assertEquals(-Double.MAX_VALUE, dl5.getMinimumInjection(network, LOAD), 0.);
+        assertEquals(-100, dl6.getMinimumInjection(network, GENERATOR), 0.);
+        assertEquals(20, dl6.getMinimumInjection(network, LOAD), 0.);
     }
 
     @Test
@@ -91,9 +96,9 @@ public class DanglingLineScalableTest {
         DanglingLine danglingLine = network.getDanglingLine("dl2");
         assertEquals(50, danglingLine.getP0(), 1e-3);
         assertEquals(20, dl2.scale(network, 20, convention), 1e-3);
-        assertEquals(70, danglingLine.getP0(), 1e-3);
-        assertEquals(-40, dl2.scale(network, -40, convention), 1e-3);
         assertEquals(30, danglingLine.getP0(), 1e-3);
+        assertEquals(-40, dl2.scale(network, -40, convention), 1e-3);
+        assertEquals(70, danglingLine.getP0(), 1e-3);
     }
 
     @Test
@@ -105,35 +110,35 @@ public class DanglingLineScalableTest {
         DanglingLine danglingLine = network.getDanglingLine("dl2");
         assertEquals(50.0, danglingLine.getP0(), 1e-3);
         assertEquals(20, dl2.scale(network, 20, convention), 1e-3);
-        assertEquals(30.0, danglingLine.getP0(), 1e-3);
-        assertEquals(-40, dl2.scale(network, -40, convention), 1e-3);
         assertEquals(70.0, danglingLine.getP0(), 1e-3);
+        assertEquals(-40, dl2.scale(network, -40, convention), 1e-3);
+        assertEquals(30.0, danglingLine.getP0(), 1e-3);
 
         //test with minValue = 20
-        assertEquals(100, dl3.maximumValue(network, LOAD), 1e-3);
-        assertEquals(20, dl3.minimumValue(network, LOAD), 1e-3);
-        assertEquals(70, danglingLine.getP0(), 1e-3);
+        assertEquals(100, dl3.getMaximumInjection(network, convention), 1e-3);
+        assertEquals(20, dl3.getMinimumInjection(network, convention), 1e-3);
+        assertEquals(30, danglingLine.getP0(), 1e-3);
 
-        assertEquals(50, dl3.scale(network, 70, convention), 1e-3);
+        assertEquals(-10, dl3.scale(network, -70, convention), 1e-3);
         assertEquals(20, danglingLine.getP0(), 1e-3);
 
-        dl3.reset(network);
+        danglingLine.setP0(0.);
         //test with p0 outside interval
         assertEquals(0, danglingLine.getP0(), 1e-3);
         assertEquals(0, dl3.scale(network, -40, convention), 1e-3);
 
         //test DanglingLieScalable with negative minValue
-        dl4.reset(network);
+        danglingLine.setP0(0.);
         assertEquals(0, danglingLine.getP0(), 1e-3);
-        assertEquals(10, dl4.scale(network, 20, convention), 1e-3);
+        assertEquals(-10, dl4.scale(network, -20, convention), 1e-3);
         assertEquals(-10, danglingLine.getP0(), 1e-3);
 
         //test with a maximum value
-        dl4.reset(network);
+        danglingLine.setP0(0.);
         assertEquals(0, danglingLine.getP0(), 1e-3);
-        assertEquals(-40, dl4.scale(network, -40, convention), 1e-3);
+        assertEquals(40, dl4.scale(network, 40, convention), 1e-3);
         assertEquals(40, danglingLine.getP0(), 1e-3);
-        assertEquals(-60, dl4.scale(network, -80, convention), 1e-3);
+        assertEquals(60, dl4.scale(network, 80, convention), 1e-3);
         assertEquals(100, danglingLine.getP0(), 1e-3);
     }
 

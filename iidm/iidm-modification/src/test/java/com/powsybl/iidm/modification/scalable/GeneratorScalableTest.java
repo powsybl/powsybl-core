@@ -39,58 +39,57 @@ public class GeneratorScalableTest {
         network = createNetwork();
         g1 = Scalable.onGenerator("g1");
         unknownGeneratorScalable = Scalable.onGenerator("unknown");
-        g2 = Scalable.onGenerator("g2", -10., 120);
+        g2 = Scalable.onGenerator("g2", -10., 120, GENERATOR);
         g3 = Scalable.onGenerator("g3");
 
-        g4 = Scalable.onGenerator("g2", 0., 80);
-        g5 = Scalable.onGenerator("g2", 20., 100);
+        g4 = Scalable.onGenerator("g2", 0., 80, GENERATOR);
+        g5 = Scalable.onGenerator("g2", 20., 100, GENERATOR);
 
     }
 
     @Test(expected = PowsyblException.class)
     public void testConstructorInvalidP() {
-        new GeneratorScalable("g1", 20, 10);
+        new GeneratorScalable("g1", 20, 10, GENERATOR);
     }
 
     @Test
-    public void testInitialValue() {
+    public void testCurrentInjection() {
         //In this network case, initialValue is always giving 0 because of getTerminal()
-        assertEquals(0.0, g1.initialValue(network), 0.0);
-        assertEquals(0.0, g2.initialValue(network), 0.0);
-        assertEquals(0.0, g3.initialValue(network), 0.0);
+        assertEquals(0.0, g1.getCurrentInjection(network, GENERATOR), 1e-3);
+        assertEquals(0.0, g1.getCurrentInjection(network, LOAD), 1e-3);
+        network.getGenerator("g1").setTargetP(10.);
+        assertEquals(10.0, g1.getCurrentInjection(network, GENERATOR), 1e-3);
+        assertEquals(-10.0, g1.getCurrentInjection(network, LOAD), 1e-3);
     }
 
     @Test
     public void testMaximumValue() {
+        assertEquals(100.0, g1.getMaximumInjection(network, GENERATOR), 0.0);
+        assertEquals(0, g1.getMaximumInjection(network, LOAD), 0.0);
 
-        assertEquals(100.0, g1.maximumValue(network), 0.0);
+        assertEquals(100.0, g2.getMaximumInjection(network, GENERATOR), 0.0);
+        assertEquals(0, g2.getMaximumInjection(network, LOAD), 0.0);
 
-        assertEquals(100.0, g1.maximumValue(network, GENERATOR), 0.0);
-        assertEquals(0, g1.maximumValue(network, LOAD), 0.0);
+        assertEquals(80, g4.getMaximumInjection(network, GENERATOR), 0);
+        assertEquals(0, g4.getMaximumInjection(network, LOAD), 0);
 
-        assertEquals(100.0, g2.maximumValue(network, GENERATOR), 0.0);
-        assertEquals(0, g2.maximumValue(network, LOAD), 0.0);
-
-        assertEquals(80, g4.maximumValue(network, GENERATOR), 0);
-        assertEquals(0, g4.maximumValue(network, LOAD), 0);
-
-        assertEquals(100, g5.maximumValue(network, GENERATOR), 0);
-        assertEquals(-20, g5.maximumValue(network, LOAD), 0);
+        assertEquals(100, g5.getMaximumInjection(network, GENERATOR), 0);
+        assertEquals(-20, g5.getMaximumInjection(network, LOAD), 0);
     }
 
     @Test
     public void testMinimumValue() {
+        assertEquals(0.0, g1.getMinimumInjection(network, GENERATOR), 0.0);
+        assertEquals(-100.0, g1.getMinimumInjection(network, LOAD), 0.0);
 
-        assertEquals(0.0, g1.minimumValue(network), 0.0);
+        assertEquals(0, g2.getMinimumInjection(network, GENERATOR), 0.0);
+        assertEquals(-100, g2.getMinimumInjection(network, LOAD), 0.0);
 
-        assertEquals(0, g2.minimumValue(network, GENERATOR), 0.0);
-        assertEquals(-100, g2.minimumValue(network, LOAD), 0.0);
+        assertEquals(0, g4.getMinimumInjection(network, GENERATOR), 0);
+        assertEquals(-80, g4.getMinimumInjection(network, LOAD), 0);
 
-        assertEquals(0, g4.minimumValue(network, GENERATOR), 0);
-        assertEquals(-80, g4.minimumValue(network, LOAD), 0);
-
-        assertEquals(20, g5.minimumValue(network, GENERATOR), 0);
-        assertEquals(-100, g5.minimumValue(network, LOAD), 0);
+        assertEquals(20, g5.getMinimumInjection(network, GENERATOR), 0);
+        assertEquals(-100, g5.getMinimumInjection(network, LOAD), 0);
     }
 
     @Test
@@ -104,7 +103,7 @@ public class GeneratorScalableTest {
 
     @Test
     public void testDisconnectedGenerator() {
-        g3.scale(network, 100.0);
+        g3.scale(network, 100.0, GENERATOR);
 
         assertTrue(network.getGenerator("g3").getTerminal().isConnected());
         assertEquals(100.0, network.getGenerator("g3").getTargetP(), 0.0);
@@ -117,57 +116,6 @@ public class GeneratorScalableTest {
         List<Injection> generators = g1.filterInjections(network);
         assertEquals(1, generators.size());
         assertSame(generator1, generators.get(0));
-    }
-
-    @Test
-    public void testGeneratorScaleDefault() {
-        assertEquals(0, unknownGeneratorScalable.scale(network, 30), 1e-3);
-
-        Generator generator1 = network.getGenerator("g1");
-
-        //test GeneratorScalable without min and max values defined
-        g1.reset(network);
-        assertEquals(0, generator1.getTargetP(), 1e-3);
-        assertEquals(50, g1.scale(network, 50), 1e-3);
-        assertEquals(50, generator1.getTargetP(), 1e-3);
-        assertEquals(100, g1.maximumValue(network), 1e-3);
-        assertEquals(0, g1.minimumValue(network), 1e-3);
-        assertEquals(50, g1.scale(network, 60), 1e-3);
-        assertEquals(100, generator1.getTargetP(), 1e-3);
-        assertEquals(-100, g1.scale(network, -120), 1e-3);
-        assertEquals(0, generator1.getTargetP(), 1e-3);
-
-        //test GeneratorScalable with min and max values defined
-        //Case 1 : GeneratorScalable.minValue < generator.getMinP() && GeneratorScalable.maxValue > generator.getMaxP()
-        Generator generator2 = network.getGenerator("g2");
-        g2.reset(network);
-        assertEquals(0, generator2.getTargetP(), 1e-3);
-        assertEquals(50, g2.scale(network, 50), 1e-3);
-        assertEquals(50, generator2.getTargetP(), 1e-3);
-        assertEquals(100, g2.maximumValue(network), 1e-3);
-        assertEquals(0, g2.minimumValue(network), 1e-3);
-        assertEquals(50, g2.scale(network, 60), 1e-3);
-        assertEquals(100, generator2.getTargetP(), 1e-3);
-        assertEquals(-100, g2.scale(network, -120), 1e-3);
-        assertEquals(0, generator2.getTargetP(), 1e-3);
-
-        //Case 2 : GeneratorScalable.maxValue < generator.getMaxP()
-        g4.reset(network);
-        assertEquals(0, generator2.getTargetP(), 1e-3);
-        assertEquals(80, g4.maximumValue(network), 1e-3);
-        assertEquals(80, g4.scale(network, 100), 1e-3);
-        assertEquals(80, generator2.getTargetP(), 1e-3);
-
-        //Case 3 : GeneratorScalable.minValue > generator.getMinP()
-        assertEquals(80, generator2.getTargetP(), 1e-3);
-        assertEquals(20, g5.minimumValue(network), 1e-3);
-        assertEquals(-60, g5.scale(network, -80), 1e-3);
-        assertEquals(20, generator2.getTargetP(), 1e-3);
-
-        g5.reset(network);
-        //Case 4 : generator.getTargetP() not in interval, skipped
-        assertEquals(0, generator2.getTargetP(), 1e-3);
-        assertEquals(0, g5.scale(network, 50), 1e-3);
     }
 
     @Test
@@ -184,8 +132,8 @@ public class GeneratorScalableTest {
         assertEquals(0, generator1.getTargetP(), 1e-3);
         assertEquals(50, g1.scale(network, 50, convention), 1e-3);
         assertEquals(50, generator1.getTargetP(), 1e-3);
-        assertEquals(100, g1.maximumValue(network), 1e-3);
-        assertEquals(0, g1.minimumValue(network), 1e-3);
+        assertEquals(100, g1.getMaximumInjection(network, GENERATOR), 1e-3);
+        assertEquals(0, g1.getMinimumInjection(network, GENERATOR), 1e-3);
         assertEquals(50, g1.scale(network, 60, convention), 1e-3);
         assertEquals(100, generator1.getTargetP(), 1e-3);
         assertEquals(-100, g1.scale(network, -120, convention), 1e-3);
@@ -198,8 +146,8 @@ public class GeneratorScalableTest {
         assertEquals(0, generator2.getTargetP(), 1e-3);
         assertEquals(50, g2.scale(network, 50, convention), 1e-3);
         assertEquals(50, generator2.getTargetP(), 1e-3);
-        assertEquals(100, g2.maximumValue(network), 1e-3);
-        assertEquals(0, g2.minimumValue(network), 1e-3);
+        assertEquals(100, g2.getMaximumInjection(network, GENERATOR), 1e-3);
+        assertEquals(0, g2.getMinimumInjection(network, GENERATOR), 1e-3);
         assertEquals(50, g2.scale(network, 60, convention), 1e-3);
         assertEquals(100, generator2.getTargetP(), 1e-3);
         assertEquals(-100, g2.scale(network, -120, convention), 1e-3);
@@ -208,17 +156,17 @@ public class GeneratorScalableTest {
         //Case 2 : GeneratorScalable.maxValue < generator.getMaxP()
         g4.reset(network);
         assertEquals(0, generator2.getTargetP(), 1e-3);
-        assertEquals(80, g4.maximumValue(network), 1e-3);
+        assertEquals(80, g4.getMaximumInjection(network, GENERATOR), 1e-3);
         assertEquals(80, g4.scale(network, 100, convention), 1e-3);
         assertEquals(80, generator2.getTargetP(), 1e-3);
 
         //Case 3 : GeneratorScalable.minValue > generator.getMinP()
         assertEquals(80, generator2.getTargetP(), 1e-3);
-        assertEquals(20, g5.minimumValue(network), 1e-3);
+        assertEquals(20, g5.getMinimumInjection(network, GENERATOR), 1e-3);
         assertEquals(-60, g5.scale(network, -80, convention), 1e-3);
         assertEquals(20, generator2.getTargetP(), 1e-3);
 
-        g5.reset(network);
+        generator2.setTargetP(0.);
         //Case 4 : generator.getTargetP() not in interval, skipped
         assertEquals(0, generator2.getTargetP(), 1e-3);
         assertEquals(0, g5.scale(network, 50, convention), 1e-3);
@@ -238,8 +186,8 @@ public class GeneratorScalableTest {
         assertEquals(0, generator1.getTargetP(), 1e-3);
         assertEquals(-50, g1.scale(network, -50, convention), 1e-3);
         assertEquals(50, generator1.getTargetP(), 1e-3);
-        assertEquals(100, g1.maximumValue(network), 1e-3);
-        assertEquals(0, g1.minimumValue(network), 1e-3);
+        assertEquals(100, g1.getMaximumInjection(network, GENERATOR), 1e-3);
+        assertEquals(0, g1.getMinimumInjection(network, GENERATOR), 1e-3);
         assertEquals(-50, g1.scale(network, -60, convention), 1e-3);
         assertEquals(100, generator1.getTargetP(), 1e-3);
         assertEquals(100, g1.scale(network, 120, convention), 1e-3);
@@ -252,8 +200,8 @@ public class GeneratorScalableTest {
         assertEquals(0, generator2.getTargetP(), 1e-3);
         assertEquals(-50, g2.scale(network, -50, convention), 1e-3);
         assertEquals(50, generator2.getTargetP(), 1e-3);
-        assertEquals(100, g2.maximumValue(network), 1e-3);
-        assertEquals(0, g2.minimumValue(network), 1e-3);
+        assertEquals(100, g2.getMaximumInjection(network, GENERATOR), 1e-3);
+        assertEquals(0, g2.getMinimumInjection(network, GENERATOR), 1e-3);
         assertEquals(-50, g2.scale(network, -60, convention), 1e-3);
         assertEquals(100, generator2.getTargetP(), 1e-3);
         assertEquals(100, g2.scale(network, 120, convention), 1e-3);
@@ -262,17 +210,17 @@ public class GeneratorScalableTest {
         //Case 2 : GeneratorScalable.maxValue < generator.getMaxP()
         g4.reset(network);
         assertEquals(0, generator2.getTargetP(), 1e-3);
-        assertEquals(80, g4.maximumValue(network), 1e-3);
+        assertEquals(80, g4.getMaximumInjection(network, GENERATOR), 1e-3);
         assertEquals(-80, g4.scale(network, -100, convention), 1e-3);
         assertEquals(80, generator2.getTargetP(), 1e-3);
 
         //Case 3 : GeneratorScalable.minValue > generator.getMinP()
         assertEquals(80, generator2.getTargetP(), 1e-3);
-        assertEquals(20, g5.minimumValue(network), 1e-3);
+        assertEquals(20, g5.getMinimumInjection(network, GENERATOR), 1e-3);
         assertEquals(60, g5.scale(network, 80, convention), 1e-3);
         assertEquals(20, generator2.getTargetP(), 1e-3);
 
-        g5.reset(network);
+        generator2.setTargetP(0.);
         //Case 4 : generator.getTargetP() not in interval, skipped
         assertEquals(0, generator2.getTargetP(), 1e-3);
         assertEquals(0, g5.scale(network, 50, convention), 1e-3);

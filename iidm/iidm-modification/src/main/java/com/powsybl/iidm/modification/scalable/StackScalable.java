@@ -24,6 +24,7 @@ class StackScalable extends AbstractCompoundScalable {
     }
 
     StackScalable(List<Scalable> scalables) {
+        super(scalables);
         this.scalables = Objects.requireNonNull(scalables);
         scalableActivityMap = scalables.stream().collect(Collectors.toMap(scalable -> scalable, scalable -> true, (first, second) -> first));
     }
@@ -60,6 +61,13 @@ class StackScalable extends AbstractCompoundScalable {
 
         double done = 0;
         double remaining = asked;
+        double oldScaled = this.getCurrentInjection(n, scalingConvention) - this.getInitialInjection(scalingConvention);
+        //if oldScaled and asked are of opposite signs
+        if (oldScaled * asked < -1e-6) {
+            this.reset(n);
+            done = -oldScaled;
+            remaining += oldScaled;
+        }
         for (Scalable scalable : scalables) {
             if (Math.abs(remaining) > EPSILON && Boolean.TRUE.equals(scalableActivityMap.get(scalable))) {
                 double v = scalable.scale(n, remaining, scalingConvention);

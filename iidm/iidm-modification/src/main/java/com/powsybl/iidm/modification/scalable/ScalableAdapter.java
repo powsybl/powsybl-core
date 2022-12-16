@@ -17,6 +17,7 @@ class ScalableAdapter extends AbstractScalable {
     private final String id;
 
     public ScalableAdapter(String id) {
+        super(-Double.MAX_VALUE, Double.MAX_VALUE, ScalingConvention.GENERATOR);
         this.id = Objects.requireNonNull(id);
     }
 
@@ -33,28 +34,34 @@ class ScalableAdapter extends AbstractScalable {
     }
 
     @Override
-    public double initialValue(Network n) {
-        return getScalable(n).initialValue(n);
+    public void setInitialInjectionToNetworkValue(Network n) {
+        initialInjection = getScalable(n).getCurrentInjection(n, ScalingConvention.GENERATOR);
+    }
+
+    @Override
+    public double getCurrentInjection(Network n, ScalingConvention scalingConvention) {
+        return getScalable(n).getCurrentInjection(n, scalingConvention);
     }
 
     @Override
     public void reset(Network n) {
-        getScalable(n).reset(n);
+        Scalable scalable = getScalable(n);
+        scalable.scale(n, getInitialInjection(ScalingConvention.GENERATOR) - scalable.getCurrentInjection(n, ScalingConvention.GENERATOR), ScalingConvention.GENERATOR);
     }
 
     @Override
-    public double maximumValue(Network n, ScalingConvention scalingConvention) {
-        return getScalable(n).maximumValue(n, scalingConvention);
+    public double getMaximumInjection(Network n, ScalingConvention scalingConvention) {
+        return getScalable(n).getMaximumInjection(n, scalingConvention);
     }
 
     @Override
-    public double minimumValue(Network n, ScalingConvention scalingConvention) {
-        return getScalable(n).minimumValue(n, scalingConvention);
+    public double getMinimumInjection(Network n, ScalingConvention scalingConvention) {
+        return getScalable(n).getMinimumInjection(n, scalingConvention);
     }
 
     @Override
-    public void filterInjections(Network network, List<Injection> injections, List<String> notFound) {
-        getScalable(network).filterInjections(network, injections, notFound);
+    public void filterInjections(Network n, List<Injection> injections, List<String> notFound) {
+        getScalable(n).filterInjections(n, injections, notFound);
     }
 
     @Override

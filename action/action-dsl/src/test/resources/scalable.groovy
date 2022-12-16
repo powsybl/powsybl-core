@@ -12,7 +12,7 @@ action('actionScale') {
             variationValue = 15000
             variation = stack('GEN', 'GEN2', 'GEN3')
             variation.reset(network)
-            variation.scale(network, variationValue)
+            variation.scale(network, variationValue, ScalingConvention.GENERATOR)
         }
     }
 }
@@ -23,7 +23,7 @@ action('testCompatible') {
             variationValue = 15000
             variation = stack(onGenerator('GEN'), onGenerator('GEN2'), onGenerator('GEN3'))
             variation.reset(network)
-            variation.scale(network, variationValue)
+            variation.scale(network, variationValue, ScalingConvention.GENERATOR)
         }
     }
 }
@@ -35,7 +35,7 @@ action('testProportional') {
             gens = scalables('GEN', 'GEN2', 'GEN3')
             variation = proportional([50.0f,20.0f,30.0f], gens)
             variation.reset(network)
-            variation.scale(network, variationValue)
+            variation.scale(network, variationValue, ScalingConvention.GENERATOR)
         }
     }
 }

@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -17,6 +18,14 @@ import java.util.*;
 abstract class AbstractCompoundScalable extends AbstractScalable implements CompoundScalable {
 
     protected Map<Scalable, Boolean> scalableActivityMap;
+
+    protected AbstractCompoundScalable(double minInjection, double maxInjection, ScalingConvention scalingConvention) {
+        super(minInjection, maxInjection, scalingConvention);
+    }
+
+    protected AbstractCompoundScalable(Collection<Scalable> scalables) {
+        this(-Double.MAX_VALUE, Double.MAX_VALUE, ScalingConvention.GENERATOR);
+    }
 
     @Override
     public Collection<Scalable> getScalables() {
@@ -77,63 +86,59 @@ abstract class AbstractCompoundScalable extends AbstractScalable implements Comp
     }
 
     @Override
-    public double initialValue(Network n) {
+    public double getInitialInjection(ScalingConvention scalingConvention) {
+        return getScalables().stream()
+            .filter(scalable -> !(scalable instanceof CompoundScalable))
+            .mapToDouble(scalable -> scalable.getInitialInjection(scalingConvention))
+            .sum();
+    }
+
+    @Override
+    public double getCurrentInjection(Network n, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
 
-        double value = 0;
-        for (Scalable scalable : getScalables()) {
-            value += scalable.initialValue(n);
-        }
-        return value;
+        return getScalables().stream()
+            .filter(scalable -> !(scalable instanceof CompoundScalable))
+            .mapToDouble(scalable -> scalable.getCurrentInjection(n, scalingConvention))
+            .sum();
     }
 
     @Override
     public void reset(Network n) {
-        Objects.requireNonNull(n);
-
         getScalables().forEach(scalable -> scalable.reset(n));
     }
 
     @Override
-    public double maximumValue(Network n) {
-        return maximumValue(n, ScalingConvention.GENERATOR);
-    }
-
-    @Override
-    public double maximumValue(Network n, ScalingConvention powerConvention) {
+    public double getMaximumInjection(Network n, ScalingConvention powerConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(powerConvention);
 
-        double value = 0;
-        for (Scalable scalable : getActiveScalables()) {
-            if (!(scalable instanceof CompoundScalable)) {
-                value += scalable.maximumValue(n, powerConvention);
+        AtomicReference<Double> value = new AtomicReference<>((double) 0);
+        Collection<Scalable> activeScalables = getActiveScalables();
+        getScalables().stream().filter(scalable -> !(scalable instanceof CompoundScalable)).forEach(scalable -> {
+            if (activeScalables.contains(scalable)) {
+                value.updateAndGet(v -> v + scalable.getMaximumInjection(n, powerConvention));
+            } else {
+                value.updateAndGet(v -> v + scalable.getCurrentInjection(n, powerConvention));
             }
-        }
-        return value;
+        });
+        return value.get();
     }
 
     @Override
-    public double minimumValue(Network n) {
-        return minimumValue(n, ScalingConvention.GENERATOR);
-    }
-
-    @Override
-    public double minimumValue(Network n, ScalingConvention powerConvention) {
+    public double getMinimumInjection(Network n, ScalingConvention powerConvention) {
         Objects.requireNonNull(n);
 
-        double value = 0;
-        for (Scalable scalable : getActiveScalables()) {
-            if (!(scalable instanceof CompoundScalable)) {
-                value += scalable.minimumValue(n, powerConvention);
+        AtomicReference<Double> value = new AtomicReference<>((double) 0);
+        Collection<Scalable> activeScalables = getActiveScalables();
+        getScalables().stream().filter(scalable -> !(scalable instanceof CompoundScalable)).forEach(scalable -> {
+            if (activeScalables.contains(scalable)) {
+                value.updateAndGet(v -> v + scalable.getMinimumInjection(n, powerConvention));
+            } else {
+                value.updateAndGet(v -> v + scalable.getCurrentInjection(n, powerConvention));
             }
-        }
-        return value;
-    }
-
-    @Override
-    public double scale(Network n, double asked) {
-        return scale(n, asked, ScalingConvention.GENERATOR);
+        });
+        return value.get();
     }
 
     @Override
@@ -141,6 +146,15 @@ abstract class AbstractCompoundScalable extends AbstractScalable implements Comp
         for (Scalable scalable : getScalables()) {
             if (!(scalable instanceof CompoundScalable)) {
                 scalable.filterInjections(n, injections, notFoundInjections);
+            }
+        }
+    }
+
+    @Override
+    public void setInitialInjectionToNetworkValue(Network n) {
+        for (Scalable scalable : getScalables()) {
+            if (!(scalable instanceof CompoundScalable)) {
+                scalable.setInitialInjectionToNetworkValue(n);
             }
         }
     }
