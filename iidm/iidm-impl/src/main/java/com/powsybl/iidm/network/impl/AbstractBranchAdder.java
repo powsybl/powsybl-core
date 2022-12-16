@@ -132,3 +132,4 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         }
         return null;
     }
+}
