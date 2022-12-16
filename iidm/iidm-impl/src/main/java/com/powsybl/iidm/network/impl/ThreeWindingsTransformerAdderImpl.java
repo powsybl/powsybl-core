@@ -133,7 +133,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             if (voltageLevelId == null) {
                 String defaultVoltageLevelId = checkAndGetDefaultVoltageLevelId();
                 if (defaultVoltageLevelId == null) {
-                    throw new ValidationException(this, "voltage level is not set");
+                    throw new ValidationException(this, "voltage level is not set and has no default value");
                 } else {
                     voltageLevelId = defaultVoltageLevelId;
                 }
