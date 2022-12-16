@@ -148,7 +148,6 @@ public abstract class AbstractDanglingLineTest {
                 .setQ0(40.0)
                 .setUcteXnodeCode("code")
                 .setBus(BUS_VL_ID)
-                .setConnectableBus(BUS_VL_ID)
                 .add();
 
         DanglingLine danglingLine = network.getDanglingLine("danglingId");
