@@ -102,14 +102,17 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     @Override
     protected void reduce(HvdcLine hvdcLine) {
-        VoltageLevel vl1 = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel();
-        VoltageLevel vl2 = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel();
-        if (getPredicate().test(vl1) || getPredicate().test(vl2)) {
-            throw new UnsupportedOperationException("Reduction of HVDC lines is not supported");
+        Terminal terminal1 = hvdcLine.getConverterStation1().getTerminal();
+        Terminal terminal2 = hvdcLine.getConverterStation2().getTerminal();
+        VoltageLevel vl1 = terminal1.getVoltageLevel();
+        VoltageLevel vl2 = terminal2.getVoltageLevel();
+        if (getPredicate().test(vl1)) {
+            replaceHvdcLineByLoad(hvdcLine, vl1, terminal1);
+        } else if (getPredicate().test(vl2)) {
+            replaceHvdcLineByLoad(hvdcLine, vl2, terminal2);
         } else {
             hvdcLine.remove();
         }
-
         observers.forEach(o -> o.hvdcLineRemoved(hvdcLine));
     }
 
@@ -176,6 +179,27 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setQ(q);
 
         return load;
+    }
+
+    private void replaceHvdcLineByLoad(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal) {
+        LoadAdder loadAdder = vl.newLoad()
+                .setId(hvdcLine.getId())
+                .setName(hvdcLine.getOptionalName().orElse(null))
+                .setLoadType(LoadType.FICTITIOUS)
+                .setP0(checkP(terminal))
+                .setQ0(checkQ(terminal));
+        fillNodeOrBus(loadAdder, terminal);
+
+        double p = terminal.getP();
+        double q = terminal.getQ();
+        hvdcLine.remove();
+
+        Load load = loadAdder.add();
+        load.getTerminal()
+                .setP(p)
+                .setQ(q);
+
+        observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, load));
     }
 
     private static void fillNodeOrBus(InjectionAdder<?> adder, Terminal terminal) {

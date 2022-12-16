@@ -252,16 +252,18 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void testHvdcFailure() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Reduction of HVDC lines is not supported");
+    public void testHvdcRemoval() {
+        NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
 
         Network network = HvdcTestNetwork.createLcc();
         NetworkReducer reducer = NetworkReducer.builder()
                     .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
-                    .withReductionOptions(new ReductionOptions())
+                    .withObservers(observer)
                     .build();
         reducer.reduce(network);
+        assertEquals(0, network.getHvdcLineCount());
+        assertEquals(1, observer.getHvdcLineReplacedCount());
+        assertEquals(1, observer.getHvdcLineRemovedCount());
     }
 
     @Test
