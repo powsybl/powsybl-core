@@ -259,7 +259,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
 
         // Export original and with new SV
         // comparison without extensions, only Networks
-        ExportOptions exportOptions = new ExportOptions();
+        ExportOptions exportOptions = new ExportOptions().setSorted(true);
         exportOptions.setExtensions(Collections.emptySet());
         NetworkXml.writeAndValidate(expected, exportOptions, tmpDir.resolve("expected.xml"));
         NetworkXml.writeAndValidate(actual, exportOptions, tmpDir.resolve("actual.xml"));

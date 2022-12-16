@@ -20,7 +20,6 @@ public enum FileFormat {
     public static final String VALID_DELIMITERS = ", ";
 
     public static final Pattern LEGACY_TEXT_QUOTED_OR_WHITESPACE = Pattern.compile("('[^']*')|( )+");
-    public static final Pattern LEGACY_TEXT_UNQUOTED_OR_QUOTED = Pattern.compile("([^']+)|('([^']*)')");
 
     FileFormat(char quote, char defaultDelimiter) {
         this.quote = quote;
