@@ -10,7 +10,9 @@ import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
-import gnu.trove.list.array.TFloatArrayList;
+import gnu.trove.list.array.TDoubleArrayList;
+
+import java.util.List;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
@@ -18,18 +20,27 @@ import gnu.trove.list.array.TFloatArrayList;
 public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMultiVariantIdentifiableExtension<T>
         implements ActivePowerControl<T> {
 
-    private TBooleanArrayList participate;
+    private final TBooleanArrayList participate;
 
-    private TFloatArrayList droop;
+    private final TDoubleArrayList droop;
+    private final TDoubleArrayList participationFactor;
 
-    public ActivePowerControlImpl(T component, boolean participate, float droop) {
+    private final List<TDoubleArrayList> allTDoubleArrayLists;
+
+    public ActivePowerControlImpl(T component,
+                                  boolean participate,
+                                  double droop,
+                                  double participationFactor) {
         super(component);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.participate = new TBooleanArrayList(variantArraySize);
-        this.droop = new TFloatArrayList(variantArraySize);
+        this.droop = new TDoubleArrayList(variantArraySize);
+        this.participationFactor = new TDoubleArrayList(variantArraySize);
+        this.allTDoubleArrayLists = List.of(this.droop, this.participationFactor);
         for (int i = 0; i < variantArraySize; i++) {
             this.participate.add(participate);
             this.droop.add(droop);
+            this.participationFactor.add(participationFactor);
         }
     }
 
@@ -41,28 +52,36 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         this.participate.set(getVariantIndex(), participate);
     }
 
-    public float getDroop() {
+    public double getDroop() {
         return droop.get(getVariantIndex());
     }
 
-    public void setDroop(float droop) {
+    public void setDroop(double droop) {
         this.droop.set(getVariantIndex(), droop);
+    }
+
+    public double getParticipationFactor() {
+        return participationFactor.get(getVariantIndex());
+    }
+
+    public void setParticipationFactor(double participationFactor) {
+        this.participationFactor.set(getVariantIndex(), participationFactor);
     }
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         participate.ensureCapacity(participate.size() + number);
-        droop.ensureCapacity(droop.size() + number);
+        allTDoubleArrayLists.forEach(dl -> dl.ensureCapacity(dl.size() + number));
         for (int i = 0; i < number; ++i) {
             participate.add(participate.get(sourceIndex));
-            droop.add(droop.get(sourceIndex));
+            allTDoubleArrayLists.forEach(dl -> dl.add(dl.get(sourceIndex)));
         }
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         participate.remove(participate.size() - number, number);
-        droop.remove(droop.size() - number, number);
+        allTDoubleArrayLists.forEach(dl -> dl.remove(dl.size() - number, number));
     }
 
     @Override
@@ -75,6 +94,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         for (int index : indexes) {
             participate.set(index, participate.get(sourceIndex));
             droop.set(index, droop.get(sourceIndex));
+            allTDoubleArrayLists.forEach(dl -> dl.set(index, dl.get(sourceIndex)));
         }
     }
 }

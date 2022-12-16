@@ -25,8 +25,32 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
 
     void setParticipate(boolean participate);
 
-    float getDroop();
+    /**
+     * This is the change in generator power output divided by the change in frequency
+     * normalized by the nominal power of the generator and the nominal frequency and
+     * expressed in percent and negated. A positive value of speed change droop provides
+     * additional generator output upon a drop in frequency.
+     * @return Governor Speed Changer Droop.
+     */
+    double getDroop();
 
-    void setDroop(float droop);
+    /**
+     * @param droop new Governor Speed Changer Droop value
+     */
+    void setDroop(double droop);
+
+    /**
+     * Generating unit participation factor.
+     * The sum of the participation factors across generating units does not have to sum to one.
+     * It is used for representing distributed slack participation factor.
+     * The attribute shall be a positive value or zero.
+     * @return Generating unit participation factor.
+     */
+    double getParticipationFactor();
+
+    /**
+     * @param participationFactor new Generating unit participation factor value
+     */
+    void setParticipationFactor(double participationFactor);
 
 }
