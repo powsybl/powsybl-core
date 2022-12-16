@@ -159,6 +159,10 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void transformersWithZeroNomV() throws IOException {
+        importTest("TransformersWithZeroNomV", "TransformersWithZeroNomV.raw", false);
+    }
+
     public void rawCaseWithSpecialCharacters() throws IOException {
         importTest("RawCaseWithSpecialCharacters", "RawCaseWithSpecialCharacters.raw", false);
     }
