@@ -163,6 +163,15 @@ public class PsseImporterTest extends AbstractConverterTest {
         importTest("TransformersWithZeroNomV", "TransformersWithZeroNomV.raw", false);
     }
 
+    public void rawCaseWithSpecialCharacters() throws IOException {
+        importTest("RawCaseWithSpecialCharacters", "RawCaseWithSpecialCharacters.raw", false);
+    }
+
+    @Test
+    public void rawxCaseWithSpecialCharacters() throws IOException {
+        importTest("RawxCaseWithSpecialCharacters", "RawxCaseWithSpecialCharacters.rawx", false);
+    }
+
     @Test
     public void testRates() throws IOException {
         Context context = new Context();
