@@ -4,7 +4,7 @@
     "status" : "SUCCESS",
     "fault" : {
       "type" : "BUS",
-      "id" : "id",
+      "id" : "id1",
       "elementId" : "busId",
       "r" : 0.0,
       "x" : 0.0,
@@ -32,12 +32,21 @@
         "directMagnitude" : 2004.0,
         "directAngle" : 2005.0
       }
-    } ],
-    "extensions" : {
-      "DummyFaultResultExtension" : { }
+    } ]
+  }, {
+    "status" : "SUCCESS",
+    "fault" : {
+      "type" : "BUS",
+      "id" : "id2",
+      "elementId" : "busId2",
+      "r" : 0.0,
+      "x" : 0.0,
+      "connection" : "SERIES",
+      "faultType" : "THREE_PHASE"
+    },
+    "shortCircuitPower" : 1.0,
+    "current" : {
+      "directMagnitude" : 1.0
     }
-  } ],
-  "extensions" : {
-    "DummyShortCircuitAnalysisResultExtension" : { }
-  }
+  } ]
 }
