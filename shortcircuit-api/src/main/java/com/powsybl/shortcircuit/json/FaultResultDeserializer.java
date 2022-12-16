@@ -113,6 +113,7 @@ class FaultResultDeserializer {
 
             FaultResult faultResult;
             if (status == null) {
+                JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "No status", version, "1.0");
                 if (current == null) {
                     faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.FAILURE);
                 } else {
