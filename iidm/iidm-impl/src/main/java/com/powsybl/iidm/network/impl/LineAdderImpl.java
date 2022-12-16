@@ -82,6 +82,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
     @Override
     public LineImpl add() {
         String id = checkAndGetUniqueId();
+        checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
         TerminalExt terminal1 = checkAndGetTerminal1();

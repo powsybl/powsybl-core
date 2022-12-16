@@ -103,6 +103,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     @Override
     public TwoWindingsTransformer add() {
         String id = checkAndGetUniqueId();
+        checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
         if (substation != null) {

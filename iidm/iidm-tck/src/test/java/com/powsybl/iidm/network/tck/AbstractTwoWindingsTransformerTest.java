@@ -100,8 +100,8 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setR(1.0)
                 .setX(2.0)
                 .setRatedS(7.0)
-                .setConnectableBus1("busA")
-                .setConnectableBus2("busB")
+                .setBus1("busA")
+                .setBus2("busB")
                 .add();
 
         assertEquals(0.0, twoWindingsTransformer.getG(), 0.0);

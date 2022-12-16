@@ -170,8 +170,6 @@ public abstract class AbstractLineTest {
                 .setX(2.0)
                 .setBus1("busA")
                 .setBus2("busB")
-                .setConnectableBus1("busA")
-                .setConnectableBus2("busB")
                 .add();
 
         assertEquals(0.0, acLine.getG1(), 0.0);

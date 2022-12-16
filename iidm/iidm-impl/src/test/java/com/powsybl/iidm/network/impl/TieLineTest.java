@@ -234,9 +234,7 @@ public class TieLineTest {
                 .add();
 
         adder.setBus1("S1VL1-BUS")
-                .setConnectableBus1("S1VL1-BUS")
                 .setBus2("S2VL1-BUS")
-                .setConnectableBus2("S2VL1-BUS")
                 .setUcteXnodeCode("UcteNode");
         TieLine tieLine = adder.add();
 

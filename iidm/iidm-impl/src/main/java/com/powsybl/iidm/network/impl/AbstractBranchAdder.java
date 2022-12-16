@@ -132,4 +132,13 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         }
         return null;
     }
+
+    protected void checkConnectableBuses() {
+        if (connectableBus1 == null && bus1 != null) {
+            connectableBus1 = bus1;
+        }
+        if (connectableBus2 == null && bus2 != null) {
+            connectableBus2 = bus2;
+        }
+    }
 }

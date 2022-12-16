@@ -203,7 +203,6 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                                 .setX(1.4)
                                 .setRatedU(1.1)
                                 .setRatedS(1.2)
-                                .setConnectableBus("busA")
                                 .setBus("busA")
                             .add()
                             .newLeg2()

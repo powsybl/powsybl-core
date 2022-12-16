@@ -177,6 +177,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     @Override
     public TieLineImpl add() {
         String id = checkAndGetUniqueId();
+        checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
         TerminalExt terminal1 = checkAndGetTerminal1();
