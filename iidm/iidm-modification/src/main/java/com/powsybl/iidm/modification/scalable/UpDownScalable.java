@@ -109,10 +109,10 @@ class UpDownScalable extends AbstractCompoundScalable {
             downScalableCopy = downScalable;
         }
         UpDownScalable upDownScalableCopy = new UpDownScalable(upScalableCopy, downScalableCopy);
-        if (!scalableActivityMap.get(upScalable)) {
+        if (Boolean.FALSE.equals(scalableActivityMap.get(upScalable))) {
             upDownScalableCopy.deactivateScalables(Set.of(upScalableCopy));
         }
-        if (!scalableActivityMap.get(downScalable)) {
+        if (Boolean.FALSE.equals(scalableActivityMap.get(downScalable))) {
             upDownScalableCopy.deactivateScalables(Set.of(downScalableCopy));
         }
         return upDownScalableCopy;

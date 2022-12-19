@@ -23,10 +23,6 @@ abstract class AbstractCompoundScalable extends AbstractScalable implements Comp
         super(minInjection, maxInjection, scalingConvention);
     }
 
-    protected AbstractCompoundScalable(Collection<Scalable> scalables) {
-        this(-Double.MAX_VALUE, Double.MAX_VALUE, ScalingConvention.GENERATOR);
-    }
-
     @Override
     public Collection<Scalable> getScalables() {
         Set<Scalable> scalables = new HashSet<>();
