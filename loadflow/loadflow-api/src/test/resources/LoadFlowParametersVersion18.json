@@ -3,7 +3,7 @@
   "voltageInitMode" : "PREVIOUS_VALUES",
   "transformerVoltageControlOn" : true,
   "phaseShifterRegulationOn" : false,
-  "noGeneratorReactiveLimits" : true,
+  "useReactiveLimits" : false,
   "twtSplitShuntAdmittance" : false,
   "shuntCompensatorVoltageControlOn" : false,
   "readSlackBus" : false,

@@ -69,6 +69,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "noGeneratorReactiveLimits":
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: noGeneratorReactiveLimits", version, "1.7");
                     parser.nextToken();
                     parameters.setNoGeneratorReactiveLimits(parser.readValueAs(Boolean.class));
                     break;
