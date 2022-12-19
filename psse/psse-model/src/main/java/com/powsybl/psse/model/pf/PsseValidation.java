@@ -222,7 +222,6 @@ public class PsseValidation {
             validateTransformerX(id, transformer.getX12(), "X12");
             validateTransformerRatio(id, transformer.getWinding1().getWindv(), "ratio");
             validateTransformerSbase(id, transformer.getCz(), transformer.getCm(), transformer.getSbase12(), "sbase12");
-            validateTransformerWindingNomV(id, transformer.getCw(), transformer.getCm(), transformer.getWinding1().getNomv(), "winding1 nomV");
             validateTransformerWindingVmiVma(id, transformer.getWinding1().getCod(), transformer.getWinding1().getVmi(), transformer.getWinding1().getVma(), "winding1 Vmi Vma");
             validateTransformerWindingRmiRma(id, transformer.getWinding1().getCod(), transformer.getWinding1().getRmi(), transformer.getWinding1().getRma(), "winding1 Rmi Rma");
             validateTransformerWindingCont(buses, id, transformer.getWinding1().getCod(), transformer.getWinding1().getCont(), "winding1 Cont");
@@ -254,10 +253,6 @@ public class PsseValidation {
             validateTransformerSbase(id, transformer.getCz(), transformer.getCm(), transformer.getSbase12(), "sbase12");
             validateTransformerSbase(id, transformer.getCz(), transformer.getCm(), transformer.getSbase23(), "sbase23");
             validateTransformerSbase(id, transformer.getCz(), transformer.getCm(), transformer.getSbase31(), "sbase31");
-
-            validateTransformerWindingNomV(id, transformer.getCz(), transformer.getCm(), transformer.getWinding1().getNomv(), "winding1 nomV");
-            validateTransformerWindingNomV(id, transformer.getCz(), transformer.getCm(), transformer.getWinding2().getNomv(), "winding2 nomV");
-            validateTransformerWindingNomV(id, transformer.getCz(), transformer.getCm(), transformer.getWinding3().getNomv(), "winding3 nomV");
 
             validateTransformerWindingVmiVma(id, transformer.getWinding1().getCod(), transformer.getWinding1().getVmi(), transformer.getWinding1().getVma(), "winding1 Vmi Vma");
             validateTransformerWindingVmiVma(id, transformer.getWinding2().getCod(), transformer.getWinding2().getVmi(), transformer.getWinding2().getVma(), "winding2 Vmi Vma");
@@ -308,13 +303,6 @@ public class PsseValidation {
     private void validateTransformerSbase(String id, int cz, int cm, double sbase, String sbaseTag) {
         if ((cz == 2 || cz == 3 || cm == 2) && sbase <= 0.0) {
             warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f", id, sbaseTag, sbase));
-            validCase = false;
-        }
-    }
-
-    private void validateTransformerWindingNomV(String id, int cw, int cm, double windingNomV, String windingNomVTag) {
-        if ((cw == 3 || cm == 2) && windingNomV <= 0.0) {
-            warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f", id, windingNomVTag, windingNomV));
             validCase = false;
         }
     }
