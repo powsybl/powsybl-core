@@ -179,10 +179,20 @@ class NetworkIndex {
      * @param other the index to merge
      */
     void merge(NetworkIndex other) {
-        for (Identifiable obj : other.objectsById.values()) {
+        for (Identifiable<?> obj : other.objectsById.values()) {
             checkAndAdd(obj);
         }
         other.clean();
+    }
+
+    void unmerge(NetworkImpl other) {
+        for (Identifiable<?> obj : new ArrayList<>(objectsById.values())) {
+            if (other.getId().equals(obj.getProperty("originNetwork"))) {
+                other.getIndex().checkAndAdd(obj);
+                ((AbstractIdentifiable<?>) obj).setRef(other.getRef());
+                objectsById.remove(obj.getId());
+            }
+        }
     }
 
     void printForDebug(PrintStream out) {

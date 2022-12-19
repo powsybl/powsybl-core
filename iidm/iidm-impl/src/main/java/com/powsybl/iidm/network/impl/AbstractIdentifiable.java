@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.Identifiables;
 
 import java.util.*;
@@ -250,5 +251,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
                 .filter(e -> e instanceof MultiVariantObject)
                 .map(e -> (MultiVariantObject) e)
                 .forEach(e -> e.allocateVariantArrayElement(indexes, sourceIndex));
+    }
+
+    void setRef(Ref<NetworkImpl> ref) {
+        // does nothing
     }
 }

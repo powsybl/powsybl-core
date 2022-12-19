@@ -191,6 +191,11 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
+    public Collection<Network> unmerge() {
+        return index.getNetworkStream().filter(n -> n.getIdentifiables().size() > 1).collect(Collectors.toSet());
+    }
+
+    @Override
     public ContainerType getContainerType() {
         return ContainerType.NETWORK;
     }

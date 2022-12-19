@@ -13,8 +13,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.util.Collection;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 public abstract class AbstractMergeNetworkTest {
 
@@ -70,6 +72,23 @@ public abstract class AbstractMergeNetworkTest {
         assertNotNull(merge.getLine("dl1 + dl2"));
         assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getNameOrId());
+        Collection<Network> networks = merge.unmerge();
+        assertEquals(2, networks.size());
+        for (Network n : networks) {
+            assertNull(n.getLine("dl1 + dl2"));
+            assertTrue(List.of("n1", "n2").contains(n.getId()));
+            String dlId;
+            if (n.getId().equals("n1")) {
+                dlId = "dl1";
+            } else {
+                dlId = "dl2";
+            }
+            DanglingLine dl = n.getDanglingLine(dlId);
+            assertNotNull(dl);
+            assertSame(n, dl.getNetwork());
+            assertSame(n, dl.getTerminal().getVoltageLevel().getNetwork());
+            assertSame(n, dl.getTerminal().getVoltageLevel().getSubstation().map(Substation::getNetwork).orElse(null));
+        }
     }
 
     private void addSubstation(Network network, String substationId) {

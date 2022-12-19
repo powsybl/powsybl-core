@@ -35,7 +35,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     //
 
-    private final Ref<NetworkImpl> networkRef;
+    private Ref<NetworkImpl> networkRef;
 
     private AbstractHvdcConverterStation<?> converterStation1;
 
@@ -224,5 +224,10 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     @Override
     protected String getTypeDescription() {
         return TYPE_DESCRIPTION;
+    }
+
+    @Override
+    void setRef(Ref<NetworkImpl> ref) {
+        networkRef = ref;
     }
 }

@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  */
 class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
 
-    private final Ref<NetworkImpl> network;
+    private Ref<NetworkImpl> network;
 
     private final ArrayList<List<BusTerminal>> terminals;
 
@@ -255,4 +255,8 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
         }
     }
 
+    @Override
+    void setRef(Ref<NetworkImpl> ref) {
+        network = ref;
+    }
 }

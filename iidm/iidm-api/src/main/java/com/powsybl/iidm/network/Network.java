@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -1140,6 +1141,10 @@ public interface Network extends Container<Network> {
     void merge(Network other);
 
     void merge(Network... others);
+
+    default Collection<Network> unmerge() {
+        return Collections.singleton(this);
+    }
 
     void addListener(NetworkListener listener);
 

@@ -29,7 +29,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     public static final int NODE_INDEX_LIMIT = loadNodeIndexLimit(PlatformConfig.defaultConfig());
 
-    private final Ref<NetworkImpl> networkRef;
+    private Ref<NetworkImpl> networkRef;
 
     private final SubstationImpl substation;
 
@@ -474,4 +474,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     protected abstract void removeTopology();
+
+    @Override
+    void setRef(Ref<NetworkImpl> ref) {
+        networkRef = ref;
+    }
 }

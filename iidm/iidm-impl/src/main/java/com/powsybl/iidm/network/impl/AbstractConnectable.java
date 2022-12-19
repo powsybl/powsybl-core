@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIdentifiable<I> implements Connectable<I>, MultiVariantObject {
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
-    private final Ref<NetworkImpl> networkRef;
+    private Ref<NetworkImpl> networkRef;
     private boolean removed = false;
 
     AbstractConnectable(Ref<NetworkImpl> ref, String id, String name, boolean fictitious) {
@@ -177,5 +177,10 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         terminals.set(iSide, terminalExt);
 
         notifyUpdate("terminal" + (iSide + 1), oldConnectionInfo, terminalExt.getConnectionInfo());
+    }
+
+    @Override
+    void setRef(Ref<NetworkImpl> ref) {
+        networkRef = ref;
     }
 }

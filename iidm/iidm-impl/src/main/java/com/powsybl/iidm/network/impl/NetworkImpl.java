@@ -855,6 +855,12 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public void merge(Network other) {
+        // tag this network if not done already TODO do this with subnetworks/containers
+        fillInOriginNetwork(this);
+        // tag the other network if not done already TODO do this with subnetworks/containers
+        Optional.ofNullable(getProperty("originNetworks")).ifPresentOrElse(v -> setProperty("originNetworks", v + "," + other.getId()), () -> setProperty("originNetworks", getId() + "," + other.getId()));
+        fillInOriginNetwork(other);
+
         NetworkImpl otherNetwork = (NetworkImpl) other;
 
         // this check must not be done on the number of variants but on the size
@@ -918,6 +924,15 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
 
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
+    }
+
+    private static void fillInOriginNetwork(Network network) {
+        for (Identifiable<?> identifiable : network.getIdentifiables()) {
+            if (identifiable.hasProperty("originNetwork") || identifiable instanceof TieLine || identifiable instanceof Network) {
+                continue;
+            }
+            identifiable.setProperty("originNetwork", network.getId());
+        }
     }
 
     private DanglingLine getDanglingLineByTheOther(DanglingLine dl2, Map<String, DanglingLine> dl1byXnodeCode) {
@@ -1137,6 +1152,94 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         for (Network other : others) {
             merge(other);
         }
+    }
+
+    @Override
+    public Collection<Network> unmerge() {
+        // this check must not be done on the number of variants but on the size
+        // of the internal variant array because the network can have only
+        // one variant but an internal array with a size greater that one and
+        // some re-usable variants
+        if (variantManager.getVariantArraySize() != 1) {
+            throw new PowsyblException("Merging of multi-variants network is not supported");
+        }
+        String originNetworks = getProperty("originNetworks");
+        if (originNetworks == null) {
+            return Collections.singleton(this);
+        }
+        List<Network> networks = new ArrayList<>();
+        for (String id : originNetworks.split(",")) {
+            NetworkImpl n = new NetworkImpl(id, null, "unmerge");
+            index.unmerge(n);
+            networks.add(n);
+        }
+        for (TieLine tl : getConnectables(TieLine.class)) {
+            DanglingLineAdder adder1 = createDanglingLineAdder(tl.getHalf1()).setUcteXnodeCode(tl.getUcteXnodeCode());
+            DanglingLineAdder adder2 = createDanglingLineAdder(tl.getHalf2()).setUcteXnodeCode(tl.getUcteXnodeCode());
+            connect(adder1, tl.getTerminal1());
+            connect(adder2, tl.getTerminal2());
+            Map<String, String> properties = tl.getPropertyNames().stream().collect(Collectors.toMap(name -> name, tl::getProperty));
+            Map<String, String> aliases = new HashMap<>();
+            fillAliases(aliases, tl);
+            tl.remove();
+            DanglingLine dl1 = adder1.add();
+            DanglingLine dl2 = adder2.add();
+            properties.forEach(dl1::setProperty);
+            properties.forEach(dl2::setProperty);
+            aliases.forEach((alias, type) -> {
+                if (type != null) {
+                    dl1.addAlias(alias, type);
+                } else {
+                    dl1.addAlias(alias);
+                }
+            });
+            aliases.forEach((alias, type) -> {
+                if (type != null) {
+                    dl2.addAlias(alias, type);
+                } else {
+                    dl2.addAlias(alias);
+                }
+            });
+            // TODO limits (simpler when dangling lines are inside tie lines)
+        }
+        networks.removeIf(n -> ((NetworkImpl) n).getIndex().getAll().size() == 1); // remove empty network
+        return networks;
+    }
+
+    private static DanglingLineAdder createDanglingLineAdder(TieLine.HalfLine halfLine) {
+        return halfLine.getBoundary().getNetworkSideVoltageLevel().newDanglingLine()
+                .setId(halfLine.getId())
+                .setEnsureIdUnicity(true)
+                .setName(halfLine.getName())
+                .setFictitious(halfLine.isFictitious())
+                .setR(halfLine.getR())
+                .setX(halfLine.getX())
+                .setG(halfLine.getG1() + halfLine.getG2())
+                .setB(halfLine.getB1() + halfLine.getB2())
+                .setP0(Double.isNaN(halfLine.getBoundary().getP()) ? 0 : -halfLine.getBoundary().getP())
+                .setQ0(Double.isNaN(halfLine.getBoundary().getQ()) ? 0 : -halfLine.getBoundary().getQ());
+    }
+
+    private static void connect(DanglingLineAdder adder, Terminal terminal) {
+        TopologyKind topologyKind = terminal.getVoltageLevel().getTopologyKind();
+        if (topologyKind == TopologyKind.NODE_BREAKER) {
+            adder.setNode(terminal.getNodeBreakerView().getNode());
+        } else if (topologyKind == TopologyKind.BUS_BREAKER) {
+            adder.setConnectableBus(terminal.getBusBreakerView().getConnectableBus().getId())
+                    .setBus(Optional.ofNullable(terminal.getBusBreakerView().getBus()).map(Identifiable::getId).orElse(null));
+        } else {
+            throw new AssertionError("Unexpected topology kind: " + topologyKind);
+        }
+    }
+
+    private void fillAliases(Map<String, String> aliases, TieLine tl) {
+        for (String alias : tl.getAliases()) {
+            fillAliases(aliases, alias, tl.getAliasType(alias).orElse(null));
+        }
+    }
+
+    private void fillAliases(Map<String, String> aliases, String alias, String type) {
+        aliases.put(alias, type);
     }
 
     @Override
