@@ -154,6 +154,11 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void parallelTwoTerminalDcBetweenSameAcBuses() throws IOException {
+        importTest("parallelTwoTerminalDcBetweenSameAcBuses", "parallelTwoTerminalDcBetweenSameAcBuses.raw", false);
+    }
+
+    @Test
     public void twoWindingsTransformerPhase() throws IOException {
         importTest("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
     }
