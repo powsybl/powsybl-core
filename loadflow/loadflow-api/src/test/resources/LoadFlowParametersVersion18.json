@@ -1,21 +1,18 @@
 {
   "version" : "1.8",
-  "voltageInitMode" : "UNIFORM_VALUES",
-  "transformerVoltageControlOn" : false,
+  "voltageInitMode" : "PREVIOUS_VALUES",
+  "transformerVoltageControlOn" : true,
   "phaseShifterRegulationOn" : false,
-  "useReactiveLimits" : true,
+  "useReactiveLimits" : false,
   "twtSplitShuntAdmittance" : false,
   "shuntCompensatorVoltageControlOn" : false,
-  "readSlackBus" : true,
+  "readSlackBus" : false,
   "writeSlackBus" : false,
   "dc" : false,
   "distributedSlack" : true,
   "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
   "dcUseTransformerRatio" : true,
-  "countriesToBalance" : [ ],
+  "countriesToBalance" : [ "FR" , "KI" ],
   "connectedComponentMode" : "MAIN",
-  "hvdcAcEmulation" : true,
-  "extensions" : {
-    "dummy-extension" : { }
-  }
+  "hvdcAcEmulation" : true
 }
