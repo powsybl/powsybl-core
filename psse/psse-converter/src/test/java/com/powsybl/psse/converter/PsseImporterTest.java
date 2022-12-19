@@ -159,8 +159,18 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void parallelTwoTerminalDcBetweenSameAcBuses() throws IOException {
+        importTest("parallelTwoTerminalDcBetweenSameAcBuses", "parallelTwoTerminalDcBetweenSameAcBuses.raw", false);
+    }
+
+    @Test
     public void twoWindingsTransformerPhase() throws IOException {
         importTest("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
+    }
+
+    @Test
+    public void isolatedSlackBus() throws IOException {
+        importTest("IsolatedSlackBus", "IsolatedSlackBus.raw", false);
     }
 
     @Test
@@ -168,6 +178,7 @@ public class PsseImporterTest extends AbstractConverterTest {
         importTest("TransformersWithZeroNomV", "TransformersWithZeroNomV.raw", false);
     }
 
+    @Test
     public void rawCaseWithSpecialCharacters() throws IOException {
         importTest("RawCaseWithSpecialCharacters", "RawCaseWithSpecialCharacters.raw", false);
     }
