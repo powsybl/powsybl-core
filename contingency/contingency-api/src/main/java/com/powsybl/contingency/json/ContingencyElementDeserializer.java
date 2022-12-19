@@ -84,6 +84,9 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case LOAD:
                     return new LoadContingency(id);
 
+                case BUS:
+                    return new BusContingency(id);
+
                 default:
                     throw new AssertionError("Unexpected ContingencyElementType value: " + type);
             }
