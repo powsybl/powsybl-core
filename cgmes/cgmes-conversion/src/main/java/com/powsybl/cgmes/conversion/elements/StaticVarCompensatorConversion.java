@@ -49,7 +49,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     private double getB(double rating, String name) {
         if (rating == 0.0) {
             fixed(name + "Rating", "Undefined or equal to 0. Corresponding susceptance is Double.MAX_VALUE");
-            return Double.MAX_VALUE;
+            return name.equals("inductive") ? -Double.MAX_VALUE : Double.MAX_VALUE;
         }
         return 1 / rating;
     }
