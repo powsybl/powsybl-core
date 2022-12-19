@@ -159,10 +159,16 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void isolatedSlackBus() throws IOException {
+        importTest("IsolatedSlackBus", "IsolatedSlackBus.raw", false);
+    }
+
+    @Test
     public void transformersWithZeroNomV() throws IOException {
         importTest("TransformersWithZeroNomV", "TransformersWithZeroNomV.raw", false);
     }
 
+    @Test
     public void rawCaseWithSpecialCharacters() throws IOException {
         importTest("RawCaseWithSpecialCharacters", "RawCaseWithSpecialCharacters.raw", false);
     }
