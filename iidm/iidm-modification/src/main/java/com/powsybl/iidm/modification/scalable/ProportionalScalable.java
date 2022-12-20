@@ -69,7 +69,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     ProportionalScalable(List<Float> percentages, List<Scalable> scalables, boolean iterative) {
-        super(scalables);
+        super(-Double.MAX_VALUE, Double.MAX_VALUE, ScalingConvention.GENERATOR);
         checkPercentages(percentages, scalables);
         this.scalablePercentageList = new ArrayList<>();
         for (int i = 0; i < scalables.size(); i++) {

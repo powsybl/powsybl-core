@@ -24,7 +24,7 @@ class StackScalable extends AbstractCompoundScalable {
     }
 
     StackScalable(List<Scalable> scalables) {
-        super(scalables);
+        super(-Double.MAX_VALUE, Double.MAX_VALUE, ScalingConvention.GENERATOR);
         this.scalables = Objects.requireNonNull(scalables);
         scalableActivityMap = scalables.stream().collect(Collectors.toMap(scalable -> scalable, scalable -> true, (first, second) -> first));
     }

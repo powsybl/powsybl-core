@@ -18,7 +18,7 @@ class UpDownScalable extends AbstractCompoundScalable {
     private final Scalable downScalable;
 
     public UpDownScalable(Scalable upScalable, Scalable downScalable) {
-        super(Set.of(upScalable, downScalable));
+        super(-Double.MAX_VALUE, Double.MAX_VALUE, ScalingConvention.GENERATOR);
         this.upScalable = Objects.requireNonNull(upScalable);
         this.downScalable = Objects.requireNonNull(downScalable);
         scalableActivityMap = new HashMap<>();
