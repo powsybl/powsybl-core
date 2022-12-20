@@ -30,7 +30,7 @@ public final class TestingResultFactory {
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
         busResults.add(new ShortCircuitBusResults("VLGEN", "busId", new FortescueValue(2004, 2005)));
         FaultResult faultResult3 = new FaultResult(fault, 1.0, Collections.emptyList(),
-                Collections.emptyList(), new FortescueValue(2002, 2003), null, busResults, null);
+                Collections.emptyList(), new FortescueValue(2002, 2003), null, busResults, null, FaultResult.Status.SUCCESS);
         faultResults.add(faultResult1);
         faultResults.add(faultResult2);
         faultResults.add(faultResult3);
@@ -45,7 +45,7 @@ public final class TestingResultFactory {
         limitViolations.add(limitViolation1);
         LimitViolation limitViolation2 = new LimitViolation("VLGEN", limitType, limit, limitReduction, value);
         limitViolations.add(limitViolation2);
-        return new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(value));
+        return new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(value), FaultResult.Status.SUCCESS);
     }
 
     public static ShortCircuitAnalysisResult createWithFeederResults() {
@@ -61,7 +61,7 @@ public final class TestingResultFactory {
         List<FaultResult> faultResults = new ArrayList<>();
         FeederResult feederResult = new FeederResult("connectableId", 1);
         FaultResult faultResult = new FaultResult(fault, 0.1, Collections.singletonList(feederResult), limitViolations,
-                new FortescueValue(1.0), new FortescueValue(2.0), Collections.emptyList(), Duration.ofSeconds(1));
+                new FortescueValue(1.0), new FortescueValue(2.0), Collections.emptyList(), Duration.ofSeconds(1), FaultResult.Status.SUCCESS);
         faultResults.add(faultResult);
         return new ShortCircuitAnalysisResult(faultResults);
     }

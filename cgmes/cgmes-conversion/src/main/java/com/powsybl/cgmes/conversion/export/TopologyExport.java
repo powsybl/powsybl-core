@@ -17,10 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -75,8 +72,9 @@ public final class TopologyExport extends AbstractCgmesExporter {
     }
 
     private void writeBoundaryTerminals() throws XMLStreamException {
+        List<String> exported = new ArrayList<>();
         for (DanglingLine dl : context.getNetwork().getDanglingLines()) {
-            writeBoundaryTerminal(dl);
+            writeBoundaryTerminal(dl, exported);
         }
     }
 
@@ -203,19 +201,19 @@ public final class TopologyExport extends AbstractCgmesExporter {
         xmlWriter.writeEndElement();
     }
 
-    private void writeBoundaryTerminal(DanglingLine dl) throws XMLStreamException {
+    private void writeBoundaryTerminal(DanglingLine dl, List<String> exported) throws XMLStreamException {
         String boundaryId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
-        String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
-        Optional<String> topologicalNode = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
-        if (topologicalNode.isPresent()) {
-            // Topological nodes of boundaries are published by external entities and should be ok,
-            // we do not make an additional effort to ensure a valid CGMES id has been assigned
-            if (boundaryId != null) {
-                writeTerminal(boundaryId, topologicalNode.get());
-            }
-            if (equivalentInjectionTerminalId != null) {
-                writeTerminal(equivalentInjectionTerminalId, topologicalNode.get());
-            }
+        String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+        String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        // Topological nodes of boundaries are published by external entities and should be ok,
+        // we do not make an additional effort to ensure a valid CGMES id has been assigned
+        // If not defined it has already been created above so topological node is never null
+        if (boundaryId != null) {
+            writeTerminal(boundaryId, topologicalNode);
+        }
+        if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) { // check if the equivalent injection terminal has already been written (if several dangling lines linked to same X-node)
+            writeTerminal(equivalentInjectionTerminalId, topologicalNode);
+            exported.add(equivalentInjectionTerminalId);
         }
     }
 
@@ -234,8 +232,8 @@ public final class TopologyExport extends AbstractCgmesExporter {
 
     private void writeDanglingLineTopologicalNodes() throws XMLStreamException {
         for (DanglingLine dl : context.getNetwork().getDanglingLines()) {
-            Optional<String> topologicalNodeId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
-            if (topologicalNodeId.isEmpty()) {
+            String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+            if (topologicalNodeId == null) {
                 // If no information about original boundary has been preserved in the IIDM model,
                 // we will create a new TopologicalNode
                 String baseVoltage = context.getBaseVoltageByNominalVoltage(dl.getTerminal().getVoltageLevel().getNominalV()).getId();
@@ -249,7 +247,7 @@ public final class TopologyExport extends AbstractCgmesExporter {
                     containerId = context.getNamingStrategy().getCgmesId(dl.getTerminal().getVoltageLevel());
                 }
                 String fictTopologicalNodeId = CgmesExportUtil.getUniqueId();
-                dl.addAlias(fictTopologicalNodeId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+                dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, fictTopologicalNodeId);
                 writeTopologicalNode(fictTopologicalNodeId, dl.getNameOrId() + "_NODE", containerId, baseVoltage);
             }
         }

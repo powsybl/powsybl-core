@@ -168,6 +168,12 @@ public class PsseExporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void importExportParallelTwoTerminalDcBetweenSameAcBuses() throws IOException {
+        Network network = importTest("parallelTwoTerminalDcBetweenSameAcBuses", "parallelTwoTerminalDcBetweenSameAcBuses.raw", false);
+        exportTest(network, "parallelTwoTerminalDcBetweenSameAcBuses_updated_exported", "parallelTwoTerminalDcBetweenSameAcBuses_updated_exported.raw");
+    }
+
+    @Test
     public void importExportIEEE14BusRev35() throws IOException {
         Network network = importTest("IEEE_14_bus_rev35", "IEEE_14_bus_rev35.raw", false);
         exportTest(network, "IEEE_14_bus_rev35_exported", "IEEE_14_bus_rev35_exported.raw");
@@ -183,6 +189,18 @@ public class PsseExporterTest extends AbstractConverterTest {
     public void importExportTwoWindingsTransformerPhase() throws IOException {
         Network network = importTest("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
         exportTest(network, "TwoWindingsTransformerPhase_exported", "TwoWindingsTransformerPhase_exported.raw");
+    }
+
+    @Test
+    public void importExportRawCaseWithSpecialCharacters() throws IOException {
+        Network network = importTest("RawCaseWithSpecialCharacters", "RawCaseWithSpecialCharacters.raw", false);
+        exportTest(network, "RawCaseWithSpecialCharacters_exported", "RawCaseWithSpecialCharacters_exported.raw");
+    }
+
+    @Test
+    public void importExportRawxCaseWithSpecialCharacters() throws IOException {
+        Network network = importTest("RawxCaseWithSpecialCharacters", "RawxCaseWithSpecialCharacters.rawx", false);
+        exportTest(network, "RawxCaseWithSpecialCharacters_exported", "RawxCaseWithSpecialCharacters_exported.rawx");
     }
 
     @Test

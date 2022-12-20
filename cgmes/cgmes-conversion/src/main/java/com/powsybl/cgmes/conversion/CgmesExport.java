@@ -8,8 +8,8 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.cgmes.conversion.export.CgmesProfileExporterFactory;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.export.CgmesProfileExporterFactory;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
@@ -32,9 +32,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.util.ArrayList;
 import java.util.*;
-import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.inconsistentProfilesTPRequiredReport;
@@ -67,12 +65,11 @@ public class CgmesExport implements Exporter {
         Objects.requireNonNull(network);
         CgmesExportContext context = new CgmesExportContext(
                 network,
-                NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig))
-        )
+                NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)))
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
-                .setBoundaryEqId(Parameter.readString(getFormat(), params, BOUNDARY_EQ_ID_PARAMETER, defaultValueConfig))
-                .setBoundaryTpId(Parameter.readString(getFormat(), params, BOUNDARY_TP_ID_PARAMETER, defaultValueConfig))
+                .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER))
+                .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER))
                 .setReporter(reporter);
         String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
@@ -83,9 +80,17 @@ public class CgmesExport implements Exporter {
         // First export EQ, then TP, then SSH, then SV
         Set<String> requestedProfiles = new HashSet<>(Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig));
         checkConsistency(requestedProfiles, context);
-        Stream.of("EQ", "TP", "SSH", "SV")
-                .filter(requestedProfiles::contains)
-                .forEachOrdered(profile -> export(profile, baseName, ds, context));
+        String[] profiles = {"EQ", "TP", "SSH", "SV"};
+        for (String profile : profiles) {
+            if (requestedProfiles.contains(profile)) {
+                export(profile, baseName, ds, context);
+            } else {
+                addProfilesIdentifiers(network, profile, context.getModelDescription(profile));
+                if (profile.equals("EQ")) {
+                    context.getEqModelDescription().addId(context.getNamingStrategy().getCgmesId(network));
+                }
+            }
+        }
         context.getNamingStrategy().writeIdMapping(baseName + "_id_mapping.csv", ds);
     }
 
@@ -101,6 +106,20 @@ public class CgmesExport implements Exporter {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    private String getBoundaryId(String profile, Network network, Properties params, Parameter parameter) {
+        if (network.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_BD_ID")) {
+            return network.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_BD_ID");
+        }
+        return Parameter.readString(getFormat(), params, parameter, defaultValueConfig);
+    }
+
+    private static void addProfilesIdentifiers(Network network, String profile, CgmesExportContext.ModelDescription description) {
+        description.setIds(network.getPropertyNames().stream()
+                .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID"))
+                .map(network::getProperty)
+                .collect(Collectors.toList()));
     }
 
     private static void checkConsistency(Set<String> profiles, CgmesExportContext context) {

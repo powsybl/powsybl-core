@@ -166,10 +166,8 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
         // Remove aliases of equivalent injections, so they will have to be created during export
         for (DanglingLine danglingLine : expected.getDanglingLines()) {
-            danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection")
-                    .ifPresent(danglingLine::removeAlias);
-            danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal")
-                    .ifPresent(danglingLine::removeAlias);
+            danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         }
         Network actual = exportImportBusBranch(expected, dataSource);
         compareNetworksEQdata(expected, actual);

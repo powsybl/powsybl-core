@@ -124,6 +124,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
                     valid = checkLoadContingency(this, (LoadContingency) element, network);
                     break;
 
+                case BUS:
+                    valid = checkBusContingency(this, (BusContingency) element, network);
+                    break;
+
                 default:
                     throw new AssertionError("Unknown contingency element type " + element.getType());
             }
@@ -243,6 +247,14 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
+    private static boolean checkBusContingency(Contingency contingency, BusContingency element, Network network) {
+        if (network.getBusBreakerView().getBus(element.getId()) == null) {
+            LOGGER.warn("Bus '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
     public static ContingencyBuilder builder(String id) {
         return new ContingencyBuilder(id);
     }
@@ -357,6 +369,13 @@ public class Contingency extends AbstractExtendable<Contingency> {
      */
     public static Contingency load(String loadId) {
         return builder(loadId).addLoad(loadId).build();
+    }
+
+    /**
+     * Creates a new contingency on the bus whose id is given
+     */
+    public static Contingency bus(String busId) {
+        return builder(busId).addBus(busId).build();
     }
 
 }

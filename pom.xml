@@ -57,6 +57,7 @@
         <module>commons-test</module>
         <module>computation</module>
         <module>computation-local</module>
+        <module>computation-local-test</module>
         <module>config-classic</module>
         <module>config-test</module>
         <module>contingency</module>
@@ -106,9 +107,9 @@
         <gdata.version>1.41.1_1</gdata.version>
         <graphviz-builder.version>1.0.11</graphviz-builder.version>
         <groovy.version>3.0.9</groovy.version>
-        <guava.version>30.0-jre</guava.version>
-        <jackson.version>2.13.4</jackson.version>
-        <jackson-databind.version>2.13.4.2</jackson-databind.version>
+        <guava.version>31.1-jre</guava.version>
+        <jackson.version>2.14.1</jackson.version>
+        <jackson-databind.version>2.14.1</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
         <jgrapht.version>1.5.1</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
@@ -120,17 +121,20 @@
         <mfl.version>0.5.9</mfl.version>
         <mockito.version>4.4.0</mockito.version>
         <nativelibloader.version>2.4.0</nativelibloader.version>
-        <poi.version>4.0.0</poi.version>
-        <rdf4j.version>4.1.0</rdf4j.version>
+        <poi.version>5.2.3</poi.version>
+        <rdf4j.version>4.2.2</rdf4j.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>1.7.22</slf4j.version>
         <snakeyaml.version>1.33</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <stringtemplate.version>4.3.4</stringtemplate.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
         <threeten.version>1.5.0</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
         <univocity-parsers.version>2.8.3</univocity-parsers.version>
         <xmlunit.version>2.3.0</xmlunit.version>
+        <xz.version>1.9</xz.version>
+        <zstdjni.version>1.5.2-5</zstdjni.version>
 
         <powsyblmathnative.version>1.2.1</powsyblmathnative.version>
     </properties>
@@ -156,6 +160,26 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>docker-unit-tests</id>
+            <activation>
+                <property>
+                    <name>powsybl.docker-unit-tests.skip</name>
+                    <value>!false</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <excludedGroups>com.powsybl.commons.test.DockerTests</excludedGroups>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -268,6 +292,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-computation-local</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-computation-local-test</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -690,6 +719,16 @@
                 <version>${graphviz-builder.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.github.luben</groupId>
+                <artifactId>zstd-jni</artifactId>
+                <version>${zstdjni.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.tukaani</groupId>
+                <artifactId>xz</artifactId>
+                <version>${xz.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commonscompress.version}</version>
@@ -789,6 +828,11 @@
                 <groupId>org.scijava</groupId>
                 <artifactId>native-lib-loader</artifactId>
                 <version>${nativelibloader.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.threeten</groupId>
