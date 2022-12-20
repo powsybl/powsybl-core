@@ -63,6 +63,17 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEUnmergedXnode() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUnmergedXnode().dataSource(),
+                        NetworkFactory.findDefault(), null);
+        DanglingLine dl = network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        assertNotNull(dl);
+        DanglingLine test = network.getDanglingLine("test");
+        assertNotNull(test);
+    }
+
+    @Test
     public void microBEExplicitBase() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEExplicitBase().dataSource(), NetworkFactory.findDefault(), null);
