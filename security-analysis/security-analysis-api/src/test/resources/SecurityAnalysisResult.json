@@ -144,11 +144,13 @@
       "busResults" : [ ],
       "threeWindingsTransformerResults" : [ ]
     },
-    "createdSynchronousComponentCount" : 0,
-    "createdConnectedComponentCount" : 0,
-    "lossOfActivePowerLoad" : 0.0,
-    "lossOfActivePowerGeneration" : 0.0,
-    "elementsLost" : [ ]
+    "connectivityResult" : {
+      "createdSynchronousComponentCount" : 0,
+      "createdConnectedComponentCount" : 0,
+      "loadActivePowerLoss" : 0.0,
+      "generationActivePowerLoss" : 0.0,
+      "lostElements" : [ ]
+    }
   } ],
   "operatorStrategyResults" : [ {
     "operatorStrategy" : {

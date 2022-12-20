@@ -66,11 +66,7 @@ public class SecurityAnalysisResultBuilderTest {
         builder.contingency(new Contingency("contingency1"), postResultContext)
                 .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network), postViolationContext)
-                .setCreatedSynchronousComponentCount(1)
-                .setCreatedConnectedComponentCount(1)
-                .setLossOfActivePowerLoad(0.0)
-                .setLossOfActivePowerGeneration(0.0)
-                .setElementsLost(Collections.emptySet())
+                .setConnectivityResult(new ConnectivityResult(1, 1, 0.0, 0.0, Collections.emptySet()))
                 .endContingency();
         assertEquals(Security.checkLimits(network).size(), postViolationContext.getCalledCount());
         assertEquals(1, postResultContext.getCalledCount());
@@ -101,22 +97,14 @@ public class SecurityAnalysisResultBuilderTest {
                 .addThreeWindingsTransformerResult(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
                 0, 0, 0, 0, 0, 0, 0, 0, 0))
                 .addViolations(Security.checkLimits(network))
-                .setCreatedSynchronousComponentCount(1)
-                .setCreatedConnectedComponentCount(2)
-                .setLossOfActivePowerLoad(10.0)
-                .setLossOfActivePowerGeneration(20.0)
-                .setElementsLost(Set.of("branchId"))
+                .setConnectivityResult(new ConnectivityResult(1, 2, 10.0, 20.0, Set.of("branchId")))
                 .endContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(520));
         builder.contingency(new Contingency("contingency2"))
                 .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network))
-                .setCreatedSynchronousComponentCount(2)
-                .setCreatedConnectedComponentCount(4)
-                .setLossOfActivePowerLoad(10.0)
-                .setLossOfActivePowerGeneration(15.0)
-                .setElementsLost(Set.of("branchId", "branchId2"))
+                .setConnectivityResult(new ConnectivityResult(2, 4, 10.0, 15.0, Set.of("branchId", "branchId2")))
                 .endContingency();
 
         SecurityAnalysisResult res = builder.build();
@@ -131,11 +119,11 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), res1.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0), res1.getNetworkResult().getThreeWindingsTransformerResult("threeWindingsTransformerId"));
-        assertEquals(1, res1.getCreatedSynchronousComponentCount());
-        assertEquals(2, res1.getCreatedConnectedComponentCount());
-        assertEquals(10.0, res1.getLossOfActivePowerLoad(), 1e-3);
-        assertEquals(20.0, res1.getLossOfActivePowerGeneration(), 1e-3);
-        assertEquals(Set.of("branchId"), res1.getElementsLost());
+        assertEquals(1, res1.getConnectivityResult().getCreatedSynchronousComponentCount());
+        assertEquals(2, res1.getConnectivityResult().getCreatedConnectedComponentCount());
+        assertEquals(10.0, res1.getConnectivityResult().getLoadActivePowerLoss(), 1e-3);
+        assertEquals(20.0, res1.getConnectivityResult().getGenerationActivePowerLoss(), 1e-3);
+        assertEquals(Set.of("branchId"), res1.getConnectivityResult().getLostElements());
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations1 = res1.getLimitViolationsResult().getLimitViolations();
@@ -145,11 +133,11 @@ public class SecurityAnalysisResultBuilderTest {
 
         PostContingencyResult res2 = res.getPostContingencyResults().get(1);
         assertEquals("contingency2", res2.getContingency().getId());
-        assertEquals(2, res2.getCreatedSynchronousComponentCount());
-        assertEquals(4, res2.getCreatedConnectedComponentCount());
-        assertEquals(10.0, res2.getLossOfActivePowerLoad(), 1e-3);
-        assertEquals(15.0, res2.getLossOfActivePowerGeneration(), 1e-3);
-        assertEquals(Set.of("branchId", "branchId2"), res2.getElementsLost());
+        assertEquals(2, res2.getConnectivityResult().getCreatedSynchronousComponentCount());
+        assertEquals(4, res2.getConnectivityResult().getCreatedConnectedComponentCount());
+        assertEquals(10.0, res2.getConnectivityResult().getLoadActivePowerLoss(), 1e-3);
+        assertEquals(15.0, res2.getConnectivityResult().getGenerationActivePowerLoss(), 1e-3);
+        assertEquals(Set.of("branchId", "branchId2"), res2.getConnectivityResult().getLostElements());
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations2 = res2.getLimitViolationsResult().getLimitViolations();

@@ -239,15 +239,7 @@ public class SecurityAnalysisResultBuilder {
 
         private PostContingencyComputationStatus status;
 
-        private int createdSynchronousComponentCount;
-
-        private int createdConnectedComponentCount;
-
-        private double lossOfActivePowerLoad;
-
-        private double lossOfActivePowerGeneration;
-
-        private Set<String> elementsLost;
+        private ConnectivityResult connectivityResult;
 
         PostContingencyResultBuilder(Contingency contingency, SecurityAnalysisResultContext resultContext) {
             super(Objects.requireNonNull(resultContext));
@@ -267,28 +259,8 @@ public class SecurityAnalysisResultBuilder {
             return this;
         }
 
-        public PostContingencyResultBuilder setCreatedSynchronousComponentCount(int createdSynchronousComponentCount) {
-            this.createdSynchronousComponentCount = createdSynchronousComponentCount;
-            return this;
-        }
-
-        public PostContingencyResultBuilder setCreatedConnectedComponentCount(int createdConnectedComponentCount) {
-            this.createdConnectedComponentCount = createdConnectedComponentCount;
-            return this;
-        }
-
-        public PostContingencyResultBuilder setLossOfActivePowerLoad(double lossOfActivePowerLoad) {
-            this.lossOfActivePowerLoad = lossOfActivePowerLoad;
-            return this;
-        }
-
-        public PostContingencyResultBuilder setLossOfActivePowerGeneration(double lossOfActivePowerGeneration) {
-            this.lossOfActivePowerGeneration = lossOfActivePowerGeneration;
-            return this;
-        }
-
-        public PostContingencyResultBuilder setElementsLost(Set<String> elementsLost) {
-            this.elementsLost = elementsLost;
+        public PostContingencyResultBuilder setConnectivityResult(ConnectivityResult connectivityResult) {
+            this.connectivityResult = connectivityResult;
             return this;
         }
 
@@ -300,8 +272,7 @@ public class SecurityAnalysisResultBuilder {
         public SecurityAnalysisResultBuilder endContingency() {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             PostContingencyResult res = new PostContingencyResult(contingency, status, filteredViolations,
-                    branchResults, busResults, threeWindingsTransformerResults, createdSynchronousComponentCount, createdConnectedComponentCount,
-                    lossOfActivePowerLoad, lossOfActivePowerGeneration, elementsLost);
+                    branchResults, busResults, threeWindingsTransformerResults, connectivityResult);
             interceptors.forEach(i -> i.onPostContingencyResult(res, resultContext));
             addPostContingencyResult(res);
 

@@ -24,6 +24,7 @@ import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.monitor.StateMonitorIndex;
 import com.powsybl.security.results.BranchResult;
 import com.powsybl.security.results.BusResult;
+import com.powsybl.security.results.ConnectivityResult;
 import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -224,11 +225,7 @@ public class DefaultSecurityAnalysis {
         SecurityAnalysisResultBuilder.PostContingencyResultBuilder builder =
                 resultBuilder.contingency(contingency)
                         .setStatus(lfResult.isOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED)
-                        .setCreatedSynchronousComponentCount(0)
-                        .setCreatedConnectedComponentCount(0)
-                        .setLossOfActivePowerLoad(0.0)
-                        .setLossOfActivePowerGeneration(0.0)
-                        .setElementsLost(Collections.emptySet());
+                        .setConnectivityResult(new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet()));
         if (lfResult.isOk()) {
             violationDetector.checkAll(contingency, network, builder::addViolation);
             addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);

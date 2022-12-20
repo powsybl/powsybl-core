@@ -1,0 +1,72 @@
+/**
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.security.json;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.security.results.ConnectivityResult;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Set;
+
+/**
+ * @author Bertrand Rix <bertrand.rix at artelys.com>
+ */
+public class ConnectivityResultDeserializer extends StdDeserializer<ConnectivityResult> {
+
+    public ConnectivityResultDeserializer() {
+        super(ConnectivityResult.class);
+    }
+
+    @Override
+    public ConnectivityResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+
+        int createdSynchronousComponentCount = 0;
+        int createdConnectedComponentCount = 0;
+        double loadActivePowerLoss = 0.0;
+        double generationActivePowerLoss = 0.0;
+        Set<String> lostElements = Collections.emptySet();
+
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            switch (parser.getCurrentName()) {
+                case "createdSynchronousComponentCount":
+                    parser.nextToken();
+                    createdSynchronousComponentCount = parser.getIntValue();
+                    break;
+                case "createdConnectedComponentCount":
+                    parser.nextToken();
+                    createdConnectedComponentCount = parser.getIntValue();
+                    break;
+                case "loadActivePowerLoss":
+                    parser.nextToken();
+                    loadActivePowerLoss = parser.getDoubleValue();
+                    break;
+                case "generationActivePowerLoss":
+                    parser.nextToken();
+                    generationActivePowerLoss = parser.getDoubleValue();
+                    break;
+                case "lostElements":
+                    parser.nextToken();
+                    lostElements = parser.readValueAs(new TypeReference<Set<String>>() {
+                    });
+                    break;
+                default:
+                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+            }
+        }
+
+        return new ConnectivityResult(createdSynchronousComponentCount, createdConnectedComponentCount,
+                loadActivePowerLoss, generationActivePowerLoss, lostElements);
+    }
+}
+
+
