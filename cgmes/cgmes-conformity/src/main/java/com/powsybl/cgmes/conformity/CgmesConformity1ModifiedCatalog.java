@@ -583,6 +583,20 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
+    public static GridModelReferenceResources microGridBESwitchAtBoundary() {
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_switch_at_boundary/";
+        return new GridModelReferenceResources("MicroGrid-BaseCase-BE-SwitchAtBoundary",
+                null,
+                new ResourceSet(baseModified,
+                        MICRO_GRID_BE_EQ),
+                new ResourceSet(MICRO_GRID_BE_BASE,
+                        MICRO_GRID_BE_TP,
+                        MICRO_GRID_BE_SSH,
+                        MICRO_GRID_BE_SV),
+                microGridBaseCaseBoundaries());
+    }
+
     public static GridModelReferenceResources microGridBaseCaseAssembledTransformerAtBoundary() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_transformer_at_boundary/";

@@ -23,7 +23,7 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Importers;
+import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
@@ -498,6 +498,40 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(115.5, ext.getTargetQ(), 0.0);
         assertTrue(ext.isEnabled());
         assertSame(network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), ext.getRegulatingTerminal());
+    }
+
+    @Test
+    public void microSwitchAtBoundaryCompareMerges() {
+        final double tolerance = 1e-10;
+        final String tieLineId = "78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49";
+
+        Network networkAssembled = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource());
+        Line lineAssembled = networkAssembled.getLine(tieLineId);
+
+        Network networkBE = Network.read(CgmesConformity1ModifiedCatalog.microGridBESwitchAtBoundary().dataSource());
+        Network networkNL = Network.read(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource());
+        Network networkMergingView = MergingView.create("BE-NL", "CGMES");
+        networkMergingView.merge(networkBE, networkNL);
+        Line lineMergingView = networkMergingView.getLine(tieLineId);
+
+        Network networkMerged = Network.read(CgmesConformity1ModifiedCatalog.microGridBESwitchAtBoundary().dataSource());
+        Network networkNL1 = Network.read(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource());
+        networkMerged.merge(networkNL1);
+        Line lineMerged = networkMergingView.getLine(tieLineId);
+
+        assertEquals(lineMergingView.getR(), lineAssembled.getR(), tolerance);
+        assertEquals(lineMergingView.getX(), lineAssembled.getX(), tolerance);
+        assertEquals(lineMergingView.getG1(), lineAssembled.getG1(), tolerance);
+        assertEquals(lineMergingView.getG2(), lineAssembled.getG2(), tolerance);
+        assertEquals(lineMergingView.getB1(), lineAssembled.getB1(), tolerance);
+        assertEquals(lineMergingView.getB2(), lineAssembled.getB2(), tolerance);
+
+        assertEquals(lineMergingView.getR(), lineMerged.getR(), tolerance);
+        assertEquals(lineMergingView.getX(), lineMerged.getX(), tolerance);
+        assertEquals(lineMergingView.getG1(), lineMerged.getG1(), tolerance);
+        assertEquals(lineMergingView.getG2(), lineMerged.getG2(), tolerance);
+        assertEquals(lineMergingView.getB1(), lineMerged.getB1(), tolerance);
+        assertEquals(lineMergingView.getB2(), lineMerged.getB2(), tolerance);
     }
 
     @Test
