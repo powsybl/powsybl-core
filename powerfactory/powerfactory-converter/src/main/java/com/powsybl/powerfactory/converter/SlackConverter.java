@@ -28,7 +28,6 @@ class SlackConverter extends AbstractConverter {
     void create(List<DataObject> slackObjects) {
 
         for (DataObject slackObject : slackObjects) {
-            System.err.printf("SlackObject %d %s %n", slackObject.getId(), slackObject.getFullName());
 
             Generator generator = getNetwork().getGenerator(GeneratorConverter.getId(slackObject));
             if (generator != null) {

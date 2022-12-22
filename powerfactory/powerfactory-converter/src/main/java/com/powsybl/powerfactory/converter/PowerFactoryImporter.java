@@ -159,13 +159,33 @@ public class PowerFactoryImporter implements Importer {
             }
         }
 
-        LOGGER.info("Creating equipments...");
+        LOGGER.info("Creating equipment...");
 
         List<DataObject> slackObjects = new ArrayList<>();
 
+        // Create main equipment
+        creatingMaintEquipment(studyCase, importContext, hvdcConverter, network, slackObjects);
+
+        // Create Hvdc Links
+        hvdcConverter.create();
+
+        // Attach a slack bus
+        new SlackConverter(importContext, network).create(slackObjects);
+
+        LOGGER.info("{} substations, {} voltage levels, {} lines, {} 2w-transformers, {} 3w-transformers, {} generators, {} loads, {} shunts have been created",
+                network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
+                network.getThreeWindingsTransformerCount(), network.getGeneratorCount(), network.getLoadCount(), network.getShuntCompensatorCount());
+
+        setVoltagesAndAngles(network, importContext, elmTerms);
+
+        return network;
+    }
+
+    private static void creatingMaintEquipment(StudyCase studyCase, ImportContext importContext, HvdcConverter hvdcConverter,
+        Network network, List<DataObject> slackObjects) {
         var objs = studyCase.getElmNets().stream()
-                .flatMap(elmNet -> elmNet.search(".*").stream())
-                .collect(Collectors.toList());
+            .flatMap(elmNet -> elmNet.search(".*").stream())
+            .collect(Collectors.toList());
         for (DataObject obj : objs) {
             switch (obj.getDataClassName()) {
                 case "ElmCoup":
@@ -315,20 +335,6 @@ public class PowerFactoryImporter implements Importer {
                     LOGGER.warn("Unexpected data class '{}' ('{}')", obj.getDataClassName(), obj);
             }
         }
-
-        // Create Hvdc Links
-        hvdcConverter.create();
-
-        // Attach a slack bus
-        new SlackConverter(importContext, network).create(slackObjects);
-
-        LOGGER.info("{} substations, {} voltage levels, {} lines, {} 2w-transformers, {} 3w-transformers, {} generators, {} loads, {} shunts have been created",
-                network.getSubstationCount(), network.getVoltageLevelCount(), network.getLineCount(), network.getTwoWindingsTransformerCount(),
-                network.getThreeWindingsTransformerCount(), network.getGeneratorCount(), network.getLoadCount(), network.getShuntCompensatorCount());
-
-        setVoltagesAndAngles(network, importContext, elmTerms);
-
-        return network;
     }
 
     private static void setVoltagesAndAngles(Network network, ImportContext importContext, List<DataObject> elmTerms) {
