@@ -134,6 +134,11 @@ public class MatpowerImporterTest extends AbstractConverterTest {
         testCase(MatpowerModelFactory.create9zeroimpedance());
     }
 
+    @Test
+    public void testCase9DcLine() throws IOException {
+        testCase(MatpowerModelFactory.create9Dcline());
+    }
+
     @Test(expected = UncheckedIOException.class)
     public void testNonexistentCase() throws IOException {
         testNetwork(new MatpowerImporter().importData(new FileDataSource(tmpDir, "unknown"), NetworkFactory.findDefault(), null));

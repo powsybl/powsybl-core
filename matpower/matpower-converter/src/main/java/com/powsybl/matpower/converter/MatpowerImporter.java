@@ -48,6 +48,9 @@ public class MatpowerImporter implements Importer {
     private static final String SUBSTATION_PREFIX = "SUB";
     private static final String TRANSFORMER_PREFIX = "TWT";
     private static final String VOLTAGE_LEVEL_PREFIX = "VL";
+    private static final String CONVERTER_STATION_1_PREFIX = "CS1";
+    private static final String CONVERTER_STATION_2_PREFIX = "CS2";
+    private static final String HVDC_LINE_PREFIX = "HL";
 
     private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("matpower.import.ignore-base-voltage",
             ParameterType.BOOLEAN,
@@ -393,7 +396,7 @@ public class MatpowerImporter implements Importer {
 
     private static void createDcLines(MatpowerModel model, ContainersMapping containerMapping, Network network, Context context) {
         for (MDcLine mDcLine : model.getDcLines()) {
-            String id = getId(TRANSFORMER_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
+            String id = getId(HVDC_LINE_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
             String bus1Id = getId(BUS_PREFIX, mDcLine.getFrom());
             String bus2Id = getId(BUS_PREFIX, mDcLine.getTo());
             String voltageLevel1Id = containerMapping.getVoltageLevelId(mDcLine.getFrom());
@@ -401,8 +404,36 @@ public class MatpowerImporter implements Importer {
             VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
             VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
             boolean isInService = isInService(mDcLine);
-            String connectedBus1 = isInService ? bus1Id : null;
-            String connectedBus2 = isInService ? bus2Id : null;
+            String connectedBus1Id = isInService ? bus1Id : null;
+            String connectedBus2Id = isInService ? bus2Id : null;
+            String csId1 = getId(CONVERTER_STATION_1_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
+            String csId2 = getId(CONVERTER_STATION_2_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
+            voltageLevel1.newVscConverterStation()
+                    .setId(csId1)
+                    .setBus(connectedBus1Id)
+                    .setConnectableBus(bus1Id)
+                    .setVoltageRegulatorOn(true)
+                    .setVoltageSetpoint(mDcLine.getVf() * voltageLevel1.getNominalV())
+                    .setLossFactor(0)
+                    .add();
+            voltageLevel2.newVscConverterStation()
+                    .setId(csId2)
+                    .setBus(connectedBus2Id)
+                    .setConnectableBus(bus2Id)
+                    .setVoltageRegulatorOn(true)
+                    .setVoltageSetpoint(mDcLine.getVt() * voltageLevel2.getNominalV())
+                    .setLossFactor(0)
+                    .add();
+            network.newHvdcLine()
+                    .setId(id)
+                    .setConverterStationId1(csId1)
+                    .setConverterStationId2(csId2)
+                    .setR(0)
+                    .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+                    .setActivePowerSetpoint(mDcLine.getPf())
+                    .setNominalV(voltageLevel1.getNominalV())
+                    .setMaxP(mDcLine.getPmax())
+                    .add();
         }
     }
 
