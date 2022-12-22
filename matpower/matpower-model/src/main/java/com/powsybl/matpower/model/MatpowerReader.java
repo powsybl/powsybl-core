@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -44,7 +45,8 @@ public final class MatpowerReader {
             }
             Struct mpcStruct = mat.getStruct(MATPOWER_STRUCT_NAME);
             Set<String> mpcNames = Sets.newHashSet("version", "baseMVA", "bus", "gen", "branch");
-            if (!mpcStruct.getFieldNames().containsAll(mpcNames)) {
+            Set<String> fieldNames = new HashSet<>(mpcStruct.getFieldNames());
+            if (!fieldNames.containsAll(mpcNames)) {
                 throw new IllegalStateException("expected MATPOWER variables not found: " + mpcNames);
             }
             String version = mpcStruct.get("version").toString().replace("'", "");
@@ -57,9 +59,14 @@ public final class MatpowerReader {
             Matrix generators = mpcStruct.getMatrix("gen");
             Matrix branches = mpcStruct.getMatrix("branch");
             Cell busesNames = null;
-            if (mpcStruct.getFieldNames().contains("bus_name")) {
+            if (fieldNames.contains("bus_name")) {
                 busesNames = mpcStruct.getCell("bus_name");
             }
+            Matrix dcLines = null;
+            if (fieldNames.contains("dcline")) {
+                dcLines = mpcStruct.getMatrix("dcline");
+            }
+
             model = new MatpowerModel(caseName);
             model.setVersion(version);
             model.setBaseMva(baseMVA);
@@ -135,7 +142,34 @@ public final class MatpowerReader {
                 }
                 model.addBranch(branch);
             }
+
+            if (dcLines != null) {
+                for (int row = 0; row < dcLines.getDimensions()[0]; row++) {
+                    MDcLine dcLine = new MDcLine();
+                    for (int col = 0; col < dcLines.getDimensions()[1]; col++) {
+                        dcLine.setFrom(dcLines.getInt(row, 0));
+                        dcLine.setTo(dcLines.getInt(row, 1));
+                        dcLine.setStatus(dcLines.getInt(row, 2));
+                        dcLine.setPf(dcLines.getDouble(row, 3));
+                        dcLine.setPt(dcLines.getDouble(row, 4));
+                        dcLine.setQf(dcLines.getDouble(row, 5));
+                        dcLine.setQt(dcLines.getDouble(row, 6));
+                        dcLine.setVf(dcLines.getDouble(row, 7));
+                        dcLine.setVt(dcLines.getDouble(row, 8));
+                        dcLine.setPmin(dcLines.getDouble(row, 9));
+                        dcLine.setPmax(dcLines.getDouble(row, 10));
+                        dcLine.setQminf(dcLines.getDouble(row, 11));
+                        dcLine.setQmaxf(dcLines.getDouble(row, 12));
+                        dcLine.setQmint(dcLines.getDouble(row, 13));
+                        dcLine.setQmaxt(dcLines.getDouble(row, 14));
+                        dcLine.setLoss0(dcLines.getDouble(row, 15));
+                        dcLine.setLoss1(dcLines.getDouble(row, 16));
+                    }
+                    model.addDcLine(dcLine);
+                }
+            }
         }
+
         return model;
     }
 }

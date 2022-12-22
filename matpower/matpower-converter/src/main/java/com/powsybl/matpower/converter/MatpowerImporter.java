@@ -287,6 +287,10 @@ public class MatpowerImporter implements Importer {
         return Math.abs(branch.getStatus()) > 0;
     }
 
+    private static boolean isInService(MDcLine dcLine) {
+        return Math.abs(dcLine.getStatus()) > 0;
+    }
+
     private static boolean isInService(MGen generator) {
         return generator.getStatus() > 0;
     }
@@ -387,6 +391,21 @@ public class MatpowerImporter implements Importer {
         }
     }
 
+    private static void createDcLines(MatpowerModel model, ContainersMapping containerMapping, Network network, Context context) {
+        for (MDcLine mDcLine : model.getDcLines()) {
+            String id = getId(TRANSFORMER_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
+            String bus1Id = getId(BUS_PREFIX, mDcLine.getFrom());
+            String bus2Id = getId(BUS_PREFIX, mDcLine.getTo());
+            String voltageLevel1Id = containerMapping.getVoltageLevelId(mDcLine.getFrom());
+            String voltageLevel2Id = containerMapping.getVoltageLevelId(mDcLine.getTo());
+            VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
+            VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
+            boolean isInService = isInService(mDcLine);
+            String connectedBus1 = isInService ? bus1Id : null;
+            String connectedBus2 = isInService ? bus2Id : null;
+        }
+    }
+
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
@@ -460,6 +479,8 @@ public class MatpowerImporter implements Importer {
                 createBuses(model, containerMapping, network, context);
 
                 createBranches(model, containerMapping, network, context);
+
+                createDcLines(model, containerMapping, network, context);
 
                 for (Bus slackBus : context.getSlackBuses()) {
                     SlackTerminal.attach(slackBus);

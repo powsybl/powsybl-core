@@ -7,6 +7,7 @@
 package com.powsybl.matpower.model;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.After;
@@ -24,7 +25,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class MatpowerReaderWriterTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectWriter mapper = new ObjectMapper()
+            .writerWithDefaultPrettyPrinter();
 
     private FileSystem fileSystem;
 
@@ -80,6 +82,11 @@ public class MatpowerReaderWriterTest {
     @Test
     public void testCase300() throws IOException {
         testMatpowerFile(MatpowerModelFactory.create300());
+    }
+
+    @Test
+    public void testCase9DcLine() throws IOException {
+        testMatpowerFile(MatpowerModelFactory.create9Dcline());
     }
 
     @Test(expected = IllegalStateException.class)
