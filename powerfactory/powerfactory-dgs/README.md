@@ -7,44 +7,72 @@ in your database. This basic configuration does not provide all necessary object
 achieve a correct conversion of the initial data model (and get a calculated state when running a load flow close to 
 one calculated by PowerFactory).
 
-Two and three windings transformer taps definition attributes need to be added to existing configuration.
-Optionally voltage magnitude and angle could be added to terminal to compare calculated state with PowerFactory one.
-VSC and common impedance configuration are totally missing and need to be created:
 
-2-Winding Transformer.IntMon (class ElmTr2)
- - e:mTaps
 
-3-Winding Transformer.IntMon (class ElmTr3)
-e:mTaps
-e:iMeasTap
+Two and three windings transformer taps definition attributes need to be added to existing configuration. Optionally voltage magnitude and angle could be added to terminal to compare calculated state with PowerFactory one. VSC and common impedance configuration are totally missing and need to be created.
 
-Terminal.IntMon (class ElmTerm)
-- m:u
-- m:phiu
+- 2-Winding Transformer.IntMon (class ElmTr2)
+   - e:mTaps
 
-PWM Converter/2 DC-Connections.IntMon (class ElmVsc)
-- e:loc_name
-- e:fold_id
-- e:psetp
-- e:qsetp
-- e:usetp
-- e:Pnold
-- e:Unom
-- e:P_max
 
-Common Impedance.IntMon (class ElmZpu)
-- e:loc_name
-- e:outserv
-- e:Sn
-- e:nphases
-- e:nphshift
-- e:ag
-- e:fold_id
-- e:r_pu
-- e:x_pu
-- e:r_pu_ji
-- e:x_pu_ji
-- e:gi_pu
-- e:bi_pu
-- e:gj_pu
-- e:bj_pu
+- 3-Winding Transformer.IntMon (class ElmTr3)
+  - e:mTaps
+  - e:iMeasTap
+
+- Terminal.IntMon (class ElmTerm)
+
+  - m:u
+
+  - m:phiu
+
+
+- PWM Converter/2 DC-Connections.IntMon (class ElmVsc)
+
+  - e:loc_name
+
+  - e:fold_id
+
+  - e:psetp
+
+  - e:qsetp
+
+  - e:usetp
+
+  - e:Pnold
+
+  - e:Unom
+
+  - e:P_max
+
+
+- Common Impedance.IntMon (class ElmZpu)
+
+  - e:loc_name
+
+  - e:outserv
+
+  - e:Sn
+
+  - e:nphases
+
+  - e:nphshift
+
+  - e:ag
+
+  - e:fold_id
+
+  - e:r_pu
+
+  - e:x_pu
+
+  - e:r_pu_ji
+
+  - e:x_pu_ji
+
+  - e:gi_pu
+
+  - e:bi_pu
+
+  - e:gj_pu
+
+  - e:bj_pu
