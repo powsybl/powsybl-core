@@ -59,10 +59,9 @@ public class DgsReader {
 
         private DataObject object;
 
-        private String descr;
-
         @Override
         public void onGeneralAttribute(String descr, String val) {
+            // nothing to do
         }
 
         @Override

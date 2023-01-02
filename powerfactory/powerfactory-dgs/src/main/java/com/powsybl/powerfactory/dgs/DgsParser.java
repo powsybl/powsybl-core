@@ -276,12 +276,10 @@ public class DgsParser {
         String descr = fields[1];
         String val = fields[2];
         if (descr.equals(VERSION)) {
-            switch (val) {
-                case "5.0":
-                    context.version = DgsVersion.V5;
-                    break;
-                default:
-                    throw new PowerFactoryException("Unsupported DGS ASCII version: " + val);
+            if (val.equals("5.0")) {
+                context.version = DgsVersion.V5;
+            } else {
+                throw new PowerFactoryException("Unsupported DGS ASCII version: " + val);
             }
         }
         handler.onGeneralAttribute(descr, val);
