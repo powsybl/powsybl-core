@@ -38,9 +38,24 @@ public class DgsParser {
     private static final DataAttributeType DEFAULT_MATRIX_TYPE = DataAttributeType.FLOAT;
     private static final Logger LOGGER = LoggerFactory.getLogger(DgsParser.class);
 
+    public static final String VERSION = "Version";
+
+    public static final String ID = "ID";
+
+    enum DgsVersion {
+        V5,
+        V6,
+        V7
+    }
+
     private static final class ParsingContext {
 
-        List<ElementData> elementData;
+        private boolean general = false;
+
+        private DgsVersion version;
+
+        private List<ElementData> elementData;
+
         private boolean decimalSeparatorIsComma = false;
 
         private double parseDouble(String value) {
@@ -65,36 +80,40 @@ public class DgsParser {
         }
     }
 
-    private static void readTableHeader(String trimmedLine, DgsHandler handler, ParsingContext context) {
+    private static void readObjectTableHeader(String trimmedLine, DgsHandler handler, ParsingContext context) {
         String[] fields = trimmedLine.split(";");
 
         String className = fields[0].substring(2);
-        handler.onTableHeader(className);
+
+        handler.onObjectTableHeader(className);
 
         context.elementData = new ArrayList<>();
 
         int index = 1;
         while (index < fields.length) {
-            if (isMatrixHeader(fields, index, fields.length)) {
-                index = readMatrixHeader(fields, index, fields.length, handler, context);
-            } else if (isVectorHeader(fields, index)) {
-                index = readVectorHeader(fields, index, fields.length, handler, context);
+            if (isMatrixAttributeHeader(fields, index, fields.length)) {
+                index = readMatrixAttributeHeader(fields, index, fields.length, handler, context);
+            } else if (isVectorAttributeHeader(fields, index)) {
+                index = readVectorAttributeHeader(fields, index, fields.length, handler, context);
             } else {
-                readAttributeHeader(fields, index, handler, context);
+                readSimpleAttributeHeader(fields, index, handler, context);
             }
             index++;
         }
     }
 
-    private static int readAttributeHeader(String[] fields, int index, DgsHandler handler, ParsingContext context) {
+    private static void readSimpleAttributeHeader(String[] fields, int index, DgsHandler handler, ParsingContext context) {
         AttributeHeader attributeHeader = readAttributeHeader(fields, index);
 
-        handler.onAttributeDescription(attributeHeader.attributeName, attributeHeader.attributeType);
-        context.elementData.add(new ElementData(attributeHeader.attributeName, attributeHeader.attributeType, index - 1));
-        return index;
+        if (context.version == DgsVersion.V5 && attributeHeader.attributeName.equals(ID)) {
+            context.elementData.add(new IdElementData(index - 1));
+        } else {
+            handler.onAttributeDescription(attributeHeader.attributeName, attributeHeader.attributeType);
+            context.elementData.add(new SimpleElementData(attributeHeader.attributeName, attributeHeader.attributeType, index - 1));
+        }
     }
 
-    private static boolean isMatrixHeader(String[] fields, int index, int fieldsLength) {
+    private static boolean isMatrixAttributeHeader(String[] fields, int index, int fieldsLength) {
         if (index + 1 >= fieldsLength) {
             return false;
         }
@@ -102,7 +121,7 @@ public class DgsParser {
             && readAttributeNameHeader(fields, index + 1).contains(":SIZECOL");
     }
 
-    private static int readMatrixHeader(String[] fields, int initialIndex, int fieldsLength, DgsHandler handler, ParsingContext context) {
+    private static int readMatrixAttributeHeader(String[] fields, int initialIndex, int fieldsLength, DgsHandler handler, ParsingContext context) {
         int index = initialIndex;
         AttributeHeader rowAttributeHeader = readAttributeHeader(fields, index);
         String[] rowMatrixFields = splitAndCheckAttributeNameHeader(rowAttributeHeader.attributeName, 2);
@@ -123,8 +142,8 @@ public class DgsParser {
 
             if (isSplitOk(nextMatrixFields, matrixNameHeader, 3)) {
                 matrixTypeHeader = nextAttributeHeader.attributeType;
-                matrixRows = Integer.valueOf(nextMatrixFields[1]) + 1;
-                matrixCols = Integer.valueOf(nextMatrixFields[2]) + 1;
+                matrixRows = Integer.parseInt(nextMatrixFields[1]) + 1;
+                matrixCols = Integer.parseInt(nextMatrixFields[2]) + 1;
                 index++;
                 exitLoop = index + 1 >= fieldsLength;
             } else {
@@ -137,11 +156,11 @@ public class DgsParser {
         return index;
     }
 
-    private static boolean isVectorHeader(String[] fields, int index) {
+    private static boolean isVectorAttributeHeader(String[] fields, int index) {
         return readAttributeNameHeader(fields, index).contains(":SIZEROW");
     }
 
-    private static int readVectorHeader(String[] fields, int initialIndex, int fieldsLength, DgsHandler handler, ParsingContext context) {
+    private static int readVectorAttributeHeader(String[] fields, int initialIndex, int fieldsLength, DgsHandler handler, ParsingContext context) {
         int index = initialIndex;
         AttributeHeader attributeHeader = readAttributeHeader(fields, index);
         String[] vectorFields = splitAndCheckAttributeNameHeader(attributeHeader.attributeName, 2);
@@ -158,7 +177,7 @@ public class DgsParser {
 
             if (isSplitOk(nextVectorFields, vectorNameHeader, 2)) {
                 vectorTypeHeader = nextAttributeHeader.attributeType;
-                vectorLength = Integer.valueOf(nextVectorFields[1]) + 1;
+                vectorLength = Integer.parseInt(nextVectorFields[1]) + 1;
                 index++;
                 exitLoop = index + 1 >= fieldsLength;
             } else {
@@ -211,7 +230,7 @@ public class DgsParser {
         return true;
     }
 
-    private static void readTableRow(String trimmedLine, DgsHandler handler, ParsingContext context) {
+    private static void readObjectTableRow(String trimmedLine, DgsHandler handler, ParsingContext context) {
         Objects.requireNonNull(context.elementData);
         String[] fields = splitConsideringQuotedText(trimmedLine);
         for (ElementData elementData : context.elementData) {
@@ -233,14 +252,39 @@ public class DgsParser {
                 }
 
                 if (trimmedLine.startsWith("$$")) { // table header
-                    readTableHeader(trimmedLine, handler, context);
+                    if (trimmedLine.startsWith("$$General")) {
+                        context.general = true;
+                    } else {
+                        context.general = false;
+                        readObjectTableHeader(trimmedLine, handler, context);
+                    }
                 } else {
-                    readTableRow(trimmedLine, handler, context);
+                    if (context.general) {
+                        readGeneralTableRow(trimmedLine, handler, context);
+                    } else {
+                        readObjectTableRow(trimmedLine, handler, context);
+                    }
                 }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static void readGeneralTableRow(String trimmedLine, DgsHandler handler, ParsingContext context) {
+        String[] fields = splitConsideringQuotedText(trimmedLine);
+        String descr = fields[1];
+        String val = fields[2];
+        if (descr.equals(VERSION)) {
+            switch (val) {
+                case "5.0":
+                    context.version = DgsVersion.V5;
+                    break;
+                default:
+                    throw new PowerFactoryException("Unsupported DGS ASCII version: " + val);
+            }
+        }
+        handler.onGeneralAttribute(descr, val);
     }
 
     private static String[] splitConsideringQuotedText(String line) {
@@ -320,18 +364,48 @@ public class DgsParser {
         }
     }
 
-    private static class ElementData {
+    private interface ElementData {
+        void read(String[] fields, DgsHandler handler, ParsingContext context);
+    }
+
+    private abstract static class AbstractElementData implements ElementData {
+
         protected final String attributeName;
         protected final DataAttributeType attributeType;
         protected final int indexField;
 
-        protected ElementData(String attributeName, DataAttributeType attributeType, int indexField) {
+        protected AbstractElementData(String attributeName, DataAttributeType attributeType, int indexField) {
             this.attributeName = attributeName;
             this.attributeType = attributeType;
             this.indexField = indexField;
         }
 
-        protected void read(String[] fields, DgsHandler handler, ParsingContext context) {
+        protected static boolean isValidField(String[] fields, int index) {
+            return fields.length > index && !fields[index].isEmpty();
+        }
+    }
+
+    private static final class IdElementData implements ElementData {
+
+        private final int index;
+
+        private IdElementData(int index) {
+            this.index = index;
+        }
+
+        @Override
+        public void read(String[] fields, DgsHandler handler, ParsingContext context) {
+            handler.onID(Long.parseLong(fields[index]));
+        }
+    }
+
+    private static final class SimpleElementData extends AbstractElementData {
+
+        private SimpleElementData(String attributeName, DataAttributeType attributeType, int indexField) {
+            super(attributeName, attributeType, indexField);
+        }
+
+        public void read(String[] fields, DgsHandler handler, ParsingContext context) {
             switch (attributeType) {
                 case STRING:
                     read(fields, Function.identity(), handler::onStringValue);
@@ -356,13 +430,9 @@ public class DgsParser {
                 onValue.accept(attributeName, parser.apply(value));
             }
         }
-
-        static boolean isValidField(String[] fields, int index) {
-            return fields.length > index && !fields[index].isEmpty();
-        }
     }
 
-    private static final class ElementDataVector extends ElementData {
+    private static final class ElementDataVector extends AbstractElementData {
         private final int length;
 
         private ElementDataVector(String attributeName, DataAttributeType attributeType, int indexField, int length) {
@@ -371,7 +441,7 @@ public class DgsParser {
         }
 
         @Override
-        protected void read(String[] fields, DgsHandler handler, ParsingContext context) {
+        public void read(String[] fields, DgsHandler handler, ParsingContext context) {
             switch (attributeType) {
                 case STRING_VECTOR:
                     readVector(fields, Function.identity(), handler::onStringVectorValue);
@@ -417,7 +487,7 @@ public class DgsParser {
         }
     }
 
-    private static final class ElementDataMatrix extends ElementData {
+    private static final class ElementDataMatrix extends AbstractElementData {
         private final int rows;
         private final int cols;
 
@@ -428,7 +498,7 @@ public class DgsParser {
         }
 
         @Override
-        protected void read(String[] fields, DgsHandler handler, ParsingContext context) {
+        public void read(String[] fields, DgsHandler handler, ParsingContext context) {
             read(fields, context).ifPresent(m -> handler.onDoubleMatrixValue(attributeName, m));
         }
 
