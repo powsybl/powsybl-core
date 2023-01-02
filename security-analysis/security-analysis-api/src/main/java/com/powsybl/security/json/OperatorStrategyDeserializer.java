@@ -16,6 +16,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.security.condition.Condition;
 import com.powsybl.security.strategy.OperatorStrategy;
 
@@ -37,6 +39,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
 
     private static class ParsingContext {
         String id;
+        ContingencyContextType contingencyContextType;
         String contingencyId;
         Condition condition;
         List<String> actionIds;
@@ -51,6 +54,9 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                 case "id":
                     parser.nextToken();
                     context.id = parser.getValueAsString();
+                    return true;
+                case "contingencyContextType":
+                    context.contingencyContextType = ContingencyContextType.valueOf(parser.nextTextValue());
                     return true;
                 case "contingencyId":
                     parser.nextToken();
@@ -73,7 +79,9 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                     return false;
             }
         });
-        OperatorStrategy operatorStrategy = new OperatorStrategy(context.id, context.contingencyId, context.condition, context.actionIds);
+        ContingencyContext contingencyContext = new ContingencyContext(context.contingencyId,
+                context.contingencyContextType != null ? context.contingencyContextType : ContingencyContextType.SPECIFIC);
+        OperatorStrategy operatorStrategy = new OperatorStrategy(context.id, contingencyContext, context.condition, context.actionIds);
         SUPPLIER.get().addExtensions(operatorStrategy, context.extensions);
         return operatorStrategy;
     }

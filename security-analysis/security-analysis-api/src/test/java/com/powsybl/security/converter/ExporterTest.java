@@ -70,7 +70,7 @@ public class ExporterTest extends AbstractConverterTest {
         List<BusResult> preContingencyBusResults = List.of(new BusResult("voltageLevelId", "busId", 400, 3.14));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = List.of(new ThreeWindingsTransformerResult("threeWindingsTransformerId", 1, 2, 3, 1.1, 2.1, 3.1, 1.2, 2.2, 3.2));
         List<OperatorStrategyResult> operatorStrategyResults = new ArrayList<>();
-        operatorStrategyResults.add(new OperatorStrategyResult(new OperatorStrategy("strategyId", "contingency1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")),
+        operatorStrategyResults.add(new OperatorStrategyResult(new OperatorStrategy("strategyId", ContingencyContext.specificContingency("contingency1"), new AtLeastOneViolationCondition(Collections.singletonList("violationId1")),
                 Collections.singletonList("actionId1")), PostContingencyComputationStatus.CONVERGED, new LimitViolationsResult(Collections.emptyList()),
                 new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList())));
         SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, LoadFlowResult.ComponentResult.Status.CONVERGED,

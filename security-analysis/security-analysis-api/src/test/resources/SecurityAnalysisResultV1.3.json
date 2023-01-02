@@ -148,7 +148,6 @@
   "operatorStrategyResults" : [ {
     "operatorStrategy" : {
       "id" : "strategyId",
-      "contingencyContextType" : "SPECIFIC",
       "contingencyId" : "contingency1",
       "condition" : {
         "type" : "AT_LEAST_ONE_VIOLATION",
