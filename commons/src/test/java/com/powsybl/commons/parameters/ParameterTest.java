@@ -80,6 +80,12 @@ public class ParameterTest {
 
         config.createModuleConfig("import-export-parameters-default-value").setStringProperty("test-param-double", "0.06");
         assertEquals(0.06, Parameter.readDouble("TEST", new Properties(), paramDouble, new ParameterDefaultValueConfig(config)), 1e-8);
+
+        properties.put("test-param-int", 666);
+        Parameter paramInt = new Parameter("test-param-int", ParameterType.INTEGER, "", 999);
+        Parameter paramInt2 = new Parameter("test-param-int2", ParameterType.INTEGER, "", 888);
+        assertEquals(666, Parameter.readInteger("TEST", properties, paramInt, ParameterDefaultValueConfig.INSTANCE));
+        assertEquals(888, Parameter.readInteger("TEST", properties, paramInt2, ParameterDefaultValueConfig.INSTANCE));
     }
 
     @Test
