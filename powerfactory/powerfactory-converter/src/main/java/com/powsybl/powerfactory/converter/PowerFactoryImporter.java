@@ -164,7 +164,7 @@ public class PowerFactoryImporter implements Importer {
         List<DataObject> slackObjects = new ArrayList<>();
 
         // Create main equipment
-        creatingMaintEquipment(studyCase, importContext, hvdcConverter, network, slackObjects);
+        convertEquipment(studyCase, importContext, hvdcConverter, network, slackObjects);
 
         // Create Hvdc Links
         hvdcConverter.create();
@@ -181,7 +181,7 @@ public class PowerFactoryImporter implements Importer {
         return network;
     }
 
-    private static void creatingMaintEquipment(StudyCase studyCase, ImportContext importContext, HvdcConverter hvdcConverter,
+    private static void convertEquipment(StudyCase studyCase, ImportContext importContext, HvdcConverter hvdcConverter,
         Network network, List<DataObject> slackObjects) {
         var objs = studyCase.getElmNets().stream()
             .flatMap(elmNet -> elmNet.search(".*").stream())
