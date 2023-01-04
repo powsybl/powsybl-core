@@ -8,6 +8,7 @@ package com.powsybl.commons.parameters;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import org.junit.After;
 import org.junit.Before;
@@ -129,5 +130,11 @@ public class ParameterTest {
         assertEquals(ParameterScope.FUNCTIONAL, param.getScope());
         Parameter param2 = new Parameter("test-param2", ParameterType.STRING, "", "yes", null, ParameterScope.TECHNICAL);
         assertEquals(ParameterScope.TECHNICAL, param2.getScope());
+    }
+
+    @Test
+    public void intParameterNullDefaultValueErrorTest() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> new Parameter("i", ParameterType.INTEGER, "an integer", null));
+        assertEquals("With Integer parameter you are not allowed to pass a null default value", e.getMessage());
     }
 }
