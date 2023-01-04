@@ -6,6 +6,7 @@
  */
 package com.powsybl.loadflow;
 
+import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
@@ -37,6 +38,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvider {
+
+    static List<LoadFlowProvider> findAll() {
+        return Lists.newArrayList(ServiceLoader.load(LoadFlowProvider.class, LoadFlowProvider.class.getClassLoader()));
+    }
 
     /**
      * Run a loadflow on variant {@code workingVariantId} of {@code network} delegating external program execution to
