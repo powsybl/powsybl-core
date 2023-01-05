@@ -11,12 +11,14 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * Service Provider Interface for loadflow implementations.
@@ -111,11 +113,22 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     }
 
     /**
-     * get the list of the specific parameters names.
+     * Get the list of the specific parameters names.
+     * @deprecated Use {@link #getSpecificParameters()} instead.
      *
      * @return the list of the specific parameters names.
      */
+    @Deprecated
     default List<String> getSpecificParametersNames() {
+        return getSpecificParameters().stream().map(Parameter::getName).collect(Collectors.toList());
+    }
+
+    /**
+     * Get the list of the specific parameters.
+     *
+     * @return the list of the specific parameters.
+     */
+    default List<Parameter> getSpecificParameters() {
         return Collections.emptyList();
     }
 }

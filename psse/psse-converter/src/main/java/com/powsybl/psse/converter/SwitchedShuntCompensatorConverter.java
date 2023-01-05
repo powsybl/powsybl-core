@@ -79,7 +79,10 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         if (regulatingTerminal == null) {
             return;
         }
-        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseSwitchedShunt);
+        if (!isControllingVoltage(psseSwitchedShunt)) {
+            return;
+        }
+        boolean psseVoltageRegulatorOn = true;
         double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double vLow = psseSwitchedShunt.getVswlo() * vnom;
         double vHigh = psseSwitchedShunt.getVswhi() * vnom;
@@ -97,8 +100,8 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
             .setRegulatingTerminal(regulatingTerminal);
     }
 
-    private static boolean defineVoltageRegulatorOn(PsseSwitchedShunt psseSwitchedShunt) {
-        return psseSwitchedShunt.getModsw() != 0;
+    private static boolean isControllingVoltage(PsseSwitchedShunt psseSwitchedShunt) {
+        return psseSwitchedShunt.getModsw() == 1 || psseSwitchedShunt.getModsw() == 2;
     }
 
     // Nreg (version 35) is not yet considered

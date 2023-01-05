@@ -39,7 +39,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     public void roundTrip() throws IOException {
         LoadFlowParameters parameters = new LoadFlowParameters()
                 .setVoltageInitMode(PREVIOUS_VALUES)
-                .setNoGeneratorReactiveLimits(true)
+                .setUseReactiveLimits(false)
                 .setTransformerVoltageControlOn(true);
         roundTripTest(parameters, JsonLoadFlowParameters::write, JsonLoadFlowParameters::read, "/LoadFlowParameters.json");
     }
@@ -129,6 +129,13 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
         LoadFlowParameters parameters = JsonLoadFlowParameters
                 .read(getClass().getResourceAsStream("/LoadFlowParametersVersion17.json"));
         assertTrue(parameters.isHvdcAcEmulation());
+    }
+
+    @Test
+    public void readJsonVersion18() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion18.json"));
+        assertFalse(parameters.isUseReactiveLimits());
     }
 
     @Test
