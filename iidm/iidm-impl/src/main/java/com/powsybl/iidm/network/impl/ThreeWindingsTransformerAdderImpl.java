@@ -150,11 +150,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             if (connectableBus == null) {
                 return null;
             }
-            BusExt bus = (BusExt) getNetwork().getBusBreakerView().getBus(connectableBus);
-            if (bus == null) {
+            BusExt busExt = (BusExt) getNetwork().getBusBreakerView().getBus(connectableBus);
+            if (busExt == null) {
                 throw new ValidationException(this, "bus ID '" + connectableBus + "' not found");
             }
-            return bus.getVoltageLevel().getId();
+            return busExt.getVoltageLevel().getId();
         }
 
         protected void checkConnectableBus() {

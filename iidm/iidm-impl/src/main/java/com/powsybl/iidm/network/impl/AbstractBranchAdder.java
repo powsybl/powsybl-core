@@ -69,8 +69,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         }
         VoltageLevelExt voltageLevel1 = getNetwork().getVoltageLevel(voltageLevelId1);
         if (voltageLevel1 == null) {
-            throw new ValidationException(this, "first voltage level '"
-                    + voltageLevelId1 + "' not found");
+            throw new ValidationException(this, getNotFoundMessage("first voltage level", voltageLevelId1));
         }
         return voltageLevel1;
     }
@@ -114,8 +113,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         }
         VoltageLevelExt voltageLevel2 = getNetwork().getVoltageLevel(voltageLevelId2);
         if (voltageLevel2 == null) {
-            throw new ValidationException(this, "second voltage level '"
-                    + voltageLevelId2 + "' not found");
+            throw new ValidationException(this, getNotFoundMessage("second voltage level", voltageLevelId2));
         }
         return voltageLevel2;
     }
@@ -124,11 +122,11 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         if (connectableBus == null) {
             return null;
         }
-        BusExt bus = (BusExt) getNetwork().getBusBreakerView().getBus(connectableBus);
-        if (bus == null) {
-            throw new ValidationException(this, "bus ID '" + connectableBus + "' not found");
+        BusExt busExt = (BusExt) getNetwork().getBusBreakerView().getBus(connectableBus);
+        if (busExt == null) {
+            throw new ValidationException(this, getNotFoundMessage("bus", connectableBus));
         }
-        return bus.getVoltageLevel().getId();
+        return busExt.getVoltageLevel().getId();
     }
 
     protected void checkConnectableBuses() {
@@ -138,5 +136,9 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         if (connectableBus2 == null && bus2 != null) {
             connectableBus2 = bus2;
         }
+    }
+
+    private static String getNotFoundMessage(String type, String id) {
+        return type + " '" + id + "' not found";
     }
 }
