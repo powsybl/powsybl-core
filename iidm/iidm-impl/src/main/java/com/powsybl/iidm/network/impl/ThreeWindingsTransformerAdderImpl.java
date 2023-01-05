@@ -147,15 +147,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
 
         private String checkAndGetDefaultVoltageLevelId() {
-            if (connectableBus != null) {
-                VoltageLevelExt defaultVoltageLevel = (VoltageLevelExt) getNetwork().getBusBreakerView()
-                        .getBus(connectableBus)
-                        .getVoltageLevel();
-                if (defaultVoltageLevel.getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
-                    return defaultVoltageLevel.getId();
-                }
+            BusExt bus = (BusExt) getNetwork().getBusBreakerView().getBus(connectableBus);
+            if (bus == null) {
+                throw new ValidationException(this, "bus ID '" + connectableBus + "' not found");
             }
-            return null;
+            return bus.getVoltageLevel().getId();
         }
 
         protected void checkConnectableBus() {

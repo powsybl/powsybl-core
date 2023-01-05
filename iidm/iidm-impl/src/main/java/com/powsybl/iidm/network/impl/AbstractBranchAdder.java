@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.TopologyKind;
+
 import com.powsybl.iidm.network.ValidationException;
 
 /**
@@ -122,15 +122,11 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
     }
 
     private String checkAndGetDefaultVoltageLevelId(String connectableBus) {
-        if (connectableBus != null) {
-            VoltageLevelExt defaultVoltageLevel = (VoltageLevelExt) getNetwork().getBusBreakerView()
-                    .getBus(connectableBus)
-                    .getVoltageLevel();
-            if (defaultVoltageLevel.getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
-                return defaultVoltageLevel.getId();
-            }
+        BusExt bus = (BusExt) getNetwork().getBusBreakerView().getBus(connectableBus);
+        if (bus == null) {
+            throw new ValidationException(this, "bus ID '" + connectableBus + "' not found");
         }
-        return null;
+        return bus.getVoltageLevel().getId();
     }
 
     protected void checkConnectableBuses() {
