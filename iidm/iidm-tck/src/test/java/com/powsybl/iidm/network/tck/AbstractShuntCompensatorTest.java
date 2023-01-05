@@ -183,6 +183,30 @@ public abstract class AbstractShuntCompensatorTest {
     }
 
     @Test
+    public void testDefaultShuntCompensator() {
+        ShuntCompensatorAdder adder = createShuntAdder(SHUNT, "shuntName", 6, terminal, true, 200, 10);
+        adder.newLinearModel()
+                .setBPerSection(5.0)
+                .setMaximumSectionCount(10)
+                .add();
+        ShuntCompensator shuntCompensator = adder.add();
+
+        ShuntCompensatorLinearModel shuntLinearModel = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
+        assertTrue(Double.isNaN(shuntLinearModel.getGPerSection()));
+        assertEquals(0.0, shuntCompensator.getG(), 0.0);
+
+        shuntCompensator.remove();
+        adder.setSectionCount(1)
+             .newNonLinearModel()
+                .beginSection()
+                    .setB(5.0)
+                .endSection()
+                .add();
+        ShuntCompensator shuntCompensator2 = adder.setId(SHUNT + "_2").add();
+        assertEquals(0.0, shuntCompensator2.getG(0), 0.0);
+    }
+
+    @Test
     public void invalidbPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("section susceptance is invalid");
