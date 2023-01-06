@@ -13,6 +13,7 @@ import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,7 +21,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -45,6 +46,21 @@ public class Cgmes3ModifiedConversionTest {
         System.out.println(network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().tabulateLocals());
         assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
         assertEquals(5, network.getDanglingLineCount());
+    }
+
+    @Test
+    public void microGridGeographicalRegionInBoundary() {
+        Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseGeographicalRegionInBoundary().dataSource(), null);
+        Substation anvers = network.getSubstation("87f7002b-056f-4a6a-a872-1744eea757e3");
+        Substation brussels = network.getSubstation("37e14a0f-5e34-4647-a062-8bfd9305fa9d");
+        assertNotNull(anvers);
+        assertNotNull(brussels);
+        assertTrue(anvers.getGeographicalTags().contains("ELIA-Anvers"));
+        assertTrue(brussels.getGeographicalTags().contains("ELIA-Brussels"));
+        assertNotNull(anvers.getNullableCountry());
+        assertNotNull(brussels.getNullableCountry());
+        assertEquals("BE", anvers.getNullableCountry().toString());
+        assertEquals("BE", brussels.getNullableCountry().toString());
     }
 
     private FileSystem fileSystem;
