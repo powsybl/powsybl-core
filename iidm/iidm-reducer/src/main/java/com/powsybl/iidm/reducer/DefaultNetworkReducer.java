@@ -97,14 +97,25 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         boolean test1 = getPredicate().test(vl1);
         boolean test2 = getPredicate().test(vl2);
         boolean test3 = getPredicate().test(vl3);
+
         if (!(test1 || test2 || test3)) {
             transformer.remove();
         } else if (test1 ^ test2 ^ test3) {
-            Terminal terminalToKeep = test1 ? terminal1 : (test2 ? terminal2 : terminal3);
+            Terminal terminalToKeep;
+            if (test1) {
+                terminalToKeep = terminal1;
+            } else {
+                terminalToKeep = test2 ? terminal2 : terminal3;
+            }
             VoltageLevel vlToKeep = terminalToKeep.getVoltageLevel();
             replace3WTransformerByLoad(transformer, vlToKeep, terminalToKeep);
         } else {
-            Terminal terminalToRemove = test1 ? (test2 ? terminal3 : terminal2) : terminal1;
+            Terminal terminalToRemove;
+            if (!test1) {
+                terminalToRemove = terminal1;
+            } else {
+                terminalToRemove = test2 ? terminal3 : terminal2;
+            }
             replace3WTransformerBy2WTransformers(transformer, terminalToRemove);
         }
 
@@ -194,6 +205,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     private void replace3WTransformerBy2WTransformers(ThreeWindingsTransformer transformer, Terminal terminal) {
         throw new UnsupportedOperationException("Reduction of three-windings transformers is not supported");
+
+        // create a virtual voltage level, 2 2WTransformer corresponding to each remaining leg connected to this vl + 1 load to replace the removed leg
     }
 
     private Load replaceBranchByLoad(Branch<?> branch, VoltageLevel vl, Terminal terminal) {
