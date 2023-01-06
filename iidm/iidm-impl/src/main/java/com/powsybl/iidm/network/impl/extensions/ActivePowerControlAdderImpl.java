@@ -46,4 +46,5 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
         this.participationFactor = participationFactor;
         return this;
     }
+
 }
