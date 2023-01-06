@@ -6,6 +6,7 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.reporter.Reporter;
@@ -13,6 +14,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -24,6 +26,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  */
 public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
+
+    static List<ShortCircuitAnalysisProvider> findAll() {
+        return Lists.newArrayList(ServiceLoader.load(ShortCircuitAnalysisProvider.class, ShortCircuitAnalysisProvider.class.getClassLoader()));
+    }
 
     /**
      * Run an asynchronous single short circuit analysis job.

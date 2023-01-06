@@ -194,6 +194,53 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     }
 
     @Test
+    public void testDefaultValuesThreeWindingTransformer() {
+        ThreeWindingsTransformerAdder transformerAdder = substation.newThreeWindingsTransformer()
+                            .setId("twt")
+                            .setName(TWT_NAME)
+                            .newLeg1()
+                                .setR(1.3)
+                                .setX(1.4)
+                                .setRatedU(1.1)
+                                .setRatedS(1.2)
+                                .setBus("busA")
+                            .add()
+                            .newLeg2()
+                                .setR(2.03)
+                                .setX(2.04)
+                                .setRatedU(2.05)
+                                .setRatedS(2.06)
+                                .setConnectableBus("busB")
+                            .add()
+                            .newLeg3()
+                                .setR(3.3)
+                                .setX(3.4)
+                                .setRatedU(3.5)
+                                .setRatedS(3.6)
+                                .setConnectableBus("busB")
+                            .add();
+        ThreeWindingsTransformer transformer = transformerAdder.add();
+
+        ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
+        assertEquals(0.0, leg1.getG(), 0.0);
+        assertEquals(0.0, leg1.getB(), 0.0);
+
+        ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+        assertEquals(0.0, leg2.getG(), 0.0);
+        assertEquals(0.0, leg2.getB(), 0.0);
+
+        ThreeWindingsTransformer.Leg leg3 = transformer.getLeg1();
+        assertEquals(0.0, leg3.getG(), 0.0);
+        assertEquals(0.0, leg3.getB(), 0.0);
+
+        VoltageLevel vl1 = network.getVoltageLevel("vl1");
+        VoltageLevel vl2 = network.getVoltageLevel("vl2");
+        assertSame(vl1, leg1.getTerminal().getVoltageLevel());
+        assertSame(vl2, leg2.getTerminal().getVoltageLevel());
+        assertSame(vl1, leg3.getTerminal().getVoltageLevel());
+    }
+
+    @Test
     public void invalidSubstationContainer() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("3 windings transformer 'twt': the 3 windings of the transformer shall belong to the substation 'sub'");
@@ -566,6 +613,19 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         thrown.expect(ValidationException.class);
         thrown.expectMessage("3 windings transformer leg1 in substation sub: voltage level is not set");
 
+        VoltageLevel voltageLevelNode = substation.newVoltageLevel()
+                .setId("vln")
+                .setName("vln")
+                .setNominalV(440.0)
+                .setHighVoltageLimit(400.0)
+                .setLowVoltageLimit(200.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        voltageLevelNode.getNodeBreakerView().newBusbarSection()
+                .setId("BBS")
+                .setNode(0)
+                .add();
+
         substation.newThreeWindingsTransformer()
                 .setId("twt")
                 .setName(TWT_NAME)
@@ -576,8 +636,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .setB(1.7)
                 .setRatedU(1.1)
                 .setRatedS(1.2)
-                .setConnectableBus("busA")
-                .setBus("busA")
+                .setNode(0)
                 .add()
                 .add();
     }

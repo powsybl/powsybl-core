@@ -39,9 +39,9 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected double x = Double.NaN;
 
-        protected double g = Double.NaN;
+        protected double g = 0.0;
 
-        protected double b = Double.NaN;
+        protected double b = 0.0;
 
         protected double ratedU = Double.NaN;
 
@@ -131,7 +131,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected VoltageLevelExt checkAndGetVoltageLevel() {
             if (voltageLevelId == null) {
-                throw new ValidationException(this, "voltage level is not set");
+                String defaultVoltageLevelId = checkAndGetDefaultVoltageLevelId();
+                if (defaultVoltageLevelId == null) {
+                    throw new ValidationException(this, "voltage level is not set and has no default value");
+                } else {
+                    voltageLevelId = defaultVoltageLevelId;
+                }
             }
             VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
             if (voltageLevel == null) {
@@ -139,6 +144,23 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                     + "' not found");
             }
             return voltageLevel;
+        }
+
+        private String checkAndGetDefaultVoltageLevelId() {
+            if (connectableBus == null) {
+                return null;
+            }
+            BusExt busExt = (BusExt) getNetwork().getBusBreakerView().getBus(connectableBus);
+            if (busExt == null) {
+                throw new ValidationException(this, "bus ID '" + connectableBus + "' not found");
+            }
+            return busExt.getVoltageLevel().getId();
+        }
+
+        protected void checkConnectableBus() {
+            if (connectableBus == null && bus != null) {
+                connectableBus = bus;
+            }
         }
 
         public ThreeWindingsTransformerAdderImpl add() {
@@ -207,18 +229,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     @Override
     public LegAdder newLeg2() {
-        LegAdderImpl legAdder = new LegAdderImpl(2);
-        legAdder.g = 0.0;
-        legAdder.b = 0.0;
-        return legAdder;
+        return new LegAdderImpl(2);
     }
 
     @Override
     public LegAdder newLeg3() {
-        LegAdderImpl legAdder = new LegAdderImpl(3);
-        legAdder.g = 0.0;
-        legAdder.b = 0.0;
-        return legAdder;
+        return new LegAdderImpl(3);
     }
 
     @Override
@@ -242,6 +258,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         TerminalExt terminal3;
 
         if (legAdder1 != null) {
+            legAdder1.checkConnectableBus();
             voltageLevel1 = legAdder1.checkAndGetVoltageLevel();
             terminal1 = legAdder1.checkAndGetTerminal();
             leg1 = new LegImpl(legAdder1.r, legAdder1.x, legAdder1.g, legAdder1.b, legAdder1.ratedU, legAdder1.ratedS, legAdder1.legNumber);
@@ -250,6 +267,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
 
         if (legAdder2 != null) {
+            legAdder2.checkConnectableBus();
             voltageLevel2 = legAdder2.checkAndGetVoltageLevel();
             terminal2 = legAdder2.checkAndGetTerminal();
             leg2 = new LegImpl(legAdder2.r, legAdder2.x, legAdder2.g, legAdder2.b, legAdder2.ratedU, legAdder2.ratedS, legAdder2.legNumber);
@@ -258,6 +276,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
 
         if (legAdder3 != null) {
+            legAdder3.checkConnectableBus();
             voltageLevel3 = legAdder3.checkAndGetVoltageLevel();
             terminal3 = legAdder3.checkAndGetTerminal();
             leg3 = new LegImpl(legAdder3.r, legAdder3.x, legAdder3.g, legAdder3.b, legAdder3.ratedU, legAdder3.ratedS, legAdder3.legNumber);
