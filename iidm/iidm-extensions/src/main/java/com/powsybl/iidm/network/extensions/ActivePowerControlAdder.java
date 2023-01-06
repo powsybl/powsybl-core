@@ -22,10 +22,4 @@ public interface ActivePowerControlAdder<I extends Injection<I>>
     ActivePowerControlAdder<I> withDroop(double droop);
 
     ActivePowerControlAdder<I> withParticipationFactor(double participationFactor);
-
-    boolean getParticipate();
-
-    double getDroop();
-
-    double getParticipationFactor();
 }

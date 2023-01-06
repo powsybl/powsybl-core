@@ -46,19 +46,4 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
         this.participationFactor = participationFactor;
         return this;
     }
-
-    @Override
-    public boolean getParticipate() {
-        return this.participate;
-    }
-
-    @Override
-    public double getDroop() {
-        return this.droop;
-    }
-
-    @Override
-    public double getParticipationFactor() {
-        return this.participationFactor;
-    }
 }
