@@ -18,6 +18,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
@@ -36,7 +37,7 @@ public class SecondaryVoltageControlXmlTest extends AbstractConverterTest {
         network.setCaseDate(DateTime.parse("2023-01-07T20:43:11.819+01:00"));
 
         SecondaryVoltageControl control = network.newExtension(SecondaryVoltageControlAdder.class)
-                .addZone(new Zone("z1", new PilotPoint(List.of("NLOAD"), 15d), List.of("GEN", "GEN2")))
+                .addZone(new Zone("z1", new PilotPoint(List.of("NLOAD"), 15d), List.of("GEN", "GEN2"), Collections.emptyList()))
                 .add();
 
         Network network2 = roundTripXmlTest(network,
@@ -52,7 +53,9 @@ public class SecondaryVoltageControlXmlTest extends AbstractConverterTest {
                      control2.getZones().get(0).getPilotPoint().getBusbarSectionsOrBusesIds());
         assertEquals(control.getZones().get(0).getPilotPoint().getTargetV(),
                      control2.getZones().get(0).getPilotPoint().getTargetV(), 0d);
-        assertEquals(control.getZones().get(0).getGeneratorsOrVscsIds(),
-                     control2.getZones().get(0).getGeneratorsOrVscsIds());
+        assertEquals(control.getZones().get(0).getGeneratorsIds(),
+                     control2.getZones().get(0).getGeneratorsIds());
+        assertEquals(control.getZones().get(0).getVscsIds(),
+                control2.getZones().get(0).getVscsIds());
     }
 }

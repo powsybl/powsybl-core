@@ -56,12 +56,18 @@ public interface SecondaryVoltageControl extends Extension<Network> {
 
         private final PilotPoint pilotPoint;
 
-        private final List<String> generatorsOrVscsIds;
+        private final List<String> generatorsIds;
 
-        public Zone(String name, PilotPoint pilotPoint, List<String> generatorsOrVscsIds) {
+        private final List<String> vscsIds;
+
+        public Zone(String name, PilotPoint pilotPoint, List<String> generatorsIds, List<String> vscsIds) {
             this.name = Objects.requireNonNull(name);
             this.pilotPoint = Objects.requireNonNull(pilotPoint);
-            this.generatorsOrVscsIds = Objects.requireNonNull(generatorsOrVscsIds);
+            this.generatorsIds = Objects.requireNonNull(generatorsIds);
+            this.vscsIds = Objects.requireNonNull(vscsIds);
+            if (generatorsIds.isEmpty() && vscsIds.isEmpty()) {
+                throw new PowsyblException("Empty generator and VSC ID list");
+            }
         }
 
         public String getName() {
@@ -72,8 +78,12 @@ public interface SecondaryVoltageControl extends Extension<Network> {
             return pilotPoint;
         }
 
-        public List<String> getGeneratorsOrVscsIds() {
-            return generatorsOrVscsIds;
+        public List<String> getGeneratorsIds() {
+            return generatorsIds;
+        }
+
+        public List<String> getVscsIds() {
+            return vscsIds;
         }
     }
 

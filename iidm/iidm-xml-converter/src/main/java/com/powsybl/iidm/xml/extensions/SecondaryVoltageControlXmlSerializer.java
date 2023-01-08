@@ -29,10 +29,11 @@ import java.util.List;
 @AutoService(ExtensionXmlSerializer.class)
 public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSerializer<Network, SecondaryVoltageControl> {
 
-    public static final String GENERATOR_OR_VSC_ID_ELEMENT = "generatorOrVscId";
-    public static final String ZONE_ELEMENT = "zone";
-    public static final String PILOT_POINT_ELEMENT = "pilotPoint";
+    private static final String ZONE_ELEMENT = "zone";
+    private static final String PILOT_POINT_ELEMENT = "pilotPoint";
     private static final String BUSBAR_SECTION_OR_BUS_ID_ELEMENT = "busbarSectionOrBusId";
+    private static final String GENERATOR_ID_ELEMENT = "generatorId";
+    private static final String VSC_ID_ELEMENT = "vscId";
 
     public SecondaryVoltageControlXmlSerializer() {
         super(SecondaryVoltageControl.NAME, "network", SecondaryVoltageControl.class, true,
@@ -52,9 +53,14 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
                 context.getWriter().writeEndElement();
             }
             context.getWriter().writeEndElement();
-            for (String generatorOdVscId : zone.getGeneratorsOrVscsIds()) {
-                context.getWriter().writeStartElement(getNamespaceUri(), GENERATOR_OR_VSC_ID_ELEMENT);
-                context.getWriter().writeCharacters(generatorOdVscId);
+            for (String generatorId : zone.getGeneratorsIds()) {
+                context.getWriter().writeStartElement(getNamespaceUri(), GENERATOR_ID_ELEMENT);
+                context.getWriter().writeCharacters(generatorId);
+                context.getWriter().writeEndElement();
+            }
+            for (String vscId : zone.getVscsIds()) {
+                context.getWriter().writeStartElement(getNamespaceUri(), VSC_ID_ELEMENT);
+                context.getWriter().writeCharacters(vscId);
                 context.getWriter().writeEndElement();
             }
             context.getWriter().writeEndElement();
@@ -69,20 +75,23 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
                 String name = context.getReader().getAttributeValue(null, "name");
                 MutableDouble targetV = new MutableDouble(Double.NaN);
                 List<String> busbarSectionsOrBusesIds = new ArrayList<>();
-                List<String> generatorsOrVscsIds = new ArrayList<>();
+                List<String> generatorsIds = new ArrayList<>();
+                List<String> vscsIds = new ArrayList<>();
                 XmlUtil.readUntilEndElement(ZONE_ELEMENT, context.getReader(), () -> {
                     if (context.getReader().getLocalName().equals(PILOT_POINT_ELEMENT)) {
                         targetV.setValue(XmlUtil.readDoubleAttribute(context.getReader(), "targetV"));
                     } else if (context.getReader().getLocalName().equals(BUSBAR_SECTION_OR_BUS_ID_ELEMENT)) {
                         busbarSectionsOrBusesIds.add(XmlUtil.readText(BUSBAR_SECTION_OR_BUS_ID_ELEMENT, context.getReader()));
-                    } else if (context.getReader().getLocalName().equals(GENERATOR_OR_VSC_ID_ELEMENT)) {
-                        generatorsOrVscsIds.add(XmlUtil.readText(GENERATOR_OR_VSC_ID_ELEMENT, context.getReader()));
+                    } else if (context.getReader().getLocalName().equals(GENERATOR_ID_ELEMENT)) {
+                        generatorsIds.add(XmlUtil.readText(GENERATOR_ID_ELEMENT, context.getReader()));
+                    } else if (context.getReader().getLocalName().equals(VSC_ID_ELEMENT)) {
+                        vscsIds.add(XmlUtil.readText(VSC_ID_ELEMENT, context.getReader()));
                     } else {
                         throw new IllegalStateException("Unexpected element " + context.getReader().getLocalName());
                     }
                 });
                 PilotPoint pilotPoint = new PilotPoint(busbarSectionsOrBusesIds, targetV.getValue());
-                adder.addZone(new Zone(name, pilotPoint, generatorsOrVscsIds));
+                adder.addZone(new Zone(name, pilotPoint, generatorsIds, vscsIds));
             }
         });
         return adder.add();

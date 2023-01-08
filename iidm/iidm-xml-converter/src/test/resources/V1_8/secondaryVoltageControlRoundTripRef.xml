@@ -52,8 +52,8 @@
                 <svc:pilotPoint targetV="15.0">
                     <svc:busbarSectionOrBusId>NLOAD</svc:busbarSectionOrBusId>
                 </svc:pilotPoint>
-                <svc:generatorOrVscId>GEN</svc:generatorOrVscId>
-                <svc:generatorOrVscId>GEN2</svc:generatorOrVscId>
+                <svc:generatorId>GEN</svc:generatorId>
+                <svc:generatorId>GEN2</svc:generatorId>
             </svc:zone>
         </svc:secondaryVoltageControl>
     </iidm:extension>
