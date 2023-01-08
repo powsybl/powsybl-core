@@ -14,9 +14,10 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.PilotPoint;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.Zone;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
-import org.apache.commons.lang3.mutable.MutableObject;
+import org.apache.commons.lang3.mutable.MutableDouble;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.ArrayList;
@@ -28,9 +29,10 @@ import java.util.List;
 @AutoService(ExtensionXmlSerializer.class)
 public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSerializer<Network, SecondaryVoltageControl> {
 
-    public static final String GENERATOR_ELEMENT = "generator";
+    public static final String GENERATOR_OR_VSC_ID_ELEMENT = "generatorOrVscId";
     public static final String ZONE_ELEMENT = "zone";
     public static final String PILOT_POINT_ELEMENT = "pilotPoint";
+    private static final String BUSBAR_SECTION_OR_BUS_ID_ELEMENT = "busbarSectionOrBusId";
 
     public SecondaryVoltageControlXmlSerializer() {
         super(SecondaryVoltageControl.NAME, "network", SecondaryVoltageControl.class, true,
@@ -42,12 +44,17 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
         for (Zone zone : control.getZones()) {
             context.getWriter().writeStartElement(getNamespaceUri(), ZONE_ELEMENT);
             context.getWriter().writeAttribute("name", zone.getName());
-            context.getWriter().writeEmptyElement(getNamespaceUri(), PILOT_POINT_ELEMENT);
-            context.getWriter().writeAttribute("busbarSectionOrBusId", zone.getPilotPoint().getBusbarSectionOrBusId());
+            context.getWriter().writeStartElement(getNamespaceUri(), PILOT_POINT_ELEMENT);
             XmlUtil.writeDouble("targetV", zone.getPilotPoint().getTargetV(), context.getWriter());
-            for (String generatorId : zone.getGeneratorsIds()) {
-                context.getWriter().writeStartElement(getNamespaceUri(), GENERATOR_ELEMENT);
-                context.getWriter().writeCharacters(generatorId);
+            for (String busbarSectionOrBusId : zone.getPilotPoint().getBusbarSectionsOrBusesIds()) {
+                context.getWriter().writeStartElement(getNamespaceUri(), BUSBAR_SECTION_OR_BUS_ID_ELEMENT);
+                context.getWriter().writeCharacters(busbarSectionOrBusId);
+                context.getWriter().writeEndElement();
+            }
+            context.getWriter().writeEndElement();
+            for (String generatorOdVscId : zone.getGeneratorsOrVscsIds()) {
+                context.getWriter().writeStartElement(getNamespaceUri(), GENERATOR_OR_VSC_ID_ELEMENT);
+                context.getWriter().writeCharacters(generatorOdVscId);
                 context.getWriter().writeEndElement();
             }
             context.getWriter().writeEndElement();
@@ -60,20 +67,22 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
         XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), () -> {
             if (context.getReader().getLocalName().equals(ZONE_ELEMENT)) {
                 String name = context.getReader().getAttributeValue(null, "name");
-                MutableObject<SecondaryVoltageControl.PilotPoint> pilotPoint = new MutableObject<>();
-                List<String> generatorsIds = new ArrayList<>();
+                MutableDouble targetV = new MutableDouble(Double.NaN);
+                List<String> busbarSectionsOrBusesIds = new ArrayList<>();
+                List<String> generatorsOrVscsIds = new ArrayList<>();
                 XmlUtil.readUntilEndElement(ZONE_ELEMENT, context.getReader(), () -> {
                     if (context.getReader().getLocalName().equals(PILOT_POINT_ELEMENT)) {
-                        String busbarSectionOrBusId = context.getReader().getAttributeValue(null, "busbarSectionOrBusId");
-                        double targetV = XmlUtil.readDoubleAttribute(context.getReader(), "targetV");
-                        pilotPoint.setValue(new SecondaryVoltageControl.PilotPoint(busbarSectionOrBusId, targetV));
-                    } else if (context.getReader().getLocalName().equals(GENERATOR_ELEMENT)) {
-                        generatorsIds.add(XmlUtil.readText(GENERATOR_ELEMENT, context.getReader()));
+                        targetV.setValue(XmlUtil.readDoubleAttribute(context.getReader(), "targetV"));
+                    } else if (context.getReader().getLocalName().equals(BUSBAR_SECTION_OR_BUS_ID_ELEMENT)) {
+                        busbarSectionsOrBusesIds.add(XmlUtil.readText(BUSBAR_SECTION_OR_BUS_ID_ELEMENT, context.getReader()));
+                    } else if (context.getReader().getLocalName().equals(GENERATOR_OR_VSC_ID_ELEMENT)) {
+                        generatorsOrVscsIds.add(XmlUtil.readText(GENERATOR_OR_VSC_ID_ELEMENT, context.getReader()));
                     } else {
                         throw new IllegalStateException("Unexpected element " + context.getReader().getLocalName());
                     }
                 });
-                adder.addZone(new Zone(name, pilotPoint.getValue(), generatorsIds));
+                PilotPoint pilotPoint = new PilotPoint(busbarSectionsOrBusesIds, targetV.getValue());
+                adder.addZone(new Zone(name, pilotPoint, generatorsOrVscsIds));
             }
         });
         return adder.add();

@@ -29,15 +29,15 @@ public abstract class AbstractSecondaryVoltageControlTest {
     public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
         SecondaryVoltageControl control = network.newExtension(SecondaryVoltageControlAdder.class)
-                .addZone(new Zone("z1", new PilotPoint("NLOAD", 15d), List.of("GEN", "GEN2")))
+                .addZone(new Zone("z1", new PilotPoint(List.of("NLOAD"), 15d), List.of("GEN", "GEN2")))
                 .add();
         assertEquals(1, control.getZones().size());
         Zone z1 = control.getZones().get(0);
         assertEquals("z1", z1.getName());
         assertNotNull(z1.getPilotPoint());
-        assertEquals("NLOAD", z1.getPilotPoint().getBusbarSectionOrBusId());
+        assertEquals(List.of("NLOAD"), z1.getPilotPoint().getBusbarSectionsOrBusesIds());
         assertEquals(15d, z1.getPilotPoint().getTargetV(), 0d);
-        assertEquals(List.of("GEN", "GEN2"), z1.getGeneratorsIds());
+        assertEquals(List.of("GEN", "GEN2"), z1.getGeneratorsOrVscsIds());
         z1.getPilotPoint().setTargetV(16);
         assertEquals(16d, z1.getPilotPoint().getTargetV(), 0d);
     }

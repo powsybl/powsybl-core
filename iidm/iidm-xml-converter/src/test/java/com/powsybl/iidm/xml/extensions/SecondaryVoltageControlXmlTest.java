@@ -36,7 +36,7 @@ public class SecondaryVoltageControlXmlTest extends AbstractConverterTest {
         network.setCaseDate(DateTime.parse("2023-01-07T20:43:11.819+01:00"));
 
         SecondaryVoltageControl control = network.newExtension(SecondaryVoltageControlAdder.class)
-                .addZone(new Zone("z1", new PilotPoint("NLOAD", 15d), List.of("GEN", "GEN2")))
+                .addZone(new Zone("z1", new PilotPoint(List.of("NLOAD"), 15d), List.of("GEN", "GEN2")))
                 .add();
 
         Network network2 = roundTripXmlTest(network,
@@ -48,10 +48,11 @@ public class SecondaryVoltageControlXmlTest extends AbstractConverterTest {
         assertNotNull(control2);
 
         assertEquals(control.getZones().size(), control2.getZones().size());
-        assertEquals(control.getZones().get(0).getPilotPoint().getBusbarSectionOrBusId(),
-                     control2.getZones().get(0).getPilotPoint().getBusbarSectionOrBusId());
+        assertEquals(control.getZones().get(0).getPilotPoint().getBusbarSectionsOrBusesIds(),
+                     control2.getZones().get(0).getPilotPoint().getBusbarSectionsOrBusesIds());
         assertEquals(control.getZones().get(0).getPilotPoint().getTargetV(),
                      control2.getZones().get(0).getPilotPoint().getTargetV(), 0d);
-        assertEquals(control.getZones().get(0).getGeneratorsIds(), control2.getZones().get(0).getGeneratorsIds());
+        assertEquals(control.getZones().get(0).getGeneratorsOrVscsIds(),
+                     control2.getZones().get(0).getGeneratorsOrVscsIds());
     }
 }

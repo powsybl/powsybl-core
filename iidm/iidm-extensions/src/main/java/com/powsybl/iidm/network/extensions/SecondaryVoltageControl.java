@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
@@ -21,17 +22,23 @@ public interface SecondaryVoltageControl extends Extension<Network> {
 
     class PilotPoint {
 
-        private final String busbarSectionOrBusId;
+        private final List<String> busbarSectionsOrBusesIds;
 
         private double targetV;
 
-        public PilotPoint(String busbarSectionOrBusId, double targetV) {
-            this.busbarSectionOrBusId = Objects.requireNonNull(busbarSectionOrBusId);
+        public PilotPoint(List<String> busbarSectionsOrBusesIds, double targetV) {
+            this.busbarSectionsOrBusesIds = Objects.requireNonNull(busbarSectionsOrBusesIds);
+            if (busbarSectionsOrBusesIds.isEmpty()) {
+                throw new PowsyblException("Empty busbar section of bus ID list");
+            }
+            if (Double.isNaN(targetV)) {
+                throw new PowsyblException("Invalid target voltage");
+            }
             this.targetV = targetV;
         }
 
-        public String getBusbarSectionOrBusId() {
-            return busbarSectionOrBusId;
+        public List<String> getBusbarSectionsOrBusesIds() {
+            return busbarSectionsOrBusesIds;
         }
 
         public double getTargetV() {
@@ -49,12 +56,12 @@ public interface SecondaryVoltageControl extends Extension<Network> {
 
         private final PilotPoint pilotPoint;
 
-        private final List<String> generatorsIds;
+        private final List<String> generatorsOrVscsIds;
 
-        public Zone(String name, PilotPoint pilotPoint, List<String> generatorsIds) {
+        public Zone(String name, PilotPoint pilotPoint, List<String> generatorsOrVscsIds) {
             this.name = Objects.requireNonNull(name);
             this.pilotPoint = Objects.requireNonNull(pilotPoint);
-            this.generatorsIds = Objects.requireNonNull(generatorsIds);
+            this.generatorsOrVscsIds = Objects.requireNonNull(generatorsOrVscsIds);
         }
 
         public String getName() {
@@ -65,8 +72,8 @@ public interface SecondaryVoltageControl extends Extension<Network> {
             return pilotPoint;
         }
 
-        public List<String> getGeneratorsIds() {
-            return generatorsIds;
+        public List<String> getGeneratorsOrVscsIds() {
+            return generatorsOrVscsIds;
         }
     }
 

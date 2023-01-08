@@ -49,9 +49,11 @@
     <iidm:extension id="sim1">
         <svc:secondaryVoltageControl>
             <svc:zone name="z1">
-                <svc:pilotPoint busbarSectionOrBusId="NLOAD" targetV="15.0"/>
-                <svc:generator>GEN</svc:generator>
-                <svc:generator>GEN2</svc:generator>
+                <svc:pilotPoint targetV="15.0">
+                    <svc:busbarSectionOrBusId>NLOAD</svc:busbarSectionOrBusId>
+                </svc:pilotPoint>
+                <svc:generatorOrVscId>GEN</svc:generatorOrVscId>
+                <svc:generatorOrVscId>GEN2</svc:generatorOrVscId>
             </svc:zone>
         </svc:secondaryVoltageControl>
     </iidm:extension>
