@@ -15,6 +15,7 @@ import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
@@ -103,7 +104,15 @@ public final class ExportXmlCompare {
     }
 
     static boolean isConsideredForNetwork(Attr attr) {
-        return !(attr.getLocalName().equals("forecastDistance"));
+        if (attr.getLocalName().equals("forecastDistance")) {
+            return false;
+        }
+        if (attr.getLocalName().equals("value")) {
+            Element e = attr.getOwnerElement();
+            return !e.getLocalName().equals("property") ||
+                    (!"CGMES.TP_ID".equals(e.getAttribute("name")) && !"CGMES.SSH_ID".equals(e.getAttribute("name")));
+        }
+        return true;
     }
 
     private static boolean isConsideredForEQNetwork(Attr attr) {

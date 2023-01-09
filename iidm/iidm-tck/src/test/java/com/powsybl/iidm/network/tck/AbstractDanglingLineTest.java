@@ -138,6 +138,24 @@ public abstract class AbstractDanglingLineTest {
     }
 
     @Test
+    public void testDefaultValuesDanglingLine() {
+        voltageLevel.newDanglingLine()
+                .setId("danglingId")
+                .setName("DanglingName")
+                .setR(10.0)
+                .setX(20.0)
+                .setP0(30.0)
+                .setQ0(40.0)
+                .setUcteXnodeCode("code")
+                .setBus(BUS_VL_ID)
+                .add();
+
+        DanglingLine danglingLine = network.getDanglingLine("danglingId");
+        assertEquals(0.0, danglingLine.getG(), 0.0);
+        assertEquals(0.0, danglingLine.getB(), 0.0);
+    }
+
+    @Test
     public void testInvalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");

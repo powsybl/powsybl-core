@@ -162,6 +162,26 @@ public abstract class AbstractLineTest {
     }
 
     @Test
+    public void testDefaultLine() {
+        Line acLine = network.newLine()
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+
+        assertEquals(0.0, acLine.getG1(), 0.0);
+        assertEquals(0.0, acLine.getG2(), 0.0);
+        assertEquals(0.0, acLine.getB1(), 0.0);
+        assertEquals(0.0, acLine.getB2(), 0.0);
+
+        assertSame(voltageLevelA, acLine.getTerminal1().getVoltageLevel());
+        assertSame(voltageLevelB, acLine.getTerminal2().getVoltageLevel());
+    }
+
+    @Test
     public void testMove1Bb() {
         Line line = createLineBetweenVoltageAB("line", LINE_NAME, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
         Bus busC = voltageLevelA.getBusBreakerView().newBus()

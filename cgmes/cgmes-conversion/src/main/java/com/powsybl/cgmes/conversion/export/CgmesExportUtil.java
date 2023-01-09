@@ -95,7 +95,7 @@ public final class CgmesExportUtil {
     public static void writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         String modelId = "urn:uuid:" + CgmesExportUtil.getUniqueId();
-        modelDescription.setId(modelId);
+        modelDescription.setIds(modelId);
         context.updateDependencies();
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);

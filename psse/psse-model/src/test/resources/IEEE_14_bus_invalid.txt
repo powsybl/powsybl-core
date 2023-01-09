@@ -24,7 +24,6 @@ Transformer: 24 19 1  Unexpected ratio: -0.96000
 Transformer: 24 19 1  Unexpected winding1 Vmi Vma: 0.51000 0.50000
 Transformer: 24 19 1  Unexpected winding1 Rmi Rma: 1.51000 1.50000
 Transformer: 5 6 1  Unexpected sbase12: -100.00000
-Transformer: 5 6 1  Unexpected winding1 nomV: 0.00000
 Transformer: 5 6 1  Unexpected winding1 Vmi Vma: 0.51000 0.00000
 Transformer: 5 6 1  Unexpected winding1 Rmi Rma: 0.51000 0.50000
 Transformer: 5 6 1  Unexpected winding1 Cont: 0
@@ -47,9 +46,6 @@ Transformer: 24 22 17 1  Unexpected winding3 ratio: -0.96874
 Transformer: 24 22 17 1  Unexpected sbase12: -500.00000
 Transformer: 24 22 17 1  Unexpected sbase23: 0.00000
 Transformer: 24 22 17 1  Unexpected sbase31: -180.00000
-Transformer: 24 22 17 1  Unexpected winding1 nomV: 0.00000
-Transformer: 24 22 17 1  Unexpected winding2 nomV: 0.00000
-Transformer: 24 22 17 1  Unexpected winding3 nomV: 0.00000
 Transformer: 24 22 17 1  Unexpected winding1 Vmi Vma: 0.90000 0.10000
 Transformer: 24 22 17 1  Unexpected winding2 Vmi Vma: 0.90000 0.20000
 Transformer: 24 22 17 1  Unexpected winding3 Vmi Vma: 0.90000 -1.10000
