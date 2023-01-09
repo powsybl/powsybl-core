@@ -50,23 +50,48 @@ public interface SecondaryVoltageControl extends Extension<Network> {
         }
     }
 
+    class ControlUnit {
+
+        private final String id;
+
+        private boolean participate;
+
+        public ControlUnit(String id) {
+            this(id, true);
+        }
+
+        public ControlUnit(String id, boolean participate) {
+            this.id = Objects.requireNonNull(id);
+            this.participate = participate;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public boolean isParticipate() {
+            return participate;
+        }
+
+        public void setParticipate(boolean participate) {
+            this.participate = participate;
+        }
+    }
+
     class ControlZone {
 
         private final String name;
 
         private final PilotPoint pilotPoint;
 
-        private final List<String> generatorsIds;
+        private final List<ControlUnit> controlUnits;
 
-        private final List<String> vscsIds;
-
-        public ControlZone(String name, PilotPoint pilotPoint, List<String> generatorsIds, List<String> vscsIds) {
+        public ControlZone(String name, PilotPoint pilotPoint, List<ControlUnit> controlUnits) {
             this.name = Objects.requireNonNull(name);
             this.pilotPoint = Objects.requireNonNull(pilotPoint);
-            this.generatorsIds = Objects.requireNonNull(generatorsIds);
-            this.vscsIds = Objects.requireNonNull(vscsIds);
-            if (generatorsIds.isEmpty() && vscsIds.isEmpty()) {
-                throw new PowsyblException("Empty generator and VSC ID list");
+            this.controlUnits = Objects.requireNonNull(controlUnits);
+            if (controlUnits.isEmpty()) {
+                throw new PowsyblException("Empty control unit list");
             }
         }
 
@@ -78,12 +103,8 @@ public interface SecondaryVoltageControl extends Extension<Network> {
             return pilotPoint;
         }
 
-        public List<String> getGeneratorsIds() {
-            return generatorsIds;
-        }
-
-        public List<String> getVscsIds() {
-            return vscsIds;
+        public List<ControlUnit> getControlUnits() {
+            return controlUnits;
         }
     }
 

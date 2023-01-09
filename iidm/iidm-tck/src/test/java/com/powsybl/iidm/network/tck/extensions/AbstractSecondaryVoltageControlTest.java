@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlUnit;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlZone;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.PilotPoint;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
@@ -15,7 +16,6 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -29,7 +29,9 @@ public abstract class AbstractSecondaryVoltageControlTest {
     public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
         SecondaryVoltageControl control = network.newExtension(SecondaryVoltageControlAdder.class)
-                .addControlZone(new ControlZone("z1", new PilotPoint(List.of("NLOAD"), 15d), List.of("GEN", "GEN2"), Collections.emptyList()))
+                .addControlZone(new ControlZone("z1",
+                                                new PilotPoint(List.of("NLOAD"), 15d),
+                                                List.of(new ControlUnit("GEN", false), new ControlUnit("GEN2"))))
                 .add();
         assertEquals(1, control.getControlZones().size());
         ControlZone z1 = control.getControlZones().get(0);
@@ -37,8 +39,11 @@ public abstract class AbstractSecondaryVoltageControlTest {
         assertNotNull(z1.getPilotPoint());
         assertEquals(List.of("NLOAD"), z1.getPilotPoint().getBusbarSectionsOrBusesIds());
         assertEquals(15d, z1.getPilotPoint().getTargetV(), 0d);
-        assertEquals(List.of("GEN", "GEN2"), z1.getGeneratorsIds());
-        assertTrue(z1.getVscsIds().isEmpty());
+        assertEquals(2, z1.getControlUnits().size());
+        assertEquals("GEN", z1.getControlUnits().get(0).getId());
+        assertFalse(z1.getControlUnits().get(0).isParticipate());
+        assertEquals("GEN2", z1.getControlUnits().get(1).getId());
+        assertTrue(z1.getControlUnits().get(1).isParticipate());
         z1.getPilotPoint().setTargetV(16);
         assertEquals(16d, z1.getPilotPoint().getTargetV(), 0d);
     }

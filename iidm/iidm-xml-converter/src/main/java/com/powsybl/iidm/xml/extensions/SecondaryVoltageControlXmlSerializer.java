@@ -14,8 +14,9 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.PilotPoint;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlUnit;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlZone;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.PilotPoint;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
 import org.apache.commons.lang3.mutable.MutableDouble;
 
@@ -32,8 +33,7 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
     private static final String CONTROL_ZONE_ELEMENT = "controlZone";
     private static final String PILOT_POINT_ELEMENT = "pilotPoint";
     private static final String BUSBAR_SECTION_OR_BUS_ID_ELEMENT = "busbarSectionOrBusId";
-    private static final String GENERATOR_ID_ELEMENT = "generatorId";
-    private static final String VSC_ID_ELEMENT = "vscId";
+    private static final String CONTROL_UNIT_ELEMENT = "controlUnit";
 
     public SecondaryVoltageControlXmlSerializer() {
         super(SecondaryVoltageControl.NAME, "network", SecondaryVoltageControl.class, true,
@@ -53,14 +53,10 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
                 context.getWriter().writeEndElement();
             }
             context.getWriter().writeEndElement();
-            for (String generatorId : controlZone.getGeneratorsIds()) {
-                context.getWriter().writeStartElement(getNamespaceUri(), GENERATOR_ID_ELEMENT);
-                context.getWriter().writeCharacters(generatorId);
-                context.getWriter().writeEndElement();
-            }
-            for (String vscId : controlZone.getVscsIds()) {
-                context.getWriter().writeStartElement(getNamespaceUri(), VSC_ID_ELEMENT);
-                context.getWriter().writeCharacters(vscId);
+            for (ControlUnit controlUnit : controlZone.getControlUnits()) {
+                context.getWriter().writeStartElement(getNamespaceUri(), CONTROL_UNIT_ELEMENT);
+                context.getWriter().writeAttribute("participate", Boolean.toString(controlUnit.isParticipate()));
+                context.getWriter().writeCharacters(controlUnit.getId());
                 context.getWriter().writeEndElement();
             }
             context.getWriter().writeEndElement();
@@ -75,23 +71,22 @@ public class SecondaryVoltageControlXmlSerializer extends AbstractExtensionXmlSe
                 String name = context.getReader().getAttributeValue(null, "name");
                 MutableDouble targetV = new MutableDouble(Double.NaN);
                 List<String> busbarSectionsOrBusesIds = new ArrayList<>();
-                List<String> generatorsIds = new ArrayList<>();
-                List<String> vscsIds = new ArrayList<>();
+                List<ControlUnit> controlUnits = new ArrayList<>();
                 XmlUtil.readUntilEndElement(CONTROL_ZONE_ELEMENT, context.getReader(), () -> {
                     if (context.getReader().getLocalName().equals(PILOT_POINT_ELEMENT)) {
                         targetV.setValue(XmlUtil.readDoubleAttribute(context.getReader(), "targetV"));
                     } else if (context.getReader().getLocalName().equals(BUSBAR_SECTION_OR_BUS_ID_ELEMENT)) {
                         busbarSectionsOrBusesIds.add(XmlUtil.readText(BUSBAR_SECTION_OR_BUS_ID_ELEMENT, context.getReader()));
-                    } else if (context.getReader().getLocalName().equals(GENERATOR_ID_ELEMENT)) {
-                        generatorsIds.add(XmlUtil.readText(GENERATOR_ID_ELEMENT, context.getReader()));
-                    } else if (context.getReader().getLocalName().equals(VSC_ID_ELEMENT)) {
-                        vscsIds.add(XmlUtil.readText(VSC_ID_ELEMENT, context.getReader()));
+                    } else if (context.getReader().getLocalName().equals(CONTROL_UNIT_ELEMENT)) {
+                        boolean participate = Boolean.parseBoolean(context.getReader().getAttributeValue(null, "participate"));
+                        String id = XmlUtil.readText(CONTROL_UNIT_ELEMENT, context.getReader());
+                        controlUnits.add(new ControlUnit(id, participate));
                     } else {
                         throw new IllegalStateException("Unexpected element " + context.getReader().getLocalName());
                     }
                 });
                 PilotPoint pilotPoint = new PilotPoint(busbarSectionsOrBusesIds, targetV.getValue());
-                adder.addControlZone(new ControlZone(name, pilotPoint, generatorsIds, vscsIds));
+                adder.addControlZone(new ControlZone(name, pilotPoint, controlUnits));
             }
         });
         return adder.add();

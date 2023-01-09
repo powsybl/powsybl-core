@@ -18,11 +18,17 @@
         </xs:sequence>
         <xs:attribute name="targetV" use="required" type="xs:double"/>
     </xs:complexType>
+    <xs:complexType name="ControlUnit">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="participate" use="required" type="xs:boolean"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
     <xs:complexType name="ControlZone">
         <xs:sequence>
             <xs:element name="pilotPoint" type="svc:PilotPoint" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="generatorId" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
-            <xs:element name="vscId" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="controlUnit" type="svc:ControlUnit" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
         <xs:attribute name="name" use="required" type="xs:string"/>
     </xs:complexType>
