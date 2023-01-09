@@ -100,7 +100,7 @@ public final class TieLineUtil {
      *
      * @param candidateDanglingLine candidate dangling line in the network to be merged
      * @param danglingLine dangling line in the merging network with same ID as the candidate dangling line. Can be null.
-     * @param getDanglingLinesByXnodeCode function to retrieve dangling lines with a give X-node code in the merging network.
+     * @param getDanglingLinesByXnodeCode function to retrieve dangling lines with a given X-node code in the merging network.
      * @param associateDanglingLines function associating two dangling lines
      */
     public static void findAndAssociateDanglingLines(DanglingLine candidateDanglingLine, DanglingLine danglingLine,
