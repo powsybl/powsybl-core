@@ -239,6 +239,8 @@ public class SecurityAnalysisResultBuilder {
 
         private PostContingencyComputationStatus status;
 
+        private ConnectivityResult connectivityResult;
+
         PostContingencyResultBuilder(Contingency contingency, SecurityAnalysisResultContext resultContext) {
             super(Objects.requireNonNull(resultContext));
             this.contingency = Objects.requireNonNull(contingency);
@@ -257,6 +259,11 @@ public class SecurityAnalysisResultBuilder {
             return this;
         }
 
+        public PostContingencyResultBuilder setConnectivityResult(ConnectivityResult connectivityResult) {
+            this.connectivityResult = connectivityResult;
+            return this;
+        }
+
         /**
          * Finalize the creation of the PostContingencyResult instance
          *
@@ -265,7 +272,7 @@ public class SecurityAnalysisResultBuilder {
         public SecurityAnalysisResultBuilder endContingency() {
             List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
             PostContingencyResult res = new PostContingencyResult(contingency, status, filteredViolations,
-                    branchResults, busResults, threeWindingsTransformerResults);
+                    branchResults, busResults, threeWindingsTransformerResults, connectivityResult);
             interceptors.forEach(i -> i.onPostContingencyResult(res, resultContext));
             addPostContingencyResult(res);
 
