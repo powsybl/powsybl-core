@@ -71,7 +71,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         double normalPF = p.asDouble("normalPF");
         if (!Double.isNaN(normalPF)) {
             g.newExtension(ActivePowerControlAdder.class)
-                    .withParticipate(true)
+                    .withParticipate(normalPF != 0.0)
                     .withParticipationFactor(normalPF)
                     .add();
         }
