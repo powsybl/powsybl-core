@@ -554,6 +554,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         connect(context, adder, iidmVoltageLevelId1, busId1, t1Connected, node1, iidmVoltageLevelId2, busId2, t2Connected, node2);
     }
 
+    public static void connect(Context context, InjectionAdder<?> adder, String busId, boolean connected, int node) {
+        if (context.nodeBreaker()) {
+            adder.setNode(node);
+        } else {
+            adder
+                    .setBus(connected ? busId : null)
+                    .setConnectableBus(busId);
+        }
+    }
+
     public static void connect(Context context, BranchAdder<?> adder,
         String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
         String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {

@@ -18,7 +18,6 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
@@ -200,7 +199,7 @@ public class SVTest {
 
     @Test
     public void testHalfLine() {
-        TieLine.HalfLine halfLine = new HalfLineTestData().getHalfLine();
+        DanglingLine halfLine = new HalfLineTestData().getHalfLine();
 
         double tol = 0.0001;
         double p1 = 485.306701;
@@ -428,23 +427,19 @@ public class SVTest {
     private static final class HalfLineTestData {
         private static double R = 0.15;
         private static double X = 0.25;
-        private static double G1 = 0.01;
-        private static double B1 = 0.0020;
-        private static double G2 = 0.01;
-        private static double B2 = 0.0020;
-        private TieLine.HalfLine halfLine;
+        private static double G = 0.024;
+        private static double B = 0.0040;
+        private DanglingLine halfLine;
 
         private HalfLineTestData() {
-            halfLine = Mockito.mock(TieLine.HalfLine.class);
+            halfLine = Mockito.mock(DanglingLine.class);
             Mockito.when(halfLine.getR()).thenReturn(R);
             Mockito.when(halfLine.getX()).thenReturn(X);
-            Mockito.when(halfLine.getG1()).thenReturn(G1);
-            Mockito.when(halfLine.getB1()).thenReturn(B1);
-            Mockito.when(halfLine.getG2()).thenReturn(G2);
-            Mockito.when(halfLine.getB2()).thenReturn(B2);
+            Mockito.when(halfLine.getG()).thenReturn(G);
+            Mockito.when(halfLine.getB()).thenReturn(B);
         }
 
-        private TieLine.HalfLine getHalfLine() {
+        private DanglingLine getHalfLine() {
             return halfLine;
         }
     }

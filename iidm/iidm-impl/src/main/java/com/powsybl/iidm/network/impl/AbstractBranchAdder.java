@@ -35,6 +35,11 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         return (T) this;
     }
 
+    T setNullableNode1(Integer node1) {
+        this.node1 = node1;
+        return (T) this;
+    }
+
     public T setBus1(String bus1) {
         this.bus1 = bus1;
         return (T) this;
@@ -75,6 +80,11 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
     }
 
     public T setNode2(int node2) {
+        this.node2 = node2;
+        return (T) this;
+    }
+
+    T setNullableNode2(Integer node2) {
         this.node2 = node2;
         return (T) this;
     }

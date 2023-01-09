@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.util;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import org.apache.commons.math3.complex.Complex;
@@ -179,10 +178,6 @@ public class SV {
         }
     }
 
-    public double otherSideP(TieLine.HalfLine hl) {
-        return otherSideP(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0, 0.0);
-    }
-
     /**
      * @deprecated Not used anymore. This version with a simplified view of the parameters
      * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
@@ -209,10 +204,6 @@ public class SV {
         } else {
             return otherSideQ(dl);
         }
-    }
-
-    public double otherSideQ(TieLine.HalfLine hl) {
-        return otherSideQ(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0, 0.0);
     }
 
     /**
@@ -243,10 +234,6 @@ public class SV {
         }
     }
 
-    public double otherSideU(TieLine.HalfLine hl) {
-        return otherSideU(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0, 0.0);
-    }
-
     /**
      * @deprecated Not used anymore. This version with a simplified view of the parameters
      * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
@@ -273,10 +260,6 @@ public class SV {
         } else {
             return otherSideA(dl);
         }
-    }
-
-    public double otherSideA(TieLine.HalfLine hl) {
-        return otherSideA(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0, 0.0);
     }
 
     private static double getRho(TwoWindingsTransformer twt) {

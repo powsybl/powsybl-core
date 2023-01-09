@@ -128,33 +128,31 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
             boundaryLine2.getG1(), boundaryLine2.getB1(), boundaryLine2.getG2(), boundaryLine2.getB2(),
             isLine2Reoriented(boundaryLine2.getBoundarySide()));
 
-        TieLineAdder adder = context.network().newTieLine()
-            .newHalfLine1()
+        TieLineAdder adder = context.network().newTieLine();
+        MergedDanglingLineAdder adder1 = adder
+            .newHalf1()
             .setId(boundaryLine1.getId())
             .setName(boundaryLine1.getName())
             .setR(brp1.getR())
             .setX(brp1.getX())
-            .setG1(brp1.getG1())
-            .setB1(brp1.getB1())
-            .setG2(brp1.getG2())
-            .setB2(brp1.getB2())
-            .add()
-            .newHalfLine2()
+            .setG(brp1.getG1() + brp1.getG2())
+            .setB(brp1.getB1() + brp1.getB2())
+            .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
+        MergedDanglingLineAdder adder2 = adder
+            .newHalf2()
             .setId(boundaryLine2.getId())
             .setName(boundaryLine2.getName())
             .setR(brp2.getR())
             .setX(brp2.getX())
-            .setG1(brp2.getG1())
-            .setB1(brp2.getB1())
-            .setG2(brp2.getG2())
-            .setB2(brp2.getB2())
-            .add()
+            .setG(brp2.getG1() + brp2.getG2())
+            .setB(brp2.getB1() + brp2.getB2())
             .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
         identify(context, adder, context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(boundaryLine1.getId(), boundaryLine2.getId())),
                 TieLineUtil.buildMergedName(boundaryLine1.getId(), boundaryLine2.getId(), boundaryLine1.getName(), boundaryLine2.getName()));
-        connect(context, adder, boundaryLine1.getModelIidmVoltageLevelId(), boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(),
-            boundaryLine1.getModelNode(), boundaryLine2.getModelIidmVoltageLevelId(), boundaryLine2.getModelBus(),
-            boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
+        connect(context, adder1, boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(), boundaryLine1.getModelNode());
+        connect(context, adder2, boundaryLine2.getModelBus(), boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
+        adder1.add();
+        adder2.add();
         TieLine tieLine = adder.add();
         if (context.boundary().isHvdc(boundaryNode) || context.boundary().lineAtBoundary(boundaryNode) != null) {
             tieLine.newExtension(CgmesLineBoundaryNodeAdder.class)

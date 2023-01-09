@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -42,18 +43,23 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         return hasValidOperationalLimits(tl, context);
     }
 
-    private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
+    private static void writeHalf(DanglingLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
         Boundary boundary = halfLine.getBoundary();
         context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));
-        if (!halfLine.getId().equals(halfLine.getName())) {
-            context.getWriter().writeAttribute("name_" + side, context.getAnonymizer().anonymizeString(halfLine.getName()));
-        }
+        halfLine.getOptionalName().ifPresent(name -> {
+            try {
+                context.getWriter().writeAttribute("name_" + side, context.getAnonymizer().anonymizeString(name));
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
         XmlUtil.writeDouble("r_" + side, halfLine.getR(), context.getWriter());
         XmlUtil.writeDouble("x_" + side, halfLine.getX(), context.getWriter());
-        XmlUtil.writeDouble("g1_" + side, halfLine.getG1(), context.getWriter());
-        XmlUtil.writeDouble("b1_" + side, halfLine.getB1(), context.getWriter());
-        XmlUtil.writeDouble("g2_" + side, halfLine.getG2(), context.getWriter());
-        XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
+        // TODO change serialization
+        XmlUtil.writeDouble("g1_" + side, halfLine.getG() / 2, context.getWriter());
+        XmlUtil.writeDouble("b1_" + side, halfLine.getB() / 2, context.getWriter());
+        XmlUtil.writeDouble("g2_" + side, halfLine.getG() / 2, context.getWriter());
+        XmlUtil.writeDouble("b2_" + side, halfLine.getB() / 2, context.getWriter());
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
             XmlUtil.writeDouble("xnodeP_" + side, boundary.getP(), context.getWriter());
             XmlUtil.writeDouble("xnodeQ_" + side, boundary.getQ(), context.getWriter());
@@ -116,7 +122,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         return n.newTieLine();
     }
 
-    private static void readHalf(TieLineAdder.HalfLineAdder adder, NetworkXmlReaderContext context, int side) {
+    private static void readHalf(MergedDanglingLineAdder adder, NetworkXmlReaderContext context, int side) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id_" + side));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name_" + side));
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r_" + side);
@@ -125,14 +131,15 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1_" + side);
         double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2_" + side);
         double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2_" + side);
+        String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         adder.setId(id)
                 .setName(name)
                 .setR(r)
                 .setX(x)
-                .setG1(g1)
-                .setB1(b1)
-                .setG2(g2)
-                .setB2(b2);
+                .setG(g1 + g2)
+                .setB(b1 + b2)
+                .setUcteXnodeCode(ucteXnodeCode);
+        readNodeOrBus(adder, context);
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
@@ -143,12 +150,9 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected TieLine readRootElementAttributes(TieLineAdder adder, NetworkXmlReaderContext context) {
-        readHalf(adder.newHalfLine1(), context, 1);
-        readHalf(adder.newHalfLine2(), context, 2);
-        readNodeOrBus(adder, context);
-        String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
-        TieLine tl = adder.setUcteXnodeCode(ucteXnodeCode)
-                .add();
+        readHalf(adder.newHalf1(), context, 1);
+        readHalf(adder.newHalf2(), context, 2);
+        TieLine tl = adder.add();
         readPQ(1, tl.getTerminal1(), context.getReader());
         readPQ(2, tl.getTerminal2(), context.getReader());
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {

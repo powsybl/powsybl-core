@@ -564,30 +564,24 @@ public abstract class AbstractLineTest {
         TieLineAdder adder = network.newTieLine().setId("testTie")
                 .setName("testNameTie")
                 .setVoltageLevel1("vl1")
-                .setBus1("busA")
-                .setConnectableBus1("busA")
                 .setVoltageLevel2("vl2")
-                .setBus2("busB")
-                .setConnectableBus2("busB")
-                .setUcteXnodeCode("ucte")
-                .newHalfLine1()
+                .newHalf1()
+                .setBus("busA")
                 .setId("hl1")
                 .setName(HALF1_NAME)
                 .setR(r)
                 .setX(x)
-                .setB1(hl1b1)
-                .setB2(hl1b2)
-                .setG1(hl1g1)
-                .setG2(hl1g2)
+                .setB(hl1b1 + hl1b2)
+                .setG(hl1g1 + hl1g2)
+                .setUcteXnodeCode("ucte")
                 .add()
-                .newHalfLine2()
+                .newHalf2()
+                .setBus("busB")
                 .setId("hl2")
                 .setR(r2)
                 .setX(x2)
-                .setB1(hl2b1)
-                .setB2(hl2b2)
-                .setG1(hl2g1)
-                .setG2(hl2g2)
+                .setB(hl2b1 + hl2b2)
+                .setG(hl2g1 + hl2g2)
                 .add();
         TieLine tieLine = adder.add();
         assertTrue(tieLine.isTieLine());
@@ -646,9 +640,9 @@ public abstract class AbstractLineTest {
             // ignore
         }
 
-        TieLine.HalfLine half1 = tieLine.getHalf1();
+        DanglingLine half1 = tieLine.getHalf1();
 
-        TieLine.HalfLine half2 = tieLine.getHalf2();
+        DanglingLine half2 = tieLine.getHalf2();
 
         // Check notification on HalfLine changes
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
@@ -657,32 +651,24 @@ public abstract class AbstractLineTest {
         // Apply changes on Half lines
         half1.setR(r + 1);
         half1.setX(x + 1);
-        half1.setG1(hl1g1 + 1);
-        half1.setG2(hl1g2 + 1);
-        half1.setB1(hl1b1 + 1);
-        half1.setB2(hl1b2 + 1);
+        half1.setG(hl1g1 + hl1g2 + 2);
+        half1.setB(hl1b1 + hl1b2 + 2);
         half2.setR(r + 1);
         half2.setX(x + 1);
-        half2.setG1(hl2g1 + 1);
-        half2.setG2(hl2g2 + 1);
-        half2.setB1(hl2b1 + 1);
-        half2.setB2(hl2b2 + 1);
+        half2.setG(hl2g1 + hl1g2 + 2);
+        half2.setB(hl2b1 + hl2b2 + 2);
         verify(mockedListener, times(12)).onUpdate(any(TieLine.class), anyString(), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
         // Cancel changes on Half lines
         half1.setR(r);
         half1.setX(x);
-        half1.setG1(hl1g1);
-        half1.setG2(hl1g2);
-        half1.setB1(hl1b1);
-        half1.setB2(hl1b2);
+        half1.setG(hl1g1 + hl1g2);
+        half1.setB(hl1b1 + hl1b2);
         half2.setR(r);
         half2.setX(x);
-        half2.setG1(hl2g1);
-        half2.setG2(hl2g2);
-        half2.setB1(hl2b1);
-        half2.setB2(hl2b2);
+        half2.setG(hl2g1 + hl2g2);
+        half2.setB(hl2b1 + hl2b2);
         // Check no notification
         verifyNoMoreInteractions(mockedListener);
 
@@ -725,12 +711,7 @@ public abstract class AbstractLineTest {
                 .setId("testTie")
                 .setName("testNameTie")
                 .setVoltageLevel1("vl1")
-                .setBus1("busA")
-                .setConnectableBus1("busA")
                 .setVoltageLevel2("vl2")
-                .setBus2("busB")
-                .setConnectableBus2("busB")
-                .setUcteXnodeCode("ucte")
                 .add();
     }
 
@@ -743,21 +724,16 @@ public abstract class AbstractLineTest {
                 .setId("testTie")
                 .setName("testNameTie")
                 .setVoltageLevel1("vl1")
-                .setBus1("busA")
-                .setConnectableBus1("busA")
                 .setVoltageLevel2("vl2")
-                .setBus2("busB")
-                .setConnectableBus2("busB")
-                .setUcteXnodeCode("ucte")
-                .newHalfLine1()
+                .newHalf1()
+                .setBus("busA")
                 .setId("hl1")
                 .setName(HALF1_NAME)
                 .setR(10.0)
                 .setX(20.0)
-                .setB1(40.0)
-                .setB2(45.0)
-                .setG1(30.0)
-                .setG2(35.0)
+                .setB(80.0)
+                .setG(65.0)
+                .setUcteXnodeCode("ucte")
                 .add()
                 .add();
     }
@@ -882,33 +858,27 @@ public abstract class AbstractLineTest {
         network.newTieLine()
                 .setId(id)
                 .setName(name)
-                .newHalfLine1()
+                .newHalf1()
+                .setBus("busA")
                 .setId(halfLineId)
                 .setName(HALF1_NAME)
                 .setR(r)
                 .setX(x)
-                .setB1(b1)
-                .setB2(b2)
-                .setG1(g1)
-                .setG2(g2)
+                .setB(b1 + b2)
+                .setG(g1 + g2)
                 .add()
-                .newHalfLine2()
+                .newHalf2()
+                .setBus("busB")
                 .setId("hl2")
                 .setName("half2_name")
                 .setR(1.0)
                 .setX(2.0)
-                .setB1(3.0)
-                .setB2(3.5)
-                .setG1(4.0)
-                .setG2(4.5)
+                .setB(6.5)
+                .setG(8.5)
+                .setUcteXnodeCode(code)
                 .add()
                 .setVoltageLevel1("vl1")
-                .setBus1("busA")
-                .setConnectableBus1("busA")
                 .setVoltageLevel2("vl2")
-                .setBus2("busB")
-                .setConnectableBus2("busB")
-                .setUcteXnodeCode(code)
                 .add();
     }
 }

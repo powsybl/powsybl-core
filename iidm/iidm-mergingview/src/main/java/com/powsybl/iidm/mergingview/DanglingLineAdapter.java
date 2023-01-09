@@ -34,6 +34,14 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
         return getIndex().getBoundary(getDelegate().getBoundary());
     }
 
+    @Override
+    public boolean isMerged() {
+        if (getIndex().isMerged(this)) {
+            return true;
+        }
+        return getDelegate().isMerged();
+    }
+
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------

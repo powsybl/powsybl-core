@@ -220,32 +220,29 @@ public class TieLineTest {
         TieLineAdder adder = network.newTieLine()
                 .setId(boundarySide1.name() + " + " + boundarySide2.name())
                 .setName(boundarySide1.name() + " + " + boundarySide2.name())
-                .newHalfLine1()
+                .newHalf1()
                     .setId(boundarySide1.name())
                     .setName(boundarySide1.name())
                     .setR(1.0)
                     .setX(2.0)
+                    .setBus("S1VL1-BUS")
+                    .setUcteXnodeCode("UcteNode")
                 .add()
-                .newHalfLine2()
+                .newHalf2()
                     .setId(boundarySide2.name())
                     .setName(boundarySide2.name())
                     .setR(1.0)
                     .setX(2.0)
+                    .setBus("S2VL1-BUS")
+                    .setUcteXnodeCode("UcteNode")
                 .add();
 
-        adder.setBus1("S1VL1-BUS")
-                .setBus2("S2VL1-BUS")
-                .setUcteXnodeCode("UcteNode");
         TieLine tieLine = adder.add();
 
-        assertEquals(0.0, tieLine.getHalf1().getG1(), 0.0);
-        assertEquals(0.0, tieLine.getHalf1().getG2(), 0.0);
-        assertEquals(0.0, tieLine.getHalf1().getB1(), 0.0);
-        assertEquals(0.0, tieLine.getHalf1().getB2(), 0.0);
-        assertEquals(0.0, tieLine.getHalf2().getG1(), 0.0);
-        assertEquals(0.0, tieLine.getHalf2().getG2(), 0.0);
-        assertEquals(0.0, tieLine.getHalf2().getB1(), 0.0);
-        assertEquals(0.0, tieLine.getHalf2().getB2(), 0.0);
+        assertEquals(0.0, tieLine.getHalf1().getG(), 0.0);
+        assertEquals(0.0, tieLine.getHalf1().getB(), 0.0);
+        assertEquals(0.0, tieLine.getHalf2().getG(), 0.0);
+        assertEquals(0.0, tieLine.getHalf2().getB(), 0.0);
 
         assertSame(s1vl1, tieLine.getTerminal1().getVoltageLevel());
         assertSame(s2vl1, tieLine.getTerminal2().getVoltageLevel());
@@ -290,32 +287,28 @@ public class TieLineTest {
         TieLineAdder adder = network.newTieLine()
             .setId(boundarySide1.name() + " + " + boundarySide2.name())
             .setName(boundarySide1.name() + " + " + boundarySide2.name())
-            .newHalfLine1()
+            .newHalf1()
+            .setBus("S1VL1-BUS")
             .setId(boundarySide1.name())
             .setName(boundarySide1.name())
             .setR(brp1.getR())
             .setX(brp1.getX())
-            .setG1(brp1.getG1())
-            .setB1(brp1.getB1())
-            .setG2(brp1.getG2())
-            .setB2(brp1.getB2())
+            .setG(brp1.getG1() + brp1.getG2())
+            .setB(brp1.getB1() + brp1.getB2())
             .add()
-            .newHalfLine2()
+            .newHalf2()
+            .setBus("S2VL1-BUS")
             .setId(boundarySide2.name())
             .setName(boundarySide2.name())
             .setR(brp2.getR())
             .setX(brp2.getX())
-            .setG1(brp2.getG1())
-            .setB1(brp2.getB1())
-            .setG2(brp2.getG2())
-            .setB2(brp2.getB2())
+            .setG(brp2.getG1() + brp2.getG2())
+            .setB(brp2.getB1() + brp2.getB2())
+            .setUcteXnodeCode("UcteNode")
             .add();
 
         adder.setVoltageLevel1("S1VL1")
-            .setBus1("S1VL1-BUS")
-            .setVoltageLevel2("S2VL1")
-            .setBus2("S2VL1-BUS")
-            .setUcteXnodeCode("UcteNode");
+            .setVoltageLevel2("S2VL1");
 
         TieLine tieLine = adder.add();
         tieLine.getTerminal1().getBusView().getBus().setV(caseSv.node1.v);
@@ -370,32 +363,28 @@ public class TieLineTest {
         TieLineAdder adder = network.newTieLine()
             .setId(boundarySide1.name() + " + " + boundarySide2.name())
             .setName(boundarySide1.name() + " + " + boundarySide2.name())
-            .newHalfLine1()
+            .newHalf1()
+            .setBus("S1VL1-BUS")
             .setId(boundarySide1.name())
             .setName(boundarySide1.name())
             .setR(brp1.getR())
             .setX(brp1.getX())
-            .setG1(brp1.getG1())
-            .setB1(brp1.getB1())
-            .setG2(brp1.getG2())
-            .setB2(brp1.getB2())
+            .setG(brp1.getG1() + brp1.getG2())
+            .setB(brp1.getB1() + brp1.getB2())
+            .setUcteXnodeCode("UcteNode")
             .add()
-            .newHalfLine2()
+            .newHalf2()
+            .setBus("S2VL1-BUS")
             .setId(boundarySide2.name())
             .setName(boundarySide2.name())
             .setR(brp2.getR())
             .setX(brp2.getX())
-            .setG1(brp2.getG1())
-            .setB1(brp2.getB1())
-            .setG2(brp2.getG2())
-            .setB2(brp2.getB2())
+            .setG(brp2.getG1() + brp2.getG2())
+            .setB(brp2.getB1() + brp2.getB2())
             .add();
 
         adder.setVoltageLevel1("S1VL1")
-            .setBus1("S1VL1-BUS")
-            .setVoltageLevel2("S2VL1")
-            .setBus2("S2VL1-BUS")
-            .setUcteXnodeCode("UcteNode");
+            .setVoltageLevel2("S2VL1");
 
         TieLine tieLine = adder.add();
         tieLine.getTerminal1().getBusView().getBus().setV(caseSv.node1.v);
