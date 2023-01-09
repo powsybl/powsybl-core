@@ -8,8 +8,8 @@ package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlZone;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.PilotPoint;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.Zone;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
@@ -29,10 +29,10 @@ public abstract class AbstractSecondaryVoltageControlTest {
     public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
         SecondaryVoltageControl control = network.newExtension(SecondaryVoltageControlAdder.class)
-                .addZone(new Zone("z1", new PilotPoint(List.of("NLOAD"), 15d), List.of("GEN", "GEN2"), Collections.emptyList()))
+                .addControlZone(new ControlZone("z1", new PilotPoint(List.of("NLOAD"), 15d), List.of("GEN", "GEN2"), Collections.emptyList()))
                 .add();
-        assertEquals(1, control.getZones().size());
-        Zone z1 = control.getZones().get(0);
+        assertEquals(1, control.getControlZones().size());
+        ControlZone z1 = control.getControlZones().get(0);
         assertEquals("z1", z1.getName());
         assertNotNull(z1.getPilotPoint());
         assertEquals(List.of("NLOAD"), z1.getPilotPoint().getBusbarSectionsOrBusesIds());

@@ -10,7 +10,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.PilotPoint;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.Zone;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlZone;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -37,7 +37,7 @@ public class SecondaryVoltageControlXmlTest extends AbstractConverterTest {
         network.setCaseDate(DateTime.parse("2023-01-07T20:43:11.819+01:00"));
 
         SecondaryVoltageControl control = network.newExtension(SecondaryVoltageControlAdder.class)
-                .addZone(new Zone("z1", new PilotPoint(List.of("NLOAD"), 15d), List.of("GEN", "GEN2"), Collections.emptyList()))
+                .addControlZone(new ControlZone("z1", new PilotPoint(List.of("NLOAD"), 15d), List.of("GEN", "GEN2"), Collections.emptyList()))
                 .add();
 
         Network network2 = roundTripXmlTest(network,
@@ -48,14 +48,14 @@ public class SecondaryVoltageControlXmlTest extends AbstractConverterTest {
         SecondaryVoltageControl control2 = network2.getExtension(SecondaryVoltageControl.class);
         assertNotNull(control2);
 
-        assertEquals(control.getZones().size(), control2.getZones().size());
-        assertEquals(control.getZones().get(0).getPilotPoint().getBusbarSectionsOrBusesIds(),
-                     control2.getZones().get(0).getPilotPoint().getBusbarSectionsOrBusesIds());
-        assertEquals(control.getZones().get(0).getPilotPoint().getTargetV(),
-                     control2.getZones().get(0).getPilotPoint().getTargetV(), 0d);
-        assertEquals(control.getZones().get(0).getGeneratorsIds(),
-                     control2.getZones().get(0).getGeneratorsIds());
-        assertEquals(control.getZones().get(0).getVscsIds(),
-                control2.getZones().get(0).getVscsIds());
+        assertEquals(control.getControlZones().size(), control2.getControlZones().size());
+        assertEquals(control.getControlZones().get(0).getPilotPoint().getBusbarSectionsOrBusesIds(),
+                     control2.getControlZones().get(0).getPilotPoint().getBusbarSectionsOrBusesIds());
+        assertEquals(control.getControlZones().get(0).getPilotPoint().getTargetV(),
+                     control2.getControlZones().get(0).getPilotPoint().getTargetV(), 0d);
+        assertEquals(control.getControlZones().get(0).getGeneratorsIds(),
+                     control2.getControlZones().get(0).getGeneratorsIds());
+        assertEquals(control.getControlZones().get(0).getVscsIds(),
+                control2.getControlZones().get(0).getVscsIds());
     }
 }

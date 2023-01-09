@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlZone;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
 
 import java.util.ArrayList;
@@ -21,7 +22,7 @@ import java.util.Objects;
  */
 public class SecondaryVoltageControlAdderImpl extends AbstractExtensionAdder<Network, SecondaryVoltageControl> implements SecondaryVoltageControlAdder {
 
-    private final List<SecondaryVoltageControl.Zone> zones = new ArrayList<>();
+    private final List<ControlZone> controlZones = new ArrayList<>();
 
     public SecondaryVoltageControlAdderImpl(Network network) {
         super(network);
@@ -33,16 +34,16 @@ public class SecondaryVoltageControlAdderImpl extends AbstractExtensionAdder<Net
     }
 
     @Override
-    public SecondaryVoltageControlAdderImpl addZone(SecondaryVoltageControl.Zone zone) {
-        zones.add(Objects.requireNonNull(zone));
+    public SecondaryVoltageControlAdderImpl addControlZone(ControlZone controlZone) {
+        controlZones.add(Objects.requireNonNull(controlZone));
         return this;
     }
 
     @Override
     protected SecondaryVoltageControlImpl createExtension(Network network) {
-        if (zones.isEmpty()) {
-            throw new PowsyblException("Empty zone list");
+        if (controlZones.isEmpty()) {
+            throw new PowsyblException("Empty control zone list");
         }
-        return new SecondaryVoltageControlImpl(network, zones);
+        return new SecondaryVoltageControlImpl(network, controlZones);
     }
 }

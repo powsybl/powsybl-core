@@ -18,15 +18,15 @@ import java.util.Objects;
  */
 public class SecondaryVoltageControlImpl extends AbstractExtension<Network> implements SecondaryVoltageControl {
 
-    private final List<Zone> zones;
+    private final List<ControlZone> controlZones;
 
-    public SecondaryVoltageControlImpl(Network network, List<Zone> zones) {
+    public SecondaryVoltageControlImpl(Network network, List<ControlZone> controlZones) {
         super(network);
-        this.zones = Objects.requireNonNull(zones);
+        this.controlZones = Objects.requireNonNull(controlZones);
     }
 
     @Override
-    public List<Zone> getZones() {
-        return zones;
+    public List<ControlZone> getControlZones() {
+        return controlZones;
     }
 }

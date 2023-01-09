@@ -18,7 +18,7 @@
         </xs:sequence>
         <xs:attribute name="targetV" use="required" type="xs:double"/>
     </xs:complexType>
-    <xs:complexType name="Zone">
+    <xs:complexType name="ControlZone">
         <xs:sequence>
             <xs:element name="pilotPoint" type="svc:PilotPoint" minOccurs="1" maxOccurs="1"/>
             <xs:element name="generatorId" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
@@ -29,7 +29,7 @@
     <xs:element name="secondaryVoltageControl">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="zone" type="svc:Zone" minOccurs="1" maxOccurs="unbounded"/>
+                <xs:element name="controlZone" type="svc:ControlZone" minOccurs="1" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

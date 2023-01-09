@@ -50,7 +50,7 @@ public interface SecondaryVoltageControl extends Extension<Network> {
         }
     }
 
-    class Zone {
+    class ControlZone {
 
         private final String name;
 
@@ -60,7 +60,7 @@ public interface SecondaryVoltageControl extends Extension<Network> {
 
         private final List<String> vscsIds;
 
-        public Zone(String name, PilotPoint pilotPoint, List<String> generatorsIds, List<String> vscsIds) {
+        public ControlZone(String name, PilotPoint pilotPoint, List<String> generatorsIds, List<String> vscsIds) {
             this.name = Objects.requireNonNull(name);
             this.pilotPoint = Objects.requireNonNull(pilotPoint);
             this.generatorsIds = Objects.requireNonNull(generatorsIds);
@@ -87,7 +87,7 @@ public interface SecondaryVoltageControl extends Extension<Network> {
         }
     }
 
-    List<Zone> getZones();
+    List<ControlZone> getControlZones();
 
     @Override
     default String getName() {
