@@ -144,6 +144,11 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void switchedShuntWithZeroVswlo() throws IOException {
+        importTest("SwitchedShuntWithZeroVswlo", "SwitchedShuntWithZeroVswlo.raw", false);
+    }
+
+    @Test
     public void importTest14IsolatedBuses() throws IOException {
         importTest("IEEE_14_isolated_buses", "IEEE_14_isolated_buses.raw", false);
     }
@@ -154,8 +159,33 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void parallelTwoTerminalDcBetweenSameAcBuses() throws IOException {
+        importTest("parallelTwoTerminalDcBetweenSameAcBuses", "parallelTwoTerminalDcBetweenSameAcBuses.raw", false);
+    }
+
+    @Test
     public void twoWindingsTransformerPhase() throws IOException {
         importTest("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
+    }
+
+    @Test
+    public void isolatedSlackBus() throws IOException {
+        importTest("IsolatedSlackBus", "IsolatedSlackBus.raw", false);
+    }
+
+    @Test
+    public void transformersWithZeroNomV() throws IOException {
+        importTest("TransformersWithZeroNomV", "TransformersWithZeroNomV.raw", false);
+    }
+
+    @Test
+    public void rawCaseWithSpecialCharacters() throws IOException {
+        importTest("RawCaseWithSpecialCharacters", "RawCaseWithSpecialCharacters.raw", false);
+    }
+
+    @Test
+    public void rawxCaseWithSpecialCharacters() throws IOException {
+        importTest("RawxCaseWithSpecialCharacters", "RawxCaseWithSpecialCharacters.rawx", false);
     }
 
     @Test

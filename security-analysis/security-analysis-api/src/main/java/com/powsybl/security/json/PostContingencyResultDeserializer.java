@@ -44,6 +44,7 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
         NetworkResult networkResult = null;
         PostContingencyComputationStatus status = null;
+        ConnectivityResult connectivityResult = null;
 
         String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         if (version == null) {  // assuming current version...
@@ -93,9 +94,19 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
                             version, "1.3");
                     status = parser.readValueAs(PostContingencyComputationStatus.class);
                     break;
+                case "connectivityResult":
+                    parser.nextToken();
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: connectivityResult",
+                            version, "1.4");
+                    connectivityResult = parser.readValueAs(ConnectivityResult.class);
+                    break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
+        }
+
+        if (connectivityResult == null) {
+            connectivityResult = new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet());
         }
 
         if (version.compareTo("1.3") < 0) {
@@ -103,9 +114,9 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
             status = limitViolationsResult.isComputationOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED;
         }
         if (networkResult != null) {
-            return new PostContingencyResult(contingency, status, limitViolationsResult, networkResult);
+            return new PostContingencyResult(contingency, status, limitViolationsResult, networkResult, connectivityResult);
         } else {
-            return new PostContingencyResult(contingency, status, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults);
+            return new PostContingencyResult(contingency, status, limitViolationsResult, branchResults, busResults, threeWindingsTransformerResults, connectivityResult);
         }
     }
 }

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -72,8 +73,9 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     }
 
     protected void write(List<T> objects, String[] headers, String[] quotedFields, Context context, OutputStream outputStream) {
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
         CsvWriterSettings settings = recordGroup.settingsForCsvWriter(headers, quotedFields, context);
-        CsvWriter writer = new CsvWriter(outputStream, settings);
+        CsvWriter writer = new CsvWriter(outputStreamWriter, settings);
         writer.processRecords(objects);
         writer.flush();
     }
@@ -160,7 +162,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         while (m.find()) {
             // If current group is quoted, keep it as it is
             if (m.group().indexOf(LEGACY_TEXT.getQuote()) >= 0) {
-                m.appendReplacement(newLine, m.group());
+                m.appendReplacement(newLine, replaceSpecialCharacters(m.group()));
             } else {
                 // current group is whitespace, keep a single whitespace
                 m.appendReplacement(newLine, " ");
@@ -173,5 +175,9 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     private static String removeComment(String line) {
         // Only outside quotes
         return line.replaceAll("('[^']*')|(^/[^/]*)|(/[^/]*)", "$1$2");
+    }
+
+    private static String replaceSpecialCharacters(String line) {
+        return line.replace("\\", "\\\\").replace("$", "\\$");
     }
 }
