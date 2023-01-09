@@ -14,5 +14,6 @@ Logger logger = LoggerFactory.getLogger("com.powsybl.dynamicsimulation.groovy.Gr
 for (Line line : network.lines) {
     dummyEventModel {
         id line.id
+        startTime 50
     }
 }

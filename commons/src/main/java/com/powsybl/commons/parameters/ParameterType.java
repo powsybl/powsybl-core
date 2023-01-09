@@ -15,7 +15,8 @@ public enum ParameterType {
     BOOLEAN(Boolean.class, Boolean.class),
     STRING(String.class, String.class),
     STRING_LIST(List.class, String.class),
-    DOUBLE(Double.class, Double.class);
+    DOUBLE(Double.class, Double.class),
+    INTEGER(Integer.class, Integer.class);
 
     private final Class<?> typeClass;
     private final Class<?> elementClass;

@@ -225,7 +225,8 @@ public class BusAdapterTest {
         Mockito.verify(visitor1, Mockito.never()).visitLine(Mockito.any(Line.class), Mockito.any(Branch.Side.class));
 
         // Add second DanglingLine -> Creation of MergedLine
-        DanglingLine dl2 = createDanglingLine(vl2, baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, busId2);
+        view.newSubstation().setId("S").add().newVoltageLevel().setId("VL").setNominalV(220).setTopologyKind(TopologyKind.BUS_BREAKER).add().getBusBreakerView().newBus().setId("B").add();
+        DanglingLine dl2 = createDanglingLine(view.getVoltageLevel("VL"), baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, "B");
 
         // Mock TopologyVisitor
         TopologyVisitor visitor2 = Mockito.mock(TopologyVisitor.class);

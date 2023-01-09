@@ -24,9 +24,9 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private double x = Double.NaN;
 
-    private double g = Double.NaN;
+    private double g = 0.0;
 
-    private double b = Double.NaN;
+    private double b = 0.0;
 
     private double ratedU1 = Double.NaN;
 
@@ -103,6 +103,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     @Override
     public TwoWindingsTransformer add() {
         String id = checkAndGetUniqueId();
+        checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
         if (substation != null) {
@@ -116,6 +117,12 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
             throw new ValidationException(this,
                     "the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
                             + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "')");
+        }
+        if (Double.isNaN(ratedU1)) {
+            ratedU1 = voltageLevel1.getNominalV();
+        }
+        if (Double.isNaN(ratedU2)) {
+            ratedU2 = voltageLevel2.getNominalV();
         }
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
