@@ -121,8 +121,8 @@ public class SecurityAnalysisResultBuilderTest {
             0, 0, 0, 0, 0, 0, 0, 0, 0), res1.getNetworkResult().getThreeWindingsTransformerResult("threeWindingsTransformerId"));
         assertEquals(1, res1.getConnectivityResult().getCreatedSynchronousComponentCount());
         assertEquals(2, res1.getConnectivityResult().getCreatedConnectedComponentCount());
-        assertEquals(10.0, res1.getConnectivityResult().getLoadActivePowerLoss(), 1e-3);
-        assertEquals(20.0, res1.getConnectivityResult().getGenerationActivePowerLoss(), 1e-3);
+        assertEquals(10.0, res1.getConnectivityResult().getDisconnectedLoadActivePower(), 1e-3);
+        assertEquals(20.0, res1.getConnectivityResult().getDisconnectedGenerationActivePower(), 1e-3);
         assertEquals(Set.of("branchId"), res1.getConnectivityResult().getLostElements());
         assertEquals(2, res.getPostContingencyResults().size());
 
@@ -135,8 +135,8 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals("contingency2", res2.getContingency().getId());
         assertEquals(2, res2.getConnectivityResult().getCreatedSynchronousComponentCount());
         assertEquals(4, res2.getConnectivityResult().getCreatedConnectedComponentCount());
-        assertEquals(10.0, res2.getConnectivityResult().getLoadActivePowerLoss(), 1e-3);
-        assertEquals(15.0, res2.getConnectivityResult().getGenerationActivePowerLoss(), 1e-3);
+        assertEquals(10.0, res2.getConnectivityResult().getDisconnectedLoadActivePower(), 1e-3);
+        assertEquals(15.0, res2.getConnectivityResult().getDisconnectedGenerationActivePower(), 1e-3);
         assertEquals(Set.of("branchId", "branchId2"), res2.getConnectivityResult().getLostElements());
         assertEquals(2, res.getPostContingencyResults().size());
 

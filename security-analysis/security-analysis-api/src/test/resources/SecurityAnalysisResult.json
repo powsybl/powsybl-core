@@ -147,8 +147,8 @@
     "connectivityResult" : {
       "createdSynchronousComponentCount" : 0,
       "createdConnectedComponentCount" : 0,
-      "loadActivePowerLoss" : 0.0,
-      "generationActivePowerLoss" : 0.0,
+      "disconnectedLoadActivePower" : 0.0,
+      "disconnectedGenerationActivePower" : 0.0,
       "lostElements" : [ ]
     }
   } ],

@@ -18,18 +18,18 @@ public class ConnectivityResult {
 
     private final int createdConnectedComponentCount;
 
-    private final double loadActivePowerLoss;
+    private final double disconnectedLoadActivePower;
 
-    private final double generationActivePowerLoss;
+    private final double disconnectedGenerationActivePower;
 
     private final Set<String> lostElements;
 
-    public ConnectivityResult(int createdSynchronousComponentCount, int createdConnectedComponentCount, double loadActivePowerLoss,
-                              double generationActivePowerLoss, Set<String> lostElements) {
+    public ConnectivityResult(int createdSynchronousComponentCount, int createdConnectedComponentCount, double disconnectedLoadActivePower,
+                              double disconnectedGenerationActivePower, Set<String> lostElements) {
         this.createdSynchronousComponentCount = createdSynchronousComponentCount;
         this.createdConnectedComponentCount = createdConnectedComponentCount;
-        this.loadActivePowerLoss = loadActivePowerLoss;
-        this.generationActivePowerLoss = generationActivePowerLoss;
+        this.disconnectedLoadActivePower = disconnectedLoadActivePower;
+        this.disconnectedGenerationActivePower = disconnectedGenerationActivePower;
         this.lostElements = lostElements;
     }
 
@@ -41,12 +41,12 @@ public class ConnectivityResult {
         return createdConnectedComponentCount;
     }
 
-    public double getLoadActivePowerLoss() {
-        return loadActivePowerLoss;
+    public double getDisconnectedLoadActivePower() {
+        return disconnectedLoadActivePower;
     }
 
-    public double getGenerationActivePowerLoss() {
-        return generationActivePowerLoss;
+    public double getDisconnectedGenerationActivePower() {
+        return disconnectedGenerationActivePower;
     }
 
     public Set<String> getLostElements() {

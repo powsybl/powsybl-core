@@ -29,8 +29,8 @@ public class ConnectivityResultSerializer extends StdSerializer<ConnectivityResu
         jsonGenerator.writeStartObject();
         jsonGenerator.writeObjectField("createdSynchronousComponentCount", connectivityResult.getCreatedSynchronousComponentCount());
         jsonGenerator.writeObjectField("createdConnectedComponentCount", connectivityResult.getCreatedConnectedComponentCount());
-        jsonGenerator.writeObjectField("loadActivePowerLoss", connectivityResult.getLoadActivePowerLoss());
-        jsonGenerator.writeObjectField("generationActivePowerLoss", connectivityResult.getGenerationActivePowerLoss());
+        jsonGenerator.writeObjectField("disconnectedLoadActivePower", connectivityResult.getDisconnectedLoadActivePower());
+        jsonGenerator.writeObjectField("disconnectedGenerationActivePower", connectivityResult.getDisconnectedGenerationActivePower());
         jsonGenerator.writeObjectField("lostElements", connectivityResult.getLostElements());
         jsonGenerator.writeEndObject();
 

@@ -32,8 +32,8 @@ public class ConnectivityResultDeserializer extends StdDeserializer<Connectivity
 
         int createdSynchronousComponentCount = 0;
         int createdConnectedComponentCount = 0;
-        double loadActivePowerLoss = 0.0;
-        double generationActivePowerLoss = 0.0;
+        double disconnectedLoadActivePower = 0.0;
+        double disconnectedGenerationActivePower = 0.0;
         Set<String> lostElements = Collections.emptySet();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -46,13 +46,13 @@ public class ConnectivityResultDeserializer extends StdDeserializer<Connectivity
                     parser.nextToken();
                     createdConnectedComponentCount = parser.getIntValue();
                     break;
-                case "loadActivePowerLoss":
+                case "disconnectedLoadActivePower":
                     parser.nextToken();
-                    loadActivePowerLoss = parser.getDoubleValue();
+                    disconnectedLoadActivePower = parser.getDoubleValue();
                     break;
-                case "generationActivePowerLoss":
+                case "disconnectedGenerationActivePower":
                     parser.nextToken();
-                    generationActivePowerLoss = parser.getDoubleValue();
+                    disconnectedGenerationActivePower = parser.getDoubleValue();
                     break;
                 case "lostElements":
                     parser.nextToken();
@@ -65,7 +65,7 @@ public class ConnectivityResultDeserializer extends StdDeserializer<Connectivity
         }
 
         return new ConnectivityResult(createdSynchronousComponentCount, createdConnectedComponentCount,
-                loadActivePowerLoss, generationActivePowerLoss, lostElements);
+                disconnectedLoadActivePower, disconnectedGenerationActivePower, lostElements);
     }
 }
 
