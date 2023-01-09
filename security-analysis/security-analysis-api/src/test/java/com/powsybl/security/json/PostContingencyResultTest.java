@@ -50,7 +50,7 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         assertEquals(2, postContingencyResult.getConnectivityResult().getCreatedConnectedComponentCount());
         assertEquals(5.0, postContingencyResult.getConnectivityResult().getDisconnectedLoadActivePower());
         assertEquals(10.0, postContingencyResult.getConnectivityResult().getDisconnectedGenerationActivePower());
-        assertEquals(Set.of("Id1", "Id2"), postContingencyResult.getConnectivityResult().getLostElements());
+        assertEquals(Set.of("Id1", "Id2"), postContingencyResult.getConnectivityResult().getDisconnectedElements());
     }
 
     @Test

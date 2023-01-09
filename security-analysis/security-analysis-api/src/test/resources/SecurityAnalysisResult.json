@@ -149,7 +149,7 @@
       "createdConnectedComponentCount" : 0,
       "disconnectedLoadActivePower" : 0.0,
       "disconnectedGenerationActivePower" : 0.0,
-      "lostElements" : [ ]
+      "disconnectedElements" : [ ]
     }
   } ],
   "operatorStrategyResults" : [ {

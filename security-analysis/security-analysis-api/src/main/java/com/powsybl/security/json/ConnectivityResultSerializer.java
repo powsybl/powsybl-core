@@ -31,7 +31,7 @@ public class ConnectivityResultSerializer extends StdSerializer<ConnectivityResu
         jsonGenerator.writeObjectField("createdConnectedComponentCount", connectivityResult.getCreatedConnectedComponentCount());
         jsonGenerator.writeObjectField("disconnectedLoadActivePower", connectivityResult.getDisconnectedLoadActivePower());
         jsonGenerator.writeObjectField("disconnectedGenerationActivePower", connectivityResult.getDisconnectedGenerationActivePower());
-        jsonGenerator.writeObjectField("lostElements", connectivityResult.getLostElements());
+        jsonGenerator.writeObjectField("disconnectedElements", connectivityResult.getDisconnectedElements());
         jsonGenerator.writeEndObject();
 
     }

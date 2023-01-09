@@ -22,7 +22,7 @@ public class ConnectivityResult {
 
     private final double disconnectedGenerationActivePower;
 
-    private final Set<String> lostElements;
+    private final Set<String> disconnectedElements;
 
     public ConnectivityResult(int createdSynchronousComponentCount, int createdConnectedComponentCount, double disconnectedLoadActivePower,
                               double disconnectedGenerationActivePower, Set<String> lostElements) {
@@ -30,7 +30,7 @@ public class ConnectivityResult {
         this.createdConnectedComponentCount = createdConnectedComponentCount;
         this.disconnectedLoadActivePower = disconnectedLoadActivePower;
         this.disconnectedGenerationActivePower = disconnectedGenerationActivePower;
-        this.lostElements = lostElements;
+        this.disconnectedElements = lostElements;
     }
 
     public int getCreatedSynchronousComponentCount() {
@@ -49,7 +49,7 @@ public class ConnectivityResult {
         return disconnectedGenerationActivePower;
     }
 
-    public Set<String> getLostElements() {
-        return lostElements;
+    public Set<String> getDisconnectedElements() {
+        return disconnectedElements;
     }
 }

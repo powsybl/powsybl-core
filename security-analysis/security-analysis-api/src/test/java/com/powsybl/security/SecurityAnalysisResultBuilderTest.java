@@ -123,7 +123,7 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals(2, res1.getConnectivityResult().getCreatedConnectedComponentCount());
         assertEquals(10.0, res1.getConnectivityResult().getDisconnectedLoadActivePower(), 1e-3);
         assertEquals(20.0, res1.getConnectivityResult().getDisconnectedGenerationActivePower(), 1e-3);
-        assertEquals(Set.of("branchId"), res1.getConnectivityResult().getLostElements());
+        assertEquals(Set.of("branchId"), res1.getConnectivityResult().getDisconnectedElements());
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations1 = res1.getLimitViolationsResult().getLimitViolations();
@@ -137,7 +137,7 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals(4, res2.getConnectivityResult().getCreatedConnectedComponentCount());
         assertEquals(10.0, res2.getConnectivityResult().getDisconnectedLoadActivePower(), 1e-3);
         assertEquals(15.0, res2.getConnectivityResult().getDisconnectedGenerationActivePower(), 1e-3);
-        assertEquals(Set.of("branchId", "branchId2"), res2.getConnectivityResult().getLostElements());
+        assertEquals(Set.of("branchId", "branchId2"), res2.getConnectivityResult().getDisconnectedElements());
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations2 = res2.getLimitViolationsResult().getLimitViolations();
