@@ -15,6 +15,8 @@ import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.util.TieLineUtil.findAndAssociateDanglingLines;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -74,21 +76,26 @@ class MergingViewIndex {
         other.getDanglingLineStream().forEach(this::checkNewDanglingLine);
     }
 
-    void checkNewDanglingLine(final DanglingLine dll2) {
-        Objects.requireNonNull(dll2, "DanglingLine is null");
-        // Manage DanglingLines
-        final String code = dll2.getUcteXnodeCode();
-        if (code == null) {
-            return;
-        }
-        // Find other DanglingLine if exist
-        final Set<DanglingLine> danglingLines = getNetworkStream().flatMap(Network::getDanglingLineStream).filter(d -> d.getUcteXnodeCode().equals(code)).collect(Collectors.toSet());
-        for (DanglingLine dll1 : danglingLines) {
-            if (dll1 != dll2) {
-                // Create MergedLine from 2 dangling lines
-                mergedLineCached.computeIfAbsent(code, key -> new MergedLine(this, dll1, dll2));
+    void checkNewDanglingLine(DanglingLine dl2) {
+        DanglingLine dl1 = getNetworkStream().map(n -> n.getDanglingLine(dl2.getId()))
+                .filter(Objects::nonNull)
+                .filter(dl -> dl != dl2)
+                .findFirst()
+                .orElse(null);
+        Function<String, List<DanglingLine>> getDanglingLinesByXnodeCode = code -> getNetworkStream()
+                .flatMap(Network::getDanglingLineStream)
+                .filter(d -> code.equals(d.getUcteXnodeCode()))
+                .filter(d -> d.getNetwork() != dl2.getNetwork())
+                .distinct()
+                .collect(Collectors.toList());
+        BiConsumer<DanglingLine, DanglingLine> mergeDanglingLines = (dll1, dll2) -> {
+            String key = dll1.getId();
+            if (dll1.getUcteXnodeCode() != null && dll2.getUcteXnodeCode() != null) {
+                key = dll1.getUcteXnodeCode();
             }
-        }
+            mergedLineCached.computeIfAbsent(key, k -> new MergedLine(this, dll1, dll2));
+        };
+        findAndAssociateDanglingLines(dl2, dl1, getDanglingLinesByXnodeCode, mergeDanglingLines);
     }
 
     MergedLine getMergedLineByCode(final String ucteXnodeCode) {
@@ -317,7 +324,7 @@ class MergingViewIndex {
     }
 
     boolean isMerged(final DanglingLine dl) {
-        return mergedLineCached.containsKey(dl.getUcteXnodeCode());
+        return mergedLineCached.containsKey(dl.getUcteXnodeCode()) || mergedLineCached.containsKey(dl.getId());
     }
 
     Stream<DanglingLine> getDanglingLineStream() {
