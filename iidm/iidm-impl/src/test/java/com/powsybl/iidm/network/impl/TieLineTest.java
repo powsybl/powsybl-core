@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import static org.junit.Assert.assertTrue;
-
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -21,6 +20,8 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ReorientedBranchCharacteristics;
 import com.powsybl.iidm.network.util.SV;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -181,6 +182,73 @@ public class TieLineTest {
         assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getHalf2().getBoundary().getAngle()));
         assertTrue(compare(getP(caseSv.line2, Branch.Side.ONE), tieLine.getHalf2().getBoundary().getP()));
         assertTrue(compare(getQ(caseSv.line2, Branch.Side.ONE), tieLine.getHalf2().getBoundary().getQ()));
+    }
+
+    @Test
+    public void testDefaultValuesTieLine() {
+
+        Network network = NoEquipmentNetworkFactory.create();
+
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .add();
+        VoltageLevel s1vl1 = s1.newVoltageLevel()
+                .setId("S1VL1")
+                .setNominalV(1.0)
+                .setLowVoltageLimit(0.95)
+                .setHighVoltageLimit(1.05)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        createBus(s1vl1, "S1VL1-BUS");
+
+        Substation s2 = network.newSubstation()
+                .setId("S2")
+                .add();
+        VoltageLevel s2vl1 = s2.newVoltageLevel()
+                .setId("S2VL1")
+                .setNominalV(1.0)
+                .setLowVoltageLimit(0.95)
+                .setHighVoltageLimit(1.05)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        createBus(s2vl1, "S2VL1-BUS");
+
+        Branch.Side boundarySide1 = Branch.Side.ONE;
+        Branch.Side boundarySide2 = Branch.Side.TWO;
+        TieLineAdder adder = network.newTieLine()
+                .setId(boundarySide1.name() + " + " + boundarySide2.name())
+                .setName(boundarySide1.name() + " + " + boundarySide2.name())
+                .newHalfLine1()
+                    .setId(boundarySide1.name())
+                    .setName(boundarySide1.name())
+                    .setR(1.0)
+                    .setX(2.0)
+                .add()
+                .newHalfLine2()
+                    .setId(boundarySide2.name())
+                    .setName(boundarySide2.name())
+                    .setR(1.0)
+                    .setX(2.0)
+                .add();
+
+        adder.setBus1("S1VL1-BUS")
+                .setBus2("S2VL1-BUS")
+                .setUcteXnodeCode("UcteNode");
+        TieLine tieLine = adder.add();
+
+        assertEquals(0.0, tieLine.getHalf1().getG1(), 0.0);
+        assertEquals(0.0, tieLine.getHalf1().getG2(), 0.0);
+        assertEquals(0.0, tieLine.getHalf1().getB1(), 0.0);
+        assertEquals(0.0, tieLine.getHalf1().getB2(), 0.0);
+        assertEquals(0.0, tieLine.getHalf2().getG1(), 0.0);
+        assertEquals(0.0, tieLine.getHalf2().getG2(), 0.0);
+        assertEquals(0.0, tieLine.getHalf2().getB1(), 0.0);
+        assertEquals(0.0, tieLine.getHalf2().getB2(), 0.0);
+
+        assertSame(s1vl1, tieLine.getTerminal1().getVoltageLevel());
+        assertSame(s2vl1, tieLine.getTerminal2().getVoltageLevel());
     }
 
     private static Network createNetworkWithTieLine(NetworkFactory networkFactory,

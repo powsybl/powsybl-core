@@ -46,13 +46,13 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
         private double rho = Double.NaN;
 
-        private double r = Double.NaN;
+        private double r = 0.0;
 
-        private double x = Double.NaN;
+        private double x = 0.0;
 
-        private double g = Double.NaN;
+        private double g = 0.0;
 
-        private double b = Double.NaN;
+        private double b = 0.0;
 
         @Override
         public StepAdder setRho(double rho) {

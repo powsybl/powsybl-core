@@ -17,13 +17,19 @@ import com.powsybl.dynamicsimulation.EventModel;
 public class DummyEventModel implements EventModel {
 
     private final String id;
+    private final double startTime;
 
-    public DummyEventModel(String id) {
+    public DummyEventModel(String id, double startTime) {
         this.id = Objects.requireNonNull(id);
+        this.startTime = startTime;
     }
 
     public String getId() {
         return id;
     }
 
+    @Override
+    public double getStartTime() {
+        return startTime;
+    }
 }

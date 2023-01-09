@@ -22,6 +22,22 @@ public final class CgmesConformity1ModifiedCatalog {
     private CgmesConformity1ModifiedCatalog() {
     }
 
+    public static GridModelReferenceResources microGridBaseCaseBEUnmergedXnode() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_unmerged_xnode/";
+        return new GridModelReferenceResources(
+                "MicroGrid-BaseCase-BE-unmergedXnode",
+                null,
+                new ResourceSet(base,
+                        MICRO_GRID_BE_EQ,
+                        MICRO_GRID_BE_TP),
+                new ResourceSet(MICRO_GRID_BE_BASE,
+                        MICRO_GRID_BE_SSH,
+                        MICRO_GRID_BE_SV),
+                new ResourceSet(MICRO_GRID_BD_BASE, MICRO_GRID_BD_EQ,
+                        MICRO_GRID_BD_TP));
+    }
+
     public static GridModelReferenceResources microGridBaseCaseBEExplicitBase() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_explicitBase/";

@@ -86,5 +86,15 @@ public final class Cgmes3ModifiedCatalog {
                 new ResourceSet(base, "20210209T1930Z_1D_BE_9.xml"));
     }
 
+    public static GridModelReferenceResources microGridBaseCaseGeographicalRegionInBoundary() {
+        String base = CGMES_3_MODIFIED_TEST_MODELS
+                + "/MicroGrid/geographicalRegionInBoundary/";
+        return new GridModelReferenceResources(
+                "MicroGrid-geographical-region-in-boundary",
+                null,
+                new ResourceSet(base, "20210209T1930Z_1D_BE_EQ_9.xml"),
+                new ResourceSet(base, "20171002T0930Z_ENTSO-E_EQ_BD_2.xml"));
+    }
+
     private static final String CGMES_3_MODIFIED_TEST_MODELS = "/cgmes3-test-models-modified";
 }
