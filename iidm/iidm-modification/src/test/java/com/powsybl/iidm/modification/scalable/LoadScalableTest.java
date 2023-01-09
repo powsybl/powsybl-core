@@ -38,8 +38,8 @@ public class LoadScalableTest {
         ls1 = (LoadScalable) l1;
 
         l2 = new LoadScalable("l1", 110);
-        l3 = new LoadScalable("l1", 20, 100);
-        l4 = new LoadScalable("l1", -10, 100);
+        l3 = new LoadScalable("l1", 20, 100, LOAD);
+        l4 = new LoadScalable("l1", -10, 100, LOAD);
 
     }
 
@@ -50,28 +50,29 @@ public class LoadScalableTest {
 
     @Test(expected = PowsyblException.class)
     public void testConstructorInvalidP() {
-        new LoadScalable("l1", 10, 0);
+        new LoadScalable("l1", 10, 0, LOAD);
     }
 
     @Test
-    public void testInitialValue() {
-        assertEquals(0, l1.initialValue(network), 1e-3);
+    public void testCurrentInjection() {
+        assertEquals(100., l1.getCurrentInjection(network, LOAD), 1e-3);
+        assertEquals(-100., l1.getCurrentInjection(network, GENERATOR), 1e-3);
     }
 
     @Test
     public void testMaximumlValue() {
-        assertEquals(Double.MAX_VALUE, l1.maximumValue(network, LOAD), 0.);
-        assertEquals(-20, l3.maximumValue(network), 0.);
-        assertEquals(-20, l3.maximumValue(network, GENERATOR), 0.);
-        assertEquals(100, l3.maximumValue(network, LOAD), 0.);
+        assertEquals(Double.MAX_VALUE, l1.getMaximumInjection(network, LOAD), 0.);
+        assertEquals(0., l1.getMaximumInjection(network, GENERATOR), 0.);
+        assertEquals(-20, l3.getMaximumInjection(network, GENERATOR), 0.);
+        assertEquals(100, l3.getMaximumInjection(network, LOAD), 0.);
     }
 
     @Test
     public void testMinimumlValue() {
-        assertEquals(0, l1.minimumValue(network, LOAD), 0.);
-        assertEquals(-100, l3.minimumValue(network), 0.);
-        assertEquals(-100, l3.minimumValue(network, GENERATOR), 0.);
-        assertEquals(20, l3.minimumValue(network, LOAD), 0.);
+        assertEquals(0, l1.getMinimumInjection(network, LOAD), 0.);
+        assertEquals(-Double.MAX_VALUE, l1.getMinimumInjection(network, GENERATOR), 0.);
+        assertEquals(-100, l3.getMinimumInjection(network, GENERATOR), 0.);
+        assertEquals(20, l3.getMinimumInjection(network, LOAD), 0.);
     }
 
     @Test
@@ -92,7 +93,7 @@ public class LoadScalableTest {
         assertEquals(0, load.getP0(), 1e-3);
 
         //test with a maximum value
-        l2.reset(network);
+        load.setP0(0.);
         assertEquals(0, load.getP0(), 1e-3);
         assertEquals(-40, l2.scale(network, -40, convention), 1e-3);
         assertEquals(40, load.getP0(), 1e-3);
@@ -104,24 +105,23 @@ public class LoadScalableTest {
         assertEquals(50, load.getP0(), 1e-3);
 
         //test with minValue = 20
-        assertEquals(100, l3.maximumValue(network, LOAD), 1e-3);
-        assertEquals(20, l3.minimumValue(network, LOAD), 1e-3);
+        assertEquals(100, l3.getMaximumInjection(network, LOAD), 1e-3);
+        assertEquals(20, l3.getMinimumInjection(network, LOAD), 1e-3);
         assertEquals(50, load.getP0(), 1e-3);
 
         assertEquals(30, l3.scale(network, 50, convention), 1e-3);
         assertEquals(20, load.getP0(), 1e-3);
 
-        l3.reset(network);
+        load.setP0(0.);
         //test with p0 outside interval
         assertEquals(0, load.getP0(), 1e-3);
         assertEquals(0, l3.scale(network, -40, convention), 1e-3);
 
         //test LoadScalable with negative minValue
-        l4.reset(network);
+        load.setP0(0.);
         assertEquals(0, load.getP0(), 1e-3);
         assertEquals(10, l4.scale(network, 20, convention), 1e-3);
         assertEquals(-10, load.getP0(), 1e-3);
-
     }
 
     @Test
@@ -156,7 +156,7 @@ public class LoadScalableTest {
         assertEquals(-10, l3.scale(network, -30, convention), 1e-3);
         assertEquals(20, load.getP0(), 1e-3);
 
-        l3.reset(network);
+        load.setP0(0.);
         //test with p0 outside interval
         assertEquals(0, load.getP0(), 1e-3);
         assertEquals(0, l3.scale(network, -40, convention), 1e-3);

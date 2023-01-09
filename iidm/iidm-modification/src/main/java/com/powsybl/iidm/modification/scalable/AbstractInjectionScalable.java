@@ -7,9 +7,7 @@
 package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
@@ -23,25 +21,20 @@ abstract class AbstractInjectionScalable extends AbstractScalable {
 
     protected final String id;
 
-    protected final double minValue;
-
-    protected final double maxValue;
-
     AbstractInjectionScalable(String id) {
-        this(id, -Double.MAX_VALUE, Double.MAX_VALUE);
+        this(id, -Double.MAX_VALUE, Double.MAX_VALUE, ScalingConvention.GENERATOR);
     }
 
-    AbstractInjectionScalable(String id, double minValue, double maxValue) {
+    AbstractInjectionScalable(String id, double minInjection, double maxInjection, ScalingConvention scalingConvention) {
+        super(minInjection, maxInjection, scalingConvention);
         this.id = Objects.requireNonNull(id);
-        if (maxValue < minValue) {
+        if (maxInjection < minInjection) {
             throw new PowsyblException("Error creating Scalable " + id
-                    + " : maxValue should be bigger than minValue");
+                    + " : maxInjection should be bigger than minInjection");
         }
-        this.minValue = minValue;
-        this.maxValue = maxValue;
     }
 
-    private Injection getInjectionOrNull(Network n) {
+    protected Injection getInjectionOrNull(Network n) {
         Identifiable identifiable = n.getIdentifiable(id);
         if (identifiable instanceof Injection) {
             return (Injection) identifiable;
@@ -51,14 +44,7 @@ abstract class AbstractInjectionScalable extends AbstractScalable {
     }
 
     @Override
-    public double initialValue(Network n) {
-        Objects.requireNonNull(n);
-
-        Injection injection = getInjectionOrNull(n);
-        if (injection != null) {
-            return !Double.isNaN(injection.getTerminal().getP()) ? injection.getTerminal().getP() : 0;
-        } else {
-            return 0;
-        }
+    public void setInitialInjectionToNetworkValue(Network n) {
+        this.initialInjection = this.getCurrentInjection(n, ScalingConvention.GENERATOR);
     }
 }

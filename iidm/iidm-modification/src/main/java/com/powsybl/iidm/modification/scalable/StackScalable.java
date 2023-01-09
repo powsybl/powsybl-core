@@ -8,10 +8,8 @@ package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.iidm.network.Network;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -26,12 +24,35 @@ class StackScalable extends AbstractCompoundScalable {
     }
 
     StackScalable(List<Scalable> scalables) {
+        super(-Double.MAX_VALUE, Double.MAX_VALUE, ScalingConvention.GENERATOR);
         this.scalables = Objects.requireNonNull(scalables);
+        scalableActivityMap = scalables.stream().collect(Collectors.toMap(scalable -> scalable, scalable -> true, (first, second) -> first));
     }
 
     @Override
-    Collection<Scalable> getScalables() {
+    public Collection<Scalable> getScalables() {
         return scalables;
+    }
+
+    @Override
+    public AbstractCompoundScalable shallowCopy() {
+        List<Scalable> scalableCopies = new ArrayList<>();
+        Set<Scalable> deactivatedScalables = new HashSet<>();
+        for (Scalable scalable : scalables) {
+            if (scalable instanceof CompoundScalable) {
+                Scalable scalableCopy = ((CompoundScalable) scalable).shallowCopy();
+                scalableCopies.add(scalableCopy);
+            } else {
+                scalableCopies.add(scalable);
+            }
+            if (Boolean.FALSE.equals(scalableActivityMap.get(scalable))) {
+                deactivatedScalables.add(scalable);
+            }
+        }
+        StackScalable stackScalable = new StackScalable(scalableCopies);
+        stackScalable.deactivateScalables(deactivatedScalables);
+
+        return stackScalable;
     }
 
     @Override
@@ -40,8 +61,15 @@ class StackScalable extends AbstractCompoundScalable {
 
         double done = 0;
         double remaining = asked;
+        double oldScaled = this.getCurrentInjection(n, scalingConvention) - this.getInitialInjection(scalingConvention);
+        //if oldScaled and asked are of opposite signs
+        if (oldScaled * asked < -1e-6) {
+            this.reset(n);
+            done = -oldScaled;
+            remaining += oldScaled;
+        }
         for (Scalable scalable : scalables) {
-            if (Math.abs(remaining) > EPSILON) {
+            if (Math.abs(remaining) > EPSILON && Boolean.TRUE.equals(scalableActivityMap.get(scalable))) {
                 double v = scalable.scale(n, remaining, scalingConvention);
                 done += v;
                 remaining -= v;

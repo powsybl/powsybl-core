@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,25 +24,15 @@ class LoadScalable extends AbstractInjectionScalable {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadScalable.class);
 
     LoadScalable(String id) {
-        super(id, 0., Double.MAX_VALUE);
+        super(id, 0, Double.MAX_VALUE, LOAD);
     }
 
     LoadScalable(String id, double maxValue) {
-        super(id, 0., maxValue);
+        super(id, 0., Math.abs(maxValue), LOAD);
     }
 
-    LoadScalable(String id, double minValue, double maxValue) {
-        super(id, minValue, maxValue);
-    }
-
-    @Override
-    public void reset(Network n) {
-        Objects.requireNonNull(n);
-
-        Load l = n.getLoad(id);
-        if (l != null) {
-            l.setP0(0);
-        }
+    LoadScalable(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
+        super(id, minValue, maxValue, scalingConvention);
     }
 
     /**
@@ -50,13 +41,13 @@ class LoadScalable extends AbstractInjectionScalable {
      * Default value is Double.MAX_VALUE for LoadScalable
      */
     @Override
-    public double maximumValue(Network n, ScalingConvention scalingConvention) {
+    public double getMaximumInjection(Network n, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
         Load l = n.getLoad(id);
         if (l != null) {
-            return scalingConvention == LOAD ? maxValue : -minValue;
+            return scalingConvention == GENERATOR ? maxInjection : -minInjection;
         } else {
             return 0;
         }
@@ -69,13 +60,13 @@ class LoadScalable extends AbstractInjectionScalable {
      * Default value is 0 for LoadScalable
      */
     @Override
-    public double minimumValue(Network n, ScalingConvention scalingConvention) {
+    public double getMinimumInjection(Network n, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
         Load l = n.getLoad(id);
         if (l != null) {
-            return scalingConvention == LOAD ? minValue : -maxValue;
+            return scalingConvention == GENERATOR ? minInjection : -maxInjection;
         } else {
             return 0;
         }
@@ -115,22 +106,22 @@ class LoadScalable extends AbstractInjectionScalable {
 
         double oldP0 = l.getP0();
         double oldQ0 = l.getQ0();
-        if (oldP0 < minValue || oldP0 > maxValue) {
+        if (-oldP0 < minInjection || -oldP0 > maxInjection) {
             LOGGER.error("Error scaling LoadScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
             return 0.;
         }
 
-        // We use natural load convention to compute the limits.
+        // We use generator convention to compute the limits.
         // The actual convention is taken into account afterwards.
-        double availableDown = oldP0 - minValue;
-        double availableUp = maxValue - oldP0;
+        double availableUp = maxInjection + oldP0;
+        double availableDown = -oldP0 - minInjection;
 
-        if (scalingConvention == LOAD) {
+        if (scalingConvention == GENERATOR) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
-            l.setP0(oldP0 + done);
+            l.setP0(oldP0 - done);
         } else {
             done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
-            l.setP0(oldP0 - done);
+            l.setP0(oldP0 + done);
         }
 
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
@@ -162,7 +153,18 @@ class LoadScalable extends AbstractInjectionScalable {
     }
 
     @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
+    public double getCurrentInjection(Network n, ScalingConvention scalingConvention) {
+        Objects.requireNonNull(n);
+
+        Injection injection = getInjectionOrNull(n);
+        if (injection == null) {
+            return 0;
+        }
+        if (injection instanceof Load) {
+            double loadP = !Double.isNaN(((Load) injection).getP0()) ? ((Load) injection).getP0() : 0;
+            return scalingConvention.equals(LOAD) ? loadP : -loadP;
+        } else {
+            throw new PowsyblException("Load scalable was not defined on a load.");
+        }
     }
 }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.modification.ConnectGenerator;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -28,18 +29,8 @@ class GeneratorScalable extends AbstractInjectionScalable {
         super(id);
     }
 
-    GeneratorScalable(String id, double minValue, double maxValue) {
-        super(id, minValue, maxValue);
-    }
-
-    @Override
-    public void reset(Network n) {
-        Objects.requireNonNull(n);
-
-        Generator g = n.getGenerator(id);
-        if (g != null) {
-            g.setTargetP(0);
-        }
+    GeneratorScalable(String id, double minInjection, double maxInjection, ScalingConvention scalingConvention) {
+        super(id, minInjection, maxInjection, scalingConvention);
     }
 
     /**
@@ -48,7 +39,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
      * Default value is generator maximum power for GeneratorScalable
      */
     @Override
-    public double maximumValue(Network n, ScalingConvention scalingConvention) {
+    public double getMaximumInjection(Network n, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
@@ -66,7 +57,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
      * Default value is generator minimum power for GeneratorScalable
      */
     @Override
-    public double minimumValue(Network n, ScalingConvention scalingConvention) {
+    public double getMinimumInjection(Network n, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
@@ -79,11 +70,11 @@ class GeneratorScalable extends AbstractInjectionScalable {
     }
 
     private double minimumTargetP(Generator gen) {
-        return Math.max(gen.getMinP(), minValue);
+        return Math.max(gen.getMinP(), minInjection);
     }
 
     private double maximumTargetP(Generator gen) {
-        return Math.min(gen.getMaxP(), maxValue);
+        return Math.min(gen.getMaxP(), maxInjection);
     }
 
     @Override
@@ -148,5 +139,21 @@ class GeneratorScalable extends AbstractInjectionScalable {
                     g.getId(), oldTargetP, g.getTargetP(), g.getMaxP());
 
         return done;
+    }
+
+    @Override
+    public double getCurrentInjection(Network n, ScalingConvention scalingConvention) {
+        Objects.requireNonNull(n);
+
+        Injection injection = getInjectionOrNull(n);
+        if (injection == null) {
+            return 0;
+        }
+        if (injection instanceof Generator) {
+            Double generatorP = !Double.isNaN(((Generator) injection).getTargetP()) ? ((Generator) injection).getTargetP() : 0;
+            return scalingConvention.equals(GENERATOR) ? generatorP : -generatorP;
+        } else {
+            throw new PowsyblException("Generator scalable was not defined on a generator.");
+        }
     }
 }

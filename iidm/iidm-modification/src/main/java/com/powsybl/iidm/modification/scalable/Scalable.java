@@ -43,7 +43,14 @@ public interface Scalable {
     /**
      * Get the constant active power in MW injected at the network.
      */
-    double initialValue(Network n);
+    double getInitialInjection(ScalingConvention scalingConvention);
+
+    void setInitialInjectionToNetworkValue(Network n);
+
+    /**
+     * Get the constant active power in MW injected at the network.
+     */
+    double getCurrentInjection(Network n, ScalingConvention scalingConvention);
 
     /**
      * Set the constant active power to zero.
@@ -51,28 +58,20 @@ public interface Scalable {
     void reset(Network n);
 
     /**
-     * Get the maximal active power in MW.
-     * Uses Generator convention by default
-     */
-    double maximumValue(Network n);
-
-    /**
-     * Get the minimal active power in MW.
-     * Uses Generator convention by default
-     */
-    double minimumValue(Network n);
-
-    /**
      * Get the maximal active power in MW with scaling convention.
      * @see ScalingConvention
      */
-    double maximumValue(Network n, ScalingConvention scalingConvention);
+    double getMaximumInjection(Network n, ScalingConvention scalingConvention);
+
+    double getMaximumExtraScaling(Network n, ScalingConvention scalingConvention);
 
     /**
      * Get the minimal active power in MW with scaling convention.
      * @see ScalingConvention
      */
-    double minimumValue(Network n, ScalingConvention scalingConvention);
+    double getMinimumInjection(Network n, ScalingConvention scalingConvention);
+
+    double getMinimumExtraScaling(Network n, ScalingConvention scalingConvention);
 
     /**
      * @deprecated listGenerators should be replaced by filterInjections
@@ -126,17 +125,6 @@ public interface Scalable {
     List<Injection> filterInjections(Network network);
 
     /**
-     * Scale the given network using Generator convention by default.
-     * The actual scaling value may be different to the one asked, if
-     * the Scalable limit is reached.
-     *
-     * @param n network
-     * @param asked value asked to adjust the scalable active power
-     * @return the actual value of the scalable active power adjustment
-     */
-    double scale(Network n, double asked);
-
-    /**
      * Scale the given network.
      * The actual scaling value may be different to the one asked, if
      * the Scalable limit is reached.
@@ -148,17 +136,6 @@ public interface Scalable {
      * @see ScalingConvention
      */
     double scale(Network n, double asked, ScalingConvention scalingConvention);
-
-    /**
-     * Scale the given network using Generator convention by default.
-     * If the object is a load, scaling is done with constant power factor.
-     * @param n network
-     * @param asked value asked to adjust the scalable active power and reactive power if load
-     * @return the actual value of the scalable active power adjustment
-     */
-    default double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scale(n, asked);
-    }
 
     /**
      * Scale the given network.
@@ -191,8 +168,8 @@ public interface Scalable {
     /**
      * create GeneratorScalable with id, min and max power values for scaling
      */
-    static GeneratorScalable onGenerator(String id, double minValue, double maxValue) {
-        return new GeneratorScalable(id, minValue, maxValue);
+    static GeneratorScalable onGenerator(String id, double minInjection, double maxInjection, ScalingConvention scalingConvention) {
+        return new GeneratorScalable(id, minInjection, maxInjection, scalingConvention);
     }
 
     /**
@@ -205,8 +182,8 @@ public interface Scalable {
     /**
      * create LoadScalable with id, min and max power values for scaling
      */
-    static LoadScalable onLoad(String id, double minValue, double maxValue) {
-        return new LoadScalable(id, minValue, maxValue);
+    static LoadScalable onLoad(String id, double minInjection, double maxInjection, ScalingConvention scalingConvention) {
+        return new LoadScalable(id, minInjection, maxInjection, scalingConvention);
     }
 
     /**
@@ -218,25 +195,11 @@ public interface Scalable {
     }
 
     /**
-     * create DanglingLineScalable with id and the scaling convention that will be used.
-     */
-    static DanglingLineScalable onDanglingLine(String id, ScalingConvention scalingConvention) {
-        return new DanglingLineScalable(id, scalingConvention);
-    }
-
-    /**
      * create DanglingLineScalable with id, min and max power values for scaling.
      * The generator scaling convention is used by default.
      */
-    static DanglingLineScalable onDanglingLine(String id, double minValue, double maxValue) {
-        return new DanglingLineScalable(id, minValue, maxValue);
-    }
-
-    /**
-     * create DanglingLineScalable with id, min and max power values for scaling and the scaling convention that will be used.
-     */
-    static DanglingLineScalable onDanglingLine(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
-        return new DanglingLineScalable(id, minValue, maxValue, scalingConvention);
+    static DanglingLineScalable onDanglingLine(String id, double minInjection, double maxInjection, ScalingConvention scalingConvention) {
+        return new DanglingLineScalable(id, minInjection, maxInjection, scalingConvention);
     }
 
     static Scalable scalable(String id) {

@@ -19,7 +19,25 @@ import java.util.Objects;
  */
 abstract class AbstractScalable implements Scalable {
 
-    protected AbstractScalable() {
+    protected double initialInjection;
+
+    protected final double minInjection;
+
+    protected final double maxInjection;
+
+    protected AbstractScalable(double minInjection, double maxInjection, ScalingConvention scalingConvention) {
+        if (scalingConvention == ScalingConvention.LOAD) {
+            this.minInjection = -maxInjection;
+            this.maxInjection = -minInjection;
+        } else {
+            this.minInjection = minInjection;
+            this.maxInjection = maxInjection;
+        }
+    }
+
+    @Override
+    public double getInitialInjection(ScalingConvention scalingConvention) {
+        return scalingConvention.equals(ScalingConvention.GENERATOR) ? initialInjection : -initialInjection;
     }
 
     @Override
@@ -76,18 +94,17 @@ abstract class AbstractScalable implements Scalable {
     }
 
     @Override
-    public double maximumValue(Network n) {
-        return maximumValue(n, ScalingConvention.GENERATOR);
+    public double getMaximumExtraScaling(Network n, ScalingConvention scalingConvention) {
+        return getMaximumInjection(n, scalingConvention) - getCurrentInjection(n, scalingConvention);
     }
 
     @Override
-    public double minimumValue(Network n) {
-        return minimumValue(n, ScalingConvention.GENERATOR);
+    public double getMinimumExtraScaling(Network n, ScalingConvention scalingConvention) {
+        return getMinimumInjection(n, scalingConvention) - getCurrentInjection(n, scalingConvention);
     }
 
     @Override
-    public double scale(Network n, double asked) {
-        return scale(n, asked, ScalingConvention.GENERATOR);
+    public void reset(Network n) {
+        scale(n, initialInjection - getCurrentInjection(n, ScalingConvention.GENERATOR), ScalingConvention.GENERATOR);
     }
-
 }

@@ -6,17 +6,15 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.LOAD;
+import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.GENERATOR;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
@@ -24,33 +22,12 @@ import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.
 public class DanglingLineScalable extends AbstractInjectionScalable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DanglingLineScalable.class);
 
-    private final ScalingConvention scalingConvention;
-
     DanglingLineScalable(String id) {
-        this(id, -Double.MAX_VALUE, Double.MAX_VALUE);
+        this(id, -Double.MAX_VALUE, Double.MAX_VALUE, GENERATOR);
     }
 
-    DanglingLineScalable(String id, ScalingConvention scalingConvention) {
-        this(id, -Double.MAX_VALUE, Double.MAX_VALUE, scalingConvention);
-    }
-
-    DanglingLineScalable(String id, double minValue, double maxValue) {
-        this(id, minValue, maxValue, ScalingConvention.GENERATOR);
-    }
-
-    DanglingLineScalable(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
-        super(id, minValue, maxValue);
-        this.scalingConvention = Objects.requireNonNull(scalingConvention);
-    }
-
-    @Override
-    public void reset(Network n) {
-        Objects.requireNonNull(n);
-
-        DanglingLine dl = n.getDanglingLine(id);
-        if (dl != null) {
-            dl.setP0(0);
-        }
+    DanglingLineScalable(String id, double minInjection, double maxInjection, ScalingConvention scalingConvention) {
+        super(id, minInjection, maxInjection, scalingConvention);
     }
 
     /**
@@ -59,13 +36,13 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
      * There is no default value for the maximum value.
      */
     @Override
-    public double maximumValue(Network n, Scalable.ScalingConvention scalingConvention) {
+    public double getMaximumInjection(Network n, Scalable.ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
         DanglingLine dl = n.getDanglingLine(id);
         if (dl != null) {
-            return scalingConvention == LOAD ? maxValue : -minValue;
+            return scalingConvention == GENERATOR ? maxInjection : -minInjection;
         } else {
             return 0;
         }
@@ -77,13 +54,13 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
      * There is no default value for the minimum value.
      */
     @Override
-    public double minimumValue(Network n, Scalable.ScalingConvention scalingConvention) {
+    public double getMinimumInjection(Network n, Scalable.ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
         DanglingLine dl = n.getDanglingLine(id);
         if (dl != null) {
-            return scalingConvention == LOAD ? minValue : -maxValue;
+            return scalingConvention == GENERATOR ? minInjection : -maxInjection;
         } else {
             return 0;
         }
@@ -128,17 +105,17 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         }
 
         double oldP0 = dl.getP0();
-        if (oldP0 < minValue || oldP0 > maxValue) {
+        if (oldP0 < minInjection || oldP0 > maxInjection) {
             LOGGER.error("Error scaling DanglingLineScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
             return 0.;
         }
 
-        // We use natural load convention to compute the limits.
+        // We use natural generator convention to compute the limits.
         // The actual convention is taken into account afterwards.
-        double availableDown = oldP0 - minValue;
-        double availableUp = maxValue - oldP0;
+        double availableUp = maxInjection - oldP0;
+        double availableDown = oldP0 - minInjection;
 
-        if (scalingConvention == LOAD) {
+        if (scalingConvention == GENERATOR) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             dl.setP0(oldP0 + done);
         } else {
@@ -153,17 +130,18 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
     }
 
     @Override
-    public double maximumValue(Network n) {
-        return maximumValue(n, scalingConvention);
-    }
+    public double getCurrentInjection(Network n, ScalingConvention scalingConvention) {
+        Objects.requireNonNull(n);
 
-    @Override
-    public double minimumValue(Network n) {
-        return minimumValue(n, scalingConvention);
-    }
-
-    @Override
-    public double scale(Network n, double asked) {
-        return scale(n, asked, scalingConvention);
+        Injection injection = getInjectionOrNull(n);
+        if (injection == null) {
+            return 0;
+        }
+        if (injection instanceof DanglingLine) {
+            double danglingLineP0 = !Double.isNaN(((DanglingLine) injection).getP0()) ? ((DanglingLine) injection).getP0() : 0;
+            return scalingConvention.equals(GENERATOR) ? danglingLineP0 : -danglingLineP0;
+        } else {
+            throw new PowsyblException("Dangling line scalable was not defined on a dangling line.");
+        }
     }
 }

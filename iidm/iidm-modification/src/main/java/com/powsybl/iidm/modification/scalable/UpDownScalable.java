@@ -6,61 +6,115 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-class UpDownScalable extends AbstractScalable {
+class UpDownScalable extends AbstractCompoundScalable {
     private final Scalable upScalable;
     private final Scalable downScalable;
 
     public UpDownScalable(Scalable upScalable, Scalable downScalable) {
+        super(-Double.MAX_VALUE, Double.MAX_VALUE, ScalingConvention.GENERATOR);
         this.upScalable = Objects.requireNonNull(upScalable);
         this.downScalable = Objects.requireNonNull(downScalable);
+        scalableActivityMap = new HashMap<>();
+        scalableActivityMap.put(upScalable, true);
+        scalableActivityMap.put(downScalable, true);
     }
 
     @Override
-    public double initialValue(Network n) {
-        return upScalable.initialValue(n) + downScalable.initialValue(n);
-    }
+    public double getMaximumInjection(Network n, ScalingConvention scalingConvention) {
+        double upScalableMax;
+        double downScalableMax;
 
-    @Override
-    public void reset(Network n) {
-        upScalable.reset(n);
-        downScalable.reset(n);
-    }
-
-    @Override
-    public double maximumValue(Network n, ScalingConvention scalingConvention) {
-        if (scalingConvention == ScalingConvention.LOAD) {
-            return downScalable.maximumValue(n, scalingConvention) - upScalable.initialValue(n);
+        if (Boolean.TRUE.equals(scalableActivityMap.get(upScalable))) {
+            upScalableMax = upScalable.getMaximumInjection(n, scalingConvention);
         } else {
-            return upScalable.maximumValue(n, scalingConvention) + downScalable.initialValue(n);
+            upScalableMax = upScalable.getCurrentInjection(n, scalingConvention);
         }
-    }
-
-    @Override
-    public double minimumValue(Network n, ScalingConvention scalingConvention) {
-        if (scalingConvention == ScalingConvention.LOAD) {
-            return upScalable.minimumValue(n, scalingConvention) - downScalable.initialValue(n);
+        if (Boolean.TRUE.equals(scalableActivityMap.get(downScalable))) {
+            downScalableMax = downScalable.getInitialInjection(scalingConvention);
         } else {
-            return downScalable.minimumValue(n, scalingConvention) + upScalable.initialValue(n);
+            downScalableMax = downScalable.getMaximumInjection(n, scalingConvention);
         }
+
+        return upScalableMax + downScalableMax;
     }
 
     @Override
-    public void filterInjections(Network network, List<Injection> injections, List<String> notFound) {
-        upScalable.filterInjections(network, injections, notFound);
-        downScalable.filterInjections(network, injections, notFound);
+    public double getMinimumInjection(Network n, ScalingConvention scalingConvention) {
+        double upScalableMin;
+        double downScalableMin;
+
+        if (Boolean.TRUE.equals(scalableActivityMap.get(upScalable))) {
+            upScalableMin = upScalable.getInitialInjection(scalingConvention);
+        } else {
+            upScalableMin = upScalable.getCurrentInjection(n, scalingConvention);
+        }
+        if (Boolean.TRUE.equals(scalableActivityMap.get(downScalable))) {
+            downScalableMin = downScalable.getMinimumInjection(n, scalingConvention);
+        } else {
+            downScalableMin = downScalable.getCurrentInjection(n, scalingConvention);
+        }
+
+        return downScalableMin + upScalableMin;
     }
 
     @Override
     public double scale(Network n, double asked, ScalingConvention scalingConvention) {
-        return asked > 0 ? upScalable.scale(n, asked, scalingConvention) : downScalable.scale(n, asked, scalingConvention);
+        double done = 0;
+        double newAsked = asked;
+        if (newAsked > 0) {
+            if (Boolean.TRUE.equals(scalableActivityMap.get(downScalable))) {
+                done += downScalable.scale(n, Math.max(0., Math.min(newAsked, downScalable.getInitialInjection(scalingConvention) - downScalable.getCurrentInjection(n, scalingConvention))), scalingConvention);
+                newAsked = newAsked - done;
+            }
+            if (Boolean.TRUE.equals(scalableActivityMap.get(upScalable))) {
+                done += upScalable.scale(n, newAsked, scalingConvention);
+                return done;
+            } else {
+                return done;
+            }
+        } else {
+            if (Boolean.TRUE.equals(scalableActivityMap.get(upScalable))) {
+                done += upScalable.scale(n, Math.min(0., Math.max(newAsked, upScalable.getInitialInjection(scalingConvention) - upScalable.getCurrentInjection(n, scalingConvention))), scalingConvention);
+                newAsked = newAsked - done;
+            }
+            if (Boolean.TRUE.equals(scalableActivityMap.get(downScalable))) {
+                done += downScalable.scale(n, newAsked, scalingConvention);
+                return done;
+            } else {
+                return done;
+            }
+        }
+    }
+
+    @Override
+    public CompoundScalable shallowCopy() {
+        Scalable upScalableCopy;
+        if (upScalable instanceof CompoundScalable) {
+            upScalableCopy = ((CompoundScalable) upScalable).shallowCopy();
+        } else {
+            upScalableCopy = upScalable;
+        }
+
+        Scalable downScalableCopy;
+        if (downScalable instanceof CompoundScalable) {
+            downScalableCopy = ((CompoundScalable) downScalable).shallowCopy();
+        } else {
+            downScalableCopy = downScalable;
+        }
+        UpDownScalable upDownScalableCopy = new UpDownScalable(upScalableCopy, downScalableCopy);
+        if (Boolean.FALSE.equals(scalableActivityMap.get(upScalable))) {
+            upDownScalableCopy.deactivateScalables(Set.of(upScalableCopy));
+        }
+        if (Boolean.FALSE.equals(scalableActivityMap.get(downScalable))) {
+            upDownScalableCopy.deactivateScalables(Set.of(downScalableCopy));
+        }
+        return upDownScalableCopy;
     }
 }
