@@ -252,18 +252,33 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void testHvdcRemoval() {
-        NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
-
-        Network network = HvdcTestNetwork.createLcc();
-        NetworkReducer reducer = NetworkReducer.builder()
+    public void testHvdcReplacement() {
+        NetworkReducerObserverImpl observerLcc = new NetworkReducerObserverImpl();
+        Network networkLcc = HvdcTestNetwork.createLcc();
+        assertEquals(0, networkLcc.getGeneratorCount());
+        NetworkReducer reducerLcc = NetworkReducer.builder()
                     .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
-                    .withObservers(observer)
+                    .withObservers(observerLcc)
                     .build();
-        reducer.reduce(network);
-        assertEquals(0, network.getHvdcLineCount());
-        assertEquals(1, observer.getHvdcLineReplacedCount());
-        assertEquals(1, observer.getHvdcLineRemovedCount());
+        reducerLcc.reduce(networkLcc);
+        assertEquals(0, networkLcc.getHvdcLineCount());
+        assertEquals(1, observerLcc.getHvdcLineReplacedCount());
+        assertEquals(1, observerLcc.getHvdcLineRemovedCount());
+        assertEquals(1, networkLcc.getGeneratorCount());
+
+        NetworkReducerObserverImpl observerVsc = new NetworkReducerObserverImpl();
+        Network networkVsc = HvdcTestNetwork.createVsc();
+        assertEquals(0, networkVsc.getLoadCount());
+        NetworkReducer reducerVsc = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observerVsc)
+                .build();
+        reducerVsc.reduce(networkVsc);
+        assertEquals(0, networkVsc.getHvdcLineCount());
+        assertEquals(1, observerVsc.getHvdcLineReplacedCount());
+        assertEquals(1, observerVsc.getHvdcLineRemovedCount());
+        assertEquals(1, networkVsc.getLoadCount());
+
     }
 
     @Test
