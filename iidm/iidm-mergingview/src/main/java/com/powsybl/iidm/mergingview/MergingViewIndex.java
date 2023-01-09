@@ -15,7 +15,7 @@ import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.network.util.TieLineUtil.checkAssociatedDanglingLines;
+import static com.powsybl.iidm.network.util.TieLineUtil.findAndAssociateDanglingLines;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -77,23 +77,25 @@ class MergingViewIndex {
     }
 
     void checkNewDanglingLine(DanglingLine dl2) {
-        checkAssociatedDanglingLines(dl2, id -> getNetworkStream().map(n -> n.getDanglingLine(id))
+        DanglingLine dl1 = getNetworkStream().map(n -> n.getDanglingLine(dl2.getId()))
                 .filter(Objects::nonNull)
                 .filter(dl -> dl != dl2)
                 .findFirst()
-                .orElse(null), code -> getNetworkStream()
+                .orElse(null);
+        Function<String, List<DanglingLine>> getDanglingLinesByXnodeCode = code -> getNetworkStream()
                 .flatMap(Network::getDanglingLineStream)
                 .filter(d -> code.equals(d.getUcteXnodeCode()))
-                .filter(d -> d != dl2)
                 .filter(d -> d.getNetwork() != dl2.getNetwork())
                 .distinct()
-                .collect(Collectors.toList()), (dll1, dll2) -> {
-                String key = dll1.getId();
-                if (dll1.getUcteXnodeCode() != null && dll2.getUcteXnodeCode() != null) {
-                    key = dll1.getUcteXnodeCode();
-                }
-                mergedLineCached.computeIfAbsent(key, k -> new MergedLine(this, dll1, dll2));
-            });
+                .collect(Collectors.toList());
+        BiConsumer<DanglingLine, DanglingLine> mergeDanglingLines = (dll1, dll2) -> {
+            String key = dll1.getId();
+            if (dll1.getUcteXnodeCode() != null && dll2.getUcteXnodeCode() != null) {
+                key = dll1.getUcteXnodeCode();
+            }
+            mergedLineCached.computeIfAbsent(key, k -> new MergedLine(this, dll1, dll2));
+        };
+        findAndAssociateDanglingLines(dl2, dl1, getDanglingLinesByXnodeCode, mergeDanglingLines);
     }
 
     MergedLine getMergedLineByCode(final String ucteXnodeCode) {

@@ -893,12 +893,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             }
         }
         for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
-            checkAssociatedDanglingLines(dl2, this::getDanglingLine, dl1byXnodeCode::get, (dll1, dll2) -> {
-                if (dll1.getUcteXnodeCode() != null) {
-                    dl1byXnodeCode.get(dll1.getUcteXnodeCode()).remove(dll1);
-                }
-                mergeDanglingLines(lines, dll1, dll2);
-            });
+            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> mergeDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 
         // do not forget to remove the other network from its index!!!
@@ -926,8 +921,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2) {
+    private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
         if (dl1 != null) {
+            if (dl1.getUcteXnodeCode() != null) {
+                dl1byXnodeCode.get(dl1.getUcteXnodeCode()).remove(dl1);
+            }
 
             // Dangling line 2 must always be reoriented
             // setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
