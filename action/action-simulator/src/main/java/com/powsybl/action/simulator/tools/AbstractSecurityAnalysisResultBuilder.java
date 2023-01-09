@@ -67,8 +67,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
             Objects.requireNonNull(runningContext.getContingency());
             postContingencyResults.put(runningContext.getContingency().getId(), new PostContingencyResult(runningContext.getContingency(), PostContingencyComputationStatus.CONVERGED,
                     violations,
-                    getPostContingencyActions(runningContext.getContingency())
-            ));
+                    getPostContingencyActions(runningContext.getContingency())));
         }
     }
 
