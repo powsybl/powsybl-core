@@ -7,53 +7,65 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements TieLineAdder {
 
-    class HalfLineAdderImpl implements Validable, TieLineAdder.HalfLineAdder {
+    class HalfLineAdderImpl extends AbstractIdentifiableAdder<HalfLineAdderImpl> implements Validable, MergedDanglingLineAdder, GenerationAdderHolder<MergedDanglingLineAdder> {
 
         private final int num;
 
-        protected String id;
+        private double p0 = Double.NaN;
 
-        protected String name;
+        private double q0 = Double.NaN;
 
-        protected boolean fictitious = false;
+        private double r = Double.NaN;
 
-        protected double r = Double.NaN;
+        private double x = Double.NaN;
 
-        protected double x = Double.NaN;
+        private double g = 0.0;
 
-        protected double g1 = 0.0;
+        private double b = 0.0;
 
-        protected double g2 = 0.0;
+        private Integer node;
+        private String connectableBus;
+        private String bus;
 
-        protected double b1 = 0.0;
+        private String halfUcteXnodeCode = null;
 
-        protected double b2 = 0.0;
+        private GenerationAdderImpl<MergedDanglingLineAdder> generationAdder;
 
         HalfLineAdderImpl(int num) {
             this.num = num;
         }
 
         @Override
-        public HalfLineAdderImpl setId(String id) {
-            this.id = id;
+        public NetworkImpl getNetwork() {
+            return network;
+        }
+
+        @Override
+        public void setGenerationAdder(GenerationAdderImpl<MergedDanglingLineAdder> adder) {
+            this.generationAdder = adder;
+        }
+
+        @Override
+        protected String getTypeDescription() {
+            return "TieLineAdder.DanglingLine" + num;
+        }
+
+        @Override
+        public HalfLineAdderImpl setP0(double p0) {
+            this.p0 = p0;
             return this;
         }
 
         @Override
-        public HalfLineAdderImpl setName(String name) {
-            this.name = name;
-            return this;
-        }
-
-        @Override
-        public HalfLineAdderImpl setFictitious(boolean fictitious) {
-            this.fictitious = fictitious;
+        public HalfLineAdderImpl setQ0(double q0) {
+            this.q0 = q0;
             return this;
         }
 
@@ -70,75 +82,87 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         }
 
         @Override
-        public HalfLineAdderImpl setG1(double g1) {
-            this.g1 = g1;
+        public HalfLineAdderImpl setG(double g1) {
+            this.g = g1;
             return this;
         }
 
         @Override
-        public HalfLineAdderImpl setG2(double g2) {
-            this.g2 = g2;
+        public HalfLineAdderImpl setB(double b1) {
+            this.b = b1;
             return this;
         }
 
         @Override
-        public HalfLineAdderImpl setB1(double b1) {
-            this.b1 = b1;
+        public HalfLineAdderImpl setUcteXnodeCode(String ucteXnodeCode) {
+            this.halfUcteXnodeCode = ucteXnodeCode;
             return this;
         }
 
         @Override
-        public HalfLineAdderImpl setB2(double b2) {
-            this.b2 = b2;
-            return this;
+        public GenerationAdder<MergedDanglingLineAdder> newGeneration() {
+            return new GenerationAdderImpl<>(this);
         }
 
         @Override
         public TieLineAdderImpl add() {
-            if (id == null || id.isEmpty()) {
-                throw new ValidationException(this, String.format("id is not set for half line %d", num));
-            }
             if (Double.isNaN(r)) {
                 throw new ValidationException(this, String.format("r is not set for half line %d", num));
             }
             if (Double.isNaN(x)) {
                 throw new ValidationException(this, String.format("x is not set for half line %d", num));
             }
-            if (Double.isNaN(g1)) {
+            if (Double.isNaN(g)) {
                 throw new ValidationException(this, String.format("g1 is not set for half line %d", num));
             }
-            if (Double.isNaN(b1)) {
+            if (Double.isNaN(b)) {
                 throw new ValidationException(this, String.format("b1 is not set for half line %d", num));
-            }
-            if (Double.isNaN(g2)) {
-                throw new ValidationException(this, String.format("g2 is not set for half line %d", num));
-            }
-            if (Double.isNaN(b2)) {
-                throw new ValidationException(this, String.format("b2 is not set for half line %d", num));
             }
             if (num == 1) {
                 TieLineAdderImpl.this.halfLineAdder1 = this;
+                setNullableNode1(node);
+                setConnectableBus1(connectableBus);
+                setBus1(bus);
             }
             if (num == 2) {
                 TieLineAdderImpl.this.halfLineAdder2 = this;
+                setNullableNode2(node);
+                setConnectableBus2(connectableBus);
+                setBus2(bus);
             }
             return TieLineAdderImpl.this;
         }
 
-        private TieLineImpl.HalfLineImpl build() {
+        private TieLineImpl.MergedDanglingLine build() {
             Branch.Side side = (num == 1) ? Branch.Side.ONE : Branch.Side.TWO;
-            return new TieLineImpl.HalfLineImpl(id, name, fictitious, r, x, g1, b1, g2, b2, side);
+            return new TieLineImpl.MergedDanglingLine(checkAndGetUniqueId(), getName(), isFictitious(), p0, q0, r, x, g, b, halfUcteXnodeCode, generationAdder.build(), side);
         }
 
         @Override
         public String getMessageHeader() {
             return String.format("TieLine.halfLine%d", num);
         }
+
+        @Override
+        public HalfLineAdderImpl setNode(int node) {
+            this.node = node;
+            return this;
+        }
+
+        @Override
+        public HalfLineAdderImpl setBus(String bus) {
+            this.bus = bus;
+            return this;
+        }
+
+        @Override
+        public HalfLineAdderImpl setConnectableBus(String connectableBus) {
+            this.connectableBus = connectableBus;
+            return this;
+        }
     }
 
     private final NetworkImpl network;
-
-    private String ucteXnodeCode;
 
     private HalfLineAdderImpl halfLineAdder1;
 
@@ -159,18 +183,12 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     }
 
     @Override
-    public TieLineAdderImpl setUcteXnodeCode(String ucteXnodeCode) {
-        this.ucteXnodeCode = ucteXnodeCode;
-        return this;
-    }
-
-    @Override
-    public HalfLineAdderImpl newHalfLine1() {
+    public HalfLineAdderImpl newHalf1() {
         return new HalfLineAdderImpl(1);
     }
 
     @Override
-    public HalfLineAdderImpl newHalfLine2() {
+    public HalfLineAdderImpl newHalf2() {
         return new HalfLineAdderImpl(2);
     }
 
@@ -183,10 +201,6 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
 
-        if (ucteXnodeCode == null) {
-            throw new ValidationException(this, "ucteXnodeCode is not set");
-        }
-
         if (halfLineAdder1 == null) {
             throw new ValidationException(this, "half line 1 is not set");
         }
@@ -195,14 +209,27 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             throw new ValidationException(this, "half line 2 is not set");
         }
 
-        TieLineImpl.HalfLineImpl half1 = halfLineAdder1.build();
-        TieLineImpl.HalfLineImpl half2 = halfLineAdder2.build();
+        if (halfLineAdder1.halfUcteXnodeCode == null && halfLineAdder2.halfUcteXnodeCode == null) {
+            throw new ValidationException(this, "ucteXnodeCode is not set");
+        }
+        if (!Objects.equals(halfLineAdder1.halfUcteXnodeCode, halfLineAdder2.halfUcteXnodeCode)) {
+            if (halfLineAdder1.halfUcteXnodeCode == null) {
+                halfLineAdder1.halfUcteXnodeCode = halfLineAdder2.halfUcteXnodeCode;
+            } else if (halfLineAdder2.halfUcteXnodeCode == null) {
+                halfLineAdder2.halfUcteXnodeCode = halfLineAdder1.halfUcteXnodeCode;
+            } else {
+                throw new ValidationException(this, "ucteXnodeCode is not consistent");
+            }
+        }
+
+        TieLineImpl.MergedDanglingLine half1 = halfLineAdder1.build();
+        TieLineImpl.MergedDanglingLine half2 = halfLineAdder2.build();
 
         // check that the line is attachable on both side
         voltageLevel1.attach(terminal1, true);
         voltageLevel2.attach(terminal2, true);
 
-        TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious(), ucteXnodeCode, half1, half2);
+        TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious(), half1, half2);
         terminal1.setNum(1);
         terminal2.setNum(2);
         line.addTerminal(terminal1);

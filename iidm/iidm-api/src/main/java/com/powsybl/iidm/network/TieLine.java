@@ -267,64 +267,6 @@ public interface TieLine extends Line {
      * </table>
      */
 
-    interface HalfLine extends LineCharacteristics<HalfLine> {
-
-        String getId();
-
-        String getName();
-
-        /**
-         * @deprecated Use {@link #getBoundary()} and {@link Boundary#getP()} instead.
-         */
-        @Deprecated
-        default double getXnodeP() {
-            return getBoundary().getP();
-        }
-
-        /**
-         * @deprecated Boundary P is always calculated, never set.
-         */
-        @Deprecated
-        default HalfLine setXnodeP(double p) {
-            return this;
-        }
-
-        /**
-         * @deprecated Use {@link #getBoundary()} and {@link Boundary#getQ()} instead.
-         */
-        @Deprecated
-        default double getXnodeQ() {
-            return getBoundary().getQ();
-        }
-
-        /**
-         * @deprecated Boundary Q is always calculated, never set.
-         */
-        @Deprecated
-        default HalfLine setXnodeQ(double q) {
-            return this;
-        }
-
-        default Boundary getBoundary() {
-            throw new UnsupportedOperationException();
-        }
-
-        /**
-         * Get the fictitious status
-         */
-        default boolean isFictitious() {
-            return false;
-        }
-
-        /**
-         * Set the fictitious status
-         */
-        default HalfLine setFictitious(boolean fictitious) {
-            throw new UnsupportedOperationException();
-        }
-
-    }
-
     /**
      * Get the UCTE Xnode code corresponding to this line in the case where the
      * line is a boundary, return null otherwise.
@@ -334,15 +276,15 @@ public interface TieLine extends Line {
     /**
      * Get first half of the line characteristics
      */
-    HalfLine getHalf1();
+    DanglingLine getHalf1();
 
     /**
      * Get second half of the line characteristics
      */
-    HalfLine getHalf2();
+    DanglingLine getHalf2();
 
     /**
      * Get a given side half of the line characteristics
      */
-    HalfLine getHalf(Side side);
+    DanglingLine getHalf(Side side);
 }

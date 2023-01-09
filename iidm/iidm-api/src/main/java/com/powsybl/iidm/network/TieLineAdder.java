@@ -9,52 +9,15 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TieLineAdder extends BranchAdder<TieLineAdder> {
+public interface TieLineAdder extends IdentifiableAdder<TieLineAdder> {
 
-    interface HalfLineAdder {
+    TieLineAdder setVoltageLevel1(String voltageLevelId1);
 
-        HalfLineAdder setId(String id);
+    TieLineAdder setVoltageLevel2(String voltageLevelId2);
 
-        HalfLineAdder setName(String name);
+    MergedDanglingLineAdder newHalf1();
 
-        HalfLineAdder setFictitious(boolean fictitious);
-
-        /**
-         * @deprecated Boundary P is now calculated, never set.
-         */
-        @Deprecated
-        default HalfLineAdder setXnodeP(double xnodeP) {
-            return this;
-        }
-
-        /**
-         * @deprecated Boundary Q is now calculated, never set.
-         */
-        @Deprecated
-        default HalfLineAdder setXnodeQ(double xnodeQ) {
-            return this;
-        }
-
-        HalfLineAdder setR(double r);
-
-        HalfLineAdder setX(double x);
-
-        HalfLineAdder setG1(double g1);
-
-        HalfLineAdder setG2(double g2);
-
-        HalfLineAdder setB1(double b1);
-
-        HalfLineAdder setB2(double b2);
-
-        TieLineAdder add();
-    }
-
-    TieLineAdder setUcteXnodeCode(String ucteXnodeCode);
-
-    TieLineAdder.HalfLineAdder newHalfLine1();
-
-    TieLineAdder.HalfLineAdder newHalfLine2();
+    MergedDanglingLineAdder newHalf2();
 
     TieLine add();
 

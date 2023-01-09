@@ -29,9 +29,9 @@ class MergedLine implements TieLine {
 
     private final MergingViewIndex index;
 
-    private final HalfLineAdapter half1;
+    private final DanglingLineAdapter half1;
 
-    private final HalfLineAdapter half2;
+    private final DanglingLineAdapter half2;
 
     private String id;
 
@@ -41,10 +41,10 @@ class MergedLine implements TieLine {
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
-        this.half1 = new HalfLineAdapter(dl1, Side.ONE, index);
+        this.half1 = new DanglingLineAdapter(dl1, index);
         // must be reoriented. TieLine is defined as networkNode1-boundaryNode--boundaryNode-networkNode2
         // and in danglingLines the networkNode is always at end1
-        this.half2 = new HalfLineAdapter(dl2, Side.TWO, index, true);
+        this.half2 = new DanglingLineAdapter(dl2, index);
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildMergedId(dl1.getId(), dl2.getId()), index::contains) : buildMergedId(dl1.getId(), dl2.getId());
         this.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
         mergeProperties(dl1, dl2, properties);
@@ -65,11 +65,11 @@ class MergedLine implements TieLine {
     }
 
     DanglingLine getDanglingLine1() {
-        return half1.getDanglingLine();
+        return half1;
     }
 
     DanglingLine getDanglingLine2() {
-        return half2.getDanglingLine();
+        return half2;
     }
 
     @Override
@@ -86,12 +86,12 @@ class MergedLine implements TieLine {
 
     @Override
     public Terminal getTerminal1() {
-        return index.getTerminal(half1.getDanglingLine().getTerminal());
+        return index.getTerminal(half1.getTerminal());
     }
 
     @Override
     public Terminal getTerminal2() {
-        return index.getTerminal(half2.getDanglingLine().getTerminal());
+        return index.getTerminal(half2.getTerminal());
     }
 
     @Override
@@ -523,17 +523,17 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public HalfLine getHalf1() {
+    public DanglingLine getHalf1() {
         return half1;
     }
 
     @Override
-    public HalfLine getHalf2() {
+    public DanglingLine getHalf2() {
         return half2;
     }
 
     @Override
-    public HalfLine getHalf(Side side) {
+    public DanglingLine getHalf(Side side) {
         switch (side) {
             case ONE:
                 return half1;

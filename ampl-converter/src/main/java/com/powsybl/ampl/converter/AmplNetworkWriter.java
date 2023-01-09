@@ -598,10 +598,8 @@ public class AmplNetworkWriter {
                         .writeCell(xNodeVoltageLevelNum)
                         .writeCell(tl.getHalf1().getR() / zb)
                         .writeCell(tl.getHalf1().getX() / zb)
-                        .writeCell(tl.getHalf1().getG1() * zb)
-                        .writeCell(tl.getHalf1().getG2() * zb)
-                        .writeCell(tl.getHalf1().getB1() * zb)
-                        .writeCell(tl.getHalf1().getB2() * zb)
+                        .writeCell(tl.getHalf1().getG() * zb)
+                        .writeCell(tl.getHalf1().getB() * zb)
                         .writeCell(1f) // constant ratio
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer
@@ -615,7 +613,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(half1Id)
-                        .writeCell(tl.getHalf1().getName());
+                        .writeCell(tl.getHalf1().getNameOrId());
                 formatter.writeCell(variantIndex)
                         .writeCell(half2Num)
                         .writeCell(xNodeBusNum)
@@ -625,10 +623,8 @@ public class AmplNetworkWriter {
                         .writeCell(vl2Num)
                         .writeCell(tl.getHalf2().getR() / zb)
                         .writeCell(tl.getHalf2().getX() / zb)
-                        .writeCell(tl.getHalf2().getG1() * zb)
-                        .writeCell(tl.getHalf2().getG2() * zb)
-                        .writeCell(tl.getHalf2().getB1() * zb)
-                        .writeCell(tl.getHalf2().getB2() * zb)
+                        .writeCell(tl.getHalf2().getG() * zb)
+                        .writeCell(tl.getHalf2().getB() * zb)
                         .writeCell(1f) // constant ratio
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer

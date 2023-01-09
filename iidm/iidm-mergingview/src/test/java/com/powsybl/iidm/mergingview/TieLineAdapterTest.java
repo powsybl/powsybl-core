@@ -47,25 +47,19 @@ public class TieLineAdapterTest {
         checkHalfLine(tieLine.getHalf2());
     }
 
-    private static void checkHalfLine(TieLine.HalfLine half) {
+    private static void checkHalfLine(DanglingLine half) {
         assertEquals(1.0, half.getR(), 0.0);
         half.setR(2.0);
         assertEquals(2.0, half.getR(), 0.0);
         assertEquals(1.0, half.getX(), 0.0);
         half.setX(2.0);
         assertEquals(2.0, half.getX(), 0.0);
-        assertEquals(0.0, half.getG1(), 0.0);
-        half.setG1(0.5);
-        assertEquals(0.5, half.getG1(), 0.0);
-        assertEquals(0.0, half.getG2(), 0.0);
-        half.setG2(0.5);
-        assertEquals(0.5, half.getG2(), 0.0);
-        assertEquals(0.0, half.getB1(), 0.0);
-        half.setB1(0.5);
-        assertEquals(0.5, half.getB1(), 0.0);
-        assertEquals(0.0, half.getB2(), 0.0);
-        half.setB2(0.5);
-        assertEquals(0.5, half.getB2(), 0.0);
+        assertEquals(0.0, half.getG(), 0.0);
+        half.setG(0.5);
+        assertEquals(0.5, half.getG(), 0.0);
+        assertEquals(0.0, half.getB(), 0.0);
+        half.setB(0.5);
+        assertEquals(0.5, half.getB(), 0.0);
     }
 
     private static Network createNetwork() {
@@ -114,30 +108,21 @@ public class TieLineAdapterTest {
         n.newTieLine()
                 .setId("l1 + l2")
                 .setVoltageLevel1("vl1")
-                .setConnectableBus1("b1")
-                .setBus1("b1")
                 .setVoltageLevel2("vl2")
-                .setConnectableBus2("b2")
-                .setBus2("b2")
-                .newHalfLine1()
+                .newHalf1()
+                    .setBus("b1")
                     .setId("l1")
                     .setR(1.0)
                     .setX(1.0)
-                    .setG1(0.0)
-                    .setG2(0.0)
-                    .setB1(0.0)
-                    .setB2(0.0)
+                    .setUcteXnodeCode("XNODE")
                     .add()
-                .newHalfLine2()
+                .newHalf2()
+                    .setBus("b2")
                     .setId("l2")
                     .setR(1.0)
                     .setX(1.0)
-                    .setG1(0.0)
-                    .setG2(0.0)
-                    .setB1(0.0)
-                    .setB2(0.0)
+                    .setUcteXnodeCode("XNODE")
                     .add()
-                .setUcteXnodeCode("XNODE")
                 .add();
         return n;
     }

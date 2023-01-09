@@ -330,8 +330,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public LineImpl getLine(String id) {
-        LineImpl line = index.get(id, LineImpl.class);
+    public Line getLine(String id) {
+        Line line = index.get(id, LineImpl.class);
         if (line == null) {
             line = index.get(id, TieLineImpl.class);
         }
@@ -949,19 +949,15 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.name = dl1.getOptionalName().orElse(null);
             l.half1.r = dl1.getR();
             l.half1.x = dl1.getX();
-            l.half1.g1 = dl1.getG();
-            l.half1.b1 = dl1.getB();
-            l.half1.g2 = 0;
-            l.half1.b2 = 0;
+            l.half1.g = dl1.getG();
+            l.half1.b = dl1.getB();
             l.half1.fictitious = dl1.isFictitious();
             l.half2.id = dl2.getId();
             l.half2.name = dl2.getOptionalName().orElse(null);
             l.half2.r = brp2.getR();
             l.half2.x = brp2.getX();
-            l.half2.g1 = brp2.getG1();
-            l.half2.b1 = brp2.getB1();
-            l.half2.g2 = brp2.getG2();
-            l.half2.b2 = brp2.getB2();
+            l.half2.g = brp2.getG1() + brp2.getG2();
+            l.half2.b = brp2.getB1() + brp2.getB2();
             l.half2.fictitious = dl2.isFictitious();
             l.limits1 = dl1.getCurrentLimits().orElse(null);
             l.limits2 = dl2.getCurrentLimits().orElse(null);
@@ -1007,35 +1003,28 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     .setName(buildMergedName(mergedLine.half1.id, mergedLine.half2.id, mergedLine.half1.name, mergedLine.half2.name))
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
-                    .newHalfLine1().setId(mergedLine.half1.id)
+                    .newHalf1().setId(mergedLine.half1.id)
                     .setName(mergedLine.half1.name)
                     .setR(mergedLine.half1.r)
                     .setX(mergedLine.half1.x)
-                    .setG1(mergedLine.half1.g1)
-                    .setG2(mergedLine.half1.g2)
-                    .setB1(mergedLine.half1.b1)
-                    .setB2(mergedLine.half1.b2)
+                    .setG(mergedLine.half1.g)
+                    .setB(mergedLine.half1.b)
                     .setFictitious(mergedLine.half1.fictitious)
+                    .setUcteXnodeCode(mergedLine.xnode)
+                    .setBus(mergedLine.bus1)
+                    .setConnectableBus(mergedLine.connectableBus1)
                     .add()
-                    .newHalfLine2().setId(mergedLine.half2.id)
+                    .newHalf2().setId(mergedLine.half2.id)
                     .setName(mergedLine.half2.name)
                     .setR(mergedLine.half2.r)
                     .setX(mergedLine.half2.x)
-                    .setG1(mergedLine.half2.g1)
-                    .setG2(mergedLine.half2.g2)
-                    .setB1(mergedLine.half2.b1)
-                    .setB2(mergedLine.half2.b2)
+                    .setG(mergedLine.half2.g)
+                    .setB(mergedLine.half2.b)
                     .setFictitious(mergedLine.half2.fictitious)
-                    .add()
-                    .setUcteXnodeCode(mergedLine.xnode);
-            if (mergedLine.bus1 != null) {
-                la.setBus1(mergedLine.bus1);
-            }
-            la.setConnectableBus1(mergedLine.connectableBus1);
-            if (mergedLine.bus2 != null) {
-                la.setBus2(mergedLine.bus2);
-            }
-            la.setConnectableBus2(mergedLine.connectableBus2);
+                    .setUcteXnodeCode(mergedLine.xnode)
+                    .setBus(mergedLine.bus2)
+                    .setConnectableBus(mergedLine.connectableBus2)
+                    .add();
             if (mergedLine.node1 != null) {
                 la.setNode1(mergedLine.node1);
             }
@@ -1073,10 +1062,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             String name;
             double r;
             double x;
-            double g1;
-            double g2;
-            double b1;
-            double b2;
+            double g;
+            double b;
             boolean fictitious;
         }
 

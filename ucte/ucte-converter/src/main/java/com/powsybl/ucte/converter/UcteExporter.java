@@ -535,7 +535,7 @@ public class UcteExporter implements Exporter {
         convertXNode(ucteNetwork, tieLine, context);
 
         // Create half line 1
-        TieLine.HalfLine half1 = tieLine.getHalf1();
+        DanglingLine half1 = tieLine.getHalf1();
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(half1.getId());
         String elementName1 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
         UcteElementStatus status1 = getStatusHalf(tieLine, Branch.Side.ONE);
@@ -544,13 +544,13 @@ public class UcteExporter implements Exporter {
                 status1,
                 half1.getR(),
                 half1.getX(),
-                half1.getB1() + half1.getB2(),
+                half1.getB(),
                 tieLine.getCurrentLimits1().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
 
         // Create half line2
-        TieLine.HalfLine half2 = tieLine.getHalf2();
+        DanglingLine half2 = tieLine.getHalf2();
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(half2.getId());
         String elementName2 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
         UcteElementStatus status2 = getStatusHalf(tieLine, Branch.Side.TWO);
@@ -559,7 +559,7 @@ public class UcteExporter implements Exporter {
                 status2,
                 half2.getR(),
                 half2.getX(),
-                half2.getB1() + half2.getB2(),
+                half2.getB(),
                 tieLine.getCurrentLimits2().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
