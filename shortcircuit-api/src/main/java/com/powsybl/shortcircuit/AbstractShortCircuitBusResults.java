@@ -17,7 +17,7 @@ abstract class AbstractShortCircuitBusResults implements ShortCircuitBusResults 
 
     private final double voltageDropProportional;
 
-    public AbstractShortCircuitBusResults(String voltageLevelId,
+    protected AbstractShortCircuitBusResults(String voltageLevelId,
                                            String busId,
                                            double voltageDropProportional) {
         this.voltageLevelId = voltageLevelId;
