@@ -79,6 +79,9 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                     return false;
             }
         });
+        // First version of the operator strategy only allows association to one contingency. Next versions use contingency
+        // context. So, for backward compatibility purposes, we consider that if contingencyContextType is null, we have
+        // a specific contingency context type.
         ContingencyContext contingencyContext = new ContingencyContext(context.contingencyId,
                 context.contingencyContextType != null ? context.contingencyContextType : ContingencyContextType.SPECIFIC);
         OperatorStrategy operatorStrategy = new OperatorStrategy(context.id, contingencyContext, context.condition, context.actionIds);
