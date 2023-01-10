@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.iidm.network.util.ReorientedBranchCharacteristics;
 import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
@@ -120,14 +119,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
     // Before creating the TieLine the initial branches are reoriented if it is necessary,
     // then the setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
     private static Line createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
-
-        ReorientedBranchCharacteristics brp1 = new ReorientedBranchCharacteristics(boundaryLine1.getR(), boundaryLine1.getX(),
-            boundaryLine1.getG1(), boundaryLine1.getB1(), boundaryLine1.getG2(), boundaryLine1.getB2(),
-            isLine1Reoriented(boundaryLine1.getBoundarySide()));
-        ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(boundaryLine2.getR(), boundaryLine2.getX(),
-            boundaryLine2.getG1(), boundaryLine2.getB1(), boundaryLine2.getG2(), boundaryLine2.getB2(),
-            isLine2Reoriented(boundaryLine2.getBoundarySide()));
-
         TieLineAdder adder = context.network().newTieLine()
                 .setVoltageLevel1(boundaryLine1.getModelIidmVoltageLevelId())
                 .setVoltageLevel2(boundaryLine2.getModelIidmVoltageLevelId());
@@ -135,19 +126,19 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
             .newHalf1()
             .setId(boundaryLine1.getId())
             .setName(boundaryLine1.getName())
-            .setR(brp1.getR())
-            .setX(brp1.getX())
-            .setG(brp1.getG1() + brp1.getG2())
-            .setB(brp1.getB1() + brp1.getB2())
+            .setR(boundaryLine1.getR())
+            .setX(boundaryLine1.getX())
+            .setG(boundaryLine1.getG1() + boundaryLine1.getG2())
+            .setB(boundaryLine1.getB1() + boundaryLine1.getB2())
             .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
         MergedDanglingLineAdder adder2 = adder
             .newHalf2()
             .setId(boundaryLine2.getId())
             .setName(boundaryLine2.getName())
-            .setR(brp2.getR())
-            .setX(brp2.getX())
-            .setG(brp2.getG1() + brp2.getG2())
-            .setB(brp2.getB1() + brp2.getB2())
+            .setR(boundaryLine2.getR())
+            .setX(boundaryLine2.getX())
+            .setG(boundaryLine2.getG1() + boundaryLine2.getG2())
+            .setB(boundaryLine2.getB1() + boundaryLine2.getB2())
             .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
         identify(context, adder, context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(boundaryLine1.getId(), boundaryLine2.getId())),
                 TieLineUtil.buildMergedName(boundaryLine1.getId(), boundaryLine2.getId(), boundaryLine1.getName(), boundaryLine2.getName()));

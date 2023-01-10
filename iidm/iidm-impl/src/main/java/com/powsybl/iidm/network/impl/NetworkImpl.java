@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
-import com.powsybl.iidm.network.util.ReorientedBranchCharacteristics;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -929,7 +928,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
             // Dangling line 2 must always be reoriented
             // setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
-            ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(dl2.getR(), dl2.getX(), dl2.getG(), dl2.getB(), 0.0, 0.0);
 
             MergedLine l = new MergedLine();
             l.id = buildMergedId(dl1.getId(), dl2.getId());
@@ -954,10 +952,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.fictitious = dl1.isFictitious();
             l.half2.id = dl2.getId();
             l.half2.name = dl2.getOptionalName().orElse(null);
-            l.half2.r = brp2.getR();
-            l.half2.x = brp2.getX();
-            l.half2.g = brp2.getG1() + brp2.getG2();
-            l.half2.b = brp2.getB1() + brp2.getB2();
+            l.half2.r = dl2.getR();
+            l.half2.x = dl2.getX();
+            l.half2.g = dl2.getG();
+            l.half2.b = dl2.getB();
             l.half2.fictitious = dl2.isFictitious();
             l.limits1 = dl1.getCurrentLimits().orElse(null);
             l.limits2 = dl2.getCurrentLimits().orElse(null);
