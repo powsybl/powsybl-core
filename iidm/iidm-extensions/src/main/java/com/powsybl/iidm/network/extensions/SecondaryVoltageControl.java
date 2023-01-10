@@ -37,6 +37,9 @@ public interface SecondaryVoltageControl extends Extension<Network> {
             this.targetV = targetV;
         }
 
+        /**
+         * Get pilot point busbar section ID or bus ID of the bus/breaker view.
+         */
         public List<String> getBusbarSectionsOrBusesIds() {
             return busbarSectionsOrBusesIds;
         }
