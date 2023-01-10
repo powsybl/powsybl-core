@@ -31,10 +31,6 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> {
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken(); //skip
-                    break;
-
                 case "connectableId":
                     parser.nextToken();
                     connectableId = parser.readValueAs(String.class);

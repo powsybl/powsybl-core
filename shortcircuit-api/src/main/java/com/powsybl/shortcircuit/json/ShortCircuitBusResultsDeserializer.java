@@ -8,71 +8,66 @@ package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.*;
+import com.powsybl.shortcircuit.FortescueValue;
+import com.powsybl.shortcircuit.ShortCircuitBusResults;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-class ShortCircuitBusResultsDeserializer extends StdDeserializer<ShortCircuitBusResults> {
+class ShortCircuitBusResultsDeserializer {
 
     private static final String CONTEXT_NAME = "ShortCircuitBusResults";
 
-    ShortCircuitBusResultsDeserializer() {
-        super(ShortCircuitBusResults.class);
-    }
+    public List<ShortCircuitBusResults> deserialize(JsonParser parser, String version) throws IOException {
+        List<ShortCircuitBusResults> shortCircuitBusResults = new ArrayList<>();
+        parser.nextToken();
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            String voltageLevelId = null;
+            String busId = null;
+            Double initialVoltageMagnitude = Double.NaN;
+            FortescueValue voltage = null;
+            Double voltageDropProportional = Double.NaN;
 
-    @Override
-    public ShortCircuitBusResults deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        String version = null;
-        String voltageLevelId = null;
-        String busId = null;
-        Double initialVoltageMagnitude = Double.NaN;
-        FortescueValue voltage = null;
-        Double voltageDropProportional = Double.NaN;
+            while (parser.nextToken() != JsonToken.END_OBJECT) {
+                switch (parser.getCurrentName()) {
+                    case "voltageLevelId":
+                        parser.nextToken();
+                        voltageLevelId = parser.readValueAs(String.class);
+                        break;
 
-        while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "version" :
-                    parser.nextToken();
-                    version = parser.readValueAs(String.class);
-                    break;
+                    case "busId":
+                        parser.nextToken();
+                        busId = parser.readValueAs(String.class);
+                        break;
 
-                case "voltageLevelId":
-                    parser.nextToken();
-                    voltageLevelId = parser.readValueAs(String.class);
-                    break;
+                    case "initialVoltageMagnitude":
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageMagnitude", version, "1.1");
+                        parser.nextToken();
+                        initialVoltageMagnitude = parser.readValueAs(Double.class);
+                        break;
 
-                case "busId":
-                    parser.nextToken();
-                    busId = parser.readValueAs(String.class);
-                    break;
+                    case "voltage":
+                        parser.nextToken();
+                        voltage = parser.readValueAs(FortescueValue.class);
+                        break;
 
-                case "voltage":
-                    parser.nextToken();
-                    voltage = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
-                    break;
+                    case "voltageDropProportional":
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageDropProportional", version, "1.1");
+                        parser.nextToken();
+                        voltageDropProportional = parser.readValueAs(Double.class);
+                        break;
 
-                case "voltageDropProportional":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageDropProportional", version, "1.1");
-                    parser.nextToken();
-                    voltageDropProportional = parser.readValueAs(Double.class);
-                    break;
-
-                case "initialVoltageMagnitude":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: initialVoltageMagnitude", version, "1.1");
-                    parser.nextToken();
-                    initialVoltageMagnitude = parser.readValueAs(Double.class);
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    default:
+                        throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                }
             }
+            shortCircuitBusResults.add(new ShortCircuitBusResults(voltageLevelId, busId, initialVoltageMagnitude, voltage, voltageDropProportional));
         }
-        return new ShortCircuitBusResults(voltageLevelId, busId, initialVoltageMagnitude, voltage, voltageDropProportional);
+        return shortCircuitBusResults;
     }
 }

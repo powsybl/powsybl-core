@@ -1,6 +1,7 @@
 {
   "version" : "1.1",
   "faultResults" : [ {
+    "status" : "SUCCESS",
     "fault" : {
       "type" : "BUS",
       "id" : "id",
@@ -25,7 +26,6 @@
       "directMagnitude" : 1.0
     },
     "simpleShortCircuitBusResults" : [ {
-      "version" : "1.0",
       "voltageLevelId" : "vlId",
       "busId" : "busId",
       "voltage" : 2004.0,

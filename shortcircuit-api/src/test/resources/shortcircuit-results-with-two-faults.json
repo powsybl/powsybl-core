@@ -28,10 +28,12 @@
     "shortCircuitBusResults" : [ {
       "voltageLevelId" : "vlId",
       "busId" : "busId",
+      "initialVoltageMagnitude" : 400.0,
       "voltage" : {
         "directMagnitude" : 2004.0,
         "directAngle" : 2005.0
-      }
+      },
+      "voltageDropProportional" : 50.0
     } ]
   }, {
     "status" : "SUCCESS",

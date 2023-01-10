@@ -19,7 +19,6 @@ import java.io.IOException;
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public class SimpleShortCircuitBusResultsDeserializer extends StdDeserializer<SimpleShortCircuitBusResults> {
-    private static final String CONTEXT_NAME = "SimpleShortCircuitBusResults";
 
     SimpleShortCircuitBusResultsDeserializer() {
         super(SimpleShortCircuitBusResults.class);
@@ -34,10 +33,6 @@ public class SimpleShortCircuitBusResultsDeserializer extends StdDeserializer<Si
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken(); //skip
-                    break;
-
                 case "voltageLevelId":
                     parser.nextToken();
                     voltageLevelId = parser.readValueAs(String.class);

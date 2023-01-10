@@ -88,8 +88,7 @@ class FaultResultDeserializer {
                         break;
 
                     case "shortCircuitBusResults":
-                        parser.nextToken();
-                        shortCircuitBusResults = JsonUtil.readList(deserializationContext, parser, ShortCircuitBusResults.class);
+                        shortCircuitBusResults = new ShortCircuitBusResultsDeserializer().deserialize(parser, version);
                         break;
 
                     case "status":

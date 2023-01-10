@@ -11,10 +11,6 @@ package com.powsybl.shortcircuit;
  */
 public class ShortCircuitBusResults {
 
-    // VERSION = 1.0 voltageLevelId, busId, voltage
-    // VERSION = 1.1 voltageDropProportional, initialVoltageMagnitude
-    public static final String VERSION = "1.1";
-
     private final String voltageLevelId;
 
     private final String busId;

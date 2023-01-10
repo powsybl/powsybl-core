@@ -11,9 +11,6 @@ package com.powsybl.shortcircuit;
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public class SimpleShortCircuitBusResults {
-
-    public static final String VERSION = "1.0";
-
     private final String voltageLevelId;
 
     private final String busId;

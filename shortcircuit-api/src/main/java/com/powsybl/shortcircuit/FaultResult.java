@@ -94,8 +94,19 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
     }
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
+                       List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
+                       Duration timeConstant, Status status) {
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status, Collections.emptyList());
+    }
+
+    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current, Duration timeConstant, Status status) {
         this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant, status, Collections.emptyList());
+    }
+
+    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
+                       List<LimitViolation> limitViolations, FortescueValue current, Duration timeConstant, Status status, List<SimpleShortCircuitBusResults> simpleShortCircuitBusResults) {
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant, status, simpleShortCircuitBusResults);
     }
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,

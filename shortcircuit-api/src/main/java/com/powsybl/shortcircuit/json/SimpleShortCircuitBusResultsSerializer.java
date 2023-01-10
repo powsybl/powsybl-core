@@ -16,8 +16,6 @@ import com.powsybl.shortcircuit.SimpleShortCircuitBusResults;
 import java.io.IOException;
 import java.util.Objects;
 
-import static com.powsybl.shortcircuit.SimpleShortCircuitBusResults.VERSION;
-
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
@@ -32,7 +30,6 @@ public class SimpleShortCircuitBusResultsSerializer extends StdSerializer<Simple
         Objects.requireNonNull(busResults);
 
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", VERSION);
         JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", busResults.getVoltageLevelId());
         JsonUtil.writeOptionalStringField(jsonGenerator, "busId", busResults.getBusId());
         if (!Double.isNaN(busResults.getVoltage())) {

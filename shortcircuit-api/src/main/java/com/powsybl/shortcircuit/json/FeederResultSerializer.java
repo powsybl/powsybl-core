@@ -13,8 +13,6 @@ import com.powsybl.shortcircuit.FeederResult;
 
 import java.io.IOException;
 
-import static com.powsybl.shortcircuit.FeederResult.VERSION;
-
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -28,7 +26,6 @@ public class FeederResultSerializer extends StdSerializer<FeederResult> {
     public void serialize(FeederResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeStringField("connectableId", result.getConnectableId());
         if (result.getCurrent() != null) {
             serializerProvider.defaultSerializeField("current", result.getCurrent(), jsonGenerator);
