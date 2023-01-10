@@ -743,7 +743,7 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
-                3.0, 3.5, 4.0, 4.5, "code");
+                6.5, 8.5, "code");
     }
 
     @Test
@@ -751,55 +751,39 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
-                3.0, 3.5, 4.0, 4.5, "code");
+                6.5, 8.5, "code");
     }
 
     @Test
-    public void invalidHalfLineCharacteristicsG1() {
+    public void invalidHalfLineCharacteristicsG() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("g1 is not set for half line 1");
+        thrown.expectMessage("g is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                Double.NaN, 3.5, 4.0, 4.5, "code");
+                Double.NaN, 8.5, "code");
     }
 
     @Test
-    public void invalidHalfLineCharacteristicsG2() {
+    public void invalidHalfLineCharacteristicsB() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("g2 is not set for half line 1");
+        thrown.expectMessage("b is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, Double.NaN, 4.0, 4.5, "code");
-    }
-
-    @Test
-    public void invalidHalfLineCharacteristicsB1() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("b1 is not set for half line 1");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, 3.5, Double.NaN, 4.5, "code");
-    }
-
-    @Test
-    public void invalidHalfLineCharacteristicsB2() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("b2 is not set for half line 1");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, 3.5, 4.0, Double.NaN, "code");
+                6.5, Double.NaN, "code");
     }
 
     @Test
     public void halfLineIdNull() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("id is not set for half line 1");
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("TieLineAdder.DanglingLine1 id is not set");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, "code");
+                6.5, 8.5, "code");
     }
 
     @Test
     public void halfLineIdEmpty() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("id is not set for half line 1");
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("Invalid id ''");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, "code");
+                6.5, 8.5, "code");
     }
 
     @Test
@@ -807,22 +791,22 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("ucteXnodeCode is not set");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, null);
+                6.5, 8.5, null);
     }
 
     @Test
     public void duplicate() {
         createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, DUPLICATE);
+                6.5, 8.5, DUPLICATE);
         thrown.expect(PowsyblException.class);
         createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, DUPLICATE);
+                6.5, 8.5, DUPLICATE);
     }
 
     @Test
     public void testRemove() {
         createTieLineWithHalfline2ByDefault(TO_REMOVE, TO_REMOVE, "id1", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, TO_REMOVE);
+                6.5, 8.5, TO_REMOVE);
         Line line = network.getLine(TO_REMOVE);
         assertNotNull(line);
         assertTrue(line.isTieLine());
@@ -854,7 +838,7 @@ public abstract class AbstractLineTest {
     }
 
     private void createTieLineWithHalfline2ByDefault(String id, String name, String halfLineId, double r, double x,
-                                                     double g1, double g2, double b1, double b2, String code) {
+                                                     double g, double b, String code) {
         network.newTieLine()
                 .setId(id)
                 .setName(name)
@@ -864,8 +848,8 @@ public abstract class AbstractLineTest {
                 .setName(HALF1_NAME)
                 .setR(r)
                 .setX(x)
-                .setB(b1 + b2)
-                .setG(g1 + g2)
+                .setB(b)
+                .setG(g)
                 .add()
                 .newHalf2()
                 .setBus("busB")

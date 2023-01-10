@@ -599,7 +599,9 @@ public class AmplNetworkWriter {
                         .writeCell(tl.getHalf1().getR() / zb)
                         .writeCell(tl.getHalf1().getX() / zb)
                         .writeCell(tl.getHalf1().getG() * zb)
+                        .writeCell(0.0)
                         .writeCell(tl.getHalf1().getB() * zb)
+                        .writeCell(0.0)
                         .writeCell(1f) // constant ratio
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer
@@ -624,7 +626,9 @@ public class AmplNetworkWriter {
                         .writeCell(tl.getHalf2().getR() / zb)
                         .writeCell(tl.getHalf2().getX() / zb)
                         .writeCell(tl.getHalf2().getG() * zb)
+                        .writeCell(0.0)
                         .writeCell(tl.getHalf2().getB() * zb)
+                        .writeCell(0.0)
                         .writeCell(1f) // constant ratio
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer

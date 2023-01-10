@@ -65,11 +65,11 @@ class MergedLine implements TieLine {
     }
 
     DanglingLine getDanglingLine1() {
-        return half1;
+        return half1.getDelegate();
     }
 
     DanglingLine getDanglingLine2() {
-        return half2;
+        return half2.getDelegate();
     }
 
     @Override
@@ -86,12 +86,12 @@ class MergedLine implements TieLine {
 
     @Override
     public Terminal getTerminal1() {
-        return index.getTerminal(half1.getTerminal());
+        return half1.getTerminal();
     }
 
     @Override
     public Terminal getTerminal2() {
-        return index.getTerminal(half2.getTerminal());
+        return half2.getTerminal();
     }
 
     @Override
