@@ -177,7 +177,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        characteristics.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        characteristics.extendVariantArraySize(number, sourceIndex);
     }
 
     @Override
