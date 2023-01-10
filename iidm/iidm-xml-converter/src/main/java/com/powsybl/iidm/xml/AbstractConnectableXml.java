@@ -88,10 +88,14 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         }
     }
 
-    protected static void readNodeOrBus(InjectionAdder adder, NetworkXmlReaderContext context) {
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS));
-        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE);
+    protected static void readNodeOrBus(InjectionAdder<?> adder, NetworkXmlReaderContext context) {
+        readNodeOrBus(adder, "", context);
+    }
+
+    protected static void readNodeOrBus(InjectionAdder<?> adder, String suffix, NetworkXmlReaderContext context) {
+        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + suffix));
+        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS + suffix));
+        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE + suffix);
         if (bus != null) {
             adder.setBus(bus);
         }

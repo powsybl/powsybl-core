@@ -139,7 +139,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
                 .setG(g1 + g2)
                 .setB(b1 + b2)
                 .setUcteXnodeCode(ucteXnodeCode);
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, String.valueOf(side), context);
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
@@ -152,6 +152,9 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     protected TieLine readRootElementAttributes(TieLineAdder adder, NetworkXmlReaderContext context) {
         readHalf(adder.newHalf1(), context, 1);
         readHalf(adder.newHalf2(), context, 2);
+        String voltageLevelId1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId1"));
+        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId2"));
+        adder.setVoltageLevel1(voltageLevelId1).setVoltageLevel2(voltageLevelId2);
         TieLine tl = adder.add();
         readPQ(1, tl.getTerminal1(), context.getReader());
         readPQ(2, tl.getTerminal2(), context.getReader());

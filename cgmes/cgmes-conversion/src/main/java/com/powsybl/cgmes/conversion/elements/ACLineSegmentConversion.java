@@ -128,7 +128,9 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
             boundaryLine2.getG1(), boundaryLine2.getB1(), boundaryLine2.getG2(), boundaryLine2.getB2(),
             isLine2Reoriented(boundaryLine2.getBoundarySide()));
 
-        TieLineAdder adder = context.network().newTieLine();
+        TieLineAdder adder = context.network().newTieLine()
+                .setVoltageLevel1(boundaryLine1.getModelIidmVoltageLevelId())
+                .setVoltageLevel2(boundaryLine2.getModelIidmVoltageLevelId());
         MergedDanglingLineAdder adder1 = adder
             .newHalf1()
             .setId(boundaryLine1.getId())

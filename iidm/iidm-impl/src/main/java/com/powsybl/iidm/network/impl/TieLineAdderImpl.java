@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+
 import java.util.Objects;
 
 /**
@@ -113,10 +114,10 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
                 throw new ValidationException(this, String.format("x is not set for half line %d", num));
             }
             if (Double.isNaN(g)) {
-                throw new ValidationException(this, String.format("g1 is not set for half line %d", num));
+                throw new ValidationException(this, String.format("g is not set for half line %d", num));
             }
             if (Double.isNaN(b)) {
-                throw new ValidationException(this, String.format("b1 is not set for half line %d", num));
+                throw new ValidationException(this, String.format("b is not set for half line %d", num));
             }
             if (num == 1) {
                 TieLineAdderImpl.this.halfLineAdder1 = this;
@@ -135,7 +136,16 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
         private TieLineImpl.MergedDanglingLine build() {
             Branch.Side side = (num == 1) ? Branch.Side.ONE : Branch.Side.TWO;
-            return new TieLineImpl.MergedDanglingLine(checkAndGetUniqueId(), getName(), isFictitious(), p0, q0, r, x, g, b, halfUcteXnodeCode, generationAdder.build(), side);
+            return new TieLineImpl.MergedDanglingLine(checkAndGetUniqueId(id -> {
+                Identifiable<?> i = getNetwork().getIndex().get(id);
+                if (i != null) {
+                    // a disconnected dangling line can have the same ID as a merged dangling line
+                    return !(i instanceof DanglingLine);
+                }
+                return false;
+            }),
+                    getName(), isFictitious(), p0, q0, r, x, g, b,
+                    halfUcteXnodeCode, generationAdder != null ? generationAdder.build() : null, side);
         }
 
         @Override
@@ -195,12 +205,6 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     @Override
     public TieLineImpl add() {
         String id = checkAndGetUniqueId();
-        checkConnectableBuses();
-        VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
-        VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
-        TerminalExt terminal1 = checkAndGetTerminal1();
-        TerminalExt terminal2 = checkAndGetTerminal2();
-
         if (halfLineAdder1 == null) {
             throw new ValidationException(this, "half line 1 is not set");
         }
@@ -208,6 +212,11 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         if (halfLineAdder2 == null) {
             throw new ValidationException(this, "half line 2 is not set");
         }
+        checkConnectableBuses();
+        VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
+        VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
+        TerminalExt terminal1 = checkAndGetTerminal1();
+        TerminalExt terminal2 = checkAndGetTerminal2();
 
         if (halfLineAdder1.halfUcteXnodeCode == null && halfLineAdder2.halfUcteXnodeCode == null) {
             throw new ValidationException(this, "ucteXnodeCode is not set");
