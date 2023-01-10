@@ -241,7 +241,6 @@ class DanglingLineCharacteristics {
 
     private final GenerationImpl generation;
 
-    private final OperationalLimitsHolderImpl operationalLimitsHolder;
     // attributes depending on the variant
 
     private final TDoubleArrayList p0;
@@ -265,7 +264,6 @@ class DanglingLineCharacteristics {
         this.g = g;
         this.b = b;
         this.ucteXnodeCode = ucteXnodeCode;
-        this.operationalLimitsHolder = new OperationalLimitsHolderImpl(parent, "limits");
         this.boundary = boundary;
         this.generation = generation != null ? generation.attach(parent) : null;
     }
@@ -358,7 +356,7 @@ class DanglingLineCharacteristics {
         return boundary;
     }
 
-    void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+    void extendVariantArraySize(int number, int sourceIndex) {
         p0.ensureCapacity(p0.size() + number);
         q0.ensureCapacity(q0.size() + number);
         for (int i = 0; i < number; i++) {
