@@ -642,7 +642,7 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(half2Id)
-                        .writeCell(tl.getHalf2().getOptionalName().orElse(""));
+                        .writeCell(tl.getHalf2().getNameOrId());
             } else {
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
