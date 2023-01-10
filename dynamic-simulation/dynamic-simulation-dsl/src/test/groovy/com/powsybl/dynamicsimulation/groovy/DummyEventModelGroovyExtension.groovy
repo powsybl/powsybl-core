@@ -20,9 +20,14 @@ class DummyEventModelGroovyExtension implements EventModelGroovyExtension {
 
     static class DummyEventModelSpec {
         String id
+        double startTime
         
         void id(String id) {
             this.id = id
+        }
+
+        void startTime(double startTime) {
+            this.startTime = startTime;
         }
     }
 
@@ -37,8 +42,11 @@ class DummyEventModelGroovyExtension implements EventModelGroovyExtension {
             if (!eventModelSpec.id) {
                 throw new DslException("'id' field is not set")
             }
+            if (!eventModelSpec.startTime) {
+                throw new DslException("'startTime' field is not set")
+            }
 
-            consumer.accept(new DummyEventModel(eventModelSpec.id))
+            consumer.accept(new DummyEventModel(eventModelSpec.id, eventModelSpec.startTime))
         }
     }
 }

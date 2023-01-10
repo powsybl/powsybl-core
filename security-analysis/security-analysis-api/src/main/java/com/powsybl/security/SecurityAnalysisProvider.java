@@ -6,6 +6,7 @@
  */
 package com.powsybl.security;
 
+import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
@@ -20,10 +21,7 @@ import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -42,6 +40,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
+
+    static List<SecurityAnalysisProvider> findAll() {
+        return Lists.newArrayList(ServiceLoader.load(SecurityAnalysisProvider.class, SecurityAnalysisProvider.class.getClassLoader()));
+    }
 
     /**
      * Run an asynchronous single security analysis job.

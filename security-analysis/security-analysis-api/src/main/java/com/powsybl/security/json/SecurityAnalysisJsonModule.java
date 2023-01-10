@@ -65,6 +65,7 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(OperatorStrategyList.class, new OperatorStrategyListSerializer());
         addSerializer(ActionList.class, new ActionListSerializer());
         addSerializer(Condition.class, new ConditionSerializer());
+        addSerializer(ConnectivityResult.class, new ConnectivityResultSerializer());
 
         addDeserializer(SecurityAnalysisResult.class, new SecurityAnalysisResultDeserializer());
         addDeserializer(NetworkMetadata.class, new NetworkMetadataDeserializer());
@@ -82,6 +83,7 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(ActionList.class, new ActionListDeserializer());
         addDeserializer(Condition.class, new ConditionDeserializer());
         addDeserializer(NetworkResult.class, new NetworkResultDeserializer());
+        addDeserializer(ConnectivityResult.class, new ConnectivityResultDeserializer());
 
         configureActionsSerialization();
     }

@@ -35,6 +35,10 @@ public final class ModuleConfigUtil {
         return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalDoubleProperty, OptionalDouble::empty, OptionalDouble::isPresent);
     }
 
+    public static OptionalInt getOptionalIntProperty(ModuleConfig moduleConfig, List<String> names) {
+        return getOptionalProperty(moduleConfig, names, moduleConfig::getOptionalIntProperty, OptionalInt::empty, OptionalInt::isPresent);
+    }
+
     private static <T> Optional<T> getOptionalProperty(ModuleConfig moduleConfig, List<String> names, Function<String, Optional<T>> supplier) {
         return getOptionalProperty(moduleConfig, names, supplier, Optional::empty, Optional::isPresent);
     }

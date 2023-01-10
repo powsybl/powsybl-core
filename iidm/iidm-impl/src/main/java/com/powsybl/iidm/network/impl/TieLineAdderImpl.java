@@ -27,13 +27,13 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
         protected double x = Double.NaN;
 
-        protected double g1 = Double.NaN;
+        protected double g1 = 0.0;
 
-        protected double g2 = Double.NaN;
+        protected double g2 = 0.0;
 
-        protected double b1 = Double.NaN;
+        protected double b1 = 0.0;
 
-        protected double b2 = Double.NaN;
+        protected double b2 = 0.0;
 
         HalfLineAdderImpl(int num) {
             this.num = num;
@@ -177,6 +177,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     @Override
     public TieLineImpl add() {
         String id = checkAndGetUniqueId();
+        checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
         TerminalExt terminal1 = checkAndGetTerminal1();
