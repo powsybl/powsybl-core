@@ -49,12 +49,10 @@ public final class ValidationUtil {
         if (other instanceof DanglingLine && origin instanceof DanglingLine) {
             String xnodeCode1 = ((DanglingLine) origin).getUcteXnodeCode();
             String xnodeCode2 = ((DanglingLine) other).getUcteXnodeCode();
-            if (xnodeCode1 != null && xnodeCode2 != null) {
-                if (!xnodeCode1.equals(xnodeCode2)) {
-                    throw new PowsyblException(String.format("Dangling line couple %s have inconsistent Xnodes (%s!=%s)", origin.getId(), xnodeCode1, xnodeCode2));
-                }
-                return;
+            if ((xnodeCode1 != null && xnodeCode2 != null && !xnodeCode1.equals(xnodeCode2)) || (xnodeCode1 == null && xnodeCode2 == null)) {
+                throw new PowsyblException(String.format("Dangling line couple %s have inconsistent Xnodes (%s,%s)", origin.getId(), xnodeCode1, xnodeCode2));
             }
+            return;
         }
         throw new PowsyblException("The object '" + origin.getId() + "' already exists into merging view");
     }
