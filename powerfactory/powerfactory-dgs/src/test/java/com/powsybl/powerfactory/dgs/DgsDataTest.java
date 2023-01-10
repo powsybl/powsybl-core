@@ -74,6 +74,16 @@ public class DgsDataTest extends AbstractConverterTest {
         assertEquals("RealMatrix: Unexpected number of cols: 'GPScoords' rows: 1 cols: 1 expected cols: 2", e.getMessage());
     }
 
+    @Test(expected = PowerFactoryException.class)
+    public void v6ErrorTest() {
+        loadCase("/ascii_v6.dgs");
+    }
+
+    @Test(expected = PowerFactoryException.class)
+    public void v7ErrorTest() {
+        loadCase("/ascii_v7.dgs");
+    }
+
     private boolean test(String dgs, String json) throws IOException {
         StudyCase studyCase = loadCase(dgs);
         String expectedJson = loadReference(json);
