@@ -11,7 +11,7 @@ one calculated by PowerFactory).
 
 Two and three windings transformer taps definition attributes need to be added to existing configuration. Optionally, voltage 
 magnitude and angle could be added to terminals to compare the calculated state between PowerFactory and PowSyBl. VSC and 
-common impedance configuration are totally missing and need to be created.
+common impedance configuration are totally missing and need to be created. Optionally, in order to get the same slack, the attribute ip_ctrl can be provided.
 
 - 2-Winding Transformer.IntMon (class ElmTr2)
    - e:mTaps
@@ -49,3 +49,7 @@ common impedance configuration are totally missing and need to be created.
   - e:bi_pu
   - e:gj_pu
   - e:bj_pu
+
+- Synchronous Machine.IntMon (class ElmSym)
+  - e:ip_ctrl
+	
