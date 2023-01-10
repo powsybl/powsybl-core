@@ -10,7 +10,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.shortcircuit.ClassicalShortCircuitBusResults;
 import com.powsybl.shortcircuit.ShortCircuitBusResults;
+import com.powsybl.shortcircuit.SimpleShortCircuitBusResults;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -31,11 +33,14 @@ public class ShortCircuitBusResultsSerializer extends StdSerializer<ShortCircuit
         jsonGenerator.writeStartObject();
         JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", busResults.getVoltageLevelId());
         JsonUtil.writeOptionalStringField(jsonGenerator, "busId", busResults.getBusId());
-        if (!Double.isNaN(busResults.getInitialVoltageMagnitude())) {
-            jsonGenerator.writeObjectField("initialVoltageMagnitude", busResults.getInitialVoltageMagnitude());
+        if (busResults instanceof ClassicalShortCircuitBusResults && !Double.isNaN(((ClassicalShortCircuitBusResults) busResults).getInitialVoltageMagnitude())) {
+            serializerProvider.defaultSerializeField("initialVoltageMagnitude", ((ClassicalShortCircuitBusResults) busResults).getInitialVoltageMagnitude(), jsonGenerator);
         }
-        if (busResults.getVoltage() != null) {
-            serializerProvider.defaultSerializeField("voltage", busResults.getVoltage(), jsonGenerator);
+        if (busResults instanceof ClassicalShortCircuitBusResults && ((ClassicalShortCircuitBusResults) busResults).getVoltage() != null) {
+            serializerProvider.defaultSerializeField("voltage", ((ClassicalShortCircuitBusResults) busResults).getVoltage(), jsonGenerator);
+        }
+        if (busResults instanceof SimpleShortCircuitBusResults && !Double.isNaN(((SimpleShortCircuitBusResults) busResults).getVoltage())) {
+            serializerProvider.defaultSerializeField("voltageMagnitude", ((SimpleShortCircuitBusResults) busResults).getVoltage(), jsonGenerator);
         }
         if (!Double.isNaN(busResults.getVoltageDropProportional())) {
             serializerProvider.defaultSerializeField("voltageDropProportional", busResults.getVoltageDropProportional(), jsonGenerator);

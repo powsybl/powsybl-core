@@ -28,7 +28,7 @@ public final class TestingResultFactory {
         FaultResult faultResult2 = createFaultResult("Fault_ID_2", LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, 2501, 2001);
         Fault fault = new BranchFault("Fault_ID_3", "BranchId", 0.0, 0.0, 12.0);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
-        busResults.add(new ShortCircuitBusResults("VLGEN", "busId", 2800, new FortescueValue(2004, 2005), 70));
+        busResults.add(new ClassicalShortCircuitBusResults("VLGEN", "busId", 2800, new FortescueValue(2004, 2005), 70));
         FaultResult faultResult3 = new FaultResult(fault, 1.0, Collections.emptyList(),
                 Collections.emptyList(), new FortescueValue(2002, 2003), null, busResults, null, FaultResult.Status.SUCCESS);
         faultResults.add(faultResult1);

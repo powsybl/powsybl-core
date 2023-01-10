@@ -1,0 +1,42 @@
+/**
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.shortcircuit;
+
+/**
+ * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ */
+abstract class AbstractShortCircuitBusResults implements ShortCircuitBusResults {
+
+    private final String voltageLevelId;
+
+    private final String busId;
+
+    private final double voltageDropProportional;
+
+    public AbstractShortCircuitBusResults(String voltageLevelId,
+                                           String busId,
+                                           double voltageDropProportional) {
+        this.voltageLevelId = voltageLevelId;
+        this.busId = busId;
+        this.voltageDropProportional = voltageDropProportional;
+    }
+
+    @Override
+    public String getVoltageLevelId() {
+        return voltageLevelId;
+    }
+
+    @Override
+    public String getBusId() {
+        return busId;
+    }
+
+    @Override
+    public double getVoltageDropProportional() {
+        return voltageDropProportional;
+    }
+}

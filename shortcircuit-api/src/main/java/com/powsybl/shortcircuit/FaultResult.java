@@ -64,11 +64,9 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
 
     private final List<ShortCircuitBusResults> shortCircuitBusResults;
 
-    private final List<SimpleShortCircuitBusResults> simpleShortCircuitBusResults;
-
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
-                       Duration timeConstant, Status status, List<SimpleShortCircuitBusResults> simpleShortCircuitBusResults) {
+                       Duration timeConstant, Status status) {
         this.fault = Objects.requireNonNull(fault);
         this.shortCircuitPower = shortCircuitPower;
         this.feederResults = new ArrayList<>();
@@ -81,41 +79,26 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
         }
         this.current = Objects.requireNonNull(current);
         this.voltage = voltage;
+        this.timeConstant = timeConstant;
         this.shortCircuitBusResults = new ArrayList<>();
         if (shortCircuitBusResults != null) {
             this.shortCircuitBusResults.addAll(shortCircuitBusResults);
-        }
-        this.timeConstant = timeConstant;
-        this.simpleShortCircuitBusResults = new ArrayList<>();
-        if (simpleShortCircuitBusResults != null) {
-            this.simpleShortCircuitBusResults.addAll(simpleShortCircuitBusResults);
         }
         this.status = Objects.requireNonNull(status);
     }
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
-                       List<LimitViolation> limitViolations, FortescueValue current, FortescueValue voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
-                       Duration timeConstant, Status status) {
-        this(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status, Collections.emptyList());
-    }
-
-    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current, Duration timeConstant, Status status) {
-        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant, status, Collections.emptyList());
-    }
-
-    public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
-                       List<LimitViolation> limitViolations, FortescueValue current, Duration timeConstant, Status status, List<SimpleShortCircuitBusResults> simpleShortCircuitBusResults) {
-        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant, status, simpleShortCircuitBusResults);
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), timeConstant, status);
     }
 
     public FaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                        List<LimitViolation> limitViolations, FortescueValue current, Status status) {
-        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), null, status, Collections.emptyList());
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), null, status);
     }
 
     public FaultResult(Fault fault, Status status) {
-        this(fault, Double.NaN, Collections.emptyList(), Collections.emptyList(), null, null, Collections.emptyList(), null, status, Collections.emptyList());
+        this(fault, Double.NaN, Collections.emptyList(), Collections.emptyList(), null, null, Collections.emptyList(), null, status);
     }
 
     /**
@@ -192,10 +175,4 @@ public final class FaultResult extends AbstractExtendable<FaultResult> {
         return status;
     }
 
-    /**
-     * A list of voltage modules and voltage drops by bus.
-     */
-    public List<SimpleShortCircuitBusResults> getSimpleShortCircuitBusResults() {
-        return simpleShortCircuitBusResults;
-    }
 }

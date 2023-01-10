@@ -10,7 +10,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FortescueValue;
+import com.powsybl.shortcircuit.ClassicalShortCircuitBusResults;
 import com.powsybl.shortcircuit.ShortCircuitBusResults;
+import com.powsybl.shortcircuit.SimpleShortCircuitBusResults;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ class ShortCircuitBusResultsDeserializer {
             String busId = null;
             Double initialVoltageMagnitude = Double.NaN;
             FortescueValue voltage = null;
+            Double voltageMagnitude = Double.NaN;
             Double voltageDropProportional = Double.NaN;
 
             while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -56,6 +59,12 @@ class ShortCircuitBusResultsDeserializer {
                         voltage = parser.readValueAs(FortescueValue.class);
                         break;
 
+                    case "voltageMagnitude":
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMagnitude", version, "1.1");
+                        parser.nextToken();
+                        voltageMagnitude = parser.readValueAs(Double.class);
+                        break;
+
                     case "voltageDropProportional":
                         JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: voltageDropProportional", version, "1.1");
                         parser.nextToken();
@@ -66,7 +75,11 @@ class ShortCircuitBusResultsDeserializer {
                         throw new AssertionError("Unexpected field: " + parser.getCurrentName());
                 }
             }
-            shortCircuitBusResults.add(new ShortCircuitBusResults(voltageLevelId, busId, initialVoltageMagnitude, voltage, voltageDropProportional));
+            if (voltage != null) {
+                shortCircuitBusResults.add(new ClassicalShortCircuitBusResults(voltageLevelId, busId, initialVoltageMagnitude, voltage, voltageDropProportional));
+            } else {
+                shortCircuitBusResults.add(new SimpleShortCircuitBusResults(voltageLevelId, busId, voltageMagnitude, voltageDropProportional));
+            }
         }
         return shortCircuitBusResults;
     }

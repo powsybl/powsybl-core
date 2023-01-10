@@ -25,10 +25,10 @@
     "current" : {
       "directMagnitude" : 1.0
     },
-    "simpleShortCircuitBusResults" : [ {
+    "shortCircuitBusResults" : [ {
       "voltageLevelId" : "vlId",
       "busId" : "busId",
-      "voltage" : 2004.0,
+      "voltageMagnitude" : 2004.0,
       "voltageDropProportional" : 100.0
     } ],
     "extensions" : {

@@ -51,9 +51,6 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         if (!(faultResult.getShortCircuitBusResults()).isEmpty()) {
             serializerProvider.defaultSerializeField("shortCircuitBusResults", faultResult.getShortCircuitBusResults(), jsonGenerator);
         }
-        if (!(faultResult.getSimpleShortCircuitBusResults()).isEmpty()) {
-            jsonGenerator.writeObjectField("simpleShortCircuitBusResults", faultResult.getSimpleShortCircuitBusResults());
-        }
         JsonUtil.writeExtensions(faultResult, jsonGenerator, serializerProvider);
 
         jsonGenerator.writeEndObject();
