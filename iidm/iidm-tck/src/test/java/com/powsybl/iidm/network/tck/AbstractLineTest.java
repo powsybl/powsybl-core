@@ -588,14 +588,14 @@ public abstract class AbstractLineTest {
         assertEquals(IdentifiableType.LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
         assertEquals("hl1", tieLine.getHalf1().getId());
-        assertEquals(HALF1_NAME, tieLine.getHalf1().getName());
+        assertEquals(HALF1_NAME, tieLine.getHalf1().getOptionalName().orElse(null));
         assertEquals("hl2", tieLine.getHalf2().getId());
-        assertEquals(7.20, tieLine.getR(), tol);
-        assertEquals(22.15, tieLine.getX(), tol);
-        assertEquals(0.03539991244, tieLine.getG1(), tol);
-        assertEquals(0.06749912436, tieLine.getG2(), tol);
-        assertEquals(0.04491554716, tieLine.getB1(), tol);
-        assertEquals(0.06365547158, tieLine.getB2(), tol);
+        assertEquals(11.0, tieLine.getR(), tol);
+        assertEquals(22.0, tieLine.getX(), tol);
+        assertEquals(0.065, tieLine.getG1(), tol);
+        assertEquals(0.02649999999, tieLine.getG2(), tol);
+        assertEquals(0.08499999999, tieLine.getB1(), tol);
+        assertEquals(0.0285, tieLine.getB2(), tol);
 
         // invalid set line characteristics on tieLine
         try {
@@ -657,7 +657,7 @@ public abstract class AbstractLineTest {
         half2.setX(x + 1);
         half2.setG(hl2g1 + hl1g2 + 2);
         half2.setB(hl2b1 + hl2b2 + 2);
-        verify(mockedListener, times(12)).onUpdate(any(TieLine.class), anyString(), any(), any());
+        verify(mockedListener, times(8)).onUpdate(any(TieLine.class), anyString(), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
         // Cancel changes on Half lines
@@ -692,14 +692,14 @@ public abstract class AbstractLineTest {
         // test boundaries values
         SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE);
         SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.TWO);
-        assertEquals(expectedSV1.otherSideP(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV1.otherSideQ(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.otherSideP(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV2.otherSideQ(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV1.otherSideU(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.otherSideA(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV2.otherSideU(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.otherSideA(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV1.otherSideP(tieLine.getHalf1(), true), tieLine.getHalf1().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.otherSideQ(tieLine.getHalf1(), true), tieLine.getHalf1().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.otherSideP(tieLine.getHalf2(), true), tieLine.getHalf2().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.otherSideQ(tieLine.getHalf2(), true), tieLine.getHalf2().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV1.otherSideU(tieLine.getHalf1(), true), tieLine.getHalf1().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV1.otherSideA(tieLine.getHalf1(), true), tieLine.getHalf1().getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.otherSideU(tieLine.getHalf2(), true), tieLine.getHalf2().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV2.otherSideA(tieLine.getHalf2(), true), tieLine.getHalf2().getBoundary().getAngle(), 0.0d);
     }
 
     @Test

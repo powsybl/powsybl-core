@@ -600,12 +600,12 @@ public class CgmesConformity1ModifiedConversionTest {
                 NetworkFactory.findDefault(), null);
         Line m = network.getLine("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13");
 
-        assertEquals(4.899051302937931, m.getR(), tolerance);
-        assertEquals(81.72178778283748, m.getX(), tolerance);
-        assertEquals(-0.000016466220010923245, m.getG1(), tolerance);
-        assertEquals(0.00027467541246430603, m.getB1(), tolerance);
-        assertEquals(0.00004104571410320655, m.getG2(), tolerance);
-        assertEquals(-0.00019115630864850915, m.getB2(), tolerance);
+        assertEquals(4.848348287766889, m.getR(), tolerance);
+        assertEquals(80.20069732770635, m.getX(), tolerance);
+        assertEquals(0.000006589225754810883, m.getG1(), tolerance);
+        assertEquals(-0.00003533205998631356, m.getB1(), tolerance);
+        assertEquals(0.00002420000000000048, m.getG2(), tolerance);
+        assertEquals(0.00008984950000000269, m.getB2(), tolerance);
     }
 
     @Test

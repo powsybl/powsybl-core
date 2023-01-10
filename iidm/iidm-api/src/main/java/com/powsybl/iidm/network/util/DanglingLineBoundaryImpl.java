@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.util;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -38,7 +39,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideU(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Optional.ofNullable(side).orElse(Branch.Side.ONE)).otherSideU(parent, true);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideA(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Optional.ofNullable(side).orElse(Branch.Side.ONE)).otherSideA(parent, true);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideP(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Optional.ofNullable(side).orElse(Branch.Side.ONE)).otherSideP(parent, true);
     }
 
     @Override
@@ -69,7 +70,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideQ(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Optional.ofNullable(side).orElse(Branch.Side.ONE)).otherSideQ(parent, true);
     }
 
     @Override

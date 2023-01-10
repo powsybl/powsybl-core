@@ -186,7 +186,7 @@ public final class TieLineUtil {
         BranchAdmittanceMatrix adm1 = LinkData.calculateBranchAdmittance(half1.getR(), half1.getX(), 1.0, 0.0, 1.0, 0.0,
             new Complex(half1.getG(), half1.getB()), new Complex(0.0, 0.0));
         BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(half2.getR(), half2.getX(), 1.0, 0.0, 1.0, 0.0,
-            new Complex(half2.getG(), half2.getB()), new Complex(0.0, 0.0));
+            new Complex(0.0, 0.0), new Complex(half2.getG(), half2.getB()));
 
         if (zeroImpedanceLine(adm1)) {
             return adm2;
