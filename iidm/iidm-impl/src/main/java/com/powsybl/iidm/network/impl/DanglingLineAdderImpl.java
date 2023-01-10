@@ -88,9 +88,9 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private double x = Double.NaN;
 
-    private double g = Double.NaN;
+    private double g = 0.0;
 
-    private double b = Double.NaN;
+    private double b = 0.0;
 
     private String ucteXnodeCode;
 

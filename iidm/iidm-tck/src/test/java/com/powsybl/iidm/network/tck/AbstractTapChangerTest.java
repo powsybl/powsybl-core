@@ -173,6 +173,29 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
+    public void testDefaultPhaseTapChangerStep() {
+        PhaseTapChanger phaseTapChanger = twt.newPhaseTapChanger()
+                .setTapPosition(0)
+                .setLowTapPosition(0)
+                .setRegulating(true)
+                .setTargetDeadband(1.0)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationValue(10.0)
+                .setRegulationTerminal(terminal)
+                .beginStep()
+                    .setAlpha(0.0)
+                .endStep()
+                .add();
+
+        PhaseTapChangerStep step = phaseTapChanger.getStep(0);
+        assertEquals(0.0, step.getR(), 0.0);
+        assertEquals(0.0, step.getX(), 0.0);
+        assertEquals(0.0, step.getG(), 0.0);
+        assertEquals(0.0, step.getB(), 0.0);
+        assertEquals(1.0, step.getRho(), 0.0);
+    }
+
+    @Test
     public void invalidTapPositionPhase() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("incorrect tap position");
@@ -459,6 +482,28 @@ public abstract class AbstractTapChangerTest {
         // remove
         ratioTapChanger.remove();
         assertNull(twt.getRatioTapChanger());
+    }
+
+    @Test
+    public void testDefaultRatioTapChangerStep() {
+        RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .setLoadTapChangingCapabilities(false)
+                .setRegulating(true)
+                .setTargetDeadband(1.0)
+                .setTargetV(220.0)
+                .setRegulationTerminal(twt.getTerminal1())
+                .beginStep()
+                    .setRho(0.9)
+                .endStep()
+                .add();
+
+        RatioTapChangerStep step = ratioTapChanger.getStep(0);
+        assertEquals(0.0, step.getR(), 0.0);
+        assertEquals(0.0, step.getX(), 0.0);
+        assertEquals(0.0, step.getG(), 0.0);
+        assertEquals(0.0, step.getB(), 0.0);
     }
 
     @Test
