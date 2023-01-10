@@ -155,12 +155,4 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         }
         return tieLine;
     }
-
-    private static boolean isLine1Reoriented(Branch.Side boundarySide) {
-        return boundarySide.equals(Branch.Side.ONE);
-    }
-
-    private static boolean isLine2Reoriented(Branch.Side boundarySide) {
-        return boundarySide.equals(Branch.Side.TWO);
-    }
 }
