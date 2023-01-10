@@ -18,7 +18,6 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.util.ReorientedBranchCharacteristics;
 import com.powsybl.iidm.network.util.SV;
 
 import static org.junit.Assert.*;
@@ -281,9 +280,6 @@ public class TieLineTest {
 
         createBus(s2vl1, "S2VL1-BUS");
 
-        ReorientedBranchCharacteristics brp1 = new ReorientedBranchCharacteristics(0.019, 0.059, 0.02, 0.075, 0.03, 0.065, isLine1Reoriented(boundarySide1));
-        ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(0.038, 0.118, 0.015, 0.050, 0.025, 0.080, isLine2Reoriented(boundarySide2));
-
         TieLineAdder adder = network.newTieLine()
             .setId(boundarySide1.name() + " + " + boundarySide2.name())
             .setName(boundarySide1.name() + " + " + boundarySide2.name())
@@ -291,19 +287,19 @@ public class TieLineTest {
             .setBus("S1VL1-BUS")
             .setId(boundarySide1.name())
             .setName(boundarySide1.name())
-            .setR(brp1.getR())
-            .setX(brp1.getX())
-            .setG(brp1.getG1() + brp1.getG2())
-            .setB(brp1.getB1() + brp1.getB2())
+            .setR(0.019)
+            .setX(0.059)
+            .setG(0.05)
+            .setB(0.14)
             .add()
             .newHalf2()
             .setBus("S2VL1-BUS")
             .setId(boundarySide2.name())
             .setName(boundarySide2.name())
-            .setR(brp2.getR())
-            .setX(brp2.getX())
-            .setG(brp2.getG1() + brp2.getG2())
-            .setB(brp2.getB1() + brp2.getB2())
+            .setR(0.038)
+            .setX(0.118)
+            .setG(0.04)
+            .setB(0.13)
             .setUcteXnodeCode("UcteNode")
             .add();
 
@@ -357,9 +353,6 @@ public class TieLineTest {
 
         createBus(s2vl1, "S2VL1-BUS");
 
-        ReorientedBranchCharacteristics brp1 = new ReorientedBranchCharacteristics(2.1672071999999996, 9.5543748, 0.0, 1.648813274522159E-4, 0.0, 1.648813274522159E-4, isLine1Reoriented(boundarySide1));
-        ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(3.1513680000000006, 14.928011999999999, 0.008044414674299755, -0.03791520949675112, -0.005046041932060755, 0.023978278075869598, isLine2Reoriented(boundarySide2));
-
         TieLineAdder adder = network.newTieLine()
             .setId(boundarySide1.name() + " + " + boundarySide2.name())
             .setName(boundarySide1.name() + " + " + boundarySide2.name())
@@ -367,20 +360,20 @@ public class TieLineTest {
             .setBus("S1VL1-BUS")
             .setId(boundarySide1.name())
             .setName(boundarySide1.name())
-            .setR(brp1.getR())
-            .setX(brp1.getX())
-            .setG(brp1.getG1() + brp1.getG2())
-            .setB(brp1.getB1() + brp1.getB2())
+            .setR(2.1672071999999996)
+            .setX(9.5543748)
+            .setG(0.0)
+            .setB(0.00032976265)
             .setUcteXnodeCode("UcteNode")
             .add()
             .newHalf2()
             .setBus("S2VL1-BUS")
             .setId(boundarySide2.name())
             .setName(boundarySide2.name())
-            .setR(brp2.getR())
-            .setX(brp2.getX())
-            .setG(brp2.getG1() + brp2.getG2())
-            .setB(brp2.getB1() + brp2.getB2())
+            .setR(3.1513680000000006)
+            .setX(14.928011999999999)
+            .setG(0.00299837274)
+            .setB(-0.01393693142)
             .add();
 
         adder.setVoltageLevel1("S1VL1")
