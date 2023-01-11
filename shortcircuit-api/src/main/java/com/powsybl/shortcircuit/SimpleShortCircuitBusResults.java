@@ -11,15 +11,15 @@ package com.powsybl.shortcircuit;
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
 public class SimpleShortCircuitBusResults extends AbstractShortCircuitBusResults {
+
     private final double voltage;
 
     public SimpleShortCircuitBusResults(String voltageLevelId,
-                                  String busId, double initialVoltageMagnitude,
-                                  double voltage,
-                                  double voltageDropProportional) {
-        super(voltageLevelId, busId, initialVoltageMagnitude, voltageDropProportional);
+                                        String busId,
+                                        double voltage,
+                                        double voltageDropProportional) {
+        super(voltageLevelId, busId, voltageDropProportional);
         this.voltage = voltage;
-
     }
 
     /**
@@ -28,4 +28,5 @@ public class SimpleShortCircuitBusResults extends AbstractShortCircuitBusResults
     public double getVoltage() {
         return voltage;
     }
+
 }
