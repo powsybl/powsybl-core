@@ -1,7 +1,7 @@
 package com.powsybl.iidm.network.test;
 
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -22,6 +22,11 @@ public final class SecurityAnalysisTestNetworkFactory {
     private static final String S1VL2 = "S1VL2";
     private static final String S2VL1 = "S2VL1";
     private static final String S2VL2 = "S2VL2";
+    private static final String LINE_S1S2V1_1 = "LINE_S1S2V1_1";
+    private static final String LINE_S1S2V1_2 = "LINE_S1S2V1_2";
+    private static final String LINE_S1S2V2 = "LINE_S1S2V2";
+    private static final String TWT = "TWT";
+    private static final String TWT2 = "TWT2";
 
     private SecurityAnalysisTestNetworkFactory() {
 
@@ -185,9 +190,9 @@ public final class SecurityAnalysisTestNetworkFactory {
         createSwitch(s1vl2, "S1VL2_BBS_TWT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 10);
         createSwitch(s1vl2, "S1VL2_TWT_BREAKER", SwitchKind.BREAKER, false, 10, 11);
         s1.newTwoWindingsTransformer()
-                .setId("TWT")
+                .setId(TWT)
                 .setR(2.0)
-                .setX(10)
+                .setX(25)
                 .setG(0.0)
                 .setB(3.2E-5)
                 .setRatedU1(400.0)
@@ -202,7 +207,7 @@ public final class SecurityAnalysisTestNetworkFactory {
         createSwitch(s2vl2, "S2VL2_BBS_TWT_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 10);
         createSwitch(s2vl2, "S2VL2_TWT_BREAKER", SwitchKind.BREAKER, false, 10, 11);
         s2.newTwoWindingsTransformer()
-                .setId("TWT2")
+                .setId(TWT2)
                 .setR(2.0)
                 .setX(50)
                 .setG(0.0)
@@ -228,5 +233,100 @@ public final class SecurityAnalysisTestNetworkFactory {
                 .setNode1(node1)
                 .setNode2(node2)
                 .add();
+    }
+
+    public static Network createWithFixedCurrentLimits() {
+        return createWithFixedCurrentLimits(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithFixedCurrentLimits(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+        network.getLine(LINE_S1S2V1_1).newCurrentLimits2()
+                .setPermanentLimit(75)
+                .add();
+        network.getLine(LINE_S1S2V1_1).newCurrentLimits1()
+                .setPermanentLimit(75)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(80)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(85)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+        network.getLine(LINE_S1S2V1_2).newCurrentLimits2().setPermanentLimit(75).add();
+        network.getLine(LINE_S1S2V1_2).newCurrentLimits1()
+                .setPermanentLimit(75)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(80)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(85)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+        network.getLine(LINE_S1S2V2).newCurrentLimits1()
+                .setPermanentLimit(60)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(80)
+                .endTemporaryLimit()
+                .add();
+        network.getTwoWindingsTransformer(TWT2).newCurrentLimits1().setPermanentLimit(90)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(100)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(110)
+                .endTemporaryLimit()
+                .add();
+        network.getTwoWindingsTransformer(TWT).newCurrentLimits1().setPermanentLimit(92)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(100)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(110)
+                .endTemporaryLimit()
+                .add();
+        return network;
+    }
+
+    public static Network createWithFixedPowerLimits() {
+        return createWithFixedPowerLimits(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithFixedPowerLimits(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+        network.getTwoWindingsTransformer(TWT).newActivePowerLimits1().setPermanentLimit(71).add();
+        network.getTwoWindingsTransformer(TWT2).newActivePowerLimits1().setPermanentLimit(55).add();
+        network.getLine(LINE_S1S2V1_1).newActivePowerLimits1().setPermanentLimit(55).add();
+        network.getLine(LINE_S1S2V1_2).newActivePowerLimits1().setPermanentLimit(55).add();
+        network.getLine(LINE_S1S2V2).newActivePowerLimits1().setPermanentLimit(30).add();
+        return network;
     }
 }
