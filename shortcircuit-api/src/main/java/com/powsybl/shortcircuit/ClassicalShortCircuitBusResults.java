@@ -11,8 +11,6 @@ package com.powsybl.shortcircuit;
  */
 public class ClassicalShortCircuitBusResults extends AbstractShortCircuitBusResults {
 
-    private final double initialVoltageMagnitude;
-
     private final FortescueValue voltage;
 
     public ClassicalShortCircuitBusResults(String voltageLevelId,
@@ -20,17 +18,15 @@ public class ClassicalShortCircuitBusResults extends AbstractShortCircuitBusResu
                                            double initialVoltageMagnitude,
                                            FortescueValue voltage,
                                            double voltageDropProportional) {
-        super(voltageLevelId, busId, voltageDropProportional);
-        this.initialVoltageMagnitude = initialVoltageMagnitude;
+        super(voltageLevelId, busId, initialVoltageMagnitude, voltageDropProportional);
         this.voltage = voltage;
     }
 
+    /**
+     * Returns the voltage on the three phases after the fault.
+     */
     public FortescueValue getVoltage() {
         return voltage;
-    }
-
-    public double getInitialVoltageMagnitude() {
-        return initialVoltageMagnitude;
     }
 
 }

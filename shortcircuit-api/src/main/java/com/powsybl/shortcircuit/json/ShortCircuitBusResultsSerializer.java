@@ -33,8 +33,8 @@ public class ShortCircuitBusResultsSerializer extends StdSerializer<ShortCircuit
         jsonGenerator.writeStartObject();
         JsonUtil.writeOptionalStringField(jsonGenerator, "voltageLevelId", busResults.getVoltageLevelId());
         JsonUtil.writeOptionalStringField(jsonGenerator, "busId", busResults.getBusId());
-        if (busResults instanceof ClassicalShortCircuitBusResults && !Double.isNaN(((ClassicalShortCircuitBusResults) busResults).getInitialVoltageMagnitude())) {
-            serializerProvider.defaultSerializeField("initialVoltageMagnitude", ((ClassicalShortCircuitBusResults) busResults).getInitialVoltageMagnitude(), jsonGenerator);
+        if (!Double.isNaN(busResults.getInitialVoltageMagnitude())) {
+            serializerProvider.defaultSerializeField("initialVoltageMagnitude", busResults.getInitialVoltageMagnitude(), jsonGenerator);
         }
         if (busResults instanceof ClassicalShortCircuitBusResults && ((ClassicalShortCircuitBusResults) busResults).getVoltage() != null) {
             serializerProvider.defaultSerializeField("voltage", ((ClassicalShortCircuitBusResults) busResults).getVoltage(), jsonGenerator);

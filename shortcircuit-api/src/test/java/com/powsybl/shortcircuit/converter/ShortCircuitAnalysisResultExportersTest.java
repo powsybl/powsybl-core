@@ -86,7 +86,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         limitViolation.addExtension(ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyLimitViolationExtension());
         limitViolations.add(limitViolation);
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
-        busResults.add(new SimpleShortCircuitBusResults(subjectId, "busId", 2004, 100));
+        busResults.add(new SimpleShortCircuitBusResults(subjectId, "busId", 2000, 2004, 100));
         List<FaultResult> faultResults = new ArrayList<>();
         FaultResult faultResult = new FaultResult(fault, 1.0, Collections.emptyList(), limitViolations, new FortescueValue(1.0), null, busResults, null, FaultResult.Status.SUCCESS);
         faultResult.addExtension(ShortCircuitAnalysisResultExportersTest.DummyFaultResultExtension.class, new ShortCircuitAnalysisResultExportersTest.DummyFaultResultExtension());

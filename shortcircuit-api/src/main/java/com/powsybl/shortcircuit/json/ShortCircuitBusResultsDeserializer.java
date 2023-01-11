@@ -78,7 +78,7 @@ class ShortCircuitBusResultsDeserializer {
             if (voltage != null) {
                 shortCircuitBusResults.add(new ClassicalShortCircuitBusResults(voltageLevelId, busId, initialVoltageMagnitude, voltage, voltageDropProportional));
             } else {
-                shortCircuitBusResults.add(new SimpleShortCircuitBusResults(voltageLevelId, busId, voltageMagnitude, voltageDropProportional));
+                shortCircuitBusResults.add(new SimpleShortCircuitBusResults(voltageLevelId, busId, initialVoltageMagnitude, voltageMagnitude, voltageDropProportional));
             }
         }
         return shortCircuitBusResults;

@@ -14,14 +14,17 @@ public class SimpleShortCircuitBusResults extends AbstractShortCircuitBusResults
     private final double voltage;
 
     public SimpleShortCircuitBusResults(String voltageLevelId,
-                                  String busId,
+                                  String busId, double initialVoltageMagnitude,
                                   double voltage,
                                   double voltageDropProportional) {
-        super(voltageLevelId, busId, voltageDropProportional);
+        super(voltageLevelId, busId, initialVoltageMagnitude, voltageDropProportional);
         this.voltage = voltage;
 
     }
 
+    /**
+     * Returns the 3-phase voltage magnitude after the fault (in V).
+     */
     public double getVoltage() {
         return voltage;
     }

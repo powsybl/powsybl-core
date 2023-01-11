@@ -15,6 +15,14 @@ public interface ShortCircuitBusResults {
 
     String getBusId();
 
+    /**
+     * Returns the magnitude of the voltage before the fault (in V).
+     */
+    double getInitialVoltageMagnitude();
+
+    /**
+     * Returns the voltage drop between the voltage magnitude before and after the fault, as a percentage.
+     */
     double getVoltageDropProportional();
 
 }
