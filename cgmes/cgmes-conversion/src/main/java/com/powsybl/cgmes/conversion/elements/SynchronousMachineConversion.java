@@ -14,6 +14,7 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -69,7 +70,10 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
         double normalPF = p.asDouble("normalPF");
         if (!Double.isNaN(normalPF)) {
-            g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF", String.valueOf(normalPF));
+            g.newExtension(ActivePowerControlAdder.class)
+                    .withParticipate(normalPF != 0.0)
+                    .withParticipationFactor(normalPF)
+                    .add();
         }
         String generatingUnit = p.getId("GeneratingUnit");
         if (generatingUnit != null) {
