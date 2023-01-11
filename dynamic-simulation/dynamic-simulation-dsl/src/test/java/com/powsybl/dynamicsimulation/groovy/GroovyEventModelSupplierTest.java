@@ -77,9 +77,11 @@ public class GroovyEventModelSupplierTest {
         assertTrue(eventModels.get(0) instanceof DummyEventModel);
         DummyEventModel eventModel1 = (DummyEventModel) eventModels.get(0);
         assertEquals("NHV1_NHV2_1", eventModel1.getId());
+        assertEquals(50, eventModel1.getStartTime(), 0);
 
         assertTrue(eventModels.get(1) instanceof DummyEventModel);
         DummyEventModel eventModel2 = (DummyEventModel) eventModels.get(1);
         assertEquals("NHV1_NHV2_2", eventModel2.getId());
+        assertEquals(50, eventModel2.getStartTime(), 0);
     }
 }

@@ -43,5 +43,12 @@
       "q3" : 0.0,
       "i3" : 0.0
     } ]
+  },
+  "connectivityResult" : {
+    "createdSynchronousComponentCount" : 1,
+    "createdConnectedComponentCount" : 1,
+    "disconnectedLoadActivePower" : 5.0,
+    "disconnectedGenerationActivePower" : 10.0,
+    "disconnectedElements" : [ ]
   }
 }
