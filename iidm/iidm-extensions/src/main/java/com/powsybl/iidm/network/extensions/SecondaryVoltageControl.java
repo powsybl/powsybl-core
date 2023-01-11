@@ -10,6 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,15 +24,16 @@ public interface SecondaryVoltageControl extends Extension<Network> {
 
     class PilotPoint {
 
-        private final List<String> busbarSectionsOrBusesIds;
+        private final List<String> busbarSectionsOrBusesIds = new ArrayList<>();
 
         private double targetV;
 
         public PilotPoint(List<String> busbarSectionsOrBusesIds, double targetV) {
-            this.busbarSectionsOrBusesIds = Objects.requireNonNull(busbarSectionsOrBusesIds);
+            Objects.requireNonNull(busbarSectionsOrBusesIds).forEach(Objects::requireNonNull);
             if (busbarSectionsOrBusesIds.isEmpty()) {
                 throw new PowsyblException("Empty busbar section of bus ID list");
             }
+            this.busbarSectionsOrBusesIds.addAll(busbarSectionsOrBusesIds);
             if (Double.isNaN(targetV)) {
                 throw new PowsyblException("Invalid target voltage");
             }
@@ -41,7 +44,7 @@ public interface SecondaryVoltageControl extends Extension<Network> {
          * Get pilot point busbar section ID or bus ID of the bus/breaker view.
          */
         public List<String> getBusbarSectionsOrBusesIds() {
-            return busbarSectionsOrBusesIds;
+            return Collections.unmodifiableList(busbarSectionsOrBusesIds);
         }
 
         public double getTargetV() {
@@ -92,10 +95,11 @@ public interface SecondaryVoltageControl extends Extension<Network> {
         public ControlZone(String name, PilotPoint pilotPoint, List<ControlUnit> controlUnits) {
             this.name = Objects.requireNonNull(name);
             this.pilotPoint = Objects.requireNonNull(pilotPoint);
-            this.controlUnits = Objects.requireNonNull(controlUnits);
+            Objects.requireNonNull(controlUnits).forEach(Objects::requireNonNull);
             if (controlUnits.isEmpty()) {
                 throw new PowsyblException("Empty control unit list");
             }
+            this.controlUnits = controlUnits;
         }
 
         public String getName() {
@@ -107,7 +111,7 @@ public interface SecondaryVoltageControl extends Extension<Network> {
         }
 
         public List<ControlUnit> getControlUnits() {
-            return controlUnits;
+            return Collections.unmodifiableList(controlUnits);
         }
     }
 
