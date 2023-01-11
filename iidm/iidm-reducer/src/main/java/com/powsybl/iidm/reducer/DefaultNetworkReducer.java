@@ -105,12 +105,12 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         Terminal terminal2 = hvdcLine.getConverterStation2().getTerminal();
         VoltageLevel vl1 = terminal1.getVoltageLevel();
         VoltageLevel vl2 = terminal2.getVoltageLevel();
-        HvdcConverterStation.HvdcType type1 = hvdcLine.getConverterStation1().getHvdcType();
-        HvdcConverterStation.HvdcType type2 = hvdcLine.getConverterStation2().getHvdcType();
+        HvdcConverterStation station1 = hvdcLine.getConverterStation1();
+        HvdcConverterStation station2 = hvdcLine.getConverterStation2();
         if (getPredicate().test(vl1)) {
-            replaceHvdcLine(hvdcLine, vl1, terminal1, type1);
+            replaceHvdcLine(hvdcLine, vl1, terminal1, station1);
         } else if (getPredicate().test(vl2)) {
-            replaceHvdcLine(hvdcLine, vl2, terminal2, type2);
+            replaceHvdcLine(hvdcLine, vl2, terminal2, station2);
         } else {
             hvdcLine.remove();
         }
@@ -182,11 +182,14 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         return load;
     }
 
-    private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation.HvdcType type) {
-        if (type == HvdcConverterStation.HvdcType.VSC) {
-            replaceHvdcLineByLoad(hvdcLine, vl, terminal);
+    private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation station) {
+        if (station.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
+            VscConverterStation vscStation = (VscConverterStation) station;
+            if (vscStation.isVoltageRegulatorOn()) {
+                replaceHvdcLineByGenerator(hvdcLine, vl, terminal);
+            }
         } else {
-            replaceHvdcLineByGenerator(hvdcLine, vl, terminal);
+            replaceHvdcLineByLoad(hvdcLine, vl, terminal);
         }
     }
 

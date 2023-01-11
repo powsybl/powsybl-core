@@ -255,7 +255,7 @@ public class DefaultNetworkReducerTest {
     public void testHvdcReplacement() {
         NetworkReducerObserverImpl observerLcc = new NetworkReducerObserverImpl();
         Network networkLcc = HvdcTestNetwork.createLcc();
-        assertEquals(0, networkLcc.getGeneratorCount());
+        assertEquals(0, networkLcc.getLoadCount());
         NetworkReducer reducerLcc = NetworkReducer.builder()
                     .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
                     .withObservers(observerLcc)
@@ -264,11 +264,11 @@ public class DefaultNetworkReducerTest {
         assertEquals(0, networkLcc.getHvdcLineCount());
         assertEquals(1, observerLcc.getHvdcLineReplacedCount());
         assertEquals(1, observerLcc.getHvdcLineRemovedCount());
-        assertEquals(1, networkLcc.getGeneratorCount());
+        assertEquals(1, networkLcc.getLoadCount());
 
         NetworkReducerObserverImpl observerVsc = new NetworkReducerObserverImpl();
         Network networkVsc = HvdcTestNetwork.createVsc();
-        assertEquals(0, networkVsc.getLoadCount());
+        assertEquals(0, networkVsc.getGeneratorCount());
         NetworkReducer reducerVsc = NetworkReducer.builder()
                 .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
                 .withObservers(observerVsc)
@@ -277,7 +277,7 @@ public class DefaultNetworkReducerTest {
         assertEquals(0, networkVsc.getHvdcLineCount());
         assertEquals(1, observerVsc.getHvdcLineReplacedCount());
         assertEquals(1, observerVsc.getHvdcLineRemovedCount());
-        assertEquals(1, networkVsc.getLoadCount());
+        assertEquals(1, networkVsc.getGeneratorCount());
 
     }
 
