@@ -91,7 +91,7 @@ public interface SecondaryVoltageControl extends Extension<Network> {
 
         private final PilotPoint pilotPoint;
 
-        private final List<ControlUnit> controlUnits;
+        private final List<ControlUnit> controlUnits = new ArrayList<>();
 
         public ControlZone(String name, PilotPoint pilotPoint, List<ControlUnit> controlUnits) {
             this.name = Objects.requireNonNull(name);
@@ -100,7 +100,7 @@ public interface SecondaryVoltageControl extends Extension<Network> {
             if (controlUnits.isEmpty()) {
                 throw new PowsyblException("Empty control unit list");
             }
-            this.controlUnits = controlUnits;
+            this.controlUnits.addAll(controlUnits);
         }
 
         public String getName() {
