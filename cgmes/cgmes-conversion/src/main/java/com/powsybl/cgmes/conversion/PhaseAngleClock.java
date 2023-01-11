@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.extensions.CgmesModelExtension;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

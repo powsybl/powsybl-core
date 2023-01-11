@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-package com.powsybl.cgmes.conversion.test.cim14;
+package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;

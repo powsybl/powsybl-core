@@ -7,7 +7,8 @@
 
 package com.powsybl.cgmes.conversion.test.cim14;
 
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.extensions.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.test.Cim14SmallCasesNetworkCatalog;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
