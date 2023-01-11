@@ -497,7 +497,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLineStream()));
         assertEquals(network.getHvdcLineCount(), network.getHvdcLineStream().count());
         assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getVscConverterStationStream()));
-        assertEquals(network.getLccConverterStationCount(), network.getLccConverterStationStream().count());
+        assertEquals(network.getVscConverterStationCount(), network.getVscConverterStationStream().count());
         assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getHvdcConverterStationStream()));
         assertEquals(network.getHvdcConverterStationCount(), network.getHvdcConverterStationStream().count());
         assertEquals(Collections.singletonList("C1"), mapper.apply(network.getVoltageLevel("VL1").getVscConverterStationStream()));

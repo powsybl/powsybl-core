@@ -105,8 +105,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         Terminal terminal2 = hvdcLine.getConverterStation2().getTerminal();
         VoltageLevel vl1 = terminal1.getVoltageLevel();
         VoltageLevel vl2 = terminal2.getVoltageLevel();
-        HvdcConverterStation station1 = hvdcLine.getConverterStation1();
-        HvdcConverterStation station2 = hvdcLine.getConverterStation2();
+        HvdcConverterStation<?> station1 = hvdcLine.getConverterStation1();
+        HvdcConverterStation<?> station2 = hvdcLine.getConverterStation2();
         if (getPredicate().test(vl1)) {
             replaceHvdcLine(hvdcLine, vl1, terminal1, station1);
         } else if (getPredicate().test(vl2)) {
@@ -182,7 +182,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         return load;
     }
 
-    private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation station) {
+    private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation<?> station) {
         if (station.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
             VscConverterStation vscStation = (VscConverterStation) station;
             if (vscStation.isVoltageRegulatorOn()) {
@@ -204,7 +204,11 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
         double p = terminal.getP();
         double q = terminal.getQ();
+        HvdcConverterStation<?> converter1 = hvdcLine.getConverterStation1();
+        HvdcConverterStation<?> converter2 = hvdcLine.getConverterStation2();
         hvdcLine.remove();
+        converter1.remove();
+        converter2.remove();
 
         Load load = loadAdder.add();
         load.getTerminal()
@@ -227,7 +231,11 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
         double p = terminal.getP();
         double q = terminal.getQ();
+        HvdcConverterStation<?> converter1 = hvdcLine.getConverterStation1();
+        HvdcConverterStation<?> converter2 = hvdcLine.getConverterStation2();
         hvdcLine.remove();
+        converter1.remove();
+        converter2.remove();
 
         Generator generator = genAdder.add();
         generator.getTerminal()
