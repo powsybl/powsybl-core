@@ -47,11 +47,11 @@ public final class StateVariablesExport {
 
             if (context.getCimVersion() >= 16) {
                 CgmesExportUtil.writeModelDescription(writer, context.getSvModelDescription(), context);
-                writeTopologicalIslands(network, cimNamespace, writer);
+                writeTopologicalIslands(network, context, writer);
                 // Note: unmapped topological nodes (node breaker) & boundary topological nodes are not written in topological islands
             }
 
-            writeVoltagesForTopologicalNodes(network, cimNamespace, writer);
+            writeVoltagesForTopologicalNodes(network, context, writer);
             writeVoltagesForBoundaryNodes(network, cimNamespace, writer);
             writePowerFlows(network, cimNamespace, writer, context);
             writeShuntCompensatorSections(network, cimNamespace, writer, context);
@@ -65,9 +65,10 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeTopologicalIslands(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        Map<String, String> angleRefs = buildAngleRefs(network);
-        Map<String, List<String>> islands = buildIslands(network);
+    private static void writeTopologicalIslands(Network network, CgmesExportContext context, XMLStreamWriter writer) throws XMLStreamException {
+        Map<String, String> angleRefs = buildAngleRefs(network, context);
+        Map<String, List<String>> islands = buildIslands(network, context);
+        String cimNamespace = context.getCim().getNamespace();
         for (Map.Entry<String, List<String>> island : islands.entrySet()) {
             if (!angleRefs.containsKey(island.getKey())) {
                 Supplier<String> log = () -> String.format("Synchronous component  %s does not have a defined slack bus: it is ignored", island.getKey());
@@ -87,22 +88,22 @@ public final class StateVariablesExport {
         }
     }
 
-    private static Map<String, String> buildAngleRefs(Network network) {
+    private static Map<String, String> buildAngleRefs(Network network, CgmesExportContext context) {
         Map<String, String> angleRefs = new HashMap<>();
         for (VoltageLevel vl : network.getVoltageLevels()) {
             SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-            buildAngleRefs(slackTerminal, angleRefs);
+            buildAngleRefs(slackTerminal, angleRefs, context);
         }
         return angleRefs;
     }
 
-    private static void buildAngleRefs(SlackTerminal slackTerminal, Map<String, String> angleRefs) {
+    private static void buildAngleRefs(SlackTerminal slackTerminal, Map<String, String> angleRefs, CgmesExportContext context) {
         if (slackTerminal != null && slackTerminal.getTerminal() != null) {
             Bus bus = slackTerminal.getTerminal().getBusBreakerView().getBus();
             if (bus != null && bus.getSynchronousComponent() != null) {
-                buildAngleRefs(bus.getSynchronousComponent().getNum(), bus.getId(), angleRefs);
+                buildAngleRefs(bus.getSynchronousComponent().getNum(), bus, angleRefs, context);
             } else if (bus != null) {
-                buildAngleRefs(bus.getId(), angleRefs);
+                buildAngleRefs(bus, angleRefs, context);
             } else {
                 Supplier<String> message = () -> String.format("Slack terminal at equipment %s is not connected and is not exported as slack terminal", slackTerminal.getTerminal().getConnectable().getId());
                 LOG.info(message.get());
@@ -110,7 +111,7 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void buildAngleRefs(int synchronousComponentNum, String topologicalNodeId, Map<String, String> angleRefs) {
+    private static void buildAngleRefs(int synchronousComponentNum, Bus bus, Map<String, String> angleRefs, CgmesExportContext context) {
         String componentNum = String.valueOf(synchronousComponentNum);
         if (angleRefs.containsKey(componentNum)) {
             Supplier<String> log = () -> String.format("Several slack buses are defined for synchronous component %s: only first slack bus (%s) is taken into account",
@@ -118,30 +119,35 @@ public final class StateVariablesExport {
             LOG.info(log.get());
             return;
         }
+        String topologicalNodeId = context.getNamingStrategy().getCgmesId(bus);
         angleRefs.put(componentNum, topologicalNodeId);
     }
 
-    private static void buildAngleRefs(String topologicalNodeId, Map<String, String> angleRefs) {
+    private static void buildAngleRefs(Bus bus, Map<String, String> angleRefs, CgmesExportContext context) {
+        String topologicalNodeId = context.getNamingStrategy().getCgmesId(bus);
         angleRefs.put(topologicalNodeId, topologicalNodeId);
     }
 
-    private static Map<String, List<String>> buildIslands(Network network) {
+    private static Map<String, List<String>> buildIslands(Network network, CgmesExportContext context) {
         Map<String, List<String>> islands = new HashMap<>();
         for (Bus b : network.getBusBreakerView().getBuses()) {
+            String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
             if (b.getSynchronousComponent() != null) {
                 int num = b.getSynchronousComponent().getNum();
                 islands.computeIfAbsent(String.valueOf(num), i -> new ArrayList<>());
-                islands.get(String.valueOf(num)).add(b.getId());
+                islands.get(String.valueOf(num)).add(topologicalNodeId);
             } else {
-                islands.put(b.getId(), Collections.singletonList(b.getId()));
+                islands.put(topologicalNodeId, Collections.singletonList(topologicalNodeId));
             }
         }
         return islands;
     }
 
-    private static void writeVoltagesForTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeVoltagesForTopologicalNodes(Network network, CgmesExportContext context, XMLStreamWriter writer) throws XMLStreamException {
+        String cimNamespace = context.getCim().getNamespace();
         for (Bus b : network.getBusBreakerView().getBuses()) {
-            writeVoltage(b.getId(), b.getV(), b.getAngle(), cimNamespace, writer);
+            String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
+            writeVoltage(topologicalNodeId, b.getV(), b.getAngle(), cimNamespace, writer);
         }
     }
 
