@@ -176,7 +176,7 @@ public final class NetworkXml {
                     ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName())
                     : EXTENSIONS_SUPPLIER.get().findProvider(extension.getName());
             if (extensionXmlSerializer == null) {
-                String message = "XmlSerializer for" + extension.getName() + "not found";
+                String message = "XmlSerializer for " + extension.getName() + " not found";
                 throwExceptionIfOption(options, message);
             } else if (!extensionXmlSerializer.isSerializable(extension)) {
                 return null;
