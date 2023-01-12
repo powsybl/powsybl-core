@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2023, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    SPDX-License-Identifier: MPL-2.0
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:svc="http://www.powsybl.org/schema/iidm/ext/secondary_voltage_control/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/secondary_voltage_control/1_0"
+           elementFormDefault="qualified">
+    <xs:complexType name="PilotPoint">
+        <xs:sequence>
+            <xs:element name="busbarSectionOrBusId" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="targetV" use="required" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="ControlUnit">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="participate" use="required" type="xs:boolean"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+    <xs:complexType name="ControlZone">
+        <xs:sequence>
+            <xs:element name="pilotPoint" type="svc:PilotPoint" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="controlUnit" type="svc:ControlUnit" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute name="name" use="required" type="xs:string"/>
+    </xs:complexType>
+    <xs:element name="secondaryVoltageControl">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="controlZone" type="svc:ControlZone" minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
