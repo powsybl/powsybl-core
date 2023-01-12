@@ -9,7 +9,7 @@ package com.powsybl.security.action;
 
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
-import java.util.Optional;
+import java.util.OptionalDouble;
 
 /**
  * An action activating or deactivating the regulation of a ratio transformer
@@ -60,7 +60,7 @@ public class RatioTapChangerRegulationAction extends AbstractTapChangerRegulatio
         return new RatioTapChangerRegulationAction(id, transformerId, side, false, null);
     }
 
-    public Optional<Double> getTargetV() {
-        return Optional.ofNullable(targetV);
+    public OptionalDouble getTargetV() {
+        return targetV == null ? OptionalDouble.empty() : OptionalDouble.of(targetV);
     }
 }

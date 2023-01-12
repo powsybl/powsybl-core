@@ -9,34 +9,19 @@ package com.powsybl.security.action;
 
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
-import java.util.Objects;
-import java.util.Optional;
-
 /**
  * An action modifying the regulation of a two or three windings transformer
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  * @author Anne Tilloy <anne.tilloy@rte-france.com>
  */
-public abstract class AbstractTapChangerRegulationAction extends AbstractAction {
+public abstract class AbstractTapChangerRegulationAction extends AbstractTapChangerAction {
 
-    private final String transformerId;
-    private final ThreeWindingsTransformer.Side side;
     private final boolean regulating;
 
     protected AbstractTapChangerRegulationAction(String id, String transformerId, ThreeWindingsTransformer.Side side, boolean regulating) {
-        super(id);
-        this.transformerId = Objects.requireNonNull(transformerId);
-        this.side = side;
+        super(id, transformerId, side);
         this.regulating = regulating;
-    }
-
-    public String getTransformerId() {
-        return transformerId;
-    }
-
-    public Optional<ThreeWindingsTransformer.Side> getSide() {
-        return Optional.ofNullable(side);
     }
 
     public boolean isRegulating() {

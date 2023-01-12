@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 /**
  * An action modifying the regulation of a phase-shifting transformer
@@ -43,8 +44,8 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
         return Optional.ofNullable(regulationMode);
     }
 
-    public Optional<Double> getRegulationValue() {
-        return Optional.ofNullable(regulationValue);
+    public OptionalDouble getRegulationValue() {
+        return regulationValue == null ? OptionalDouble.empty() : OptionalDouble.of(regulationValue);
     }
 
     public static PhaseTapChangerRegulationAction activateRegulation(String id, String transformerId) {

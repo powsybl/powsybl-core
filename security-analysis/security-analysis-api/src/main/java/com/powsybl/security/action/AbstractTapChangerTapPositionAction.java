@@ -9,32 +9,21 @@ package com.powsybl.security.action;
 
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
-import java.util.Objects;
-import java.util.Optional;
-
 /**
  * An action modifying the tap position of a two or three windings transformer
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  * @author Anne Tilloy <anne.tilloy@rte-france.com>
  */
-public abstract class AbstractTapChangerTapPositionAction extends AbstractAction {
+public abstract class AbstractTapChangerTapPositionAction extends AbstractTapChangerAction {
 
-    private final String transformerId;
     private final int tapPosition;
     private final boolean relativeValue; // true if relative value chosen, false if absolute value
-    private final ThreeWindingsTransformer.Side side;
 
     protected AbstractTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int tapPosition, ThreeWindingsTransformer.Side side) {
-        super(id);
-        this.transformerId = Objects.requireNonNull(transformerId);
+        super(id, transformerId, side);
         this.relativeValue = relativeValue;
         this.tapPosition = tapPosition;
-        this.side = side;
-    }
-
-    public String getTransformerId() {
-        return transformerId;
     }
 
     public int getTapPosition() {
@@ -43,9 +32,5 @@ public abstract class AbstractTapChangerTapPositionAction extends AbstractAction
 
     public boolean isRelativeValue() {
         return relativeValue;
-    }
-
-    public Optional<ThreeWindingsTransformer.Side> getSide() {
-        return Optional.ofNullable(side);
     }
 }
