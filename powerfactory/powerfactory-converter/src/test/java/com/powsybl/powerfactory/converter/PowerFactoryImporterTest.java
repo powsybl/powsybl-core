@@ -276,6 +276,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(importAndCompareXiidm("Slack_ip_ctrl"));
     }
 
+    @Test
+    public void mediumVoltageLoad() {
+        assertTrue(importAndCompareXiidm("MediumVoltageLoad"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;

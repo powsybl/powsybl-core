@@ -202,6 +202,7 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmLod":
+                case "ElmLodmv":
                     new LoadConverter(importContext, network).create(obj);
                     break;
 

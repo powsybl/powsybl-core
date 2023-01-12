@@ -6,10 +6,13 @@
  */
 package com.powsybl.powerfactory.converter;
 
+import java.util.Optional;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
+import com.powsybl.powerfactory.model.PowerFactoryException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -49,9 +52,20 @@ class LoadConverter extends AbstractConverter {
         private static LoadModel create(DataObject elmLod) {
 
             float p0 = elmLod.getFloatAttributeValue("plini");
-            float q0 = elmLod.getFloatAttributeValue("qlini");
+            Optional<Float> q0 = elmLod.findFloatAttributeValue("qlini");
+            if (q0.isPresent()) {
+                return new LoadModel(p0, q0.get());
+            }
 
-            return new LoadModel(p0, q0);
+            float s0 = elmLod.getFloatAttributeValue("slini");
+            double q;
+            double q2 = s0 * s0 - p0 * p0;
+            if (q2 >= 0) {
+                q = Math.signum(p0) * Math.sqrt(q2);
+            } else {
+                throw new PowerFactoryException(String.format("Unexpected apparent power Mva %.2f Mw %.2f", s0, p0));
+            }
+            return new LoadModel(p0, q);
         }
     }
 }
