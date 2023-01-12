@@ -115,7 +115,7 @@ public class SecurityAnalysisTest {
         SecurityAnalysisInterceptorMock interceptorMock = new SecurityAnalysisInterceptorMock();
         List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        operatorStrategies.add(new OperatorStrategy("operatorStrategy", "c1",
+        operatorStrategies.add(new OperatorStrategy("operatorStrategy", ContingencyContext.specificContingency("c1"),
                 new AnyViolationCondition(), Collections.singletonList("action1")));
 
         List<Action> actions = new ArrayList<>();
@@ -165,7 +165,7 @@ public class SecurityAnalysisTest {
         interceptors.add(interceptorMock);
 
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        operatorStrategies.add(new OperatorStrategy("operatorStrategy", "c1", new AnyViolationCondition(), Collections.singletonList("action1")));
+        operatorStrategies.add(new OperatorStrategy("operatorStrategy", ContingencyContext.specificContingency("c1"), new AnyViolationCondition(), Collections.singletonList("action1")));
 
         List<Action> actions = new ArrayList<>();
         actions.add(new SwitchAction("action1", "switchId", true));
