@@ -16,7 +16,7 @@ public interface ShortCircuitBusResults {
     String getBusId();
 
     /**
-     * Returns the magnitude of the voltage before the fault (in V).
+     * Returns the magnitude of the voltage before the fault (in kV).
      */
     double getInitialVoltageMagnitude();
 
