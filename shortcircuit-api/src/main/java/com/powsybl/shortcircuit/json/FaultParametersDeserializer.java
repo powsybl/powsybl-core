@@ -32,11 +32,11 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         String version = null;
         String id = null;
         boolean withLimitViolations = false;
-        boolean withVoltageProfileResult = false;
+        boolean withVoltageAndVoltageDropProfileResult = false;
         boolean withFeederResult = false;
         StudyType type = null;
         double minVoltageDropProportionalThreshold = Double.NaN;
-        boolean withVoltageDropProfileResult = false;
+        boolean withSimpleResult = false;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -58,13 +58,13 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                 case "withVoltageMap":
                     JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMap", version, "1.1");
                     parser.nextToken();
-                    withVoltageProfileResult = parser.readValueAs(Boolean.class);
+                    withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);
                     break;
 
-                case "withVoltageProfileResult":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageProfileResult", version, "1.1");
+                case "withVoltageAndVoltageDropProfileResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageAndVoltageDropProfileResult", version, "1.1");
                     parser.nextToken();
-                    withVoltageProfileResult = parser.readValueAs(Boolean.class);
+                    withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);
                     break;
 
                 case "withFeederResult":
@@ -82,16 +82,16 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
                     break;
 
-                case "withVoltageDropProfileResult":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageDropProfileResult", version, "1.1");
+                case "withSimpleResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withSimpleResult", version, "1.1");
                     parser.nextToken();
-                    withVoltageDropProfileResult = parser.readValueAs(Boolean.class);
+                    withSimpleResult = parser.readValueAs(Boolean.class);
                     break;
 
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FaultParameters(id, withLimitViolations, withVoltageProfileResult, withFeederResult, type, minVoltageDropProportionalThreshold, withVoltageDropProfileResult);
+        return new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type, minVoltageDropProportionalThreshold, withSimpleResult);
     }
 }

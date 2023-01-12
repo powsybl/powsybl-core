@@ -32,11 +32,11 @@ public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
         jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeStringField("id", parameters.getId());
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withLimitViolations", parameters.isWithLimitViolations(), false);
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageProfileResult", parameters.isWithVoltageProfileResult(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageAndVoltageDropProfileResult", parameters.isWithVoltageAndVoltageDropProfileResult(), false);
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withFeederResult", parameters.isWithFeederResult(), false);
         JsonUtil.writeOptionalStringField(jsonGenerator, "studyType", parameters.getStudyType() != null ? parameters.getStudyType().name() : null);
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
-        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVoltageDropProfileResult", parameters.isWithVoltageDropProfileResult(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withSimpleResult", parameters.isWithSimpleResult(), false);
         jsonGenerator.writeEndObject();
     }
 }

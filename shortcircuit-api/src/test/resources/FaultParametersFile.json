@@ -4,12 +4,12 @@
   "withFeederResult" : true,
   "studyType" : "STEADY_STATE",
   "minVoltageDropProportionalThreshold" : 1.0,
-  "withVoltageDropProfileResult" : true
+  "withSimpleResult" : true
 }, {
   "version" : "1.1",
   "id" : "f01",
-  "withVoltageProfileResult" : true,
-  "withVoltageDropProfileResult" : true
+  "withVoltageAndVoltageDropProfileResult" : true,
+  "withSimpleResult" : true
 }, {
   "version" : "1.1",
   "id" : "f10",
@@ -18,5 +18,5 @@
   "version" : "1.1",
   "id" : "f11",
   "withLimitViolations" : true,
-  "withVoltageProfileResult" : true
+  "withVoltageAndVoltageDropProfileResult" : true
 } ]

@@ -15,9 +15,9 @@ public final class ShortCircuitConstants {
     }
 
     public static final boolean DEFAULT_WITH_LIMIT_VIOLATIONS = true;
-    public static final boolean DEFAULT_WITH_VOLTAGE_PROFILE_RESULT = true;
+    public static final boolean DEFAULT_WITH_VOLTAGE_AND_VOLTAGE_DROP_PROFILE_RESULT = true;
     public static final StudyType DEFAULT_STUDY_TYPE = StudyType.TRANSIENT;
     public static final boolean DEFAULT_WITH_FEEDER_RESULT = true;
     public static final double DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD = 0.0;
-    public static final boolean DEFAULT_WITH_VOLTAGE_DROP_PROFILE_RESULT = true;
+    public static final boolean DEFAULT_WITH_SIMPLE_RESULT = true;
 }
