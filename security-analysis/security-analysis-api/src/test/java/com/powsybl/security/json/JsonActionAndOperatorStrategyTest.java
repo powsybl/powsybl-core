@@ -70,6 +70,15 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     }
 
     @Test
+    public void actionsReadV10() throws IOException {
+        ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream("/ActionFileTestV1.0.json"));
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            actionList.writeJsonOutputStream(bos);
+            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/ActionFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+        }
+    }
+
+    @Test
     public void operatorStrategyReadV10() throws IOException {
         OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -98,6 +107,12 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action tapPosition field can't equal zero\n" +
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
                 ActionList.readJsonInputStream(inputStream2)).getMessage());
+
+        final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json");
+        assertTrue(assertThrows(UncheckedIOException.class, () -> ActionList
+                .readJsonInputStream(inputStream3))
+                .getMessage()
+                .contains("actions. Tag: value is not valid for version 1.1. Version should be <= 1.0"));
     }
 
     @JsonTypeName(DummyAction.NAME)

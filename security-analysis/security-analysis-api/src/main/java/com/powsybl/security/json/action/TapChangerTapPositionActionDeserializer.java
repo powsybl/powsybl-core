@@ -39,6 +39,7 @@ public class TapChangerTapPositionActionDeserializer extends StdDeserializer<Abs
     @Override
     public AbstractTapChangerTapPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
+        String version = (String) deserializationContext.getAttribute("version");
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
@@ -55,7 +56,13 @@ public class TapChangerTapPositionActionDeserializer extends StdDeserializer<Abs
                 case "transformerId":
                     context.transformerId = jsonParser.nextTextValue();
                     return true;
+                case "value":
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "Tag: value", version, "1.0");
+                    jsonParser.nextToken();
+                    context.tapPosition = jsonParser.getValueAsInt();
+                    return true;
                 case "tapPosition":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion("actions", "Tag: tapPosition", version, "1.1");
                     jsonParser.nextToken();
                     context.tapPosition = jsonParser.getValueAsInt();
                     return true;

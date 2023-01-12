@@ -30,27 +30,27 @@
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id5",
     "transformerId" : "transformerId1",
-    "tapPosition" : 5,
+    "value" : 5,
     "relativeValue" : true,
     "side" : "TWO"
   }, {
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id6",
     "transformerId" : "transformerId2",
-    "tapPosition" : 12,
+    "value" : 12,
     "relativeValue" : false
   }, {
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id7",
     "transformerId" : "transformerId3",
-    "tapPosition" : -5,
+    "value" : -5,
     "relativeValue" : true,
     "side" : "ONE"
   }, {
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id8",
     "transformerId" : "transformerId3",
-    "tapPosition" : 2,
+    "value" : 2,
     "relativeValue" : false,
     "side" : "THREE"
   }, {
@@ -87,14 +87,14 @@
     "type" : "RATIO_TAP_CHANGER_TAP_POSITION",
     "id" : "id14",
     "transformerId" : "transformerId4",
-    "tapPosition" : 2,
+    "value" : 2,
     "relativeValue" : false,
     "side" : "THREE"
   }, {
     "type" : "RATIO_TAP_CHANGER_TAP_POSITION",
     "id" : "id15",
     "transformerId" : "transformerId5",
-    "tapPosition" : 1,
+    "value" : 1,
     "relativeValue" : true
   }, {
     "type" : "RATIO_TAP_CHANGER_REGULATION",
