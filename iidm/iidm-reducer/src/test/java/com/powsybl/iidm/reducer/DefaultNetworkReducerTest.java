@@ -252,16 +252,36 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void testHvdcFailure() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Reduction of HVDC lines is not supported");
-
-        Network network = HvdcTestNetwork.createLcc();
-        NetworkReducer reducer = NetworkReducer.builder()
+    public void testHvdcReplacement() {
+        NetworkReducerObserverImpl observerLcc = new NetworkReducerObserverImpl();
+        Network networkLcc = HvdcTestNetwork.createLcc();
+        assertEquals(0, networkLcc.getLoadCount());
+        assertEquals(2, networkLcc.getHvdcConverterStationCount());
+        NetworkReducer reducerLcc = NetworkReducer.builder()
                     .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
-                    .withReductionOptions(new ReductionOptions())
+                    .withObservers(observerLcc)
                     .build();
-        reducer.reduce(network);
+        reducerLcc.reduce(networkLcc);
+        assertEquals(0, networkLcc.getHvdcLineCount());
+        assertEquals(1, observerLcc.getHvdcLineReplacedCount());
+        assertEquals(1, observerLcc.getHvdcLineRemovedCount());
+        assertEquals(1, networkLcc.getLoadCount());
+        assertEquals(0, networkLcc.getHvdcConverterStationCount());
+
+        NetworkReducerObserverImpl observerVsc = new NetworkReducerObserverImpl();
+        Network networkVsc = HvdcTestNetwork.createVsc();
+        assertEquals(0, networkVsc.getGeneratorCount());
+        assertEquals(2, networkVsc.getHvdcConverterStationCount());
+        NetworkReducer reducerVsc = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observerVsc)
+                .build();
+        reducerVsc.reduce(networkVsc);
+        assertEquals(0, networkVsc.getHvdcLineCount());
+        assertEquals(1, observerVsc.getHvdcLineReplacedCount());
+        assertEquals(1, observerVsc.getHvdcLineRemovedCount());
+        assertEquals(1, networkVsc.getGeneratorCount());
+
     }
 
     @Test
