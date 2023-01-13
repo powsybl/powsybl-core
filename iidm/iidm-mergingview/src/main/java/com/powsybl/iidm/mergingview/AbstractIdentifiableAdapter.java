@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.Network;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -27,6 +28,11 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     @Override
     public MergingView getNetwork() {
         return getIndex().getView();
+    }
+
+    @Override
+    public Network getClosestNetwork() {
+        return getDelegate().getClosestNetwork();
     }
 
     // -------------------------------

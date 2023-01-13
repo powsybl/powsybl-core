@@ -64,6 +64,11 @@ class MergedLine implements TieLine {
         return index.getView();
     }
 
+    @Override
+    public MergingView getClosestNetwork() {
+        return index.getView();
+    }
+
     DanglingLine getDanglingLine1() {
         return half1.getDanglingLine();
     }

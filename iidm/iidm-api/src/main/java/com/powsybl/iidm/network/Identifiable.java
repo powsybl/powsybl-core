@@ -23,6 +23,10 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      */
     Network getNetwork();
 
+    default Network getClosestNetwork() {
+        return getNetwork();
+    }
+
     /**
      * Get the unique identifier of the object.
      */

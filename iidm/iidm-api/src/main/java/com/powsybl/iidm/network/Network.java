@@ -18,9 +18,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -98,6 +96,14 @@ import java.util.stream.Stream;
  * @see VariantManager
  */
 public interface Network extends Container<Network> {
+
+    default Collection<Network> getSubNetworks() {
+        return Collections.emptyList();
+    }
+
+    default Network getSubNetwork(String id) {
+        return null;
+    }
 
     /**
      * Read a network from the specified file, trying to guess its format.

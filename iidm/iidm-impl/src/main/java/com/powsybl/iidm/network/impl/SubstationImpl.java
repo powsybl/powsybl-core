@@ -35,11 +35,17 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     private boolean removed = false;
 
+    private String subNetwork = null;
+
     SubstationImpl(String id, String name, boolean fictitious, Country country, String tso, Ref<NetworkImpl> networkRef) {
         super(id, name, fictitious);
         this.country = country;
         this.tso = tso;
         this.networkRef = networkRef;
+    }
+
+    void setSubNetwork(String subNetwork) {
+        this.subNetwork = subNetwork;
     }
 
     @Override
@@ -84,6 +90,11 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
             throw new PowsyblException("Cannot access network of removed substation " + id);
         }
         return networkRef.get();
+    }
+
+    @Override
+    public Network getClosestNetwork() {
+        return networkRef.get().getClosestNetwork(subNetwork);
     }
 
     void addVoltageLevel(VoltageLevelExt voltageLevel) {

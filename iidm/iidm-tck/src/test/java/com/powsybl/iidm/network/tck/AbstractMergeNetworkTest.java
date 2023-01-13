@@ -8,13 +8,13 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public abstract class AbstractMergeNetworkTest {
 
@@ -143,9 +143,40 @@ public abstract class AbstractMergeNetworkTest {
 
     @Test
     public void test() {
+        DateTime d1 = n1.getCaseDate();
+        DateTime d2 = n2.getCaseDate();
+        addSubstationAndVoltageLevel();
         merge.merge(n1, n2);
         assertEquals(MERGE2, merge.getId());
         assertEquals("hybrid", merge.getSourceFormat());
+        assertEquals(3, merge.getSubNetworks().size());
+        checks(merge, 1, "asdf", d1);
+        checks(merge, 2, "qwer", d2);
+        Network m = merge.getSubNetwork("merge");
+        assertNotNull(m);
+        assertEquals(0, m.getSubstationCount());
+        assertEquals(0, m.getVoltageLevelCount());
+    }
+
+    private static void checks(Network merge, int num, String sourceFormat, DateTime d) {
+        Network n = merge.getSubNetwork("n" + num);
+        assertNotNull(n);
+        assertEquals(sourceFormat, n.getSourceFormat());
+        assertEquals(d, n.getCaseDate());
+        assertEquals(1, n.getSubstationCount());
+        assertEquals(1, n.getVoltageLevelCount());
+        Substation s = n.getSubstation("s" + num);
+        assertNotNull(s);
+        assertSame(merge, s.getNetwork());
+        VoltageLevel vl = n.getVoltageLevel("vl" + num);
+        assertNotNull(vl);
+        assertSame(merge, vl.getNetwork());
+        Bus b = n.getBusBreakerView().getBus("b" + num);
+        assertNotNull(b);
+        assertSame(merge, b.getNetwork());
+        assertSame(n, merge.getSubstation("s" + num).getClosestNetwork());
+        assertSame(n, merge.getVoltageLevel("vl" + num).getClosestNetwork());
+        assertSame(n, merge.getBusBreakerView().getBus("b" + num).getClosestNetwork());
     }
 
     @Test

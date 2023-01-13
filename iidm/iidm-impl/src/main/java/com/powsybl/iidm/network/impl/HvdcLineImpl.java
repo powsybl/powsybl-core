@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -74,6 +75,16 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     @Override
     public NetworkImpl getNetwork() {
         return networkRef.get();
+    }
+
+    @Override
+    public Network getClosestNetwork() {
+        Network subNetwork1 = converterStation1.getClosestNetwork();
+        Network subNetwork2 = converterStation2.getClosestNetwork();
+        if (subNetwork1 == subNetwork2) {
+            return subNetwork1;
+        }
+        return networkRef.get(); // Should not happen (HVDC line between two sub-networks
     }
 
     @Override

@@ -49,6 +49,16 @@ public final class MergingView implements Network, MultiVariantObject {
 
     private boolean fictitious;
 
+    @Override
+    public Collection<Network> getSubNetworks() {
+        return index.getNetworkStream().collect(Collectors.toSet());
+    }
+
+    @Override
+    public Network getSubNetwork(String id) {
+        return index.getNetwork(n -> n.getId().equals(id));
+    }
+
     private static class BusBreakerViewAdapter implements Network.BusBreakerView {
 
         private final MergingViewIndex index;
