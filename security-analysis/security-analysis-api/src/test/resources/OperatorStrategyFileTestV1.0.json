@@ -1,8 +1,7 @@
 {
-  "version" : "1.1",
+  "version" : "1.0",
   "operatorStrategies" : [ {
     "id" : "id1",
-    "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
     "condition" : {
       "type" : "TRUE_CONDITION"
@@ -10,7 +9,6 @@
     "actionIds" : [ "actionId1", "actionId2", "actionId3" ]
   }, {
     "id" : "id1",
-    "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
     "condition" : {
       "type" : "TRUE_CONDITION"

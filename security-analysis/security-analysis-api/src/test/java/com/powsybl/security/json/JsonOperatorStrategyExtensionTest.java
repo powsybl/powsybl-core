@@ -21,6 +21,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
@@ -37,24 +38,24 @@ public class JsonOperatorStrategyExtensionTest extends AbstractConverterTest {
 
     @Test
     public void testWrite() throws IOException {
-        OperatorStrategy operatorStrategy = new OperatorStrategy("id1", "contingencyId1",
+        OperatorStrategy operatorStrategy = new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"),
                 new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3"));
         operatorStrategy.addExtension(DummyExtension.class, new DummyExtension());
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(Collections.singletonList(operatorStrategy));
-        writeTest(operatorStrategyList, OperatorStrategyList::writeFile, ComparisonUtils::compareTxt,
+        writeTest(operatorStrategyList, OperatorStrategyList::write, ComparisonUtils::compareTxt,
                 "/OperatorStrategyFileExtensionsTest.json");
     }
 
     @Test
     public void testRoundTrip() throws IOException {
-        OperatorStrategy operatorStrategy = new OperatorStrategy("id1", "contingencyId1",
+        OperatorStrategy operatorStrategy = new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"),
                 new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3"));
         operatorStrategy.addExtension(DummyExtension.class, new DummyExtension());
-        OperatorStrategy operatorStrategy2 = new OperatorStrategy("id2", "contingencyId2",
+        OperatorStrategy operatorStrategy2 = new OperatorStrategy("id2", ContingencyContext.specificContingency("contingencyId2"),
                 new TrueCondition(), Collections.singletonList("actionId4"));
         operatorStrategy2.addExtension(DummyExtension.class, new DummyExtension());
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(Arrays.asList(operatorStrategy, operatorStrategy2));
-        roundTripTest(operatorStrategyList, OperatorStrategyList::writeFile, OperatorStrategyList::readFile,
+        roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read,
                 "/OperatorStrategyFileExtensionsTest2.json");
     }
 
