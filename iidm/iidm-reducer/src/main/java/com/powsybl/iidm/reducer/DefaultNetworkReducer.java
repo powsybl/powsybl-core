@@ -88,11 +88,24 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     @Override
     protected void reduce(ThreeWindingsTransformer transformer) {
-        VoltageLevel vl1 = transformer.getLeg1().getTerminal().getVoltageLevel();
-        VoltageLevel vl2 = transformer.getLeg2().getTerminal().getVoltageLevel();
-        VoltageLevel vl3 = transformer.getLeg3().getTerminal().getVoltageLevel();
-        if (getPredicate().test(vl1) || getPredicate().test(vl2) || getPredicate().test(vl3)) {
-            throw new UnsupportedOperationException("Reduction of three-windings transformers is not supported");
+        Terminal terminal1 = transformer.getLeg1().getTerminal();
+        Terminal terminal2 = transformer.getLeg2().getTerminal();
+        Terminal terminal3 = transformer.getLeg3().getTerminal();
+        VoltageLevel vl1 = terminal1.getVoltageLevel();
+        VoltageLevel vl2 = terminal2.getVoltageLevel();
+        VoltageLevel vl3 = terminal3.getVoltageLevel();
+
+        if (getPredicate().test(vl1) ^ getPredicate().test(vl2) ^ getPredicate().test(vl3)) {
+            VoltageLevel vlToKeep;
+            Terminal terminal;
+            if (test(vl1)) {
+                vlToKeep = vl1;
+                terminal = terminal1;
+            } else {
+                vlToKeep = test(vl2) ? vl2 : vl3;
+                terminal = test(vl2) ? terminal2 : terminal3;
+            }
+            replaceTransformerByLoad(transformer, vlToKeep, terminal);
         } else {
             transformer.remove();
         }
@@ -180,6 +193,27 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setQ(q);
 
         return load;
+    }
+
+    private void replaceTransformerByLoad(ThreeWindingsTransformer transformer, VoltageLevel vl, Terminal terminal) {
+        LoadAdder loadAdder = vl.newLoad()
+                .setId(transformer.getId())
+                .setName(transformer.getOptionalName().orElse(null))
+                .setLoadType(LoadType.FICTITIOUS)
+                .setP0(checkP(terminal))
+                .setQ0(checkQ(terminal));
+        fillNodeOrBus(loadAdder, terminal);
+
+        double p = terminal.getP();
+        double q = terminal.getQ();
+        transformer.remove();
+
+        Load load = loadAdder.add();
+        load.getTerminal()
+                .setP(p)
+                .setQ(q);
+
+        observers.forEach(o -> o.transformerReplaced(transformer, load));
     }
 
     private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation<?> station) {

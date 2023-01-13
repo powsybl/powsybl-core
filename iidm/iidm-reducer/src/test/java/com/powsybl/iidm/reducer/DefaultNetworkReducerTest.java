@@ -315,16 +315,31 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void test3WTFailure() {
-        thrown.expect(UnsupportedOperationException.class);
-        thrown.expectMessage("Reduction of three-windings transformers is not supported");
-
+    public void test3WTReplacement() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
+        NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
         NetworkReducer reducer = NetworkReducer.builder()
-                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL_132", "VL_11"))
-                .withReductionOptions(new ReductionOptions())
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL_11"))
+                .withObservers(observer)
                 .build();
         reducer.reduce(network);
+
+        assertEquals(1, observer.getThreeWindingsTransformerRemovedCount());
+        assertEquals(1, observer.getThreeWindingsTransformerReplacedCount());
+    }
+
+    @Test
+    public void test3WTReductionVoltageLevelsModification() {
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL_11", "VL_33"))
+                .withObservers(observer)
+                .build();
+        reducer.reduce(network);
+
+        assertEquals(0, observer.getThreeWindingsTransformerRemovedCount());
+        assertEquals(0, observer.getThreeWindingsTransformerReplacedCount());
     }
 
     @Test

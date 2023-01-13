@@ -7,9 +7,10 @@
 package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -17,13 +18,19 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractNetworkReducer implements NetworkReducer {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNetworkReducer.class);
+
     private final NetworkPredicate predicate;
+
+    private Set<String> vlIds = new HashSet<>();
 
     public AbstractNetworkReducer(NetworkPredicate predicate) {
         this.predicate = Objects.requireNonNull(predicate);
     }
 
     public final void reduce(Network network) {
+        buildVoltageLevelIdSet(network);
+
         // Remove all unwanted lines
         List<Line> lines = network.getLineStream()
                 .filter(l -> !test(l))
@@ -79,10 +86,11 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
 
     protected boolean test(Substation substation) {
         return predicate.test(substation);
-    }
+    } //to change ?
 
     protected boolean test(VoltageLevel voltageLevel) {
-        return predicate.test(voltageLevel);
+        Objects.requireNonNull(voltageLevel);
+        return vlIds.contains(voltageLevel.getId());
     }
 
     /**
@@ -131,5 +139,60 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
         VoltageLevel vl2 = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel();
 
         return test(vl1) && test(vl2);
+    }
+
+    protected void buildVoltageLevelIdSet(Network network) {
+        List<String> voltageLevels = network.getVoltageLevelStream()
+                .filter(vl -> predicate.test(vl))
+                .map(VoltageLevel::getId)
+                .collect(Collectors.toList());
+        vlIds.addAll(voltageLevels);
+
+        //Adding necessary vl for three winding transformers
+        List<ThreeWindingsTransformer> threeWindingsTransformers = network.getThreeWindingsTransformerStream()
+                .filter(t -> !test(t))
+                .collect(Collectors.toList());
+        checkThreeWindingsTransformersToKeep(threeWindingsTransformers);
+    }
+
+    private void checkThreeWindingsTransformersToKeep(List<ThreeWindingsTransformer> threeWindingsTransformers) {
+        List<ThreeWindingsTransformer> modifiedTransformers = new ArrayList<>();
+        threeWindingsTransformers.stream()
+                .filter(transformer -> mustBeKept(transformer))
+                .forEach(transformer -> {
+                    VoltageLevel vlToAdd = findVoltageLevelToAdd(transformer);
+                    if (vlToAdd != null) {
+                        vlIds.add(vlToAdd.getId());
+                        LOGGER.info("It is not possible to keep exactly 2 out of 3 voltage levels connected to a three winding transformer (here {}).\n" +
+                                " Adding voltage level {} to the voltage levels kept after the reduction.", transformer.getId(), vlToAdd.getId());
+                    }
+                });
+
+        if (!modifiedTransformers.isEmpty()) {
+            threeWindingsTransformers.removeAll(modifiedTransformers);
+            checkThreeWindingsTransformersToKeep(threeWindingsTransformers);
+        }
+    }
+
+    private boolean mustBeKept(ThreeWindingsTransformer transformer) {
+        long count = transformer.getLegStream()
+                .filter(leg -> test(leg.getTerminal().getVoltageLevel()))
+                .count();
+        return count == 2;
+    }
+
+    private VoltageLevel findVoltageLevelToAdd(ThreeWindingsTransformer transformer) {
+        VoltageLevel vl1 = transformer.getLeg1().getTerminal().getVoltageLevel();
+        VoltageLevel vl2 = transformer.getLeg2().getTerminal().getVoltageLevel();
+        VoltageLevel vl3 = transformer.getLeg3().getTerminal().getVoltageLevel();
+        if (!test(vl1)) {
+            return vl1;
+        } else if (!test(vl2)) {
+            return vl2;
+        } else if (!test(vl3)) {
+            return vl3;
+        } else {
+            return null;
+        }
     }
 }
