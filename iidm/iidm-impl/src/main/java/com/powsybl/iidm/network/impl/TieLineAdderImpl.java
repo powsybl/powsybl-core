@@ -134,9 +134,8 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             return TieLineAdderImpl.this;
         }
 
-        private TieLineImpl.MergedDanglingLine build() {
-            Branch.Side side = (num == 1) ? Branch.Side.ONE : Branch.Side.TWO;
-            return new TieLineImpl.MergedDanglingLine(checkAndGetUniqueId(id -> {
+        private DanglingLineImpl build() {
+            return new DanglingLineImpl(getNetwork().getRef(), checkAndGetUniqueId(id -> {
                 Identifiable<?> i = getNetwork().getIndex().get(id);
                 if (i != null) {
                     // a disconnected dangling line can have the same ID as a merged dangling line
@@ -145,7 +144,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
                 return false;
             }),
                     getName(), isFictitious(), p0, q0, r, x, g, b,
-                    halfUcteXnodeCode, generationAdder != null ? generationAdder.build() : null, side);
+                    halfUcteXnodeCode, generationAdder != null ? generationAdder.build() : null);
         }
 
         @Override
@@ -231,20 +230,21 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             }
         }
 
-        TieLineImpl.MergedDanglingLine half1 = halfLineAdder1.build();
-        TieLineImpl.MergedDanglingLine half2 = halfLineAdder2.build();
+        DanglingLineImpl half1 = halfLineAdder1.build();
+        DanglingLineImpl half2 = halfLineAdder2.build();
 
         // check that the line is attachable on both side
         voltageLevel1.attach(terminal1, true);
         voltageLevel2.attach(terminal2, true);
 
-        TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious(), half1, half2);
+        TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious());
         terminal1.setNum(1);
         terminal2.setNum(2);
         line.addTerminal(terminal1);
         line.addTerminal(terminal2);
         voltageLevel1.attach(terminal1, false);
         voltageLevel2.attach(terminal2, false);
+        line.attachDanglingLines(half1, half2);
         network.getIndex().checkAndAdd(line);
         network.getListeners().notifyCreation(line);
         return line;
