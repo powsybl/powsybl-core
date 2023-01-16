@@ -146,6 +146,8 @@ public abstract class AbstractMergeNetworkTest {
         DateTime d1 = n1.getCaseDate();
         DateTime d2 = n2.getCaseDate();
         addSubstationAndVoltageLevel();
+        addLoad(n1, 1);
+        addLoad(n2, 2);
         merge.merge(n1, n2);
         assertEquals(MERGE2, merge.getId());
         assertEquals("hybrid", merge.getSourceFormat());
@@ -156,6 +158,15 @@ public abstract class AbstractMergeNetworkTest {
         assertNotNull(m);
         assertEquals(0, m.getSubstationCount());
         assertEquals(0, m.getVoltageLevelCount());
+    }
+
+    private static void addLoad(Network n, int num) {
+        n.getVoltageLevel("vl" + num).newLoad()
+                .setId("l" + num)
+                .setBus("b" + num)
+                .setP0(0.0)
+                .setQ0(0.0)
+                .add();
     }
 
     private static void checks(Network merge, int num, String sourceFormat, DateTime d) {
@@ -177,6 +188,15 @@ public abstract class AbstractMergeNetworkTest {
         assertSame(n, merge.getSubstation("s" + num).getClosestNetwork());
         assertSame(n, merge.getVoltageLevel("vl" + num).getClosestNetwork());
         assertSame(n, merge.getBusBreakerView().getBus("b" + num).getClosestNetwork());
+        Load l = merge.getLoad("l" + num);
+        Load other = merge.getLoad("l" + (3 - num));
+        assertNotNull(l);
+        assertNotNull(other);
+        assertSame(n, l.getClosestNetwork());
+        Load lBis = n.getLoad("l" + num);
+        assertSame(l, lBis);
+        Load otherBis = n.getLoad("l" + (3 - num));
+        assertNull(otherBis);
     }
 
     @Test
