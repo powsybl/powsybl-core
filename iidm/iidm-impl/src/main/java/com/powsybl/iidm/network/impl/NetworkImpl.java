@@ -206,7 +206,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public SubstationAdder newSubstation() {
-        return new SubstationAdderImpl(ref);
+        return newSubstation(null);
+    }
+
+    SubstationAdder newSubstation(String subNetwork) {
+        return new SubstationAdderImpl(ref, subNetwork);
     }
 
     @Override
@@ -241,7 +245,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return new VoltageLevelAdderImpl(ref);
+        return newVoltageLevel(null);
+    }
+
+    VoltageLevelAdder newVoltageLevel(String subNetwork) {
+        return new VoltageLevelAdderImpl(ref, subNetwork);
     }
 
     @Override
@@ -875,10 +883,10 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             }
             subNetworks.computeIfAbsent(subNetwork.getId(), id -> createSubNetwork(this, subNetwork));
         });
-        otherNetwork.getVoltageLevelStream().forEach(s -> {
-            Network subNetwork = s.getClosestNetwork();
+        otherNetwork.getVoltageLevelStream().forEach(vl -> {
+            Network subNetwork = vl.getClosestNetwork();
             if (subNetwork == otherNetwork) {
-                ((AbstractVoltageLevel) s).setSubNetwork(otherNetwork.id);
+                ((VoltageLevelExt) vl).setSubNetwork(otherNetwork.id);
             }
             subNetworks.computeIfAbsent(subNetwork.getId(), id -> createSubNetwork(this, subNetwork));
         });

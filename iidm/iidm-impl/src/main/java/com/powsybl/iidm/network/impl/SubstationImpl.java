@@ -48,6 +48,10 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         this.subNetwork = subNetwork;
     }
 
+    String getSubNetwork() {
+        return subNetwork;
+    }
+
     @Override
     public ContainerType getContainerType() {
         return ContainerType.SUBSTATION;

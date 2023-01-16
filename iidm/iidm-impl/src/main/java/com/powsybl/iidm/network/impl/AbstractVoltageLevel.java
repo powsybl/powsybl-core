@@ -60,7 +60,8 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             .orElse(DEFAULT_NODE_INDEX_LIMIT);
     }
 
-    void setSubNetwork(String subNetwork) {
+    @Override
+    public void setSubNetwork(String subNetwork) {
         this.subNetwork = subNetwork;
     }
 

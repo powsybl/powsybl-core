@@ -67,7 +67,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public SubstationAdder newSubstation() {
-        return parent.newSubstation(); // FIXME
+        return parent.newSubstation(id);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return parent.newVoltageLevel(); // FIXME
+        return parent.newVoltageLevel(id);
     }
 
     @Override
