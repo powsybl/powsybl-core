@@ -52,19 +52,19 @@ public class HvdcLineCriterionContingencyListDeserializer extends StdDeserialize
 
                 case "countryCriterion":
                     parser.nextToken();
-                    countryCriterion = (TwoCountriesCriterion) deserializationContext.readValue(parser, Criterion.class);
+                    countryCriterion = deserializationContext.readValue(parser, deserializationContext.constructType(Criterion.class));
                     break;
                 case "nominalVoltageCriterion":
                     parser.nextToken();
-                    nominalVoltageCriterion = (TwoNominalVoltageCriterion) deserializationContext.readValue(parser, Criterion.class);
+                    nominalVoltageCriterion = deserializationContext.readValue(parser, deserializationContext.constructType(Criterion.class));
                     break;
                 case "propertyCriteria":
                     parser.nextToken();
-                    propertyCriteria = (List<PropertyCriterion>) (List<?>) JsonUtil.readList(deserializationContext, parser, Criterion.class);
+                    propertyCriteria = JsonUtil.readList(deserializationContext, parser, Criterion.class);
                     break;
                 case "regexCriterion":
                     parser.nextToken();
-                    regexCriterion = (RegexCriterion) deserializationContext.readValue(parser, Criterion.class);
+                    regexCriterion = deserializationContext.readValue(parser, deserializationContext.constructType(Criterion.class));
                     break;
 
                 default:

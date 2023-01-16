@@ -582,7 +582,7 @@ public final class JsonUtil {
         return context.getAttribute(sourceVersionAttributeKey) != null ? (String) context.getAttribute(sourceVersionAttributeKey) : null;
     }
 
-    public static <T> List<T> readList(DeserializationContext context, JsonParser parser, Class<T> type) {
+    public static <T> List<T> readList(DeserializationContext context, JsonParser parser, Class<?> type) {
         JavaType listType = context.getTypeFactory()
                 .constructCollectionType(List.class, type);
         try {
