@@ -229,7 +229,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        return parent.newThreeWindingsTransformer(); // FIXME
+        return parent.newThreeWindingsTransformer(id);
     }
 
     @Override
