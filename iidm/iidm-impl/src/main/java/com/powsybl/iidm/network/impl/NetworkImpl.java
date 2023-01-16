@@ -335,7 +335,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public TieLineAdderImpl newTieLine() {
-        return new TieLineAdderImpl(this);
+        return newTieLine(null);
+    }
+
+    TieLineAdderImpl newTieLine(String subNetwork) {
+        return new TieLineAdderImpl(this, subNetwork);
     }
 
     @Override

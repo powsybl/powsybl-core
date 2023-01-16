@@ -93,11 +93,9 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
-        if (subNetwork != null) {
-            if (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork())) {
-                throw new ValidationException(this, "Line '" + id + "' is not contained in sub-network '" +
-                        subNetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
-            }
+        if (subNetwork != null && (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork()))) {
+            throw new ValidationException(this, "Line '" + id + "' is not contained in sub-network '" +
+                    subNetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
         }
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();

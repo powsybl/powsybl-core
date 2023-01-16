@@ -194,7 +194,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public TieLineAdder newTieLine() {
-        return parent.newTieLine(); // FIXME
+        return parent.newTieLine(id);
     }
 
     @Override

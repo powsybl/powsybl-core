@@ -137,6 +137,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     }
 
     private final NetworkImpl network;
+    private final String subNetwork;
 
     private String ucteXnodeCode;
 
@@ -144,8 +145,13 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
     private HalfLineAdderImpl halfLineAdder2;
 
-    TieLineAdderImpl(NetworkImpl network) {
+    TieLineAdderImpl(NetworkImpl network, String subNetwork) {
         this.network = network;
+        this.subNetwork = subNetwork;
+    }
+
+    TieLineAdderImpl(NetworkImpl network) {
+        this(network, null);
     }
 
     @Override
@@ -180,6 +186,10 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
+        if (subNetwork != null && (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork()))) {
+            throw new ValidationException(this, "Line '" + id + "' is not contained in sub-network '" +
+                    subNetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+        }
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
 
