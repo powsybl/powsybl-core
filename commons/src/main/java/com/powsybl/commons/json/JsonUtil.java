@@ -581,4 +581,14 @@ public final class JsonUtil {
     public static String getSourceVersion(DatabindContext context, String sourceVersionAttributeKey) {
         return context.getAttribute(sourceVersionAttributeKey) != null ? (String) context.getAttribute(sourceVersionAttributeKey) : null;
     }
+
+    public static <T> List<T> readList(DeserializationContext context, JsonParser parser, Class<T> type) {
+        JavaType listType = context.getTypeFactory()
+                .constructCollectionType(List.class, type);
+        try {
+            return context.readValue(parser, listType);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 }

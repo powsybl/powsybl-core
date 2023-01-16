@@ -41,7 +41,7 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
 
                 case "type":
                     parser.nextToken();
-                    type = parser.readValueAs(ContingencyElementType.class);
+                    type = ctx.readValue(parser, ContingencyElementType.class);
                     break;
 
                 default:

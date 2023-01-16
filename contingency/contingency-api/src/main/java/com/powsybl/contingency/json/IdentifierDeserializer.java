@@ -8,15 +8,14 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.identifier.*;
 import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
 import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,8 +46,8 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                     break;
                 case "identifierList":
                     parser.nextToken();
-                    networkElementIdentifierList = parser.readValueAs(new TypeReference<ArrayList<NetworkElementIdentifier>>() {
-                    });
+                    networkElementIdentifierList = JsonUtil.readList(deserializationContext,
+                            parser, NetworkElementIdentifier.class);
                     break;
                 case "voltageLevelId1":
                     voltageLevelId1 = parser.nextTextValue();

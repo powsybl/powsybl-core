@@ -8,14 +8,13 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -54,8 +53,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
 
                 case "identifiers":
                     parser.nextToken();
-                    networkElementIdentifiers = parser.readValueAs(new TypeReference<ArrayList<NetworkElementIdentifier>>() {
-                    });
+                    networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                     break;
 
                 default:

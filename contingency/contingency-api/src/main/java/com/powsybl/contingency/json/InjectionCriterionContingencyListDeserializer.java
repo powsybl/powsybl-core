@@ -8,9 +8,9 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.InjectionCriterionContingencyList;
 import com.powsybl.contingency.contingency.list.criterion.*;
 
@@ -56,23 +56,19 @@ public class InjectionCriterionContingencyListDeserializer extends StdDeserializ
 
                 case "countryCriterion":
                     parser.nextToken();
-                    countryCriterion = parser.readValueAs(new TypeReference<Criterion>() {
-                    });
+                    countryCriterion = (SingleCountryCriterion) deserializationContext.readValue(parser, Criterion.class);
                     break;
                 case "nominalVoltageCriterion":
                     parser.nextToken();
-                    nominalVoltageCriterion = parser.readValueAs(new TypeReference<Criterion>() {
-                    });
+                    nominalVoltageCriterion = (SingleNominalVoltageCriterion) deserializationContext.readValue(parser, Criterion.class);
                     break;
                 case "propertyCriteria":
                     parser.nextToken();
-                    propertyCriteria = parser.readValueAs(new TypeReference<List<Criterion>>() {
-                    });
+                    propertyCriteria = (List<PropertyCriterion>) (List<?>) JsonUtil.readList(deserializationContext, parser, Criterion.class);
                     break;
                 case "regexCriterion":
                     parser.nextToken();
-                    regexCriterion = parser.readValueAs(new TypeReference<Criterion>() {
-                    });
+                    regexCriterion = (RegexCriterion) deserializationContext.readValue(parser, Criterion.class);
                     break;
 
                 default:
