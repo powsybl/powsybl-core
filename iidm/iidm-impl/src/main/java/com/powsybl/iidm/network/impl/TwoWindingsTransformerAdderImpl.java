@@ -19,6 +19,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
+    private final String subNetwork;
 
     private double r = Double.NaN;
 
@@ -37,11 +38,17 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
         networkRef = null;
         this.substation = substation;
+        this.subNetwork = substation.getSubNetwork();
+    }
+
+    TwoWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef, String subNetwork) {
+        this.networkRef = networkRef;
+        substation = null;
+        this.subNetwork = subNetwork;
     }
 
     TwoWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef) {
-        this.networkRef = networkRef;
-        substation = null;
+        this(networkRef, null);
     }
 
     @Override
@@ -106,6 +113,10 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
+        if (subNetwork != null && (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork()))) {
+            throw new ValidationException(this, "Transformer '" + id + "' is not contained in sub-network '" +
+                    subNetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+        }
         if (substation != null) {
             if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true)) {
                 throw new ValidationException(this,
