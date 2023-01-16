@@ -36,7 +36,7 @@ class GeneratorConverter extends AbstractConverter {
 
         VoltageLevel vl = getNetwork().getVoltageLevel(nodeRef.voltageLevelId);
         Generator g = vl.newGenerator()
-                .setId(elmSym.getLocName())
+                .setId(getId(elmSym))
                 .setEnsureIdUnicity(true)
                 .setNode(nodeRef.node)
                 .setTargetP(generatorModel.targetP)
@@ -62,6 +62,15 @@ class GeneratorConverter extends AbstractConverter {
                 .setMaxQ(reactiveLimits.maxQ)
                 .add());
         }
+    }
+
+    static boolean isSlack(DataObject elmSym) {
+        OptionalInt ipCtrl = elmSym.findIntAttributeValue("ip_ctrl");
+        if (ipCtrl.isPresent() && ipCtrl.getAsInt() == 1) {
+            return true;
+        }
+        Optional<String> bustp = elmSym.findStringAttributeValue("bustp");
+        return bustp.isPresent() && bustp.get().equals("SL");
     }
 
     private static final class GeneratorModel {
@@ -213,5 +222,9 @@ class GeneratorConverter extends AbstractConverter {
             }
             return Optional.empty();
         }
+    }
+
+    static String getId(DataObject elmSym) {
+        return elmSym.getLocName();
     }
 }

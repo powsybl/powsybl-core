@@ -29,7 +29,7 @@ import java.util.Objects;
  */
 public class OperatorStrategyList {
     private final List<OperatorStrategy> operatorStrategies;
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "1.1";
 
     public OperatorStrategyList(List<OperatorStrategy> operatorStrategies) {
         this.operatorStrategies = ImmutableList.copyOf(Objects.requireNonNull(operatorStrategies));
@@ -39,15 +39,15 @@ public class OperatorStrategyList {
         return operatorStrategies;
     }
 
-    public static OperatorStrategyList readFile(Path jsonFile) {
+    public static OperatorStrategyList read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return readOutputStream(is);
+            return read(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static OperatorStrategyList readOutputStream(InputStream is) {
+    public static OperatorStrategyList read(InputStream is) {
         Objects.requireNonNull(is);
 
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
@@ -62,10 +62,10 @@ public class OperatorStrategyList {
     /**
      * Writes action list as JSON to a file.
      */
-    public void writeFile(Path jsonFile) {
+    public void write(Path jsonFile) {
         Objects.requireNonNull(jsonFile);
         try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
-            writeOutputStream(outputStream);
+            write(outputStream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -74,7 +74,7 @@ public class OperatorStrategyList {
     /**
      * Writes action list as JSON to an output stream.
      */
-    public void writeOutputStream(OutputStream outputStream) {
+    public void write(OutputStream outputStream) {
         try {
             ObjectMapper objectMapper = createObjectMapper();
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();

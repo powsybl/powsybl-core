@@ -17,9 +17,13 @@ import com.powsybl.powerfactory.model.DataAttributeType;
  */
 public interface DgsHandler {
 
-    void onTableHeader(String tableName);
+    void onGeneralAttribute(String descr, String val);
+
+    void onObjectTableHeader(String tableName);
 
     void onAttributeDescription(String attributeName, DataAttributeType attributeType);
+
+    void onID(long id);
 
     void onStringValue(String attributeName, String value);
 

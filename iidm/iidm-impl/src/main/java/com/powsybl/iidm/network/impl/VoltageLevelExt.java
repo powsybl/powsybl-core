@@ -52,5 +52,9 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     boolean disconnect(TerminalExt terminal);
 
-    void invalidateCache();
+    default void invalidateCache() {
+        invalidateCache(false);
+    }
+
+    void invalidateCache(boolean exceptBusBreakerView);
 }

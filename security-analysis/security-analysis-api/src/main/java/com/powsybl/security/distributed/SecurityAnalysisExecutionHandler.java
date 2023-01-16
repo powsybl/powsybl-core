@@ -229,7 +229,7 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
         options.strategiesFile(path);
         LOGGER.debug("Writing operator strategies to file {}", path);
         new OperatorStrategyList(operatorStrategies)
-                .writeFile(path);
+                .write(path);
     }
 
     /**
