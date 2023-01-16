@@ -23,7 +23,7 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Importers;
+import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
@@ -60,6 +60,17 @@ public class CgmesConformity1ModifiedConversionTest {
     @After
     public void tearDown() throws IOException {
         fileSystem.close();
+    }
+
+    @Test
+    public void microBEUnmergedXnode() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUnmergedXnode().dataSource(),
+                        NetworkFactory.findDefault(), null);
+        DanglingLine dl = network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        assertNotNull(dl);
+        DanglingLine test = network.getDanglingLine("test");
+        assertNotNull(test);
     }
 
     @Test
@@ -501,6 +512,65 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microSwitchAtBoundaryCompareMerges() {
+        final String tieLineId = "78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49";
+        ReadOnlyDataSource assembled = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
+        ReadOnlyDataSource ds1 = CgmesConformity1ModifiedCatalog.microGridBESwitchAtBoundary().dataSource();
+        ReadOnlyDataSource ds2 = CgmesConformity1Catalog.microGridBaseCaseNL().dataSource();
+        compareMerges(tieLineId, assembled, ds1, ds2);
+    }
+
+    @Test
+    public void microTransformerAtBoundaryCompareMerges() {
+        final String tieLineId = "78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49";
+        ReadOnlyDataSource assembled = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledTransformerAtBoundary().dataSource();
+        ReadOnlyDataSource ds1 = CgmesConformity1ModifiedCatalog.microGridBETransformerAtBoundary().dataSource();
+        ReadOnlyDataSource ds2 = CgmesConformity1Catalog.microGridBaseCaseNL().dataSource();
+        compareMerges(tieLineId, assembled, ds1, ds2);
+    }
+
+    @Test
+    public void microEquivalentBranchAtBoundaryCompareMerges() {
+        final String tieLineId = "78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49";
+        ReadOnlyDataSource assembled = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEquivalentBranchAtBoundary().dataSource();
+        ReadOnlyDataSource ds1 = CgmesConformity1ModifiedCatalog.microGridBEEquivalentBranchAtBoundary().dataSource();
+        ReadOnlyDataSource ds2 = CgmesConformity1Catalog.microGridBaseCaseNL().dataSource();
+        compareMerges(tieLineId, assembled, ds1, ds2);
+    }
+
+    private static void compareMerges(String tieLineId, ReadOnlyDataSource dsAssembled, ReadOnlyDataSource ds1, ReadOnlyDataSource ds2) {
+        Network networkAssembled = Network.read(dsAssembled);
+        Line lineAssembled = networkAssembled.getLine(tieLineId);
+
+        Network n1 = Network.read(ds1);
+        Network n2 = Network.read(ds2);
+        Network networkMergingView = MergingView.create("1+2", "CGMES");
+        networkMergingView.merge(n1, n2);
+        Line lineMergingView = networkMergingView.getLine(tieLineId);
+
+        Network networkMerged = Network.read(ds1);
+        Network n2bis = Network.read(ds2);
+        networkMerged.merge(n2bis);
+        Line lineMerged = networkMergingView.getLine(tieLineId);
+
+        final double tolerance = 1e-10;
+
+        assertEquals(lineMergingView.getR(), lineMerged.getR(), tolerance);
+        assertEquals(lineMergingView.getX(), lineMerged.getX(), tolerance);
+        assertEquals(lineMergingView.getG1(), lineMerged.getG1(), tolerance);
+        assertEquals(lineMergingView.getG2(), lineMerged.getG2(), tolerance);
+        assertEquals(lineMergingView.getB1(), lineMerged.getB1(), tolerance);
+        assertEquals(lineMergingView.getB2(), lineMerged.getB2(), tolerance);
+
+        assertEquals(lineMergingView.getR(), lineAssembled.getR(), tolerance);
+        assertEquals(lineMergingView.getX(), lineAssembled.getX(), tolerance);
+        assertEquals(lineMergingView.getG1(), lineAssembled.getG1(), tolerance);
+        assertEquals(lineMergingView.getG2(), lineAssembled.getG2(), tolerance);
+        assertEquals(lineMergingView.getB1(), lineAssembled.getB1(), tolerance);
+        assertEquals(lineMergingView.getB2(), lineAssembled.getB2(), tolerance);
+    }
+
+    @Test
     public void microAssembledSwitchAtBoundary() {
         final double tolerance = 1e-10;
 
@@ -513,10 +583,10 @@ public class CgmesConformity1ModifiedConversionTest {
 
         assertEquals(1.02, m.getR(), tolerance);
         assertEquals(12.0, m.getX(), tolerance);
-        assertEquals(0.000015, m.getG1(), tolerance);
-        assertEquals(0.000015, m.getG2(), tolerance);
-        assertEquals(0.00007068585, m.getB1(), tolerance);
-        assertEquals(0.00007068585, m.getB2(), tolerance);
+        assertEquals(0.0, m.getG1(), tolerance);
+        assertEquals(0.0000299999, m.getG2(), tolerance);
+        assertEquals(0.0, m.getB1(), tolerance);
+        assertEquals(0.0001413717, m.getB2(), tolerance);
     }
 
     @Test
@@ -530,12 +600,12 @@ public class CgmesConformity1ModifiedConversionTest {
                 NetworkFactory.findDefault(), null);
         Line m = network.getLine("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13");
 
-        assertEquals(4.878525165580545, m.getR(), tolerance);
-        assertEquals(81.682436981089380, m.getX(), tolerance);
-        assertEquals(-0.000007804953422, m.getG1(), tolerance);
-        assertEquals(0.000310492400731, m.getB1(), tolerance);
-        assertEquals(0.000031997811967, m.getG2(), tolerance);
-        assertEquals(-0.000228620410553, m.getB2(), tolerance);
+        assertEquals(4.899051302937931, m.getR(), tolerance);
+        assertEquals(81.72178778283748, m.getX(), tolerance);
+        assertEquals(-0.000016466220010923245, m.getG1(), tolerance);
+        assertEquals(0.00027467541246430603, m.getB1(), tolerance);
+        assertEquals(0.00004104571410320655, m.getG2(), tolerance);
+        assertEquals(-0.00019115630864850915, m.getB2(), tolerance);
     }
 
     @Test
@@ -559,12 +629,12 @@ public class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEquivalentBranchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
         Line m = network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
-        assertEquals(2.01664607413, m.getR(), tolerance);
-        assertEquals(21.991922797566996, m.getX(), tolerance);
-        assertEquals(0.000007923595325, m.getG1(), tolerance);
-        assertEquals(0.000022090405367, m.getG2(), tolerance);
-        assertEquals(0.000038600957962, m.getB1(), tolerance);
-        assertEquals(0.000102795699814, m.getB2(), tolerance);
+        assertEquals(2.02, m.getR(), tolerance);
+        assertEquals(22.0, m.getX(), tolerance);
+        assertEquals(0.0, m.getG1(), tolerance);
+        assertEquals(0.000029999999999998778, m.getG2(), tolerance);
+        assertEquals(0.0, m.getB1(), tolerance);
+        assertEquals(0.00014137169999998977, m.getB2(), tolerance);
     }
 
     @Test

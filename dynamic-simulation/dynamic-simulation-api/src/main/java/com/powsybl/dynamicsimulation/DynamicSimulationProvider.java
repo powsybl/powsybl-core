@@ -6,17 +6,24 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import java.util.concurrent.CompletableFuture;
-
+import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
+import java.util.List;
+import java.util.ServiceLoader;
+import java.util.concurrent.CompletableFuture;
+
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public interface DynamicSimulationProvider extends Versionable, PlatformConfigNamedProvider {
+
+    static List<DynamicSimulationProvider> findAll() {
+        return Lists.newArrayList(ServiceLoader.load(DynamicSimulationProvider.class, DynamicSimulationProvider.class.getClassLoader()));
+    }
 
     CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier,
         CurvesSupplier curvesSupplier, String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters);

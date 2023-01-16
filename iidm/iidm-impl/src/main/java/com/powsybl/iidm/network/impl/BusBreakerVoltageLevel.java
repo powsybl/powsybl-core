@@ -370,7 +370,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void invalidateCache() {
+    public void invalidateCache(boolean exceptBusBreakerView) {
         calculatedBusTopology.invalidateCache();
         getNetwork().getBusView().invalidateCache();
         getNetwork().getBusBreakerView().invalidateCache();

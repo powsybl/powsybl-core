@@ -6,6 +6,7 @@
  */
 package com.powsybl.sensitivity;
 
+import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
@@ -16,10 +17,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -39,6 +37,10 @@ import java.util.concurrent.CompletableFuture;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public interface SensitivityAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
+
+    static List<SensitivityAnalysisProvider> findAll() {
+        return Lists.newArrayList(ServiceLoader.load(SensitivityAnalysisProvider.class, SensitivityAnalysisProvider.class.getClassLoader()));
+    }
 
     /**
      * Run a single sensitivity analysis.

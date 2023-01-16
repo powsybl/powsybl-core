@@ -49,8 +49,8 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
                     return false;
             }
         });
-        if (context.version == null || !context.version.equals(OperatorStrategyList.VERSION)) {
-            throw new JsonMappingException(parser, "version is missing or not equal to 1.0");
+        if (context.version == null) {
+            throw new JsonMappingException(parser, "version is missing");
         }
         return new OperatorStrategyList(context.operatorStrategies);
     }

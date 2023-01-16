@@ -171,5 +171,10 @@
             <artifactId>xmlunit-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-mergingview</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

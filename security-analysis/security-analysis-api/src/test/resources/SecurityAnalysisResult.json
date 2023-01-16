@@ -1,5 +1,5 @@
 {
-  "version" : "1.3",
+  "version" : "1.4",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -143,11 +143,19 @@
       "branchResults" : [ ],
       "busResults" : [ ],
       "threeWindingsTransformerResults" : [ ]
+    },
+    "connectivityResult" : {
+      "createdSynchronousComponentCount" : 0,
+      "createdConnectedComponentCount" : 0,
+      "disconnectedLoadActivePower" : 0.0,
+      "disconnectedGenerationActivePower" : 0.0,
+      "disconnectedElements" : [ ]
     }
   } ],
   "operatorStrategyResults" : [ {
     "operatorStrategy" : {
       "id" : "strategyId",
+      "contingencyContextType" : "SPECIFIC",
       "contingencyId" : "contingency1",
       "condition" : {
         "type" : "AT_LEAST_ONE_VIOLATION",

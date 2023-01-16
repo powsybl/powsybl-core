@@ -7,6 +7,7 @@
 
 package com.powsybl.loadflow;
 
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
@@ -14,8 +15,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -56,5 +59,13 @@ public class LoadFlowTest {
         CompletableFuture<LoadFlowResult> result = defaultLoadFlow.runAsync(network,
                 computationManager, new LoadFlowParameters());
         assertNotNull(result.get());
+    }
+
+    @Test
+    public void testSpecificParameters() {
+        LoadFlowProvider provider = new LoadFlowProviderMock();
+        assertEquals(2, provider.getSpecificParameters().size());
+        assertEquals(List.of("parameterBoolean", "parameterString"), provider.getSpecificParameters().stream().map(Parameter::getName).collect(Collectors.toList()));
+        assertEquals(List.of("parameterBoolean", "parameterString"), provider.getSpecificParametersNames());
     }
 }

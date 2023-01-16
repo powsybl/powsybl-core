@@ -13,7 +13,7 @@
                 <iidm:regulatingTerminal id="B2-SwSH1"/>
                 <iidm:minMaxReactiveLimits minQ="-9900.0" maxQ="9900.0"/>
             </iidm:generator>
-            <iidm:shunt id="B2-SwSH1" sectionCount="3" voltageRegulatorOn="false" targetV="17.91" targetDeadband="0.17999999999999972" bus="B2" connectableBus="B2">
+            <iidm:shunt id="B2-SwSH1" sectionCount="3" voltageRegulatorOn="true" targetV="17.91" targetDeadband="0.17999999999999972" bus="B2" connectableBus="B2">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="-0.06172839506172839" g="0.0"/>
                     <iidm:section b="-0.046296296296296294" g="0.0"/>
@@ -62,7 +62,7 @@
                 <iidm:regulatingTerminal id="B3-SwSH1"/>
                 <iidm:minMaxReactiveLimits minQ="-9900.0" maxQ="9900.0"/>
             </iidm:generator>
-            <iidm:shunt id="B3-SwSH1" sectionCount="3" voltageRegulatorOn="false" targetV="17.91" targetDeadband="0.17999999999999972" bus="B3" connectableBus="B3">
+            <iidm:shunt id="B3-SwSH1" sectionCount="3" voltageRegulatorOn="true" targetV="17.91" targetDeadband="0.17999999999999972" bus="B3" connectableBus="B3">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="-0.06172839506172839" g="0.0"/>
                     <iidm:section b="-0.030864197530864196" g="0.0"/>
