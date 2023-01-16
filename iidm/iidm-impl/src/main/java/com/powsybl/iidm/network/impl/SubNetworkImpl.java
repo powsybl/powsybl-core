@@ -139,7 +139,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public LineAdder newLine() {
-        return parent.newLine(); // FIXME
+        return parent.newLine(id);
     }
 
     @Override

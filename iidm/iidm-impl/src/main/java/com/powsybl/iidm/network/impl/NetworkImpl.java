@@ -277,7 +277,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public LineAdderImpl newLine() {
-        return new LineAdderImpl(this);
+        return newLine(null);
+    }
+
+    LineAdderImpl newLine(String subNetwork) {
+        return new LineAdderImpl(this, subNetwork);
     }
 
     @Override

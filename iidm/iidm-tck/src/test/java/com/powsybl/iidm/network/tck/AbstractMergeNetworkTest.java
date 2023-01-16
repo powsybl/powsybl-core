@@ -158,6 +158,23 @@ public abstract class AbstractMergeNetworkTest {
         assertNotNull(m);
         assertEquals(0, m.getSubstationCount());
         assertEquals(0, m.getVoltageLevelCount());
+        merge.getSubNetwork("n1").newSubstation().setId("s1bis").add().newVoltageLevel().setId("vl1bis").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(90.0).add();
+        Substation s1bis = merge.getSubstation("s1bis");
+        assertNotNull(s1bis);
+        assertSame(s1bis, merge.getSubNetwork("n1").getSubstation("s1bis"));
+        assertSame(merge.getSubNetwork("n1"), s1bis.getClosestNetwork());
+        assertNull(merge.getSubNetwork("n2").getSubstation("s1bis"));
+        VoltageLevel vl1bis = merge.getVoltageLevel("vl1bis");
+        assertNotNull(vl1bis);
+        assertSame(vl1bis, merge.getSubNetwork("n1").getVoltageLevel("vl1bis"));
+        assertSame(merge.getSubNetwork("n1"), vl1bis.getClosestNetwork());
+        assertNull(merge.getSubNetwork("n2").getVoltageLevel("vl1bis"));
+        merge.getSubNetwork("n2").newVoltageLevel().setId("vl2bis").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(90.0).add();
+        VoltageLevel vl2bis = merge.getVoltageLevel("vl2bis");
+        assertNotNull(vl2bis);
+        assertSame(vl2bis, merge.getSubNetwork("n2").getVoltageLevel("vl2bis"));
+        assertSame(merge.getSubNetwork("n2"), vl2bis.getClosestNetwork());
+        assertNull(merge.getSubNetwork("n1").getVoltageLevel("vl2bis"));
     }
 
     private static void addLoad(Network n, int num) {
