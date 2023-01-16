@@ -922,10 +922,13 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private static Network createSubNetwork(NetworkImpl parent, Network original) {
         Network sn = new SubNetworkImpl(parent, original.getId(), original.getOptionalName().orElse(null), original.getSourceFormat()).setCaseDate(original.getCaseDate());
-        new ArrayList<>(original.getExtensions()).forEach(e -> {
-            original.removeExtension((Class<? extends Extension<Network>>) e.getClass().getInterfaces()[0]);
-            sn.addExtension((Class<? super Extension<Network>>) e.getClass().getInterfaces()[0], (Extension<Network>) e);
-        });
+        new ArrayList<>(original.getExtensions())
+                .forEach(e -> Arrays.stream(e.getClass().getInterfaces())
+                        .filter(c -> Objects.nonNull(original.getExtension(c)))
+                        .forEach(clazz -> {
+                            original.removeExtension((Class<? extends Extension<Network>>) clazz);
+                            sn.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
+                        }));
         return sn;
     }
 
