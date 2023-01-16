@@ -1,6 +1,7 @@
 package com.powsybl.security;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -228,7 +229,7 @@ public class SecurityAnalysisResultBuilderTest {
     @Test
     public void operatorStrategyResultCreation() {
         //Build result with 1 operator strategy
-        OperatorStrategy operatorStrategy = new OperatorStrategy("strat1", "cont1", new TrueCondition(),
+        OperatorStrategy operatorStrategy = new OperatorStrategy("strat1", ContingencyContext.specificContingency("cont1"), new TrueCondition(),
                 List.of("action1", "action2"));
 
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),

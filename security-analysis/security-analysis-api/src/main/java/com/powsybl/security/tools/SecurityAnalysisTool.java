@@ -301,7 +301,7 @@ public class SecurityAnalysisTool implements Tool {
             .setParameters(parametersLoader.get());
 
         options.getPath(MONITORING_FILE).ifPresent(monitorFilePath -> executionInput.setMonitors(StateMonitor.read(monitorFilePath)));
-        options.getPath(STRATEGIES_FILE).ifPresent(operatorStrategyFilePath -> executionInput.setOperatorStrategies(OperatorStrategyList.readFile(operatorStrategyFilePath).getOperatorStrategies()));
+        options.getPath(STRATEGIES_FILE).ifPresent(operatorStrategyFilePath -> executionInput.setOperatorStrategies(OperatorStrategyList.read(operatorStrategyFilePath).getOperatorStrategies()));
         options.getPath(ACTIONS_FILE).ifPresent(actionFilePath -> executionInput.setActions(ActionList.readJsonFile(actionFilePath).getActions()));
 
         updateInput(options, executionInput);
