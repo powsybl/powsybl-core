@@ -32,9 +32,15 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         this.networkRef = Objects.requireNonNull(ref);
     }
 
-    void addTerminal(TerminalExt terminal) {
+    void addTerminal(TerminalExt terminal, boolean setConnectable) {
         terminals.add(terminal);
-        terminal.setConnectable(this);
+        if (setConnectable) {
+            terminal.setConnectable(this);
+        }
+    }
+
+    void addTerminal(TerminalExt terminal) {
+        addTerminal(terminal, true);
     }
 
     public List<TerminalExt> getTerminals() {

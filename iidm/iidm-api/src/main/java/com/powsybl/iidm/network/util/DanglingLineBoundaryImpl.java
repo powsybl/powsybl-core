@@ -19,14 +19,13 @@ public class DanglingLineBoundaryImpl implements Boundary {
     // Side.ONE for a dangling line.
 
     protected final DanglingLine parent;
-    private final Branch.Side side;
+    private Branch.Side side;
 
     public DanglingLineBoundaryImpl(DanglingLine parent) {
-        this(parent, null);
+        this.parent = Objects.requireNonNull(parent);
     }
 
-    public DanglingLineBoundaryImpl(DanglingLine parent, Branch.Side side) {
-        this.parent = Objects.requireNonNull(parent);
+    public void setSide(Branch.Side side) {
         this.side = side;
     }
 
@@ -80,7 +79,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public Connectable getConnectable() {
-        return parent;
+        return parent.getTieLine().map(Connectable.class::cast).orElse(parent);
     }
 
     @Override

@@ -18,14 +18,26 @@ import java.util.*;
  */
 class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine {
 
-    private final OperationalLimitsHolderImpl operationalLimitsHolder;
-
     private final DanglingLineCharacteristics characteristics;
+
+    private TieLineImpl parent = null;
+    private OperationalLimitsHolderImpl operationalLimitsHolder;
 
     DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode, DanglingLineCharacteristics.GenerationImpl generation) {
         super(network, id, name, fictitious);
         operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
         characteristics = new DanglingLineCharacteristics(this, new DanglingLineBoundaryImpl(this), p0, q0, r, x, g, b, ucteXnodeCode, generation);
+    }
+
+    void setParent(TieLineImpl parent, Branch.Side side) {
+        this.parent = parent;
+        characteristics.getBoundary().setSide(side);
+        if (side == Branch.Side.ONE) {
+            this.operationalLimitsHolder = parent.operationalLimitsHolder1;
+        } else if (side == Branch.Side.TWO) {
+            this.operationalLimitsHolder = parent.operationalLimitsHolder2;
+        }
+        addTerminal((TerminalExt) parent.getTerminal(side), false);
     }
 
     @Override
@@ -34,13 +46,26 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
+    public Optional<TieLine> getTieLine() {
+        return Optional.ofNullable(parent);
+    }
+
+    @Override
+    public void remove() {
+        if (parent != null) {
+            throw new UnsupportedOperationException("Parent tie line " + parent.getId() + " should be removed, not the child dangling line");
+        }
+        super.remove();
+    }
+
+    @Override
     protected String getTypeDescription() {
-        return "Dangling line";
+        return parent != null ? "Tie line's dangling line" : "Dangling line";
     }
 
     @Override
     public boolean isMerged() {
-        return false;
+        return parent != null;
     }
 
     @Override

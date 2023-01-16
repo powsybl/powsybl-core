@@ -8,6 +8,8 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 
+import java.util.Optional;
+
 /**
  * A dangling line to model boundaries (X nodes).
  * <p>A dangling line is a component that aggregates a line chunk and a constant
@@ -280,6 +282,10 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
 
     default Boundary getBoundary() {
         return new DanglingLineBoundaryImpl(this);
+    }
+
+    default Optional<TieLine> getTieLine() {
+        return Optional.empty();
     }
 
     @Override

@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Boundary;
+import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Objects;
@@ -247,9 +247,9 @@ class DanglingLineCharacteristics {
 
     private final TDoubleArrayList q0;
 
-    private final Boundary boundary;
+    private final DanglingLineBoundaryImpl boundary;
 
-    DanglingLineCharacteristics(AbstractConnectable<?> parent, Boundary boundary,
+    DanglingLineCharacteristics(AbstractConnectable<?> parent, DanglingLineBoundaryImpl boundary,
                                 double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode, GenerationImpl generation) {
         this.parent = parent;
         int variantArraySize = parent.getNetwork().getVariantManager().getVariantArraySize();
@@ -352,7 +352,7 @@ class DanglingLineCharacteristics {
         return generation;
     }
 
-    Boundary getBoundary() {
+    DanglingLineBoundaryImpl getBoundary() {
         return boundary;
     }
 

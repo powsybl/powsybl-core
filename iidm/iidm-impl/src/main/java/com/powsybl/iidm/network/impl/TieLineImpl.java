@@ -7,11 +7,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.TieLineUtil;
-
-import java.util.*;
 
 /**
  *
@@ -26,224 +23,21 @@ class TieLineImpl extends AbstractBranch<Line> implements TieLine {
         return "AC Line";
     }
 
-    static class MergedDanglingLine extends AbstractIdentifiable<DanglingLine> implements DanglingLine {
+    private DanglingLineImpl half1;
 
-        TieLineImpl parent;
+    private DanglingLineImpl half2;
 
-        private final double initialP0;
-
-        private final double initialQ0;
-
-        private final double initialR;
-
-        private final double initialX;
-
-        private final double initialG;
-
-        private final double initialB;
-
-        private final String ucteXnodeCode;
-
-        private final Side side;
-
-        private final DanglingLineCharacteristics.GenerationImpl generation;
-
-        private DanglingLineCharacteristics characteristics;
-
-        MergedDanglingLine(String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode,
-                           DanglingLineCharacteristics.GenerationImpl generation, Branch.Side side) {
-            super(id, name, fictitious);
-            initialP0 = p0;
-            initialQ0 = q0;
-            initialR = r;
-            initialX = x;
-            initialG = g;
-            initialB = b;
-            this.ucteXnodeCode = ucteXnodeCode;
-            this.generation = generation;
-            this.side = side;
-        }
-
-        private void setParent(TieLineImpl parent) {
-            this.parent = parent;
-            characteristics = new DanglingLineCharacteristics(parent, new MergedDanglingLineBoundaryImpl(this, side), initialP0, initialQ0, initialR, initialX, initialG, initialB,
-                    ucteXnodeCode, generation);
-        }
-
-        @Override
-        public boolean isMerged() {
-            return true;
-        }
-
-        @Override
-        public double getP0() {
-            return characteristics.getP0();
-        }
-
-        @Override
-        public DanglingLine setP0(double p0) {
-            characteristics.setP0(p0, false);
-            return this;
-        }
-
-        @Override
-        public double getQ0() {
-            return characteristics.getQ0();
-        }
-
-        @Override
-        public DanglingLine setQ0(double q0) {
-            characteristics.setQ0(q0, false);
-            return this;
-        }
-
-        @Override
-        public double getR() {
-            return characteristics.getR();
-        }
-
-        @Override
-        public MergedDanglingLine setR(double r) {
-            characteristics.setR(r);
-            return this;
-        }
-
-        @Override
-        public double getX() {
-            return characteristics.getX();
-        }
-
-        @Override
-        public MergedDanglingLine setX(double x) {
-            characteristics.setX(x);
-            return this;
-        }
-
-        @Override
-        public double getG() {
-            return characteristics.getG();
-        }
-
-        @Override
-        public MergedDanglingLine setG(double g) {
-            characteristics.setG(g);
-            return this;
-        }
-
-        @Override
-        public double getB() {
-            return characteristics.getB();
-        }
-
-        @Override
-        public MergedDanglingLine setB(double b) {
-            characteristics.setB(b);
-            return this;
-        }
-
-        @Override
-        public Generation getGeneration() {
-            return DanglingLine.super.getGeneration();
-        }
-
-        @Override
-        public String getUcteXnodeCode() {
-            return null;
-        }
-
-        @Override
-        public Boundary getBoundary() {
-            return characteristics.getBoundary();
-        }
-
-        @Override
-        public List<? extends Terminal> getTerminals() {
-            return Collections.singletonList(parent.getTerminal(side));
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("Parent tie line " + parent.getId() + " should be removed, not the child dangling line");
-        }
-
-        @Override
-        public Collection<OperationalLimits> getOperationalLimits() {
-            return parent.getLimitsHolder(side).getOperationalLimits();
-        }
-
-        @Override
-        public Optional<CurrentLimits> getCurrentLimits() {
-            return parent.getLimitsHolder(side).getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
-        }
-
-        @Override
-        public CurrentLimits getNullableCurrentLimits() {
-            return parent.getLimitsHolder(side).getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
-        }
-
-        @Override
-        public Optional<ActivePowerLimits> getActivePowerLimits() {
-            return parent.getLimitsHolder(side).getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
-        }
-
-        @Override
-        public ActivePowerLimits getNullableActivePowerLimits() {
-            return parent.getLimitsHolder(side).getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
-        }
-
-        @Override
-        public Optional<ApparentPowerLimits> getApparentPowerLimits() {
-            return parent.getLimitsHolder(side).getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
-        }
-
-        @Override
-        public ApparentPowerLimits getNullableApparentPowerLimits() {
-            return parent.getLimitsHolder(side).getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
-        }
-
-        @Override
-        public CurrentLimitsAdder newCurrentLimits() {
-            return parent.getLimitsHolder(side).newCurrentLimits();
-        }
-
-        @Override
-        public ApparentPowerLimitsAdder newApparentPowerLimits() {
-            return parent.getLimitsHolder(side).newApparentPowerLimits();
-        }
-
-        @Override
-        public ActivePowerLimitsAdder newActivePowerLimits() {
-            return parent.getLimitsHolder(side).newActivePowerLimits();
-        }
-
-        @Override
-        public Terminal getTerminal() {
-            return parent.getTerminal(side);
-        }
-
-        @Override
-        public NetworkImpl getNetwork() {
-            return parent.getNetwork();
-        }
-
-        @Override
-        protected String getTypeDescription() {
-            return "TieLine.DanglingLine";
-        }
-    }
-
-    private final MergedDanglingLine half1;
-
-    private final MergedDanglingLine half2;
-
-    TieLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, MergedDanglingLine half1, MergedDanglingLine half2) {
+    TieLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
         super(network, id, name, fictitious);
-        this.half1 = attach(half1);
-        this.half2 = attach(half2);
     }
 
-    private MergedDanglingLine attach(MergedDanglingLine half) {
-        half.setParent(this);
+    void attachDanglingLines(DanglingLineImpl half1, DanglingLineImpl half2) {
+        this.half1 = attach(half1, Side.ONE);
+        this.half2 = attach(half2, Side.TWO);
+    }
+
+    private DanglingLineImpl attach(DanglingLineImpl half, Side side) {
+        half.setParent(this, side);
         return half;
     }
 
@@ -254,21 +48,21 @@ class TieLineImpl extends AbstractBranch<Line> implements TieLine {
 
     @Override
     public String getUcteXnodeCode() {
-        return half1.ucteXnodeCode;
+        return half1.getUcteXnodeCode();
     }
 
     @Override
-    public MergedDanglingLine getHalf1() {
+    public DanglingLineImpl getHalf1() {
         return half1;
     }
 
     @Override
-    public MergedDanglingLine getHalf2() {
+    public DanglingLineImpl getHalf2() {
         return half2;
     }
 
     @Override
-    public MergedDanglingLine getHalf(Side side) {
+    public DanglingLineImpl getHalf(Side side) {
         switch (side) {
             case ONE:
                 return half1;
@@ -343,15 +137,5 @@ class TieLineImpl extends AbstractBranch<Line> implements TieLine {
     @Override
     public LineImpl setB2(double b2) {
         throw createNotSupportedForTieLines();
-    }
-
-    private OperationalLimitsHolderImpl getLimitsHolder(Side side) {
-        if (side == Side.ONE) {
-            return operationalLimitsHolder1;
-        }
-        if (side == Side.TWO) {
-            return operationalLimitsHolder2;
-        }
-        throw new AssertionError(); // should not happen
     }
 }

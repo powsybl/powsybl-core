@@ -657,7 +657,7 @@ public abstract class AbstractLineTest {
         half2.setX(x + 1);
         half2.setG(hl2g1 + hl1g2 + 2);
         half2.setB(hl2b1 + hl2b2 + 2);
-        verify(mockedListener, times(8)).onUpdate(any(TieLine.class), anyString(), any(), any());
+        verify(mockedListener, times(8)).onUpdate(any(DanglingLine.class), anyString(), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
         // Cancel changes on Half lines
