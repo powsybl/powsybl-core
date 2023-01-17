@@ -116,6 +116,39 @@ public class CreateCouplingDeviceTest extends AbstractConverterTest {
                 "/network_test_bus_breaker_with_coupling_device.xiidm");
     }
 
+    @Test
+    public void createCouplingDeviceThrowsExceptionIfNotBusbarSectionOrBusId() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        NetworkModification modification = new CreateCouplingDeviceBuilder()
+                .withBusOrBusbarSectionId1("bbs1")
+                .withBusOrBusbarSectionId2("gen1")
+                .build();
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
+        assertEquals("Unexpected type of identifiable gen1: GENERATOR", e2.getMessage());
+    }
+
+    @Test
+    public void createCouplingDeviceThrowsExceptionIfWrongBusbarSectionOrBusId1() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        NetworkModification modification = new CreateCouplingDeviceBuilder()
+                .withBusOrBusbarSectionId1("bb1")
+                .withBusOrBusbarSectionId2("bbs2")
+                .build();
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
+        assertEquals("Identifiable bb1 not found.", e2.getMessage());
+    }
+
+    @Test
+    public void createCouplingDeviceThrowsExceptionIfWrongBusbarSectionOrBusId2() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        NetworkModification modification = new CreateCouplingDeviceBuilder()
+                .withBusOrBusbarSectionId1("bbs1")
+                .withBusOrBusbarSectionId2("bb2")
+                .build();
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
+        assertEquals("Identifiable bb2 not found.", e2.getMessage());
+    }
+
     private Network createSimpleBusBreakerNetwork() {
         Network network = NetworkFactory.findDefault().createNetwork("network", "test");
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));

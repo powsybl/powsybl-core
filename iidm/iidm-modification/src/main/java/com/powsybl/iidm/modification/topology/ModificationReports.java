@@ -20,6 +20,8 @@ final class ModificationReports {
     private static final String LINE_ID = "lineId";
     private static final String BBS_ID = "bbsId";
     private static final String CONNECTABLE_ID = "connectableId";
+    private static final String IDENTIFIABLE_ID = "identifiableId";
+    private static final String IDENTIFIABLE_TYPE = "identifiableType";
 
     // INFO
     static void createdConnectable(Reporter reporter, Connectable<?> connectable) {
@@ -205,7 +207,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("notFoundIdentifiable")
                 .withDefaultMessage("Identifiable ${busbarSectionId} not found")
-                .withValue("identifiableId", identifiableId)
+                .withValue(IDENTIFIABLE_ID, identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -224,7 +226,7 @@ final class ModificationReports {
                 .withKey("networkMismatch")
                 .withDefaultMessage("Network given in parameters and in injectionAdder are different. Injection '${injectionId}' of type {identifiableType} was added then removed")
                 .withValue("injectionId", injectionId)
-                .withValue("identifiableType", identifiableType.toString())
+                .withValue(IDENTIFIABLE_TYPE, identifiableType.toString())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -359,8 +361,8 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("unsupportedIdentifiableType")
                 .withDefaultMessage("Unsupported type ${identifiableType} for identifiable ${identifiableId}")
-                .withValue("identifiableType", type.name())
-                .withValue("identifiableId", identifiableId)
+                .withValue(IDENTIFIABLE_TYPE, type.name())
+                .withValue(IDENTIFIABLE_ID, identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -378,8 +380,8 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("unexpectedIdentifiableType")
                 .withDefaultMessage("Unexpected type of identifiable ${identifiableId}: ${identifiableType}")
-                .withValue("identifiableId", identifiable.getId())
-                .withValue("identifiableType", identifiable.getType().name())
+                .withValue(IDENTIFIABLE_ID, identifiable.getId())
+                .withValue(IDENTIFIABLE_TYPE, identifiable.getType().name())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
