@@ -23,6 +23,8 @@ import java.util.List;
  */
 public class ActionListDeserializer extends StdDeserializer<ActionList> {
 
+    public static final String VERSION = "version";
+
     public ActionListDeserializer() {
         super(ActionList.class);
     }
@@ -37,9 +39,9 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {
-                case "version":
+                case VERSION:
                     context.version = parser.nextTextValue();
-                    deserializationContext.setAttribute("version", context.version);
+                    deserializationContext.setAttribute(VERSION, context.version);
                     return true;
                 case "actions":
                     parser.nextToken();

@@ -17,12 +17,12 @@ public class PhaseTapChangerTapPositionAction extends AbstractTapChangerTapPosit
 
     public static final String NAME = "PHASE_TAP_CHANGER_TAP_POSITION";
 
-    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int value) {
-        super(id, transformerId, relativeValue, value, null);
+    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int tapPosition) {
+        super(id, transformerId, relativeValue, tapPosition, null);
     }
 
-    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int value, ThreeWindingsTransformer.Side side) {
-        super(id, transformerId, relativeValue, value, side);
+    public PhaseTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int tapPosition, ThreeWindingsTransformer.Side side) {
+        super(id, transformerId, relativeValue, tapPosition, side);
     }
 
     @Override
