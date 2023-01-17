@@ -30,7 +30,7 @@ public class DefaultContingencyListSerializer extends StdSerializer<DefaultConti
         jsonGenerator.writeStringField("type", contingencyList.getType());
         jsonGenerator.writeStringField("version", ContingencyList.getVersion());
         jsonGenerator.writeStringField("name", contingencyList.getName());
-        jsonGenerator.writeObjectField("contingencies", contingencyList.getContingencies());
+        serializerProvider.defaultSerializeField("contingencies", contingencyList.getContingencies(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }
