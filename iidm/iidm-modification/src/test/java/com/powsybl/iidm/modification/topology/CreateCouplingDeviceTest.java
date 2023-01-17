@@ -11,7 +11,11 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.NetworkXml;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -97,5 +101,53 @@ public class CreateCouplingDeviceTest extends AbstractConverterTest {
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/testNetwork3BusbarSectionsWithCouplingDevice.xiidm");
+    }
+
+    @Test
+    public void createCouplingDeviceBusBreaker() throws IOException {
+        Network network = createSimpleBusBreakerNetwork();
+        NetworkModification modification = new CreateCouplingDeviceBuilder()
+                .withBusOrBusbarSectionId1("bus_1_1")
+                .withBusOrBusbarSectionId2("bus_2_2")
+                .build();
+        modification.apply(network);
+
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/network_test_bus_breaker_with_coupling_device.xiidm");
+    }
+
+    private Network createSimpleBusBreakerNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("network", "test");
+        network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
+        VoltageLevel vltest = network.newVoltageLevel()
+                .setNominalV(400)
+                .setId("VLTEST")
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vltest.getBusBreakerView().newBus()
+                .setId("bus_1_1")
+                .add();
+        vltest.getBusBreakerView().newBus()
+                .setId("bus_1_2")
+                .add();
+        vltest.getBusBreakerView().newBus()
+                .setId("bus_2_1")
+                .add();
+        vltest.getBusBreakerView().newBus()
+                .setId("bus_2_2")
+                .add();
+        vltest.getBusBreakerView().newSwitch()
+                .setId("switch_1")
+                .setBus1("bus_1_1")
+                .setBus2("bus_1_2")
+                .setOpen(false)
+                .add();
+        vltest.getBusBreakerView().newSwitch()
+                .setId("switch_2")
+                .setBus1("bus_2_1")
+                .setBus2("bus_2_2")
+                .setOpen(false)
+                .add();
+        return network;
     }
 }
