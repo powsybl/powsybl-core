@@ -73,7 +73,7 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
     @Override
     public ActivePowerControl<T> read(T identifiable, XmlReaderContext context) {
         boolean participate = XmlUtil.readBoolAttribute(context.getReader(), "participate");
-        double droop = XmlUtil.readDoubleAttribute(context.getReader(), "droop");
+        double droop = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "droop");
         double participationFactor = Double.NaN;
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(AssertionError::new);

@@ -1,6 +1,7 @@
 package com.powsybl.security;
 
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -14,6 +15,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -65,6 +67,7 @@ public class SecurityAnalysisResultBuilderTest {
         builder.contingency(new Contingency("contingency1"), postResultContext)
                 .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network), postViolationContext)
+                .setConnectivityResult(new ConnectivityResult(1, 1, 0.0, 0.0, Collections.emptySet()))
                 .endContingency();
         assertEquals(Security.checkLimits(network).size(), postViolationContext.getCalledCount());
         assertEquals(1, postResultContext.getCalledCount());
@@ -95,12 +98,14 @@ public class SecurityAnalysisResultBuilderTest {
                 .addThreeWindingsTransformerResult(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
                 0, 0, 0, 0, 0, 0, 0, 0, 0))
                 .addViolations(Security.checkLimits(network))
+                .setConnectivityResult(new ConnectivityResult(1, 2, 10.0, 20.0, Set.of("branchId")))
                 .endContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(520));
         builder.contingency(new Contingency("contingency2"))
                 .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .addViolations(Security.checkLimits(network))
+                .setConnectivityResult(new ConnectivityResult(2, 4, 10.0, 15.0, Set.of("branchId", "branchId2")))
                 .endContingency();
 
         SecurityAnalysisResult res = builder.build();
@@ -115,6 +120,11 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), res1.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0), res1.getNetworkResult().getThreeWindingsTransformerResult("threeWindingsTransformerId"));
+        assertEquals(1, res1.getConnectivityResult().getCreatedSynchronousComponentCount());
+        assertEquals(2, res1.getConnectivityResult().getCreatedConnectedComponentCount());
+        assertEquals(10.0, res1.getConnectivityResult().getDisconnectedLoadActivePower(), 1e-3);
+        assertEquals(20.0, res1.getConnectivityResult().getDisconnectedGenerationActivePower(), 1e-3);
+        assertEquals(Set.of("branchId"), res1.getConnectivityResult().getDisconnectedElements());
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations1 = res1.getLimitViolationsResult().getLimitViolations();
@@ -124,6 +134,11 @@ public class SecurityAnalysisResultBuilderTest {
 
         PostContingencyResult res2 = res.getPostContingencyResults().get(1);
         assertEquals("contingency2", res2.getContingency().getId());
+        assertEquals(2, res2.getConnectivityResult().getCreatedSynchronousComponentCount());
+        assertEquals(4, res2.getConnectivityResult().getCreatedConnectedComponentCount());
+        assertEquals(10.0, res2.getConnectivityResult().getDisconnectedLoadActivePower(), 1e-3);
+        assertEquals(15.0, res2.getConnectivityResult().getDisconnectedGenerationActivePower(), 1e-3);
+        assertEquals(Set.of("branchId", "branchId2"), res2.getConnectivityResult().getDisconnectedElements());
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations2 = res2.getLimitViolationsResult().getLimitViolations();
@@ -214,7 +229,7 @@ public class SecurityAnalysisResultBuilderTest {
     @Test
     public void operatorStrategyResultCreation() {
         //Build result with 1 operator strategy
-        OperatorStrategy operatorStrategy = new OperatorStrategy("strat1", "cont1", new TrueCondition(),
+        OperatorStrategy operatorStrategy = new OperatorStrategy("strat1", ContingencyContext.specificContingency("cont1"), new TrueCondition(),
                 List.of("action1", "action2"));
 
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),

@@ -245,7 +245,11 @@ public class CgmesMappingTest extends AbstractConverterTest {
                         cgmes.terminals().stream().map(o -> o.getId(CgmesNames.TERMINAL)),
                         cgmes.connectivityNodes().stream().map(o -> o.getId(CgmesNames.CONNECTIVITY_NODE)),
                         cgmes.topologicalNodes().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_NODE)),
-                        cgmes.topologicalIslands().stream().map(o -> o.getId(CgmesNames.TOPOLOGICAL_ISLAND)),
+                        cgmes.topologicalIslands().stream().flatMap(o -> Stream.of(
+                                o.getId(CgmesNames.TOPOLOGICAL_ISLAND),
+                                o.getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE),
+                                o.getId(CgmesNames.TOPOLOGICAL_NODES))),
+                        cgmes.topologicalIslands().stream().map(o -> o.getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE)),
                         cgmes.transformerEnds().stream().map(o -> o.getId(CgmesNames.TRANSFORMER_END)),
                         cgmes.phaseTapChangers().stream().map(o -> o.getId(CgmesNames.PHASE_TAP_CHANGER)),
                         cgmes.ratioTapChangers().stream().map(o -> o.getId(CgmesNames.RATIO_TAP_CHANGER)),

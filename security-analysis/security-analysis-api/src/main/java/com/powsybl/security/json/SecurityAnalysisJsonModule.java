@@ -65,6 +65,7 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(OperatorStrategyList.class, new OperatorStrategyListSerializer());
         addSerializer(ActionList.class, new ActionListSerializer());
         addSerializer(Condition.class, new ConditionSerializer());
+        addSerializer(ConnectivityResult.class, new ConnectivityResultSerializer());
 
         addDeserializer(SecurityAnalysisResult.class, new SecurityAnalysisResultDeserializer());
         addDeserializer(NetworkMetadata.class, new NetworkMetadataDeserializer());
@@ -82,6 +83,7 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(ActionList.class, new ActionListDeserializer());
         addDeserializer(Condition.class, new ConditionDeserializer());
         addDeserializer(NetworkResult.class, new NetworkResultDeserializer());
+        addDeserializer(ConnectivityResult.class, new ConnectivityResultDeserializer());
 
         configureActionsSerialization();
     }
@@ -96,6 +98,12 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
                 new MultipleActionsActionSerializer(), new MultipleActionsActionDeserializer());
         registerActionType(PhaseTapChangerTapPositionAction.class, PhaseTapChangerTapPositionAction.NAME,
                 new PhaseTapChangerTapPositionActionSerializer(), new PhaseTapChangerTapPositionActionDeserializer());
+        registerActionType(RatioTapChangerTapPositionAction.class, RatioTapChangerTapPositionAction.NAME,
+                new RatioTapChangerTapPositionActionSerializer(), new RatioTapChangerTapPositionActionDeserializer());
+        registerActionType(PhaseTapChangerRegulationAction.class, PhaseTapChangerRegulationAction.NAME,
+                new PhaseTapChangerRegulationActionSerializer(), new PhaseTapChangerRegulationActionDeserializer());
+        registerActionType(RatioTapChangerRegulationAction.class, RatioTapChangerRegulationAction.NAME,
+                new RatioTapChangerRegulationActionSerializer(), new RatioTapChangerRegulationActionDeserializer());
         registerActionType(GeneratorAction.class, GeneratorAction.NAME,
                 new GeneratorActionSerializer(), new GeneratorActionDeserializer());
         registerActionType(LoadAction.class, LoadAction.NAME,
