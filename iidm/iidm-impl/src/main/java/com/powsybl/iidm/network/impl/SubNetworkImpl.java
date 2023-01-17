@@ -562,7 +562,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public HvdcLineAdder newHvdcLine() {
-        return parent.newHvdcLine(); // FIXME
+        return parent.newHvdcLine(id);
     }
 
     @Override

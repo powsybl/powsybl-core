@@ -654,7 +654,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public HvdcLineAdder newHvdcLine() {
-        return new HvdcLineAdderImpl(ref);
+        return newHvdcLine(null);
+    }
+
+    HvdcLineAdder newHvdcLine(String subNetwork) {
+        return new HvdcLineAdderImpl(ref, subNetwork);
     }
 
     @Override
