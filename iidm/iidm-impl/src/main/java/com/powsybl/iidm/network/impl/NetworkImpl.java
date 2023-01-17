@@ -37,8 +37,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
-    private final RefChain<NetworkImpl> ref = new RefChain<>(new RefObj<>(this));
-    // TODO when split() method will be implemented, add a map of ref by subnetworks
+    private final Map<String, RefChain<NetworkImpl>> refs = new HashMap<>();
 
     private ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
     private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -144,8 +143,9 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     NetworkImpl(String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
+        refs.put(id, new RefChain<>(new RefObj<>(this)));
         variantManager = new VariantManagerImpl(this);
-        variants = new VariantArray<>(ref, VariantImpl::new);
+        variants = new VariantArray<>(refs.get(id), VariantImpl::new);
         // add the network the object list as it is a multi variant object
         // and it needs to be notified when and extension or a reduction of
         // the variant array is requested
@@ -153,7 +153,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     RefChain<NetworkImpl> getRef() {
-        return ref;
+        return refs.get(id);
     }
 
     NetworkListenerList getListeners() {
@@ -210,7 +210,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     SubstationAdder newSubstation(String subNetwork) {
-        return new SubstationAdderImpl(ref, subNetwork);
+        return new SubstationAdderImpl(Optional.ofNullable(subNetwork).map(refs::get).orElseGet(() -> refs.get(id)), subNetwork);
     }
 
     @Override
@@ -249,7 +249,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     VoltageLevelAdder newVoltageLevel(String subNetwork) {
-        return new VoltageLevelAdderImpl(ref, subNetwork);
+        return new VoltageLevelAdderImpl(Optional.ofNullable(subNetwork).map(refs::get).orElseGet(() -> refs.get(id)), subNetwork);
     }
 
     @Override
@@ -348,7 +348,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     TwoWindingsTransformerAdderImpl newTwoWindingsTransformer(String subNetwork) {
-        return new TwoWindingsTransformerAdderImpl(ref, subNetwork);
+        return new TwoWindingsTransformerAdderImpl(Optional.ofNullable(subNetwork).map(refs::get).orElseGet(() -> refs.get(id)), subNetwork);
     }
 
     @Override
@@ -377,7 +377,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer(String subNetwork) {
-        return new ThreeWindingsTransformerAdderImpl(ref, subNetwork);
+        return new ThreeWindingsTransformerAdderImpl(Optional.ofNullable(subNetwork).map(refs::get).orElseGet(() -> refs.get(id)), subNetwork);
     }
 
     @Override
@@ -658,7 +658,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     HvdcLineAdder newHvdcLine(String subNetwork) {
-        return new HvdcLineAdderImpl(ref, subNetwork);
+        return new HvdcLineAdderImpl(Optional.ofNullable(subNetwork).map(refs::get).orElseGet(() -> refs.get(id)), subNetwork);
     }
 
     @Override
@@ -737,7 +737,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         @Override
         protected ConnectedComponentImpl createComponent(int num, int size) {
-            return new ConnectedComponentImpl(num, size, network.ref);
+            return new ConnectedComponentImpl(num, size, network.refs.get(network.id));
         }
     }
 
@@ -762,7 +762,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         @Override
         protected SynchronousComponentImpl createComponent(int num, int size) {
-            return new SynchronousComponentImpl(num, size, network.ref);
+            return new SynchronousComponentImpl(num, size, network.refs.get(network.id));
         }
     }
 
@@ -930,7 +930,10 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         index.merge(otherNetwork.index);
 
         // fix network back reference of the other network objects
-        otherNetwork.ref.setRef(ref);
+        otherNetwork.refs.forEach((snId, ref) -> {
+            ref.setRef(refs.get(id));
+            refs.put(snId, ref);
+        });
 
         Multimap<Boundary, MergedLine> mergedLineByBoundary = HashMultimap.create();
         replaceDanglingLineByLine(lines, mergedLineByBoundary);
