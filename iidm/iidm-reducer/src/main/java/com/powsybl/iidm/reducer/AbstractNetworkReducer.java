@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractNetworkReducer implements NetworkReducer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNetworkReducer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNetworkReducer.class);
 
     private final NetworkPredicate predicate;
 
@@ -143,7 +143,7 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
 
     protected void buildVoltageLevelIdSet(Network network) {
         List<String> voltageLevels = network.getVoltageLevelStream()
-                .filter(vl -> predicate.test(vl))
+                .filter(predicate::test)
                 .map(VoltageLevel::getId)
                 .collect(Collectors.toList());
         vlIds.addAll(voltageLevels);
@@ -158,7 +158,7 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
     private void checkThreeWindingsTransformersToKeep(List<ThreeWindingsTransformer> threeWindingsTransformers) {
         List<ThreeWindingsTransformer> modifiedTransformers = new ArrayList<>();
         threeWindingsTransformers.stream()
-                .filter(transformer -> mustBeKept(transformer))
+                .filter(this::mustBeKept)
                 .forEach(transformer -> {
                     VoltageLevel vlToAdd = findVoltageLevelToAdd(transformer);
                     if (vlToAdd != null) {
