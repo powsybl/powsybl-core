@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -16,6 +18,8 @@ import java.util.Optional;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTransformerAdderImpl> implements TwoWindingsTransformerAdder {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TwoWindingsTransformerAdderImpl.class);
 
     private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
@@ -113,6 +117,10 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
+        if (voltageLevel1.getClosestNetwork() != voltageLevel2.getClosestNetwork()) {
+            LOG.warn("Transformer '{}' is between two different sub-networks: splitting back the network will not be possible." +
+                    " If you want to be able to split the network, delete this transformer and create a tie-line instead", id);
+        }
         if (subNetwork != null && (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork()))) {
             throw new ValidationException(this, "Transformer '" + id + "' is not contained in sub-network '" +
                     subNetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");

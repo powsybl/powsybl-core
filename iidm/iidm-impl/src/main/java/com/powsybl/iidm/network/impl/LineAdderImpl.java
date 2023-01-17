@@ -9,12 +9,16 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAdder {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LineAdderImpl.class);
 
     private final NetworkImpl network;
     private final String subNetwork;
@@ -93,6 +97,10 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
+        if (voltageLevel1.getClosestNetwork() != voltageLevel2.getClosestNetwork()) {
+            LOG.warn("Line '{}' is between two different sub-networks: splitting back the network will not be possible." +
+                    " If you want to be able to split the network, delete this line and create a tie-line instead", id);
+        }
         if (subNetwork != null && (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork()))) {
             throw new ValidationException(this, "Line '" + id + "' is not contained in sub-network '" +
                     subNetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");

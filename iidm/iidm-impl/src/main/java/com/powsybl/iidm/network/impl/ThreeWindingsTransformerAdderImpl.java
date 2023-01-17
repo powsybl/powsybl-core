@@ -291,6 +291,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             throw new ValidationException(this, "Leg3 is not set");
         }
 
+        if (voltageLevel1.getClosestNetwork() != voltageLevel2.getClosestNetwork() || voltageLevel2.getClosestNetwork() != voltageLevel3.getClosestNetwork() ||
+                voltageLevel1.getClosestNetwork() != voltageLevel3.getClosestNetwork()) {
+            LOGGER.warn("Transformer '{}' is between several different sub-networks: splitting back the network will not be possible." +
+                    " If you want to be able to split the network, delete this transformer and create tie-lines instead", id);
+        }
         if (subNetwork != null && (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork()) ||
                 !subNetwork.equals(voltageLevel3.getSubNetwork()))) {
             throw new ValidationException(this, "Transformer '" + id + "' is not contained in sub-network '" +
