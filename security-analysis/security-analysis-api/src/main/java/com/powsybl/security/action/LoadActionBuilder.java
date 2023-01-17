@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.action;
 
-/*
+/**
  * @author Anne Tilloy <anne.tilloy@rte-france.com>
  */
 public class LoadActionBuilder {

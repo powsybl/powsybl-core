@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
 import com.powsybl.security.condition.TrueCondition;
@@ -52,8 +53,29 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new GeneratorActionBuilder().withId("id11").withGeneratorId("generatorId2").withVoltageRegulatorOn(false).withTargetQ(400.0).build());
         actions.add(new LoadActionBuilder().withId("id12").withLoadId("loadId1").withRelativeValue(false).withActivePowerValue(50.0).build());
         actions.add(new LoadActionBuilder().withId("id13").withLoadId("loadId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
+        actions.add(new RatioTapChangerTapPositionAction("id14", "transformerId4", false, 2, ThreeWindingsTransformer.Side.THREE));
+        actions.add(new RatioTapChangerTapPositionAction("id15", "transformerId5", true, 1));
+        actions.add(RatioTapChangerRegulationAction.activateRegulation("id16", "transformerId5", ThreeWindingsTransformer.Side.THREE));
+        actions.add(PhaseTapChangerRegulationAction.activateAndChangeRegulationMode("id17", "transformerId5", ThreeWindingsTransformer.Side.ONE,
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 10.0));
+        actions.add(PhaseTapChangerRegulationAction.deactivateRegulation("id18",
+                "transformerId6", ThreeWindingsTransformer.Side.ONE));
+        actions.add(PhaseTapChangerRegulationAction.activateAndChangeRegulationMode("id19",
+                "transformerId6", ThreeWindingsTransformer.Side.ONE,
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 15.0));
+        actions.add(RatioTapChangerRegulationAction.activateRegulationAndChangeTargetV("id20", "transformerId5", 90.0));
+        actions.add(RatioTapChangerRegulationAction.deactivateRegulation("id21", "transformerId5", ThreeWindingsTransformer.Side.THREE));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
+    }
+
+    @Test
+    public void actionsReadV10() throws IOException {
+        ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream("/ActionFileTestV1.0.json"));
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            actionList.writeJsonOutputStream(bos);
+            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/ActionFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+        }
     }
 
     @Test
@@ -82,9 +104,15 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 ActionList.readJsonInputStream(inputStream)).getMessage());
 
         final InputStream inputStream2 = getClass().getResourceAsStream("/WrongActionFileTest2.json");
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action value field can't equal zero\n" +
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action tapPosition field can't equal zero\n" +
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
                 ActionList.readJsonInputStream(inputStream2)).getMessage());
+
+        final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json");
+        assertTrue(assertThrows(UncheckedIOException.class, () -> ActionList
+                .readJsonInputStream(inputStream3))
+                .getMessage()
+                .contains("actions. Tag: value is not valid for version 1.1. Version should be <= 1.0"));
     }
 
     @JsonTypeName(DummyAction.NAME)

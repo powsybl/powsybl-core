@@ -11,22 +11,22 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.security.action.RatioTapChangerTapPositionAction;
 
 import java.io.IOException;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class PhaseTapChangerTapPositionActionDeserializer extends AbstractTapChangerTapPositionActionDeserializer<PhaseTapChangerTapPositionAction> {
+public class RatioTapChangerTapPositionActionDeserializer extends AbstractTapChangerTapPositionActionDeserializer<RatioTapChangerTapPositionAction> {
 
-    public PhaseTapChangerTapPositionActionDeserializer() {
-        super(PhaseTapChangerTapPositionAction.class);
+    public RatioTapChangerTapPositionActionDeserializer() {
+        super(RatioTapChangerTapPositionAction.class);
     }
 
     @Override
-    public PhaseTapChangerTapPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        ParsingContext commonParsingContext = new ParsingContext();
+    public RatioTapChangerTapPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        AbstractTapChangerTapPositionActionDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerTapPositionActionDeserializer.ParsingContext();
         String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name, version);
@@ -35,15 +35,15 @@ public class PhaseTapChangerTapPositionActionDeserializer extends AbstractTapCha
             }
             if (name.equals("type")) {
                 String type = jsonParser.nextTextValue();
-                if (!PhaseTapChangerTapPositionAction.NAME.equals(type)) {
-                    throw JsonMappingException.from(jsonParser, "Expected type :" + PhaseTapChangerTapPositionAction.NAME + " got : " + type);
+                if (!RatioTapChangerTapPositionAction.NAME.equals(type)) {
+                    throw JsonMappingException.from(jsonParser, "Expected type :" + RatioTapChangerTapPositionAction.NAME + " got : " + type);
                 }
                 return true;
             }
             return false;
         });
         checkFields(commonParsingContext, jsonParser);
-        return new PhaseTapChangerTapPositionAction(commonParsingContext.id, commonParsingContext.transformerId,
+        return new RatioTapChangerTapPositionAction(commonParsingContext.id, commonParsingContext.transformerId,
                 commonParsingContext.relativeValue, commonParsingContext.tapPosition, commonParsingContext.side);
     }
 }
