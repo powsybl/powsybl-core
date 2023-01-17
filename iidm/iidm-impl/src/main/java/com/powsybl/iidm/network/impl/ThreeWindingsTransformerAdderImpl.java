@@ -205,10 +205,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         subNetwork = substation.getSubNetwork();
     }
 
-    ThreeWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef) {
-        this(networkRef, null);
-    }
-
     ThreeWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef, String subNetwork) {
         this.networkRef = networkRef;
         substation = null;

@@ -45,10 +45,6 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         this.subNetwork = subNetwork;
     }
 
-    VoltageLevelAdderImpl(Ref<NetworkImpl> networkRef) {
-        this(networkRef, null);
-    }
-
     @Override
     protected NetworkImpl getNetwork() {
         return Optional.ofNullable(networkRef)

@@ -51,10 +51,6 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         this.subNetwork = subNetwork;
     }
 
-    TwoWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef) {
-        this(networkRef, null);
-    }
-
     @Override
     protected NetworkImpl getNetwork() {
         return Optional.ofNullable(networkRef)

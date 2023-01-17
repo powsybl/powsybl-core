@@ -40,11 +40,6 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         this.subNetwork = subNetwork;
     }
 
-    LineAdderImpl(NetworkImpl network) {
-        this.network = network;
-        this.subNetwork = null;
-    }
-
     @Override
     protected NetworkImpl getNetwork() {
         return network;

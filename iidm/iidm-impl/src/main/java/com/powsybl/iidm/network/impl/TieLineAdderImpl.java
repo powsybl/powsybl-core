@@ -150,10 +150,6 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         this.subNetwork = subNetwork;
     }
 
-    TieLineAdderImpl(NetworkImpl network) {
-        this(network, null);
-    }
-
     @Override
     protected NetworkImpl getNetwork() {
         return network;

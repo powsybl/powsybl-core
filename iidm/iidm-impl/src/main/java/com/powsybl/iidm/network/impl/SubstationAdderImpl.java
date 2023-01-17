@@ -31,10 +31,6 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
         this.subNetwork = subNetwork;
     }
 
-    SubstationAdderImpl(Ref<NetworkImpl> networkRef) {
-        this(networkRef, null);
-    }
-
     @Override
     protected NetworkImpl getNetwork() {
         return networkRef.get();
