@@ -9,20 +9,20 @@ package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.powsybl.security.action.PhaseTapChangerTapPositionAction;
+import com.powsybl.security.action.RatioTapChangerTapPositionAction;
 
 import java.io.IOException;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class PhaseTapChangerTapPositionActionSerializer extends AbstractTapChangerTapPositionActionSerializer<PhaseTapChangerTapPositionAction> {
-    public PhaseTapChangerTapPositionActionSerializer() {
-        super(PhaseTapChangerTapPositionAction.class);
+public class RatioTapChangerTapPositionActionSerializer extends AbstractTapChangerTapPositionActionSerializer<RatioTapChangerTapPositionAction> {
+    public RatioTapChangerTapPositionActionSerializer() {
+        super(RatioTapChangerTapPositionAction.class);
     }
 
     @Override
-    public void serialize(PhaseTapChangerTapPositionAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(RatioTapChangerTapPositionAction action, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         serializeCommonAttributes(action, jsonGenerator);
         jsonGenerator.writeEndObject();
