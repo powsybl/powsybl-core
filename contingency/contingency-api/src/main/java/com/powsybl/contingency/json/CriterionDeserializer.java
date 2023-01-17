@@ -50,19 +50,23 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                     break;
                 case "voltageInterval":
                     parser.nextToken();
-                    voltageInterval = deserializationContext.readValue(parser, SingleNominalVoltageCriterion.VoltageInterval.class);
+                    voltageInterval = JsonUtil.readValueWithContext(deserializationContext, parser,
+                            SingleNominalVoltageCriterion.VoltageInterval.class);
                     break;
                 case "voltageInterval1":
                     parser.nextToken();
-                    voltageInterval1 = deserializationContext.readValue(parser, SingleNominalVoltageCriterion.VoltageInterval.class);
+                    voltageInterval1 = JsonUtil.readValueWithContext(deserializationContext, parser,
+                            SingleNominalVoltageCriterion.VoltageInterval.class);
                     break;
                 case "voltageInterval2":
                     parser.nextToken();
-                    voltageInterval2 = deserializationContext.readValue(parser, SingleNominalVoltageCriterion.VoltageInterval.class);
+                    voltageInterval2 = JsonUtil.readValueWithContext(deserializationContext, parser,
+                            SingleNominalVoltageCriterion.VoltageInterval.class);
                     break;
                 case "voltageInterval3":
                     parser.nextToken();
-                    voltageInterval3 = deserializationContext.readValue(parser, SingleNominalVoltageCriterion.VoltageInterval.class);
+                    voltageInterval3 = JsonUtil.readValueWithContext(deserializationContext, parser,
+                            SingleNominalVoltageCriterion.VoltageInterval.class);
                     break;
                 case "countries":
                     parser.nextToken();

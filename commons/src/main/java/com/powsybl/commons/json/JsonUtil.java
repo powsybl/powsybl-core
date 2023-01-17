@@ -582,6 +582,19 @@ public final class JsonUtil {
         return context.getAttribute(sourceVersionAttributeKey) != null ? (String) context.getAttribute(sourceVersionAttributeKey) : null;
     }
 
+    public static <T> T readValueWithContext(DeserializationContext context, JsonParser parser, Class<?> type) {
+        JavaType jType = context.getTypeFactory()
+                .constructType(type);
+        try {
+            if (parser.currentToken() != JsonToken.VALUE_NULL) {
+                return context.readValue(parser, jType);
+            }
+            return null;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static <T> List<T> readList(DeserializationContext context, JsonParser parser, Class<?> type) {
         JavaType listType = context.getTypeFactory()
                 .constructCollectionType(List.class, type);
