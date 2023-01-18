@@ -605,6 +605,16 @@ public final class JsonUtil {
         }
     }
 
+    public static <T> Set<T> readSet(DeserializationContext context, JsonParser parser, Class<?> type) {
+        JavaType setType = context.getTypeFactory()
+                .constructCollectionType(Set.class, type);
+        try {
+            return context.readValue(parser, setType);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static <T extends Enum> void writeOptionalEnum(JsonGenerator jsonGenerator, String field, Optional<T> optional) throws IOException {
         if (optional.isPresent()) {
             jsonGenerator.writeStringField(field, optional.get().toString());

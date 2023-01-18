@@ -8,7 +8,6 @@ package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
@@ -54,51 +53,48 @@ class PostContingencyResultDeserializer extends StdDeserializer<PostContingencyR
             switch (parser.getCurrentName()) {
                 case "contingency":
                     parser.nextToken();
-                    contingency = parser.readValueAs(Contingency.class);
+                    contingency = JsonUtil.readValueWithContext(deserializationContext, parser, Contingency.class);
                     break;
 
                 case "limitViolationsResult":
                     parser.nextToken();
-                    limitViolationsResult = parser.readValueAs(LimitViolationsResult.class);
+                    limitViolationsResult = JsonUtil.readValueWithContext(deserializationContext, parser, LimitViolationsResult.class);
                     break;
                 case "busResults":
                     parser.nextToken();
                     JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: busResults",
                             version, "1.1");
-                    busResults = parser.readValueAs(new TypeReference<List<BusResult>>() {
-                    });
+                    busResults = JsonUtil.readList(deserializationContext, parser, BusResult.class);
                     break;
                 case "branchResults":
                     parser.nextToken();
                     JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: branchResults",
                             version, "1.1");
-                    branchResults = parser.readValueAs(new TypeReference<List<BranchResult>>() {
-                    });
+                    branchResults = JsonUtil.readList(deserializationContext, parser, BranchResult.class);
                     break;
                 case "threeWindingsTransformerResults":
                     parser.nextToken();
                     JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: threeWindingsTransformerResults",
                             version, "1.1");
-                    threeWindingsTransformerResults = parser.readValueAs(new TypeReference<List<ThreeWindingsTransformerResult>>() {
-                    });
+                    threeWindingsTransformerResults = JsonUtil.readList(deserializationContext, parser, ThreeWindingsTransformerResult.class);
                     break;
                 case "networkResult":
                     parser.nextToken();
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: networkResult",
                             version, "1.2");
-                    networkResult = parser.readValueAs(NetworkResult.class);
+                    networkResult = JsonUtil.readValueWithContext(deserializationContext, parser, NetworkResult.class);
                     break;
                 case "status":
                     parser.nextToken();
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
                             version, "1.3");
-                    status = parser.readValueAs(PostContingencyComputationStatus.class);
+                    status = JsonUtil.readValueWithContext(deserializationContext, parser, PostContingencyComputationStatus.class);
                     break;
                 case "connectivityResult":
                     parser.nextToken();
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: connectivityResult",
                             version, "1.4");
-                    connectivityResult = parser.readValueAs(ConnectivityResult.class);
+                    connectivityResult = JsonUtil.readValueWithContext(deserializationContext, parser, ConnectivityResult.class);
                     break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());

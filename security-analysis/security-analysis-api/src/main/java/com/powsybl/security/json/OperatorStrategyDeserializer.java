@@ -7,7 +7,6 @@
 package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Supplier;
@@ -64,12 +63,11 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                     return true;
                 case "condition":
                     parser.nextToken();
-                    context.condition = parser.readValueAs(Condition.class);
+                    context.condition = JsonUtil.readValueWithContext(deserializationContext, parser, Condition.class);
                     return true;
                 case "actionIds":
                     parser.nextToken();
-                    context.actionIds = parser.readValueAs(new TypeReference<List<String>>() {
-                    });
+                    context.actionIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     return true;
                 case "extensions":
                     parser.nextToken();
