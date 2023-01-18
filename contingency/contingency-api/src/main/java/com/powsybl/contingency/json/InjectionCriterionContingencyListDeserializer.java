@@ -35,13 +35,11 @@ public class InjectionCriterionContingencyListDeserializer extends AbstractEquip
             if (found) {
                 return true;
             }
-            switch (name) {
-                case "identifiableType":
-                    identifiableType = parser.nextTextValue();
-                    return true;
-                default:
-                    return false;
+            if (name.equals("identifiableType")) {
+                identifiableType = parser.nextTextValue();
+                return true;
             }
+            return false;
         });
 
         return new InjectionCriterionContingencyList(parsingContext.name,

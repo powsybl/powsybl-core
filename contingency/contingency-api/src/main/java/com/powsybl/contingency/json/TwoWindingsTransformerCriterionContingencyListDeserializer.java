@@ -27,9 +27,7 @@ public class TwoWindingsTransformerCriterionContingencyListDeserializer extends 
     public TwoWindingsTransformerCriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext parsingContext = new AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext();
         parser.nextToken();
-        JsonUtil.parsePolymorphicObject(parser, name -> {
-            return deserializeCommonAttributes(parser, deserializationContext, parsingContext, name);
-        });
+        JsonUtil.parsePolymorphicObject(parser, name -> deserializeCommonAttributes(parser, deserializationContext, parsingContext, name));
 
         return new TwoWindingsTransformerCriterionContingencyList(parsingContext.name,
                 (SingleCountryCriterion) parsingContext.countryCriterion,
