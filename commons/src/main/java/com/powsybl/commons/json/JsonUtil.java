@@ -581,4 +581,16 @@ public final class JsonUtil {
     public static String getSourceVersion(DatabindContext context, String sourceVersionAttributeKey) {
         return context.getAttribute(sourceVersionAttributeKey) != null ? (String) context.getAttribute(sourceVersionAttributeKey) : null;
     }
+
+    public static <T extends Enum> void writeOptionalEnum(JsonGenerator jsonGenerator, String field, Optional<T> optional) throws IOException {
+        if (optional.isPresent()) {
+            jsonGenerator.writeStringField(field, optional.get().toString());
+        }
+    }
+
+    public static void writeOptionalDouble(JsonGenerator jsonGenerator, String field, OptionalDouble optional) throws IOException {
+        if (optional.isPresent()) {
+            jsonGenerator.writeNumberField(field, optional.getAsDouble());
+        }
+    }
 }
