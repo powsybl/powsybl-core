@@ -7,75 +7,48 @@
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.InjectionCriterionContingencyList;
-import com.powsybl.contingency.contingency.list.criterion.*;
+import com.powsybl.contingency.contingency.list.criterion.SingleCountryCriterion;
+import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCriterion;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class InjectionCriterionContingencyListDeserializer extends StdDeserializer<InjectionCriterionContingencyList> {
+public class InjectionCriterionContingencyListDeserializer extends AbstractEquipmentCriterionContingencyListDeserializer<InjectionCriterionContingencyList> {
 
     public InjectionCriterionContingencyListDeserializer() {
         super(InjectionCriterionContingencyList.class);
     }
 
+    String identifiableType;
+
     @Override
     public InjectionCriterionContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        String name = null;
-        String identifiableType = null;
-        SingleCountryCriterion countryCriterion = null;
-        SingleNominalVoltageCriterion nominalVoltageCriterion = null;
-        List<PropertyCriterion> propertyCriteria = Collections.emptyList();
-        RegexCriterion regexCriterion = null;
-
-        while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken();
-                    break;
-
-                case "name":
-                    name = parser.nextTextValue();
-                    break;
-
-                case "type":
-                    parser.nextToken();
-                    break;
-
+        AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext parsingContext = new AbstractEquipmentCriterionContingencyListDeserializer.ParsingContext();
+        parser.nextToken();
+        JsonUtil.parsePolymorphicObject(parser, name -> {
+            boolean found = deserializeCommonAttributes(parser, deserializationContext, parsingContext, name);
+            if (found) {
+                return true;
+            }
+            switch (name) {
                 case "identifiableType":
                     identifiableType = parser.nextTextValue();
-                    break;
-
-                case "countryCriterion":
-                    parser.nextToken();
-                    countryCriterion = JsonUtil.readValueWithContext(deserializationContext, parser, Criterion.class);
-                    break;
-                case "nominalVoltageCriterion":
-                    parser.nextToken();
-                    nominalVoltageCriterion = JsonUtil.readValueWithContext(deserializationContext, parser, Criterion.class);
-                    break;
-                case "propertyCriteria":
-                    parser.nextToken();
-                    propertyCriteria = JsonUtil.readList(deserializationContext, parser, Criterion.class);
-                    break;
-                case "regexCriterion":
-                    parser.nextToken();
-                    regexCriterion = JsonUtil.readValueWithContext(deserializationContext, parser, Criterion.class);
-                    break;
-
+                    return true;
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    return false;
             }
-        }
-        return new InjectionCriterionContingencyList(name, identifiableType, countryCriterion,
-                nominalVoltageCriterion, propertyCriteria, regexCriterion);
+        });
+
+        return new InjectionCriterionContingencyList(parsingContext.name,
+                identifiableType,
+                (SingleCountryCriterion) parsingContext.countryCriterion,
+                (SingleNominalVoltageCriterion) parsingContext.nominalVoltageCriterion,
+                parsingContext.propertyCriteria,
+                parsingContext.regexCriterion);
     }
 }
