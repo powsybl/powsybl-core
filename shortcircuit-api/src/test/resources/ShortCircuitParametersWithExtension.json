@@ -1,11 +1,11 @@
 {
   "version" : "1.1",
   "withLimitViolations" : true,
-  "withVoltageAndVoltageDropProfileResult" : true,
+  "withVoltageResults" : true,
   "withFeederResult" : true,
   "studyType" : "TRANSIENT",
   "minVoltageDropProportionalThreshold" : 0.0,
-  "withSimpleResult" : true,
+  "withFortescueResult" : true,
   "extensions" : {
     "dummy-extension" : { }
   }

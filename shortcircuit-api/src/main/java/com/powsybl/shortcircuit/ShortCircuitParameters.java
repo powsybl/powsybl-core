@@ -31,17 +31,17 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
-    // VERSION = 1.1 withVoltageMap -> withSimpleResult and withVoltageAndVoltageDropProfileResult
+    // VERSION = 1.1 withVoltageMap -> withFortescueResults and withVoltageResults
     public static final String VERSION = "1.1";
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
             .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "short-circuit-parameters"));
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
-    private boolean withSimpleResult = DEFAULT_WITH_SIMPLE_RESULT;
+    private boolean withFortescueResults = DEFAULT_WITH_FORTESCUE_RESULT;
     private boolean withFeederResult = DEFAULT_WITH_FEEDER_RESULT;
     private StudyType studyType = DEFAULT_STUDY_TYPE;
-    private boolean withVoltageAndVoltageDropProfileResult = DEFAULT_WITH_VOLTAGE_AND_VOLTAGE_DROP_PROFILE_RESULT;
+    private boolean withVoltageResults = DEFAULT_WITH_VOLTAGE_RESULTS;
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
 
     /**
@@ -58,11 +58,11 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
         platformConfig.getOptionalModuleConfig("short-circuit-parameters").ifPresent(config ->
                 parameters.setWithLimitViolations(config.getBooleanProperty("with-limit-violations", DEFAULT_WITH_LIMIT_VIOLATIONS))
-                        .setWithVoltageAndVoltageDropProfileResult(config.getBooleanProperty("with-voltage-profile-result", DEFAULT_WITH_VOLTAGE_AND_VOLTAGE_DROP_PROFILE_RESULT))
+                        .setWithVoltageResults(config.getBooleanProperty("with-voltage-profile-result", DEFAULT_WITH_VOLTAGE_RESULTS))
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
                         .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
-                        .setWithSimpleResult(config.getBooleanProperty("with-voltage-drop-profile-result", DEFAULT_WITH_SIMPLE_RESULT)));
+                        .setWithFortescueResults(config.getBooleanProperty("with-voltage-drop-profile-result", DEFAULT_WITH_FORTESCUE_RESULT)));
 
         parameters.readExtensions(platformConfig);
 
@@ -85,29 +85,29 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * @deprecated Use {@link #isWithVoltageAndVoltageDropProfileResult()} instead. Used for backward compatibility.
+     * @deprecated Use {@link #isWithVoltageResults()} instead. Used for backward compatibility.
      */
     @Deprecated
     public boolean isWithVoltageMap() {
-        return withVoltageAndVoltageDropProfileResult;
+        return withVoltageResults;
     }
 
     /**
-     * @deprecated Use {@link #setWithVoltageAndVoltageDropProfileResult(boolean)} instead. Used for backward compatibility.
+     * @deprecated Use {@link #setWithVoltageResults(boolean)} instead. Used for backward compatibility.
      */
     @Deprecated
     public ShortCircuitParameters setWithVoltageMap(boolean withVoltageMap) {
-        this.withVoltageAndVoltageDropProfileResult = withVoltageMap;
+        this.withVoltageResults = withVoltageMap;
         return this;
     }
 
     /** Whether results should be given for every phase or in a simple form. **/
-    public boolean isWithSimpleResult() {
-        return withSimpleResult;
+    public boolean isWithFortescueResults() {
+        return withFortescueResults;
     }
 
-    public ShortCircuitParameters setWithSimpleResult(boolean withSimpleResult) {
-        this.withSimpleResult = withSimpleResult;
+    public ShortCircuitParameters setWithFortescueResults(boolean withFortescueResults) {
+        this.withFortescueResults = withFortescueResults;
         return this;
     }
 
@@ -138,12 +138,12 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     /**
      * Whether the results should include the voltages and voltage drops on every bus of the network.
      */
-    public boolean isWithVoltageAndVoltageDropProfileResult() {
-        return withVoltageAndVoltageDropProfileResult;
+    public boolean isWithVoltageResults() {
+        return withVoltageResults;
     }
 
-    public ShortCircuitParameters setWithVoltageAndVoltageDropProfileResult(boolean withVoltageAndVoltageDropProfileResult) {
-        this.withVoltageAndVoltageDropProfileResult = withVoltageAndVoltageDropProfileResult;
+    public ShortCircuitParameters setWithVoltageResults(boolean withVoltageResults) {
+        this.withVoltageResults = withVoltageResults;
         return this;
     }
 

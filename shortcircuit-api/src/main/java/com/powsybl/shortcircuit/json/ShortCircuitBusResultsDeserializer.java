@@ -10,9 +10,9 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FortescueValue;
-import com.powsybl.shortcircuit.ClassicalShortCircuitBusResults;
+import com.powsybl.shortcircuit.FortescueShortCircuitBusResults;
 import com.powsybl.shortcircuit.ShortCircuitBusResults;
-import com.powsybl.shortcircuit.SimpleShortCircuitBusResults;
+import com.powsybl.shortcircuit.MagnitudeShortCircuitBusResults;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -76,9 +76,9 @@ class ShortCircuitBusResultsDeserializer {
                 }
             }
             if (voltage != null) {
-                shortCircuitBusResults.add(new ClassicalShortCircuitBusResults(voltageLevelId, busId, initialVoltageMagnitude, voltage, voltageDropProportional));
+                shortCircuitBusResults.add(new FortescueShortCircuitBusResults(voltageLevelId, busId, initialVoltageMagnitude, voltage, voltageDropProportional));
             } else {
-                shortCircuitBusResults.add(new SimpleShortCircuitBusResults(voltageLevelId, busId, initialVoltageMagnitude, voltageMagnitude, voltageDropProportional));
+                shortCircuitBusResults.add(new MagnitudeShortCircuitBusResults(voltageLevelId, busId, initialVoltageMagnitude, voltageMagnitude, voltageDropProportional));
             }
         }
         return shortCircuitBusResults;

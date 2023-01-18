@@ -186,7 +186,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
         assertFalse(parameters.isWithLimitViolations());
-        assertFalse(parameters.isWithVoltageAndVoltageDropProfileResult());
+        assertFalse(parameters.isWithVoltageResults());
         assertFalse(parameters.isWithFeederResult());
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertEquals(1.2, parameters.getMinVoltageDropProportionalThreshold(), 0.0);
@@ -219,7 +219,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
-        parameters.setWithVoltageAndVoltageDropProfileResult(false);
+        parameters.setWithVoltageResults(false);
         parameters.setWithLimitViolations(false);
         roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
                 "/ShortCircuitParameters.json");
@@ -239,7 +239,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
                 .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion10.json"));
         assertNotNull(parameters);
         assertFalse(parameters.isWithLimitViolations());
-        assertFalse(parameters.isWithVoltageAndVoltageDropProfileResult());
+        assertFalse(parameters.isWithVoltageResults());
         assertTrue(parameters.isWithFeederResult());
         assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
@@ -251,7 +251,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
                 .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion11.json"));
         assertNotNull(parameters);
         assertFalse(parameters.isWithLimitViolations());
-        assertFalse(parameters.isWithVoltageAndVoltageDropProfileResult());
+        assertFalse(parameters.isWithVoltageResults());
         assertTrue(parameters.isWithFeederResult());
         assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);

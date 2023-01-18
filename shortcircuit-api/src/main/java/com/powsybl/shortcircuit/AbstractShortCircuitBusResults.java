@@ -6,6 +6,8 @@
  */
 package com.powsybl.shortcircuit;
 
+import java.util.Objects;
+
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
@@ -20,8 +22,8 @@ abstract class AbstractShortCircuitBusResults implements ShortCircuitBusResults 
     protected AbstractShortCircuitBusResults(String voltageLevelId,
                                              String busId,
                                              double voltageDropProportional) {
-        this.voltageLevelId = voltageLevelId;
-        this.busId = busId;
+        this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
+        this.busId = Objects.requireNonNull(busId);
         this.initialVoltageMagnitude = initialVoltageMagnitude;
         this.voltageDropProportional = voltageDropProportional;
     }

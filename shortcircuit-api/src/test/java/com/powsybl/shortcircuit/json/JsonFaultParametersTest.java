@@ -50,7 +50,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
         assertFalse(firstParam.isWithLimitViolations());
         assertEquals(StudyType.STEADY_STATE, firstParam.getStudyType());
         assertTrue(firstParam.isWithFeederResult());
-        assertFalse(firstParam.isWithVoltageAndVoltageDropProfileResult());
+        assertFalse(firstParam.isWithVoltageResults());
         assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
 
         FaultParameters secondParam = parameters.get(1);
@@ -58,7 +58,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
         assertFalse(secondParam.isWithLimitViolations());
         assertNull(secondParam.getStudyType());
         assertFalse(secondParam.isWithFeederResult());
-        assertTrue(secondParam.isWithVoltageAndVoltageDropProfileResult());
+        assertTrue(secondParam.isWithVoltageResults());
         assertEquals(Double.NaN, secondParam.getMinVoltageDropProportionalThreshold(), 0);
 
         FaultParameters thirdParam = parameters.get(2);
@@ -66,7 +66,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
         assertTrue(thirdParam.isWithLimitViolations());
         assertNull(thirdParam.getStudyType());
         assertFalse(thirdParam.isWithFeederResult());
-        assertFalse(thirdParam.isWithVoltageAndVoltageDropProfileResult());
+        assertFalse(thirdParam.isWithVoltageResults());
         assertEquals(Double.NaN, thirdParam.getMinVoltageDropProportionalThreshold(), 0);
 
         FaultParameters fourthParam = parameters.get(3);
@@ -74,7 +74,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
         assertTrue(fourthParam.isWithLimitViolations());
         assertNull(fourthParam.getStudyType());
         assertFalse(fourthParam.isWithFeederResult());
-        assertTrue(fourthParam.isWithVoltageAndVoltageDropProfileResult());
+        assertTrue(fourthParam.isWithVoltageResults());
         assertEquals(Double.NaN, fourthParam.getMinVoltageDropProportionalThreshold(), 0);
     }
 
@@ -89,7 +89,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
         assertFalse(firstParam.isWithLimitViolations());
         assertEquals(StudyType.STEADY_STATE, firstParam.getStudyType());
         assertTrue(firstParam.isWithFeederResult());
-        assertFalse(firstParam.isWithVoltageAndVoltageDropProfileResult());
+        assertFalse(firstParam.isWithVoltageResults());
         assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
     }
 
