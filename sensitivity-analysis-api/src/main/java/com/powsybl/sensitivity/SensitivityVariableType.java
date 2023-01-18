@@ -6,6 +6,8 @@
  */
 package com.powsybl.sensitivity;
 
+import java.util.OptionalInt;
+
 /**
  * A variable represents a change on a equipment or on a group of equipments. The supported variable types are:
  * - Use INJECTION_ACTIVE_POWER to model a change on the production of a generator or on a group of generators, on
@@ -26,7 +28,21 @@ public enum SensitivityVariableType {
     TRANSFORMER_PHASE, // °
     BUS_TARGET_VOLTAGE, // KV
     HVDC_LINE_ACTIVE_POWER, // MW
-    TRANSFORMER_PHASE_1, // °
-    TRANSFORMER_PHASE_2, // °
-    TRANSFORMER_PHASE_3 // °
+    TRANSFORMER_PHASE_1(1), // °
+    TRANSFORMER_PHASE_2(2), // °
+    TRANSFORMER_PHASE_3(3); // °
+
+    private final Integer side;
+
+    SensitivityVariableType() {
+        this.side = null;
+    }
+
+    SensitivityVariableType(int side) {
+        this.side = side;
+    }
+
+    public OptionalInt getSide() {
+        return side == null ? OptionalInt.empty() : OptionalInt.of(side);
+    }
 }
