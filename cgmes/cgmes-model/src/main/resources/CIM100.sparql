@@ -8,7 +8,7 @@
 # include: CIM16.sparql
 
 # query: boundaryNodes
-# All pairs (Connectiviy Node, Topological Node) from a graph that has a modelProfile EquipmentBoundary-
+# All pairs (Connectiviy Node, Topological Node) from a graph that has a modeProfile EquipmentBoundary-
 # We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
@@ -32,6 +32,19 @@ OPTIONAL { GRAPH ?grapBDTP {
     ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
 }}
 }
+
+# query: modelIds
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    # We will return all model identifiers for FullModel objects of profile EquipmentCore
+    ?FullModel
+        a md:FullModel ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
+        md:Model.profile ?profile .
+    FILTER (regex(?profile, "CoreEquipment", "i")
+        && !regex(?profile, "EquipmentBoundary", "i"))
+}}
 
 # query: synchronousMachines
 SELECT *
