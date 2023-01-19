@@ -423,10 +423,6 @@ class MergingViewIndex {
         return boundary == null ? null : (BoundaryAdapter) boundaryCached.computeIfAbsent(boundary, key -> new BoundaryAdapter(boundary, this));
     }
 
-    BoundaryAdapter getBoundary(final Boundary boundary, final Branch.Side mergedSide) {
-        return boundary == null ? null : (BoundaryAdapter) boundaryCached.computeIfAbsent(boundary, key -> new BoundaryAdapter(boundary, mergedSide, this));
-    }
-
     Line getLine(final Line line) {
         return line == null ? null : (Line) identifiableCached.computeIfAbsent(line, k -> {
             if (line.isTieLine()) {

@@ -18,15 +18,8 @@ import com.powsybl.iidm.network.VoltageLevel;
  */
 class BoundaryAdapter extends AbstractAdapter<Boundary> implements Boundary {
 
-    private final Branch.Side mergedSide;
-
     BoundaryAdapter(Boundary delegate, MergingViewIndex index) {
-        this(delegate, null, index);
-    }
-
-    BoundaryAdapter(Boundary delegate, Branch.Side mergedSide, MergingViewIndex index) {
         super(delegate, index);
-        this.mergedSide = mergedSide;
     }
 
     @Override
