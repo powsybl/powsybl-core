@@ -163,6 +163,7 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
                     VoltageLevel vlToAdd = findVoltageLevelToAdd(transformer);
                     if (vlToAdd != null) {
                         vlIds.add(vlToAdd.getId());
+                        modifiedTransformers.add(transformer);
                         LOGGER.info("It is not possible to keep exactly 2 out of 3 voltage levels connected to a three winding transformer (here {}).\n" +
                                 " Adding voltage level {} to the voltage levels kept after the reduction.", transformer.getId(), vlToAdd.getId());
                     }
