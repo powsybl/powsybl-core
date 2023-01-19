@@ -6,9 +6,11 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
@@ -47,14 +49,22 @@ class BoundaryAdapter extends AbstractAdapter<Boundary> implements Boundary {
         return getDelegate().getQ();
     }
 
-    @Override
+    /**
+     * @deprecated Not used anymore.
+     */
+    @Deprecated(since = "5.2.0")
     public Branch.Side getSide() {
-        return getDelegate().getSide() == null ? mergedSide : getDelegate().getSide();
+        throw new PowsyblException("Deprecated. Not used anymore");
     }
 
     @Override
     public Connectable getConnectable() {
         return getIndex().getConnectable(getDelegate().getConnectable());
+    }
+
+    @Override
+    public DanglingLine getDanglingLine() {
+        return getIndex().getDanglingLine(getDelegate().getDanglingLine());
     }
 
     @Override

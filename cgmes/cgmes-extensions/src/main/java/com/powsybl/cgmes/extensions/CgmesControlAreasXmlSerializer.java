@@ -59,13 +59,26 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                 if (boundary.getConnectable() != null) { // TODO: delete this later, only for compatibility
                     writer.writeEmptyElement(getNamespaceUri(), "boundary");
                     writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getConnectable().getId()));
-                    if (boundary.getSide() != null) {
-                        writer.writeAttribute("side", boundary.getSide().name());
+
+                 // TODO use TieLine Id and DanglingLine Id for reference instead of TieLine Id and Side
+                    Branch.Side side = getSide(boundary);
+                    if (side != null) {
+                        writer.writeAttribute("side", side.name());
                     }
                 }
             }
             writer.writeEndElement();
         }
+    }
+
+    private static Branch.Side getSide(Boundary boundary) {
+        // a TieLine with two dangingLines inside
+        if (boundary.getConnectable() instanceof TieLine) {
+            TieLine tl = (TieLine) boundary.getConnectable();
+            return tl.getHalf1().getId().equals(boundary.getDanglingLine().getId()) ? Branch.Side.ONE : Branch.Side.TWO;
+        }
+        // A danglingLine
+        return null;
     }
 
     @Override

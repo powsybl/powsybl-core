@@ -31,7 +31,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     void setParent(TieLineImpl parent, Branch.Side side) {
         this.parent = parent;
-        characteristics.getBoundary().setSide(side);
         if (side == Branch.Side.ONE) {
             this.operationalLimitsHolder = parent.operationalLimitsHolder1;
         } else if (side == Branch.Side.TWO) {

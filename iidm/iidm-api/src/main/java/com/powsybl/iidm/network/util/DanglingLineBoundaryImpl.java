@@ -6,10 +6,10 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -18,68 +18,72 @@ public class DanglingLineBoundaryImpl implements Boundary {
     // for SV use: side represents the network side, that is always
     // Side.ONE for a dangling line.
 
-    protected final DanglingLine parent;
-    private Branch.Side side;
+    private final DanglingLine parent;
 
     public DanglingLineBoundaryImpl(DanglingLine parent) {
         this.parent = Objects.requireNonNull(parent);
     }
 
-    public void setSide(Branch.Side side) {
-        this.side = side;
-    }
-
     @Override
     public double getV() {
-        if (valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isMerged() && valid(parent.getP0(), parent.getQ0())) {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return danglingLineData.getBoundaryBusU();
         }
 
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Optional.ofNullable(side).orElse(Branch.Side.ONE)).otherSideU(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideU(parent, true);
     }
 
     @Override
     public double getAngle() {
-        if (valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isMerged() && valid(parent.getP0(), parent.getQ0())) {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Optional.ofNullable(side).orElse(Branch.Side.ONE)).otherSideA(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideA(parent, true);
     }
 
     @Override
     public double getP() {
-        if (valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isMerged() && valid(parent.getP0(), parent.getQ0())) {
             return -parent.getP0();
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Optional.ofNullable(side).orElse(Branch.Side.ONE)).otherSideP(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideP(parent, true);
     }
 
     @Override
     public double getQ() {
-        if (valid(parent.getP0(), parent.getQ0())) {
+        if (!parent.isMerged() && valid(parent.getP0(), parent.getQ0())) {
             return -parent.getQ0();
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Optional.ofNullable(side).orElse(Branch.Side.ONE)).otherSideQ(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideQ(parent, true);
     }
 
-    @Override
+    /**
+     * @deprecated Not used anymore.
+     */
+    @Deprecated(since = "5.2.0")
     public Branch.Side getSide() {
-        return side;
+        throw new PowsyblException("Deprecated. Not used anymore");
     }
 
+    // return a valid equipment of the network (DanglingLines inside a TieLine are not in the model)
     @Override
     public Connectable getConnectable() {
         return parent.getTieLine().map(Connectable.class::cast).orElse(parent);
+    }
+
+    @Override
+    public DanglingLine getDanglingLine() {
+        return parent;
     }
 
     @Override
