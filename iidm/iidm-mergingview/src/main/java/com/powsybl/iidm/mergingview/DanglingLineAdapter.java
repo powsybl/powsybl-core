@@ -25,10 +25,10 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
         if (getIndex().isMerged(this)) {
             MergedLine line = getIndex().getMergedLineByCode(getUcteXnodeCode());
             if (getDelegate() == line.getDanglingLine1()) {
-                return getIndex().getBoundary(getDelegate().getBoundary(), Branch.Side.ONE);
+                return getIndex().getBoundary(getDelegate().getBoundary());
             }
             if (getDelegate() == line.getDanglingLine2()) {
-                return getIndex().getBoundary(getDelegate().getBoundary(), Branch.Side.TWO);
+                return getIndex().getBoundary(getDelegate().getBoundary());
             }
         }
         return getIndex().getBoundary(getDelegate().getBoundary());
