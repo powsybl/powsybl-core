@@ -86,7 +86,7 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
 
     protected boolean test(Substation substation) {
         return predicate.test(substation);
-    } //to change ?
+    }
 
     protected boolean test(VoltageLevel voltageLevel) {
         Objects.requireNonNull(voltageLevel);
