@@ -5,7 +5,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="SHUNT" sectionCount="1" voltageRegulatorOn="true" targetV="200.0" targetDeadband="5.0" bus="B1" connectableBus="B1">
+            <iidm:shunt id="SHUNT" sectionCount="1" voltageRegulatorOn="true" targetV="200.0" targetDeadband="5.0" bus="B1" connectableBus="B1" p="1.0">
                 <iidm:alias>Alias</iidm:alias>
                 <iidm:property name="test" value="test"/>
                 <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
