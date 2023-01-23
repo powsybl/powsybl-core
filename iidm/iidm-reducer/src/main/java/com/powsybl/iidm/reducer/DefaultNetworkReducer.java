@@ -56,9 +56,9 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl1 = terminal1.getVoltageLevel();
         VoltageLevel vl2 = terminal2.getVoltageLevel();
 
-        if (getPredicate().test(vl1)) {
+        if (test(vl1)) {
             reduce(line, vl1, terminal1);
-        } else if (getPredicate().test(vl2)) {
+        } else if (test(vl2)) {
             reduce(line, vl2, terminal2);
         } else {
             line.remove();
@@ -74,9 +74,9 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl1 = terminal1.getVoltageLevel();
         VoltageLevel vl2 = terminal2.getVoltageLevel();
 
-        if (getPredicate().test(vl1)) {
+        if (test(vl1)) {
             replaceTransformerByLoad(transformer, vl1, terminal1);
-        } else if (getPredicate().test(vl2)) {
+        } else if (test(vl2)) {
             replaceTransformerByLoad(transformer, vl2, terminal2);
         } else {
             transformer.remove();
@@ -95,7 +95,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl2 = terminal2.getVoltageLevel();
         VoltageLevel vl3 = terminal3.getVoltageLevel();
 
-        if (getPredicate().test(vl1) ^ getPredicate().test(vl2) ^ getPredicate().test(vl3)) {
+        if (test(vl1) ^ test(vl2) ^ test(vl3)) {
             VoltageLevel vlToKeep;
             Terminal terminal;
             if (test(vl1)) {
@@ -120,9 +120,9 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl2 = terminal2.getVoltageLevel();
         HvdcConverterStation<?> station1 = hvdcLine.getConverterStation1();
         HvdcConverterStation<?> station2 = hvdcLine.getConverterStation2();
-        if (getPredicate().test(vl1)) {
+        if (test(vl1)) {
             replaceHvdcLine(hvdcLine, vl1, terminal1, station1);
-        } else if (getPredicate().test(vl2)) {
+        } else if (test(vl2)) {
             replaceHvdcLine(hvdcLine, vl2, terminal2, station2);
         } else {
             hvdcLine.remove();
