@@ -139,7 +139,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceLineByLoad(Line line, VoltageLevel vl, Terminal terminal) {
-        Load load = replaceBranchByLoad(line, vl, terminal);
+        Load load = replaceConnectableByLoad(line, vl, terminal);
         observers.forEach(o -> o.lineReplaced(line, load));
     }
 
@@ -170,14 +170,19 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceTransformerByLoad(TwoWindingsTransformer transformer, VoltageLevel vl, Terminal terminal) {
-        Load load = replaceBranchByLoad(transformer, vl, terminal);
+        Load load = replaceConnectableByLoad(transformer, vl, terminal);
         observers.forEach(o -> o.transformerReplaced(transformer, load));
     }
 
-    private Load replaceBranchByLoad(Branch<?> branch, VoltageLevel vl, Terminal terminal) {
+    private void replaceTransformerByLoad(ThreeWindingsTransformer transformer, VoltageLevel vl, Terminal terminal) {
+        Load load = replaceConnectableByLoad(transformer, vl, terminal);
+        observers.forEach(o -> o.transformerReplaced(transformer, load));
+    }
+
+    private Load replaceConnectableByLoad(Connectable<?> connectable, VoltageLevel vl, Terminal terminal) {
         LoadAdder loadAdder = vl.newLoad()
-                .setId(branch.getId())
-                .setName(branch.getOptionalName().orElse(null))
+                .setId(connectable.getId())
+                .setName(connectable.getOptionalName().orElse(null))
                 .setLoadType(LoadType.FICTITIOUS)
                 .setP0(checkP(terminal))
                 .setQ0(checkQ(terminal));
@@ -185,7 +190,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
         double p = terminal.getP();
         double q = terminal.getQ();
-        branch.remove();
+        connectable.remove();
 
         Load load = loadAdder.add();
         load.getTerminal()
@@ -193,27 +198,6 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setQ(q);
 
         return load;
-    }
-
-    private void replaceTransformerByLoad(ThreeWindingsTransformer transformer, VoltageLevel vl, Terminal terminal) {
-        LoadAdder loadAdder = vl.newLoad()
-                .setId(transformer.getId())
-                .setName(transformer.getOptionalName().orElse(null))
-                .setLoadType(LoadType.FICTITIOUS)
-                .setP0(checkP(terminal))
-                .setQ0(checkQ(terminal));
-        fillNodeOrBus(loadAdder, terminal);
-
-        double p = terminal.getP();
-        double q = terminal.getQ();
-        transformer.remove();
-
-        Load load = loadAdder.add();
-        load.getTerminal()
-                .setP(p)
-                .setQ(q);
-
-        observers.forEach(o -> o.transformerReplaced(transformer, load));
     }
 
     private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation<?> station) {
