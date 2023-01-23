@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 
 import java.util.List;
@@ -20,33 +19,31 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.POWSYBL_DOMAIN;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public enum IidmXmlVersion {
-    V_1_0(ITESLA_DOMAIN, ImmutableList.of(1, 0), false),
-    V_1_1(POWSYBL_DOMAIN, ImmutableList.of(1, 1), false),
-    V_1_2(POWSYBL_DOMAIN, ImmutableList.of(1, 2), false),
-    V_1_3(POWSYBL_DOMAIN, ImmutableList.of(1, 3), false),
-    V_1_4(POWSYBL_DOMAIN, ImmutableList.of(1, 4), false),
-    V_1_5(POWSYBL_DOMAIN, ImmutableList.of(1, 5), false),
-    V_1_6(POWSYBL_DOMAIN, ImmutableList.of(1, 6), false),
-    V_1_7(POWSYBL_DOMAIN, ImmutableList.of(1, 7), true),
-    V_1_8(POWSYBL_DOMAIN, ImmutableList.of(1, 8), true),
-    V_1_9(POWSYBL_DOMAIN, ImmutableList.of(1, 9), true);
+    V_1_0(ITESLA_DOMAIN, List.of(1, 0)),
+    V_1_1(POWSYBL_DOMAIN, List.of(1, 1)),
+    V_1_2(POWSYBL_DOMAIN, List.of(1, 2)),
+    V_1_3(POWSYBL_DOMAIN, List.of(1, 3)),
+    V_1_4(POWSYBL_DOMAIN, List.of(1, 4)),
+    V_1_5(POWSYBL_DOMAIN, List.of(1, 5)),
+    V_1_6(POWSYBL_DOMAIN, List.of(1, 6)),
+    V_1_7(POWSYBL_DOMAIN, List.of(1, 7)),
+    V_1_8(POWSYBL_DOMAIN, List.of(1, 8)),
+    V_1_9(POWSYBL_DOMAIN, List.of(1, 9));
 
     private final String domain;
     private final List<Integer> versionArray;
-    private final boolean canBeInvalid;
 
-    IidmXmlVersion(String domain, List<Integer> versionArray, boolean canBeInvalid) {
+    IidmXmlVersion(String domain, List<Integer> versionArray) {
         this.domain = domain;
         this.versionArray = versionArray;
-        this.canBeInvalid = canBeInvalid;
     }
 
     public String toString(String separator) {
         return versionArray.stream().map(Object::toString).collect(Collectors.joining(separator));
     }
 
-    public boolean canBeInvalid() {
-        return canBeInvalid;
+    public boolean supportEquipmentValidationLevel() {
+        return this.compareTo(V_1_7) >= 0;
     }
 
     public String getNamespaceURI() {
