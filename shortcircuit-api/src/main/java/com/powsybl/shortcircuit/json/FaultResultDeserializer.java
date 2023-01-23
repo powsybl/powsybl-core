@@ -8,7 +8,6 @@ package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -54,7 +53,7 @@ class FaultResultDeserializer {
                 switch (parser.getCurrentName()) {
                     case "fault":
                         parser.nextToken();
-                        fault = parser.readValueAs(Fault.class);
+                        fault = JsonUtil.readValueWithContext(deserializationContext, parser, Fault.class);
                         break;
 
                     case "shortCircuitPower":
@@ -69,30 +68,27 @@ class FaultResultDeserializer {
 
                     case "feederResult":
                         parser.nextToken();
-                        feederResults = parser.readValueAs(new TypeReference<List<FeederResult>>() {
-                        });
+                        feederResults = JsonUtil.readList(deserializationContext, parser, FeederResult.class);
                         break;
 
                     case "limitViolations":
                         parser.nextToken();
-                        limitViolations = parser.readValueAs(new TypeReference<List<LimitViolation>>() {
-                        });
+                        limitViolations = JsonUtil.readList(deserializationContext, parser, LimitViolation.class);
                         break;
 
                     case "current":
                         parser.nextToken();
-                        current = parser.readValueAs(FortescueValue.class);
+                        current = JsonUtil.readValueWithContext(deserializationContext, parser, FortescueValue.class);
                         break;
 
                     case "voltage":
                         parser.nextToken();
-                        voltage = parser.readValueAs(FortescueValue.class);
+                        voltage = JsonUtil.readValueWithContext(deserializationContext, parser, FortescueValue.class);
                         break;
 
                     case "shortCircuitBusResults":
                         parser.nextToken();
-                        shortCircuitBusResults = parser.readValueAs(new TypeReference<List<ShortCircuitBusResults>>() {
-                        });
+                        shortCircuitBusResults = JsonUtil.readList(deserializationContext, parser, ShortCircuitBusResults.class);
                         break;
 
                     case "status":
