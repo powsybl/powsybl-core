@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.OptionalInt;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -31,8 +32,10 @@ public class SensitivityFactorTest extends AbstractConverterTest {
                                                          false, ContingencyContext.all());
         assertEquals(ContingencyContext.all(), factor.getContingencyContext());
         assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, factor.getFunctionType());
+        assertEquals(1, factor.getFunctionType().getSide().orElse(0));
         assertEquals("l", factor.getFunctionId());
         assertEquals(SensitivityVariableType.INJECTION_ACTIVE_POWER, factor.getVariableType());
+        assertEquals(OptionalInt.empty(), factor.getVariableType().getSide());
         assertEquals("g", factor.getVariableId());
         assertFalse(factor.isVariableSet());
         assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=INJECTION_ACTIVE_POWER, variableId='g', variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor.toString());
@@ -46,7 +49,9 @@ public class SensitivityFactorTest extends AbstractConverterTest {
         assertEquals(ContingencyContext.all(), factor1.getContingencyContext());
         assertEquals("l", factor1.getFunctionId());
         assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, factor1.getFunctionType());
+        assertEquals(1, factor1.getFunctionType().getSide().orElse(0));
         assertEquals(SensitivityVariableType.TRANSFORMER_PHASE_1, factor1.getVariableType());
+        assertEquals(1, factor1.getVariableType().getSide().orElse(0));
         assertEquals("ptc1", factor1.getVariableId());
         assertFalse(factor1.isVariableSet());
         assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=TRANSFORMER_PHASE_1, variableId='ptc1', variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor1.toString());
