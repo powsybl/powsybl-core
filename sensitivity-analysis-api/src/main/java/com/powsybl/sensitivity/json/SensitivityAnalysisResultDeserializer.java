@@ -16,7 +16,6 @@ import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityValue;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
