@@ -631,7 +631,7 @@ public final class EquipmentExport {
                 danglingLine.addAlias(connectivityNodeId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
             }
         } else {
-            if (danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + danglingLine.getId() + "." + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY) == null) {
+            if (danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY) == null) {
                 // Also create a container if we will have to create a Topological Node for the boundary
                 LOG.info("Dangling line {}{} is not connected to a topology node in boundaries files: a fictitious substation and voltage level are created",
                         danglingLine.getId(), danglingLine.getUcteXnodeCode() != null ? " linked to X-node " + danglingLine.getUcteXnodeCode() : "");

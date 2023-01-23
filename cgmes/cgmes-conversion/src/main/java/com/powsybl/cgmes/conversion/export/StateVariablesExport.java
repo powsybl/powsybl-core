@@ -154,7 +154,7 @@ public final class StateVariablesExport {
     private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (DanglingLine dl : network.getDanglingLines()) {
             Bus b = dl.getTerminal().getBusView().getBus();
-            String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+            String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNode != null) {
                 if (dl.hasProperty("v") && dl.hasProperty("angle")) {
                     writeVoltage(topologicalNode, Double.parseDouble(dl.getProperty("v", "NaN")), Double.parseDouble(dl.getProperty("angle", "NaN")), cimNamespace, writer);
@@ -214,7 +214,7 @@ public final class StateVariablesExport {
             if (context.exportBoundaryPowerFlows()) {
                 writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer, context);
             }
-            writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network", dl.getTerminal().getP(), dl.getTerminal().getQ(), cimNamespace, writer, context);
+            writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", dl.getTerminal().getP(), dl.getTerminal().getQ(), cimNamespace, writer, context);
             equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -dl.getBoundary().getP() : v - dl.getBoundary().getP());
             equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -dl.getBoundary().getQ() : v - dl.getBoundary().getQ());
         });
@@ -226,11 +226,11 @@ public final class StateVariablesExport {
             if (b instanceof TieLine) {
                 TieLine tl = (TieLine) b;
                 if (!b.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)) { // prevent duplicates
-                    writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Network",
+                    writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ".Terminal_1",
                             tl.getTerminal1().getP(), tl.getTerminal1().getQ(), cimNamespace, writer, context);
                 }
                 if (!b.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)) { // prevent duplicates
-                    writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Network",
+                    writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ".Terminal_2",
                             tl.getTerminal2().getP(), tl.getTerminal2().getQ(), cimNamespace, writer, context);
                 }
                 if (context.exportBoundaryPowerFlows()) {

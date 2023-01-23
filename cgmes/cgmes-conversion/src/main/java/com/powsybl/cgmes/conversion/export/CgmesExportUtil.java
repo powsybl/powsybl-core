@@ -288,7 +288,7 @@ public final class CgmesExportUtil {
         String aliasType;
         Connectable<?> c = t.getConnectable();
         if (c instanceof DanglingLine) {
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network";
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL;
         } else {
             int sequenceNumber = getTerminalSequenceNumber(t);
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
