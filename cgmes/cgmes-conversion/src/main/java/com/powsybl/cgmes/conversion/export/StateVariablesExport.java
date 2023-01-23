@@ -223,14 +223,20 @@ public final class StateVariablesExport {
         network.getBranchStream().forEach(b -> {
             writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getTerminal1().getP(), b.getTerminal1().getQ(), cimNamespace, writer, context);
             writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2().getP(), b.getTerminal2().getQ(), cimNamespace, writer, context);
-            if (b instanceof TieLine && context.exportBoundaryPowerFlows()) {
+            if (b instanceof TieLine) {
                 TieLine tl = (TieLine) b;
-                writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Network",
-                        tl.getTerminal1().getP(), tl.getTerminal1().getQ(), cimNamespace, writer, context);
-                writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Network",
-                        tl.getTerminal2().getP(), tl.getTerminal2().getQ(), cimNamespace, writer, context);
-                writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_Boundary", tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ(), cimNamespace, writer, context);
-                writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_Boundary", tl.getHalf2().getBoundary().getP(), tl.getHalf2().getBoundary().getQ(), cimNamespace, writer, context);
+                if (!b.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)) { // prevent duplicates
+                    writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Network",
+                            tl.getTerminal1().getP(), tl.getTerminal1().getQ(), cimNamespace, writer, context);
+                }
+                if (!b.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)) { // prevent duplicates
+                    writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Network",
+                            tl.getTerminal2().getP(), tl.getTerminal2().getQ(), cimNamespace, writer, context);
+                }
+                if (context.exportBoundaryPowerFlows()) {
+                    writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_Boundary", tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ(), cimNamespace, writer, context);
+                    writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_Boundary", tl.getHalf2().getBoundary().getP(), tl.getHalf2().getBoundary().getQ(), cimNamespace, writer, context);
+                }
             }
         });
 
