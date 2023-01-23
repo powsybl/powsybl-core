@@ -47,22 +47,22 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
             switch (parser.getCurrentName()) {
                 case "operatorStrategy":
                     parser.nextToken();
-                    operatorStrategy = parser.readValueAs(OperatorStrategy.class);
+                    operatorStrategy = JsonUtil.readValueWithContext(deserializationContext, parser, OperatorStrategy.class);
                     break;
 
                 case "limitViolationsResult":
                     parser.nextToken();
-                    limitViolationsResult = parser.readValueAs(LimitViolationsResult.class);
+                    limitViolationsResult = JsonUtil.readValueWithContext(deserializationContext, parser, LimitViolationsResult.class);
                     break;
 
                 case "networkResult":
                     parser.nextToken();
-                    networkResult = parser.readValueAs(NetworkResult.class);
+                    networkResult = JsonUtil.readValueWithContext(deserializationContext, parser, NetworkResult.class);
                     break;
 
                 case "status":
                     parser.nextToken();
-                    status = parser.readValueAs(PostContingencyComputationStatus.class);
+                    status = JsonUtil.readValueWithContext(deserializationContext, parser, PostContingencyComputationStatus.class);
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
                             version, "1.3");
                     break;

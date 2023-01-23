@@ -38,7 +38,7 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeBooleanField("isOK", result.isOk());
-        jsonGenerator.writeObjectField("metrics", result.getMetrics());
+        serializerProvider.defaultSerializeField("metrics", result.getMetrics(), jsonGenerator);
         List<LoadFlowResult.ComponentResult> componentResults = result.getComponentResults();
         if (!componentResults.isEmpty()) {
             jsonGenerator.writeFieldName("componentResults");
