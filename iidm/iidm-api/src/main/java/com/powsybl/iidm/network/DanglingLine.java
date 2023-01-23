@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
+import com.powsybl.commons.PowsyblException;
 
 import java.util.Optional;
 
@@ -281,7 +281,12 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
     String getUcteXnodeCode();
 
     default Boundary getBoundary() {
-        return new DanglingLineBoundaryImpl(this);
+        throw new PowsyblException("This method must be implemented");
+        // TODO(Luma): Comment for reviewers:
+        //  Creating a new wrapper everytime, like we did before:
+        //  return new DanglingLineBoundaryImpl(this);
+        //  could introduce errors,
+        //  for example if we use the returned object in an index
     }
 
     default Optional<TieLine> getTieLine() {
