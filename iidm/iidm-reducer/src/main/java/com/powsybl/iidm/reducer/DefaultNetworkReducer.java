@@ -106,8 +106,11 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 terminal = test(vl2) ? terminal2 : terminal3;
             }
             replaceTransformerByLoad(transformer, vlToKeep, terminal);
-        } else {
+        } else if (!(test(vl1) || test(vl2) || test(vl3))) {
             transformer.remove();
+        } else {
+            throw new UnsupportedOperationException("Keeping only 2 legs of the 3 windings transformer " + transformer.getId() +
+                    " is not possible : the third one should have also been kept by reduction.");
         }
         observers.forEach(o -> o.transformerRemoved(transformer));
     }
