@@ -225,11 +225,11 @@ public final class StateVariablesExport {
             writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2().getP(), b.getTerminal2().getQ(), cimNamespace, writer, context);
             if (b instanceof TieLine) {
                 TieLine tl = (TieLine) b;
-                if (!b.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)) { // prevent duplicates
+                if (b.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).isEmpty()) { // prevent duplicates
                     writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ".Terminal_1",
                             tl.getTerminal1().getP(), tl.getTerminal1().getQ(), cimNamespace, writer, context);
                 }
-                if (!b.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)) { // prevent duplicates
+                if (b.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2).isEmpty()) { // prevent duplicates
                     writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ".Terminal_2",
                             tl.getTerminal2().getP(), tl.getTerminal2().getQ(), cimNamespace, writer, context);
                 }
@@ -442,8 +442,9 @@ public final class StateVariablesExport {
     }
 
     private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        if (connectable instanceof TieLine && connectable.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1")
-                && connectable.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2")) {
+        if (connectable instanceof TieLine && connectable.hasProperty()
+                && connectable.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1")
+                && connectable.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2")) { // TODO check aliases when merging of aliases is handled
             return; // FIXME ignore tie lines from CGMES for now. Will export as two AC line segments later
         }
         writeStatus(Boolean.toString(connectable.getTerminals().stream().anyMatch(Terminal::isConnected)), context.getNamingStrategy().getCgmesId(connectable), cimNamespace, writer);
