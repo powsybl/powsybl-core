@@ -75,7 +75,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
         // a TieLine with two dangingLines inside
         if (boundary.getConnectable() instanceof TieLine) {
             TieLine tl = (TieLine) boundary.getConnectable();
-            return tl.getHalf1().getId().equals(boundary.getDanglingLine().getId()) ? Branch.Side.ONE : Branch.Side.TWO;
+            return tl.getHalf1() == boundary.getDanglingLine() ? Branch.Side.ONE : Branch.Side.TWO;
         }
         // A danglingLine
         return null;

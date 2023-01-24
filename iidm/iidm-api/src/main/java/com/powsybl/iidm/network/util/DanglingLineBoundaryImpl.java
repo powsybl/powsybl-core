@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -65,14 +64,6 @@ public class DanglingLineBoundaryImpl implements Boundary {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
         return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideQ(parent, true);
-    }
-
-    /**
-     * @deprecated Not used anymore.
-     */
-    @Deprecated(since = "5.2.0")
-    public Branch.Side getSide() {
-        throw new PowsyblException("Deprecated. Not used anymore");
     }
 
     // return a valid equipment of the network (DanglingLines inside a TieLine are not in the model)

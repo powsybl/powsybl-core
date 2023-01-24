@@ -19,8 +19,8 @@ public class TieLineAdapter extends LineAdapter implements TieLine {
 
     TieLineAdapter(final TieLine delegate, final MergingViewIndex index) {
         super(delegate, index);
-        this.half1 = new DanglingLineAdapter(delegate.getHalf1(), index);
-        this.half2 = new DanglingLineAdapter(delegate.getHalf2(), index);
+        this.half1 = index.getDanglingLine(delegate.getHalf1());
+        this.half2 = index.getDanglingLine(delegate.getHalf2());
     }
 
     // -------------------------------
