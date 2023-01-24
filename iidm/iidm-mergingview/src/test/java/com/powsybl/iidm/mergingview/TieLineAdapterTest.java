@@ -35,11 +35,11 @@ public class TieLineAdapterTest {
         assertNotNull(tieLine.getHalf1());
         assertNotNull(tieLine.getHalf2());
 
-        assertSame(tieLine.getHalf1().getId(), tieLine.getHalf1().getBoundary().getDanglingLine().getId());
+        assertSame(tieLine.getHalf1(), tieLine.getHalf1().getBoundary().getDanglingLine());
         assertSame(tieLine, tieLine.getHalf1().getBoundary().getConnectable());
         assertSame(tieLine.getTerminal1().getVoltageLevel(), tieLine.getHalf1().getBoundary().getNetworkSideVoltageLevel());
 
-        assertSame(tieLine.getHalf2().getId(), tieLine.getHalf2().getBoundary().getDanglingLine().getId());
+        assertSame(tieLine.getHalf2(), tieLine.getHalf2().getBoundary().getDanglingLine());
         assertSame(tieLine, tieLine.getHalf2().getBoundary().getConnectable());
         assertSame(tieLine.getTerminal2().getVoltageLevel(), tieLine.getHalf2().getBoundary().getNetworkSideVoltageLevel());
 

@@ -548,12 +548,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(BranchAdder<?> adder,
-        String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
-        String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
-        connect(context, adder, iidmVoltageLevelId1, busId1, t1Connected, node1, iidmVoltageLevelId2, busId2, t2Connected, node2);
-    }
-
     public static void connect(Context context, InjectionAdder<?> adder, String busId, boolean connected, int node) {
         if (context.nodeBreaker()) {
             adder.setNode(node);
@@ -561,26 +555,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             adder
                     .setBus(connected ? busId : null)
                     .setConnectableBus(busId);
-        }
-    }
-
-    public static void connect(Context context, BranchAdder<?> adder,
-        String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
-        String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
-        if (context.nodeBreaker()) {
-            adder
-                .setVoltageLevel1(iidmVoltageLevelId1)
-                .setVoltageLevel2(iidmVoltageLevelId2)
-                .setNode1(node1)
-                .setNode2(node2);
-        } else {
-            adder
-                .setVoltageLevel1(iidmVoltageLevelId1)
-                .setVoltageLevel2(iidmVoltageLevelId2)
-                .setBus1(t1Connected ? busId1 : null)
-                .setBus2(t2Connected ? busId2 : null)
-                .setConnectableBus1(busId1)
-                .setConnectableBus2(busId2);
         }
     }
 
