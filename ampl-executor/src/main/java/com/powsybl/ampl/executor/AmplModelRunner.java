@@ -7,13 +7,10 @@
 package com.powsybl.ampl.executor;
 
 import java.util.Collections;
-import java.util.Properties;
 import java.util.concurrent.CompletableFuture;
 
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ExecutionEnvironment;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 
 public final class AmplModelRunner {
@@ -27,11 +24,4 @@ public final class AmplModelRunner {
         return result.join();
     }
 
-    public static void main(String[] args) throws Exception {
-        Network network = Importers.importData("XIIDM", "./", "ieee14", new Properties());
-        String variantId = network.getVariantManager().getWorkingVariantId();
-        AmplModel reactiveOpf = AmplModel.REACTIVE_OPF;
-        ComputationManager manager = LocalComputationManager.getDefault();
-        AmplModelRunner.run(network, variantId, reactiveOpf, manager);
-    }
 }
