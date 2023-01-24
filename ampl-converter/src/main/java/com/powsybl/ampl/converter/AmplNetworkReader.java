@@ -46,12 +46,30 @@ public class AmplNetworkReader {
     private final StringToIntMapper<AmplSubset> mapper;
     private final Map<String, Bus> buses;
 
-    public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex, StringToIntMapper<AmplSubset> mapper) {
+    private final NetworkApplier applier;
+
+    private OutputFileFormat format;
+
+    public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex,
+            StringToIntMapper<AmplSubset> mapper, NetworkApplier applier, OutputFileFormat format) {
         this.dataSource = dataSource;
         this.network = network;
         this.mapper = mapper;
-        this.buses = network.getBusView().getBusStream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
+        this.applier = applier;
+        this.buses = network.getBusView().getBusStream()
+                .collect(Collectors.toMap(Identifiable::getId, Function.identity()));
         this.variantIndex = variantIndex;
+        this.format = format;
+    }
+
+    public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex,
+            StringToIntMapper<AmplSubset> mapper, NetworkApplier applier) {
+        this(dataSource, network, variantIndex, mapper, applier, OutputFileFormat.getDefault());
+    }
+
+    public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex,
+            StringToIntMapper<AmplSubset> mapper) {
+        this(dataSource, network, variantIndex, mapper, NetworkApplier.getDefaultApplier());
     }
 
     public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, StringToIntMapper<AmplSubset> mapper) {
@@ -73,7 +91,8 @@ public class AmplNetworkReader {
     }
 
     private void read(String suffix, int expectedTokenCount, Function<String[], Void> handler) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(suffix, "txt"), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                dataSource.newInputStream(suffix, format.getFileExtension()), format.getFileEncoding()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();
@@ -83,7 +102,7 @@ public class AmplNetworkReader {
                     continue;
                 }
 
-                String[] tokens = trimedLine.split("( )+");
+                String[] tokens = trimedLine.split(format.getTokenSeparator());
                 if (tokens.length != expectedTokenCount) {
                     throw createWrongNumberOfColumnException(expectedTokenCount, tokens.length);
                 }
@@ -123,19 +142,9 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid generator id '" + id + "'");
         }
 
-        g.setVoltageRegulatorOn(vregul);
+        this.applier.applyGenerators(g, busNum, vregul, targetV, targetP, targetQ, p, q);
 
-        g.setTargetP(targetP);
-        g.setTargetQ(targetQ);
-
-        Terminal t = g.getTerminal();
-        t.setP(p).setQ(q);
-
-        double vb = t.getVoltageLevel().getNominalV();
-        g.setTargetV(targetV * vb);
-
-        busConnection(t, busNum);
-
+        busConnection(g.getTerminal(), busNum);
         return null;
     }
 
