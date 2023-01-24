@@ -34,6 +34,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static com.powsybl.security.LimitViolationType.*;
+import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
+import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -68,6 +70,8 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 15.0));
         actions.add(RatioTapChangerRegulationAction.activateRegulationAndChangeTargetV("id20", "transformerId5", 90.0));
         actions.add(RatioTapChangerRegulationAction.deactivateRegulation("id21", "transformerId5", ThreeWindingsTransformer.Side.THREE));
+        actions.add(new HvdcAction("id22", "hvdc1", 100.0, SIDE_1_RECTIFIER_SIDE_2_INVERTER));
+        actions.add(new HvdcAction("id23", "hvdc1", SIDE_1_INVERTER_SIDE_2_RECTIFIER, 1.1, 120.0));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

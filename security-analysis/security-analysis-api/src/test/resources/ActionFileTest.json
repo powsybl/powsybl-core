@@ -136,5 +136,20 @@
     "transformerId" : "transformerId5",
     "regulating" : false,
     "side" : "THREE"
+  }, {
+    "type" : "HVDC",
+    "id" : "id22",
+    "hvdcId" : "hvdc1",
+    "enabled" : false,
+    "targetP" : 100.0,
+    "converterMode" : "SIDE_1_RECTIFIER_SIDE_2_INVERTER"
+  }, {
+    "type" : "HVDC",
+    "id" : "id23",
+    "hvdcId" : "hvdc1",
+    "enabled" : true,
+    "converterMode" : "SIDE_1_INVERTER_SIDE_2_RECTIFIER",
+    "droop" : 1.1,
+    "p0" : 120.0
   } ]
 }

@@ -1,0 +1,81 @@
+/**
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.security.json.action;
+
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.security.action.HvdcAction;
+
+import java.io.IOException;
+
+/**
+ * @author Etienne Lesot <etienne.lesot@rte-france.com>
+ */
+public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
+
+    public HvdcActionDeserializer() {
+        super(HvdcAction.class);
+    }
+
+    private static class ParsingContext {
+        String id;
+        String hvdcId;
+        boolean enabled;
+        Double targetP;
+        HvdcLine.ConvertersMode converterMode;
+        Double droop;
+        Double p0;
+    }
+
+    @Override
+    public HvdcAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        ParsingContext context = new ParsingContext();
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
+            switch (name) {
+                case "type":
+                    if (!HvdcAction.NAME.equals(jsonParser.nextTextValue())) {
+                        throw JsonMappingException.from(jsonParser, "Expected type " + HvdcAction.NAME);
+                    }
+                    return true;
+                case "id":
+                    context.id = jsonParser.nextTextValue();
+                    return true;
+                case "hvdcId":
+                    context.hvdcId = jsonParser.nextTextValue();
+                    return true;
+                case "enabled":
+                    jsonParser.nextToken();
+                    context.enabled = jsonParser.getValueAsBoolean();
+                    return true;
+                case "targetP":
+                    jsonParser.nextToken();
+                    context.targetP = jsonParser.getValueAsDouble();
+                    return true;
+                case "converterMode":
+                    context.converterMode = HvdcLine.ConvertersMode.valueOf(jsonParser.nextTextValue());
+                    return true;
+                case "droop":
+                    jsonParser.nextToken();
+                    context.droop = jsonParser.getValueAsDouble();
+                    return true;
+                case "p0":
+                    jsonParser.nextToken();
+                    context.p0 = jsonParser.getValueAsDouble();
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        return new HvdcAction(context.id, context.hvdcId, context.enabled, context.targetP, context.converterMode,
+                context.droop, context.p0);
+    }
+}
