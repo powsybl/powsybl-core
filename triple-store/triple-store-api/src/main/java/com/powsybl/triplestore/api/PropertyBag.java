@@ -10,6 +10,8 @@ package com.powsybl.triplestore.api;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -19,14 +21,15 @@ import java.util.stream.Collectors;
  */
 public class PropertyBag extends HashMap<String, String> {
 
-    public PropertyBag(List<String> propertyNames) {
-        this(propertyNames, true);
+    public PropertyBag(List<String> propertyNames, boolean unescapeIdentifiers) {
+        this(propertyNames, true, unescapeIdentifiers);
     }
 
-    public PropertyBag(List<String> propertyNames, boolean removeInitialUnderscoreForIdentifiers) {
+    public PropertyBag(List<String> propertyNames, boolean removeInitialUnderscoreForIdentifiers, boolean unescapeIdentifiers) {
         super(propertyNames.size());
         this.propertyNames = propertyNames;
         this.removeInitialUnderscoreForIdentifiers = removeInitialUnderscoreForIdentifiers;
+        this.unescapeIdentifiers = unescapeIdentifiers;
     }
 
     public List<String> propertyNames() {
@@ -44,7 +47,7 @@ public class PropertyBag extends HashMap<String, String> {
         if (value == null) {
             return null;
         }
-        return removePrefix(value, false);
+        return modifyIdentifier(value, false);
     }
 
     public String getId(String property) {
@@ -52,7 +55,7 @@ public class PropertyBag extends HashMap<String, String> {
         if (value == null) {
             return null;
         }
-        return removePrefix(value, true);
+        return modifyIdentifier(value, true);
     }
 
     public String getId0(String property) {
@@ -138,7 +141,7 @@ public class PropertyBag extends HashMap<String, String> {
         return "";
     }
 
-    private String removePrefix(String s, boolean isIdentifier) {
+    private String modifyIdentifier(String s, boolean isIdentifier) {
         String s1 = s;
         int iHash = s.indexOf('#');
         if (iHash >= 0) {
@@ -146,8 +149,13 @@ public class PropertyBag extends HashMap<String, String> {
         }
         // rdf:ID is the mRID plus an underscore added at the beginning of the string
         // We may decide if we want to preserve or not the underscore
-        if (isIdentifier && removeInitialUnderscoreForIdentifiers && s1.length() > 0 && s1.charAt(0) == '_') {
-            s1 = s1.substring(1);
+        if (isIdentifier) {
+            if (removeInitialUnderscoreForIdentifiers && s1.length() > 0 && s1.charAt(0) == '_') {
+                s1 = s1.substring(1);
+            }
+            if (unescapeIdentifiers) {
+                s1 = URLDecoder.decode(s1, StandardCharsets.UTF_8);
+            }
         }
         return s1;
     }
@@ -206,7 +214,7 @@ public class PropertyBag extends HashMap<String, String> {
 
     public PropertyBag copy() {
         // Create just a shallow copy of this property bag
-        PropertyBag pb1 = new PropertyBag(propertyNames, removeInitialUnderscoreForIdentifiers);
+        PropertyBag pb1 = new PropertyBag(propertyNames, removeInitialUnderscoreForIdentifiers, unescapeIdentifiers);
         pb1.setResourceNames(resourceNames);
         pb1.setClassPropertyNames(classPropertyNames);
         pb1.setMultivaluedProperty(multiValuedPropertyNames);
@@ -216,6 +224,7 @@ public class PropertyBag extends HashMap<String, String> {
 
     private final List<String> propertyNames;
     private final boolean removeInitialUnderscoreForIdentifiers;
+    private final boolean unescapeIdentifiers;
     private final List<String> resourceNames = new ArrayList<>();
     private final List<String> classPropertyNames = new ArrayList<>();
     private final List<String> multiValuedPropertyNames = new ArrayList<>();

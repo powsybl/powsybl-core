@@ -12,12 +12,14 @@ package com.powsybl.triplestore.api;
 public class TripleStoreOptions {
 
     private boolean removeInitialUnderscoreForIdentifiers = true;
+    private boolean unescapeIdentifiers = true;
 
     public TripleStoreOptions() {
     }
 
-    public TripleStoreOptions(boolean removeInitialUnderscoreForIdentifiers) {
+    public TripleStoreOptions(boolean removeInitialUnderscoreForIdentifiers, boolean unescapeIdentifiers) {
         this.removeInitialUnderscoreForIdentifiers = removeInitialUnderscoreForIdentifiers;
+        this.unescapeIdentifiers = unescapeIdentifiers;
     }
 
     public TripleStoreOptions setRemoveInitialUnderscoreForIdentifiers(boolean removeInitialUnderscoreForIdentifiers) {
@@ -27,5 +29,14 @@ public class TripleStoreOptions {
 
     public boolean isRemoveInitialUnderscoreForIdentifiers() {
         return removeInitialUnderscoreForIdentifiers;
+    }
+
+    public boolean unescapeIdentifiers() {
+        return unescapeIdentifiers;
+    }
+
+    public TripleStoreOptions setUnescapeIdentifiers(boolean unescapeIdentifiers) {
+        this.unescapeIdentifiers = unescapeIdentifiers;
+        return this;
     }
 }

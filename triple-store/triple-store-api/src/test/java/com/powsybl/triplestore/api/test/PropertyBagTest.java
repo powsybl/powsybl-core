@@ -23,60 +23,60 @@ public class PropertyBagTest {
 
     @BeforeClass
     public static void setUp() {
-        localsWithUnderscore = new PropertyBag(Arrays.asList("id", "name", "enum"), false);
+        localsWithUnderscoreWithEscape = new PropertyBag(Arrays.asList("id", "name", "enum"), false, false);
         locals = new PropertyBag(Arrays.asList("id", "name", "enum"), true);
-        numbers = new PropertyBag(Collections.singletonList("value"));
-        booleans = new PropertyBag(Collections.singletonList("value"));
-        ints = new PropertyBag(Collections.singletonList("value"));
+        numbers = new PropertyBag(Collections.singletonList("value"), true);
+        booleans = new PropertyBag(Collections.singletonList("value"), true);
+        ints = new PropertyBag(Collections.singletonList("value"), true);
 
-        locals.put("id", "http://example.com/#_id0-id1-id2");
+        locals.put("id", "http://example.com/#_id0-id1-id2%20%2bid3");
         locals.put("name", "name0");
         locals.put("enum", "http://example.com/DataTypeEnum#enumValue0");
 
-        localsWithUnderscore.put("id", "http://example.com/#_id0-id1-id2");
-        localsWithUnderscore.put("name", "name0");
-        localsWithUnderscore.put("enum", "http://example.com/DataTypeEnum#enumValue0");
+        localsWithUnderscoreWithEscape.put("id", "http://example.com/#_id0-id1-id2%20%2bid3");
+        localsWithUnderscoreWithEscape.put("name", "name0");
+        localsWithUnderscoreWithEscape.put("enum", "http://example.com/DataTypeEnum#enumValue0");
     }
 
     @Test
     public void testHashCodeEquals() {
         // Same property names and different values
-        assertNotEquals(locals.hashCode(), localsWithUnderscore.hashCode());
-        assertNotEquals(locals, localsWithUnderscore);
+        assertNotEquals(locals.hashCode(), localsWithUnderscoreWithEscape.hashCode());
+        assertNotEquals(locals, localsWithUnderscoreWithEscape);
 
         // Same property names and same elements
         PropertyBag locals1 = new PropertyBag(Arrays.asList("id", "name", "enum"), true);
-        locals.entrySet().forEach(r -> locals1.put(r.getKey(), r.getValue()));
+        locals1.putAll(locals);
         assertEquals(locals.hashCode(), locals1.hashCode());
         assertEquals(locals, locals1);
 
         // Same elements but different property names
         PropertyBag locals2 = new PropertyBag(Arrays.asList("identifier", "name", "enum"), true);
-        locals.entrySet().forEach(r -> locals2.put(r.getKey(), r.getValue()));
+        locals2.putAll(locals);
         assertNotEquals(locals.hashCode(), locals2.hashCode());
         assertNotEquals(locals, locals2);
     }
 
     @Test
     public void testLocals() {
-        assertEquals("id0-id1-id2", locals.getId("id"));
+        assertEquals("id0-id1-id2 +id3", locals.getId("id"));
         assertEquals("id0", locals.getId0("id"));
-        assertEquals("_id0-id1-id2", locals.getLocal("id"));
+        assertEquals("_id0-id1-id2%20%2bid3", locals.getLocal("id"));
         assertEquals("name0", locals.getLocal("name"));
         assertEquals("enumValue0", locals.getLocal("enum"));
 
-        assertEquals("_id0-id1-id2", localsWithUnderscore.getId("id"));
-        assertEquals("_id0", localsWithUnderscore.getId0("id"));
-        assertEquals("_id0-id1-id2", localsWithUnderscore.getLocal("id"));
-        assertEquals("name0", localsWithUnderscore.getLocal("name"));
-        assertEquals("enumValue0", localsWithUnderscore.getLocal("enum"));
+        assertEquals("_id0-id1-id2%20%2bid3", localsWithUnderscoreWithEscape.getId("id"));
+        assertEquals("_id0", localsWithUnderscoreWithEscape.getId0("id"));
+        assertEquals("_id0-id1-id2%20%2bid3", localsWithUnderscoreWithEscape.getLocal("id"));
+        assertEquals("name0", localsWithUnderscoreWithEscape.getLocal("name"));
+        assertEquals("enumValue0", localsWithUnderscoreWithEscape.getLocal("enum"));
     }
 
     @Test
     public void testTabulateLocals() {
         String expected = String.join(System.lineSeparator(),
                 "",
-                "    id   : _id0-id1-id2",
+                "    id   : _id0-id1-id2%20%2bid3",
                 "    name : name0",
                 "    enum : enumValue0");
         assertEquals("locals" + expected, locals.tabulateLocals("locals"));
@@ -86,7 +86,7 @@ public class PropertyBagTest {
         String baseEnum = "http://example.com/DataTypeEnum#";
         expected = String.join(System.lineSeparator(),
                 "",
-                "    id   : " + base + "_id0-id1-id2",
+                "    id   : " + base + "_id0-id1-id2%20%2bid3",
                 "    name : name0",
                 "    enum : " + baseEnum + "enumValue0");
         assertEquals(expected, locals.tabulate());
@@ -96,7 +96,7 @@ public class PropertyBagTest {
     public void testTabulate() {
         String expected = String.join(System.lineSeparator(),
                 "locals",
-                "    id   : http://example.com/#_id0-id1-id2",
+                "    id   : http://example.com/#_id0-id1-id2%20%2bid3",
                 "    name : name0",
                 "    enum : http://example.com/DataTypeEnum#enumValue0");
         assertEquals(expected, locals.tabulate("locals"));
@@ -200,11 +200,11 @@ public class PropertyBagTest {
         // Ensure we can change a value in the copy and the original is not modified
         PropertyBag locals1 = locals.copy();
         locals1.put("id", "http://example.com/#_id0-id1-id2-0");
-        assertEquals("_id0-id1-id2", locals.getLocal("id"));
+        assertEquals("_id0-id1-id2%20%2bid3", locals.getLocal("id"));
         assertEquals("_id0-id1-id2-0", locals1.getLocal("id"));
     }
 
-    private static PropertyBag localsWithUnderscore;
+    private static PropertyBag localsWithUnderscoreWithEscape;
     private static PropertyBag locals;
     private static PropertyBag numbers;
     private static PropertyBag booleans;

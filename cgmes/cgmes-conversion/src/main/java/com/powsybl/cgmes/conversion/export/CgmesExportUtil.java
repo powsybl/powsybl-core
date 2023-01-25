@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
@@ -128,7 +130,8 @@ public final class CgmesExportUtil {
     private static String toRdfId(String id) {
         // Handling ids: if received id is not prefixed by "_", add it to make it a valid RDF:Id
         // We have to be careful with "resource" and "about" references, and apply the same conversions
-        return id.startsWith("_") ? id : "_" + id;
+        // Encode IDs to be URL compatible (prevent issues when importing)
+        return URLEncoder.encode(id.startsWith("_") ? id : "_" + id, StandardCharsets.UTF_8);
     }
 
     private static String toMasterResourceId(String id) {
