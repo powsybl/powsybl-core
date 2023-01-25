@@ -12,6 +12,10 @@
       "faultType" : "THREE_PHASE"
     },
     "shortCircuitPower" : 1.0,
+    "current" : {
+      "directMagnitude" : 1.0,
+      "directAngle" : 10.0
+    },
     "limitViolations" : [ {
       "subjectId" : "vlId",
       "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
@@ -22,9 +26,6 @@
         "DummyLimitViolationExtension" : { }
       }
     } ],
-    "current" : {
-      "directMagnitude" : 1.0
-    },
     "shortCircuitBusResults" : [ {
       "voltageLevelId" : "vlId",
       "busId" : "busId",
@@ -47,8 +48,6 @@
       "faultType" : "THREE_PHASE"
     },
     "shortCircuitPower" : 1.0,
-    "current" : {
-      "directMagnitude" : 1.0
-    }
+    "currentMagnitude" : 10.0
   } ]
 }

@@ -9,11 +9,19 @@ package com.powsybl.shortcircuit;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public interface FeederResult {
+public class MagnitudeFeederResult extends AbstractFeederResult {
+
+    private final double current;
+
+    public MagnitudeFeederResult(String connectableId, double current) {
+        super(connectableId);
+        this.current = current;
+    }
 
     /**
-     * The ID of the connectable contributing to the three-phase short circuit current.
+     * The three-phase current magnitude.
      */
-    String getConnectableId();
-
+    public double getCurrent() {
+        return current;
+    }
 }

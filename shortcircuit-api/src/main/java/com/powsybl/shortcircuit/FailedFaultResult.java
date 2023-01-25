@@ -9,11 +9,9 @@ package com.powsybl.shortcircuit;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public interface FeederResult {
+public class FailedFaultResult extends AbstractFaultResult {
 
-    /**
-     * The ID of the connectable contributing to the three-phase short circuit current.
-     */
-    String getConnectableId();
-
+    public FailedFaultResult(Fault fault, Status status) {
+        super(fault, status, Double.NaN, null, null, null, null);
+    }
 }

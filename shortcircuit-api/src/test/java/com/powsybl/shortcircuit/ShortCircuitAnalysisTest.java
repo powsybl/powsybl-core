@@ -81,7 +81,7 @@ public class ShortCircuitAnalysisTest {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
         assertNotNull(result.getFaultResult("Fault_ID_1"));
         assertEquals(2, result.getFaultResults("BusId").size());
-        assertEquals(FaultResult.Status.SUCCESS, result.getFaultResult("Fault_ID_1").getStatus());
+        assertEquals(FortescueFaultResult.Status.SUCCESS, result.getFaultResult("Fault_ID_1").getStatus());
     }
 
     @Test

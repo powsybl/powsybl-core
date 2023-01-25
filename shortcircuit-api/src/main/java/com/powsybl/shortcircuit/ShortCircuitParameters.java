@@ -101,7 +101,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    /** Whether results should be given for every phase or in a simple form. **/
+    /** Whether faultResults, feederResults and shortCircuitBusResults should be detailed for each phase as FortescueValues
+     * or if only the three-phase magnitude for currents and voltages should be given. **/
     public boolean isWithFortescueResults() {
         return withFortescueResults;
     }
