@@ -225,14 +225,6 @@ public final class StateVariablesExport {
             writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2().getP(), b.getTerminal2().getQ(), cimNamespace, writer, context);
             if (b instanceof TieLine) {
                 TieLine tl = (TieLine) b;
-                if (b.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).isEmpty()) { // prevent duplicates
-                    writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ".Terminal_1",
-                            tl.getTerminal1().getP(), tl.getTerminal1().getQ(), cimNamespace, writer, context);
-                }
-                if (b.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2).isEmpty()) { // prevent duplicates
-                    writePowerFlowTerminalFromProperty(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ".Terminal_2",
-                            tl.getTerminal2().getP(), tl.getTerminal2().getQ(), cimNamespace, writer, context);
-                }
                 if (context.exportBoundaryPowerFlows()) {
                     writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1", tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ(), cimNamespace, writer, context);
                     writePowerFlowTerminalFromAlias(tl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2", tl.getHalf2().getBoundary().getP(), tl.getHalf2().getBoundary().getQ(), cimNamespace, writer, context);
