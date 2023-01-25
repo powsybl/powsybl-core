@@ -26,7 +26,7 @@ import static org.junit.Assert.*;
 public class SensitivityAnalysisResultTest extends AbstractConverterTest {
 
     @Test
-    public void test() {
+    public void testSide1() {
         SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
                                                           SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                           false, ContingencyContext.all());
@@ -44,7 +44,8 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
                 false, ContingencyContext.none());
 
         List<SensitivityFactor> factors = List.of(factor1, factor2, factor3, factor4, factor5);
-        List<Contingency> contingencies = List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2")), new Contingency("NHV2_NHV3"));
+        factors.forEach(f -> assertEquals(1, f.getFunctionType().getSide().orElse(0)));
+
         SensitivityValue value1 = new SensitivityValue(0, 0, 1d, 2d);
         SensitivityValue value2 = new SensitivityValue(1, -1, 3d, 4d);
         SensitivityValue value3 = new SensitivityValue(2, 0, 1d, 2d);
@@ -103,6 +104,8 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
                 false, ContingencyContext.none());
 
         List<SensitivityFactor> factors = List.of(factor1, factor2, factor3, factor4, factor5);
+        factors.forEach(f -> assertEquals(2, f.getFunctionType().getSide().orElse(0)));
+
         List<Contingency> contingencies = List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2")));
         SensitivityValue value1 = new SensitivityValue(0, 0, 1d, 2d);
         SensitivityValue value2 = new SensitivityValue(1, -1, 3d, 4d);
@@ -156,6 +159,8 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
                 false, ContingencyContext.none());
 
         List<SensitivityFactor> factors = List.of(factor1, factor2, factor3, factor4, factor5);
+        factors.forEach(f -> assertEquals(3, f.getFunctionType().getSide().orElse(0)));
+
         List<Contingency> contingencies = List.of(new Contingency("NHV1_NHV2_2", new BranchContingency("NHV1_NHV2_2")));
         SensitivityValue value1 = new SensitivityValue(0, 0, 2d, 2d);
         SensitivityValue value2 = new SensitivityValue(1, -1, 6d, 4d);
