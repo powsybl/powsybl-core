@@ -906,7 +906,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         otherNetwork.ref.setRef(ref);
 
         Multimap<Boundary, MergedLine> mergedLineByBoundary = HashMultimap.create();
-        createTieLinesFromMergedLines(lines, mergedLineByBoundary);
+        replaceDanglingLineByLine(lines, mergedLineByBoundary);
 
         if (!lines.isEmpty()) {
             LOGGER.info("{} dangling line couples have been replaced by a line: {}", lines.size(),
@@ -998,7 +998,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
-    private void createTieLinesFromMergedLines(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
+    private void replaceDanglingLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
         for (MergedLine mergedLine : lines) {
             LOGGER.debug("Replacing dangling line couple '{}' (xnode={}, country1={}, country2={}) by a line",
                     mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
@@ -1050,23 +1050,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
             mergedLine.aliases.forEach(l::addAlias);
 
-            // Adjust aliases for CGMES
-            // Previous merge has created terminal aliases without type.
-            // We remove the terminal aliases without type and re-create them with the right type
-            if (mergedLine.properties.containsKey("CGMES.Terminal_1") && mergedLine.properties.containsKey("CGMES.Terminal_2")) {
-                String idTerminal1 = mergedLine.properties.getProperty("CGMES.Terminal_1");
-                String idTerminal2 = mergedLine.properties.getProperty("CGMES.Terminal_2");
-                l.removeAlias(idTerminal1);
-                l.removeAlias(idTerminal2);
-                l.addAlias(idTerminal1, "CGMES.Terminal1");
-                l.addAlias(idTerminal2, "CGMES.Terminal2");
-            }
-
             mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
         }
     }
 
-    static class MergedLine {
+    class MergedLine {
         String id;
         Set<String> aliases;
         String voltageLevel1;
@@ -1080,7 +1068,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         Integer node2;
         Properties properties = new Properties();
 
-        static class HalfMergedLine {
+        class HalfMergedLine {
             String id;
             String name;
             double r;
