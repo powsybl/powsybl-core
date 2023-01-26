@@ -110,7 +110,7 @@ public class SecurityAnalysisTestNetworkFactoryTest {
         assertEquals("1'", temporaryLimits.get(1).getName());
         assertEquals(60, temporaryLimits.get(1).getAcceptableDuration(), threshold);
         assertEquals(85, temporaryLimits.get(1).getValue(), threshold);
-        assertEquals("N/A", temporaryLimits.get(2).getName());
+        assertEquals("Undefined", temporaryLimits.get(2).getName());
         assertEquals(0, temporaryLimits.get(2).getAcceptableDuration(), threshold);
         assertEquals(Double.MAX_VALUE, temporaryLimits.get(2).getValue(), threshold);
 
@@ -127,7 +127,7 @@ public class SecurityAnalysisTestNetworkFactoryTest {
         assertEquals("1'", temporaryLimits.get(1).getName());
         assertEquals(60, temporaryLimits.get(1).getAcceptableDuration(), threshold);
         assertEquals(85, temporaryLimits.get(1).getValue(), threshold);
-        assertEquals("N/A", temporaryLimits.get(2).getName());
+        assertEquals("Undefined", temporaryLimits.get(2).getName());
         assertEquals(0, temporaryLimits.get(2).getAcceptableDuration(), threshold);
         assertEquals(Double.MAX_VALUE, temporaryLimits.get(2).getValue(), threshold);
 
