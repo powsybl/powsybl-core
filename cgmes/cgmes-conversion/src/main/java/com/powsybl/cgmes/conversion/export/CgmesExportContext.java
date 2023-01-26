@@ -412,8 +412,9 @@ public class CgmesExportContext {
             int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
-                if (c instanceof TieLine && c.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber)) {
+                if (c instanceof TieLine && c.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber)) { // TODO fix when merging is handled properly
                     terminalId = c.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber);
+                    c.removeAlias(terminalId);
                 } else {
                     terminalId = CgmesExportUtil.getUniqueId();
                 }
