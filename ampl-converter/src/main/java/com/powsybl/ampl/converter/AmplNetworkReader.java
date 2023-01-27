@@ -167,16 +167,13 @@ public class AmplNetworkReader {
         if (b == null) {
             throw new AmplException("Invalid battery id '" + id + "'");
         }
-        b.setTargetP(targetP);
-        b.setTargetQ(targetQ);
+        this.applier.applyBattery(b, targetP, targetQ, p, q);
 
-        Terminal t = b.getTerminal();
-        t.setP(p).setQ(q);
-
-        busConnection(t, busNum);
+        busConnection(b.getTerminal(), busNum);
 
         return null;
     }
+
 
     public AmplNetworkReader readLoads() throws IOException {
         read("_loads", 7, this::readLoad);
@@ -282,15 +279,9 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
 
-        if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
-            // TODO improve non linear shunt section count update.
-        } else {
-            sc.setSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
-        }
-        Terminal t = sc.getTerminal();
-        t.setQ(q);
+        this.applier.applyShunt(sc, q, sections);
 
-        busConnection(t, busNum);
+        busConnection(sc.getTerminal(), busNum);
 
         return null;
     }
@@ -415,23 +406,9 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid StaticVarCompensator id '" + id + "'");
         }
 
-        if (vregul) {
-            svc.setRegulationMode(RegulationMode.VOLTAGE);
-        } else {
-            if (q == 0) {
-                svc.setRegulationMode(RegulationMode.OFF);
-            } else {
-                svc.setReactivePowerSetpoint(-q);
-                svc.setRegulationMode(RegulationMode.REACTIVE_POWER);
-            }
-        }
+        this.applier.applySvc(svc, vregul, targetV, q);
 
-        Terminal t = svc.getTerminal();
-        t.setQ(q);
-        double nominalV = t.getVoltageLevel().getNominalV();
-        svc.setVoltageSetpoint(targetV * nominalV);
-
-        busConnection(t, busNum);
+        busConnection(svc.getTerminal(), busNum);
 
         return null;
     }
@@ -473,16 +450,9 @@ public class AmplNetworkReader {
 
         String id = mapper.getId(AmplSubset.VSC_CONVERTER_STATION, num);
         VscConverterStation vsc = network.getVscConverterStation(id);
-        Terminal t = vsc.getTerminal();
-        t.setP(p).setQ(q);
+        this.applier.applyVsc(vsc, vregul, targetV, targetQ, p, q);
 
-        vsc.setReactivePowerSetpoint(targetQ);
-        vsc.setVoltageRegulatorOn(vregul);
-
-        double vb = t.getVoltageLevel().getNominalV();
-        vsc.setVoltageSetpoint(targetV * vb);
-
-        busConnection(t, busNum);
+        busConnection(vsc.getTerminal(), busNum);
 
         return null;
     }
