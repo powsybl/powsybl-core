@@ -121,4 +121,72 @@ public abstract class AbstractConverter {
                     ')';
         }
     }
+
+    static PQ calculatePQFromPandS(double p, double s) {
+        double q2 = s * s - p * p;
+        double q;
+        if (q2 >= 0) {
+            q = Math.sqrt(q2);
+        } else {
+            throw new PowerFactoryException(String.format("Unexpected apparent power Mva %.2f Mw %.2f", s, p));
+        }
+
+        return new PQ(p, q);
+    }
+
+    static PQ calculatePQFromQandS(double q, double s) {
+        double p2 = s * s - q * q;
+        double p;
+        if (p2 >= 0) {
+            p = Math.sqrt(p2);
+        } else {
+            throw new PowerFactoryException(String.format("Unexpected apparent power Mva %.2f Mvar %.2f", s, q));
+        }
+
+        return new PQ(p, q);
+    }
+
+    static PQ calculatePQFromPandPowerFactor(double p, double powerFactor) {
+        double disc = 1.0 - powerFactor * powerFactor;
+        double q;
+        if (disc >= 0 && powerFactor != 0.0) {
+            q = p * Math.sqrt(disc) / powerFactor;
+        } else {
+            throw new PowerFactoryException(String.format("Unexpected powerFactor %.2f Mw %.2f", powerFactor, p));
+        }
+        return new PQ(p, q);
+    }
+
+    static PQ calculatePQFromQandPowerFactor(double q, double powerFactor) {
+        double disc = 1.0 - powerFactor * powerFactor;
+        double p;
+        if (disc >= 0 && powerFactor != 1.0) {
+            p = q * powerFactor / Math.sqrt(disc);
+        } else {
+            throw new PowerFactoryException(String.format("Unexpected powerFactor %.2f Mvar %.2f", powerFactor, q));
+        }
+        return new PQ(p, q);
+    }
+
+    static PQ calculatePQFromSandPowerFactor(double s, double powerFactor) {
+        double disc = 1.0 - powerFactor * powerFactor;
+        double p = s * powerFactor;
+        double q;
+        if (disc >= 0) {
+            q = s * Math.sqrt(disc);
+        } else {
+            throw new PowerFactoryException(String.format("Unexpected powerFactor %.2f Mva %.2f", powerFactor, s));
+        }
+        return new PQ(p, q);
+    }
+
+    static class PQ {
+        final double p;
+        final double q;
+
+        PQ(double p, double q) {
+            this.p = p;
+            this.q = q;
+        }
+    }
 }
