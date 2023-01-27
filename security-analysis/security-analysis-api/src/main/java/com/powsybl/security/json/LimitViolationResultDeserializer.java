@@ -25,21 +25,20 @@ import java.util.List;
  */
 class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsResult> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LimitViolationResultDeserializer.class);
-
     LimitViolationResultDeserializer() {
         super(LimitViolationsResult.class);
     }
 
     @Override
     public LimitViolationsResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        boolean computationOk = false;
         List<LimitViolation> limitViolations = Collections.emptyList();
         List<String> actionsTaken = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "computationOk":
                     parser.nextToken();
-                    LOGGER.warn("computationOk is deprecated and is not read anymore");
+                    computationOk = parser.readValueAs(Boolean.class);
                     break;
 
                 case "limitViolations":
@@ -57,6 +56,6 @@ class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsRe
             }
         }
 
-        return new LimitViolationsResult(limitViolations, actionsTaken);
+        return new LimitViolationsResult(computationOk, limitViolations, actionsTaken);
     }
 }
