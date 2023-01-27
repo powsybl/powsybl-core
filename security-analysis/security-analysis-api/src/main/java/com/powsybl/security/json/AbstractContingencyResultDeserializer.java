@@ -39,14 +39,14 @@ public abstract class AbstractContingencyResultDeserializer<T extends AbstractCo
         switch (name) {
             case "limitViolationsResult":
                 parser.nextToken();
-                context.limitViolationsResult = JsonUtil.readValueWithContext(deserializationContext, parser,
+                context.limitViolationsResult = JsonUtil.readValue(deserializationContext, parser,
                         LimitViolationsResult.class);
                 return true;
             case "networkResult":
                 parser.nextToken();
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion(contextName,
                         "Tag: networkResult", version, "1.2");
-                context.networkResult = JsonUtil.readValueWithContext(deserializationContext, parser, NetworkResult.class);
+                context.networkResult = JsonUtil.readValue(deserializationContext, parser, NetworkResult.class);
                 return true;
             case "busResults":
                 parser.nextToken();

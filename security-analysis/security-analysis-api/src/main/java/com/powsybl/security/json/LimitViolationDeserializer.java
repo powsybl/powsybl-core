@@ -60,7 +60,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 case "limitType":
                     parser.nextToken();
-                    limitType = JsonUtil.readValueWithContext(deserializationContext, parser, LimitViolationType.class);
+                    limitType = JsonUtil.readValue(deserializationContext, parser, LimitViolationType.class);
                     break;
 
                 case "limitName":
@@ -89,7 +89,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 case "side":
                     parser.nextToken();
-                    side = JsonUtil.readValueWithContext(deserializationContext, parser, Branch.Side.class);
+                    side = JsonUtil.readValue(deserializationContext, parser, Branch.Side.class);
                     break;
 
                 case "extensions":

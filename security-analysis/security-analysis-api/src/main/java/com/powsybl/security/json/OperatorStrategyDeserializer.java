@@ -63,7 +63,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                     return true;
                 case "condition":
                     parser.nextToken();
-                    context.condition = JsonUtil.readValueWithContext(deserializationContext, parser, Condition.class);
+                    context.condition = JsonUtil.readValue(deserializationContext, parser, Condition.class);
                     return true;
                 case "actionIds":
                     parser.nextToken();

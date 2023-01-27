@@ -585,8 +585,9 @@ public final class JsonUtil {
     /**
      * Reads a value using the given deserialization context (instead of only using the parser reading method that
      * recreates a context every time).
+     * Also handles reading {@code null} values.
      */
-    public static <T> T readValueWithContext(DeserializationContext context, JsonParser parser, Class<?> type) {
+    public static <T> T readValue(DeserializationContext context, JsonParser parser, Class<?> type) {
         try {
             if (parser.currentToken() != JsonToken.VALUE_NULL) {
                 JavaType jType = context.getTypeFactory()

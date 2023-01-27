@@ -42,7 +42,7 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
 
                 case "type":
                     parser.nextToken();
-                    type = JsonUtil.readValueWithContext(ctx, parser, ContingencyElementType.class);
+                    type = JsonUtil.readValue(ctx, parser, ContingencyElementType.class);
                     break;
 
                 default:

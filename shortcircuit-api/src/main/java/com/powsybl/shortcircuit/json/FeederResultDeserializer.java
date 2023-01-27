@@ -38,7 +38,7 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> {
 
                 case "current":
                     parser.nextToken();
-                    current = JsonUtil.readValueWithContext(deserializationContext, parser, FortescueValue.class);
+                    current = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
                     break;
 
                 default:

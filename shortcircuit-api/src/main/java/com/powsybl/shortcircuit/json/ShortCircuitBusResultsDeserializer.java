@@ -44,7 +44,7 @@ class ShortCircuitBusResultsDeserializer extends StdDeserializer<ShortCircuitBus
 
                 case "voltage":
                     parser.nextToken();
-                    voltage = JsonUtil.readValueWithContext(deserializationContext, parser, FortescueValue.class);
+                    voltage = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
                     break;
 
                 default:

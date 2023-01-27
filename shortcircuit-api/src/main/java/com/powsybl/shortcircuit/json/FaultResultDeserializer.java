@@ -53,7 +53,7 @@ class FaultResultDeserializer {
                 switch (parser.getCurrentName()) {
                     case "fault":
                         parser.nextToken();
-                        fault = JsonUtil.readValueWithContext(deserializationContext, parser, Fault.class);
+                        fault = JsonUtil.readValue(deserializationContext, parser, Fault.class);
                         break;
 
                     case "shortCircuitPower":
@@ -78,12 +78,12 @@ class FaultResultDeserializer {
 
                     case "current":
                         parser.nextToken();
-                        current = JsonUtil.readValueWithContext(deserializationContext, parser, FortescueValue.class);
+                        current = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
                         break;
 
                     case "voltage":
                         parser.nextToken();
-                        voltage = JsonUtil.readValueWithContext(deserializationContext, parser, FortescueValue.class);
+                        voltage = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
                         break;
 
                     case "shortCircuitBusResults":

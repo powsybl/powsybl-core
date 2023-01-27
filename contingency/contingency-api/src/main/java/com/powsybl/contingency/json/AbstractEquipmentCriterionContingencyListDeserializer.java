@@ -44,11 +44,11 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
                 return true;
             case "countryCriterion":
                 parser.nextToken();
-                parsingCtx.countryCriterion = JsonUtil.readValueWithContext(ctx, parser, Criterion.class);
+                parsingCtx.countryCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
                 return true;
             case "nominalVoltageCriterion":
                 parser.nextToken();
-                parsingCtx.nominalVoltageCriterion = JsonUtil.readValueWithContext(ctx, parser, Criterion.class);
+                parsingCtx.nominalVoltageCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
                 return true;
             case "propertyCriteria":
                 parser.nextToken();
@@ -56,7 +56,7 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
                 return true;
             case "regexCriterion":
                 parser.nextToken();
-                parsingCtx.regexCriterion = JsonUtil.readValueWithContext(ctx, parser, Criterion.class);
+                parsingCtx.regexCriterion = JsonUtil.readValue(ctx, parser, Criterion.class);
                 return true;
             case "version":
             case "type":

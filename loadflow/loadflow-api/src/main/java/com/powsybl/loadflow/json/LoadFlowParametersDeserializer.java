@@ -53,7 +53,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "voltageInitMode":
                     parser.nextToken();
-                    parameters.setVoltageInitMode(JsonUtil.readValueWithContext(deserializationContext, parser, VoltageInitMode.class));
+                    parameters.setVoltageInitMode(JsonUtil.readValue(deserializationContext, parser, VoltageInitMode.class));
                     break;
 
                 case "transformerVoltageControlOn":
@@ -137,7 +137,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                 case "balanceType":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.4");
                     parser.nextToken();
-                    parameters.setBalanceType(JsonUtil.readValueWithContext(deserializationContext, parser, BalanceType.class));
+                    parameters.setBalanceType(JsonUtil.readValue(deserializationContext, parser, BalanceType.class));
                     break;
 
                 case "dcUseTransformerRatio":
@@ -156,7 +156,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                 case "connectedComponentMode":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.5");
                     parser.nextToken();
-                    parameters.setConnectedComponentMode(JsonUtil.readValueWithContext(deserializationContext, parser, LoadFlowParameters.ConnectedComponentMode.class));
+                    parameters.setConnectedComponentMode(JsonUtil.readValue(deserializationContext, parser, LoadFlowParameters.ConnectedComponentMode.class));
                     break;
 
                 case "hvdcAcEmulation":

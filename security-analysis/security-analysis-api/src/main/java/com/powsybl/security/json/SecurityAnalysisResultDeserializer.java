@@ -65,15 +65,15 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
                 case "network":
                     parser.nextToken();
-                    networkMetadata = JsonUtil.readValueWithContext(ctx, parser, NetworkMetadata.class);
+                    networkMetadata = JsonUtil.readValue(ctx, parser, NetworkMetadata.class);
                     break;
 
                 case "preContingencyResult":
                     parser.nextToken();
                     if (version != null && version.equals("1.0")) {
-                        limitViolationsResult = JsonUtil.readValueWithContext(ctx, parser, LimitViolationsResult.class);
+                        limitViolationsResult = JsonUtil.readValue(ctx, parser, LimitViolationsResult.class);
                     } else {
-                        preContingencyResult = JsonUtil.readValueWithContext(ctx, parser, PreContingencyResult.class);
+                        preContingencyResult = JsonUtil.readValue(ctx, parser, PreContingencyResult.class);
                     }
                     break;
 

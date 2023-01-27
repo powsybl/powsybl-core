@@ -53,19 +53,19 @@ class PostContingencyResultDeserializer extends AbstractContingencyResultDeseria
             switch (parser.getCurrentName()) {
                 case "contingency":
                     parser.nextToken();
-                    parsingContext.contingency = JsonUtil.readValueWithContext(deserializationContext, parser, Contingency.class);
+                    parsingContext.contingency = JsonUtil.readValue(deserializationContext, parser, Contingency.class);
                     return true;
                 case "status":
                     parser.nextToken();
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: status",
                             finalVersion, "1.3");
-                    parsingContext.status = JsonUtil.readValueWithContext(deserializationContext, parser, PostContingencyComputationStatus.class);
+                    parsingContext.status = JsonUtil.readValue(deserializationContext, parser, PostContingencyComputationStatus.class);
                     return true;
                 case "connectivityResult":
                     parser.nextToken();
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: connectivityResult",
                             finalVersion, "1.4");
-                    parsingContext.connectivityResult = JsonUtil.readValueWithContext(deserializationContext, parser, ConnectivityResult.class);
+                    parsingContext.connectivityResult = JsonUtil.readValue(deserializationContext, parser, ConnectivityResult.class);
                     return true;
                 default:
                     return false;
