@@ -32,7 +32,6 @@ public class CgmesExportContext {
     private static final String DCTERMINAL = "DCTerminal";
     private static final String ACDCCONVERTERDCTERMINAL = "ACDCConverterDCTerminal";
 
-    private static final String TERMINAL_NETWORK = "Terminal_Network";
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     private static final String REGION_ID = "regionId";
     private static final String REGION_NAME = "regionName";
@@ -399,10 +398,10 @@ public class CgmesExportContext {
 
     private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
         if (c instanceof DanglingLine) {
-            String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_NETWORK).orElse(null);
+            String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL).orElse(null);
             if (terminalId == null) {
                 terminalId = CgmesExportUtil.getUniqueId();
-                c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_NETWORK);
+                c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL);
             }
             String boundaryId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY).orElse(null);
             if (boundaryId == null) {
@@ -413,7 +412,12 @@ public class CgmesExportContext {
             int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
-                terminalId = CgmesExportUtil.getUniqueId();
+                if (c instanceof TieLine && c.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber)) { // TODO fix when merging is handled properly
+                    terminalId = c.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber);
+                    c.removeAlias(terminalId);
+                } else {
+                    terminalId = CgmesExportUtil.getUniqueId();
+                }
                 c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber);
             }
         }
