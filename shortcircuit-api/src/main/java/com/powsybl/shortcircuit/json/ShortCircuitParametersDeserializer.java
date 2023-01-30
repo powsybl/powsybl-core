@@ -52,12 +52,12 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 case "withVoltageMap":
                     JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMap", version, "1.1");
                     parser.nextToken();
-                    parameters.setWithVoltageResults(parser.readValueAs(Boolean.class));
+                    parameters.setWithVoltageResult(parser.readValueAs(Boolean.class));
                     break;
-                case "withVoltageResults":
+                case "withVoltageResult":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageProfileResult", version, "1.1");
                     parser.nextToken();
-                    parameters.setWithVoltageResults(parser.readValueAs(Boolean.class));
+                    parameters.setWithVoltageResult(parser.readValueAs(Boolean.class));
                     break;
                 case "withFeederResult":
                     parser.nextToken();

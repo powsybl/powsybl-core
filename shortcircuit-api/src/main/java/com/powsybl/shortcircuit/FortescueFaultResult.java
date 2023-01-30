@@ -41,6 +41,10 @@ public final class FortescueFaultResult extends AbstractFaultResult {
         this(fault, shortCircuitPower, feederResults, limitViolations, current, null, Collections.emptyList(), null, status);
     }
 
+    public FortescueFaultResult(Fault fault, Status status) {
+        this(fault, Double.NaN, null, null, null, null, Collections.emptyList(), null, status);
+    }
+
     /**
      * Value of the 3-phase short-circuit current for this fault (in A).
      */

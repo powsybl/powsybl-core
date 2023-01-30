@@ -19,10 +19,6 @@ import java.util.Objects;
  */
 abstract class AbstractFaultResult extends AbstractExtendable<FaultResult> implements FaultResult {
 
-    // VERSION = 1.0 fault, shortCircuitPower, timeConstant, feederResult, limitViolations, current, voltage, shortCircuitBusResults
-    // version = 1.1 simpleShortCircuitBusResult
-    public static final String VERSION = "1.1";
-
     private final Status status;
 
     private final Fault fault;

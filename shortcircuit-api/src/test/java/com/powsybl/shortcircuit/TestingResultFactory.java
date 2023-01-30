@@ -64,7 +64,7 @@ public final class TestingResultFactory {
         List<FaultResult> faultResults = new ArrayList<>();
         MagnitudeFeederResult feederResult = new MagnitudeFeederResult("connectableId", 1);
         MagnitudeFaultResult faultResult = new MagnitudeFaultResult(fault, 0.1, Collections.singletonList(feederResult), limitViolations,
-                1.0, 2.0, Collections.emptyList(), Duration.ofSeconds(1), FortescueFaultResult.Status.SUCCESS);
+                1.0, Collections.emptyList(), Duration.ofSeconds(1), FortescueFaultResult.Status.SUCCESS);
         faultResults.add(faultResult);
         return new ShortCircuitAnalysisResult(faultResults);
     }
@@ -83,7 +83,7 @@ public final class TestingResultFactory {
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
         busResults.add(new FortescueShortCircuitBusResults(subjectId, "busId", 4800, new FortescueValue(2004, 2005), 70));
         List<FaultResult> faultResults = new ArrayList<>();
-        MagnitudeFaultResult faultResult = new MagnitudeFaultResult(fault, 1.0, Collections.emptyList(), limitViolations, 1.0, Double.NaN, busResults, null, SUCCESS);
+        MagnitudeFaultResult faultResult = new MagnitudeFaultResult(fault, 1.0, Collections.emptyList(), limitViolations, 1.0, busResults, null, SUCCESS);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
         ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);
@@ -130,7 +130,7 @@ public final class TestingResultFactory {
         MagnitudeFeederResult feederResult = new MagnitudeFeederResult("id2", 1.0);
         feederResults.add(feederResult);
         List<FaultResult> faultResults = new ArrayList<>();
-        MagnitudeFaultResult faultResult = new MagnitudeFaultResult(fault, 1.0, feederResults, limitViolations, 1.0, 50, busResults, Duration.ofSeconds(1), SUCCESS);
+        MagnitudeFaultResult faultResult = new MagnitudeFaultResult(fault, 1.0, feederResults, limitViolations, 1.0, busResults, Duration.ofSeconds(1), SUCCESS);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
         ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);

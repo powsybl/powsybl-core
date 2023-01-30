@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FeederResult;
 import com.powsybl.shortcircuit.FortescueFeederResult;
 import com.powsybl.shortcircuit.FortescueValue;

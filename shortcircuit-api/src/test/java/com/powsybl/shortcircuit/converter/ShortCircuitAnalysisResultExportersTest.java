@@ -77,8 +77,8 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version10.json"));
         assertEquals(1, result.getFaultResults().size());
-        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
-        assertEquals(1.0, faultResult.getCurrent(), 0);
+        FortescueFaultResult faultResult = (FortescueFaultResult) result.getFaultResult("id");
+        assertEquals(1.0, faultResult.getThreePhaseFaultCurrent(), 0);
         assertEquals(1, faultResult.getLimitViolations().size());
         assertEquals(1, faultResult.getFeederResults().size());
     }

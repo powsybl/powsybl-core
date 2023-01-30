@@ -17,10 +17,12 @@ abstract class AbstractShortCircuitBusResults implements ShortCircuitBusResults 
 
     private final String busId;
 
+    private final double initialVoltageMagnitude;
+
     private final double voltageDropProportional;
 
     protected AbstractShortCircuitBusResults(String voltageLevelId,
-                                             String busId,
+                                             String busId, double initialVoltageMagnitude,
                                              double voltageDropProportional) {
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
         this.busId = Objects.requireNonNull(busId);
@@ -36,6 +38,11 @@ abstract class AbstractShortCircuitBusResults implements ShortCircuitBusResults 
     @Override
     public String getBusId() {
         return busId;
+    }
+
+    @Override
+    public double getInitialVoltageMagnitude() {
+        return initialVoltageMagnitude;
     }
 
     @Override

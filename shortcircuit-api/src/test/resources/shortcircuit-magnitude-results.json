@@ -18,7 +18,6 @@
       "currentMagnitude" : 1.0
     } ],
     "currentMagnitude" : 1.0,
-    "voltageMagnitude" : 50.0,
     "limitViolations" : [ {
       "subjectId" : "vlId",
       "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",

@@ -61,7 +61,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);
                     break;
 
-                case "withVoltageResults":
+                case "withVoltageResult":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageAndVoltageDropProfileResult", version, "1.1");
                     parser.nextToken();
                     withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);

@@ -21,24 +21,25 @@ public class MagnitudeFaultResult extends AbstractFaultResult {
 
     private final double current;
 
-    private final double voltage;
-
     public MagnitudeFaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
-                                List<LimitViolation> limitViolations, double current, double voltage, List<ShortCircuitBusResults> shortCircuitBusResults,
+                                List<LimitViolation> limitViolations, double current, List<ShortCircuitBusResults> shortCircuitBusResults,
                                 Duration timeConstant, Status status) {
         super(fault, status, shortCircuitPower, timeConstant, feederResults, limitViolations, shortCircuitBusResults);
         this.current = current;
-        this.voltage = voltage;
     }
 
     public MagnitudeFaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                                 List<LimitViolation> limitViolations, double current, Duration timeConstant, Status status) {
-        this(fault, shortCircuitPower, feederResults, limitViolations, current, Double.NaN, Collections.emptyList(), timeConstant, status);
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, Collections.emptyList(), timeConstant, status);
     }
 
     public MagnitudeFaultResult(Fault fault, double shortCircuitPower, List<FeederResult> feederResults,
                                 List<LimitViolation> limitViolations, double current, Status status) {
-        this(fault, shortCircuitPower, feederResults, limitViolations, current, Double.NaN, Collections.emptyList(), null, status);
+        this(fault, shortCircuitPower, feederResults, limitViolations, current, Collections.emptyList(), null, status);
+    }
+
+    public MagnitudeFaultResult(Fault fault, Status status) {
+        this(fault, Double.NaN, null, null, Double.NaN, Collections.emptyList(), null, status);
     }
 
     /**
@@ -46,13 +47,6 @@ public class MagnitudeFaultResult extends AbstractFaultResult {
      */
     public double getCurrent() {
         return current;
-    }
-
-    /**
-     * The three-phase voltage magnitude.
-     */
-    public double getVoltage() {
-        return voltage;
     }
 
 }
