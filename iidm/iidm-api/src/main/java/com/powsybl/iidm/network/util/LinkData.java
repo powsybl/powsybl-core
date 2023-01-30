@@ -114,7 +114,7 @@ public final class LinkData {
         return ysh.conjugate().multiply(v.conjugate().multiply(v));
     }
 
-    static Flow flowBothEnds(Complex y11, Complex y12, Complex y21, Complex y22,
+    public static Flow flowBothEnds(Complex y11, Complex y12, Complex y21, Complex y22,
         double u1, double theta1, double u2, double theta2) {
 
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
@@ -181,8 +181,24 @@ public final class LinkData {
         }
     }
 
-    static class Flow {
-        Complex fromTo = Complex.ZERO;
-        Complex toFrom = Complex.ZERO;
+    public static class Flow {
+        private Complex fromTo = Complex.ZERO;
+        private Complex toFrom = Complex.ZERO;
+
+        public void setFromTo(Complex fromTo) {
+            this.fromTo = fromTo;
+        }
+
+        public void setToFrom(Complex toFrom) {
+            this.toFrom = toFrom;
+        }
+
+        public Complex getFromTo() {
+            return fromTo;
+        }
+
+        public Complex getToFrom() {
+            return toFrom;
+        }
     }
 }

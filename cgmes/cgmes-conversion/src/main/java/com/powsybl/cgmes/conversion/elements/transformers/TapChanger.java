@@ -19,16 +19,16 @@ import com.powsybl.triplestore.api.PropertyBag;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class TapChanger {
+class TapChanger {
 
-    public static TapChanger ratioTapChangerFromEnd(PropertyBag end, Context context) {
+    static TapChanger ratioTapChangerFromEnd(PropertyBag end, Context context) {
         Objects.requireNonNull(end);
         Objects.requireNonNull(context);
         PropertyBag rtc = context.ratioTapChanger(end.getId(CgmesNames.RATIO_TAP_CHANGER));
         return rtc != null ? AbstractCgmesTapChangerBuilder.newRatioTapChanger(rtc, context).build() : null;
     }
 
-    public static TapChanger phaseTapChangerFromEnd(PropertyBag end, double x, Context context) {
+    static TapChanger phaseTapChangerFromEnd(PropertyBag end, double x, Context context) {
         Objects.requireNonNull(end);
         Objects.requireNonNull(context);
         PropertyBag ptc = context.phaseTapChanger(end.getId(CgmesNames.PHASE_TAP_CHANGER));
@@ -57,183 +57,183 @@ public class TapChanger {
         private double g2 = 0.0;
         private double b2 = 0.0;
 
-        public Step setAngle(double angle) {
+        Step setAngle(double angle) {
             this.angleRad = angle;
             return this;
         }
 
-        public Step setRatio(double ratio) {
+        Step setRatio(double ratio) {
             this.ratio = ratio;
             return this;
         }
 
-        public Step setR(double r) {
+        Step setR(double r) {
             this.r = r;
             return this;
         }
 
-        public Step setX(double x) {
+        Step setX(double x) {
             this.x = x;
             return this;
         }
 
-        public Step setG1(double g1) {
+        Step setG1(double g1) {
             this.g1 = g1;
             return this;
         }
 
-        public Step setB1(double b1) {
+        Step setB1(double b1) {
             this.b1 = b1;
             return this;
         }
 
-        public Step setG2(double g2) {
+        Step setG2(double g2) {
             this.g2 = g2;
             return this;
         }
 
-        public Step setB2(double b2) {
+        Step setB2(double b2) {
             this.b2 = b2;
             return this;
         }
 
-        public TapChanger endStep() {
+        TapChanger endStep() {
             steps.add(this);
             return TapChanger.this;
         }
 
-        public double getAngle() {
+        double getAngle() {
             return angleRad;
         }
 
-        public double getRatio() {
+        double getRatio() {
             return ratio;
         }
 
-        public double getR() {
+        double getR() {
             return r;
         }
 
-        public double getX() {
+        double getX() {
             return x;
         }
 
-        public double getG1() {
+        double getG1() {
             return g1;
         }
 
-        public double getB1() {
+        double getB1() {
             return b1;
         }
 
-        public double getG2() {
+        double getG2() {
             return g2;
         }
 
-        public double getB2() {
+        double getB2() {
             return b2;
         }
     }
 
-    public TapChanger setLowTapPosition(int lowTapPosition) {
+    TapChanger setLowTapPosition(int lowTapPosition) {
         this.lowTapPosition = lowTapPosition;
         return this;
     }
 
-    public TapChanger setTapPosition(int tapPosition) {
+    TapChanger setTapPosition(int tapPosition) {
         this.tapPosition = tapPosition;
         return this;
     }
 
-    public TapChanger setLtcFlag(boolean ltcFlag) {
+    TapChanger setLtcFlag(boolean ltcFlag) {
         this.ltcFlag = ltcFlag;
         return this;
     }
 
-    public TapChanger setType(String type) {
+    TapChanger setType(String type) {
         this.type = type;
         return this;
     }
 
-    public TapChanger setId(String id) {
+    TapChanger setId(String id) {
         this.id = id;
         return this;
     }
 
-    public TapChanger setRegulating(boolean regulating) {
+    TapChanger setRegulating(boolean regulating) {
         this.regulating = regulating;
         return this;
     }
 
-    public TapChanger setRegulatingControlId(String regulatingControlId) {
+    TapChanger setRegulatingControlId(String regulatingControlId) {
         this.regulatingControlId = regulatingControlId;
         return this;
     }
 
-    public TapChanger setTculControlMode(String tculControlMode) {
+    TapChanger setTculControlMode(String tculControlMode) {
         this.tculControlMode = tculControlMode;
         return this;
     }
 
-    public TapChanger setTapChangerControlEnabled(boolean tapChangerControlEnabled) {
+    TapChanger setTapChangerControlEnabled(boolean tapChangerControlEnabled) {
         this.tapChangerControlEnabled = tapChangerControlEnabled;
         return this;
     }
 
-    public TapChanger setHiddenCombinedTapChanger(TapChanger hiddenCombinedTapChanger) {
+    TapChanger setHiddenCombinedTapChanger(TapChanger hiddenCombinedTapChanger) {
         this.hiddenCombinedTapChanger = hiddenCombinedTapChanger;
         return this;
     }
 
-    public Step beginStep() {
+    Step beginStep() {
         return new Step();
     }
 
-    public int getLowTapPosition() {
+    int getLowTapPosition() {
         return lowTapPosition;
     }
 
-    public Integer getTapPosition() {
+    Integer getTapPosition() {
         return tapPosition;
     }
 
-    public List<Step> getSteps() {
+    List<Step> getSteps() {
         return steps;
     }
 
-    public int getHighTapPosition() {
+    int getHighTapPosition() {
         return lowTapPosition + steps.size() - 1;
     }
 
-    public boolean isLtcFlag() {
+    boolean isLtcFlag() {
         return ltcFlag;
     }
 
-    public String getType() {
+    String getType() {
         return type;
     }
 
-    public String getId() {
+    String getId() {
         return id;
     }
 
-    public boolean isRegulating() {
+    boolean isRegulating() {
         return regulating;
     }
 
-    public String getRegulatingControlId() {
+    String getRegulatingControlId() {
         return regulatingControlId;
     }
 
-    public String getTculControlMode() {
+    String getTculControlMode() {
         return tculControlMode;
     }
 
-    public boolean isTapChangerControlEnabled() {
+    boolean isTapChangerControlEnabled() {
         return tapChangerControlEnabled;
     }
 
-    public TapChanger getHiddenCombinedTapChanger() {
+    TapChanger getHiddenCombinedTapChanger() {
         return hiddenCombinedTapChanger;
     }
 }
