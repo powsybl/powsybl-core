@@ -6,7 +6,7 @@
  */
 package com.powsybl.ampl.executor;
 
-import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.commons.config.ModuleConfig;
@@ -21,14 +21,14 @@ public class AmplConfig {
     }
 
     public static AmplConfig getConfig() {
-        try {
-            ModuleConfig amplModuleConfig = PlatformConfig.defaultConfig().getOptionalModuleConfig(AMPL_CONFIG_NAME)
-                    .get();
-            String ampl = amplModuleConfig.getStringProperty("homeDir");
-            return new AmplConfig(ampl);
-        } catch (NoSuchElementException rethrow) {
-            throw new ConfigurationException("Module " + AMPL_CONFIG_NAME + " is missing in configuration");
+        Optional<ModuleConfig> amplModuleConfigOpt = PlatformConfig.defaultConfig()
+                .getOptionalModuleConfig(AMPL_CONFIG_NAME);
+        if (amplModuleConfigOpt.isEmpty()) {
+            throw new ConfigurationException("Module " + AMPL_CONFIG_NAME + " is missing in the configuration file");
         }
+        ModuleConfig amplModuleConfig = amplModuleConfigOpt.get();
+        String ampl = amplModuleConfig.getStringProperty("homeDir");
+        return new AmplConfig(ampl);
     }
 
     public String getAmplHome() {
