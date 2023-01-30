@@ -7,7 +7,6 @@
 package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -23,6 +22,8 @@ import java.util.List;
  */
 public class ActionListDeserializer extends StdDeserializer<ActionList> {
 
+    public static final String VERSION = "version";
+
     public ActionListDeserializer() {
         super(ActionList.class);
     }
@@ -37,21 +38,22 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {
-                case "version":
+                case VERSION:
                     context.version = parser.nextTextValue();
+                    deserializationContext.setAttribute(VERSION, context.version);
                     return true;
                 case "actions":
                     parser.nextToken();
-                    context.actions = parser.readValueAs(new TypeReference<List<Action>>() {
-                    });
+                    context.actions = JsonUtil.readList(deserializationContext, parser, Action.class);
                     return true;
                 default:
                     return false;
             }
         });
-        if (context.version == null || !context.version.equals(ActionList.VERSION)) {
-            throw new JsonMappingException(parser, "version is missing or not equal to 1.0");
+        if (context.version == null) {
+            throw new JsonMappingException(parser, "version is missing");
         }
+        JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "Tag: tapPosition", context.version, ActionList.VERSION);
         return new ActionList(context.actions);
     }
 }

@@ -266,6 +266,16 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(importAndCompareXiidm("ThreeWindingsTransformerWinding1Ratio"));
     }
 
+    @Test
+    public void slackBustp() {
+        assertTrue(importAndCompareXiidm("Slack_bustp"));
+    }
+
+    @Test
+    public void slackIpctrl() {
+        assertTrue(importAndCompareXiidm("Slack_ip_ctrl"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;

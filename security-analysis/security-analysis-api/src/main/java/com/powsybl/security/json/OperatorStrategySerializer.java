@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.io.IOException;
@@ -27,9 +28,13 @@ public class OperatorStrategySerializer extends StdSerializer<OperatorStrategy> 
     public void serialize(OperatorStrategy operatorStrategy, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("id", operatorStrategy.getId());
-        jsonGenerator.writeStringField("contingencyId", operatorStrategy.getContingencyId());
-        jsonGenerator.writeObjectField("condition", operatorStrategy.getCondition());
-        jsonGenerator.writeObjectField("actionIds", operatorStrategy.getActionIds());
+        ContingencyContext contingencyContext = operatorStrategy.getContingencyContext();
+        jsonGenerator.writeStringField("contingencyContextType", contingencyContext.getContextType().name());
+        if (contingencyContext.getContingencyId() != null) {
+            jsonGenerator.writeStringField("contingencyId", contingencyContext.getContingencyId());
+        }
+        serializerProvider.defaultSerializeField("condition", operatorStrategy.getCondition(), jsonGenerator);
+        serializerProvider.defaultSerializeField("actionIds", operatorStrategy.getActionIds(), jsonGenerator);
         JsonUtil.writeExtensions(operatorStrategy, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }

@@ -14,13 +14,9 @@ import java.util.*;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class PreContingencyResult {
+public class PreContingencyResult extends AbstractContingencyResult {
 
     private final LoadFlowResult.ComponentResult.Status status;
-
-    private final LimitViolationsResult limitViolationsResult;
-
-    private final NetworkResult networkResult;
 
     public PreContingencyResult() {
         this(LoadFlowResult.ComponentResult.Status.CONVERGED, null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
@@ -33,20 +29,11 @@ public class PreContingencyResult {
     }
 
     public PreContingencyResult(LoadFlowResult.ComponentResult.Status status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult) {
+        super(limitViolationsResult, networkResult);
         this.status = Objects.requireNonNull(status);
-        this.limitViolationsResult = limitViolationsResult;
-        this.networkResult = Objects.requireNonNull(networkResult);
     }
 
     public LoadFlowResult.ComponentResult.Status getStatus() {
         return status;
-    }
-
-    public LimitViolationsResult getLimitViolationsResult() {
-        return limitViolationsResult;
-    }
-
-    public NetworkResult getNetworkResult() {
-        return networkResult;
     }
 }

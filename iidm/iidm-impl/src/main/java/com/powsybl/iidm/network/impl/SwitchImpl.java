@@ -66,7 +66,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
             this.open.set(index, open);
             String variantId = network.getVariantManager().getVariantId(index);
             network.getListeners().notifyUpdate(this, "open", variantId, oldValue, open);
-            voltageLevel.invalidateCache();
+            voltageLevel.invalidateCache(isRetained());
         }
     }
 

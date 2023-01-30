@@ -96,20 +96,24 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         } else {
             transformer.remove();
         }
-
         observers.forEach(o -> o.transformerRemoved(transformer));
     }
 
     @Override
     protected void reduce(HvdcLine hvdcLine) {
-        VoltageLevel vl1 = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel();
-        VoltageLevel vl2 = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel();
-        if (getPredicate().test(vl1) || getPredicate().test(vl2)) {
-            throw new UnsupportedOperationException("Reduction of HVDC lines is not supported");
+        Terminal terminal1 = hvdcLine.getConverterStation1().getTerminal();
+        Terminal terminal2 = hvdcLine.getConverterStation2().getTerminal();
+        VoltageLevel vl1 = terminal1.getVoltageLevel();
+        VoltageLevel vl2 = terminal2.getVoltageLevel();
+        HvdcConverterStation<?> station1 = hvdcLine.getConverterStation1();
+        HvdcConverterStation<?> station2 = hvdcLine.getConverterStation2();
+        if (getPredicate().test(vl1)) {
+            replaceHvdcLine(hvdcLine, vl1, terminal1, station1);
+        } else if (getPredicate().test(vl2)) {
+            replaceHvdcLine(hvdcLine, vl2, terminal2, station2);
         } else {
             hvdcLine.remove();
         }
-
         observers.forEach(o -> o.hvdcLineRemoved(hvdcLine));
     }
 
@@ -176,6 +180,68 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setQ(q);
 
         return load;
+    }
+
+    private void replaceHvdcLine(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, HvdcConverterStation<?> station) {
+        if (station.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
+            VscConverterStation vscStation = (VscConverterStation) station;
+            if (vscStation.isVoltageRegulatorOn()) {
+                replaceHvdcLineByGenerator(hvdcLine, vl, terminal);
+            }
+        } else {
+            replaceHvdcLineByLoad(hvdcLine, vl, terminal);
+        }
+    }
+
+    private void replaceHvdcLineByLoad(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal) {
+        LoadAdder loadAdder = vl.newLoad()
+                .setId(hvdcLine.getId())
+                .setName(hvdcLine.getOptionalName().orElse(null))
+                .setLoadType(LoadType.FICTITIOUS)
+                .setP0(checkP(terminal))
+                .setQ0(checkQ(terminal));
+        fillNodeOrBus(loadAdder, terminal);
+
+        double p = terminal.getP();
+        double q = terminal.getQ();
+        HvdcConverterStation<?> converter1 = hvdcLine.getConverterStation1();
+        HvdcConverterStation<?> converter2 = hvdcLine.getConverterStation2();
+        hvdcLine.remove();
+        converter1.remove();
+        converter2.remove();
+
+        Load load = loadAdder.add();
+        load.getTerminal()
+                .setP(p)
+                .setQ(q);
+        observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, load));
+    }
+
+    private void replaceHvdcLineByGenerator(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal) {
+        GeneratorAdder genAdder = vl.newGenerator()
+                .setId(hvdcLine.getId())
+                .setName(hvdcLine.getOptionalName().orElse(null))
+                .setEnergySource(EnergySource.OTHER)
+                .setVoltageRegulatorOn(false)
+                .setMaxP(checkP(terminal))
+                .setMinP(0)
+                .setTargetP(checkP(terminal))
+                .setTargetQ(checkQ(terminal));
+        fillNodeOrBus(genAdder, terminal);
+
+        double p = terminal.getP();
+        double q = terminal.getQ();
+        HvdcConverterStation<?> converter1 = hvdcLine.getConverterStation1();
+        HvdcConverterStation<?> converter2 = hvdcLine.getConverterStation2();
+        hvdcLine.remove();
+        converter1.remove();
+        converter2.remove();
+
+        Generator generator = genAdder.add();
+        generator.getTerminal()
+                .setP(p)
+                .setQ(q);
+        observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
     }
 
     private static void fillNodeOrBus(InjectionAdder<?> adder, Terminal terminal) {
