@@ -30,7 +30,9 @@ public class IdentifierContingencyListSerializer extends StdSerializer<Identifie
         jsonGenerator.writeStringField("version", ContingencyList.getVersion());
         jsonGenerator.writeStringField("name", identifierContingencyList.getName());
         jsonGenerator.writeStringField("identifiableType", identifierContingencyList.getIdentifiableType().toString());
-        jsonGenerator.writeObjectField("identifiers", identifierContingencyList.getIdentifiants());
+        serializerProvider.defaultSerializeField("identifiers",
+                identifierContingencyList.getIdentifiants(),
+                jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

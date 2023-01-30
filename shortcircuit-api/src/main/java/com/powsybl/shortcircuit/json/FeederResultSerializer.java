@@ -28,7 +28,7 @@ public class FeederResultSerializer extends StdSerializer<FeederResult> {
 
         jsonGenerator.writeStringField("connectableId", result.getConnectableId());
         if (result.getCurrent() != null) {
-            jsonGenerator.writeObjectField("current", result.getCurrent());
+            serializerProvider.defaultSerializeField("current", result.getCurrent(), jsonGenerator);
         }
         jsonGenerator.writeEndObject();
     }

@@ -32,7 +32,7 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void linearShuntTest() throws IOException {
-        Network network = ShuntTestCaseFactory.create();
+        Network network = ShuntTestCaseFactory.createWithActivePower();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
         roundTripXmlTest(network,

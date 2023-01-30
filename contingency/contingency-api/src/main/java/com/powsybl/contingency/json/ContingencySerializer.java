@@ -28,7 +28,7 @@ public class ContingencySerializer extends StdSerializer<Contingency> {
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeStringField("id", contingency.getId());
-        jsonGenerator.writeObjectField("elements", contingency.getElements());
+        serializerProvider.defaultSerializeField("elements", contingency.getElements(), jsonGenerator);
 
         JsonUtil.writeExtensions(contingency, jsonGenerator, serializerProvider);
 

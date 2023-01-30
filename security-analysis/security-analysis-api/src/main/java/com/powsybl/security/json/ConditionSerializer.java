@@ -28,10 +28,10 @@ public class ConditionSerializer extends StdSerializer<Condition> {
         jsonGenerator.writeStringField("type", condition.getType());
         switch (condition.getType()) {
             case AllViolationCondition.NAME:
-                jsonGenerator.writeObjectField("violationIds", ((AllViolationCondition) condition).getViolationIds());
+                serializerProvider.defaultSerializeField("violationIds", ((AllViolationCondition) condition).getViolationIds(), jsonGenerator);
                 break;
             case AtLeastOneViolationCondition.NAME:
-                jsonGenerator.writeObjectField("violationIds", ((AtLeastOneViolationCondition) condition).getViolationIds());
+                serializerProvider.defaultSerializeField("violationIds", ((AtLeastOneViolationCondition) condition).getViolationIds(), jsonGenerator);
                 break;
             case TrueCondition.NAME:
             case AnyViolationCondition.NAME:

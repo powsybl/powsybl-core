@@ -55,7 +55,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     break;
                 case "studyType":
                     parser.nextToken();
-                    parameters.setStudyType(parser.readValueAs(StudyType.class));
+                    parameters.setStudyType(JsonUtil.readValue(deserializationContext, parser, StudyType.class));
                     break;
                 case "minVoltageDropProportionalThreshold":
                     parser.nextToken();

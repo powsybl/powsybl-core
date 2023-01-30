@@ -78,9 +78,11 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         Line mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
 
         mline.addAlias(boundaryLine1.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
-        mline.addAlias(boundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_Boundary");
+        mline.addAlias(boundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1");
+        mline.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1", boundaryLine1.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
         mline.addAlias(boundaryLine2.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
-        mline.addAlias(boundaryLine2.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_Boundary");
+        mline.addAlias(boundaryLine2.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2");
+        mline.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2", boundaryLine2.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
 
         context.convertedTerminal(boundaryLine1.getModelTerminalId(), mline.getTerminal1(), 1, boundaryLine1.getModelPowerFlow());
         context.convertedTerminal(boundaryLine2.getModelTerminalId(), mline.getTerminal2(), 2, boundaryLine2.getModelPowerFlow());
