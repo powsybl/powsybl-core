@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.*;
 
 import java.io.IOException;
@@ -37,7 +38,7 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> {
 
                 case "current":
                     parser.nextToken();
-                    current = parser.readValueAs(FortescueValue.class);
+                    current = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
                     break;
 
                 default:

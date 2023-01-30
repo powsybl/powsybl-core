@@ -8,7 +8,6 @@ package com.powsybl.security.json.action;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
@@ -47,9 +46,7 @@ public class MultipleActionsActionDeserializer extends StdDeserializer<MultipleA
                     return true;
                 case "actions":
                     jsonParser.nextToken();
-                    JavaType type = deserializationContext.getTypeFactory().
-                            constructCollectionType(List.class, Action.class);
-                    context.actions = deserializationContext.readValue(jsonParser, type);
+                    context.actions = JsonUtil.readList(deserializationContext, jsonParser, Action.class);
                     return true;
                 default:
                     return false;

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.*;
 
 import java.io.IOException;
@@ -43,7 +44,7 @@ class ShortCircuitBusResultsDeserializer extends StdDeserializer<ShortCircuitBus
 
                 case "voltage":
                     parser.nextToken();
-                    voltage = parser.readValueAs(FortescueValue.class);
+                    voltage = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
                     break;
 
                 default:
