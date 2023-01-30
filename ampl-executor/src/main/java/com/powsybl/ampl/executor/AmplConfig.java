@@ -13,7 +13,7 @@ import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
 public class AmplConfig {
-    private final static String AMPL_CONFIG_NAME = "ampl";
+    private static final String AMPL_CONFIG_NAME = "ampl";
     private final String amplHome;
 
     public AmplConfig(String amplHome) {
