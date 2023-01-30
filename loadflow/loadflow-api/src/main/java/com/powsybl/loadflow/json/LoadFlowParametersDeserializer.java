@@ -8,7 +8,6 @@ package com.powsybl.loadflow.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
@@ -54,7 +53,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "voltageInitMode":
                     parser.nextToken();
-                    parameters.setVoltageInitMode(parser.readValueAs(VoltageInitMode.class));
+                    parameters.setVoltageInitMode(JsonUtil.readValue(deserializationContext, parser, VoltageInitMode.class));
                     break;
 
                 case "transformerVoltageControlOn":
@@ -138,7 +137,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                 case "balanceType":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.4");
                     parser.nextToken();
-                    parameters.setBalanceType(parser.readValueAs(BalanceType.class));
+                    parameters.setBalanceType(JsonUtil.readValue(deserializationContext, parser, BalanceType.class));
                     break;
 
                 case "dcUseTransformerRatio":
@@ -150,14 +149,14 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                 case "countriesToBalance":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.5");
                     parser.nextToken();
-                    Set<Country> countries = parser.readValueAs(new TypeReference<Set<Country>>() { });
+                    Set<Country> countries = JsonUtil.readSet(deserializationContext, parser, Country.class);
                     parameters.setCountriesToBalance(countries);
                     break;
 
                 case "connectedComponentMode":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.5");
                     parser.nextToken();
-                    parameters.setConnectedComponentMode(parser.readValueAs(LoadFlowParameters.ConnectedComponentMode.class));
+                    parameters.setConnectedComponentMode(JsonUtil.readValue(deserializationContext, parser, LoadFlowParameters.ConnectedComponentMode.class));
                     break;
 
                 case "hvdcAcEmulation":

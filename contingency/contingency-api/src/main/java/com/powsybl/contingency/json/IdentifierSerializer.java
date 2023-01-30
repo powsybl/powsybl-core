@@ -33,7 +33,9 @@ public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier
                 jsonGenerator.writeStringField("identifier", ((IdBasedNetworkElementIdentifier) networkElementIdentifier).getIdentifier());
                 break;
             case LIST:
-                jsonGenerator.writeObjectField("identifierList", ((NetworkElementIdentifierList) networkElementIdentifier).getIdentifiers());
+                serializerProvider.defaultSerializeField("identifierList",
+                        ((NetworkElementIdentifierList) networkElementIdentifier).getIdentifiers(),
+                        jsonGenerator);
                 break;
             case VOLTAGE_LEVELS_AND_ORDER:
                 VoltageLevelAndOrderNetworkElementIdentifier ucteIdentifier = (VoltageLevelAndOrderNetworkElementIdentifier) networkElementIdentifier;

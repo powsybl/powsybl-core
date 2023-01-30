@@ -7,7 +7,6 @@
 package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -42,8 +41,7 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
                     return true;
                 case "operatorStrategies":
                     parser.nextToken(); // skip
-                    context.operatorStrategies = parser.readValueAs(new TypeReference<List<OperatorStrategy>>() {
-                    });
+                    context.operatorStrategies = JsonUtil.readList(deserializationContext, parser, OperatorStrategy.class);
                     return true;
                 default:
                     return false;

@@ -31,25 +31,25 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
 
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("status", String.valueOf(faultResult.getStatus()));
-        jsonGenerator.writeObjectField("fault", faultResult.getFault());
+        serializerProvider.defaultSerializeField("fault", faultResult.getFault(), jsonGenerator);
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "shortCircuitPower", faultResult.getShortCircuitPower());
         if (faultResult.getTimeConstant() != null) {
             jsonGenerator.writeStringField("timeConstant", faultResult.getTimeConstant().toString());
         }
         if (!(faultResult.getFeederResults()).isEmpty()) {
-            jsonGenerator.writeObjectField("feederResult", faultResult.getFeederResults());
+            serializerProvider.defaultSerializeField("feederResult", faultResult.getFeederResults(), jsonGenerator);
         }
         if (!(faultResult.getLimitViolations()).isEmpty()) {
-            jsonGenerator.writeObjectField("limitViolations", faultResult.getLimitViolations());
+            serializerProvider.defaultSerializeField("limitViolations", faultResult.getLimitViolations(), jsonGenerator);
         }
         if (faultResult.getCurrent() != null) {
-            jsonGenerator.writeObjectField("current", faultResult.getCurrent());
+            serializerProvider.defaultSerializeField("current", faultResult.getCurrent(), jsonGenerator);
         }
         if (faultResult.getVoltage() != null) {
-            jsonGenerator.writeObjectField("voltage", faultResult.getVoltage());
+            serializerProvider.defaultSerializeField("voltage", faultResult.getVoltage(), jsonGenerator);
         }
         if (!(faultResult.getShortCircuitBusResults()).isEmpty()) {
-            jsonGenerator.writeObjectField("shortCircuitBusResults", faultResult.getShortCircuitBusResults());
+            serializerProvider.defaultSerializeField("shortCircuitBusResults", faultResult.getShortCircuitBusResults(), jsonGenerator);
         }
         JsonUtil.writeExtensions(faultResult, jsonGenerator, serializerProvider);
 

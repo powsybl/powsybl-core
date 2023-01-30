@@ -582,6 +582,44 @@ public final class JsonUtil {
         return context.getAttribute(sourceVersionAttributeKey) != null ? (String) context.getAttribute(sourceVersionAttributeKey) : null;
     }
 
+    /**
+     * Reads a value using the given deserialization context (instead of only using the parser reading method that
+     * recreates a context every time).
+     * Also handles reading {@code null} values.
+     */
+    public static <T> T readValue(DeserializationContext context, JsonParser parser, Class<?> type) {
+        try {
+            if (parser.currentToken() != JsonToken.VALUE_NULL) {
+                JavaType jType = context.getTypeFactory()
+                        .constructType(type);
+                return context.readValue(parser, jType);
+            }
+            return null;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> List<T> readList(DeserializationContext context, JsonParser parser, Class<?> type) {
+        JavaType listType = context.getTypeFactory()
+                .constructCollectionType(List.class, type);
+        try {
+            return context.readValue(parser, listType);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> Set<T> readSet(DeserializationContext context, JsonParser parser, Class<?> type) {
+        JavaType setType = context.getTypeFactory()
+                .constructCollectionType(Set.class, type);
+        try {
+            return context.readValue(parser, setType);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static <T extends Enum> void writeOptionalEnum(JsonGenerator jsonGenerator, String field, Optional<T> optional) throws IOException {
         if (optional.isPresent()) {
             jsonGenerator.writeStringField(field, optional.get().toString());
