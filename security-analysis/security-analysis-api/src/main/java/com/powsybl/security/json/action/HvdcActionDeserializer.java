@@ -29,11 +29,12 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
     private static class ParsingContext {
         String id;
         String hvdcId;
-        boolean enabled;
+        boolean acEmulationEnabled;
         Double targetP;
         HvdcLine.ConvertersMode converterMode;
         Double droop;
         Double p0;
+        boolean relativeValue;
     }
 
     @Override
@@ -52,9 +53,9 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
                 case "hvdcId":
                     context.hvdcId = jsonParser.nextTextValue();
                     return true;
-                case "enabled":
+                case "acEmulationEnabled":
                     jsonParser.nextToken();
-                    context.enabled = jsonParser.getValueAsBoolean();
+                    context.acEmulationEnabled = jsonParser.getValueAsBoolean();
                     return true;
                 case "targetP":
                     jsonParser.nextToken();
@@ -71,11 +72,15 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
                     jsonParser.nextToken();
                     context.p0 = jsonParser.getValueAsDouble();
                     return true;
+                case "relativeValue":
+                    jsonParser.nextToken();
+                    context.relativeValue = jsonParser.getValueAsBoolean();
+                    return true;
                 default:
                     return false;
             }
         });
-        return new HvdcAction(context.id, context.hvdcId, context.enabled, context.targetP, context.converterMode,
-                context.droop, context.p0);
+        return new HvdcAction(context.id, context.hvdcId, context.acEmulationEnabled, context.targetP, context.converterMode,
+                context.droop, context.p0, context.relativeValue);
     }
 }

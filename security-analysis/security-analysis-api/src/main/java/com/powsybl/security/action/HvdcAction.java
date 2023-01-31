@@ -17,6 +17,7 @@ import java.util.OptionalDouble;
  * droop and p0 are parameters used for ac emulation only.
  * targetP is for fix target mode only.
  * ac emulation works only with vsc technology.
+ * attribute relative value if true add target p to the previous target p if false it replaces it
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
@@ -25,28 +26,38 @@ public class HvdcAction extends AbstractAction {
     public static final String NAME = "HVDC";
 
     private final String hvdcId;
-    private final boolean enabled;
+    private final boolean acEmulationEnabled;
     private final Double targetP;
     private final HvdcLine.ConvertersMode converterMode;
     private final Double droop;
     private final Double p0;
+    private final boolean relativeValue;
 
-    public HvdcAction(String id, String hvdcId, Double targetP, HvdcLine.ConvertersMode converterMode) {
-        this(id, hvdcId, false, targetP, converterMode, null, null);
+    public HvdcAction(String id, String hvdcId, Double targetP, HvdcLine.ConvertersMode converterMode, boolean relativeValue) {
+        this(id, hvdcId, false, targetP, converterMode, null, null, relativeValue);
     }
 
-    public HvdcAction(String id, String hvdcId, HvdcLine.ConvertersMode converterMode, Double droop, Double p0) {
-        this(id, hvdcId, true, null, converterMode, droop, p0);
+    public HvdcAction(String id, String hvdcId, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, boolean relativeValue) {
+        this(id, hvdcId, true, null, converterMode, droop, p0, relativeValue);
     }
 
-    public HvdcAction(String id, String hvdcId, boolean enabled, Double targetP, HvdcLine.ConvertersMode converterMode, Double droop, Double p0) {
+    public HvdcAction(String id, String hvdcId, boolean acEmulationEnabled, Double targetP, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, boolean relativeValue) {
         super(id);
         this.hvdcId = hvdcId;
-        this.enabled = enabled;
+        this.acEmulationEnabled = acEmulationEnabled;
         this.targetP = targetP;
         this.converterMode = converterMode;
         this.droop = droop;
         this.p0 = p0;
+        this.relativeValue = relativeValue;
+    }
+
+    public static HvdcAction activateAcEmulationMode(String id, String hvdcId, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, boolean relativeValue) {
+        return new HvdcAction(id, hvdcId, converterMode, droop, p0, relativeValue);
+    }
+
+    public static HvdcAction activateFixTargetMode(String id, String hvdcId, Double targetP, HvdcLine.ConvertersMode converterMode, boolean relativeValue) {
+        return new HvdcAction(id, hvdcId, targetP, converterMode, relativeValue);
     }
 
     @Override
@@ -74,7 +85,11 @@ public class HvdcAction extends AbstractAction {
         return p0 == null ? OptionalDouble.empty() : OptionalDouble.of(p0);
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public boolean isAcEmulationEnabled() {
+        return acEmulationEnabled;
+    }
+
+    public boolean isRelativeValue() {
+        return relativeValue;
     }
 }
