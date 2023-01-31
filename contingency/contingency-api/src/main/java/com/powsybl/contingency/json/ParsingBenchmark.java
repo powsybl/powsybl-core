@@ -52,9 +52,14 @@ public class ParsingBenchmark {
 
     private byte[] fileContent;
 
+    private ContingencyList contingencyList;
+
     @Setup
-    public void readContent() throws IOException {
+    public void read() throws IOException {
         fileContent = Files.readAllBytes(Path.of(contingencyListPath));
+        try (InputStream inputStream = Files.newInputStream(Path.of(contingencyListPath))) {
+            contingencyList = READER.readValue(inputStream);
+        }
     }
 
     @Benchmark
@@ -86,23 +91,15 @@ public class ParsingBenchmark {
 
     @Benchmark
     public void writing(Blackhole blackhole) throws IOException {
-        ContingencyList list;
-        try (InputStream inputStream = Files.newInputStream(Path.of(contingencyListPath))) {
-            list = READER.readValue(inputStream);
-        }
         try (OutputStream outputStream = Files.newOutputStream(Path.of("/tmp/trash"))) {
-            WRITER.writeValue(outputStream, list);
+            WRITER.writeValue(outputStream, contingencyList);
         }
     }
 
     @Benchmark
     public void bufferedWriting(Blackhole blackhole) throws IOException {
-        ContingencyList list;
-        try (InputStream inputStream = Files.newInputStream(Path.of(contingencyListPath))) {
-            list = READER.readValue(inputStream);
-        }
         try (Writer writer = Files.newBufferedWriter(Path.of("/tmp/trash"))) {
-            WRITER.writeValue(writer, list);
+            WRITER.writeValue(writer, contingencyList);
         }
     }
 
