@@ -30,11 +30,11 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
         String id;
         String hvdcId;
         boolean acEmulationEnabled;
-        Double targetP;
+        Double activePowerSetpoint;
         HvdcLine.ConvertersMode converterMode;
         Double droop;
         Double p0;
-        boolean relativeValue;
+        Boolean relativeValue = null;
     }
 
     @Override
@@ -57,9 +57,9 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
                     jsonParser.nextToken();
                     context.acEmulationEnabled = jsonParser.getValueAsBoolean();
                     return true;
-                case "targetP":
+                case "activePowerSetpoint":
                     jsonParser.nextToken();
-                    context.targetP = jsonParser.getValueAsDouble();
+                    context.activePowerSetpoint = jsonParser.getValueAsDouble();
                     return true;
                 case "converterMode":
                     context.converterMode = HvdcLine.ConvertersMode.valueOf(jsonParser.nextTextValue());
@@ -80,7 +80,7 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
                     return false;
             }
         });
-        return new HvdcAction(context.id, context.hvdcId, context.acEmulationEnabled, context.targetP, context.converterMode,
+        return new HvdcAction(context.id, context.hvdcId, context.acEmulationEnabled, context.activePowerSetpoint, context.converterMode,
                 context.droop, context.p0, context.relativeValue);
     }
 }

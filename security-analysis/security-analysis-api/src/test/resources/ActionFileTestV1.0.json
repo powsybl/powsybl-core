@@ -141,7 +141,7 @@
     "id" : "id22",
     "hvdcId" : "hvdc1",
     "acEmulationEnabled" : false,
-    "targetP" : 100.0,
+    "activePowerSetpoint" : 100.0,
     "converterMode" : "SIDE_1_RECTIFIER_SIDE_2_INVERTER",
     "relativeValue" : false
   }, {
@@ -153,5 +153,15 @@
     "droop" : 1.1,
     "p0" : 120.0,
     "relativeValue" : true
+  }, {
+    "type" : "HVDC",
+    "id" : "id24",
+    "hvdcId" : "hvdc2",
+    "acEmulationEnabled" : false
+  }, {
+    "type" : "HVDC",
+    "id" : "id25",
+    "hvdcId" : "hvdc2",
+    "acEmulationEnabled" : true
   } ]
 }
