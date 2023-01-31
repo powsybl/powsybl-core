@@ -191,10 +191,10 @@ public class TwtData {
 
             LinkData.Flow flow = calculateTwoConnectedLegsFlow(u1, theta1, u2, theta2,
                 branchAdmittanceLeg1, branchAdmittanceLeg2, branchAdmittanceLeg3);
-            computedP1 = flow.fromTo.getReal();
-            computedQ1 = flow.fromTo.getImaginary();
-            computedP2 = flow.toFrom.getReal();
-            computedQ2 = flow.toFrom.getImaginary();
+            computedP1 = flow.getFromTo().getReal();
+            computedQ1 = flow.getFromTo().getImaginary();
+            computedP2 = flow.getToFrom().getReal();
+            computedQ2 = flow.getToFrom().getImaginary();
             computedP3 = 0.0;
             computedQ3 = 0.0;
 
@@ -206,12 +206,12 @@ public class TwtData {
 
             LinkData.Flow flow = calculateTwoConnectedLegsFlow(u1, theta1, u3, theta3,
                 branchAdmittanceLeg1, branchAdmittanceLeg3, branchAdmittanceLeg2);
-            computedP1 = flow.fromTo.getReal();
-            computedQ1 = flow.fromTo.getImaginary();
+            computedP1 = flow.getFromTo().getReal();
+            computedQ1 = flow.getFromTo().getImaginary();
             computedP2 = 0.0;
             computedQ2 = 0.0;
-            computedP3 = flow.toFrom.getReal();
-            computedQ3 = flow.toFrom.getImaginary();
+            computedP3 = flow.getToFrom().getReal();
+            computedQ3 = flow.getToFrom().getImaginary();
 
             Complex v0 = calculateTwoConnectedLegsStarBusVoltage(u1, theta1, u3, theta3,
                 branchAdmittanceLeg1, branchAdmittanceLeg3, branchAdmittanceLeg2);
@@ -224,10 +224,10 @@ public class TwtData {
                 branchAdmittanceLeg2, branchAdmittanceLeg3, branchAdmittanceLeg1);
             computedP1 = 0.0;
             computedQ1 = 0.0;
-            computedP2 = flow.fromTo.getReal();
-            computedQ2 = flow.fromTo.getImaginary();
-            computedP3 = flow.toFrom.getReal();
-            computedQ3 = flow.toFrom.getImaginary();
+            computedP2 = flow.getFromTo().getReal();
+            computedQ2 = flow.getFromTo().getImaginary();
+            computedP3 = flow.getToFrom().getReal();
+            computedQ3 = flow.getToFrom().getImaginary();
 
             Complex v0 = calculateTwoConnectedLegsStarBusVoltage(u2, theta2, u3, theta3,
                 branchAdmittanceLeg2, branchAdmittanceLeg3, branchAdmittanceLeg1);
@@ -316,12 +316,12 @@ public class TwtData {
         LinkData.Flow flowLeg3 = LinkData.flowBothEnds(branchAdmittanceLeg3.y11(), branchAdmittanceLeg3.y12(),
             branchAdmittanceLeg3.y21(), branchAdmittanceLeg3.y22(), v3, v0);
 
-        computedP1 = flowLeg1.fromTo.getReal();
-        computedQ1 = flowLeg1.fromTo.getImaginary();
-        computedP2 = flowLeg2.fromTo.getReal();
-        computedQ2 = flowLeg2.fromTo.getImaginary();
-        computedP3 = flowLeg3.fromTo.getReal();
-        computedQ3 = flowLeg3.fromTo.getImaginary();
+        computedP1 = flowLeg1.getFromTo().getReal();
+        computedQ1 = flowLeg1.getFromTo().getImaginary();
+        computedP2 = flowLeg2.getFromTo().getReal();
+        computedQ2 = flowLeg2.getFromTo().getImaginary();
+        computedP3 = flowLeg3.getFromTo().getReal();
+        computedQ3 = flowLeg3.getFromTo().getImaginary();
 
         starU = v0.abs();
         starTheta = v0.getArgument();
