@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Results for one fault computation with current and voltage magnitude.
+ * Results for one fault computation with current magnitude.
  *
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
