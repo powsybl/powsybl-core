@@ -32,8 +32,8 @@ import java.util.concurrent.TimeUnit;
  */
 @BenchmarkMode(Mode.SingleShotTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
-@Warmup(iterations = 5)
-@Measurement(iterations = 5)
+@Warmup(iterations = 10)
+@Measurement(iterations = 100)
 @Fork(5)
 @State(Scope.Thread)
 public class ParsingBenchmark {
