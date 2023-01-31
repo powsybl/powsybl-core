@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion.test.conformity;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
@@ -19,10 +21,18 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
+import com.powsybl.iidm.network.util.DanglingLineData;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
+import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
+import com.powsybl.loadflow.validation.ValidationConfig;
+import com.powsybl.loadflow.validation.ValidationType;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -31,6 +41,9 @@ import static org.junit.Assert.*;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Cgmes3ConversionTest {
+
+    private static final String PROPERTY_V = "v";
+    private static final String PROPERTY_ANGLE = "angle";
 
     @Test
     public void loadNetworkMicroGrid() {
@@ -290,6 +303,46 @@ public class Cgmes3ConversionTest {
         assertTrue(true);
     }
 
+    @Test
+    public void smallGridBalances() throws IOException {
+        Network network = new CgmesImport().importData(Cgmes3Catalog.smallGrid().dataSource(), NetworkFactory.findDefault(), null);
+
+        balanceCheck(network, 0.0001);
+    }
+
+    @Test
+    public void smallGridBalancesDanglingLinesCompletionVoltageAsProperties() throws IOException {
+        Network network = new CgmesImport().importData(Cgmes3Catalog.smallGrid().dataSource(), NetworkFactory.findDefault(), null);
+
+        // Set boundary voltages as properties
+        network.getDanglingLines().forEach(dl -> {
+
+            DanglingLineData dlData = new DanglingLineData(dl);
+            dl.setProperty(PROPERTY_V, Double.toString(dlData.getBoundaryBusU()));
+            dl.setProperty(PROPERTY_ANGLE, Double.toString(Math.toDegrees(dlData.getBoundaryBusTheta())));
+        });
+
+        balanceCheck(network, 0.0001);
+    }
+
+    @Test
+    public void smallGridBalancesDanglingLinesCompletionVoltageAsPropertiesInvalidateNetworkFlow() throws IOException {
+        Network network = new CgmesImport().importData(Cgmes3Catalog.smallGrid().dataSource(), NetworkFactory.findDefault(), null);
+
+        // Set boundary voltages as properties
+        // Invalidate flows at the network side
+        network.getDanglingLines().forEach(dl -> {
+
+            DanglingLineData dlData = new DanglingLineData(dl);
+            dl.setProperty(PROPERTY_V, Double.toString(dlData.getBoundaryBusU()));
+            dl.setProperty(PROPERTY_ANGLE, Double.toString(Math.toDegrees(dlData.getBoundaryBusTheta())));
+
+            dl.getTerminal().setP(Double.NaN).setQ(Double.NaN);
+        });
+
+        balanceCheck(network, 0.0001);
+    }
+
     private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();
@@ -317,5 +370,30 @@ public class Cgmes3ConversionTest {
             load.getTerminal().setP(Double.NaN);
             load.getTerminal().setQ(Double.NaN);
         });
+    }
+
+    // threshold precision required on bus balances (MVA)
+    private static void balanceCheck(Network network, double threshold) throws IOException {
+
+        // config
+        ValidationConfig config = ValidationConfig.load();
+        config.setVerbose(true);
+        config.setThreshold(threshold);
+        config.setOkMissingValues(false);
+        LoadFlowParameters lfParams = new LoadFlowParameters();
+        lfParams.setTwtSplitShuntAdmittance(true);
+        config.setLoadFlowParameters(lfParams);
+
+        // computeMissingFlows
+        LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
+            LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
+            LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
+            LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
+        LoadFlowResultsCompletion lfrc = new LoadFlowResultsCompletion(p, lfParams);
+        lfrc.run(network, null);
+
+        // Balance
+        Path work = Files.createDirectories(Jimfs.newFileSystem(Configuration.unix()).getPath("/lf-validation" + network.getId()));
+        assertTrue(ValidationType.BUSES.check(network, config, work));
     }
 }

@@ -31,9 +31,6 @@ class DanglingLineTestData {
     public static double P0 = -367.40;
     public static double Q0 = 63.73;
 
-    public static double BOUNDARY_BUS_U = 406.63;
-    public static double BOUNDARY_BUS_ANGLE = -8.57;
-
     private Bus bus;
     private BusView busView;
     private BusBreakerView busBreakerView;
@@ -57,6 +54,8 @@ class DanglingLineTestData {
         Mockito.when(terminal.isConnected()).thenReturn(true);
         Mockito.when(terminal.getBusView()).thenReturn(busView);
         Mockito.when(terminal.getBusBreakerView()).thenReturn(busBreakerView);
+        Mockito.when(terminal.getP()).thenReturn(-367.35795801563415);
+        Mockito.when(terminal.getQ()).thenReturn(63.73282249057797);
 
         Mockito.when(danglingLine.getR()).thenReturn(r);
         Mockito.when(danglingLine.getX()).thenReturn(x);
@@ -70,11 +69,20 @@ class DanglingLineTestData {
         return danglingLine;
     }
 
-    public void setP0Zero() {
-        Mockito.when(danglingLine.getP0()).thenReturn(0.0);
+    public void setInvalidNetworkVoltage() {
+        Mockito.when(bus.getV()).thenReturn(Double.NaN);
+        Mockito.when(bus.getAngle()).thenReturn(Double.NaN);
     }
 
-    public void setQ0Zero() {
-        Mockito.when(danglingLine.getQ0()).thenReturn(0.0);
+    public void setInvalidNetworkFlow() {
+        Mockito.when(terminal.getP()).thenReturn(Double.NaN);
+        Mockito.when(terminal.getQ()).thenReturn(Double.NaN);
+    }
+
+    public void setZ0() {
+        Mockito.when(danglingLine.getR()).thenReturn(0.0);
+        Mockito.when(danglingLine.getX()).thenReturn(0.0);
+        Mockito.when(danglingLine.getG()).thenReturn(0.0);
+        Mockito.when(danglingLine.getB()).thenReturn(0.0);
     }
 }
