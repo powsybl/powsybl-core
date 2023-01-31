@@ -18,6 +18,8 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -56,6 +58,7 @@ public class CgmesExportContext {
     private boolean exportBoundaryPowerFlows = true;
     private boolean exportFlowsForSwitches = false;
     private boolean exportEquipment = false;
+    private boolean encodeIds = true;
 
     private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
 
@@ -607,6 +610,18 @@ public class CgmesExportContext {
 
     public CgmesExportContext setExportFlowsForSwitches(boolean exportFlowsForSwitches) {
         this.exportFlowsForSwitches = exportFlowsForSwitches;
+        return this;
+    }
+
+    public String encode(String id) {
+        if (encodeIds) {
+            return URLEncoder.encode(id, StandardCharsets.UTF_8);
+        }
+        return id;
+    }
+
+    public CgmesExportContext setEncodeIds(boolean encodeIds) {
+        this.encodeIds = encodeIds;
         return this;
     }
 
