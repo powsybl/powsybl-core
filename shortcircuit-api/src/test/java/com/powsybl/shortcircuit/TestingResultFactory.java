@@ -33,7 +33,7 @@ public final class TestingResultFactory {
         List<ShortCircuitBusResults> busResults = new ArrayList<>();
         busResults.add(new FortescueShortCircuitBusResults("VLGEN", "busId", 2800, new FortescueValue(2004, 2005), 70));
         FortescueFaultResult faultResult3 = new FortescueFaultResult(fault, 1.0, Collections.emptyList(),
-                Collections.emptyList(), new FortescueValue(2002, 2003), null, busResults, null, FortescueFaultResult.Status.SUCCESS);
+                Collections.emptyList(), new FortescueValue(2002, 2003), null, busResults, null, FaultResult.Status.SUCCESS);
         faultResults.add(faultResult1);
         faultResults.add(faultResult2);
         faultResults.add(faultResult3);

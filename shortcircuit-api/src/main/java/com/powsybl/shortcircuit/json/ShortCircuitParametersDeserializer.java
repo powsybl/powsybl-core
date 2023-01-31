@@ -74,7 +74,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 case "withFortescueResult":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageDropProfileResult", version, "1.1");
                     parser.nextToken();
-                    parameters.setWithFortescueResults(parser.readValueAs(Boolean.class));
+                    parameters.setWithFortescueResult(parser.readValueAs(Boolean.class));
                     break;
                 case "extensions":
                     parser.nextToken();

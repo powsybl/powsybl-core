@@ -31,14 +31,14 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
-    // VERSION = 1.1 withVoltageMap -> withFortescueResults and withVoltageResult
+    // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
     public static final String VERSION = "1.1";
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
             .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "short-circuit-parameters"));
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
-    private boolean withFortescueResults = DEFAULT_WITH_FORTESCUE_RESULT;
+    private boolean withFortescueResult = DEFAULT_WITH_FORTESCUE_RESULT;
     private boolean withFeederResult = DEFAULT_WITH_FEEDER_RESULT;
     private StudyType studyType = DEFAULT_STUDY_TYPE;
     private boolean withVoltageResult = DEFAULT_WITH_VOLTAGE_RESULT;
@@ -58,11 +58,11 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
         platformConfig.getOptionalModuleConfig("short-circuit-parameters").ifPresent(config ->
                 parameters.setWithLimitViolations(config.getBooleanProperty("with-limit-violations", DEFAULT_WITH_LIMIT_VIOLATIONS))
-                        .setWithVoltageResult(config.getBooleanProperty("with-voltage-profile-result", DEFAULT_WITH_VOLTAGE_RESULT))
+                        .setWithVoltageResult(config.getBooleanProperty("with-voltage-result", DEFAULT_WITH_VOLTAGE_RESULT))
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
-                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
-                        .setWithFortescueResults(config.getBooleanProperty("with-voltage-drop-profile-result", DEFAULT_WITH_FORTESCUE_RESULT)));
+                        .setWithFortescueResult(config.getBooleanProperty("with-fortescue-result", DEFAULT_WITH_FORTESCUE_RESULT))
+                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD)));
 
         parameters.readExtensions(platformConfig);
 
@@ -103,12 +103,12 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     /** Whether faultResults, feederResults and shortCircuitBusResults should be detailed for each phase as FortescueValues
      * or if only the three-phase magnitude for currents and voltages should be given. **/
-    public boolean isWithFortescueResults() {
-        return withFortescueResults;
+    public boolean isWithFortescueResult() {
+        return withFortescueResult;
     }
 
-    public ShortCircuitParameters setWithFortescueResults(boolean withFortescueResults) {
-        this.withFortescueResults = withFortescueResults;
+    public ShortCircuitParameters setWithFortescueResult(boolean withFortescueResult) {
+        this.withFortescueResult = withFortescueResult;
         return this;
     }
 
