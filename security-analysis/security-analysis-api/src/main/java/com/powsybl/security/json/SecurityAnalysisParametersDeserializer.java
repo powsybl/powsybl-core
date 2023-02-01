@@ -50,7 +50,9 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                 case "increased-violations-parameters":
                     JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.0");
                     parser.nextToken();
-                    parameters.setIncreasedViolationsParameters(parser.readValueAs(SecurityAnalysisParameters.IncreasedViolationsParameters.class));
+                    parameters.setIncreasedViolationsParameters(JsonUtil.readValue(deserializationContext,
+                            parser,
+                            SecurityAnalysisParameters.IncreasedViolationsParameters.class));
                     break;
                 case "load-flow-parameters":
                     parser.nextToken();

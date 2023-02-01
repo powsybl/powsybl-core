@@ -25,11 +25,11 @@ class PostContingencyResultSerializer extends StdSerializer<PostContingencyResul
     @Override
     public void serialize(PostContingencyResult postContingencyResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeObjectField("contingency", postContingencyResult.getContingency());
-        jsonGenerator.writeObjectField("status", postContingencyResult.getStatus());
-        jsonGenerator.writeObjectField("limitViolationsResult", postContingencyResult.getLimitViolationsResult());
-        jsonGenerator.writeObjectField("networkResult", postContingencyResult.getNetworkResult());
-        jsonGenerator.writeObjectField("connectivityResult", postContingencyResult.getConnectivityResult());
+        serializerProvider.defaultSerializeField("contingency", postContingencyResult.getContingency(), jsonGenerator);
+        serializerProvider.defaultSerializeField("status", postContingencyResult.getStatus(), jsonGenerator);
+        serializerProvider.defaultSerializeField("limitViolationsResult", postContingencyResult.getLimitViolationsResult(), jsonGenerator);
+        serializerProvider.defaultSerializeField("networkResult", postContingencyResult.getNetworkResult(), jsonGenerator);
+        serializerProvider.defaultSerializeField("connectivityResult", postContingencyResult.getConnectivityResult(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

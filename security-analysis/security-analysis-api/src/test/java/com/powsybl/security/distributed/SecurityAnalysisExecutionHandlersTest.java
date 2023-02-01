@@ -13,6 +13,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -117,7 +118,7 @@ public class SecurityAnalysisExecutionHandlersTest {
     @Test
     public void forwardedBeforeWithCompleteInput() throws IOException {
         Action action = new SwitchAction("action", "switch", false);
-        OperatorStrategy strategy = new OperatorStrategy("strat", "cont", new TrueCondition(), List.of("action"));
+        OperatorStrategy strategy = new OperatorStrategy("strat", ContingencyContext.specificContingency("cont"), new TrueCondition(), List.of("action"));
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setParameters(new SecurityAnalysisParameters())

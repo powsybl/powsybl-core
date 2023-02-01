@@ -575,11 +575,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void invalidateCache() {
-        variants.get().calculatedBusBreakerTopology.invalidateCache();
+    public void invalidateCache(boolean exceptBusBreakerView) {
+        if (!exceptBusBreakerView) {
+            variants.get().calculatedBusBreakerTopology.invalidateCache();
+            getNetwork().getBusBreakerView().invalidateCache();
+        }
         variants.get().calculatedBusTopology.invalidateCache();
         getNetwork().getBusView().invalidateCache();
-        getNetwork().getBusBreakerView().invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
         getNetwork().getSynchronousComponentsManager().invalidate();
     }

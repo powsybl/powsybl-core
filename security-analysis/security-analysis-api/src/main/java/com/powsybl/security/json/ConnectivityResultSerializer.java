@@ -27,11 +27,11 @@ public class ConnectivityResultSerializer extends StdSerializer<ConnectivityResu
     public void serialize(ConnectivityResult connectivityResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
 
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeObjectField("createdSynchronousComponentCount", connectivityResult.getCreatedSynchronousComponentCount());
-        jsonGenerator.writeObjectField("createdConnectedComponentCount", connectivityResult.getCreatedConnectedComponentCount());
-        jsonGenerator.writeObjectField("disconnectedLoadActivePower", connectivityResult.getDisconnectedLoadActivePower());
-        jsonGenerator.writeObjectField("disconnectedGenerationActivePower", connectivityResult.getDisconnectedGenerationActivePower());
-        jsonGenerator.writeObjectField("disconnectedElements", connectivityResult.getDisconnectedElements());
+        serializerProvider.defaultSerializeField("createdSynchronousComponentCount", connectivityResult.getCreatedSynchronousComponentCount(), jsonGenerator);
+        serializerProvider.defaultSerializeField("createdConnectedComponentCount", connectivityResult.getCreatedConnectedComponentCount(), jsonGenerator);
+        serializerProvider.defaultSerializeField("disconnectedLoadActivePower", connectivityResult.getDisconnectedLoadActivePower(), jsonGenerator);
+        serializerProvider.defaultSerializeField("disconnectedGenerationActivePower", connectivityResult.getDisconnectedGenerationActivePower(), jsonGenerator);
+        serializerProvider.defaultSerializeField("disconnectedElements", connectivityResult.getDisconnectedElements(), jsonGenerator);
         jsonGenerator.writeEndObject();
 
     }
