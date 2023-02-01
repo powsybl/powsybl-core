@@ -104,6 +104,7 @@ class GeneratorScalableTest {
 
     @Test
     void testDisconnectedGenerator() {
+        assertTrue(network.getGenerator("g3").getTerminal().isConnected());
         g3.scale(network, 100.0);
 
         assertTrue(network.getGenerator("g3").getTerminal().isConnected());
@@ -276,6 +277,18 @@ class GeneratorScalableTest {
         //Case 4 : generator.getTargetP() not in interval, skipped
         assertEquals(0, generator2.getTargetP(), 1e-3);
         assertEquals(0, g5.scale(network, 50, convention), 1e-3);
+    }
+
+    @Test
+    public void testReconnect() {
+        Generator generator = network.getGenerator("g1");
+        generator.getTerminal().disconnect();
+        assertFalse(generator.getTerminal().isConnected());
+        assertEquals(0.0, generator.getTargetP(), 1e-3);
+
+        assertEquals(20.0, g1.scale(network, 20.0, true), 1e-3);
+        assertEquals(20.0, generator.getTargetP(), 1e-3);
+        assertTrue(generator.getTerminal().isConnected());
     }
 
 }

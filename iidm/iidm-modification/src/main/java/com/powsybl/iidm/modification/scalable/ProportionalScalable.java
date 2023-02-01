@@ -122,17 +122,17 @@ class ProportionalScalable extends AbstractCompoundScalable {
         });
     }
 
-    private double iterativeScale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
+    private double iterativeScale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor, boolean reconnect) {
         double done = 0;
         while (Math.abs(asked - done) > EPSILON && notSaturated()) {
             checkIterationPercentages();
-            done += scaleIteration(n, asked - done, scalingConvention, constantPowerFactor);
+            done += scaleIteration(n, asked - done, scalingConvention, constantPowerFactor, reconnect);
             updateIterationPercentages();
         }
         return done;
     }
 
-    private double scaleIteration(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
+    private double scaleIteration(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor, boolean reconnect) {
         double done = 0;
         for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             Scalable s = scalablePercentage.getScalable();
@@ -140,9 +140,9 @@ class ProportionalScalable extends AbstractCompoundScalable {
             double askedOnScalable = iterationPercentage / 100 * asked;
             double doneOnScalable = 0;
             if (constantPowerFactor) {
-                doneOnScalable = s.scaleWithConstantPowerFactor(n, askedOnScalable, scalingConvention);
+                doneOnScalable = s.scaleWithConstantPowerFactor(n, askedOnScalable, scalingConvention, reconnect);
             } else {
-                doneOnScalable = s.scale(n, askedOnScalable, scalingConvention);
+                doneOnScalable = s.scale(n, askedOnScalable, scalingConvention, reconnect);
             }
             if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
                 scalablePercentage.setIterationPercentage(0);
@@ -153,31 +153,36 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
+    public double scaleWithConstantPowerFactor(Network n, double asked, boolean reconnect) {
+        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR, reconnect);
     }
 
     @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
+    public double scaleWithConstantPowerFactor(Network n, double asked) {
+        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR, false);
+    }
+
+    @Override
+    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention, boolean reconnect) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
         reinitIterationPercentage();
         if (iterative) {
-            return iterativeScale(n, asked, scalingConvention, true);
+            return iterativeScale(n, asked, scalingConvention, true, reconnect);
         } else {
-            return scaleIteration(n, asked, scalingConvention, true);
+            return scaleIteration(n, asked, scalingConvention, true, reconnect);
         }
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
+    public double scale(Network n, double asked, ScalingConvention scalingConvention, boolean reconnect) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
         reinitIterationPercentage();
         if (iterative) {
-            return iterativeScale(n, asked, scalingConvention, false);
+            return iterativeScale(n, asked, scalingConvention, false, reconnect);
         } else {
-            return scaleIteration(n, asked, scalingConvention, false);
+            return scaleIteration(n, asked, scalingConvention, false, reconnect);
         }
     }
 

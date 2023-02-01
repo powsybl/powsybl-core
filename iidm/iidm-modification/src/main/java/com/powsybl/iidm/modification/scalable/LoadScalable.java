@@ -95,7 +95,7 @@ class LoadScalable extends AbstractInjectionScalable {
         }
     }
 
-    private double scale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
+    private double scale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor, boolean reconnect) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
@@ -108,7 +108,7 @@ class LoadScalable extends AbstractInjectionScalable {
         }
 
         Terminal t = l.getTerminal();
-        if (!t.isConnected()) {
+        if (!t.isConnected() && reconnect) {
             t.connect();
             LOGGER.info("Connecting {}", l.getId());
         }
@@ -152,17 +152,17 @@ class LoadScalable extends AbstractInjectionScalable {
      * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
      */
     @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
-        return scale(n, asked, scalingConvention, false);
+    public double scale(Network n, double asked, ScalingConvention scalingConvention, boolean reconnect) {
+        return scale(n, asked, scalingConvention, false, reconnect);
     }
 
     @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
-        return scale(n, asked, scalingConvention, true);
+    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention, boolean reconnect) {
+        return scale(n, asked, scalingConvention, true, reconnect);
     }
 
     @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
+    public double scaleWithConstantPowerFactor(Network n, double asked, boolean reconnect) {
+        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR, reconnect);
     }
 }
