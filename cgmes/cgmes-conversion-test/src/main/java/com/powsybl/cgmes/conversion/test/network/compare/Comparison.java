@@ -870,7 +870,7 @@ public class Comparison {
                 if (!actual.getAliasType(alias).isPresent()) {
                     diff.missing(type.get());
                 }
-                compare("alias", type.get(), actual.getAliasType(alias).get());
+                compare("alias", type.get(), actual.getAliasType(alias).orElseThrow());
             }
         }
         for (String alias : actual.getAliases()) {
