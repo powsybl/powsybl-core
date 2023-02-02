@@ -17,6 +17,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.After;
 import org.junit.Before;
@@ -287,6 +288,27 @@ public class CgmesConformity1ConversionTest {
     @Test
     public void smallNodeBreakerHvdcOnlyEQ() {
         assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdcOnlyEQ().dataSource(), NetworkFactory.findDefault(), null));
+    }
+
+    @Test
+    public void microNLActivePowerControlNoExtensionByDefault() {
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(), NetworkFactory.findDefault(), null);
+        Generator g = network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e");
+        ActivePowerControl<Generator> ext = g.getExtension(ActivePowerControl.class);
+        assertNull(ext);
+    }
+
+    @Test
+    public void microNLActivePowerControlExtension() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CREATE_ACTIVE_POWER_CONTROL_EXTENSION, "true");
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(), NetworkFactory.findDefault(), importParams);
+        Generator g = network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e");
+        ActivePowerControl<Generator> ext = g.getExtension(ActivePowerControl.class);
+        assertNotNull(ext);
+        assertTrue(Double.isNaN(ext.getDroop()));
+        assertEquals(1.0, ext.getParticipationFactor(), 0.0);
+        assertTrue(ext.isParticipate());
     }
 
     private static class TxData {

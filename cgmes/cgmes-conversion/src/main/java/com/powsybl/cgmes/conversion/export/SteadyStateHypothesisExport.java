@@ -648,10 +648,14 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static GeneratingUnit generatingUnitForGenerator(Generator g, CgmesExportContext context) {
-        if (g.hasProperty(GENERATING_UNIT_PROPERTY) && (g.getExtension(ActivePowerControl.class) != null)) {
+        if (g.hasProperty(GENERATING_UNIT_PROPERTY) && ((g.getExtension(ActivePowerControl.class) != null) || g.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"))) {
             GeneratingUnit gu = new GeneratingUnit();
             gu.id = context.getNamingStrategy().getCgmesIdFromProperty(g, GENERATING_UNIT_PROPERTY);
-            gu.participationFactor = g.getExtension(ActivePowerControl.class).getParticipationFactor();
+            if (g.getExtension(ActivePowerControl.class) != null) {
+                gu.participationFactor = g.getExtension(ActivePowerControl.class).getParticipationFactor();
+            } else {
+                gu.participationFactor = Double.valueOf(g.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"));
+            }
             gu.className = generatingUnitClassname(g);
             return gu;
         }
