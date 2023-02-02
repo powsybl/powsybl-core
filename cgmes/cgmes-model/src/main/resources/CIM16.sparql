@@ -264,7 +264,8 @@ SELECT *
 # query: connectivityNodeContainers
 SELECT *
 WHERE {
-{ GRAPH ?graphEQ {
+# FIXME(Luma) when we fix voltage levels VL definitions may be in a different graph from the original Bay
+# { GRAPH ?graphEQ {
     ?ConnectivityNodeContainer a ?connectivityNodeContainerType .
     VALUES ?connectivityNodeContainerType { cim:VoltageLevel cim:Bay cim:Line } .
     OPTIONAL {
@@ -278,7 +279,7 @@ WHERE {
             cim:Bay.VoltageLevel ?VoltageLevel .
         ?VoltageLevel cim:VoltageLevel.Substation ?Substation
     }
-}}
+# }}
 }
 
 # query: voltages

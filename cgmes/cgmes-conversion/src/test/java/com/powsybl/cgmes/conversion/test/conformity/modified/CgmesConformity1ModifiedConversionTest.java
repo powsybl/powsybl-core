@@ -1052,6 +1052,14 @@ public class CgmesConformity1ModifiedConversionTest {
         assertFalse(rtc.isRegulating());
     }
 
+    @Test
+    public void miniGridNodeBreakerMissingVoltageLevel() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.PRE_PROCESSORS, "DefineMissingContainers");
+        Network network = Network.read(CgmesConformity1ModifiedCatalog.miniGridNodeBreakerMissingVoltageLevel().dataSource(), importParams);
+        assertNotNull(network);
+    }
+
     private static void checkTerminals(PropertyBags eqSeq, PropertyBags eqNoSeq, String idPropertyName, String terminal1PropertyName, String terminal2PropertyName) {
         Map<String, String> eqsSeqTerminal1 = eqSeq.stream().collect(Collectors.toMap(acls -> acls.getId(idPropertyName), acls -> acls.getId(terminal1PropertyName)));
         Map<String, String> eqsSeqTerminal2 = eqSeq.stream().collect(Collectors.toMap(acls -> acls.getId(idPropertyName), acls -> acls.getId(terminal2PropertyName)));

@@ -16,11 +16,11 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterScope;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
@@ -46,8 +46,10 @@ import java.util.stream.Collectors;
 @AutoService(Importer.class)
 public class CgmesImport implements Importer {
 
-    public CgmesImport(PlatformConfig platformConfig, List<CgmesImportPostProcessor> postProcessors) {
+    public CgmesImport(PlatformConfig platformConfig, List<CgmesImportPreProcessor> preProcessors, List<CgmesImportPostProcessor> postProcessors) {
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+        this.preProcessors = Objects.requireNonNull(preProcessors).stream()
+                .collect(Collectors.toMap(CgmesImportPreProcessor::getName, e -> e));
         this.postProcessors = Objects.requireNonNull(postProcessors).stream()
                 .collect(Collectors.toMap(CgmesImportPostProcessor::getName, e -> e));
         String boundaryPath = platformConfig.getConfigDir()
@@ -64,6 +66,12 @@ public class CgmesImport implements Importer {
                 boundaryPath,
                 null,
                 ParameterScope.TECHNICAL);
+        preProcessorsParameter = new Parameter(
+                PRE_PROCESSORS,
+                ParameterType.STRING_LIST,
+                "Pre processors",
+                Collections.emptyList(),
+                preProcessors.stream().map(CgmesImportPreProcessor::getName).collect(Collectors.toList()));
         postProcessorsParameter = new Parameter(
                 POST_PROCESSORS,
                 ParameterType.STRING_LIST,
@@ -73,11 +81,13 @@ public class CgmesImport implements Importer {
     }
 
     public CgmesImport(PlatformConfig platformConfig) {
-        this(platformConfig, new ServiceLoaderCache<>(CgmesImportPostProcessor.class).getServices());
+        this(platformConfig,
+                new ServiceLoaderCache<>(CgmesImportPreProcessor.class).getServices(),
+                new ServiceLoaderCache<>(CgmesImportPostProcessor.class).getServices());
     }
 
-    public CgmesImport(List<CgmesImportPostProcessor> postProcessors) {
-        this(PlatformConfig.defaultConfig(), postProcessors);
+    public CgmesImport(List<CgmesImportPreProcessor> preProcessors, List<CgmesImportPostProcessor> postProcessors) {
+        this(PlatformConfig.defaultConfig(), preProcessors, postProcessors);
     }
 
     public CgmesImport() {
@@ -128,7 +138,7 @@ public class CgmesImport implements Importer {
         Reporter tripleStoreReporter = reporter.createSubReporter("CGMESTriplestore", "Reading CGMES Triplestore");
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReporter, options);
         Reporter conversionReporter = reporter.createSubReporter("CGMESConversion", "Importing CGMES file(s)");
-        return new Conversion(cgmes, config(ds, p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
+        return new Conversion(cgmes, config(ds, p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
     }
 
     @Override
@@ -261,6 +271,21 @@ public class CgmesImport implements Importer {
         return config;
     }
 
+    private List<CgmesImportPreProcessor> activatedPreProcessors(Properties p) {
+        return Parameter
+                .readStringList(getFormat(), p, preProcessorsParameter, defaultValueConfig)
+                .stream()
+                .filter(name -> {
+                    boolean found = preProcessors.containsKey(name);
+                    if (!found) {
+                        LOGGER.warn("CGMES pre processor {} not found", name);
+                    }
+                    return found;
+                })
+                .map(preProcessors::get)
+                .collect(Collectors.toList());
+    }
+
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {
         return Parameter
                 .readStringList(getFormat(), p, postProcessorsParameter, defaultValueConfig)
@@ -298,6 +323,7 @@ public class CgmesImport implements Importer {
     public static final String ID_MAPPING_FILE_PATH = "iidm.import.cgmes.id-mapping-file-path";
     public static final String ID_MAPPING_FILE_NAMING_STRATEGY = "iidm.import.cgmes.id-mapping-file-naming-strategy";
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
+    public static final String PRE_PROCESSORS = "iidm.import.cgmes.pre-processors";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
     public static final String PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS = "iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions";
@@ -421,8 +447,10 @@ public class CgmesImport implements Importer {
             CREATE_ACTIVE_POWER_CONTROL_EXTENSION_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
+    private final Parameter preProcessorsParameter;
     private final Parameter postProcessorsParameter;
     private final Map<String, CgmesImportPostProcessor> postProcessors;
+    private final Map<String, CgmesImportPreProcessor> preProcessors;
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CgmesImport.class);
