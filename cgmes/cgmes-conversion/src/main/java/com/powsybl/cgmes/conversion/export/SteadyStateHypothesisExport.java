@@ -653,7 +653,7 @@ public final class SteadyStateHypothesisExport {
             gu.id = context.getNamingStrategy().getCgmesIdFromProperty(g, GENERATING_UNIT_PROPERTY);
             if (g.getExtension(ActivePowerControl.class) != null) {
                 gu.participationFactor = g.getExtension(ActivePowerControl.class).getParticipationFactor();
-            } else if (g.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF")) {
+            } else {
                 gu.participationFactor = Double.valueOf(g.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"));
             }
             gu.className = generatingUnitClassname(g);
