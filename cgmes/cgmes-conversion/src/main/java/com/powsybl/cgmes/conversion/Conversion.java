@@ -810,6 +810,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean createActivePowerControlExtension() {
+            return createActivePowerExtension;
+        }
+
+        public Config setCreateActivePowerExtension(boolean createActivePowerExtension) {
+            this.createActivePowerExtension = createActivePowerExtension;
+            return this;
+        }
+
         public boolean isEnsureIdAliasUnicity() {
             return ensureIdAliasUnicity;
         }
@@ -896,6 +905,7 @@ public class Conversion {
         private StateProfile profileForInitialValuesShuntSectionsTapPositions = SSH;
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
+        private boolean createActivePowerExtension = false;
 
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;
