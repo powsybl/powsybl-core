@@ -17,6 +17,6 @@ public class AmplConfigTest {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("ampl");
         moduleConfig.setStringProperty("homeDir", "/home/test/ampl");
         AmplConfig cfg = AmplConfig.getConfig(platformConfig);
-        Assert.assertEquals("Error parsing Ampl Home", cfg.getAmplHome(), "/home/test/ampl");
+        Assert.assertEquals("Error parsing Ampl Home", "/home/test/ampl", cfg.getAmplHome());
     }
 }
