@@ -114,7 +114,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
 
-        DanglingLineCharacteristics.GenerationImpl generation = null;
+        DanglingLineImpl.GenerationImpl generation = null;
         if (generationAdder != null) {
             generation = generationAdder.build();
         }

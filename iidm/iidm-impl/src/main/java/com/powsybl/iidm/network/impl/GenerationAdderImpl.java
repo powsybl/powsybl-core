@@ -75,7 +75,7 @@ class GenerationAdderImpl<H extends DanglingLineCharacteristicsAdder<H>> impleme
         return (H) parent;
     }
 
-    DanglingLineCharacteristics.GenerationImpl build() {
-        return new DanglingLineCharacteristics.GenerationImpl(parent.getNetwork(), minP, maxP, targetP, targetQ, targetV, voltageRegulationOn);
+    DanglingLineImpl.GenerationImpl build() {
+        return new DanglingLineImpl.GenerationImpl(parent.getNetwork(), minP, maxP, targetP, targetQ, targetV, voltageRegulationOn);
     }
 }
