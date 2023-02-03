@@ -301,6 +301,14 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         super.remove();
     }
 
+    void removeFromParent() {
+        NetworkImpl n = getNetwork();
+        n.getListeners().notifyBeforeRemoval(this);
+        n.getIndex().remove(this);
+        n.getListeners().notifyAfterRemoval(id);
+        removed = true;
+    }
+
     @Override
     protected String getTypeDescription() {
         return parent != null ? "Tie line's dangling line" : "Dangling line";
