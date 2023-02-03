@@ -22,7 +22,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     static class GenerationImpl implements DanglingLine.Generation, ReactiveLimitsOwner, Validable {
 
-        private AbstractConnectable<?> danglingLine;
+        private DanglingLineImpl danglingLine;
 
         private ReactiveLimitsHolderImpl reactiveLimits;
 
@@ -57,10 +57,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             }
         }
 
-        DanglingLineImpl.GenerationImpl attach(AbstractConnectable<?> parent) {
+        GenerationImpl attach(DanglingLineImpl parent) {
             if (this.danglingLine != null) {
                 throw new AssertionError("DanglingLine.Generation already attached to " + this.danglingLine.getId());
             }
+
             this.danglingLine = Objects.requireNonNull(parent);
             this.reactiveLimits = new ReactiveLimitsHolderImpl(this.danglingLine, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
@@ -73,7 +74,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
-        public DanglingLineImpl.GenerationImpl setTargetP(double targetP) {
+        public GenerationImpl setTargetP(double targetP) {
             NetworkImpl n = danglingLine.getNetwork();
             ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP, n.getMinValidationLevel());
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
@@ -90,7 +91,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
-        public DanglingLineImpl.GenerationImpl setMaxP(double maxP) {
+        public GenerationImpl setMaxP(double maxP) {
             ValidationUtil.checkMaxP(danglingLine, maxP);
             ValidationUtil.checkActivePowerLimits(danglingLine, minP, maxP);
             double oldValue = this.maxP;
@@ -105,7 +106,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
-        public DanglingLineImpl.GenerationImpl setMinP(double minP) {
+        public GenerationImpl setMinP(double minP) {
             ValidationUtil.checkMinP(danglingLine, minP);
             ValidationUtil.checkActivePowerLimits(danglingLine, minP, maxP);
             double oldValue = this.minP;
@@ -120,7 +121,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
-        public DanglingLineImpl.GenerationImpl setTargetQ(double targetQ) {
+        public GenerationImpl setTargetQ(double targetQ) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = n.getVariantIndex();
             ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ, n.getMinValidationLevel());
@@ -137,7 +138,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
-        public DanglingLineImpl.GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
+        public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
             ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn,
@@ -156,7 +157,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         @Override
-        public DanglingLineImpl.GenerationImpl setTargetV(double targetV) {
+        public GenerationImpl setTargetV(double targetV) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
             ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex),
@@ -244,7 +245,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     private final GenerationImpl generation;
 
     private OperationalLimitsHolderImpl operationalLimitsHolder;
-
     // attributes depending on the variant
 
     private final TDoubleArrayList p0;
@@ -370,7 +370,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public DanglingLineImpl setX(double x) {
-        ValidationUtil.checkR(this, x);
+        ValidationUtil.checkX(this, x);
         double oldValue = this.x;
         this.x = x;
         notifyUpdate("x", oldValue, x);
@@ -497,6 +497,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
+        // nothing to do
     }
 
     @Override
