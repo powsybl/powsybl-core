@@ -15,7 +15,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.InputStream;
 import java.util.List;
 
-
 /**
  * Interface to represent an Ampl model to run on a network.
  * <p>
