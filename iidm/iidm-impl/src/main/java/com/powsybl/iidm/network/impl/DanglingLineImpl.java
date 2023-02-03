@@ -20,7 +20,7 @@ import java.util.*;
  */
 class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine {
 
-    static class GenerationImpl implements DanglingLine.Generation, ReactiveLimitsOwner, Validable {
+    static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
         private DanglingLineImpl danglingLine;
 
@@ -57,12 +57,12 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             }
         }
 
-        GenerationImpl attach(DanglingLineImpl parent) {
+        GenerationImpl attach(DanglingLineImpl danglingLine) {
             if (this.danglingLine != null) {
                 throw new AssertionError("DanglingLine.Generation already attached to " + this.danglingLine.getId());
             }
 
-            this.danglingLine = Objects.requireNonNull(parent);
+            this.danglingLine = Objects.requireNonNull(danglingLine);
             this.reactiveLimits = new ReactiveLimitsHolderImpl(this.danglingLine, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
             return this;
@@ -77,9 +77,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         public GenerationImpl setTargetP(double targetP) {
             NetworkImpl n = danglingLine.getNetwork();
             ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP, n.getMinValidationLevel());
-            int variantIndex = danglingLine.getNetwork().getVariantIndex();
+            int variantIndex = danglingLine.network.get().getVariantIndex();
             double oldValue = this.targetP.set(variantIndex, targetP);
-            String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
+            String variantId = danglingLine.network.get().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
             danglingLine.notifyUpdate("targetP", variantId, oldValue, targetP);
             return this;
