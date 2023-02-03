@@ -162,110 +162,12 @@ package com.powsybl.iidm.network;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public interface TieLine extends Line {
+public interface TieLine extends Line, Container<Line> {
 
-    /**
-     * Half line
-     *
-     * <p>
-     *  Characteristics
-     * </p>
-     *
-     * <table style="border: 1px solid black; border-collapse: collapse">
-     *     <thead>
-     *         <tr>
-     *             <th style="border: 1px solid black">Attribute</th>
-     *             <th style="border: 1px solid black">Type</th>
-     *             <th style="border: 1px solid black">Unit</th>
-     *             <th style="border: 1px solid black">Required</th>
-     *             <th style="border: 1px solid black">Defaut value</th>
-     *             <th style="border: 1px solid black">Description</th>
-     *         </tr>
-     *     </thead>
-     *     <tbody>
-     *         <tr>
-     *             <td style="border: 1px solid black">Id</td>
-     *             <td style="border: 1px solid black">String</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">Unique identifier of the half line</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">Name</td>
-     *             <td style="border: 1px solid black">String</td>
-     *             <td style="border: 1px solid black">-</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">Human-readable name of the half line</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">R</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">&Omega;</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The series resistance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">X</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">&Omega;</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The series reactance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">G1</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">S</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The first side shunt conductance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">B1</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">S</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The first side shunt susceptance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">G2</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">S</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The second side shunt conductance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">B2</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">S</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The second side shunt susceptance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">XNodeP</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">MW</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The active power consumption</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">XNodeQ</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">MVar</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The reactive power consumption</td>
-     *         </tr>
-     *     </tbody>
-     * </table>
-     */
+    @Override
+    default ContainerType getContainerType() {
+        return ContainerType.TIE_LINE;
+    }
 
     /**
      * Get the UCTE Xnode code corresponding to this line in the case where the
