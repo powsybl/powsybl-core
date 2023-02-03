@@ -135,14 +135,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         }
 
         private DanglingLineImpl build() {
-            return new DanglingLineImpl(getNetwork().getRef(), checkAndGetUniqueId(id -> {
-                Identifiable<?> i = getNetwork().getIndex().get(id);
-                if (i != null) {
-                    // a disconnected dangling line can have the same ID as a merged dangling line
-                    return !(i instanceof DanglingLine);
-                }
-                return false;
-            }),
+            return new DanglingLineImpl(getNetwork().getRef(), checkAndGetUniqueId(),
                     getName(), isFictitious(), p0, q0, r, x, g, b,
                     halfUcteXnodeCode, generationAdder != null ? generationAdder.build() : null);
         }
@@ -231,7 +224,9 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         }
 
         DanglingLineImpl half1 = halfLineAdder1.build();
+        network.getIndex().checkAndAdd(half1);
         DanglingLineImpl half2 = halfLineAdder2.build();
+        network.getIndex().checkAndAdd(half2);
 
         // check that the line is attachable on both side
         voltageLevel1.attach(terminal1, true);

@@ -932,8 +932,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             MergedLine l = new MergedLine();
             l.id = buildMergedId(dl1.getId(), dl2.getId());
             l.aliases = new HashSet<>();
-            l.aliases.add(dl1.getId());
-            l.aliases.add(dl2.getId());
             l.aliases.addAll(dl1.getAliases());
             l.aliases.addAll(dl2.getAliases());
             Terminal t1 = dl1.getTerminal();

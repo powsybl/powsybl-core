@@ -138,4 +138,11 @@ class TieLineImpl extends AbstractBranch<Line> implements TieLine {
     public LineImpl setB2(double b2) {
         throw createNotSupportedForTieLines();
     }
+
+    @Override
+    public void remove() {
+        half1.removeFromParent();
+        half2.removeFromParent();
+        super.remove();
+    }
 }
