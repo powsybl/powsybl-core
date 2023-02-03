@@ -6,6 +6,15 @@
  */
 package com.powsybl.ampl.executor;
 
+import com.powsybl.ampl.converter.AmplExporter;
+import com.powsybl.ampl.converter.AmplNetworkReader;
+import com.powsybl.ampl.converter.AmplUtil;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.computation.*;
+import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,20 +24,6 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
-
-import com.powsybl.ampl.converter.AmplExporter;
-import com.powsybl.ampl.converter.AmplNetworkReader;
-import com.powsybl.ampl.converter.AmplUtil;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.computation.AbstractExecutionHandler;
-import com.powsybl.computation.Command;
-import com.powsybl.computation.CommandExecution;
-import com.powsybl.computation.ExecutionReport;
-import com.powsybl.computation.SimpleCommandBuilder;
-import com.powsybl.iidm.network.Network;
 
 /**
  * This executionHandler will run an ampl model on a network.
@@ -52,11 +47,15 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
     private String networkVariant;
     private AmplConfig config;
 
-    public AmplModelExecutionHandler(IAmplModel model, Network network, String networkVariant) {
+    public AmplModelExecutionHandler(IAmplModel model, Network network, String networkVariant, AmplConfig config) {
         this.model = model;
         this.network = network;
         this.networkVariant = networkVariant;
-        this.config = AmplConfig.getConfig();
+        this.config = config;
+    }
+
+    public AmplModelExecutionHandler(IAmplModel model, Network network, String networkVariant) {
+        this(model, network, networkVariant, AmplConfig.getConfig());
     }
 
     private void exportAmplModel(Path workingDir) throws IOException {
@@ -80,7 +79,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         }
     }
 
-    private CommandExecution createAmplRunCommand(AmplConfig config, IAmplModel model) {
+    protected static CommandExecution createAmplRunCommand(AmplConfig config, IAmplModel model) {
         Command cmd = new SimpleCommandBuilder()
                 .id(COMMAND_ID)
                 .program(getAmplBinPath(config))
@@ -89,7 +88,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         return new CommandExecution(cmd, 1, 0);
     }
 
-    private String getAmplBinPath(AmplConfig cfg) {
+    protected static String getAmplBinPath(AmplConfig cfg) {
         return cfg.getAmplHome() + File.separator + AMPL_BINARY;
     }
 

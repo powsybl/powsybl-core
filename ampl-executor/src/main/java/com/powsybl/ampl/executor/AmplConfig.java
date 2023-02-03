@@ -6,11 +6,11 @@
  */
 package com.powsybl.ampl.executor;
 
-import java.util.Optional;
-
 import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+
+import java.util.Optional;
 
 public class AmplConfig {
     private static final String AMPL_CONFIG_NAME = "ampl";
@@ -21,8 +21,11 @@ public class AmplConfig {
     }
 
     public static AmplConfig getConfig() {
-        Optional<ModuleConfig> amplModuleConfigOpt = PlatformConfig.defaultConfig()
-                .getOptionalModuleConfig(AMPL_CONFIG_NAME);
+        return getConfig(PlatformConfig.defaultConfig());
+    }
+
+    public static AmplConfig getConfig(PlatformConfig platformConfig) {
+        Optional<ModuleConfig> amplModuleConfigOpt = platformConfig.getOptionalModuleConfig(AMPL_CONFIG_NAME);
         if (amplModuleConfigOpt.isEmpty()) {
             throw new ConfigurationException("Module " + AMPL_CONFIG_NAME + " is missing in the configuration file");
         }
