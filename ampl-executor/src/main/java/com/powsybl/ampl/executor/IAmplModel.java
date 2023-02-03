@@ -6,14 +6,15 @@
  */
 package com.powsybl.ampl.executor;
 
-import java.io.InputStream;
-import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
-
+import com.powsybl.ampl.converter.AmplExporter;
 import com.powsybl.ampl.converter.AmplNetworkReader;
 import com.powsybl.ampl.converter.NetworkApplier;
 import com.powsybl.ampl.converter.OutputFileFormat;
+import org.apache.commons.lang3.tuple.Pair;
+
+import java.io.InputStream;
+import java.util.List;
+
 
 /**
  * Interface to represent an Ampl model to run on a network.
@@ -35,25 +36,26 @@ import com.powsybl.ampl.converter.OutputFileFormat;
  * </ul>
  */
 public interface IAmplModel {
+
     /**
      * @return each pair contains the name and the InputStream of every ampl file of
-     *         the model (.run .dat .mod)
+     * the model (.run .dat .mod)
      */
-    public List<Pair<String, InputStream>> getModelAsStream();
+    List<Pair<String, InputStream>> getModelAsStream();
 
     /**
      * @return the list of the files to run in ampl (.run files)
      */
-    public List<String> getAmplRunFiles();
+    List<String> getAmplRunFiles();
 
-    public String getOutputFilePrefix();
+    String getOutputFilePrefix();
 
-    public NetworkApplier getNetworkApplier();
+    NetworkApplier getNetworkApplier();
 
-    public int getVariant();
+    int getVariant();
 
-    public OutputFileFormat getOutputFormat();
+    OutputFileFormat getOutputFormat();
 
-    public String getNetworkDataPrefix();
+    String getNetworkDataPrefix();
 
 }
