@@ -515,6 +515,9 @@ public class CgmesExportContext {
 
     private static void addIidmMappingsEquivalentInjection(Network network) {
         for (DanglingLine danglingLine : network.getDanglingLines()) {
+            if (danglingLine.isMerged()) {
+                continue;
+            }
             String alias;
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             if (alias == null) {
@@ -542,6 +545,9 @@ public class CgmesExportContext {
                     .add();
             CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
             for (DanglingLine danglingLine : network.getDanglingLines()) {
+                if (danglingLine.isMerged()) {
+                    continue;
+                }
                 cgmesControlArea.add(danglingLine.getTerminal());
             }
         }

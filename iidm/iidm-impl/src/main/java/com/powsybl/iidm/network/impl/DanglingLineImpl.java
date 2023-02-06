@@ -280,12 +280,19 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         } else if (side == Branch.Side.TWO) {
             this.operationalLimitsHolder = parent.operationalLimitsHolder2;
         }
-        addTerminal((TerminalExt) parent.getTerminal(side), false);
     }
 
     @Override
     public TerminalExt getTerminal() {
-        return terminals.get(0);
+        return parent != null ? null : terminals.get(0);
+    }
+
+    @Override
+    public List<TerminalExt> getTerminals() {
+        if (parent != null) {
+            return Collections.emptyList();
+        }
+        return super.getTerminals();
     }
 
     @Override

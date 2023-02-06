@@ -37,7 +37,7 @@ public final class UcteAliasesCreation {
             addElementNameAlias(branch, duplicatedAliases);
         });
         network.getSwitchStream().forEach(switchEl -> addElementNameAlias(switchEl, duplicatedAliases));
-        network.getDanglingLineStream().forEach(dl -> addElementNameAlias(dl, duplicatedAliases));
+        network.getDanglingLineStream().filter(dl -> !dl.isMerged()).forEach(dl -> addElementNameAlias(dl, duplicatedAliases));
     }
 
     private static void addElementNameAlias(Identifiable<?> identifiable, Set<String> duplicatedAliases) {
