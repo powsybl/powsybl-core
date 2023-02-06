@@ -15,7 +15,6 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -29,7 +28,6 @@ import static org.junit.Assert.*;
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
-@Ignore // FIXME !!! UCTE importer imports two dangling lines with same ID
 public class UcteExporterTest extends AbstractConverterTest {
 
     /**

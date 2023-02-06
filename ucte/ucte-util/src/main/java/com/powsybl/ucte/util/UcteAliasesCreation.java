@@ -32,8 +32,6 @@ public final class UcteAliasesCreation {
         network.getBranchStream().forEach(branch -> {
             if (branch instanceof TieLine) {
                 TieLine tieLine = (TieLine) branch;
-                tieLine.addAlias(tieLine.getHalf1().getId());
-                tieLine.addAlias(tieLine.getHalf2().getId());
                 addHalfElementNameAliases(tieLine, duplicatedAliases);
             }
             addElementNameAlias(branch, duplicatedAliases);

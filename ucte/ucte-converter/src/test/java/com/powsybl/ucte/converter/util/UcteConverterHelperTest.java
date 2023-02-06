@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -23,7 +22,6 @@ import static org.junit.Assert.assertNotEquals;
 /**
  * @author Abdelsalem HEDHILI  {@literal <abdelsalem.hedhili at rte-france.com>}
  */
-@Ignore // FIXME !!! UCTE importer imports two dangling lines with same ID
 public class UcteConverterHelperTest {
 
     private static Network reference;
