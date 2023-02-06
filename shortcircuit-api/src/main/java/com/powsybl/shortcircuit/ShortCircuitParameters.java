@@ -89,7 +89,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
      */
     @Deprecated
     public boolean isWithVoltageMap() {
-        return withVoltageResult;
+        return isWithVoltageResult();
     }
 
     /**
