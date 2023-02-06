@@ -55,7 +55,7 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
             for (FaultResult action : result.getFaultResults()) {
                 if (action instanceof FortescueFaultResult) {
                     formatter.writeCell(action.getFault().getElementId())
-                            .writeCell(((FortescueFaultResult) action).getThreePhaseFaultCurrent());
+                            .writeCell(((FortescueFaultResult) action).getCurrent().getDirectMagnitude());
                 } else {
                     formatter.writeCell(action.getFault().getElementId())
                             .writeCell(((MagnitudeFaultResult) action).getCurrent());

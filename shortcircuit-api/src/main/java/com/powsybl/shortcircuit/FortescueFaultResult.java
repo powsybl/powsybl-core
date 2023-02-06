@@ -46,13 +46,6 @@ public final class FortescueFaultResult extends AbstractFaultResult {
     }
 
     /**
-     * Value of the three phase short-circuit current for this fault (in kA).
-     */
-    public double getThreePhaseFaultCurrent() {
-        return current.getDirectMagnitude();
-    }
-
-    /**
      * The results on three phases for current.
      */
     public FortescueValue getCurrent() {
