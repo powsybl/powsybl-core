@@ -17,15 +17,11 @@ import java.util.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian@ at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class PostContingencyResult {
+public class PostContingencyResult extends AbstractContingencyResult {
 
     private final Contingency contingency;
 
     private final PostContingencyComputationStatus status;
-
-    private final LimitViolationsResult limitViolationsResult;
-
-    private final NetworkResult networkResult;
 
     private final ConnectivityResult connectivityResult;
 
@@ -39,10 +35,9 @@ public class PostContingencyResult {
     }
 
     public PostContingencyResult(Contingency contingency, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult, NetworkResult networkResult, ConnectivityResult connectivityResult) {
+        super(limitViolationsResult, networkResult);
         this.contingency = Objects.requireNonNull(contingency);
         this.status = Objects.requireNonNull(status);
-        this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
-        this.networkResult = Objects.requireNonNull(networkResult);
         this.connectivityResult = Objects.requireNonNull(connectivityResult);
     }
 
@@ -67,14 +62,6 @@ public class PostContingencyResult {
 
     public PostContingencyComputationStatus getStatus() {
         return status;
-    }
-
-    public LimitViolationsResult getLimitViolationsResult() {
-        return limitViolationsResult;
-    }
-
-    public NetworkResult getNetworkResult() {
-        return networkResult;
     }
 
     public ConnectivityResult getConnectivityResult() {

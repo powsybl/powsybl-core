@@ -1,7 +1,6 @@
 package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
@@ -35,8 +34,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                     return true;
                 case "violationIds":
                     parser.nextToken();
-                    context.violationIds = parser.readValueAs(new TypeReference<List<String>>() {
-                    });
+                    context.violationIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     return true;
                 default:
                     return false;

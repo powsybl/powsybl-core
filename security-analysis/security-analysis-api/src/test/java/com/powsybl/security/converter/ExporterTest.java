@@ -38,7 +38,7 @@ import static org.junit.Assert.*;
  */
 public class ExporterTest extends AbstractConverterTest {
 
-    private static final Network NETWORK = EurostagTutorialExample1Factory.createWithCurrentLimits();
+    private static final Network NETWORK = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
     private static SecurityAnalysisResult create() {
         // Create a LimitViolation(CURRENT) to ensure backward compatibility works

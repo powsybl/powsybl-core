@@ -28,7 +28,7 @@ public class ActionListSerializer extends StdSerializer<ActionList> {
     public void serialize(ActionList actionList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
-        jsonGenerator.writeObjectField("actions", actionList.getActions());
+        serializerProvider.defaultSerializeField("actions", actionList.getActions(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

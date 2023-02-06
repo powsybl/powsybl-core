@@ -9,9 +9,9 @@ package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.results.ConnectivityResult;
 
 import java.io.IOException;
@@ -56,8 +56,7 @@ public class ConnectivityResultDeserializer extends StdDeserializer<Connectivity
                     break;
                 case "disconnectedElements":
                     parser.nextToken();
-                    disconnectedElements = parser.readValueAs(new TypeReference<Set<String>>() {
-                    });
+                    disconnectedElements = JsonUtil.readSet(deserializationContext, parser, String.class);
                     break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
