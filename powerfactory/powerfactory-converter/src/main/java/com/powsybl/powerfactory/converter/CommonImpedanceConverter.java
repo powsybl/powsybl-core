@@ -8,12 +8,15 @@ package com.powsybl.powerfactory.converter;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 
 import java.util.List;
 
 import org.apache.commons.math3.complex.Complex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -27,7 +30,11 @@ class CommonImpedanceConverter extends AbstractConverter {
     }
 
     void create(DataObject elmZpu) {
-        List<NodeRef> nodeRefs = checkNodes(elmZpu, 2);
+        List<NodeRef> nodeRefs = findNodes(elmZpu);
+        if (nodeRefs.size() != 2) {
+            LOGGER.warn("Common Impedance discarded as it does not have two ends '{}'", elmZpu);
+            return;
+        }
 
         NodeRef end1 = nodeRefs.get(0);
         NodeRef end2 = nodeRefs.get(1);
@@ -112,4 +119,6 @@ class CommonImpedanceConverter extends AbstractConverter {
             return new CommonImpedanceModel(r12, x12, r21, x21, g1, b1, g2, b2);
         }
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CommonImpedanceConverter.class);
 }

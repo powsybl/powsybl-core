@@ -276,6 +276,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
         assertTrue(importAndCompareXiidm("Slack_ip_ctrl"));
     }
 
+    @Test
+    public void lineWithOnlyOneSideTest() {
+        assertTrue(importAndCompareXiidm("LineWithOnlyOneSide"));
+    }
+
     private boolean importAndCompareXiidm(String powerfactoryCase) {
         importAndCompareXml(powerfactoryCase);
         return true;

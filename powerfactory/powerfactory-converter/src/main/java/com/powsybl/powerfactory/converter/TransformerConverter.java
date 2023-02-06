@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
+import com.powsybl.powerfactory.converter.AbstractConverter.NodeRef;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.PowerFactoryException;
@@ -40,7 +41,12 @@ class TransformerConverter extends AbstractConverter {
 
         DataObject typTr2 = elmTr2.getObjectAttributeValue(DataAttributeNames.TYP_ID).resolve().orElseThrow();
 
-        List<NodeRef> nodeRefs = checkNodes(elmTr2, 2);
+        List<NodeRef> nodeRefs = findNodes(elmTr2);
+        if (nodeRefs.size() != 2) {
+            LOGGER.warn("TwoWindingTransformer discarded as it does not have two ends '{}'", elmTr2);
+            return;
+        }
+
         NodeRef nodeRef1 = nodeRefs.get(0);
         NodeRef nodeRef2 = nodeRefs.get(1);
 
@@ -90,7 +96,12 @@ class TransformerConverter extends AbstractConverter {
 
         DataObject typTr3 = elmTr3.getObjectAttributeValue(DataAttributeNames.TYP_ID).resolve().orElseThrow();
 
-        List<NodeRef> nodeRefs = checkNodes(elmTr3, 3);
+        List<NodeRef> nodeRefs = findNodes(elmTr3);
+        if (nodeRefs.size() != 3) {
+            LOGGER.warn("ThreeWindingTransformer discarded as it does not have three ends '{}'", elmTr3);
+            return;
+        }
+
         NodeRef nodeRef1 = nodeRefs.get(0);
         NodeRef nodeRef2 = nodeRefs.get(1);
         NodeRef nodeRef3 = nodeRefs.get(2);

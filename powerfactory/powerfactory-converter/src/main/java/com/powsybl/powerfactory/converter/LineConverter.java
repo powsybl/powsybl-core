@@ -15,6 +15,9 @@ import com.powsybl.powerfactory.model.PowerFactoryException;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -27,7 +30,12 @@ class LineConverter extends AbstractConverter {
     }
 
     void create(DataObject elmLne) {
-        List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
+        List<NodeRef> nodeRefs = findNodes(elmLne);
+        if (nodeRefs.size() != 2) {
+            LOGGER.warn("Line discarded as it does not have two ends '{}'", elmLne);
+            return;
+        }
+
         Optional<LineModel> lineModel = LineModel.createFromElmLne(elmLne);
         if (lineModel.isEmpty()) {
             return;
@@ -69,7 +77,12 @@ class LineConverter extends AbstractConverter {
     }
 
     private void createFromElmLneFromElmTow(DataObject elmTow, DataObject elmLne) {
-        List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
+        List<NodeRef> nodeRefs = findNodes(elmLne);
+        if (nodeRefs.size() != 2) {
+            LOGGER.warn("Line discarded as it does not have two ends '{}'", elmLne);
+            return;
+        }
+
         Optional<LineModel> lineModel = LineModel.createFromElmTow(elmTow, elmLne);
 
         NodeRef end1 = nodeRefs.get(0);
@@ -164,4 +177,6 @@ class LineConverter extends AbstractConverter {
                 .orElseThrow(() -> new PowerFactoryException("Unexpected elmTow configuration '" + elmTow.getLocName() + "'"));
         }
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LineConverter.class);
 }
