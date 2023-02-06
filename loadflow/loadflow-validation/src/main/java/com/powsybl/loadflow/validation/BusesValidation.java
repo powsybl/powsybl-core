@@ -97,8 +97,8 @@ public final class BusesValidation {
         double vscCSQ = bus.getVscConverterStationStream().map(VscConverterStation::getTerminal).mapToDouble(Terminal::getQ).sum();
         double lineP = bus.getLineStream().map(line -> getBranchTerminal(line, bus)).mapToDouble(Terminal::getP).sum();
         double lineQ = bus.getLineStream().map(line -> getBranchTerminal(line, bus)).mapToDouble(Terminal::getQ).sum();
-        double danglingLineP = bus.getDanglingLineStream().map(DanglingLine::getTerminal).mapToDouble(Terminal::getP).sum();
-        double danglingLineQ = bus.getDanglingLineStream().map(DanglingLine::getTerminal).mapToDouble(Terminal::getQ).sum();
+        double danglingLineP = bus.getDanglingLineStream().filter(dl -> !dl.isMerged()).map(DanglingLine::getTerminal).mapToDouble(Terminal::getP).sum();
+        double danglingLineQ = bus.getDanglingLineStream().filter(dl -> !dl.isMerged()).map(DanglingLine::getTerminal).mapToDouble(Terminal::getQ).sum();
         double twtP = bus.getTwoWindingsTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getP).sum();
         double twtQ = bus.getTwoWindingsTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getQ).sum();
         double tltP = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();

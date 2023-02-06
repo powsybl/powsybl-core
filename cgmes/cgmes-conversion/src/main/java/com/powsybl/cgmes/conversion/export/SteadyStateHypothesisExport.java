@@ -101,6 +101,9 @@ public final class SteadyStateHypothesisExport {
             }
         }
         for (DanglingLine dl : network.getDanglingLines()) {
+            if (dl.isMerged()) {
+                continue;
+            }
             // Terminal for equivalent injection at boundary is always connected
             if (dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal") != null) {
                 writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), true, cimNamespace, writer);
@@ -116,6 +119,9 @@ public final class SteadyStateHypothesisExport {
         // One equivalent injection for every dangling line
         List<String> exported = new ArrayList<>();
         for (DanglingLine dl : network.getDanglingLines()) {
+            if (dl.isMerged()) {
+                continue;
+            }
             writeEquivalentInjection(dl, exported, cimNamespace, writer, context);
         }
     }
