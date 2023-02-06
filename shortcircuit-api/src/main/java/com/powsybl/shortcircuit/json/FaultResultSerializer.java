@@ -73,6 +73,9 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         if (!Double.isNaN(((MagnitudeFaultResult) faultResult).getCurrent())) {
             serializerProvider.defaultSerializeField("currentMagnitude", ((MagnitudeFaultResult) faultResult).getCurrent(), jsonGenerator);
         }
+        if (!Double.isNaN(((MagnitudeFaultResult) faultResult).getVoltage())) {
+            serializerProvider.defaultSerializeField("voltageMagnitude", ((MagnitudeFaultResult) faultResult).getVoltage(), jsonGenerator);
+        }
     }
 
 }

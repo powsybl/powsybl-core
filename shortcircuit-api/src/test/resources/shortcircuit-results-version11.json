@@ -13,6 +13,7 @@
     },
     "shortCircuitPower" : 0.1,
     "currentMagnitude" : 1.0,
+    "voltageMagnitude" : 2.0,
     "timeConstant" : "PT1S",
     "feederResult" : [ {
       "connectableId" : "connectableId",

@@ -93,6 +93,11 @@ class FaultResultDeserializer {
                         currentMagnitude = parser.readValueAs(Double.class);
                         break;
 
+                    case "voltageMagnitude":
+                        parser.nextToken();
+                        voltageMagnitude = parser.readValueAs(Double.class);
+                        break;
+
                     case "shortCircuitBusResults":
                         shortCircuitBusResults = new ShortCircuitBusResultsDeserializer().deserialize(parser, version);
                         break;
@@ -120,7 +125,7 @@ class FaultResultDeserializer {
                     faultResult = new FailedFaultResult(fault, FaultResult.Status.FAILURE);
                 } else {
                     if (!Double.isNaN(currentMagnitude)) {
-                        faultResult = new MagnitudeFaultResult(fault, shortCircuitPower, feederResults, limitViolations, currentMagnitude, shortCircuitBusResults, timeConstant, FaultResult.Status.SUCCESS);
+                        faultResult = new MagnitudeFaultResult(fault, shortCircuitPower, feederResults, limitViolations, currentMagnitude, voltageMagnitude, shortCircuitBusResults, timeConstant, FaultResult.Status.SUCCESS);
                     } else {
                         faultResult = new FortescueFaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.SUCCESS);
                     }
@@ -129,7 +134,7 @@ class FaultResultDeserializer {
                 if (status == FaultResult.Status.FAILURE) {
                     faultResult = new FailedFaultResult(fault, status);
                 } else if (!Double.isNaN(currentMagnitude)) {
-                    faultResult = new MagnitudeFaultResult(fault, shortCircuitPower, feederResults, limitViolations, currentMagnitude, shortCircuitBusResults, timeConstant, status);
+                    faultResult = new MagnitudeFaultResult(fault, shortCircuitPower, feederResults, limitViolations, currentMagnitude, voltageMagnitude, shortCircuitBusResults, timeConstant, status);
                 } else {
                     faultResult = new FortescueFaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status);
                 }

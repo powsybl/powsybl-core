@@ -92,6 +92,7 @@ public class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTe
         assertEquals(1.0, faultResult.getCurrent(), 0);
         assertEquals(1, faultResult.getLimitViolations().size());
         assertEquals(1, faultResult.getFeederResults().size());
+        assertEquals(2.0, faultResult.getVoltage(), 0);
     }
 
     public void writeCsv(ShortCircuitAnalysisResult result, Path path) {
