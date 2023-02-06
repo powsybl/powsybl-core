@@ -122,6 +122,9 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
+            if (!switchKinds.isEmpty()) {
+                LOG.warn("Voltage level {} is BUS_BREAKER. Switchkinds is ignored.", voltageLevelId);
+            }
             // Create buses
             createBuses(voltageLevel);
             // Create switches between buses
