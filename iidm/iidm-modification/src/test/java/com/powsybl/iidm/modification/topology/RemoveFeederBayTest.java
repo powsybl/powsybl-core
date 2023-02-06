@@ -148,7 +148,7 @@ public class RemoveFeederBayTest {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology createVlTopology = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
-                .withBusbarCount(3)
+                .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(1)
                 .withBusbarSectionPrefixId("BBS_TEST")
                 .withSwitchPrefixId("SW_TEST")
