@@ -102,7 +102,7 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
                 Point p2 = e2.getValue();
                 return p1.getMinQ() + (p2.getMinQ() - p1.getMinQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
             } else {
-                throw new AssertionError();
+                throw new IllegalStateException();
             }
         }
     }
@@ -126,7 +126,7 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
                 Point p2 = e2.getValue();
                 return p1.getMaxQ() + (p2.getMaxQ() - p1.getMaxQ()) / (p2.getP() - p1.getP()) * (p - p1.getP());
             } else {
-                throw new AssertionError();
+                throw new IllegalStateException();
             }
         }
     }

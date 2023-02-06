@@ -190,7 +190,7 @@ public final class SteadyStateHypothesisExport {
                     shuntType = "Nonlinear";
                     break;
                 default:
-                    throw new AssertionError("Unexpected shunt model type: " + s.getModelType());
+                    throw new IllegalStateException("Unexpected shunt model type: " + s.getModelType());
             }
             boolean controlEnabled = s.isVoltageRegulatorOn();
 
@@ -453,7 +453,7 @@ public final class SteadyStateHypothesisExport {
             case LOAD_BREAK_SWITCH:
                 return "LoadBreakSwitch";
             default:
-                throw new AssertionError("Unexpected switch king " + kind);
+                throw new IllegalStateException("Unexpected switch king " + kind);
         }
     }
 

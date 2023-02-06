@@ -178,8 +178,8 @@ class ExpressionDslLoader extends DslLoader {
         }
     }
 
-    private static AssertionError createUnexpectedOperatorException(String operator) {
-        return new AssertionError("Unexpected operator: " + operator)
+    private static IllegalStateException createUnexpectedOperatorException(String operator) {
+        return new IllegalStateException("Unexpected operator: " + operator)
     }
 
     static ExpressionNode createExpressionNode(Object value) {
@@ -198,7 +198,7 @@ class ExpressionDslLoader extends DslLoader {
         } else if (value instanceof String) {
             ExpressionHelper.newStringLiteral(value)
         } else {
-            throw new AssertionError(value?.getClass())
+            throw new IllegalStateException(value?.getClass())
         }
     }
 

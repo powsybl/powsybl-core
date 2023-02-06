@@ -200,7 +200,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
             lineAdder.setNode2(firstAvailableNode);
             createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, originalLineId, voltageLevel.getNodeBreakerView());
         } else {
-            throw new AssertionError();
+            throw new IllegalStateException();
         }
 
         // Create the new line

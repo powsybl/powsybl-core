@@ -169,7 +169,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private RuleContext evaluateRule(Rule rule, RunningContext context) {
         if (rule.getCondition().getType() != ConditionType.EXPRESSION) {
-            throw new AssertionError("TODO");
+            throw new IllegalStateException("TODO");
         }
         ExpressionNode conditionExpr = ((ExpressionCondition) rule.getCondition()).getNode();
         EvaluationContext evalContext = new EvaluationContext() {

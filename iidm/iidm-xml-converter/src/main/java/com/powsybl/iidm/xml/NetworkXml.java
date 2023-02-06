@@ -160,7 +160,7 @@ public final class NetworkXml {
         XMLStreamWriter writer = context.getWriter();
         ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(), extension);
         if (extensionXmlSerializer == null) {
-            throw new AssertionError("Extension XML Serializer of " + extension.getName() + " should not be null");
+            throw new IllegalStateException("Extension XML Serializer of " + extension.getName() + " should not be null");
         }
         String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions(), context.getVersion());
         if (extensionXmlSerializer.hasSubElements()) {
@@ -499,7 +499,7 @@ public final class NetworkXml {
                         break;
 
                     default:
-                        throw new AssertionError();
+                        throw new IllegalStateException();
                 }
             });
 
@@ -622,10 +622,10 @@ public final class NetworkXml {
                         break;
 
                     case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                        throw new AssertionError();
+                        throw new IllegalStateException();
 
                     default:
-                        throw new AssertionError("Unexpected element: " + reader.getLocalName());
+                        throw new IllegalStateException("Unexpected element: " + reader.getLocalName());
                 }
             });
         } catch (XMLStreamException e) {

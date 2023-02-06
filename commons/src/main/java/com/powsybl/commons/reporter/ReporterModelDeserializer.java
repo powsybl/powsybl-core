@@ -135,7 +135,7 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
                         break;
 
                     default:
-                        throw new AssertionError("Unexpected field: " + p.getCurrentName());
+                        throw new IllegalStateException("Unexpected field: " + p.getCurrentName());
                 }
             }
 

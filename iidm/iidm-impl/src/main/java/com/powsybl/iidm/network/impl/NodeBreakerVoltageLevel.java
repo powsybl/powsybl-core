@@ -474,7 +474,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                             break;
 
                         default:
-                            throw new AssertionError();
+                            throw new IllegalStateException();
                     }
                 }
             }
