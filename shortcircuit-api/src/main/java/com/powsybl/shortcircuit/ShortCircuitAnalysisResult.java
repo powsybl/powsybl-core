@@ -11,9 +11,8 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import java.util.*;
 
 /**
- * Results of a localized short-circuit computation.
- * Will contain a fault result, with feeder results.
- * Will contain a list of short-circuit bus result for each buses of the network.
+ * Results of localized short-circuit computations.
+ * Will contain fault results, with optional feeder results.
  *
  * @author Boubakeur Brahimi
  */

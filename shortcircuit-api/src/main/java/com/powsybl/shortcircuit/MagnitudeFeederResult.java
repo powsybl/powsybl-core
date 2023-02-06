@@ -19,7 +19,7 @@ public class MagnitudeFeederResult extends AbstractFeederResult {
     }
 
     /**
-     * The three-phase current magnitude.
+     * The three-phase current magnitude (in kA).
      */
     public double getCurrent() {
         return current;

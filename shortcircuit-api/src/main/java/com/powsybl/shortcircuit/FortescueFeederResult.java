@@ -27,7 +27,7 @@ public class FortescueFeederResult extends AbstractFeederResult {
     }
 
     /**
-     * The value of the current of the connectable contributing to the total fault current in kA
+     * The value of the current of the connectable contributing to the total fault current (in kA)
      */
     public double getFeederThreePhaseCurrent() {
         return current.getDirectMagnitude();
