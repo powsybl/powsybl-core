@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -74,7 +73,6 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    @Ignore // FIXME !!! Depends on UCTE resolution
     public void testMergeSameId() {
         addSubstationAndVoltageLevel();
         addDanglingLines("dl", null, "dl", "code");

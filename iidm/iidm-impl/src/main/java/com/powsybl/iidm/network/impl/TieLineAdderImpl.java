@@ -134,8 +134,8 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             return TieLineAdderImpl.this;
         }
 
-        private DanglingLineImpl build() {
-            return new DanglingLineImpl(getNetwork().getRef(), checkAndGetUniqueId(),
+        private DanglingLineImpl build(String tieLineId) {
+            return new DanglingLineImpl(getNetwork().getRef(), checkAndGetUniqueId(id -> getNetwork().getIndex().contains(id) || id.equals(tieLineId)),
                     getName(), isFictitious(), p0, q0, r, x, g, b,
                     halfUcteXnodeCode, generationAdder != null ? generationAdder.build() : null);
         }
@@ -223,9 +223,9 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             }
         }
 
-        DanglingLineImpl half1 = halfLineAdder1.build();
+        DanglingLineImpl half1 = halfLineAdder1.build(id);
         network.getIndex().checkAndAdd(half1);
-        DanglingLineImpl half2 = halfLineAdder2.build();
+        DanglingLineImpl half2 = halfLineAdder2.build(id);
         network.getIndex().checkAndAdd(half2);
 
         // check that the line is attachable on both side

@@ -868,13 +868,13 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void addElementNameProperty(TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
+    private static void addElementNameProperty(Map<String, String> properties, DanglingLine dl1, DanglingLine dl2) {
         if (dl1.hasProperty(ELEMENT_NAME_PROPERTY_KEY)) {
-            tieLine.setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperty(ELEMENT_NAME_PROPERTY_KEY));
+            properties.put(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }
 
         if (dl2.hasProperty(ELEMENT_NAME_PROPERTY_KEY)) {
-            tieLine.setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperty(ELEMENT_NAME_PROPERTY_KEY));
+            properties.put(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }
     }
 
@@ -896,12 +896,12 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void addGeographicalNameProperty(UcteNetwork ucteNetwork, TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
+    private static void addGeographicalNameProperty(UcteNetwork ucteNetwork, Map<String, String> properties, DanglingLine dl1, DanglingLine dl2) {
         Optional<UcteNodeCode> optUcteNodeCode = UcteNodeCode.parseUcteNodeCode(dl1.getUcteXnodeCode());
 
         if (optUcteNodeCode.isPresent()) {
             UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode.get());
-            tieLine.setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
+            properties.put(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
         } else {
             throw new UcteException(NOT_POSSIBLE_TO_IMPORT);
         }
@@ -922,8 +922,8 @@ public class UcteImporter implements Importer {
         identifiable.setProperty(STATUS_PROPERTY_KEY + "_XNode", ucteNode.getStatus().toString());
     }
 
-    private static void addXnodeStatusProperty(TieLine tieLine, DanglingLine danglingLine) {
-        tieLine.setProperty(STATUS_PROPERTY_KEY + "_XNode", danglingLine.getProperty(STATUS_PROPERTY_KEY + "_XNode"));
+    private static void addXnodeStatusProperty(Map<String, String> properties, DanglingLine danglingLine) {
+        properties.put(STATUS_PROPERTY_KEY + "_XNode", danglingLine.getProperty(STATUS_PROPERTY_KEY + "_XNode"));
     }
 
     private static void addDanglingLineCouplerProperty(UcteLine ucteLine, DanglingLine danglingLine) {
@@ -1003,9 +1003,6 @@ public class UcteImporter implements Importer {
 
                 createTieLine(ucteNetwork, network, dlAtSideOne, dlAtSideTwo);
 
-                dlToProcess.remove();
-                dlMatchingDlToProcess.remove();
-
                 danglingLinesToProcess.remove(dlMatchingDlToProcess);
             }
             danglingLinesToProcess.remove(dlToProcess);
@@ -1026,7 +1023,7 @@ public class UcteImporter implements Importer {
         double xdp = (sumX == 0.) ? 0.5 : dlAtSideOne.getX() / sumX;
         String xnodeCode = dlAtSideOne.getExtension(Xnode.class).getCode();
 
-        TieLine mergeLine = network.newTieLine()
+        TieLineAdder adder = network.newTieLine()
                 .setId(mergeLineId)
                 .setVoltageLevel1(dlAtSideOne.getTerminal().getVoltageLevel().getId())
                 .setVoltageLevel2(dlAtSideTwo.getTerminal().getVoltageLevel().getId())
@@ -1034,6 +1031,7 @@ public class UcteImporter implements Importer {
                 .setConnectableBus(getBusId(dlAtSideOne.getTerminal().getBusBreakerView().getConnectableBus()))
                 .setBus(getBusId(dlAtSideOne.getTerminal().getBusBreakerView().getBus()))
                 .setId(dlAtSideOne.getId())
+                .setEnsureIdUnicity(true)
                 .setR(dlAtSideOne.getR())
                 .setX(dlAtSideOne.getX())
                 .setB(dlAtSideOne.getB())
@@ -1045,35 +1043,50 @@ public class UcteImporter implements Importer {
                 .setConnectableBus(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getConnectableBus()))
                 .setBus(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getBus()))
                 .setId(dlAtSideTwo.getId())
+                .setEnsureIdUnicity(true)
                 .setR(dlAtSideTwo.getR())
                 .setX(dlAtSideTwo.getX())
                 .setB(dlAtSideTwo.getB())
                 .setG(dlAtSideTwo.getG())
                 .setFictitious(dlAtSideTwo.isFictitious())
                 .setUcteXnodeCode(xnodeCode)
-                .add()
                 .add();
 
-        addElementNameProperty(mergeLine, dlAtSideOne, dlAtSideTwo);
-        addGeographicalNameProperty(ucteNetwork, mergeLine, dlAtSideOne, dlAtSideTwo);
-        addXnodeStatusProperty(mergeLine, dlAtSideOne);
-
-        dlAtSideOne.getCurrentLimits()
-                .ifPresent(currentLimits -> mergeLine.newCurrentLimits1().setPermanentLimit(currentLimits.getPermanentLimit()).add());
-        dlAtSideTwo.getCurrentLimits()
-                .ifPresent(currentLimits -> mergeLine.newCurrentLimits2().setPermanentLimit(currentLimits.getPermanentLimit()).add());
+        Map<String, String> properties = new HashMap<>();
+        addElementNameProperty(properties, dlAtSideOne, dlAtSideTwo);
+        addGeographicalNameProperty(ucteNetwork, properties, dlAtSideOne, dlAtSideTwo);
+        addXnodeStatusProperty(properties, dlAtSideOne);
         double b1dp = dlAtSideOne.getB() == 0 ? 0.5 : 1;
         double g1dp = dlAtSideOne.getG() == 0 ? 0.5 : 1;
         double b2dp = dlAtSideTwo.getB() == 0 ? 0.5 : 0;
         double g2dp = dlAtSideTwo.getG() == 0 ? 0.5 : 0;
+        String id1 = dlAtSideOne.getId();
+        boolean fict1 = dlAtSideOne.isFictitious();
+        String id2 = dlAtSideTwo.getId();
+        boolean fict2 = dlAtSideTwo.isFictitious();
+        double permanentLimit1 = dlAtSideOne.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
+        double permanentLimit2 = dlAtSideTwo.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
+
+        dlAtSideOne.remove();
+        dlAtSideTwo.remove();
+
+        TieLine mergeLine = adder.add();
+        properties.forEach(mergeLine::setProperty);
+        if (!Double.isNaN(permanentLimit1)) {
+            mergeLine.newCurrentLimits1().setPermanentLimit(permanentLimit1).add();
+        }
+        if (!Double.isNaN(permanentLimit2)) {
+            mergeLine.newCurrentLimits2().setPermanentLimit(permanentLimit2).add();
+        }
+
         mergeLine.newExtension(MergedXnodeAdder.class)
                 .withRdp(rdp).withXdp(xdp)
-                .withLine1Name(dlAtSideOne.getId())
-                .withLine1Fictitious(dlAtSideOne.isFictitious())
+                .withLine1Name(id1)
+                .withLine1Fictitious(fict1)
                 .withB1dp(b1dp)
                 .withG1dp(g1dp)
-                .withLine2Name(dlAtSideTwo.getId())
-                .withLine2Fictitious(dlAtSideTwo.isFictitious())
+                .withLine2Name(id2)
+                .withLine2Fictitious(fict2)
                 .withB2dp(b2dp)
                 .withG2dp(g2dp)
                 .withCode(xnodeCode)

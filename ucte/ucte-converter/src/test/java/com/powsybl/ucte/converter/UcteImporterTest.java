@@ -15,7 +15,6 @@ import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.ucte.converter.util.UcteConstants;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -27,7 +26,6 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-@Ignore // FIXME !!! UCTE importer imports two dangling lines with same ID
 public class UcteImporterTest {
 
     @Test
@@ -96,20 +94,20 @@ public class UcteImporterTest {
         TieLine tieLine1 = (TieLine) network.getLineStream().filter(Line::isTieLine)
                 .filter(line -> {
                     TieLine tl = (TieLine) line;
-                    return tl.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") || tl.getHalf2().getId().equals("XB__F_11 B_SU1_11 1");
+                    return tl.getHalf1().getId().contains("XB__F_11 B_SU1_11 1") || tl.getHalf2().getId().contains("XB__F_11 B_SU1_11 1");
                 }).findAny().get();
-        String expectedElementName1 = tieLine1.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
-        String expectedElementName2 = tieLine1.getHalf2().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
+        String expectedElementName1 = tieLine1.getHalf1().getId().contains("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
+        String expectedElementName2 = tieLine1.getHalf2().getId().contains("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
         assertEquals(expectedElementName1, tieLine1.getProperty("elementName_1"));
         assertEquals(expectedElementName2, tieLine1.getProperty("elementName_2"));
 
         TieLine tieLine2 = (TieLine) network.getLineStream().filter(Line::isTieLine)
                 .filter(line -> {
                     TieLine tl = (TieLine) line;
-                    return tl.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") || tl.getHalf2().getId().equals("XB__F_21 B_SU1_21 1");
+                    return tl.getHalf1().getId().contains("XB__F_21 B_SU1_21 1") || tl.getHalf2().getId().contains("XB__F_21 B_SU1_21 1");
                 }).findAny().get();
-        expectedElementName1 = tieLine2.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
-        expectedElementName2 = tieLine2.getHalf2().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
+        expectedElementName1 = tieLine2.getHalf1().getId().contains("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
+        expectedElementName2 = tieLine2.getHalf2().getId().contains("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
         assertEquals(expectedElementName1, tieLine2.getProperty("elementName_1"));
         assertEquals(expectedElementName2, tieLine2.getProperty("elementName_2"));
     }
@@ -121,7 +119,7 @@ public class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
 
         assertEquals(2, network.getVoltageLevelCount());
-        assertEquals(1, network.getDanglingLineCount());
+        assertEquals(1, network.getDanglingLineStream().filter(dl -> !dl.isMerged()).count());
         assertEquals(1, network.getLineCount());
         Line l = network.getLineStream().findFirst().orElseThrow(AssertionError::new);
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());

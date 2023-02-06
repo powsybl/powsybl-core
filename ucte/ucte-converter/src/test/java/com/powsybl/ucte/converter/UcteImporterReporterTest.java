@@ -19,7 +19,6 @@ import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -36,7 +35,6 @@ import static org.junit.Assert.*;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-@Ignore // FIXME !!! UCTE importer imports two dangling lines with same ID
 public class UcteImporterReporterTest extends AbstractConverterTest {
 
     private static final String WORK_DIR = "/tmp";
