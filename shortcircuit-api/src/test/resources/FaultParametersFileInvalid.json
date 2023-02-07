@@ -2,12 +2,12 @@
   "unexpected" : "f00"
 }, {
   "id" : "f01",
-  "withVoltageMap" : true
+  "withVoltageResult" : true
 }, {
   "id" : "f10",
   "withLimitViolations" : true
 }, {
   "id" : "f11",
   "withLimitViolations" : true,
-  "withVoltageMap" : true
+  "withVoltageResult" : true
 } ]
