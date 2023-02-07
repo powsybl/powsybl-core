@@ -108,7 +108,7 @@ public class ReporterModelSerializer extends StdSerializer<ReporterModel> {
         @Override
         public void serialize(TypedValue typedValue, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
             generator.writeStartObject();
-            generator.writeObjectField("value", typedValue.getValue());
+            serializerProvider.defaultSerializeField("value", typedValue.getValue(), generator);
             if (!TypedValue.UNTYPED.equals(typedValue.getType())) {
                 generator.writeStringField("type", typedValue.getType());
             }

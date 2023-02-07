@@ -186,8 +186,9 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
         assertFalse(parameters.isWithLimitViolations());
-        assertFalse(parameters.isWithVoltageMap());
+        assertFalse(parameters.isWithVoltageResult());
         assertFalse(parameters.isWithFeederResult());
+        assertTrue(parameters.isWithFortescueResult());
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertEquals(1.2, parameters.getMinVoltageDropProportionalThreshold(), 0.0);
     }
@@ -219,7 +220,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
-        parameters.setWithVoltageMap(false);
+        parameters.setWithVoltageResult(false);
         parameters.setWithLimitViolations(false);
         roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
                 "/ShortCircuitParameters.json");
@@ -231,6 +232,30 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, JsonShortCircuitParameters::write,
                 ComparisonUtils::compareTxt, "/ShortCircuitParametersWithExtension.json");
+    }
+
+    @Test
+    public void readVersion10() {
+        ShortCircuitParameters parameters = JsonShortCircuitParameters
+                .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion10.json"));
+        assertNotNull(parameters);
+        assertFalse(parameters.isWithLimitViolations());
+        assertFalse(parameters.isWithVoltageResult());
+        assertTrue(parameters.isWithFeederResult());
+        assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
+        assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
+    }
+
+    @Test
+    public void readVersion11() {
+        ShortCircuitParameters parameters = JsonShortCircuitParameters
+                .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion11.json"));
+        assertNotNull(parameters);
+        assertFalse(parameters.isWithLimitViolations());
+        assertFalse(parameters.isWithVoltageResult());
+        assertTrue(parameters.isWithFeederResult());
+        assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
+        assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
     }
 
     @Test

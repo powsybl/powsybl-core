@@ -28,9 +28,9 @@ public class SensitivityAnalysisResultSerializer extends StdSerializer<Sensitivi
     public void serialize(SensitivityAnalysisResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
-        jsonGenerator.writeObjectField("sensitivityFactors", result.getFactors());
-        jsonGenerator.writeObjectField("sensitivityValues", result.getValues());
-        jsonGenerator.writeObjectField("contingencyStatus", result.getContingencyStatuses());
+        serializerProvider.defaultSerializeField("sensitivityFactors", result.getFactors(), jsonGenerator);
+        serializerProvider.defaultSerializeField("sensitivityValues", result.getValues(), jsonGenerator);
+        serializerProvider.defaultSerializeField("contingencyStatus", result.getContingencyStatuses(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

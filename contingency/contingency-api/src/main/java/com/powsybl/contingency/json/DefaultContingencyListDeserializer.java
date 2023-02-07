@@ -9,14 +9,13 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,8 +48,7 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
 
                 case "contingencies":
                     parser.nextToken();
-                    contingencies = parser.readValueAs(new TypeReference<ArrayList<Contingency>>() {
-                    });
+                    contingencies = JsonUtil.readList(ctx, parser, Contingency.class);
                     break;
 
                 default:

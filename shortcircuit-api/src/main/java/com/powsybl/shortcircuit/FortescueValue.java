@@ -14,9 +14,10 @@ import org.apache.commons.math3.util.Pair;
 
 /**
  * The aim of this class is to store the magnitude and angle of current or voltage on the three phases, and the
- * the magnitude and angle of current or voltage for the Fortescue direct, zero and indirect components.
+ * the magnitude and angle of current or voltage for the Fortescue direct, zero and inverse components.
  *
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
  */
 public class FortescueValue {
 
