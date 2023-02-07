@@ -5,11 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.cgmes.conversion;
+package com.powsybl.cgmes.completion;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.conversion.CgmesImportPreProcessor;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.reporter.Reporter;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 public class DefineMissingContainersPreProcessor implements CgmesImportPreProcessor {
 
     public static final String NAME = "DefineMissingContainers";
+
     private static final Logger LOG = LoggerFactory.getLogger(DefineMissingContainersPreProcessor.class);
 
     public DefineMissingContainersPreProcessor() {
@@ -47,41 +49,39 @@ public class DefineMissingContainersPreProcessor implements CgmesImportPreProces
     @Override
     public void process(CgmesModel cgmes) {
         Objects.requireNonNull(cgmes);
-        LOG.info("Execute {} post processor on CGMES model {}", getName(), cgmes.modelId());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Execute {} post processor on CGMES model {}", getName(), cgmes.modelId());
+        }
         fixMissingContainers(cgmes);
     }
 
     private static void fixMissingContainers(CgmesModel cgmes) {
         Set<String> missingVoltageLevels = findMissingVoltageLevels(cgmes);
+        LOG.info("Missing voltage levels: {}", missingVoltageLevels);
         Path fixesFile = Paths.get("/Users/zamarrenolm/Downloads/").resolve("kk-EQ-fixes.xml");
         if (!missingVoltageLevels.isEmpty()) {
-            // FIXME(Luma) buildXmlWithMissingVoltageLevels(missingVoltageLevels, fixesFile);
-            ((CgmesModelTripleStore) cgmes).read(new FileDataSource(Paths.get("/Users/zamarrenolm/Downloads/"), "kk-EQ-fixes"), Reporter.NO_OP);
+            // FIXME(Luma) implement this
+            buildXmlWithMissingVoltageLevels(missingVoltageLevels, fixesFile);
+            cgmes.read(new FileDataSource(Paths.get("/Users/zamarrenolm/Downloads/"), "kk-EQ-fixes"), Reporter.NO_OP);
         }
         Set<String> missingVoltageLevelsAfterFix = findMissingVoltageLevels(cgmes);
         if (!missingVoltageLevelsAfterFix.isEmpty()) {
             throw new IllegalStateException("Missing voltage levels after fix: " + missingVoltageLevelsAfterFix);
         }
-        System.err.println("containers without voltage level:");
-        cgmes.connectivityNodeContainers().stream().filter(c -> c.getId("VoltageLevel") == null).forEach(System.err::println);
-
-        // Check now that a terminal has voltage level
-        String terminalId = "4915762d-133e-4209-8545-2822d095d7cd";
-        String voltageLevelId = cgmes.voltageLevel(cgmes.terminal(terminalId), cgmes.isNodeBreaker());
-        if (voltageLevelId == null || voltageLevelId.isEmpty()) {
-            throw new IllegalStateException("Missing voltage level for terminal " + terminalId);
-        }
+        // The only containers without voltage level must be of type line
+        LOG.info("After the fixes have been applied, the only node containers without voltage level must be of type Line.");
+        LOG.info("Containers without voltage level that are not Lines will be reported as errors.");
+        cgmes.connectivityNodeContainers().stream()
+                .filter(c -> c.getId(CgmesNames.VOLTAGE_LEVEL) == null)
+                .filter(c -> !c.getLocal("connectivityNodeContainerType").equals("Line"))
+                .forEach(c -> LOG.error(c.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER)));
     }
 
     private static Set<String> findMissingVoltageLevels(CgmesModel cgmes) {
         // check missing CN containers
-        Set<String> defined = cgmes.connectivityNodeContainers().stream().map(c -> c.getId("ConnectivityNodeContainer")).collect(Collectors.toSet());
-        System.err.println("defined  : " + defined);
-        Set<String> referred = cgmes.connectivityNodes().stream().map(c -> c.getId("ConnectivityNodeContainer")).collect(Collectors.toSet());
-        System.err.println("referred : " + referred);
-        Set<String> missing = referred.stream().filter(c -> !defined.contains(c)).collect(Collectors.toSet());
-        System.err.println("missing  : " + missing);
-        return missing;
+        Set<String> defined = cgmes.connectivityNodeContainers().stream().map(c -> c.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER)).collect(Collectors.toSet());
+        Set<String> referred = cgmes.connectivityNodes().stream().map(c -> c.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER)).collect(Collectors.toSet());
+        return referred.stream().filter(c -> !defined.contains(c)).collect(Collectors.toSet());
     }
 
     private static void buildXmlWithMissingVoltageLevels(Set<String> missingVoltageLevels, Path fixesFile) {
