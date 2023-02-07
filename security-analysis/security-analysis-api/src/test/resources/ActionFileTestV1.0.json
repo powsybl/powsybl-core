@@ -149,10 +149,8 @@
     "id" : "id23",
     "hvdcId" : "hvdc1",
     "acEmulationEnabled" : true,
-    "converterMode" : "SIDE_1_INVERTER_SIDE_2_RECTIFIER",
     "droop" : 1.1,
-    "p0" : 120.0,
-    "relativeValue" : true
+    "p0" : 120.0
   }, {
     "type" : "HVDC",
     "id" : "id24",

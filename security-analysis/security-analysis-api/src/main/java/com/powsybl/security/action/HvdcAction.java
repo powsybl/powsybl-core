@@ -13,12 +13,12 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 /**
- * an action to modify hvdc parameters
- * parameter enabled corresponds to the regulation mode true correspond to ac emulation, false to fix target
+ * An action to modify hvdc parameters or how an hvdc is operated
+ * parameter enabled to true correspond to ac emulation operation, false to fix active power setpoint. Note that ac
+ * emulation works only with VSC converter station.
  * droop and p0 are parameters used for ac emulation only.
- * activePowerSetpoint is for fix target mode only.
- * ac emulation works only with vsc technology.
- * attribute relative value if true add target p to the previous target p if false it replaces it
+ * activePowerSetpoint and converterMode are for fix active power setpoint operation only. Attribute relative value should
+ * be used only to define the new active power setpoint.
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
@@ -38,8 +38,8 @@ public class HvdcAction extends AbstractAction {
         this(id, hvdcId, false, activePowerSetpoint, converterMode, null, null, relativeValue);
     }
 
-    public HvdcAction(String id, String hvdcId, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, Boolean relativeValue) {
-        this(id, hvdcId, true, null, converterMode, droop, p0, relativeValue);
+    public HvdcAction(String id, String hvdcId, Double droop, Double p0) {
+        this(id, hvdcId, true, null, null, droop, p0, null);
     }
 
     public HvdcAction(String id, String hvdcId, boolean acEmulationEnabled, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, Boolean relativeValue) {
@@ -54,18 +54,18 @@ public class HvdcAction extends AbstractAction {
     }
 
     public static HvdcAction activateAcEmulationMode(String id, String hvdcId) {
-        return activateAcEmulationMode(id, hvdcId, null, null, null, null);
+        return activateAcEmulationMode(id, hvdcId, null, null);
     }
 
-    public static HvdcAction activateAcEmulationMode(String id, String hvdcId, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, Boolean relativeValue) {
-        return new HvdcAction(id, hvdcId, converterMode, droop, p0, relativeValue);
+    public static HvdcAction activateAcEmulationMode(String id, String hvdcId, Double droop, Double p0) {
+        return new HvdcAction(id, hvdcId, droop, p0);
     }
 
-    public static HvdcAction activateFixTargetMode(String id, String hvdcId) {
-        return activateFixTargetMode(id, hvdcId, null, null, null);
+    public static HvdcAction activateActivePowerSetpointMode(String id, String hvdcId) {
+        return activateActivePowerSetpointMode(id, hvdcId, null, null, null);
     }
 
-    public static HvdcAction activateFixTargetMode(String id, String hvdcId, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Boolean relativeValue) {
+    public static HvdcAction activateActivePowerSetpointMode(String id, String hvdcId, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Boolean relativeValue) {
         return new HvdcAction(id, hvdcId, activePowerSetpoint, converterMode, relativeValue);
     }
 
