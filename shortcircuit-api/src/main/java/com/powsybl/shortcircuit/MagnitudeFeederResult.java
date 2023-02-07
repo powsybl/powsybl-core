@@ -9,20 +9,19 @@ package com.powsybl.shortcircuit;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public interface ShortCircuitBusResults {
+public class MagnitudeFeederResult extends AbstractFeederResult {
 
-    String getVoltageLevelId();
+    private final double current;
 
-    String getBusId();
-
-    /**
-     * Returns the magnitude of the voltage before the fault (in kV).
-     */
-    double getInitialVoltageMagnitude();
+    public MagnitudeFeederResult(String connectableId, double current) {
+        super(connectableId);
+        this.current = current;
+    }
 
     /**
-     * Returns the voltage drop between the voltage magnitude before and after the fault, as a percentage.
+     * The three-phase current magnitude (in kA).
      */
-    double getVoltageDropProportional();
-
+    public double getCurrent() {
+        return current;
+    }
 }

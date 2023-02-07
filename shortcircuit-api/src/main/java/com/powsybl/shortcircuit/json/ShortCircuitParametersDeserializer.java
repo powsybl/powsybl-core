@@ -24,6 +24,8 @@ import java.util.List;
  */
 public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCircuitParameters> {
 
+    private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
+
     public ShortCircuitParametersDeserializer() {
         super(ShortCircuitParameters.class);
     }
@@ -35,19 +37,27 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
 
     @Override
     public ShortCircuitParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, ShortCircuitParameters parameters) throws IOException {
+        String version = null;
         List<Extension<ShortCircuitParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
-                    parser.nextToken(); // skip
+                    parser.nextToken();
+                    version = parser.getValueAsString();
                     break;
                 case "withLimitViolations":
                     parser.nextToken();
                     parameters.setWithLimitViolations(parser.readValueAs(Boolean.class));
                     break;
                 case "withVoltageMap":
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMap", version, "1.1");
                     parser.nextToken();
-                    parameters.setWithVoltageMap(parser.readValueAs(Boolean.class));
+                    parameters.setWithVoltageResult(parser.readValueAs(Boolean.class));
+                    break;
+                case "withVoltageResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageProfileResult", version, "1.1");
+                    parser.nextToken();
+                    parameters.setWithVoltageResult(parser.readValueAs(Boolean.class));
                     break;
                 case "withFeederResult":
                     parser.nextToken();
@@ -60,6 +70,11 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 case "minVoltageDropProportionalThreshold":
                     parser.nextToken();
                     parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));
+                    break;
+                case "withFortescueResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageDropProfileResult", version, "1.1");
+                    parser.nextToken();
+                    parameters.setWithFortescueResult(parser.readValueAs(Boolean.class));
                     break;
                 case "extensions":
                     parser.nextToken();
