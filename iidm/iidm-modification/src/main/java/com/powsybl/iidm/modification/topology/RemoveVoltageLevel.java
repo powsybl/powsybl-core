@@ -18,11 +18,12 @@ import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundVoltageLevelReport;
 
+
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class RemoveVoltageLevel extends AbstractNetworkModification {
-    private static final Logger LOGGER = LoggerFactory.getLogger(com.powsybl.iidm.modification.topology.RemoveFeederBay.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoveVoltageLevel.class);
 
     private final String voltageLevelId;
 
@@ -39,10 +40,13 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
             if (throwException) {
                 throw new PowsyblException("Voltage level not found: " + voltageLevelId);
             }
+            return;
         }
 
         voltageLevel.getConnectables(HvdcConverterStation.class).forEach(hcs -> {
-            hcs.getHvdcLine().remove();
+            if (hcs.getHvdcLine() != null) {
+                hcs.getHvdcLine().remove();
+            }
             hcs.remove();
         });
 

@@ -56,6 +56,12 @@ public class RemoveVoltageLevelTest {
         assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1", "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR"), beforeRemovalObjects);
         assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1", "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR"), removedObjects);
         assertNull(network.getVoltageLevel("S1VL1"));
+        assertNull(network.getTwoWindingsTransformer("TWT"));
+
+        new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL2").build().apply(network);
+        assertNull(network.getVoltageLevel("S1VL1"));
+        assertNull(network.getVscConverterStation("LCC1"));
+        assertNull(network.getHvdcLine("HVDC2"));
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S2VL1").build().apply(network);
         assertNull(network.getVoltageLevel("S2VL1"));
@@ -66,6 +72,5 @@ public class RemoveVoltageLevelTest {
         RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN");
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, Reporter.NO_OP));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
-
     }
 }
