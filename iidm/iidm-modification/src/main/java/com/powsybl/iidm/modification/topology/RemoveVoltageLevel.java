@@ -18,7 +18,6 @@ import java.util.Objects;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundVoltageLevelReport;
 
-
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
