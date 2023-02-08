@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
@@ -16,7 +18,7 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -46,19 +48,24 @@ public class RemoveVoltageLevelTest {
     }
 
     @Test
-    public void testSimpleRemove() {
+    public void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL1").build().apply(network);
         assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1", "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR"), beforeRemovalObjects);
         assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1", "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR"), removedObjects);
+        assertNull(network.getVoltageLevel("S1VL1"));
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S2VL1").build().apply(network);
+        assertNull(network.getVoltageLevel("S2VL1"));
+        assertNull(network.getLine("LINE_S2S3"));
+        assertNull(network.getHvdcLine("HVDC1"));
+        assertNull(network.getVscConverterStation("VSC2"));
 
-        new RemoveVoltageLevelBuilder().withVoltageLevelId("S3VL1").build().apply(network);
+        RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, Reporter.NO_OP));
+        assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
 
-        new RemoveVoltageLevelBuilder().withVoltageLevelId("S4VL1").build().apply(network);
     }
-
 }
