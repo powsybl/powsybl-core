@@ -70,6 +70,7 @@ public class RemoveVoltageLevelTest {
         assertNull(network.getVscConverterStation("VSC2"));
 
         RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN");
+        removeUnknown.apply(network, false, Reporter.NO_OP);
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, Reporter.NO_OP));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
     }
