@@ -6,14 +6,21 @@
  */
 package com.powsybl.shortcircuit;
 
+import java.util.Objects;
+
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public interface FeederResult {
+abstract class AbstractFeederResult implements FeederResult {
 
-    /**
-     * The ID of the connectable contributing to the three-phase short circuit current.
-     */
-    String getConnectableId();
+    private final String connectableId;
+
+    protected AbstractFeederResult(String connectableId) {
+        this.connectableId = Objects.requireNonNull(connectableId);
+    }
+
+    public String getConnectableId() {
+        return connectableId;
+    }
 
 }
