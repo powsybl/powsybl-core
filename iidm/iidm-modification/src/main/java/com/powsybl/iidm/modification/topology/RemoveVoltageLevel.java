@@ -11,13 +11,11 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.computation.ComputationManager;
-import org.jgrapht.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundConnectableReport;
 import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundVoltageLevelReport;
 
 /**
@@ -44,14 +42,12 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
                         }
                 }
 
-                for (HvdcConverterStation hcs : voltageLevel.getConnectables(HvdcConverterStation.class)) {
+                voltageLevel.getConnectables(HvdcConverterStation.class).forEach(hcs -> {
                         hcs.getHvdcLine().remove();
                         hcs.remove();
-                }
+                });
 
-                for (Connectable c : voltageLevel.getConnectables()) {
-                        c.remove();
-                }
+                voltageLevel.getConnectables().forEach(Connectable::remove);
 
                 voltageLevel.remove();
         }
