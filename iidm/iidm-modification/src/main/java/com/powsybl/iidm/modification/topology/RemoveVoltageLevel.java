@@ -22,34 +22,33 @@ import static com.powsybl.iidm.modification.topology.ModificationReports.notFoun
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class RemoveVoltageLevel extends AbstractNetworkModification {
+    private static final Logger LOGGER = LoggerFactory.getLogger(com.powsybl.iidm.modification.topology.RemoveFeederBay.class);
 
-        private static final Logger LOGGER = LoggerFactory.getLogger(com.powsybl.iidm.modification.topology.RemoveFeederBay.class);
+    private final String voltageLevelId;
 
-        private final String voltageLevelId;
+    public RemoveVoltageLevel(String voltageLevelId) {
+        this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
+    }
 
-        public RemoveVoltageLevel(String voltageLevelId) {
-                this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
+    @Override
+    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+        if (voltageLevel == null) {
+            LOGGER.error("Voltage level {} not found", voltageLevelId);
+            notFoundVoltageLevelReport(reporter, voltageLevelId);
+            if (throwException) {
+                throw new PowsyblException("Voltage level not found: " + voltageLevelId);
+            }
         }
 
-        @Override
-        public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
-                VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-                if (voltageLevel == null) {
-                        LOGGER.error("Voltage level {} not found", voltageLevelId);
-                        notFoundVoltageLevelReport(reporter, voltageLevelId);
-                        if (throwException) {
-                                throw new PowsyblException("Voltage level not found: " + voltageLevelId);
-                        }
-                }
+        voltageLevel.getConnectables(HvdcConverterStation.class).forEach(hcs -> {
+            hcs.getHvdcLine().remove();
+            hcs.remove();
+        });
 
-                voltageLevel.getConnectables(HvdcConverterStation.class).forEach(hcs -> {
-                        hcs.getHvdcLine().remove();
-                        hcs.remove();
-                });
+        voltageLevel.getConnectables().forEach(Connectable::remove);
 
-                voltageLevel.getConnectables().forEach(Connectable::remove);
-
-                voltageLevel.remove();
-        }
+        voltageLevel.remove();
+    }
 
 }
