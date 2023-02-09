@@ -2,7 +2,7 @@ package com.powsybl.ampl.executor;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.ampl.converter.NetworkApplier;
+import com.powsybl.ampl.converter.AbstractNetworkApplierFactory;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.computation.ComputationManager;
@@ -124,7 +124,7 @@ public class AmplModelExecutionHandlerTest {
         }
 
         @Override
-        public NetworkApplier getNetworkApplier() {
+        public AbstractNetworkApplierFactory getNetworkApplierFactory() {
             throw new IllegalStateException("Should not be called to create ampl command");
         }
     }

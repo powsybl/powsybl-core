@@ -6,9 +6,9 @@
  */
 package com.powsybl.ampl.executor;
 
+import com.powsybl.ampl.converter.AbstractNetworkApplierFactory;
 import com.powsybl.ampl.converter.AmplExporter;
 import com.powsybl.ampl.converter.AmplNetworkReader;
-import com.powsybl.ampl.converter.NetworkApplier;
 import com.powsybl.ampl.converter.OutputFileFormat;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -25,7 +25,7 @@ import java.util.List;
  * <ul>
  * <li>{@link IAmplModel#getOutputFilePrefix}: prefix for the files written by
  * the ampl execution</li>
- * <li>{@link IAmplModel#getNetworkApplier}: specific applier to select what is
+ * <li>{@link IAmplModel#getNetworkApplierFactory()}: specific applier Factory to select what is
  * modified on the network</li>
  * <li>{@link IAmplModel#getVariant}: ampl variants</li>
  * <li>{@link IAmplModel#getOutputFormat}: some information about the format of
@@ -37,7 +37,7 @@ import java.util.List;
 public interface IAmplModel {
 
     /**
-     * @return each pair contains the name and the InputStream of every ampl file of
+     * @return each pair contains the name, and the InputStream of every ampl file of
      * the model (.run .dat .mod)
      */
     List<Pair<String, InputStream>> getModelAsStream();
@@ -49,7 +49,7 @@ public interface IAmplModel {
 
     String getOutputFilePrefix();
 
-    NetworkApplier getNetworkApplier();
+    AbstractNetworkApplierFactory getNetworkApplierFactory();
 
     int getVariant();
 

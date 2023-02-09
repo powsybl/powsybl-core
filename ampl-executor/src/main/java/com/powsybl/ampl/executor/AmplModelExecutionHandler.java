@@ -105,9 +105,18 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         super.after(workingDir.toAbsolutePath(), report);
         DataSource networkAmplResults = new FileDataSource(workingDir, this.model.getOutputFilePrefix());
         AmplNetworkReader reader = new AmplNetworkReader(networkAmplResults, this.network, this.model.getVariant(),
-                AmplUtil.createMapper(this.network), this.model.getNetworkApplier(), this.model.getOutputFormat());
-        // TODO read everything from the reader and use NetworkApplier.
+                AmplUtil.createMapper(this.network), this.model.getNetworkApplierFactory(), this.model.getOutputFormat());
+        reader.readBatteries();
+        reader.readBuses();
+        reader.readBranches();
         reader.readGenerators();
+        reader.readHvdcLines();
+        reader.readLccConverterStations();
+        reader.readLoads();
+        reader.readPhaseTapChangers();
+        reader.readRatioTapChangers();
+        reader.readShunts();
+        reader.readVscConverterStations();
         return AmplResults.ok();
     }
 
