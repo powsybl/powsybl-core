@@ -1,0 +1,185 @@
+/**
+ * Copyright (c) 2023
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.ampl.converter;
+
+import com.powsybl.commons.util.StringToIntMapper;
+import com.powsybl.iidm.network.*;
+
+/**
+ * This class implements the default behavior of applying changes to the network. <br>
+ *
+ * @see AmplNetworkReader
+ * @see NetworkApplier
+ */
+public class DefaultNetworkApplier implements NetworkApplier {
+
+    private final StringToIntMapper<AmplSubset> networkMapper;
+
+    public DefaultNetworkApplier(StringToIntMapper<AmplSubset> networkMapper) {
+        this.networkMapper = networkMapper;
+    }
+
+    public void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP,
+                                double targetQ, double p, double q) {
+        g.setVoltageRegulatorOn(vregul);
+
+        g.setTargetP(targetP);
+        g.setTargetQ(targetQ);
+
+        Terminal t = g.getTerminal();
+        t.setP(p).setQ(q);
+
+        double vb = t.getVoltageLevel().getNominalV();
+        g.setTargetV(targetV * vb);
+        NetworkApplier.busConnection(t, busNum, networkMapper);
+    }
+
+    public void applyVsc(VscConverterStation vsc, int busNum, boolean vregul, double targetV, double targetQ, double p,
+                         double q) {
+        Terminal t = vsc.getTerminal();
+        t.setP(p).setQ(q);
+
+        vsc.setReactivePowerSetpoint(targetQ);
+        vsc.setVoltageRegulatorOn(vregul);
+
+        double vb = t.getVoltageLevel().getNominalV();
+        vsc.setVoltageSetpoint(targetV * vb);
+        NetworkApplier.busConnection(t, busNum, networkMapper);
+    }
+
+    public void applyBattery(Battery b, int busNum, double targetP, double targetQ, double p, double q) {
+        b.setTargetP(targetP);
+        b.setTargetQ(targetQ);
+
+        Terminal t = b.getTerminal();
+        t.setP(p).setQ(q);
+        NetworkApplier.busConnection(t, busNum, networkMapper);
+    }
+
+    public void applySvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
+        if (vregul) {
+            svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+        } else {
+            if (q == 0) {
+                svc.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+            } else {
+                svc.setReactivePowerSetpoint(-q);
+                svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+            }
+        }
+
+        Terminal t = svc.getTerminal();
+        t.setQ(q);
+        double nominalV = t.getVoltageLevel().getNominalV();
+        svc.setVoltageSetpoint(targetV * nominalV);
+        NetworkApplier.busConnection(t, busNum, networkMapper);
+    }
+
+    public void applyShunt(ShuntCompensator sc, int busNum, double q, double b, int sections) {
+        if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
+            // TODO improve non linear shunt section count update.
+        } else {
+            sc.setSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
+        }
+        sc.getTerminal().setQ(q);
+    }
+
+    public void applyLoad(Load l, Network network, String id, int busNum, double p, double q, double p0, double q0) {
+        if (l != null) {
+            l.setP0(p0).setQ0(q0);
+            l.getTerminal().setP(p).setQ(q);
+            NetworkApplier.busConnection(l.getTerminal(), busNum, networkMapper);
+        } else {
+            DanglingLine dl = network.getDanglingLine(id);
+            if (dl != null) {
+                dl.setP0(p0).setQ0(q0);
+                dl.getTerminal().setP(p).setQ(q);
+                NetworkApplier.busConnection(dl.getTerminal(), busNum, networkMapper);
+            } else {
+                throw new AmplException("Invalid load id '" + id + "'");
+            }
+        }
+    }
+
+    @Override
+    public void applyRatioTapChanger(Network network, String id, int tap) {
+        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+            ThreeWindingsTransformer twt = NetworkApplier.getThreeWindingsTransformer(network, id);
+            RatioTapChanger rtc = NetworkApplier.getThreeWindingsTransformerLeg(twt, id).getRatioTapChanger();
+            rtc.setTapPosition(rtc.getLowTapPosition() + tap - 1);
+        } else {
+            TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
+            if (twt == null) {
+                throw new AmplException("Invalid two windings transformer id '" + id + "'");
+            }
+            RatioTapChanger rtc = twt.getRatioTapChanger();
+            rtc.setTapPosition(rtc.getLowTapPosition() + tap - 1);
+        }
+    }
+
+    public void applyPhaseTapChanger(Network network, String id, int tap) {
+        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+            ThreeWindingsTransformer twt = NetworkApplier.getThreeWindingsTransformer(network, id);
+            PhaseTapChanger ptc = NetworkApplier.getThreeWindingsTransformerLeg(twt, id).getPhaseTapChanger();
+            ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1);
+        } else {
+            TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
+            if (twt == null) {
+                throw new AmplException("Invalid two windings transformer id '" + id + "'");
+            }
+            PhaseTapChanger ptc = twt.getPhaseTapChanger();
+            ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1);
+        }
+    }
+
+    @Override
+    public void applyBus(Bus bus, double v, double theta) {
+        bus.setAngle(Math.toDegrees(theta));
+        bus.setV(v * bus.getVoltageLevel().getNominalV());
+    }
+
+    @Override
+    public void applyBranch(Branch br, Network network, String id, int busNum, int busNum2, double p1, double p2, double q1, double q2) {
+        if (br != null) {
+            br.getTerminal1().setP(p1).setQ(q1);
+            br.getTerminal2().setP(p2).setQ(q2);
+            NetworkApplier.busConnection(br.getTerminal1(), busNum, networkMapper);
+            NetworkApplier.busConnection(br.getTerminal2(), busNum2, networkMapper);
+        } else if (!readThreeWindingsTransformerBranch(network, id, p1, q1, busNum, networkMapper)) {
+            DanglingLine dl = network.getDanglingLine(id);
+            if (dl != null) {
+                dl.getTerminal().setP(p1).setQ(q1);
+                NetworkApplier.busConnection(dl.getTerminal(), busNum, networkMapper);
+            } else {
+                throw new AmplException("Invalid branch id '" + id + "'");
+            }
+        }
+    }
+
+    @Override
+    public void applyHvdcLine(HvdcLine hl, String converterMode, double targetP) {
+        hl.setConvertersMode(HvdcLine.ConvertersMode.valueOf(converterMode));
+        hl.setActivePowerSetpoint(targetP);
+    }
+
+    @Override
+    public void applyLcc(LccConverterStation lcc, int busNum, double p, double q) {
+        lcc.getTerminal().setP(p).setQ(q);
+        NetworkApplier.busConnection(lcc.getTerminal(), busNum, networkMapper);
+    }
+
+    private boolean readThreeWindingsTransformerBranch(Network network, String id, double p, double q, int busNum, StringToIntMapper<AmplSubset> mapper) {
+        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+            ThreeWindingsTransformer twt = NetworkApplier.getThreeWindingsTransformer(network, id);
+            Terminal terminal = NetworkApplier.getThreeWindingsTransformerLeg(twt, id).getTerminal();
+            terminal.setP(p).setQ(q);
+            NetworkApplier.busConnection(terminal, busNum, mapper);
+            return true;
+        }
+        return false;
+    }
+}

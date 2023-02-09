@@ -9,7 +9,6 @@ package com.powsybl.ampl.converter;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,14 +46,15 @@ public class AmplNetworkReader {
 
     private final NetworkApplier applier;
 
-    private OutputFileFormat format;
+    private final OutputFileFormat format;
 
     public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex,
-            StringToIntMapper<AmplSubset> mapper, NetworkApplier applier, OutputFileFormat format) {
+                             StringToIntMapper<AmplSubset> mapper, AbstractNetworkApplierFactory applierFactory,
+                             OutputFileFormat format) {
         this.dataSource = dataSource;
         this.network = network;
         this.mapper = mapper;
-        this.applier = applier;
+        this.applier = applierFactory.of(mapper);
         this.buses = network.getBusView().getBusStream()
                 .collect(Collectors.toMap(Identifiable::getId, Function.identity()));
         this.variantIndex = variantIndex;
@@ -62,13 +62,13 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex,
-            StringToIntMapper<AmplSubset> mapper, NetworkApplier applier) {
-        this(dataSource, network, variantIndex, mapper, applier, OutputFileFormat.getDefault());
+                             StringToIntMapper<AmplSubset> mapper, AbstractNetworkApplierFactory applierFactory) {
+        this(dataSource, network, variantIndex, mapper, applierFactory, OutputFileFormat.getDefault());
     }
 
     public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex,
             StringToIntMapper<AmplSubset> mapper) {
-        this(dataSource, network, variantIndex, mapper, NetworkApplier.getDefaultApplier());
+        this(dataSource, network, variantIndex, mapper, NetworkApplier.getDefaultApplierFactory());
     }
 
     public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, StringToIntMapper<AmplSubset> mapper) {
@@ -143,7 +143,6 @@ public class AmplNetworkReader {
 
         this.applier.applyGenerators(g, busNum, vregul, targetV, targetP, targetQ, p, q);
 
-        busConnection(g.getTerminal(), busNum);
         return null;
     }
 
@@ -166,9 +165,7 @@ public class AmplNetworkReader {
         if (b == null) {
             throw new AmplException("Invalid battery id '" + id + "'");
         }
-        this.applier.applyBattery(b, targetP, targetQ, p, q);
-
-        busConnection(b.getTerminal(), busNum);
+        this.applier.applyBattery(b, busNum, targetP, targetQ, p, q);
 
         return null;
     }
@@ -188,20 +185,7 @@ public class AmplNetworkReader {
         double q0 = readDouble(tokens[6]);
         String id = mapper.getId(AmplSubset.LOAD, num);
         Load l = network.getLoad(id);
-        if (l != null) {
-            l.setP0(p0).setQ0(q0);
-            l.getTerminal().setP(p).setQ(q);
-            busConnection(l.getTerminal(), busNum);
-        } else {
-            DanglingLine dl = network.getDanglingLine(id);
-            if (dl != null) {
-                dl.setP0(p0).setQ0(q0);
-                dl.getTerminal().setP(p).setQ(q);
-                busConnection(dl.getTerminal(), busNum);
-            } else {
-                throw new AmplException("Invalid load id '" + id + "'");
-            }
-        }
+        this.applier.applyLoad(l, network, id, busNum, p, q, p0, q0);
 
         return null;
     }
@@ -216,18 +200,7 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[1]);
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.RATIO_TAP_CHANGER, num);
-        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
-            RatioTapChanger rtc = getThreeWindingsTransformerLeg(twt, id).getRatioTapChanger();
-            rtc.setTapPosition(rtc.getLowTapPosition() + tap - 1);
-        } else {
-            TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
-            if (twt == null) {
-                throw new AmplException("Invalid two windings transformer id '" + id + "'");
-            }
-            RatioTapChanger rtc = twt.getRatioTapChanger();
-            rtc.setTapPosition(rtc.getLowTapPosition() + tap - 1);
-        }
+        this.applier.applyRatioTapChanger(network, id, tap);
 
         return null;
     }
@@ -242,18 +215,7 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[1]);
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.PHASE_TAP_CHANGER, num);
-        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
-            PhaseTapChanger ptc = getThreeWindingsTransformerLeg(twt, id).getPhaseTapChanger();
-            ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1);
-        } else {
-            TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
-            if (twt == null) {
-                throw new AmplException("Invalid two windings transformer id '" + id + "'");
-            }
-            PhaseTapChanger ptc = twt.getPhaseTapChanger();
-            ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1);
-        }
+        this.applier.applyPhaseTapChanger(network, id, tap);
 
         return null;
     }
@@ -267,7 +229,7 @@ public class AmplNetworkReader {
     private Void readShunt(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
-
+        double b = readDouble(tokens[3]);
         double q = readDouble(tokens[4]);
         int sections = Integer.parseInt(tokens[5]);
 
@@ -277,9 +239,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
 
-        this.applier.applyShunt(sc, q, sections);
-
-        busConnection(sc.getTerminal(), busNum);
+        this.applier.applyShunt(sc, busNum, q, b, sections);
 
         return null;
     }
@@ -297,13 +257,11 @@ public class AmplNetworkReader {
 
         String id = mapper.getId(AmplSubset.BUS, num);
         Bus bus = buses.get(id);
-
-        if (bus != null) {
-            bus.setV(v * bus.getVoltageLevel().getNominalV());
-            bus.setAngle(Math.toDegrees(theta));
-        } else {
+        if (bus == null) {
             throw new AmplException("Invalid bus id '" + id + "'");
         }
+
+        this.applier.applyBus(bus, v, theta);
 
         return null;
     }
@@ -326,39 +284,9 @@ public class AmplNetworkReader {
         String id = mapper.getId(AmplSubset.BRANCH, num);
 
         Branch br = network.getBranch(id);
-        if (br != null) {
-            br.getTerminal1().setP(p1).setQ(q1);
-            br.getTerminal2().setP(p2).setQ(q2);
-            busConnection(br.getTerminal1(), busNum);
-            busConnection(br.getTerminal2(), busNum2);
-            return null;
-        }
-
-        if (readThreeWindingsTransformerBranch(id, p1, q1, busNum)) {
-            return null;
-        }
-
-        DanglingLine dl = network.getDanglingLine(id);
-        if (dl != null) {
-            dl.getTerminal().setP(p1).setQ(q1);
-            busConnection(dl.getTerminal(), busNum);
-        } else {
-            throw new AmplException("Invalid branch id '" + id + "'");
-        }
+        this.applier.applyBranch(br, network, id, busNum, busNum2, p1, p2, q1, q2);
 
         return null;
-    }
-
-    private boolean readThreeWindingsTransformerBranch(String id, double p, double q, int busNum) {
-        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
-            Terminal terminal = getThreeWindingsTransformerLeg(twt, id).getTerminal();
-            terminal.setP(p).setQ(q);
-            busConnection(terminal, busNum);
-
-            return true;
-        }
-        return false;
     }
 
     public AmplNetworkReader readHvdcLines() throws IOException {
@@ -373,14 +301,11 @@ public class AmplNetworkReader {
         double targetP = readDouble(tokens[3]);
 
         String id = mapper.getId(AmplSubset.HVDC_LINE, num);
-
         HvdcLine hl = network.getHvdcLine(id);
-
         if (hl == null) {
             throw new AmplException("Invalid HvdcLine id '" + id + "'");
         }
-        hl.setConvertersMode(ConvertersMode.valueOf(converterMode));
-        hl.setActivePowerSetpoint(targetP);
+        this.applier.applyHvdcLine(hl, converterMode, targetP);
 
         return null;
     }
@@ -404,9 +329,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid StaticVarCompensator id '" + id + "'");
         }
 
-        this.applier.applySvc(svc, vregul, targetV, q);
-
-        busConnection(svc.getTerminal(), busNum);
+        this.applier.applySvc(svc, busNum, vregul, targetV, q);
 
         return null;
     }
@@ -425,8 +348,11 @@ public class AmplNetworkReader {
 
         String id = mapper.getId(AmplSubset.LCC_CONVERTER_STATION, num);
         LccConverterStation lcc = network.getLccConverterStation(id);
-        lcc.getTerminal().setP(p).setQ(q);
-        busConnection(lcc.getTerminal(), busNum);
+        if (lcc == null) {
+            throw new AmplException("Invalid bus id '" + id + "'");
+        }
+
+        this.applier.applyLcc(lcc, busNum, p, q);
 
         return null;
     }
@@ -448,9 +374,7 @@ public class AmplNetworkReader {
 
         String id = mapper.getId(AmplSubset.VSC_CONVERTER_STATION, num);
         VscConverterStation vsc = network.getVscConverterStation(id);
-        this.applier.applyVsc(vsc, vregul, targetV, targetQ, p, q);
-
-        busConnection(vsc.getTerminal(), busNum);
+        this.applier.applyVsc(vsc, busNum, vregul, targetV, targetQ, p, q);
 
         return null;
     }
@@ -482,47 +406,8 @@ public class AmplNetworkReader {
         return this;
     }
 
-    private void busConnection(Terminal t, int busNum) {
-        if (busNum == -1) {
-            t.disconnect();
-        } else {
-            String busId = mapper.getId(AmplSubset.BUS, busNum);
-            Bus connectable = AmplUtil.getConnectableBus(t);
-            if (connectable != null && connectable.getId().equals(busId)) {
-                t.connect();
-            }
-        }
-    }
-
     private double readDouble(String d) {
         return Float.parseFloat(d) != AmplConstants.INVALID_FLOAT_VALUE ? Double.parseDouble(d) : Double.NaN;
-    }
-
-    /**
-     * Return a 3 windings transformer from one its leg ID
-     * @param legId The ID of a 3WT leg
-     * @param network The IIDM network to update
-     * @return A three windings transformer or null if not found
-     */
-    private static ThreeWindingsTransformer getThreeWindingsTransformer(Network network, String legId) {
-        String twtId = legId.substring(0, legId.length() - 5);
-        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(twtId);
-        if (twt == null) {
-            throw new AmplException("Unable to find transformer '" + twtId + "'");
-        }
-        return twt;
-    }
-
-    private static ThreeWindingsTransformer.Leg getThreeWindingsTransformerLeg(ThreeWindingsTransformer twt, String legId) {
-        if (legId.endsWith(AmplConstants.LEG1_SUFFIX)) {
-            return twt.getLeg1();
-        } else if (legId.endsWith(AmplConstants.LEG2_SUFFIX)) {
-            return twt.getLeg2();
-        } else if (legId.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            return twt.getLeg3();
-        }
-
-        throw new IllegalArgumentException("Unexpected suffix: " + legId.substring(legId.length() - 5));
     }
 
 }

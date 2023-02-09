@@ -6,104 +6,98 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.commons.util.StringToIntMapper;
+import com.powsybl.iidm.network.*;
 
 /**
- * Interface to apply the values read from a AMPL solve.
- * For now it allows to modify the behavior on generators only.
- * As future developments might create applyBatteries etc... we don't want to
- * use this as a functional interface.
+ * Interface to modify a network after an Ampl solve.<br>
+ * {@link AmplNetworkReader} does the Ampl output parsing,
+ * and {@link NetworkApplier} modifies the {@link Network}.<br>
+ * Also provides some utility functions for implementations :
+ * <ul>
+ *     <li>{@link NetworkApplier#busConnection}</li>
+ *     <li>{@link NetworkApplier#getThreeWindingsTransformerLeg}</li>
+ *     <li>{@link NetworkApplier#getThreeWindingsTransformer}</li>
+ * </ul>
+ * Default implementation in {@link DefaultNetworkApplier}.
+ *
+ * @see AmplNetworkReader
+ * @see DefaultNetworkApplier
  */
 public interface NetworkApplier {
 
-    public static NetworkApplier getDefaultApplier() {
-        return new DefaultNetworkApplier();
+    static AbstractNetworkApplierFactory getDefaultApplierFactory() {
+        return new AbstractNetworkApplierFactory() {
+            @Override
+            public NetworkApplier of(StringToIntMapper<AmplSubset> mapper) {
+                return new DefaultNetworkApplier(mapper);
+            }
+        };
+    }
+
+    void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP, double targetQ,
+                         double p, double q);
+
+    void applyBattery(Battery b, int busNum, double targetP, double targetQ, double p, double q);
+
+    void applyShunt(ShuntCompensator sc, int busNum, double q, double b, int sections);
+
+    void applySvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q);
+
+    void applyVsc(VscConverterStation vsc, int busNum, boolean vregul, double targetV, double targetQ, double p, double q);
+
+    void applyLoad(Load l, Network network, String id, int busNum, double p, double q, double p0, double q0);
+
+    void applyRatioTapChanger(Network network, String id, int tap);
+
+    void applyPhaseTapChanger(Network network, String id, int tap);
+
+    void applyBus(Bus bus, double v, double theta);
+
+    void applyBranch(Branch br, Network network, String id, int busNum, int busNum2, double p1, double p2, double q1, double q2);
+
+    void applyHvdcLine(HvdcLine hl, String converterMode, double targetP);
+
+    void applyLcc(LccConverterStation lcc, int busNum, double p, double q);
+
+    static void busConnection(Terminal t, int busNum, StringToIntMapper<AmplSubset> mapper) {
+        if (busNum == -1) {
+            t.disconnect();
+        } else {
+            String busId = mapper.getId(AmplSubset.BUS, busNum);
+            Bus connectable = AmplUtil.getConnectableBus(t);
+            if (connectable != null && connectable.getId().equals(busId)) {
+                t.connect();
+            }
+        }
+    }
+
+    static ThreeWindingsTransformer.Leg getThreeWindingsTransformerLeg(ThreeWindingsTransformer twt, String legId) {
+        if (legId.endsWith(AmplConstants.LEG1_SUFFIX)) {
+            return twt.getLeg1();
+        } else if (legId.endsWith(AmplConstants.LEG2_SUFFIX)) {
+            return twt.getLeg2();
+        } else if (legId.endsWith(AmplConstants.LEG3_SUFFIX)) {
+            return twt.getLeg3();
+        }
+
+        throw new IllegalArgumentException("Unexpected suffix: " + legId.substring(legId.length() - 5));
     }
 
     /**
-     * This class implements the default behavior that was already implemented in
-     * {@link AmplNetworkReader}.
+     * Return a 3 windings transformer from one its leg ID
+     *
+     * @param legId   The ID of a 3WT leg
+     * @param network The IIDM network to update
+     * @return A three windings transformer or null if not found
      */
-    public class DefaultNetworkApplier implements NetworkApplier {
-
-        public void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP,
-                double targetQ, double p, double q) {
-            g.setVoltageRegulatorOn(vregul);
-
-            g.setTargetP(targetP);
-            g.setTargetQ(targetQ);
-
-            Terminal t = g.getTerminal();
-            t.setP(p).setQ(q);
-
-            double vb = t.getVoltageLevel().getNominalV();
-            g.setTargetV(targetV * vb);
+    static ThreeWindingsTransformer getThreeWindingsTransformer(Network network, String legId) {
+        String twtId = legId.substring(0, legId.length() - 5);
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(twtId);
+        if (twt == null) {
+            throw new AmplException("Unable to find transformer '" + twtId + "'");
         }
-
-        public void applyVsc(VscConverterStation vsc, boolean vregul, double targetV, double targetQ, double p,
-                double q) {
-            Terminal t = vsc.getTerminal();
-            t.setP(p).setQ(q);
-
-            vsc.setReactivePowerSetpoint(targetQ);
-            vsc.setVoltageRegulatorOn(vregul);
-
-            double vb = t.getVoltageLevel().getNominalV();
-            vsc.setVoltageSetpoint(targetV * vb);
-        }
-
-        public void applyBattery(Battery b, double targetP, double targetQ, double p, double q) {
-            b.setTargetP(targetP);
-            b.setTargetQ(targetQ);
-
-            Terminal t = b.getTerminal();
-            t.setP(p).setQ(q);
-        }
-
-        public void applySvc(StaticVarCompensator svc, boolean vregul, double targetV, double q) {
-            if (vregul) {
-                svc.setRegulationMode(RegulationMode.VOLTAGE);
-            } else {
-                if (q == 0) {
-                    svc.setRegulationMode(RegulationMode.OFF);
-                } else {
-                    svc.setReactivePowerSetpoint(-q);
-                    svc.setRegulationMode(RegulationMode.REACTIVE_POWER);
-                }
-            }
-
-            Terminal t = svc.getTerminal();
-            t.setQ(q);
-            double nominalV = t.getVoltageLevel().getNominalV();
-            svc.setVoltageSetpoint(targetV * nominalV);
-        }
-
-        public void applyShunt(ShuntCompensator sc, double q, int sections) {
-            if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
-                // TODO improve non linear shunt section count update.
-            } else {
-                sc.setSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
-            }
-            sc.getTerminal().setQ(q);
-        }
+        return twt;
     }
-
-    public void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP, double targetQ,
-            double p, double q);
-
-    public void applyBattery(Battery b, double targetP, double targetQ, double p, double q);
-
-    public void applyShunt(ShuntCompensator sc, double q, int sections);
-
-    public void applySvc(StaticVarCompensator svc, boolean vregul, double targetV, double q);
-
-    public void applyVsc(VscConverterStation vsc, boolean vregul, double targetV, double targetQ, double p, double q);
 
 }
