@@ -1,8 +1,15 @@
+/**
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.ampl.executor;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.ampl.converter.AbstractNetworkApplierFactory;
+import com.powsybl.ampl.converter.AmplReadableElement;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.computation.ComputationManager;
@@ -24,11 +31,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 
+/**
+ * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ */
 public class AmplModelExecutionHandlerTest {
 
     @Test
@@ -125,6 +136,11 @@ public class AmplModelExecutionHandlerTest {
 
         @Override
         public AbstractNetworkApplierFactory getNetworkApplierFactory() {
+            throw new IllegalStateException("Should not be called to create ampl command");
+        }
+
+        @Override
+        public Collection<AmplReadableElement> getAmplReadableElement() {
             throw new IllegalStateException("Should not be called to create ampl command");
         }
     }
