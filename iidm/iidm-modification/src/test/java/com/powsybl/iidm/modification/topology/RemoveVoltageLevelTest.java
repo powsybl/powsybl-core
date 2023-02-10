@@ -9,22 +9,27 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.After;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.Assert.*;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class RemoveVoltageLevelTest {
+public class RemoveVoltageLevelTest extends AbstractConverterTest {
 
     private final Set<String> removedObjects = new HashSet<>();
     private final Set<String> beforeRemovalObjects = new HashSet<>();
@@ -74,5 +79,23 @@ public class RemoveVoltageLevelTest {
         removeUnknown.apply(network, false, Reporter.NO_OP);
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, Reporter.NO_OP));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
+    }
+
+    @Test
+    public void testRemoveVLRoundTripNB() throws IOException {
+        Network network = createNbNetwork();
+        NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("C").build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/eurostag-remove-voltage-level-nb.xml");
+    }
+
+    @Test
+    public void testRemoveVLRoundTriBB() throws IOException {
+        Network network = createBbNetwork();
+        NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("VLGEN").build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/eurostag-remove-voltage-level-bb.xml");
     }
 }
