@@ -24,6 +24,7 @@ public enum AmplReadableElement {
     PHASE_TAP_CHANGER(AmplNetworkReader::readPhaseTapChangers),
     RATIO_TAP_CHANGER(AmplNetworkReader::readRatioTapChangers),
     SHUNT(AmplNetworkReader::readShunts),
+    STATIC_VAR_COMPENSATOR(AmplNetworkReader::readStaticVarcompensator),
     VSC_CONVERTER_STATION(AmplNetworkReader::readVscConverterStations);
     private final ReadElementInterface readElementConsumer;
 
