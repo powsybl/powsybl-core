@@ -8,6 +8,7 @@ package com.powsybl.ampl.executor;
 
 import com.powsybl.ampl.converter.AmplExporter;
 import com.powsybl.ampl.converter.AmplNetworkReader;
+import com.powsybl.ampl.converter.AmplReadableElement;
 import com.powsybl.ampl.converter.AmplUtil;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
@@ -32,7 +33,7 @@ import java.util.List;
  * the working directory. It exports the Network with
  * {@link AmplExporter#export}.
  * <p>
- * Then it runs the ampl model, and {@link AmplNetworkReader#read} is used to
+ * Then it runs the ampl model, and {@link AmplReadableElement#readElement} is used to
  * apply modifications on the network.
  * <p>
  * The majority of the configuration is made by the {@link IAmplModel}
@@ -106,17 +107,9 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         DataSource networkAmplResults = new FileDataSource(workingDir, this.model.getOutputFilePrefix());
         AmplNetworkReader reader = new AmplNetworkReader(networkAmplResults, this.network, this.model.getVariant(),
                 AmplUtil.createMapper(this.network), this.model.getNetworkApplierFactory(), this.model.getOutputFormat());
-        reader.readBatteries();
-        reader.readBuses();
-        reader.readBranches();
-        reader.readGenerators();
-        reader.readHvdcLines();
-        reader.readLccConverterStations();
-        reader.readLoads();
-        reader.readPhaseTapChangers();
-        reader.readRatioTapChangers();
-        reader.readShunts();
-        reader.readVscConverterStations();
+        for (AmplReadableElement element : this.model.getAmplReadableElement()) {
+            element.readElement(reader);
+        }
         return AmplResults.ok();
     }
 

@@ -6,13 +6,11 @@
  */
 package com.powsybl.ampl.executor;
 
-import com.powsybl.ampl.converter.AbstractNetworkApplierFactory;
-import com.powsybl.ampl.converter.AmplExporter;
-import com.powsybl.ampl.converter.AmplNetworkReader;
-import com.powsybl.ampl.converter.OutputFileFormat;
+import com.powsybl.ampl.converter.*;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -57,4 +55,5 @@ public interface IAmplModel {
 
     String getNetworkDataPrefix();
 
+    Collection<AmplReadableElement> getAmplReadableElement();
 }
