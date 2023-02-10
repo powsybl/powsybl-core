@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2023
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 /**
  * This class implements the default behavior of applying changes to the network. <br>
  *
+ * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  * @see AmplNetworkReader
  * @see NetworkApplier
  */

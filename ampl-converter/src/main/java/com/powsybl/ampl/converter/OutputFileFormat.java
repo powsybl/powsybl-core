@@ -1,8 +1,19 @@
+/**
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.ampl.converter;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * Simple POJO to define some properties of files read after an Ampl solve
+ *
+ * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ */
 public interface OutputFileFormat {
     /**
      * @return regex string that will be used to separate tokens
