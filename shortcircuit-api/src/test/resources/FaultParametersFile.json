@@ -1,16 +1,22 @@
 [ {
+  "version" : "1.1",
   "id" : "f00",
   "withFeederResult" : true,
   "studyType" : "STEADY_STATE",
-  "minVoltageDropProportionalThreshold" : 1.0
+  "minVoltageDropProportionalThreshold" : 1.0,
+  "withFortescueResult" : true
 }, {
+  "version" : "1.1",
   "id" : "f01",
-  "withVoltageMap" : true
+  "withVoltageResult" : true,
+  "withFortescueResult" : true
 }, {
+  "version" : "1.1",
   "id" : "f10",
   "withLimitViolations" : true
 }, {
+  "version" : "1.1",
   "id" : "f11",
   "withLimitViolations" : true,
-  "withVoltageMap" : true
+  "withVoltageResult" : true
 } ]

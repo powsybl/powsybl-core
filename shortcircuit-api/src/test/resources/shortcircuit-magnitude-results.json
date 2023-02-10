@@ -12,6 +12,11 @@
       "faultType" : "THREE_PHASE"
     },
     "shortCircuitPower" : 1.0,
+    "timeConstant" : "PT1S",
+    "feederResult" : [ {
+      "connectableId" : "id2",
+      "currentMagnitude" : 1.0
+    } ],
     "currentMagnitude" : 1.0,
     "limitViolations" : [ {
       "subjectId" : "vlId",
@@ -26,12 +31,9 @@
     "shortCircuitBusResults" : [ {
       "voltageLevelId" : "vlId",
       "busId" : "busId",
-      "initialVoltageMagnitude" : 4800.0,
-      "voltage" : {
-        "directMagnitude" : 2004.0,
-        "directAngle" : 2005.0
-      },
-      "voltageDropProportional" : 70.0
+      "initialVoltageMagnitude" : 2000.0,
+      "voltageMagnitude" : 2004.0,
+      "voltageDropProportional" : 100.0
     } ],
     "extensions" : {
       "DummyFaultResultExtension" : { }

@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.shortcircuit.FeederResult;
+import com.powsybl.shortcircuit.FortescueFeederResult;
+import com.powsybl.shortcircuit.MagnitudeFeederResult;
 
 import java.io.IOException;
 
@@ -27,8 +29,14 @@ public class FeederResultSerializer extends StdSerializer<FeederResult> {
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeStringField("connectableId", result.getConnectableId());
-        if (result.getCurrent() != null) {
-            serializerProvider.defaultSerializeField("current", result.getCurrent(), jsonGenerator);
+        if (result instanceof FortescueFeederResult) {
+            if (((FortescueFeederResult) result).getCurrent() != null) {
+                serializerProvider.defaultSerializeField("current", ((FortescueFeederResult) result).getCurrent(), jsonGenerator);
+            }
+        } else {
+            if (!Double.isNaN(((MagnitudeFeederResult) result).getCurrent())) {
+                serializerProvider.defaultSerializeField("currentMagnitude", ((MagnitudeFeederResult) result).getCurrent(), jsonGenerator);
+            }
         }
         jsonGenerator.writeEndObject();
     }
