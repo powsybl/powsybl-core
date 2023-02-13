@@ -296,6 +296,16 @@ final class ModificationReports {
                 .build());
     }
 
+    static void notFoundBusOrBusbarSectionVoltageLevelReport(Reporter reporter, String busOrBusbarSectionId1, String busOrBusbarSectionId2) {
+        reporter.report(Report.builder()
+                .withKey("busOrBusbarSectionVoltageLevelNotFound")
+                .withDefaultMessage("Voltage level associated to ${busOrBusbarSectionId1} or ${busOrBusbarSectionId2} not found.")
+                .withValue("busOrBusbarSectionId1", busOrBusbarSectionId1)
+                .withValue("busOrBusbarSectionId2", busOrBusbarSectionId2)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void removedVoltageLevelReport(Reporter reporter, String voltageLevelId) {
         reporter.report(Report.builder()
                 .withKey("removeVoltageLevel")

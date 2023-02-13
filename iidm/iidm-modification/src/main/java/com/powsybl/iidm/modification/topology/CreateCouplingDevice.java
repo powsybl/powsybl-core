@@ -85,6 +85,11 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         VoltageLevel voltageLevel1 = getVoltageLevel(busOrBbs1, reporter, throwException);
         VoltageLevel voltageLevel2 = getVoltageLevel(busOrBbs2, reporter, throwException);
         if (voltageLevel1 == null || voltageLevel2 == null) {
+            LOGGER.error("Voltage level associated to {} or {} not found.", busOrBbs1, busOrBbs2);
+            notFoundBusOrBusbarSectionVoltageLevelReport(reporter, busOrBbsId1, busOrBbsId2);
+            if (throwException) {
+                throw new PowsyblException(String.format("Voltage level associated to %s or %s not found.", busOrBbs1, busOrBbs2));
+            }
             return;
         }
         if (voltageLevel1 != voltageLevel2) {
