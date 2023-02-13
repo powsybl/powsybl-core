@@ -286,6 +286,15 @@ final class ModificationReports {
                 .build());
     }
 
+    static void removedVoltageLevelReport(Reporter reporter, String voltageLevelId) {
+        reporter.report(Report.builder()
+                .withKey("removeVoltageLevel")
+                .withDefaultMessage("Voltage level ${voltageLevelId}, its equipments and the branches it is connected to have been removed")
+                .withValue(CONNECTABLE_ID, voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void noTeePointAndOrTappedVoltageLevelReport(Reporter reporter, String line1Id, String line2Id, String line3Id) {
         reporter.report(Report.builder()
                 .withKey("noTeePointAndOrTappedVoltageLevel")
