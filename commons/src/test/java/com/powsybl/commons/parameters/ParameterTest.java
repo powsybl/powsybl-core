@@ -121,7 +121,7 @@ class ParameterTest {
     @Test
     void defaultValueWithStringListParamTest() {
         List<Object> possibleValues = List.of("a", "b", "c");
-        new Parameter("p1", ParameterType.STRING_LIST, "a str list param", List.of("a", "c"), possibleValues);
+        assertDoesNotThrow(() -> new Parameter("p1", ParameterType.STRING_LIST, "a str list param", List.of("a", "c"), possibleValues));
     }
 
     @Test

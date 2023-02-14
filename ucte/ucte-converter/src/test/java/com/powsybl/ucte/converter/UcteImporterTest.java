@@ -31,7 +31,7 @@ class UcteImporterTest {
         // Import network that could fail because of id conflicts due to trim mechanism
         ReadOnlyDataSource dataSource = new ResourceDataSource("importIssue", new ResourceSet("/", "importIssue.uct"));
 
-        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+        assertDoesNotThrow(() -> new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null));
     }
 
     @Test
@@ -196,13 +196,13 @@ class UcteImporterTest {
     @Test
     void testInvalidRegulation() {
         ResourceDataSource dataSource = new ResourceDataSource("invalidRegulationNetwork", new ResourceSet("/", "invalidRegulationNetwork.uct"));
-        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+        assertDoesNotThrow(() -> new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null));
     }
 
     @Test
     void testInvalidVoltageReference() {
         ResourceDataSource dataSource = new ResourceDataSource("invalidVoltageReference", new ResourceSet("/", "invalidVoltageReference.uct"));
-        Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+        assertDoesNotThrow(() -> new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null));
     }
 
     @Test
