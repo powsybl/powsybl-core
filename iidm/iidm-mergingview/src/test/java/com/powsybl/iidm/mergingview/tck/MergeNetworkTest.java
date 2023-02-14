@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractMergeNetworkTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class MergeNetworkTest extends AbstractMergeNetworkTest { }
+class MergeNetworkTest extends AbstractMergeNetworkTest { }

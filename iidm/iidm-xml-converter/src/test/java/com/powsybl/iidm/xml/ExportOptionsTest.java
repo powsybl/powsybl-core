@@ -8,22 +8,22 @@ package com.powsybl.iidm.xml;
 
 import com.google.common.collect.Sets;
 import com.powsybl.iidm.network.TopologyLevel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.powsybl.iidm.xml.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ExportOptionsTest {
+class ExportOptionsTest {
 
     @Test
-    public void exportOptionsTest() {
+    void exportOptionsTest() {
         ExportOptions options = new ExportOptions();
 
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
@@ -41,7 +41,7 @@ public class ExportOptionsTest {
     }
 
     @Test
-    public void exportOptionsTest2() {
+    void exportOptionsTest2() {
         Set<String> extensionsList = new HashSet<>();
         ExportOptions options = new ExportOptions();
         options.setCharset(StandardCharsets.ISO_8859_1);
@@ -51,7 +51,7 @@ public class ExportOptionsTest {
     }
 
     @Test
-    public void exportOptionsTest3() {
+    void exportOptionsTest3() {
         Set<String> extensionsList = Sets.newHashSet("loadFoo");
         ExportOptions options = new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.BUS_BREAKER, Boolean.FALSE, Boolean.TRUE);
         options.setExtensions(extensionsList);
@@ -65,7 +65,7 @@ public class ExportOptionsTest {
     }
 
     @Test
-    public void defaultExportOptionsTest() {
+    void defaultExportOptionsTest() {
         testDefaultExportOptions(new ExportOptions());
         testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE));
         testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE));

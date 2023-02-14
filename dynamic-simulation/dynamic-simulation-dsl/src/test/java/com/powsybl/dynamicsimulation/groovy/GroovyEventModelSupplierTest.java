@@ -12,9 +12,9 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -23,29 +23,29 @@ import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class GroovyEventModelSupplierTest {
+class GroovyEventModelSupplierTest {
 
     private FileSystem fileSystem;
 
-    @Before
-    public void setup() throws IOException {
+    @BeforeEach
+    void setup() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
 
         Files.copy(getClass().getResourceAsStream("/eventModels.groovy"), fileSystem.getPath("/eventModels.groovy"));
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void test() {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create();
 
         List<EventModelGroovyExtension> extensions = GroovyExtension.find(EventModelGroovyExtension.class, "dummy");
@@ -58,7 +58,7 @@ public class GroovyEventModelSupplierTest {
     }
 
     @Test
-    public void testWithInputStream() {
+    void testWithInputStream() {
         Network network = EurostagTutorialExample1Factory.create();
 
         List<EventModelGroovyExtension> extensions = GroovyExtension.find(EventModelGroovyExtension.class, "dummy");

@@ -6,20 +6,20 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class TapChangerAttributeTest {
+class TapChangerAttributeTest {
 
     @Test
-    public void testTapChangerAttributeName() {
+    void testTapChangerAttributeName() {
         Network network = NoEquipmentNetworkFactory.create();
         Substation substation = network.getSubstation("sub");
 

@@ -15,21 +15,19 @@ import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.ucte.converter.util.UcteConstants;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class UcteImporterTest {
+class UcteImporterTest {
 
     @Test
-    public void trimIssueTest() {
+    void trimIssueTest() {
         // Import network that could fail because of id conflicts due to trim mechanism
         ReadOnlyDataSource dataSource = new ResourceDataSource("importIssue", new ResourceSet("/", "importIssue.uct"));
 
@@ -37,7 +35,7 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void countryAssociationIssueTest() {
+    void countryAssociationIssueTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("countryIssue", new ResourceSet("/", "countryIssue.uct"));
 
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
@@ -50,7 +48,7 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void germanTsosImport() {
+    void germanTsosImport() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("germanTsos", new ResourceSet("/", "germanTsos.uct"));
 
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
@@ -75,7 +73,7 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void elementNameTest() {
+    void elementNameTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
@@ -113,7 +111,7 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void xnodeMergingIssueTest() {
+    void xnodeMergingIssueTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("mergedXnodeIssue", new ResourceSet("/", "mergedXnodeIssue.uct"));
 
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
@@ -130,7 +128,7 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void lineAndTransformerSameId() {
+    void lineAndTransformerSameId() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("sameId", new ResourceSet("/", "sameId.uct"));
 
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
@@ -141,34 +139,29 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void testCouplerToXnodeImport() {
+    void testCouplerToXnodeImport() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("couplerToXnodeExample", new ResourceSet("/", "couplerToXnodeExample.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         assertEquals(1, network.getBusBreakerView().getBusStream().count());
     }
 
     @Test
-    public void testEmptyLastCharacterOfLineImport() {
+    void testEmptyLastCharacterOfLineImport() {
         ResourceDataSource dataSource = new ResourceDataSource("lastCharacterIssue", new ResourceSet("/", "lastCharacterIssue.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         assertEquals(2, network.getBusBreakerView().getBusStream().count());
     }
 
-    @Rule
-    public ExpectedException exceptionRule = ExpectedException.none();
-
     @Test
-    public void testImportLinesDifferentNominalvoltage() {
+    void testImportLinesDifferentNominalvoltage() {
         ResourceDataSource dataSource = new ResourceDataSource("differentLinesVoltage", new ResourceSet("/", "differentLinesVoltage.uct"));
 
-        exceptionRule.expect(IllegalArgumentException.class);
-        exceptionRule.expectMessage("with two different nominal voltages");
-
-        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null));
+        assertTrue(e.getMessage().contains("with two different nominal voltages"));
     }
 
     @Test
-    public void testVoltageRegulatingXnode() {
+    void testVoltageRegulatingXnode() {
         ResourceDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         DanglingLine dl = network.getDanglingLine("FFFFFF13 XXXXXX14 1");
@@ -182,14 +175,14 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void testXnodeTransformer() {
+    void testXnodeTransformer() {
         ResourceDataSource dataSource = new ResourceDataSource("xNodeTransformer", new ResourceSet("/", "xNodeTransformer.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         assertEquals(2, network.getBusBreakerView().getBusStream().count());
     }
 
     @Test
-    public void substationNameInvariance() {
+    void substationNameInvariance() {
         ResourceDataSource dataSource = new ResourceDataSource("substationName", new ResourceSet("/", "substationName.uct"));
 
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
@@ -201,19 +194,19 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void testInvalidRegulation() {
+    void testInvalidRegulation() {
         ResourceDataSource dataSource = new ResourceDataSource("invalidRegulationNetwork", new ResourceSet("/", "invalidRegulationNetwork.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
     @Test
-    public void testInvalidVoltageReference() {
+    void testInvalidVoltageReference() {
         ResourceDataSource dataSource = new ResourceDataSource("invalidVoltageReference", new ResourceSet("/", "invalidVoltageReference.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
     @Test
-    public void checkTapPositionsRangeIsExtended() {
+    void checkTapPositionsRangeIsExtended() {
         ResourceDataSource dataSource = new ResourceDataSource("tapPositionsRange", new ResourceSet("/", "tapPositionsRange.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         // Ratio tap with negative tap position higher than initial tap's number
@@ -228,14 +221,14 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void importOfNetworkWithXnodesConnectedToOneClosedLineMustSucceed() {
+    void importOfNetworkWithXnodesConnectedToOneClosedLineMustSucceed() {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeOneClosedLine", new ResourceSet("/", "xnodeOneClosedLine.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         assertNotNull(network.getDanglingLine("FFFFFF12 XXXXXX11 1"));
     }
 
     @Test
-    public void importOfNetworkWithXnodesConnectedToTwoClosedLineMustSucceed() {
+    void importOfNetworkWithXnodesConnectedToTwoClosedLineMustSucceed() {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeTwoClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         assertNotNull(network.getLine("BEBBBB11 XXXXXX11 1 + FFFFFF12 XXXXXX11 1"));
@@ -244,13 +237,13 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void importOfNetworkWithXnodesConnectedToMoreThanTwoClosedLineMustFail() {
+    void importOfNetworkWithXnodesConnectedToMoreThanTwoClosedLineMustFail() {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeThreeClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
         assertThrows(UcteException.class, () -> new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null));
     }
 
     @Test
-    public void checkPhaseShifterRegulationMode() {
+    void checkPhaseShifterRegulationMode() {
         ResourceDataSource dataSource = new ResourceDataSource("phaseShifterActivePowerOn", new ResourceSet("/", "phaseShifterActivePowerOn.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         assertSame(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, network.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1").getPhaseTapChanger().getRegulationMode());
@@ -262,14 +255,14 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void ignoreCoupler() {
+    void ignoreCoupler() {
         ResourceDataSource dataSource = new ResourceDataSource("ignoreCoupler", new ResourceSet("/", "ignoreCoupler.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         assertNull(network.getSwitch("BBBBBB11 BBBBBB11 1"));
     }
 
     @Test
-    public void emptyElementName() {
+    void emptyElementName() {
         ResourceDataSource dataSource = new ResourceDataSource("emptyElementName", new ResourceSet("/", "emptyElementName.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         Line l = network.getLine("F_SU1_12 F_SU1_11 1");
@@ -278,7 +271,7 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void combineRtcAndPtc() {
+    void combineRtcAndPtc() {
         ResourceDataSource dataSource = new ResourceDataSource("combineRtcAndPtc", new ResourceSet("/", "combineRtcAndPtc.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         assertEquals(1.948, network.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getAlpha(), 0.001);

@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractEmptyCalculatedBusBugTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class EmptyCalculatedBusBugTest extends AbstractEmptyCalculatedBusBugTest { }
+class EmptyCalculatedBusBugTest extends AbstractEmptyCalculatedBusBugTest { }

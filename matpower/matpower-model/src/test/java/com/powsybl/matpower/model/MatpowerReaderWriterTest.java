@@ -9,32 +9,33 @@ package com.powsybl.matpower.model;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
  */
-public class MatpowerReaderWriterTest {
+class MatpowerReaderWriterTest {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
     private FileSystem fileSystem;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
@@ -53,52 +54,52 @@ public class MatpowerReaderWriterTest {
     }
 
     @Test
-    public void testCase9() throws IOException {
+    void testCase9() throws IOException {
         testMatpowerFile(MatpowerModelFactory.create9());
     }
 
     @Test
-    public void testCase14() throws IOException {
+    void testCase14() throws IOException {
         testMatpowerFile(MatpowerModelFactory.create14());
     }
 
     @Test
-    public void testCase30() throws IOException {
+    void testCase30() throws IOException {
         testMatpowerFile(MatpowerModelFactory.create30());
     }
 
     @Test
-    public void testCase57() throws IOException {
+    void testCase57() throws IOException {
         testMatpowerFile(MatpowerModelFactory.create57());
     }
 
     @Test
-    public void testCase118() throws IOException {
+    void testCase118() throws IOException {
         testMatpowerFile(MatpowerModelFactory.create118());
     }
 
     @Test
-    public void testCase300() throws IOException {
+    void testCase300() throws IOException {
         testMatpowerFile(MatpowerModelFactory.create300());
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testInvalidModel() throws IOException {
+    @Test
+    void testInvalidModel() throws IOException {
         MatpowerModel model = new MatpowerModel("not-valid");
         model.setVersion("1");
-        testMatpowerFile(model);
+        assertThrows(IllegalStateException.class, () -> testMatpowerFile(model));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testNonValidBus1() {
+    @Test
+    void testNonValidBus1() {
         MBus bus = new MBus();
-        bus.setType(MBus.Type.fromInt(5));
+        assertThrows(IllegalArgumentException.class, () -> bus.setType(MBus.Type.fromInt(5)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testNonValidBus2() {
+    @Test
+    void testNonValidBus2() {
         MBus bus = new MBus();
-        bus.setType(MBus.Type.fromInt(0));
+        assertThrows(IllegalArgumentException.class, () -> bus.setType(MBus.Type.fromInt(0)));
     }
 
 }

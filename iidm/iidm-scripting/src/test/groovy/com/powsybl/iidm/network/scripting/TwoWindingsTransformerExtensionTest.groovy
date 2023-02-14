@@ -11,10 +11,10 @@ import com.powsybl.iidm.network.Substation
 import com.powsybl.iidm.network.TopologyKind
 import com.powsybl.iidm.network.TwoWindingsTransformer
 import com.powsybl.iidm.network.VoltageLevel
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
-import static org.junit.Assert.assertNull
-import static org.junit.Assert.assertSame
+import static org.junit.jupiter.api.Assertions.assertNull
+import static org.junit.jupiter.api.Assertions.assertSame
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>

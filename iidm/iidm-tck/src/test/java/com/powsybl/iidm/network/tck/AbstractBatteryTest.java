@@ -9,16 +9,14 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
@@ -31,13 +29,10 @@ public abstract class AbstractBatteryTest {
 
     private static final String BAT_ID = "bat_id";
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private Network network;
     private VoltageLevel voltageLevel;
 
-    @Before
+    @BeforeEach
     public void initNetwork() {
         network = BatteryNetworkFactory.create();
         voltageLevel = network.getVoltageLevel("VLBAT");
@@ -68,52 +63,45 @@ public abstract class AbstractBatteryTest {
 
     @Test
     public void invalidP0() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("p0 is invalid");
-        createBattery(INVALID, Double.NaN, 12.0, 10.0, 20.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createBattery(INVALID, Double.NaN, 12.0, 10.0, 20.0));
+        assertTrue(e.getMessage().contains("p0 is invalid"));
     }
 
     @Test
     public void invalidQ0() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("q0 is invalid");
-        createBattery(INVALID, 11, Double.NaN, 10.0, 20.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createBattery(INVALID, 11, Double.NaN, 10.0, 20.0));
+        assertTrue(e.getMessage().contains("q0 is invalid"));
     }
 
     @Test
     public void invalidMinP() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("for minimum P");
-        createBattery(INVALID, 11, 12, Double.NaN, 20.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createBattery(INVALID, 11, 12, Double.NaN, 20.0));
+        assertTrue(e.getMessage().contains("for minimum P"));
     }
 
     @Test
     public void invalidMaxP() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("for maximum P");
-        createBattery(INVALID, 11, 12, 10, Double.NaN);
+        ValidationException e = assertThrows(ValidationException.class, () -> createBattery(INVALID, 11, 12, 10, Double.NaN));
+        assertTrue(e.getMessage().contains("for maximum P"));
     }
 
     @Test
     public void invalidLimitsP() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("invalid active limits");
-        createBattery(INVALID, 11, 12, 20.0, 11.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createBattery(INVALID, 11, 12, 20.0, 11.0));
+        assertTrue(e.getMessage().contains("invalid active limits"));
     }
 
     @Test
     public void duplicateEquipment() {
         createBattery("duplicate", 11.0, 12, 10, 20.0);
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("contains an object 'BatteryImpl' with the id 'duplicate'");
-        createBattery("duplicate", 11.0, 12, 10, 20.0);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createBattery("duplicate", 11.0, 12, 10, 20.0));
+        assertTrue(e.getMessage().contains("contains an object 'BatteryImpl' with the id 'duplicate'"));
     }
 
     @Test
     public void duplicateId() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("with the id 'BAT'");
-        createBattery("BAT", 11.0, 12, 10, 20.0);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createBattery("BAT", 11.0, 12, 10, 20.0));
+        assertTrue(e.getMessage().contains("with the id 'BAT'"));
     }
 
     @Test

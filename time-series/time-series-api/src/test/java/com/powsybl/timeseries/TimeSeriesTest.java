@@ -6,7 +6,7 @@
  */
 package com.powsybl.timeseries;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 
@@ -16,15 +16,15 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TimeSeriesTest {
+class TimeSeriesTest {
 
     @Test
-    public void testRegularTimeSeriesIndex() {
+    void testRegularTimeSeriesIndex() {
         String csv = String.join(System.lineSeparator(),
                 "Time;Version;ts1;ts2",
                 "1970-01-01T01:00:00.000+01:00;1;1.0;",
@@ -78,7 +78,7 @@ public class TimeSeriesTest {
     }
 
     @Test
-    public void testIrregularTimeSeriesIndex() {
+    void testIrregularTimeSeriesIndex() {
         String csv = String.join(System.lineSeparator(),
                 "Time;Version;ts1;ts2",
                 "1970-01-01T01:00:00.000+01:00;1;1.0;",
@@ -119,7 +119,7 @@ public class TimeSeriesTest {
     }
 
     @Test
-    public void testFractionsOfSecondsRegularTimeSeriesIndex() {
+    void testFractionsOfSecondsRegularTimeSeriesIndex() {
         String csv = String.join(System.lineSeparator(),
                 "Time;Version;ts1;ts2",
                 "0.000;1;1.0;",
@@ -161,7 +161,7 @@ public class TimeSeriesTest {
     }
 
     @Test
-    public void testMillisIrregularTimeSeriesIndex() {
+    void testMillisIrregularTimeSeriesIndex() {
         String csv = String.join(System.lineSeparator(),
                 "Time;Version;ts1;ts2",
                 "0;1;1.0;",
@@ -203,7 +203,7 @@ public class TimeSeriesTest {
     }
 
     @Test
-    public void testNoVersion() {
+    void testNoVersion() {
         String csv = String.join(System.lineSeparator(),
             "Time;ts1;ts2",
             "1970-01-01T01:00:00.000+01:00;1.0;",
@@ -232,7 +232,7 @@ public class TimeSeriesTest {
     }
 
     @Test
-    public void testErrors() {
+    void testErrors() {
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', false, TimeFormat.DATE_TIME);
 
         String emptyCsv = "";
@@ -292,7 +292,7 @@ public class TimeSeriesTest {
     }
 
     @Test
-    public void splitTest() {
+    void splitTest() {
         try {
             TimeSeries.split(Collections.<DoubleTimeSeries>emptyList(), 2);
             fail();

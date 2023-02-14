@@ -11,18 +11,18 @@ import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.modification.tripping.DanglingLineTripping;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class DanglingLineContingencyTest {
+class DanglingLineContingencyTest {
     @Test
-    public void test() {
+    void test() {
         Contingency contingency = Contingency.danglingLine("id");
         assertEquals("id", contingency.getId());
         assertEquals(1, contingency.getElements().size());
@@ -41,7 +41,7 @@ public class DanglingLineContingencyTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         Network network = DanglingLineNetworkFactory.create();
         ContingencyList contingencyList = ContingencyList.of(Contingency.danglingLine("DL"), Contingency.danglingLine("unknown"));
         List<Contingency> contingencies = contingencyList.getContingencies(network);

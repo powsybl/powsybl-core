@@ -17,8 +17,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 
 import java.io.InputStreamReader;
@@ -26,7 +26,7 @@ import java.io.InputStreamReader;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractLoadFlowRulesEngineTest {
+abstract class AbstractLoadFlowRulesEngineTest {
 
     protected Network network;
 
@@ -44,8 +44,8 @@ public abstract class AbstractLoadFlowRulesEngineTest {
 
     protected abstract String getDslFile();
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = createNetwork();
         LoadFlowActionSimulatorObserver observer = createObserver();
         GroovyCodeSource src = new GroovyCodeSource(new InputStreamReader(getClass().getResourceAsStream(getDslFile())), "test", GroovyShell.DEFAULT_CODE_BASE);
@@ -58,8 +58,8 @@ public abstract class AbstractLoadFlowRulesEngineTest {
         return true;
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
     }
 
 }

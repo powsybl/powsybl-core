@@ -7,19 +7,19 @@
 package com.powsybl.timeseries;
 
 import com.powsybl.commons.json.JsonUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Metadata parsing issue when there is a tag with name "name".
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NameTagBugTest {
+class NameTagBugTest {
 
     @Test
-    public void test() {
+    void test() {
         String jsonRef = String.join(System.lineSeparator(),
                 "{",
                 "  \"name\" : \"ts1\",",

@@ -7,19 +7,19 @@
 package com.powsybl.timeseries;
 
 import com.google.common.testing.EqualsTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DoublePointTest {
+class DoublePointTest {
 
     @Test
-    public void testGetters() {
+    void testGetters() {
         DoublePoint point = new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 10d);
         assertEquals(0, point.getIndex());
         assertEquals(Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), point.getTime());
@@ -28,7 +28,7 @@ public class DoublePointTest {
     }
 
     @Test
-    public void testEquals() {
+    void testEquals() {
         new EqualsTester()
                 .addEqualityGroup(new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 10d),
                         new DoublePoint(0, Instant.parse("2015-01-01T00:00:00Z").toEpochMilli(), 10d))

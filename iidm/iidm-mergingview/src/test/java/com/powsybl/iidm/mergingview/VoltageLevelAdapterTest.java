@@ -10,35 +10,36 @@ import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class VoltageLevelAdapterTest {
+class VoltageLevelAdapterTest {
 
     private MergingView mergingView;
     private Network networkRef;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         mergingView = MergingView.create("VoltageLevelTest", "iidm");
         networkRef = NoEquipmentNetworkFactory.create();
         mergingView.merge(networkRef);
     }
 
     @Test
-    public void baseTests() {
+    void baseTests() {
         final String vlId = "vl1";
         VoltageLevel vlExpected = networkRef.getVoltageLevel(vlId);
         VoltageLevel vlActual = mergingView.getVoltageLevel(vlId);
@@ -362,7 +363,7 @@ public class VoltageLevelAdapterTest {
     }
 
     @Test
-    public void busViewTests() {
+    void busViewTests() {
         MergingView cgm = MergingViewFactory.createCGM(null);
 
         // Buses in VL.BusView, Terminal.BusView and Network.BusView are shared
@@ -386,7 +387,7 @@ public class VoltageLevelAdapterTest {
     }
 
     @Test
-    public void busBreakerViewTests() {
+    void busBreakerViewTests() {
         final VoltageLevel voltageLevelBB = mergingView.getVoltageLevel("vl1");
         final VoltageLevel.BusBreakerView bbv = voltageLevelBB.getBusBreakerView();
         assertTrue(bbv instanceof BusBreakerVoltageLevelAdapter.BusBreakerViewAdapter);
@@ -459,7 +460,7 @@ public class VoltageLevelAdapterTest {
     }
 
     @Test
-    public void nodeBreakerViewTests() {
+    void nodeBreakerViewTests() {
         // adder
         final VoltageLevel voltageLevelNB = mergingView.getSubstation("sub").newVoltageLevel()
                                                                                     .setTopologyKind(TopologyKind.NODE_BREAKER)
@@ -479,7 +480,7 @@ public class VoltageLevelAdapterTest {
                .setNode1(0)
                .setNode2(1)
             .add();
-        nbv.getInternalConnections().forEach(Assert::assertNotNull);
+        nbv.getInternalConnections().forEach(Assertions::assertNotNull);
         assertEquals(nbv.getInternalConnectionCount(), nbv.getInternalConnectionStream().count());
         assertEquals(Collections.singletonList(0), nbv.getNodesInternalConnectedTo(1));
         assertEquals(Collections.singletonList(1), nbv.getNodeInternalConnectedToStream(0).boxed().collect(Collectors.toList()));
@@ -549,7 +550,7 @@ public class VoltageLevelAdapterTest {
                                           .setNode(0)
                                       .add();
         assertSame(sjb1, nbv.getBusbarSection("NBV_SJB1"));
-        nbv.getBusbarSections().forEach(Assert::assertNotNull);
+        nbv.getBusbarSections().forEach(Assertions::assertNotNull);
         assertEquals(nbv.getBusbarSectionCount(), nbv.getBusbarSectionStream().count());
 
         // Not implemented

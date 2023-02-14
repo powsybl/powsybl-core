@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractNodeBreakerInternalConnectionsTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class NodeBreakerInternalConnectionsTest extends AbstractNodeBreakerInternalConnectionsTest { }
+class NodeBreakerInternalConnectionsTest extends AbstractNodeBreakerInternalConnectionsTest { }

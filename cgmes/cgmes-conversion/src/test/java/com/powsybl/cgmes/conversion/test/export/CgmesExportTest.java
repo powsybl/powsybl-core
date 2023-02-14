@@ -27,7 +27,7 @@ import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -39,15 +39,15 @@ import java.nio.file.*;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CgmesExportTest {
+class CgmesExportTest {
 
     @Test
-    public void testFromIidm() throws IOException {
+    void testFromIidm() throws IOException {
         // Test from IIDM with configuration that does not exist in CGMES (disconnected node on switch and HVDC line)
 
         Network network = FictitiousSwitchFactory.create();
@@ -99,7 +99,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testSynchronousMachinesWithSameGeneratingUnit() throws IOException {
+    void testSynchronousMachinesWithSameGeneratingUnit() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseBEGenUnitWithTwoSyncMachines().dataSource();
         Network n = Importers.importData("CGMES", ds, null);
         String exportFolder = "/test-gu-with-2sm";
@@ -125,7 +125,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testPhaseTapChangerFixedTapNotExported() throws IOException, XMLStreamException {
+    void testPhaseTapChangerFixedTapNotExported() throws IOException, XMLStreamException {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
         Network n = Importers.importData("CGMES", ds, null);
         TwoWindingsTransformer transformer = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
@@ -185,7 +185,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testPhaseTapChangerType16() throws IOException {
+    void testPhaseTapChangerType16() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
         String transformerId = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
         String phaseTapChangerId = "6ebbef67-3061-4236-a6fd-6ccc4595f6c3";
@@ -194,7 +194,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testPhaseTapChangerType14() throws IOException {
+    void testPhaseTapChangerType14() throws IOException {
         ReadOnlyDataSource ds = Cim14SmallCasesCatalog.m7buses().dataSource();
         String transformerId = "FP.AND11-FTDPRA11-1_PT";
         String phaseTapChangerId = "FP.AND11-FTDPRA11-1_PTC_OR";
@@ -229,7 +229,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testDoNotExportFictitiousSwitchesCreatedForDisconnectedTerminals() throws IOException {
+    void testDoNotExportFictitiousSwitchesCreatedForDisconnectedTerminals() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerTerminalDisconnected().dataSource();
         Network network = Importers.importData("CGMES", ds, null);
 
@@ -292,7 +292,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testFromIidmDanglingLineBusBranch() throws IOException {
+    void testFromIidmDanglingLineBusBranch() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
 
@@ -331,7 +331,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testFromIidmDanglingLineBusBranchNotBoundary() throws IOException {
+    void testFromIidmDanglingLineBusBranchNotBoundary() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
         // If we do not provide this information,
@@ -357,7 +357,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testFromIidmDanglingLineNodeBreaker() throws IOException {
+    void testFromIidmDanglingLineNodeBreaker() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
 
@@ -393,7 +393,7 @@ public class CgmesExportTest {
     }
 
     @Test
-    public void testFromIidmDanglingLineNodeBreakerNoBoundaries() throws IOException {
+    void testFromIidmDanglingLineNodeBreakerNoBoundaries() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
         // If we do not add boundary information

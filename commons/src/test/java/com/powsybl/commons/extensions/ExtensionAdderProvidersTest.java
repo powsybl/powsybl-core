@@ -6,7 +6,7 @@
  */
 package com.powsybl.commons.extensions;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -14,12 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 
-public class ExtensionAdderProvidersTest {
+class ExtensionAdderProvidersTest {
 
     private interface SimpleExtendable extends Extendable<SimpleExtendable> {
     }
@@ -254,7 +254,7 @@ public class ExtensionAdderProvidersTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         List<ExtensionAdderProvider> listProviders = Arrays.asList(
                 new SimpleExtensionAdderImplProvider(),
                 new SimpleExtensionAdderImpl2Provider(),
@@ -282,20 +282,19 @@ public class ExtensionAdderProvidersTest {
     }
 
     @Test
-    public void testMissing() {
+    void testMissing() {
         try {
             ExtensionAdderProviders.findCachedProvider("Default",
                     SimpleExtensionAdder.class, new ConcurrentHashMap<>(),
                     new ConcurrentHashMap<>());
             fail("Should throw Missing Provider exception");
         } catch (PowsyblException e) {
-            assertTrue("Should throw Missing Provider exception",
-                    e.getMessage().contains("not found"));
+            assertTrue(e.getMessage().contains("not found"), "Should throw Missing Provider exception");
         }
     }
 
     @Test
-    public void testMissingAlternate() {
+    void testMissingAlternate() {
         try {
             ConcurrentMap<String, List<ExtensionAdderProvider>> providersMap = ExtensionAdderProviders
                     .groupProvidersByName(Arrays.asList(new SimpleExtensionAdderImplProvider()));
@@ -304,13 +303,12 @@ public class ExtensionAdderProvidersTest {
                     new ConcurrentHashMap<>());
             fail("Should throw Missing Provider exception");
         } catch (PowsyblException e) {
-            assertTrue("Should throw Missing Provider exception",
-                    e.getMessage().contains("not found"));
+            assertTrue(e.getMessage().contains("not found"), "Should throw Missing Provider exception");
         }
     }
 
     @Test
-    public void testMissingAlternate2() {
+    void testMissingAlternate2() {
         try {
             ConcurrentMap<String, List<ExtensionAdderProvider>> providersMap = ExtensionAdderProviders
                     .groupProvidersByName(Arrays.asList(new GenericExtensionAdderImpl2Provider()));
@@ -319,13 +317,12 @@ public class ExtensionAdderProvidersTest {
                     new ConcurrentHashMap<>());
             fail("Should throw Missing Provider exception");
         } catch (PowsyblException e) {
-            assertTrue("Should throw Missing Provider exception",
-                    e.getMessage().contains("not found"));
+            assertTrue(e.getMessage().contains("not found"), "Should throw Missing Provider exception");
         }
     }
 
     @Test
-    public void testMultiple() {
+    void testMultiple() {
         List<ExtensionAdderProvider> listProviders = Arrays.asList(
                 new SimpleExtensionAdderImplProvider(),
                 new SimpleExtensionAdderImplProvider());
@@ -336,41 +333,40 @@ public class ExtensionAdderProvidersTest {
                     SimpleExtensionAdder.class, mapProviders, new ConcurrentHashMap<>());
             fail("Should throw Multiple Provider exception");
         } catch (PowsyblException e) {
-            assertTrue("Should Mutliple Missing Provider exception",
-                    e.getMessage().contains("Multiple"));
+            assertTrue(e.getMessage().contains("Multiple"), "Should Mutliple Missing Provider exception");
         }
     }
 
     @Test
-    public void testAddingBase() {
+    void testAddingBase() {
         Extendable<SimpleExtendable> a = new SimpleExtendableImpl2();
         a.newExtension(SimpleExtensionAdder.class).add();
         assertNotNull(a.getExtension(SimpleExtension.class));
     }
 
     @Test
-    public void testAddingSimple() {
+    void testAddingSimple() {
         SimpleExtendable a = new SimpleExtendableImpl2();
         a.newExtension(SimpleExtensionAdder.class).add();
         assertNotNull(a.getExtension(SimpleExtension.class));
     }
 
     @Test
-    public void testAddingGeneric1() {
+    void testAddingGeneric1() {
         SpecificExtendable b = new SpecificExtendableImpl2();
         b.newExtension(GenericExtensionAdder.class).add();
         assertNotNull(b.getExtension(GenericExtension.class));
     }
 
     @Test
-    public void testAddingGeneric2() {
+    void testAddingGeneric2() {
         GenericExtendable<SpecificExtendable> b = new SpecificExtendableImpl2();
         b.newExtension(GenericExtensionAdder.class).add();
         assertNotNull(b.getExtension(GenericExtension.class));
     }
 
     @Test
-    public void testAddingGeneric3() {
+    void testAddingGeneric3() {
         GenericExtendable<SpecificExtendable> b = new GenericExtendableImpl2();
         b.newExtension(GenericExtensionAdder.class).add();
         assertNotNull(b.getExtension(GenericExtension.class));

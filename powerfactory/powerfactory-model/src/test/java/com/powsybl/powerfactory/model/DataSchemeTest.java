@@ -8,22 +8,22 @@ package com.powsybl.powerfactory.model;
 
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.json.JsonUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DataSchemeTest {
+class DataSchemeTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         DataScheme scheme = new DataScheme();
         scheme.addClass(DataClass.init("ElmFoo")
                 .addAttribute(new DataAttribute("i", DataAttributeType.INTEGER)));

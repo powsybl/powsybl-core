@@ -14,22 +14,22 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Create a new Line from a given Line Adder and attach it on an existing Line by cutting the latter.
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateLineOnLineTest extends AbstractConverterTest {
+class CreateLineOnLineTest extends AbstractConverterTest {
 
     @Test
-    public void createLineOnLineNbTest() throws IOException {
+    void createLineOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
@@ -40,7 +40,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void createLineOnLineNbBbTest() throws IOException {
+    void createLineOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
@@ -51,7 +51,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void createLineOnLineBbTest() throws IOException {
+    void createLineOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
@@ -62,7 +62,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testSetters() {
+    void testSetters() {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
@@ -90,7 +90,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testCompleteBuilder() throws IOException {
+    void testCompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
@@ -115,7 +115,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testIncompleteBuilder() throws IOException {
+    void testIncompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
@@ -131,7 +131,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExceptions() {
+    void testExceptions() {
         Network network1 = createNbNetworkWithBusbarSection();
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);

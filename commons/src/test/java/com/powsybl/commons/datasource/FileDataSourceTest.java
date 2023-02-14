@@ -6,7 +6,7 @@
  */
 package com.powsybl.commons.datasource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -14,12 +14,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class FileDataSourceTest extends AbstractDataSourceTest {
+class FileDataSourceTest extends AbstractDataSourceTest {
 
     @Override
     protected DataSource createDataSource() {
@@ -27,7 +27,7 @@ public class FileDataSourceTest extends AbstractDataSourceTest {
     }
 
     @Test
-    public void listNamesTest() throws IOException {
+    void listNamesTest() throws IOException {
         // Create a couple of files in the test folder
         // One using the basename
         String validFilename = getBaseName() + ".txt";
@@ -54,7 +54,7 @@ public class FileDataSourceTest extends AbstractDataSourceTest {
     }
 
     @Test
-    public void createNewFilesTest() throws IOException {
+    void createNewFilesTest() throws IOException {
         DataSource ds = createDataSource();
 
         // use the data source to write a file that contains basename

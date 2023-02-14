@@ -8,20 +8,18 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public abstract class AbstractSwitchBusBreakerTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private Network network;
     private VoltageLevel voltageLevel;
 
-    @Before
+    @BeforeEach
     public void initNetwork() {
         network = BatteryNetworkFactory.create();
         voltageLevel = network.getVoltageLevel("VLGEN");
@@ -29,13 +27,12 @@ public abstract class AbstractSwitchBusBreakerTest {
 
     @Test
     public void addSwitchWithSameBusAtBothEnds() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("Switch 'Sw1': same bus at both ends");
         Bus bus = voltageLevel.getBusBreakerView().getBus("NGEN");
-        voltageLevel.getBusBreakerView().newSwitch()
+        ValidationException e = assertThrows(ValidationException.class, () -> voltageLevel.getBusBreakerView().newSwitch()
             .setId("Sw1")
             .setBus1(bus.getId())
             .setBus2(bus.getId())
-            .add();
+            .add());
+        assertTrue(e.getMessage().contains("Switch 'Sw1': same bus at both ends"));
     }
 }

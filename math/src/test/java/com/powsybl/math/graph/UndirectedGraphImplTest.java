@@ -8,12 +8,10 @@ package com.powsybl.math.graph;
 
 import com.powsybl.commons.PowsyblException;
 import gnu.trove.list.array.TIntArrayList;
-import org.junit.After;
+import org.junit.jupiter.api.AfterEach;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
@@ -23,16 +21,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UndirectedGraphImplTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+class UndirectedGraphImplTest {
 
     private static final class Vertex {
 
@@ -53,21 +48,21 @@ public class UndirectedGraphImplTest {
 
     private UndirectedGraph<Vertex, Object> graph;
 
-    public UndirectedGraphImplTest() {
+    UndirectedGraphImplTest() {
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         graph = new UndirectedGraphImpl<>(VERTEX_LIMIT);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         graph = null;
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         assertEquals(0, graph.getVertexCount());
         assertEquals(0, graph.getEdgeCount());
         PowsyblException e = assertThrows(PowsyblException.class, () -> new UndirectedGraphImpl<>(0));
@@ -75,13 +70,13 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testAddVertex() {
+    void testAddVertex() {
         graph.addVertex();
         assertEquals(1, graph.getVertexCount());
     }
 
     @Test
-    public void testAddVertexIfNotPresent() {
+    void testAddVertexIfNotPresent() {
         graph.addVertexIfNotPresent(0);
         assertEquals(1, graph.getVertexCount());
         graph.addVertexIfNotPresent(0);
@@ -94,33 +89,31 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testAddVertexIfNotPresentNegative() {
-        exception.expect(PowsyblException.class);
-        graph.addVertexIfNotPresent(-1);
+    void testAddVertexIfNotPresentNegative() {
+        assertThrows(PowsyblException.class, () -> graph.addVertexIfNotPresent(-1));
     }
 
     @Test
-    public void testAddVertexIfNotPresentLimit() {
-        exception.expect(PowsyblException.class);
-        graph.addVertexIfNotPresent(VERTEX_LIMIT);
+    void testAddVertexIfNotPresentLimit() {
+        assertThrows(PowsyblException.class, () -> graph.addVertexIfNotPresent(VERTEX_LIMIT));
     }
 
     @Test
-    public void testGetVertices() {
+    void testGetVertices() {
         graph.addVertex();
         graph.addVertex();
         assertArrayEquals(new int[]{0, 1}, graph.getVertices());
     }
 
     @Test
-    public void testGetVertexObject() {
+    void testGetVertexObject() {
         graph.addVertex();
         graph.setVertexObject(0, new Vertex("Test"));
         assertEquals("Test", graph.getVertexObject(0).toString());
     }
 
     @Test
-    public void testGetMaxVertex() {
+    void testGetMaxVertex() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -129,18 +122,17 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testRemoveVertexException() {
+    void testRemoveVertexException() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
         graph.addEdge(0, 1, null);
         graph.removeVertex(2);
-        exception.expect(PowsyblException.class);
-        graph.removeVertex(0);
+        assertThrows(PowsyblException.class, () -> graph.removeVertex(0));
     }
 
     @Test
-    public void testRemoveVertexAndAdd() {
+    void testRemoveVertexAndAdd() {
         graph.addVertex();
         graph.addVertex();
         graph.removeVertex(0);
@@ -151,7 +143,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testRemoveAllVertices() {
+    void testRemoveAllVertices() {
         graph.addVertex();
         graph.addVertex();
         assertEquals(2, graph.getVertexCount());
@@ -160,16 +152,15 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testRemoveAllVerticesException() {
+    void testRemoveAllVerticesException() {
         graph.addVertex();
         graph.addVertex();
         graph.addEdge(0, 1, null);
-        exception.expect(PowsyblException.class);
-        graph.removeAllVertices();
+        assertThrows(PowsyblException.class, () -> graph.removeAllVertices());
     }
 
     @Test
-    public void testAddEdge() {
+    void testAddEdge() {
         graph.addVertex();
         graph.addVertex();
         int e = graph.addEdge(0, 1, null);
@@ -181,7 +172,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testRemoveEdge() {
+    void testRemoveEdge() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -201,7 +192,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testRemoveVertex() {
+    void testRemoveVertex() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -212,7 +203,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testRemoveAllEdges() {
+    void testRemoveAllEdges() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -224,7 +215,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testGetEdges() {
+    void testGetEdges() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -234,7 +225,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testGetEdgesFromVertex() {
+    void testGetEdgesFromVertex() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -245,7 +236,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testGetEdgeObject() {
+    void testGetEdgeObject() {
         graph.addVertex();
         graph.addVertex();
         int e = graph.addEdge(0, 1, "Arrow");
@@ -253,7 +244,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testGetEdgeObjectFromVertex() {
+    void testGetEdgeObjectFromVertex() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -264,7 +255,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testGetEdgeObjects() {
+    void testGetEdgeObjects() {
         graph.addVertex();
         graph.addVertex();
         int a = graph.addEdge(0, 1, "Arrow");
@@ -302,7 +293,7 @@ public class UndirectedGraphImplTest {
      *  2, 6
      */
     @Test
-    public void testFindAllPaths() {
+    void testFindAllPaths() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -354,7 +345,7 @@ public class UndirectedGraphImplTest {
      *  2, 6
      */
     @Test
-    public void testPrintGraph() throws IOException {
+    void testPrintGraph() throws IOException {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -392,7 +383,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testAddListener() {
+    void testAddListener() {
         UndirectedGraphListener<Vertex, Object> listener1 = Mockito.mock(UndirectedGraphListener.class);
         UndirectedGraphListener<Vertex, Object> listener2 = Mockito.mock(UndirectedGraphListener.class);
         graph.addListener(listener1);
@@ -405,7 +396,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testRemoveListener() {
+    void testRemoveListener() {
         UndirectedGraphListener<Vertex, Object> listener1 = Mockito.mock(UndirectedGraphListener.class);
         UndirectedGraphListener<Vertex, Object> listener2 = Mockito.mock(UndirectedGraphListener.class);
         graph.addListener(listener1);
@@ -448,7 +439,7 @@ public class UndirectedGraphImplTest {
      *  2, 6
      */
     @Test
-    public void testTraverse() {
+    void testTraverse() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -497,7 +488,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testGetVertexObjectStream() {
+    void testGetVertexObjectStream() {
         graph.addVertex();
         graph.addVertex();
         Vertex vertexObj1 = new Vertex("Vertex 1");
@@ -509,7 +500,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testGetArrowObjectStream() {
+    void testGetArrowObjectStream() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
@@ -519,7 +510,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void testVertexExists() {
+    void testVertexExists() {
         try {
             graph.vertexExists(-1);
             fail();
@@ -532,7 +523,7 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
-    public void removeIsolatedVertices() {
+    void removeIsolatedVertices() {
         graph.addVertex();
         graph.addVertex();
         graph.addVertex();
