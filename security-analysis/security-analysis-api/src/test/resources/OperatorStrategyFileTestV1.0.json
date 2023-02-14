@@ -2,17 +2,35 @@
   "version" : "1.0",
   "operatorStrategies" : [ {
     "id" : "id1",
+    "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
     "condition" : {
       "type" : "TRUE_CONDITION"
     },
     "actionIds" : [ "actionId1", "actionId2", "actionId3" ]
   }, {
-    "id" : "id1",
+    "id" : "id2",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingencyId2",
+    "condition" : {
+      "type" : "ANY_VIOLATION_CONDITION"
+    },
+    "actionIds" : [ "actionId4" ]
+  }, {
+    "id" : "id3",
+    "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
     "condition" : {
-      "type" : "TRUE_CONDITION"
+      "type" : "ANY_VOLTAGE_VIOLATION_CONDITION"
     },
-    "actionIds" : [ "actionId1", "actionId2", "actionId3" ]
+    "actionIds" : [ "actionId1", "actionId3" ]
+  }, {
+    "id" : "id4",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingencyId3",
+    "condition" : {
+      "type" : "ANY_CURRENT_VIOLATION_CONDITION"
+    },
+    "actionIds" : [ "actionId1", "actionId2", "actionId4" ]
   } ]
 }

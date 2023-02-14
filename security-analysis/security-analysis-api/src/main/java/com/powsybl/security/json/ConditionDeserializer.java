@@ -49,6 +49,10 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                 return new AtLeastOneViolationCondition(context.violationIds);
             case AllViolationCondition.NAME:
                 return new AllViolationCondition(context.violationIds);
+            case AnyCurrentViolationCondition.NAME:
+                return new AnyCurrentViolationCondition();
+            case AnyVoltageViolationCondition.NAME:
+                return new AnyVoltageViolationCondition();
             default:
                 throw new JsonMappingException(parser, "Unexpected condition type: " + context.type);
         }

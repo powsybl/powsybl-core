@@ -35,6 +35,8 @@ public class ConditionSerializer extends StdSerializer<Condition> {
                 break;
             case TrueCondition.NAME:
             case AnyViolationCondition.NAME:
+            case AnyCurrentViolationCondition.NAME:
+            case AnyVoltageViolationCondition.NAME:
                 break;
             default:
                 throw new IllegalArgumentException("condition type \'" + condition.getType() + "\' does not exist");
