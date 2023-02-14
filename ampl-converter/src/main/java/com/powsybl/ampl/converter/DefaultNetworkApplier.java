@@ -19,9 +19,11 @@ import com.powsybl.iidm.network.*;
 public class DefaultNetworkApplier implements NetworkApplier {
 
     private final StringToIntMapper<AmplSubset> networkMapper;
+    private final Network network;
 
-    public DefaultNetworkApplier(StringToIntMapper<AmplSubset> networkMapper) {
+    public DefaultNetworkApplier(StringToIntMapper<AmplSubset> networkMapper, Network network) {
         this.networkMapper = networkMapper;
+        this.network = network;
     }
 
     public void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP,
@@ -173,8 +175,23 @@ public class DefaultNetworkApplier implements NetworkApplier {
         NetworkApplier.busConnection(lcc.getTerminal(), busNum, networkMapper);
     }
 
-    private boolean readThreeWindingsTransformerBranch(Network network, String id, double p, double q, int busNum, StringToIntMapper<AmplSubset> mapper) {
-        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+    @Override
+    public void applyReactiveSlack(int busNum, double slackCondensator, double slackSelf, String id,
+                                   String substationId) {
+        Network network = null;
+        String busId = networkMapper.getId(AmplSubset.BUS, busNum);
+        Bus bus = network.getBusView().getBus(busId);
+        if (bus.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
+
+        } else {
+
+        }
+    }
+
+    private boolean readThreeWindingsTransformerBranch(Network network, String id, double p, double q, int busNum,
+                                                       StringToIntMapper<AmplSubset> mapper) {
+        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(
+                AmplConstants.LEG3_SUFFIX)) {
             ThreeWindingsTransformer twt = NetworkApplier.getThreeWindingsTransformer(network, id);
             Terminal terminal = NetworkApplier.getThreeWindingsTransformerLeg(twt, id).getTerminal();
             terminal.setP(p).setQ(q);

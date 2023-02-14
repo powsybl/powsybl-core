@@ -30,8 +30,8 @@ public interface NetworkApplier {
     static AbstractNetworkApplierFactory getDefaultApplierFactory() {
         return new AbstractNetworkApplierFactory() {
             @Override
-            public NetworkApplier of(StringToIntMapper<AmplSubset> mapper) {
-                return new DefaultNetworkApplier(mapper);
+            public NetworkApplier of(StringToIntMapper<AmplSubset> mapper, Network network) {
+                return new DefaultNetworkApplier(mapper, network);
             }
         };
     }
@@ -45,7 +45,8 @@ public interface NetworkApplier {
 
     void applySvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q);
 
-    void applyVsc(VscConverterStation vsc, int busNum, boolean vregul, double targetV, double targetQ, double p, double q);
+    void applyVsc(VscConverterStation vsc, int busNum, boolean vregul, double targetV, double targetQ, double p,
+                  double q);
 
     void applyLoad(Load l, Network network, String id, int busNum, double p, double q, double p0, double q0);
 
@@ -55,11 +56,14 @@ public interface NetworkApplier {
 
     void applyBus(Bus bus, double v, double theta);
 
-    void applyBranch(Branch br, Network network, String id, int busNum, int busNum2, double p1, double p2, double q1, double q2);
+    void applyBranch(Branch br, Network network, String id, int busNum, int busNum2, double p1, double p2, double q1,
+                     double q2);
 
     void applyHvdcLine(HvdcLine hl, String converterMode, double targetP);
 
     void applyLcc(LccConverterStation lcc, int busNum, double p, double q);
+
+    void applyReactiveSlack(int busNum, double slackCondensator, double slackSelf, String id, String substationId);
 
     static void busConnection(Terminal t, int busNum, StringToIntMapper<AmplSubset> mapper) {
         if (busNum == -1) {

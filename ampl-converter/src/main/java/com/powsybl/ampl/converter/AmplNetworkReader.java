@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,9 +53,10 @@ public class AmplNetworkReader {
         this.dataSource = dataSource;
         this.network = network;
         this.mapper = mapper;
-        this.applier = applierFactory.of(mapper);
-        this.buses = network.getBusView().getBusStream()
-                .collect(Collectors.toMap(Identifiable::getId, Function.identity()));
+        this.applier = applierFactory.of(mapper, network);
+        this.buses = network.getBusView()
+                            .getBusStream()
+                            .collect(Collectors.toMap(Identifiable::getId, Function.identity()));
         this.variantIndex = variantIndex;
         this.format = format;
     }
@@ -381,7 +381,8 @@ public class AmplNetworkReader {
 
     public AmplNetworkReader readMetrics(Map<String, String> metrics) throws IOException {
         Objects.requireNonNull(metrics);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_indic", "txt"), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(dataSource.newInputStream("_indic", "txt"), format.getFileEncoding()))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();
@@ -404,6 +405,24 @@ public class AmplNetworkReader {
             }
         }
         return this;
+    }
+
+    public AmplNetworkReader readReactiveSlacks() throws IOException {
+        read("_reactive_slacks", 6, this::readReactiveSlack);
+
+        return this;
+    }
+
+    private Void readReactiveSlack(String[] tokens) {
+        int busNum = Integer.parseInt(tokens[1]);
+        double slackCondensator = readDouble(tokens[2]);
+        double slackSelf = readDouble(tokens[3]);
+        String id = tokens[4];
+        String substationId = tokens[5];
+
+        this.applier.applyReactiveSlack(busNum, slackCondensator, slackSelf, id, substationId);
+
+        return null;
     }
 
     private double readDouble(String d) {

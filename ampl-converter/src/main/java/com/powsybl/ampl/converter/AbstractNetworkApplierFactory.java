@@ -7,6 +7,7 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.util.StringToIntMapper;
+import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
 /**
@@ -23,8 +24,12 @@ public abstract class AbstractNetworkApplierFactory {
         throw new NotImplementedException("At least one of the methods of NetworkApplierFactory must be redefined");
     }
 
-    public NetworkApplier of(StringToIntMapper<AmplSubset> mapper) {
+    protected NetworkApplier of(StringToIntMapper<AmplSubset> mapper) {
         return of();
+    }
+
+    public NetworkApplier of(StringToIntMapper<AmplSubset> mapper, Network network) {
+        return of(mapper);
     }
 
 }
