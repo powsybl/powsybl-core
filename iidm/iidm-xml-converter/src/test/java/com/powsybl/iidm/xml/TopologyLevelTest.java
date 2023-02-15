@@ -37,7 +37,6 @@ public class TopologyLevelTest extends AbstractXmlConverterTest {
     @Test
     public void testConversion() throws IOException {
         testConversion(NetworkXml.read(getVersionedNetworkAsStream("fictitiousSwitchRef.xml", IidmXmlVersion.V_1_0)));
-
         testConversion(FictitiousSwitchFactory.create());
     }
 
@@ -52,6 +51,14 @@ public class TopologyLevelTest extends AbstractXmlConverterTest {
                 getVersionedNetworkPath("fictitiousSwitchRef-bbk.xml", CURRENT_IIDM_XML_VERSION));
         writeXmlTest(network, TopologyLevelTest::writeBusBranch,
                 getVersionedNetworkPath("fictitiousSwitchRef-bbr.xml", CURRENT_IIDM_XML_VERSION));
+
+        network.newVoltageLevel().setId("ZZZ").setTopologyKind(TopologyKind.NODE_BREAKER).setNominalV(20).add();
+        network.newLine().setId("disconnected").setR(1).setX(1).setNode1(0).setNode2(1).setVoltageLevel1("ZZZ").setVoltageLevel2("C").add();
+
+        writeXmlTest(network, TopologyLevelTest::writeBusBranch,
+                getVersionedNetworkPath("fictitiousSwitchRef-bbr-disconnected.xml", CURRENT_IIDM_XML_VERSION));
+        writeXmlTest(network, TopologyLevelTest::writeBusBranchWithoutDisconnectedEquipment,
+                getVersionedNetworkPath("fictitiousSwitchRef-bbr-connected.xml", CURRENT_IIDM_XML_VERSION));
     }
 
     private static void writeNodeBreaker(Network network, Path path) {
@@ -71,6 +78,13 @@ public class TopologyLevelTest extends AbstractXmlConverterTest {
     private static void writeBusBranch(Network network, Path path) {
         ExportOptions options = new ExportOptions()
                 .setTopologyLevel(TopologyLevel.BUS_BRANCH);
+
+        NetworkXml.write(network, options, path);
+    }
+
+    private static void writeBusBranchWithoutDisconnectedEquipment(Network network, Path path) {
+        ExportOptions options = new ExportOptions()
+                .setTopologyLevel(TopologyLevel.BUS_BRANCH).setIgnoreEquipmentWithoutConnectableBus(true);
 
         NetworkXml.write(network, options, path);
     }

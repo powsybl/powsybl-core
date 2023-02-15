@@ -109,6 +109,7 @@ public class XMLExporter implements Exporter {
     public static final String EXTENSIONS_LIST = "iidm.export.xml.extensions";
     public static final String SORTED = "iidm.export.xml.sorted";
     public static final String VERSION = "iidm.export.xml.version";
+    public static final String IGNORE_EQUIPMENT_WITHOUT_CONNECTABLE_BUS = "iidm.export.xml.ignore-disconnected-equipment";
 
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
     private static final Parameter WITH_BRANCH_STATE_VARIABLES_PARAMETER = new Parameter(WITH_BRANCH_STATE_VARIABLES, ParameterType.BOOLEAN, "Export network with branch state variables", Boolean.TRUE);
@@ -126,11 +127,12 @@ public class XMLExporter implements Exporter {
     private static final Parameter SORTED_PARAMETER = new Parameter(SORTED, ParameterType.BOOLEAN, "Sort export output file", Boolean.FALSE);
     private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING, "IIDM-XML version in which files will be generated", IidmXmlConstants.CURRENT_IIDM_XML_VERSION.toString("."),
             Arrays.stream(IidmXmlVersion.values()).map(v -> v.toString(".")).collect(Collectors.toList()));
+    private static final Parameter IGNORE_EQUIPMENT_WITHOUT_CONNECTABLE_BUS_PARAMETER = new Parameter(IGNORE_EQUIPMENT_WITHOUT_CONNECTABLE_BUS, ParameterType.BOOLEAN, "Ignore equipment without connectable bus at their ends", Boolean.FALSE);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER,
             ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER,
             TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
-            SORTED_PARAMETER, VERSION_PARAMETER);
+            SORTED_PARAMETER, VERSION_PARAMETER, IGNORE_EQUIPMENT_WITHOUT_CONNECTABLE_BUS_PARAMETER);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -200,7 +202,8 @@ public class XMLExporter implements Exporter {
                 .setThrowExceptionIfExtensionNotFound(Parameter.readBoolean(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setExtensions(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(Parameter.readStringList(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
                 .setSorted(Parameter.readBoolean(getFormat(), parameters, SORTED_PARAMETER, defaultValueConfig))
-                .setVersion(Parameter.readString(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig));
+                .setVersion(Parameter.readString(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig))
+                .setIgnoreEquipmentWithoutConnectableBus(Parameter.readBoolean(getFormat(), parameters, IGNORE_EQUIPMENT_WITHOUT_CONNECTABLE_BUS_PARAMETER, defaultValueConfig));
         addExtensionsVersions(parameters, options);
         return options;
     }

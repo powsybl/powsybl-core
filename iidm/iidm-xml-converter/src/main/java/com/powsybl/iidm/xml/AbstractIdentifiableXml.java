@@ -30,7 +30,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         return hasSubElements(identifiable);
     }
 
-    protected boolean isValid(T identifiable, P parent) {
+    protected boolean isValid(T identifiable, P parent, NetworkXmlWriterContext context) {
         return true;
     }
 
@@ -40,7 +40,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
     }
 
     public final void write(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (!isValid(identifiable, parent)) {
+        if (!isValid(identifiable, parent, context)) {
             return;
         }
         boolean isNotEmptyElement = hasSubElements(identifiable, context) || identifiable.hasProperty() || identifiable.hasAliases();

@@ -25,7 +25,7 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
     static final NodeBreakerViewSwitchXml INSTANCE = new NodeBreakerViewSwitchXml();
 
     @Override
-    protected boolean isValid(Switch s, VoltageLevel vl) {
+    protected boolean isValid(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) {
         VoltageLevel.NodeBreakerView v = vl.getNodeBreakerView();
         if (v.getNode1(s.getId()) == v.getNode2(s.getId())) {
             LOGGER.warn("Discard switch with same node at both ends. Id: {}", s.getId());

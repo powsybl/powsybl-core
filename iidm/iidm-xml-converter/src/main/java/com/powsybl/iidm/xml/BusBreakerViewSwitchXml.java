@@ -25,7 +25,7 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
     static final BusBreakerViewSwitchXml INSTANCE = new BusBreakerViewSwitchXml();
 
     @Override
-    protected boolean isValid(Switch s, VoltageLevel vl) {
+    protected boolean isValid(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) {
         VoltageLevel.BusBreakerView v = vl.getBusBreakerView();
         if (v.getBus1(s.getId()).getId().equals(v.getBus2(s.getId()).getId())) {
             LOGGER.warn("Discard switch with same bus at both ends. Id: {}", s.getId());

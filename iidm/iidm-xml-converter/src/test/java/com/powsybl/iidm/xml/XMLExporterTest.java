@@ -56,7 +56,7 @@ public class XMLExporterTest extends AbstractXmlConverterTest {
     @Test
     public void paramsTest() {
         var xmlExporter = new XMLExporter();
-        assertEquals(10, xmlExporter.getParameters().size());
+        assertEquals(11, xmlExporter.getParameters().size());
         assertEquals("IIDM XML v" + CURRENT_IIDM_XML_VERSION.toString(".") + " exporter", xmlExporter.getComment());
     }
 

@@ -62,6 +62,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      */
     private boolean sorted = false;
 
+    private boolean ignoreEquipmentWithoutConnectableBus = false;
+
     public ExportOptions() {
     }
 
@@ -83,6 +85,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
                          IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, sorted, version, iidmVersionIncompatibilityBehavior, false);
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
+                         IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior, boolean ignoreEquipmentWithoutConnectableBus) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
@@ -91,6 +98,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.sorted = sorted;
         this.version = version;
         this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
+        this.ignoreEquipmentWithoutConnectableBus = ignoreEquipmentWithoutConnectableBus;
     }
 
     @Override
@@ -231,6 +239,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setSorted(boolean sorted) {
         this.sorted = sorted;
+        return this;
+    }
+
+    public boolean ignoreEquipmentWithoutConnectableBus() {
+        return ignoreEquipmentWithoutConnectableBus;
+    }
+
+    public ExportOptions setIgnoreEquipmentWithoutConnectableBus(boolean ignoreEquipmentWithoutConnectableBus) {
+        this.ignoreEquipmentWithoutConnectableBus = ignoreEquipmentWithoutConnectableBus;
         return this;
     }
 }

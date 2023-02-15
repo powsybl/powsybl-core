@@ -39,6 +39,11 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         return index != null ? index.toString() : "";
     }
 
+    @Override
+    protected boolean isValid(T identifiable, P parent, NetworkXmlWriterContext context) {
+        return !context.getOptions().ignoreEquipmentWithoutConnectableBus() || identifiable.getTerminals().stream().allMatch(t -> ((Terminal) t).getBusView().getConnectableBus() != null);
+    }
+
     protected static boolean hasValidOperationalLimits(Branch<?> branch, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0) {
             return !branch.getOperationalLimits1().isEmpty() || !branch.getOperationalLimits2().isEmpty();
