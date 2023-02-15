@@ -9,24 +9,24 @@ package com.powsybl.cgmes.gl;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class CgmesGLModelTest extends AbstractCgmesGLTest {
+class CgmesGLModelTest extends AbstractCgmesGLTest {
 
     protected TripleStore tripleStore;
     protected QueryCatalog queryCatalog;
     protected CgmesGLModel cgmesGLModel;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         super.setUp();
         tripleStore = Mockito.mock(TripleStore.class);
         queryCatalog = Mockito.mock(QueryCatalog.class);
@@ -45,14 +45,14 @@ public class CgmesGLModelTest extends AbstractCgmesGLTest {
     }
 
     @Test
-    public void getSubstationsPosition() {
+    void getSubstationsPosition() {
         assertEquals(substationsPropertyBags, cgmesGLModel.getSubstationsPosition());
         removeQueryCatalogKey(CgmesGLModel.SUBSTASTION_POSITION_QUERY_KEY);
         assertEquals(new PropertyBags(), cgmesGLModel.getSubstationsPosition());
     }
 
     @Test
-    public void getLinesPosition() {
+    void getLinesPosition() {
         assertEquals(linesPropertyBags, cgmesGLModel.getLinesPositions());
         removeQueryCatalogKey(CgmesGLModel.LINE_POSITION_QUERY_KEY);
         assertEquals(new PropertyBags(), cgmesGLModel.getLinesPositions());

@@ -19,9 +19,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,13 +29,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkStateComparatorTest {
+class NetworkStateComparatorTest {
 
     private static final double EPS = Math.pow(10, -15);
 
@@ -43,8 +43,8 @@ public class NetworkStateComparatorTest {
 
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         network = EurostagTutorialExample1Factory.create();
         network.getBusView().getBus("VLGEN_0").setV(24.5).setAngle(2.33);
@@ -63,13 +63,13 @@ public class NetworkStateComparatorTest {
         network.getLoad("LOAD").getTerminal().setP(600).setQ(200);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "other");
         network.getVariantManager().setWorkingVariant("other");
         network.getBusView().getBus("VLGEN_0").setV(25.5);
@@ -156,7 +156,7 @@ public class NetworkStateComparatorTest {
     }
 
     @Test
-    public void testThreeWindings() throws IOException {
+    void testThreeWindings() throws IOException {
         Network threeWindingsTransformersNetwork = ThreeWindingsTransformerNetworkFactory.create();
         var twt = threeWindingsTransformersNetwork.getThreeWindingsTransformer("3WT");
         twt.getLeg1().newPhaseTapChanger().setTapPosition(0)

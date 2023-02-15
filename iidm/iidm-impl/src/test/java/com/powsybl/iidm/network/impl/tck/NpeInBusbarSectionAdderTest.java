@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractNpeInBusbarSectionAdderTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NpeInBusbarSectionAdderTest extends AbstractNpeInBusbarSectionAdderTest {
+class NpeInBusbarSectionAdderTest extends AbstractNpeInBusbarSectionAdderTest {
 }

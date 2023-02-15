@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
@@ -21,16 +21,16 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ReorientedBranchCharacteristics;
 import com.powsybl.iidm.network.util.SV;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class TieLineTest {
+class TieLineTest {
 
     @Test
-    public void tieLineTest0() {
+    void tieLineTest0() {
 
         // Line1 from node1 to boundaryNode, Line2 from boundaryNode to node2
         CaseSv caseSv0 = createCase0();
@@ -61,7 +61,7 @@ public class TieLineTest {
     }
 
     @Test
-    public void tieLineTest1() {
+    void tieLineTest1() {
 
         // Line1 from node1 to boundaryNode, Line2 from node2 to boundaryNode
         CaseSv caseSv1 = createCase1();
@@ -92,7 +92,7 @@ public class TieLineTest {
     }
 
     @Test
-    public void tieLineTest2() {
+    void tieLineTest2() {
 
         // Line1 from boundaryNode to node1, Line2 from boundaryNode to node2
         CaseSv caseSv2 = createCase2();
@@ -123,7 +123,7 @@ public class TieLineTest {
     }
 
     @Test
-    public void tieLineTest3() {
+    void tieLineTest3() {
 
         // Line1 from boundaryNode to node1, Line2 from node2 to boundaryNode
         CaseSv caseSv3 = createCase3();
@@ -154,7 +154,7 @@ public class TieLineTest {
     }
 
     @Test
-    public void tieLineWithDifferentNominalVoltageAtEndsTest() {
+    void tieLineWithDifferentNominalVoltageAtEndsTest() {
 
         // Line1 from node1 to boundaryNode, Line2 from boundaryNode to node2
         CaseSv caseSv = createCaseDifferentNominalVoltageAtEnds();
@@ -185,7 +185,7 @@ public class TieLineTest {
     }
 
     @Test
-    public void testDefaultValuesTieLine() {
+    void testDefaultValuesTieLine() {
 
         Network network = NoEquipmentNetworkFactory.create();
 

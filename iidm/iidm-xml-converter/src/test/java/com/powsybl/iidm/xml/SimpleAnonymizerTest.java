@@ -11,7 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SimpleAnonymizerTest extends AbstractXmlConverterTest {
+class SimpleAnonymizerTest extends AbstractXmlConverterTest {
 
     private void anonymisationTest(Network network) throws IOException {
         PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
@@ -57,7 +57,7 @@ public class SimpleAnonymizerTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         anonymisationTest(NetworkXml.read(getVersionedNetworkAsStream("eurostag-tutorial-example1.xml", IidmXmlVersion.V_1_0)));
 
         anonymisationTest(NetworkXmlTest.createEurostagTutorialExample1());

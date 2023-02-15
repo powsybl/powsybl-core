@@ -9,24 +9,24 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class SwitchAdapterTest {
+class SwitchAdapterTest {
     private MergingView mergingView;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("SwitchAdapterTest", "iidm");
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         final Network networkRef = NetworkTest1Factory.create();
         mergingView.merge(networkRef);
 

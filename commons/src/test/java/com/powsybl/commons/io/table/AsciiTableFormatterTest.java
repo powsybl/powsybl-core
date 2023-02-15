@@ -5,10 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.commons.io.table;
-
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -17,20 +14,18 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
  */
-public class AsciiTableFormatterTest {
+class AsciiTableFormatterTest {
 
     private TableFormatterConfig config = new TableFormatterConfig(Locale.US, "inv");
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Test
-    public void testAsciiTableFormatter1() throws IOException {
+    void testAsciiTableFormatter1() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
         try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,
@@ -53,7 +48,7 @@ public class AsciiTableFormatterTest {
     }
 
     @Test
-    public void testAsciiTableFormatter2() throws IOException {
+    void testAsciiTableFormatter2() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
         try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,
@@ -76,25 +71,23 @@ public class AsciiTableFormatterTest {
     }
 
     @Test
-    public void testUnauthorizedColspan() throws IOException {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("You have exceded the authorized colspan");
-
+    void testUnauthorizedColspan() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
              AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,
                 new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
                 new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
-            formatter.writeCell("Line:1 Cell:1", 1)
+            IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> formatter.writeCell("Line:1 Cell:1", 1)
                     .writeCell("Line:1 Cell:2", 1)
                     .writeCell("Line:1 Cell:3", 1)
                     .writeCell("Line:1 Cell:4", 2)
-                    .writeCell("Line:1 Cell:5", 1);
+                    .writeCell("Line:1 Cell:5", 1));
+            assertEquals("You have exceded the authorized colspan", e.getMessage());
         }
     }
 
     @Test
-    public void testEmptyLines() throws IOException {
+    void testEmptyLines() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
              AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,

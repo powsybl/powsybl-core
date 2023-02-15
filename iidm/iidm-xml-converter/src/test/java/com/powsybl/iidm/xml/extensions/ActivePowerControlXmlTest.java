@@ -14,22 +14,22 @@ import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.impl.extensions.ActivePowerControlImpl;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
-public class ActivePowerControlXmlTest extends AbstractConverterTest {
+class ActivePowerControlXmlTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = BatteryNetworkFactory.create();
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);

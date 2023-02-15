@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractNullPointerWhenRemovingMergedLineBugTest;
 
-public class NullPointerWhenRemovingMergedLineBugTest extends AbstractNullPointerWhenRemovingMergedLineBugTest { }
+class NullPointerWhenRemovingMergedLineBugTest extends AbstractNullPointerWhenRemovingMergedLineBugTest { }

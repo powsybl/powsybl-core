@@ -35,12 +35,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public final class ExportXmlCompare {
+final class ExportXmlCompare {
 
     private ExportXmlCompare() {
     }
@@ -251,7 +251,7 @@ public final class ExportXmlCompare {
         return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de1))));
     }
 
-    public static void compareSV(InputStream expected, InputStream actual) {
+    static void compareSV(InputStream expected, InputStream actual) {
         onlyNodeListSequenceDiffs(compare(diffSV(expected, actual, DifferenceEvaluators.Default).checkForIdentical()));
     }
 

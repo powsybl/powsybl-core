@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
@@ -23,15 +23,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DoubleDataChunkTest {
+class DoubleDataChunkTest {
 
     @Test
-    public void baseTest() throws IOException {
+    void baseTest() throws IOException {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[] {1d, 2d, 3d});
         assertEquals(1, chunk.getOffset());
         assertEquals(3, chunk.getLength());
@@ -60,7 +60,7 @@ public class DoubleDataChunkTest {
     }
 
     @Test
-    public void compressTest() throws IOException {
+    void compressTest() throws IOException {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[] {1d, 2d, 2d, 2d, 2d, 3d});
         DoubleDataChunk maybeCompressedChunk = chunk.tryToCompress();
         assertTrue(maybeCompressedChunk instanceof CompressedDoubleDataChunk);
@@ -111,34 +111,34 @@ public class DoubleDataChunkTest {
                      compressedChunk.stream(index).collect(Collectors.toList()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void compressConstrTest() {
-        new CompressedDoubleDataChunk(-3, 1, new double[] {1d}, new int[] {1});
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void compressConstrTest2() {
-        new CompressedDoubleDataChunk(0, 0, new double[] {1d}, new int[] {1});
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void compressConstrTest3() {
-        new CompressedDoubleDataChunk(0, 1, new double[] {}, new int[] {});
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void compressConstrTest4() {
-        new CompressedDoubleDataChunk(0, 1, new double[] {1d}, new int[] {});
+    @Test
+    void compressConstrTest() {
+        assertThrows(IllegalArgumentException.class, () -> new CompressedDoubleDataChunk(-3, 1, new double[] {1d}, new int[] {1}));
     }
 
     @Test
-    public void compressFailureTest() throws IOException {
+    void compressConstrTest2() {
+        assertThrows(IllegalArgumentException.class, () -> new CompressedDoubleDataChunk(0, 0, new double[] {1d}, new int[] {1}));
+    }
+
+    @Test
+    void compressConstrTest3() {
+        assertThrows(IllegalArgumentException.class, () -> new CompressedDoubleDataChunk(0, 1, new double[] {}, new int[] {}));
+    }
+
+    @Test
+    void compressConstrTest4() {
+        assertThrows(IllegalArgumentException.class, () -> new CompressedDoubleDataChunk(0, 1, new double[] {1d}, new int[] {}));
+    }
+
+    @Test
+    void compressFailureTest() throws IOException {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[] {1d, 2d, 2d, 3d});
         assertSame(chunk, chunk.tryToCompress());
     }
 
     @Test
-    public void uncompressedSplitTest() throws IOException {
+    void uncompressedSplitTest() throws IOException {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(1, new double[]{1d, 2d, 3d});
         try {
             chunk.splitAt(1);
@@ -162,7 +162,7 @@ public class DoubleDataChunkTest {
     }
 
     @Test
-    public void compressedSplitTest() throws IOException {
+    void compressedSplitTest() throws IOException {
         // index  0   1   2   3   4   5
         // value  NaN 1   1   2   2   2
         //            [-------]   [---]
@@ -193,7 +193,7 @@ public class DoubleDataChunkTest {
     }
 
     @Test
-    public void uncompressedMergeTest() {
+    void uncompressedMergeTest() {
         UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(1, new double[]{1d, 2d, 3d, 4d, 5d});
         UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{6d, 7d, 8d});
         UncompressedDoubleDataChunk chunk3 = new UncompressedDoubleDataChunk(1, new double[]{6d, 7d, 8d});
@@ -215,7 +215,7 @@ public class DoubleDataChunkTest {
     }
 
     @Test
-    public void compressedMergeTest() {
+    void compressedMergeTest() {
         CompressedDoubleDataChunk chunk1 = new CompressedDoubleDataChunk(1, 5, new double[]{1d, 2d}, new int[]{2, 3});
         CompressedDoubleDataChunk chunk2 = new CompressedDoubleDataChunk(6, 5, new double[]{3d, 4d}, new int[]{2, 3});
         CompressedDoubleDataChunk chunk3 = new CompressedDoubleDataChunk(11, 3, new double[]{4d, 5d}, new int[]{2, 1});
@@ -248,7 +248,7 @@ public class DoubleDataChunkTest {
     }
 
     @Test
-    public void nanIssueTest() {
+    void nanIssueTest() {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(0, new double[] {1d, Double.NaN, Double.NaN});
         String json = JsonUtil.toJson(chunk::writeJson);
 

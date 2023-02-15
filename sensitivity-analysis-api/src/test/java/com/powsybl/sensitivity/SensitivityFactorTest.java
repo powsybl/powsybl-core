@@ -11,22 +11,22 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.OptionalInt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityFactorTest extends AbstractConverterTest {
+class SensitivityFactorTest extends AbstractConverterTest {
 
     @Test
-    public void test() {
+    void test() {
         SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
                                                          SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                          false, ContingencyContext.all());
@@ -42,7 +42,7 @@ public class SensitivityFactorTest extends AbstractConverterTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
                 SensitivityVariableType.TRANSFORMER_PHASE_1, "ptc1",
                 false, ContingencyContext.all());
@@ -58,7 +58,7 @@ public class SensitivityFactorTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testMatrix() {
+    void testMatrix() {
         List<SensitivityFactor> factors = SensitivityFactor.createMatrix(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, List.of("l12", "l13", "l23"),
                                                                          SensitivityVariableType.HVDC_LINE_ACTIVE_POWER, List.of("hvdc34"),
                                                                          false, ContingencyContext.all());
@@ -66,7 +66,7 @@ public class SensitivityFactorTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testJson() throws IOException {
+    void testJson() throws IOException {
         SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, "l",
                                                          SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                          false, ContingencyContext.all());

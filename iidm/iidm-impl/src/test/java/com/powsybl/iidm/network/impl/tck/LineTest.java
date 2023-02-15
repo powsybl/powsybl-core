@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractLineTest;
 
-public class LineTest extends AbstractLineTest { }
+class LineTest extends AbstractLineTest { }

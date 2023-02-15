@@ -9,7 +9,7 @@ package com.powsybl.shortcircuit.json;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.StudyType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,15 +17,15 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class JsonFaultParametersTest extends AbstractConverterTest {
+class JsonFaultParametersTest extends AbstractConverterTest {
 
     @Test
-    public void roundTrip() throws IOException {
+    void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
         parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true));
         parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true));
@@ -40,7 +40,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readVersion10() throws IOException {
+    void readVersion10() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultParametersFileVersion10.json"), fileSystem.getPath("/FaultParametersFileVersion10.json"));
         List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFileVersion10.json"));
         assertEquals(4, parameters.size());
@@ -79,7 +79,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readVersion11() throws IOException {
+    void readVersion11() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultParametersFileVersion11.json"), fileSystem.getPath("/FaultParametersFileVersion11.json"));
         List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFileVersion11.json"));
         assertEquals(1, parameters.size());
@@ -94,7 +94,7 @@ public class JsonFaultParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readUnexpectedField() throws IOException {
+    void readUnexpectedField() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultParametersFileInvalid.json"), fileSystem.getPath("/FaultParametersFileInvalid.json"));
 
         Path path = fileSystem.getPath("/FaultParametersFileInvalid.json");

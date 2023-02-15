@@ -6,21 +6,21 @@
  */
 package com.powsybl.action.dsl;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class RuleTest {
+class RuleTest {
 
     @Test
-    public void test() {
+    void test() {
         Condition condition = Mockito.mock(Condition.class);
 
         Rule rule = new Rule("id", condition, 1, Collections.emptyList());
@@ -38,7 +38,7 @@ public class RuleTest {
     }
 
     @Test
-    public void testInvalid() {
+    void testInvalid() {
         Condition condition = Mockito.mock(Condition.class);
 
         testInvalid(null, null, -1, null);

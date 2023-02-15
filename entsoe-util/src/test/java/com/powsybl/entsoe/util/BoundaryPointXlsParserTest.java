@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Country;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,12 +19,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class BoundaryPointXlsParserTest {
+class BoundaryPointXlsParserTest {
 
     private HSSFWorkbook createWorkbook() {
         HSSFWorkbook workbook = new HSSFWorkbook();
@@ -43,7 +43,7 @@ public class BoundaryPointXlsParserTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
 
         byte[] buffer;
         try (HSSFWorkbook workbook = createWorkbook();
@@ -68,7 +68,7 @@ public class BoundaryPointXlsParserTest {
     }
 
     @Test
-    public void testMissingBoundaryPointFile() {
+    void testMissingBoundaryPointFile() {
         BoundaryPointXlsParser parser = new BoundaryPointXlsParser();
         PowsyblException e = assertThrows(PowsyblException.class, parser::parseDefault);
         assertEquals("Boundary point sheet /work/unittests/BoundaryPoint.xls not found", e.getMessage());

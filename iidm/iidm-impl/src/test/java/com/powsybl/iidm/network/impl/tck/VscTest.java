@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractVscTest;
 
-public class VscTest extends AbstractVscTest { }
+class VscTest extends AbstractVscTest { }

@@ -15,26 +15,21 @@ import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.impl.extensions.InjectionObservabilityImpl;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class InjectionObservabilityXmlTest extends AbstractConverterTest {
-
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
+class InjectionObservabilityXmlTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = BatteryNetworkFactory.create();
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
@@ -68,10 +63,8 @@ public class InjectionObservabilityXmlTest extends AbstractConverterTest {
     }
 
     @Test
-    public void invalidTest() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Unexpected element: qualityZ");
-
-        NetworkXml.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION)));
+    void invalidTest() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkXml.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION))));
+        assertTrue(e.getMessage().contains("Unexpected element: qualityZ"));
     }
 }

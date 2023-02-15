@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -33,25 +33,25 @@ import java.util.Properties;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class TopologyExportTest extends AbstractConverterTest {
+class TopologyExportTest extends AbstractConverterTest {
 
     @Test
-    public void smallGridHVDC() throws IOException, XMLStreamException {
+    void smallGridHVDC() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreakerHvdcEqTp().dataSource());
     }
 
     @Test
-    public void smallGridBusBranch() throws IOException, XMLStreamException {
+    void smallGridBusBranch() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallBusBranchEqTp().dataSource());
     }
 
     @Test
-    public void smallGridNodeBreaker() throws IOException, XMLStreamException {
+    void smallGridNodeBreaker() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreakerEqTp().dataSource());
     }
 
     @Test
-    public void smallGridNodeBreakerSsh() throws IOException, XMLStreamException {
+    void smallGridNodeBreakerSsh() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreakerEqTpSsh().dataSource(), true);
     }
 

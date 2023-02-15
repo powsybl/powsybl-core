@@ -8,14 +8,14 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class VscReactiveLimitsTest {
+class VscReactiveLimitsTest {
 
     @Test
-    public void testReactiveLimits() {
+    void testReactiveLimits() {
         Network network = HvdcTestNetwork.createVsc();
         VscConverterStation cs1 = network.getVscConverterStation("C1");
         cs1.newMinMaxReactiveLimits()

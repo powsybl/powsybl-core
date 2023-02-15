@@ -12,8 +12,8 @@ import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -21,18 +21,18 @@ import java.util.Set;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class RemoveFeederBayTest {
+class RemoveFeederBayTest {
 
     private final Set<String> removedObjects = new HashSet<>();
     private final Set<String> beforeRemovalObjects = new HashSet<>();
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         removedObjects.clear();
     }
 
@@ -51,7 +51,7 @@ public class RemoveFeederBayTest {
     }
 
     @Test
-    public void testSimpleRemove() {
+    void testSimpleRemove() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         addListener(network);
 
@@ -62,7 +62,7 @@ public class RemoveFeederBayTest {
     }
 
     @Test
-    public void testBbvRemove() {
+    void testBbvRemove() {
         Network network = EurostagTutorialExample1Factory.create();
         addListener(network);
 
@@ -73,7 +73,7 @@ public class RemoveFeederBayTest {
     }
 
     @Test
-    public void testRemoveWithForkFeeder() {
+    void testRemoveWithForkFeeder() {
         Network network = createNetworkWithForkFeeder();
         addListener(network);
 
@@ -90,7 +90,7 @@ public class RemoveFeederBayTest {
     }
 
     @Test
-    public void testRemoveWithShunt() {
+    void testRemoveWithShunt() {
         Network network = createNetwork2Feeders();
         addListener(network);
 
@@ -105,7 +105,7 @@ public class RemoveFeederBayTest {
     }
 
     @Test
-    public void testRemoveWithInternalConnectionShunt() {
+    void testRemoveWithInternalConnectionShunt() {
         Network network = createNetwork2Feeders();
         addListener(network);
 
@@ -120,7 +120,7 @@ public class RemoveFeederBayTest {
     }
 
     @Test
-    public void testRemoveWithDoubleShunt() {
+    void testRemoveWithDoubleShunt() {
         Network network = createNetwork3Feeders();
         addListener(network);
 
@@ -137,7 +137,7 @@ public class RemoveFeederBayTest {
     }
 
     @Test
-    public void testRemoveBbs() {
+    void testRemoveBbs() {
         Network network = createNetwork2Feeders();
         RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, Reporter.NO_OP));

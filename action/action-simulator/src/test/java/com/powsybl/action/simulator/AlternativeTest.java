@@ -10,14 +10,14 @@ import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class AlternativeTest extends AbstractLoadFlowRulesEngineTest {
+class AlternativeTest extends AbstractLoadFlowRulesEngineTest {
 
     private final LoadFlowActionSimulatorObserver obs = Mockito.mock(LoadFlowActionSimulatorObserver.class);
 
@@ -35,7 +35,7 @@ public class AlternativeTest extends AbstractLoadFlowRulesEngineTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         Generator generator = network.getGenerator("GEN");
         Load load = network.getLoad("LOAD");
         double targetP = generator.getTargetP();

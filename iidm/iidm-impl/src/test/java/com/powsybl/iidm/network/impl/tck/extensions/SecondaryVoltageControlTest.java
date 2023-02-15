@@ -12,5 +12,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractSecondaryVoltageControlTe
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControlTest {
+class SecondaryVoltageControlTest extends AbstractSecondaryVoltageControlTest {
 }

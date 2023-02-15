@@ -6,12 +6,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,10 +23,10 @@ import com.powsybl.iidm.network.test.NetworkTest1Factory;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class MergeTest {
+class MergeTest {
 
     @Test
-    public void mergeNodeBreakerTestNPE() throws IOException {
+    void mergeNodeBreakerTestNPE() throws IOException {
         Network n1 = createNetworkWithDanglingLine("1");
         Network n2 = createNetworkWithDanglingLine("2");
 
@@ -41,7 +41,7 @@ public class MergeTest {
     }
 
     @Test
-    public void mergeNodeBreakerTestPass1() {
+    void mergeNodeBreakerTestPass1() {
         Network n1 = createNetworkWithDanglingLine("1");
         Network n2 = createNetworkWithDanglingLine("2");
 
@@ -51,7 +51,7 @@ public class MergeTest {
     }
 
     @Test
-    public void mergeNodeBreakerTestPass2() throws IOException {
+    void mergeNodeBreakerTestPass2() throws IOException {
         Network n1 = createNetworkWithDanglingLine("1");
         Network n2 = createNetworkWithDanglingLine("2");
 

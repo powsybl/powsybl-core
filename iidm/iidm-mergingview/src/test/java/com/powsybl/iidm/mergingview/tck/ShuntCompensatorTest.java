@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractShuntCompensatorTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class ShuntCompensatorTest extends AbstractShuntCompensatorTest { }
+class ShuntCompensatorTest extends AbstractShuntCompensatorTest { }

@@ -6,28 +6,28 @@
  */
 package com.powsybl.cgmes.model;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class NamespaceReaderTest {
+class NamespaceReaderTest {
 
     @Test
-    public void base() throws IOException {
+    void base() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/empty_cim16_EQ_with_explicitBase.xml")) {
             assertEquals("http://example.com", NamespaceReader.base(is));
         }
     }
 
     @Test
-    public void baseNull() throws IOException {
+    void baseNull() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("/empty_cim16_EQ.xml")) {
             assertNull(NamespaceReader.base(is));
         }

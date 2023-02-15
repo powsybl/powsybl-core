@@ -11,20 +11,20 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ScalableActionTest {
+class ScalableActionTest {
 
     private Network network;
     private Generator g1;
     private Generator g2;
     private Generator g3;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = EurostagTutorialExample1Factory.create();
         addTwoMoreGensInNetwork();
         g1 = network.getGenerator("GEN");
@@ -33,7 +33,7 @@ public class ScalableActionTest {
     }
 
     @Test
-    public void testGeneratorScalableStack() {
+    void testGeneratorScalableStack() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/scalable.groovy"))).load(network);
         Action action = actionDb.getAction("actionScale"); // scale to 15000
         assertEquals(607.0, g1.getTargetP(), 0.0);
@@ -43,7 +43,7 @@ public class ScalableActionTest {
     }
 
     @Test
-    public void testCompatible() {
+    void testCompatible() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/scalable.groovy"))).load(network);
         Action action = actionDb.getAction("testCompatible"); // scale to 15000
         assertEquals(607.0, g1.getTargetP(), 0.0);
@@ -53,7 +53,7 @@ public class ScalableActionTest {
     }
 
     @Test
-    public void testGeneratorScalableProportional() {
+    void testGeneratorScalableProportional() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/scalable.groovy"))).load(network);
         Action action = actionDb.getAction("testProportional"); // scale to 15000
         assertEquals(607.0, g1.getTargetP(), 0.0);

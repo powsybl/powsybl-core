@@ -17,21 +17,21 @@ import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
+class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
@@ -45,7 +45,7 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testComplete() throws IOException {
+    void testComplete() throws IOException {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
@@ -61,7 +61,7 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithNullSwitchKind() {
+    void testWithNullSwitchKind() {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
@@ -74,7 +74,7 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithUnsupportedSwitchKind() {
+    void testWithUnsupportedSwitchKind() {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
@@ -87,7 +87,7 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithNegativeCount() {
+    void testWithNegativeCount() {
         CreateVoltageLevelTopologyBuilder modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(-1)
@@ -98,7 +98,7 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithOneSection() {
+    void testWithOneSection() {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
@@ -125,7 +125,7 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithUnexpectedSwitchKindsSize() {
+    void testWithUnexpectedSwitchKindsSize() {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
@@ -138,7 +138,7 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithNotExistingVoltageLevel() {
+    void testWithNotExistingVoltageLevel() {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId("NOT_EXISTING")
@@ -151,7 +151,7 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithBusBreakerVoltageLevel() throws IOException {
+    void testWithBusBreakerVoltageLevel() throws IOException {
         Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.newVoltageLevel()
                 .setId("VLTEST")
@@ -169,7 +169,7 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testErrorIfNotSwitchKindsDefinedAndNodeBreaker() {
+    void testErrorIfNotSwitchKindsDefinedAndNodeBreaker() {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)

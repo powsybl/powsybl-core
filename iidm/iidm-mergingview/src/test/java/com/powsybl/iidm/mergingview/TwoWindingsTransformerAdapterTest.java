@@ -9,26 +9,26 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class TwoWindingsTransformerAdapterTest {
+class TwoWindingsTransformerAdapterTest {
     private MergingView mergingView;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("TwoWindingsTransformerAdapterTest", "iidm");
         mergingView.merge(NoEquipmentNetworkFactory.create());
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         final Substation substation = mergingView.getSubstation("sub");
 
         // adder

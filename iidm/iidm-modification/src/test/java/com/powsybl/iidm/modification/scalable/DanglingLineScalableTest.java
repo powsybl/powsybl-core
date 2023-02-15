@@ -11,21 +11,20 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.GENERATOR;
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.LOAD;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkWithDanglingLine;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  */
-public class DanglingLineScalableTest {
+class DanglingLineScalableTest {
 
     private Network network;
     private Scalable dl2;
@@ -35,8 +34,8 @@ public class DanglingLineScalableTest {
     private Scalable dl6;
     private ScalingConvention convention;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = createNetworkWithDanglingLine();
         dl2 = Scalable.onDanglingLine("dl2");
 
@@ -47,23 +46,23 @@ public class DanglingLineScalableTest {
         dl6 = Scalable.onDanglingLine("dl2", 20, 100, ScalingConvention.LOAD);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testConstructorThrowWhenIdIsNull() {
-        new DanglingLineScalable(null);
-    }
-
-    @Test(expected = PowsyblException.class)
-    public void testConstructorInvalidP() {
-        new DanglingLineScalable("dl2", 10, 0);
+    @Test
+    void testConstructorThrowWhenIdIsNull() {
+        assertThrows(NullPointerException.class, () -> new DanglingLineScalable(null));
     }
 
     @Test
-    public void testInitialValue() {
+    void testConstructorInvalidP() {
+        assertThrows(PowsyblException.class, () -> new DanglingLineScalable("dl2", 10, 0));
+    }
+
+    @Test
+    void testInitialValue() {
         assertEquals(0, dl2.initialValue(network), 1e-3);
     }
 
     @Test
-    public void testMaximumlValue() {
+    void testMaximumlValue() {
         assertEquals(Double.MAX_VALUE, dl2.maximumValue(network, LOAD), 0.);
         assertEquals(-20, dl3.maximumValue(network), 0.);
         assertEquals(-20, dl3.maximumValue(network, GENERATOR), 0.);
@@ -73,7 +72,7 @@ public class DanglingLineScalableTest {
     }
 
     @Test
-    public void testMinimumlValue() {
+    void testMinimumlValue() {
         assertEquals(-Double.MAX_VALUE, dl2.minimumValue(network, LOAD), 0.);
         assertEquals(-100, dl3.minimumValue(network), 0.);
         assertEquals(-100, dl3.minimumValue(network, GENERATOR), 0.);
@@ -83,7 +82,7 @@ public class DanglingLineScalableTest {
     }
 
     @Test
-    public void testDanglingLineScaleLoadConvention() {
+    void testDanglingLineScaleLoadConvention() {
         //test with ScalingConvention.LOAD
         convention = LOAD;
 
@@ -97,7 +96,7 @@ public class DanglingLineScalableTest {
     }
 
     @Test
-    public void testDanglingLineScaleGeneratorConvention() {
+    void testDanglingLineScaleGeneratorConvention() {
         //test with ScalingConvention.GENERATOR
         convention = GENERATOR;
 
@@ -138,7 +137,7 @@ public class DanglingLineScalableTest {
     }
 
     @Test
-    public void testFilterInjections() {
+    void testFilterInjections() {
         DanglingLine danglingLine = network.getDanglingLine("dl2");
         List<Injection> injections = dl2.filterInjections(network);
         assertEquals(1, injections.size());

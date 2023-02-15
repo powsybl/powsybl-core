@@ -9,25 +9,25 @@ package com.powsybl.shortcircuit;
 import com.powsybl.shortcircuit.tools.ShortCircuitAnalysisTool;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Boubakeur Brahimi
  */
-public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
+class ShortCircuitAnalysisToolTest extends AbstractToolTest {
 
     private ShortCircuitAnalysisTool shortCircuitTool = new ShortCircuitAnalysisTool();
     private static final String COMMAND_NAME = "shortcircuit";
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         Files.copy(getClass().getResourceAsStream("/network.xiidm"), fileSystem.getPath("network.xiidm"));
@@ -45,7 +45,7 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void testGetCommand() {
+    void testGetCommand() {
         assertCommand();
     }
 
@@ -65,37 +65,37 @@ public class ShortCircuitAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void checkFailsWhenInputFileNotFound() throws IOException {
+    void checkFailsWhenInputFileNotFound() throws IOException {
         assertCommand(new String[] {COMMAND_NAME, "--input-file", "wrongFile.txt", "--case-file", "network.xiidm"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
     }
 
     @Test
-    public void checkFailsWhenNetworkFileNotFound() throws IOException {
+    void checkFailsWhenNetworkFileNotFound() throws IOException {
         assertCommand(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "wrongFile.uct"}, 3, null, "com.powsybl.commons.PowsyblException: File wrongFile.uct does not exist or is not a regular file");
     }
 
     @Test
-    public void checkThrowsWhenOutputFileAndNoFormat() throws IOException {
+    void checkThrowsWhenOutputFileAndNoFormat() throws IOException {
         assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "test.uct", "--output-file", "out.txt"}, 2, null, "error: Missing required option: output-format");
     }
 
     @Test
-    public void checkThrowsWhenNetworkFileIsEmpty() throws IOException {
+    void checkThrowsWhenNetworkFileIsEmpty() throws IOException {
         assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "test.uct"}, 3, null, "com.powsybl.commons.PowsyblException: Unsupported file format or invalid file.");
     }
 
     @Test
-    public void checkFailsWhenParametersFileNotFound() throws IOException {
+    void checkFailsWhenParametersFileNotFound() throws IOException {
         assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--fault-parameters-file", "wrongFile.txt"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
     }
 
     @Test
-    public void checkFailsWhenFaultParametersFileNotFound() throws IOException {
+    void checkFailsWhenFaultParametersFileNotFound() throws IOException {
         assertCommand(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--fault-parameters-file", "wrongFile.txt"}, 3, null, "java.io.UncheckedIOException: java.nio.file.NoSuchFileException: wrongFile.txt");
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         String expectedOut = "Loading fault list 'faultsFile.json'\n" +
                 "Loading network 'network.xiidm'\n" +
                 "Short circuit analysis:\n" +
