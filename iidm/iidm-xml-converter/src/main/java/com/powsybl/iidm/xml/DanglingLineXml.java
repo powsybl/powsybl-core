@@ -17,7 +17,7 @@ import java.util.Optional;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
+class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, Container<?>> {
     private static final String GENERATION = "generation";
     private static final String GENERATION_MAX_P = "generationMaxP";
     private static final String GENERATION_MIN_P = "generationMinP";
@@ -44,15 +44,8 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         return hasValidGeneration(dl, context) || hasValidOperationalLimits(dl, context);
     }
 
-    private static boolean hasValidGeneration(DanglingLine dl, NetworkXmlWriterContext context) {
-        if (dl.getGeneration() != null) {
-            return context.getVersion().compareTo(IidmXmlVersion.V_1_3) > 0;
-        }
-        return false;
-    }
-
     @Override
-    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(DanglingLine dl, Container<?> parent, NetworkXmlWriterContext context) throws XMLStreamException {
         DanglingLine.Generation generation = dl.getGeneration();
         double[] p0 = new double[1];
         double[] q0 = new double[1];
@@ -88,39 +81,67 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         if (dl.getUcteXnodeCode() != null) {
             context.getWriter().writeAttribute("ucteXnodeCode", dl.getUcteXnodeCode());
         }
-        writeNodeOrBus(null, dl.getTerminal(), context);
-        writePQ(null, dl.getTerminal(), context.getWriter());
+        Terminal t;
+        if (dl.isMerged() && dl.getParentTerminal().isPresent()) {
+            t = dl.getParentTerminal().get();
+        } else {
+            t = dl.getTerminal();
+        }
+        writeNodeOrBus(null, t, context);
+        writePQ(null, t, context.getWriter());
     }
 
     @Override
-    protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected DanglingLineAdder createAdder(Container<?> parent) {
+        if (parent instanceof VoltageLevel) {
+            return ((VoltageLevel) parent).newDanglingLine();
+        }
+
+        //Should handle tie line case
+
+        return null;
+    }
+
+    private static boolean hasValidGeneration(DanglingLine dl, NetworkXmlWriterContext context) {
+        if (dl.getGeneration() != null) {
+            return context.getVersion().compareTo(IidmXmlVersion.V_1_3) > 0;
+        }
+        return false;
+    }
+
+    @Override
+    protected void writeSubElements(DanglingLine dl, Container<?> vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
         }
-        Optional<ActivePowerLimits> activePowerLimits = dl.getActivePowerLimits();
-        if (activePowerLimits.isPresent()) {
-            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(null, activePowerLimits.get(), context.getWriter(),
-                    context.getVersion(), context.isValid(), context.getOptions()));
+        if (!dl.isMerged()) {
+            Optional<ActivePowerLimits> activePowerLimits = dl.getActivePowerLimits();
+            if (activePowerLimits.isPresent()) {
+                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(null, activePowerLimits.get(), context.getWriter(),
+                        context.getVersion(), context.isValid(), context.getOptions()));
+            }
+            Optional<ApparentPowerLimits> apparentPowerLimits = dl.getApparentPowerLimits();
+            if (apparentPowerLimits.isPresent()) {
+                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(null, apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+            }
+            Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
+            if (currentLimits.isPresent()) {
+                writeCurrentLimits(null, currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
+            }
         }
-        Optional<ApparentPowerLimits> apparentPowerLimits = dl.getApparentPowerLimits();
-        if (apparentPowerLimits.isPresent()) {
-            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(null, apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
-        if (currentLimits.isPresent()) {
-            writeCurrentLimits(null, currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-        }
-    }
-
-    @Override
-    protected DanglingLineAdder createAdder(VoltageLevel vl) {
-        return vl.newDanglingLine();
     }
 
     @Override
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, NetworkXmlReaderContext context) {
+        readRootElementAttributesInternal(adder, context);
+        DanglingLine dl = adder.add();
+        readPQ(null, dl.getTerminal(), context.getReader());
+        return dl;
+    }
+
+    public static void readRootElementAttributesInternal(DanglingLineCharacteristicsAdder adder, NetworkXmlReaderContext context) {
         double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");
         double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q0");
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
@@ -148,16 +169,13 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         });
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         readNodeOrBus(adder, context);
-        DanglingLine dl = adder.setP0(p0)
+        adder.setP0(p0)
                 .setQ0(q0)
                 .setR(r)
                 .setX(x)
                 .setG(g)
                 .setB(b)
-                .setUcteXnodeCode(ucteXnodeCode)
-                .add();
-        readPQ(null, dl.getTerminal(), context.getReader());
-        return dl;
+                .setUcteXnodeCode(ucteXnodeCode);
     }
 
     @Override

@@ -298,4 +298,18 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
     default IdentifiableType getType() {
         return IdentifiableType.DANGLING_LINE;
     }
+
+    default Optional<Terminal> getParentTerminal() {
+        Optional<TieLine> optTieLine = this.getTieLine();
+        if (this.isMerged() && optTieLine.isPresent()) {
+            TieLine tieLine = optTieLine.get();
+            if (tieLine.getHalf1() == this) {
+                return Optional.ofNullable(tieLine.getTerminal1());
+            } else {
+                return Optional.ofNullable(tieLine.getTerminal2());
+            }
+        } else {
+            return Optional.empty();
+        }
+    }
 }
