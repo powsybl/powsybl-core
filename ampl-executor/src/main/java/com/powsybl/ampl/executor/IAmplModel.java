@@ -22,15 +22,16 @@ import java.util.List;
  * Some customization is available through :
  * <ul>
  * <li>{@link IAmplModel#getOutputFilePrefix}: prefix for the files written by
- * the ampl execution</li>
+ * the Ampl execution</li>
  * <li>{@link IAmplModel#getNetworkApplierFactory()}: specific applier Factory to select what is
  * modified on the network</li>
- * <li>{@link IAmplModel#getVariant}: ampl variants</li>
+ * <li>{@link IAmplModel#getVariant}: Ampl variants</li>
  * <li>{@link IAmplModel#getOutputFormat}: some information about the format of
  * the output files</li>
  * <li>{@link IAmplModel#getNetworkDataPrefix}: the prefix used to every network
  * input files</li>
  * </ul>
+ *
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  */
 public interface IAmplModel {
@@ -42,7 +43,7 @@ public interface IAmplModel {
     List<Pair<String, InputStream>> getModelAsStream();
 
     /**
-     * @return the list of the files to run in ampl (.run files)
+     * @return the list of the files to run in Ampl (.run files)
      */
     List<String> getAmplRunFiles();
 
@@ -50,11 +51,18 @@ public interface IAmplModel {
 
     AbstractNetworkApplierFactory getNetworkApplierFactory();
 
+    /**
+     * @return network variant to export for the Ampl solve
+     */
     int getVariant();
 
     OutputFileFormat getOutputFormat();
 
     String getNetworkDataPrefix();
 
+    /**
+     * @return list of {@link AmplReadableElement} to read after the Ampl run,
+     * it implies that the Ampl model outputs these files with the correct format
+     */
     Collection<AmplReadableElement> getAmplReadableElement();
 }

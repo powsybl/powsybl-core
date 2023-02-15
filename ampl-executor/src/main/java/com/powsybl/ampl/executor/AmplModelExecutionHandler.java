@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -44,28 +45,47 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
 
     private static final String AMPL_BINARY = "ampl";
     private static final String COMMAND_ID = "AMPL_runner";
-    private IAmplModel model;
-    private Network network;
-    private String networkVariant;
-    private AmplConfig config;
+    private final IAmplParameters parameters;
+    private final IAmplModel model;
+    private final Network network;
+    private final String networkVariant;
+    private final AmplConfig config;
 
-    public AmplModelExecutionHandler(IAmplModel model, Network network, String networkVariant, AmplConfig config) {
+    public AmplModelExecutionHandler(IAmplModel model, Network network, String networkVariant, AmplConfig config,
+                                     IAmplParameters parameters) {
         this.model = model;
         this.network = network;
         this.networkVariant = networkVariant;
         this.config = config;
+        this.parameters = parameters;
     }
 
-    public AmplModelExecutionHandler(IAmplModel model, Network network, String networkVariant) {
-        this(model, network, networkVariant, AmplConfig.getConfig());
-    }
-
+    /**
+     * This method will write ampl model files (.run, .dat and .mod)
+     *
+     * @param workingDir the directory where to write the files
+     * @throws IOException rethrow {@link Files#copy(InputStream, Path, CopyOption...)}
+     */
     private void exportAmplModel(Path workingDir) throws IOException {
         for (Pair<String, InputStream> fileAndStream : model.getModelAsStream()) {
-            Files.copy(fileAndStream.getRight(),
-                    workingDir.resolve(fileAndStream.getLeft()),
-                    StandardCopyOption.REPLACE_EXISTING);
-            fileAndStream.getRight().close();
+            try (InputStream modelStream = fileAndStream.getRight()) {
+                Files.copy(modelStream, workingDir.resolve(fileAndStream.getLeft()),
+                        StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
+    }
+
+    /**
+     * This method will write parameters files.
+     *
+     * @param workingDir the directory where to write the files
+     * @throws IOException rethrow {@link Files#copy(InputStream, Path, CopyOption...)}
+     */
+    private void exportAmplParameters(Path workingDir) throws IOException {
+        for (IAmplInputFile param : parameters.getInputParameters()) {
+            try (InputStream paramStream = param.getParameterFileAsStream()) {
+                Files.copy(paramStream, workingDir.resolve(param.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+            }
         }
     }
 
@@ -81,12 +101,29 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         }
     }
 
+    private void doAfterSuccess(Path workingDir, AmplNetworkReader reader) throws IOException {
+        readNetworkElements(reader);
+        readCustomFiles(workingDir);
+    }
+
+    private void readCustomFiles(Path workingDir) throws IOException {
+        for (IAmplOutputFile amplOutputFile : parameters.getOutputParameters()) {
+            Path outputPath = workingDir.resolve(amplOutputFile.getFileName());
+            amplOutputFile.read(outputPath);
+        }
+    }
+
+    private void readNetworkElements(AmplNetworkReader reader) throws IOException {
+        for (AmplReadableElement element : this.model.getAmplReadableElement()) {
+            element.readElement(reader);
+        }
+    }
+
     protected static CommandExecution createAmplRunCommand(AmplConfig config, IAmplModel model) {
-        Command cmd = new SimpleCommandBuilder()
-                .id(COMMAND_ID)
-                .program(getAmplBinPath(config))
-                .args(model.getAmplRunFiles())
-                .build();
+        Command cmd = new SimpleCommandBuilder().id(COMMAND_ID)
+                                                .program(getAmplBinPath(config))
+                                                .args(model.getAmplRunFiles())
+                                                .build();
         return new CommandExecution(cmd, 1, 0);
     }
 
@@ -98,6 +135,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
     public List<CommandExecution> before(Path workingDir) throws IOException {
         network.getVariantManager().setWorkingVariant(this.networkVariant);
         exportNetworkAsAmpl(workingDir);
+        exportAmplParameters(workingDir);
         exportAmplModel(workingDir);
         return Collections.singletonList(createAmplRunCommand(this.config, this.model));
     }
@@ -108,9 +146,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         DataSource networkAmplResults = new FileDataSource(workingDir, this.model.getOutputFilePrefix());
         AmplNetworkReader reader = new AmplNetworkReader(networkAmplResults, this.network, this.model.getVariant(),
                 AmplUtil.createMapper(this.network), this.model.getNetworkApplierFactory(), this.model.getOutputFormat());
-        for (AmplReadableElement element : this.model.getAmplReadableElement()) {
-            element.readElement(reader);
-        }
+        doAfterSuccess(workingDir, reader);
         return AmplResults.ok();
     }
 

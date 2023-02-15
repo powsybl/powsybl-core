@@ -52,13 +52,13 @@ public class AmplModelExecutionHandlerTest {
         AmplConfig cfg = getAmplConfig();
         // Test config
         String variantId = network.getVariantManager().getWorkingVariantId();
-        ComputationManager manager = new LocalComputationManager(
-                new LocalComputationConfig(fs.getPath("/workingDir")),
-                new MockAmplLocalExecutor(List.of("output_generators.txt")),
+        ComputationManager manager = new LocalComputationManager(new LocalComputationConfig(fs.getPath("/workingDir")),
+                new MockAmplLocalExecutor(List.of("output_generators.txt", "output_indic.txt")),
                 ForkJoinPool.commonPool());
         ExecutionEnvironment env = ExecutionEnvironment.createDefault().setWorkingDirPrefix("ampl_").setDebug(true);
         // Test execution
-        AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg);
+        AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
+                new EmptyAmplParameters());
         CompletableFuture<AmplResults> result = manager.execute(env, handler);
         AmplResults amplState = result.join();
         // Test assert

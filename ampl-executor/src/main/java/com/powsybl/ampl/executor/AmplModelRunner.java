@@ -20,9 +20,11 @@ public final class AmplModelRunner {
     private AmplModelRunner() {
     }
 
-    public static AmplResults run(Network network, String variantId, IAmplModel model, ComputationManager manager) {
+    public static AmplResults run(Network network, String variantId, IAmplModel model, ComputationManager manager,
+                                  IAmplParameters parameters) {
         ExecutionEnvironment env = new ExecutionEnvironment(Collections.emptyMap(), "ampl_", true);
-        AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId);
+        AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId,
+                AmplConfig.getConfig(), parameters);
         CompletableFuture<AmplResults> result = manager.execute(env, handler);
         return result.join();
     }
