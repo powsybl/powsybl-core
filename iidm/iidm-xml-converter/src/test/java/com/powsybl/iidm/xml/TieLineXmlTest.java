@@ -10,6 +10,7 @@ package com.powsybl.iidm.xml;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -19,5 +20,15 @@ public class TieLineXmlTest extends AbstractXmlConverterTest {
     @Test
     public void test() throws IOException {
         roundTripAllVersionedXmlTest("tieline.xml");
+    }
+
+    @Test
+    public void testV10() throws IOException {
+        roundTripVersionedXmlTest("tieline.xml", IidmXmlVersion.V_1_10);
+    }
+
+    @Test
+    public void testV9() throws IOException {
+        roundTripVersionedXmlTest("tieline.xml", IidmXmlVersion.V_1_9);
     }
 }
