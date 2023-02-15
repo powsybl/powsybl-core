@@ -420,7 +420,7 @@ public class AmplNetworkReader {
         String id = tokens[4];
         String substationId = tokens[5];
 
-        this.applier.applyReactiveSlack(busNum, slackCondensator, slackSelf, id, substationId);
+        this.applier.applyReactiveSlack(busNum, -slackCondensator + slackSelf, id, substationId);
 
         return null;
     }

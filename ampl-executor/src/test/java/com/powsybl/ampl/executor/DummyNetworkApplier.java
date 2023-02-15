@@ -72,4 +72,9 @@ public class DummyNetworkApplier implements NetworkApplier {
     public void applyLcc(LccConverterStation lcc, int busNum, double p, double q) {
         // do nothing with the results
     }
+
+    @Override
+    public void applyReactiveSlack(int busNum, double q, String id, String substationId) {
+        // do nothing with the results
+    }
 }
