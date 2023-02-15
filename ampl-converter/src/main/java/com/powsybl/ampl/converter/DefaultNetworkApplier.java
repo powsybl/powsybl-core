@@ -7,12 +7,7 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.modification.topology.CreateFeederBay;
-import com.powsybl.iidm.modification.topology.CreateFeederBayBuilder;
 import com.powsybl.iidm.network.*;
-
-import java.util.List;
-import java.util.Optional;
 
 /**
  * This class implements the default behavior of applying changes to the network. <br>
@@ -173,42 +168,6 @@ public class DefaultNetworkApplier implements NetworkApplier {
     public void applyLcc(LccConverterStation lcc, int busNum, double p, double q) {
         lcc.getTerminal().setP(p).setQ(q);
         NetworkApplier.busConnection(lcc.getTerminal(), busNum, networkMapper);
-    }
-
-    @Override
-    public void applyReactiveSlack(int busNum, double q, String id, String substationId) {
-        // FIXME the reactive slack should be in the results and not applied on the network.
-        String busId = networkMapper.getId(AmplSubset.BUS, busNum);
-        Bus bus = network.getBusView().getBus(busId);
-        VoltageLevel voltageLevel = bus.getVoltageLevel();
-        if (voltageLevel.getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
-            // we have to find a bus from the bus/breaker view.
-            List<Bus> candidateBuses = (List<Bus>) voltageLevel.getBusBreakerView().getBusesFromBusViewBusId(bus.getId());
-            if (!candidateBuses.isEmpty()) {
-                network.getVoltageLevel(voltageLevel.getId()).newLoad()
-                        .setId(id)
-                        .setBus(candidateBuses.get(0).getId())
-                        .setConnectableBus(candidateBuses.get(0).getId())
-                        .setP0(0.0)
-                        .setQ0(q)
-                        .add();
-            }
-        } else {
-            Optional<BusbarSection> bbs = bus.getConnectedTerminalStream().map(t -> t.getConnectable()).filter(c -> c instanceof BusbarSection).map(c -> (BusbarSection) c).findAny();
-            if (bbs.isPresent()) {
-                LoadAdder loadAdder = network.getVoltageLevel(voltageLevel.getId()).newLoad()
-                        .setId(id)
-                        .setP0(0.0)
-                        .setQ0(q);
-
-                CreateFeederBay modification = new CreateFeederBayBuilder()
-                        .withInjectionAdder(loadAdder)
-                        .withBusOrBusbarSectionId(bbs.get().getId())
-                        .build();
-
-                modification.apply(network);
-            }
-        }
     }
 
     private boolean readThreeWindingsTransformerBranch(Network network, String id, double p, double q, int busNum,

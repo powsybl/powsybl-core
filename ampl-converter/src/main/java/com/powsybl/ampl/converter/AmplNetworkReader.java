@@ -407,24 +407,6 @@ public class AmplNetworkReader {
         return this;
     }
 
-    public AmplNetworkReader readReactiveSlacks() throws IOException {
-        read("_reactive_slacks", 6, this::readReactiveSlack);
-
-        return this;
-    }
-
-    private Void readReactiveSlack(String[] tokens) {
-        int busNum = Integer.parseInt(tokens[1]);
-        double slackCondensator = readDouble(tokens[2]);
-        double slackSelf = readDouble(tokens[3]);
-        String id = tokens[4];
-        String substationId = tokens[5];
-
-        this.applier.applyReactiveSlack(busNum, -slackCondensator + slackSelf, id, substationId);
-
-        return null;
-    }
-
     private double readDouble(String d) {
         return Float.parseFloat(d) != AmplConstants.INVALID_FLOAT_VALUE ? Double.parseDouble(d) : Double.NaN;
     }

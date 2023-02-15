@@ -63,8 +63,6 @@ public interface NetworkApplier {
 
     void applyLcc(LccConverterStation lcc, int busNum, double p, double q);
 
-    void applyReactiveSlack(int busNum, double q, String id, String substationId);
-
     static void busConnection(Terminal t, int busNum, StringToIntMapper<AmplSubset> mapper) {
         if (busNum == -1) {
             t.disconnect();

@@ -25,8 +25,7 @@ public enum AmplReadableElement {
     RATIO_TAP_CHANGER(AmplNetworkReader::readRatioTapChangers),
     SHUNT(AmplNetworkReader::readShunts),
     STATIC_VAR_COMPENSATOR(AmplNetworkReader::readStaticVarcompensator),
-    VSC_CONVERTER_STATION(AmplNetworkReader::readVscConverterStations),
-    REACTIVE_SLACK(AmplNetworkReader::readReactiveSlacks);
+    VSC_CONVERTER_STATION(AmplNetworkReader::readVscConverterStations);
     private final ReadElementInterface readElementConsumer;
 
     AmplReadableElement(ReadElementInterface readElementConsumer) {
