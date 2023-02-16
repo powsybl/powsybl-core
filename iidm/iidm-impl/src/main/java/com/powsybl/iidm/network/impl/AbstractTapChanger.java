@@ -31,7 +31,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     private final String type;
 
-    protected TerminalExt regulationTerminal;
+    protected final RegulatingPoint regulatingPoint;
 
     // attributes depending on the variant
 
@@ -49,7 +49,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         this.lowTapPosition = lowTapPosition;
         this.steps = steps;
         steps.forEach(s -> s.setParent(this));
-        this.regulationTerminal = regulationTerminal;
+        regulatingPoint = new RegulatingPoint(() -> null);
+        regulatingPoint.set(regulationTerminal);
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.tapPosition = new ArrayList<>(variantArraySize);
         this.regulating = new TBooleanArrayList(variantArraySize);
@@ -170,15 +171,15 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public TerminalExt getRegulationTerminal() {
-        return regulationTerminal;
+        return regulatingPoint.get();
     }
 
     public C setRegulationTerminal(Terminal regulationTerminal) {
         if (regulationTerminal != null && ((TerminalExt) regulationTerminal).getVoltageLevel().getNetwork() != getNetwork()) {
             throw new ValidationException(parent, "regulation terminal is not part of the network");
         }
-        Terminal oldValue = this.regulationTerminal;
-        this.regulationTerminal = (TerminalExt) regulationTerminal;
+        Terminal oldValue = regulatingPoint.get();
+        regulatingPoint.set((TerminalExt) regulationTerminal);
         getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulationTerminal", oldValue, regulationTerminal);
         return (C) this;
     }

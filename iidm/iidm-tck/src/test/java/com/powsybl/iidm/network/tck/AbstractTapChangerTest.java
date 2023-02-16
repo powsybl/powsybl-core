@@ -108,6 +108,12 @@ public abstract class AbstractTapChangerTest {
         Terminal terminal2 = twt.getTerminal2();
         phaseTapChanger.setRegulationTerminal(terminal2);
         assertSame(terminal2, phaseTapChanger.getRegulationTerminal());
+        Terminal loadTerminal = twt.getTerminal1().getVoltageLevel().newLoad().setId("L").setP0(1.0).setQ0(1.0).setBus("busA").add().getTerminal();
+        phaseTapChanger.setRegulationTerminal(loadTerminal);
+        assertSame(loadTerminal, phaseTapChanger.getRegulationTerminal());
+        network.getLoad("L").remove();
+        assertNull(phaseTapChanger.getRegulationTerminal());
+        phaseTapChanger.setRegulationTerminal(terminal);
         int lowTapPosition = 2;
         phaseTapChanger.setLowTapPosition(lowTapPosition);
         assertEquals(lowTapPosition, phaseTapChanger.getLowTapPosition());

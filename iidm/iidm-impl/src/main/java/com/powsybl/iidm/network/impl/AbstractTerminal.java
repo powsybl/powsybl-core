@@ -13,6 +13,9 @@ import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -29,6 +32,8 @@ abstract class AbstractTerminal implements TerminalExt {
     protected VoltageLevelExt voltageLevel;
 
     protected int num = -1;
+
+    protected final List<RegulatingPoint> regulated = new ArrayList<>();
 
     // attributes depending on the variant
 
@@ -186,5 +191,17 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public void remove() {
         removed = true;
+        regulated.forEach(RegulatingPoint::remove);
+        regulated.clear();
+    }
+
+    @Override
+    public void setAsRegulatingPoint(RegulatingPoint rp) {
+        regulated.add(rp);
+    }
+
+    @Override
+    public void removeRegulatingPoint(RegulatingPoint rp) {
+        regulated.remove(rp);
     }
 }

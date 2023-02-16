@@ -28,7 +28,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private TerminalExt regulatingTerminal;
+    private final RegulatingPoint regulatingPoint;
 
     // attributes depending on the variant
 
@@ -52,7 +52,8 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.minP = minP;
         this.maxP = maxP;
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
-        this.regulatingTerminal = regulatingTerminal;
+        regulatingPoint = new RegulatingPoint(this::getTerminal);
+        regulatingPoint.set(regulatingTerminal);
         this.ratedS = ratedS;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
@@ -137,14 +138,14 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public TerminalExt getRegulatingTerminal() {
-        return regulatingTerminal;
+        return regulatingPoint.get();
     }
 
     @Override
     public GeneratorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        Terminal oldValue = this.regulatingTerminal;
-        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
+        Terminal oldValue = regulatingPoint.get();
+        regulatingPoint.set((TerminalExt) regulatingTerminal);
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
         return this;
     }

@@ -27,7 +27,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private final TDoubleArrayList voltageSetpoint;
 
-    private TerminalExt regulatingTerminal;
+    private final RegulatingPoint regulatingPoint;
 
     VscConverterStationImpl(String id, String name, boolean fictitious, float lossFactor, Ref<NetworkImpl> ref,
                             boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint, TerminalExt regulatingTerminal) {
@@ -40,7 +40,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         this.reactivePowerSetpoint.fill(0, variantArraySize, reactivePowerSetpoint);
         this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
-        this.regulatingTerminal = regulatingTerminal;
+        regulatingPoint = new RegulatingPoint(this::getTerminal);
+        regulatingPoint.set(regulatingTerminal);
     }
 
     @Override
@@ -166,14 +167,14 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public TerminalExt getRegulatingTerminal() {
-        return regulatingTerminal;
+        return regulatingPoint.get();
     }
 
     @Override
     public VscConverterStationImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        Terminal oldValue = this.regulatingTerminal;
-        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
+        Terminal oldValue = regulatingPoint.get();
+        regulatingPoint.set((TerminalExt) regulatingTerminal);
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
         return this;
     }

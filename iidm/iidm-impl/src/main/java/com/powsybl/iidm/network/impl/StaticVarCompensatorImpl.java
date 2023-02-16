@@ -24,7 +24,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     private double bMax;
 
-    private TerminalExt regulatingTerminal;
+    private final RegulatingPoint regulatingPoint;
 
     // attributes depending on the variant
 
@@ -43,7 +43,8 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         this.voltageSetpoint = new TDoubleArrayList(variantArraySize);
         this.reactivePowerSetpoint = new TDoubleArrayList(variantArraySize);
         this.regulationMode = new TIntArrayList(variantArraySize);
-        this.regulatingTerminal = regulatingTerminal;
+        regulatingPoint = new RegulatingPoint(this::getTerminal);
+        regulatingPoint.set(regulatingTerminal);
         for (int i = 0; i < variantArraySize; i++) {
             this.voltageSetpoint.add(voltageSetpoint);
             this.reactivePowerSetpoint.add(reactivePowerSetpoint);
@@ -144,15 +145,15 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public TerminalExt getRegulatingTerminal() {
-        return regulatingTerminal;
+        return regulatingPoint.get();
     }
 
     @Override
     public StaticVarCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        Terminal oldValue = this.regulatingTerminal;
-        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
-        notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
+        Terminal oldValue = regulatingPoint.get();
+        regulatingPoint.set((TerminalExt) regulatingTerminal);
+        notifyUpdate("regulatingTerminal", oldValue, regulatingPoint.get());
         return this;
     }
 

@@ -115,6 +115,9 @@ public abstract class AbstractStaticVarCompensatorTest {
         svc3.remove();
         StaticVarCompensator svc4 = createSvc("SVC4", loadTerminal);
         assertEquals(loadTerminal, svc4.getRegulatingTerminal());
+
+        network.getLoad("L2").remove();
+        assertEquals(svc4.getTerminal(), svc4.getRegulatingTerminal());
     }
 
     @Test
