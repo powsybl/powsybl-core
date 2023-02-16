@@ -13,12 +13,16 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 /**
- * An action to modify hvdc parameters or how an hvdc is operated
- * parameter enabled to true correspond to ac emulation operation, false to fix active power setpoint. Note that ac
- * emulation works only with VSC converter station.
- * droop and p0 are parameters used for ac emulation only.
- * activePowerSetpoint and converterMode are for fix active power setpoint operation only. Attribute relative value should
- * be used only to define the new active power setpoint.
+ * An action to modify HVDC parameters and/or operating mode.
+ * <ul>
+ *     <li>{@code acEmulationEnabled} parameter set to true correspond to AC emulation operation,
+ *     false to fixed active power setpoint.
+ *     <li>Note that AC emulation is relevant only for VSC converter station.
+ *     <li>{@code droop} and {@code p0} parameters are used for AC emulation only.<br>
+ *     <li>{@code activePowerSetpoint} and {@code converterMode} parameters are for fixed
+ *     active power setpoint operation only. The {@code relativeValue} attribute should be used only
+ *     when defining fixed active power setpoint.
+ * </ul>
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
