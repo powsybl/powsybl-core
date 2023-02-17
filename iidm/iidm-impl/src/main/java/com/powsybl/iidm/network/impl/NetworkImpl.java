@@ -28,6 +28,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.powsybl.iidm.network.util.TieLineUtil.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -884,15 +886,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         // try to find dangling lines couples
         List<MergedLine> lines = new ArrayList<>();
-        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
-            Map<String, DanglingLine> dl1byXnodeCode = new HashMap<>();
-            for (DanglingLine dl1 : getDanglingLines()) {
-                if (dl1.getUcteXnodeCode() != null) {
-                    dl1byXnodeCode.put(dl1.getUcteXnodeCode(), dl1);
-                }
+        Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
+        for (DanglingLine dl1 : getDanglingLines()) {
+            if (dl1.getUcteXnodeCode() != null) {
+                dl1byXnodeCode.computeIfAbsent(dl1.getUcteXnodeCode(), k -> new ArrayList<>()).add(dl1);
             }
-            DanglingLine dl1 = getDanglingLineByTheOther(dl2, dl1byXnodeCode);
-            mergeDanglingLines(lines, dl1, dl2);
+        }
+        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
+            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> mergeDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 
         // do not forget to remove the other network from its index!!!
@@ -920,34 +921,18 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private DanglingLine getDanglingLineByTheOther(DanglingLine dl2, Map<String, DanglingLine> dl1byXnodeCode) {
-        DanglingLine dl1 = getDanglingLine(dl2.getId());
-        if (dl1 == null) {
-            // mapping by ucte xnode code
-            if (dl2.getUcteXnodeCode() != null) {
-                dl1 = dl1byXnodeCode.get(dl2.getUcteXnodeCode());
-            }
-        } else {
-            // mapping by id
-            if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null
-                    && !dl1.getUcteXnodeCode().equals(dl2.getUcteXnodeCode())) {
-                throw new PowsyblException("Dangling line couple " + dl1.getId()
-                        + " have inconsistent Xnodes (" + dl1.getUcteXnodeCode()
-                        + "!=" + dl2.getUcteXnodeCode() + ")");
-            }
-        }
-        return dl1;
-    }
-
-    private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2) {
+    private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
         if (dl1 != null) {
+            if (dl1.getUcteXnodeCode() != null) {
+                dl1byXnodeCode.get(dl1.getUcteXnodeCode()).remove(dl1);
+            }
 
             // Dangling line 2 must always be reoriented
             // setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
             ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(dl2.getR(), dl2.getX(), dl2.getG(), dl2.getB(), 0.0, 0.0);
 
             MergedLine l = new MergedLine();
-            l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
+            l.id = buildMergedId(dl1.getId(), dl2.getId());
             l.aliases = new HashSet<>();
             l.aliases.add(dl1.getId());
             l.aliases.add(dl2.getId());
@@ -959,9 +944,9 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             VoltageLevel vl2 = t2.getVoltageLevel();
             l.voltageLevel1 = vl1.getId();
             l.voltageLevel2 = vl2.getId();
-            l.xnode = dl1.getUcteXnodeCode();
+            l.xnode = Optional.ofNullable(dl1.getUcteXnodeCode()).orElseGet(dl2::getUcteXnodeCode);
             l.half1.id = dl1.getId();
-            l.half1.name = dl1.getNameOrId();
+            l.half1.name = dl1.getOptionalName().orElse(null);
             l.half1.r = dl1.getR();
             l.half1.x = dl1.getX();
             l.half1.g1 = dl1.getG();
@@ -970,7 +955,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.b2 = 0;
             l.half1.fictitious = dl1.isFictitious();
             l.half2.id = dl2.getId();
-            l.half2.name = dl2.getNameOrId();
+            l.half2.name = dl2.getOptionalName().orElse(null);
             l.half2.r = brp2.getR();
             l.half2.x = brp2.getX();
             l.half2.g1 = brp2.getG1();
@@ -1013,36 +998,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
-    private void mergeProperties(DanglingLine dl1, DanglingLine dl2, Properties properties) {
-        Set<String> dl1Properties = dl1.getPropertyNames();
-        Set<String> dl2Properties = dl2.getPropertyNames();
-        Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
-        Sets.difference(dl1Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl1.getProperty(prop)));
-        Sets.difference(dl2Properties, commonProperties).forEach(prop -> properties.setProperty(prop, dl2.getProperty(prop)));
-        commonProperties.forEach(prop -> {
-            if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else if (dl1.getProperty(prop).isEmpty()) {
-                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
-                properties.setProperty(prop, dl2.getProperty(prop));
-            } else if (dl2.getProperty(prop).isEmpty()) {
-                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
-                properties.setProperty(prop, dl1.getProperty(prop));
-            } else {
-                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
-            }
-        });
-        dl1Properties.forEach(prop -> properties.setProperty(prop + "_1", dl1.getProperty(prop)));
-        dl2Properties.forEach(prop -> properties.setProperty(prop + "_2", dl2.getProperty(prop)));
-    }
-
     private void replaceDanglingLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
         for (MergedLine mergedLine : lines) {
             LOGGER.debug("Replacing dangling line couple '{}' (xnode={}, country1={}, country2={}) by a line",
                     mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
             TieLineAdderImpl la = newTieLine()
                     .setId(mergedLine.id)
-                    .setName(mergedLine.half1.name + " + " + mergedLine.half2.name)
+                    .setName(buildMergedName(mergedLine.half1.id, mergedLine.half2.id, mergedLine.half1.name, mergedLine.half2.name))
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .newHalfLine1().setId(mergedLine.half1.id)

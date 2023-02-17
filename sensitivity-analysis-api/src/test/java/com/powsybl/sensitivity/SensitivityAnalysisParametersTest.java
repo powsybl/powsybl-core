@@ -20,25 +20,25 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
+class SensitivityAnalysisParametersTest extends AbstractConverterTest {
 
     private static final String DUMMY_EXTENSION_NAME = "dummy-extension";
 
     private final ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
 
     static class DummyExtension extends AbstractExtension<SensitivityAnalysisParameters> {
-        public double parameterDouble;
-        public boolean parameterBoolean;
-        public String parameterString;
+        double parameterDouble;
+        boolean parameterBoolean;
+        String parameterString;
 
         DummyExtension() {
             super();
@@ -50,27 +50,27 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
             this.parameterString = another.parameterString;
         }
 
-        public boolean isParameterBoolean() {
+        boolean isParameterBoolean() {
             return parameterBoolean;
         }
 
-        public double getParameterDouble() {
+        double getParameterDouble() {
             return parameterDouble;
         }
 
-        public String getParameterString() {
+        String getParameterString() {
             return parameterString;
         }
 
-        public void setParameterBoolean(boolean parameterBoolean) {
+        void setParameterBoolean(boolean parameterBoolean) {
             this.parameterBoolean = parameterBoolean;
         }
 
-        public void setParameterString(String parameterString) {
+        void setParameterString(String parameterString) {
             this.parameterString = parameterString;
         }
 
-        public void setParameterDouble(double parameterDouble) {
+        void setParameterDouble(double parameterDouble) {
             this.parameterDouble = parameterDouble;
         }
 
@@ -80,7 +80,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
         }
     }
 
-    public static class DummySerializer implements ExtensionJsonSerializer<SensitivityAnalysisParameters, DummyExtension> {
+    static class DummySerializer implements ExtensionJsonSerializer<SensitivityAnalysisParameters, DummyExtension> {
         private interface SerializationSpec {
 
             @JsonIgnore
@@ -130,7 +130,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExtensions() {
+    void testExtensions() {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
@@ -142,7 +142,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testNoExtensions() {
+    void testNoExtensions() {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
 
         assertEquals(0, parameters.getExtensions().size());
@@ -152,7 +152,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExtensionFromConfig() {
+    void testExtensionFromConfig() {
         SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
@@ -160,7 +160,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTrip() throws IOException {
+    void roundTrip() throws IOException {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         roundTripTest(parameters, (parameters1, jsonFile) -> JsonUtil.writeJson(jsonFile, parameters1, objectMapper),
             jsonFile -> JsonUtil.readJsonAndUpdate(jsonFile, new SensitivityAnalysisParameters(), objectMapper),
@@ -168,7 +168,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeExtension() throws IOException {
+    void writeExtension() throws IOException {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, (parameters1, path) -> JsonUtil.writeJson(path, parameters1, objectMapper),
@@ -176,7 +176,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void updateLoadFlowParameters() {
+    void updateLoadFlowParameters() {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.getLoadFlowParameters().setTwtSplitShuntAdmittance(true);
         JsonUtil.readJsonAndUpdate(getClass().getResourceAsStream("/SensitivityAnalysisParametersIncomplete.json"), parameters, objectMapper);
@@ -185,7 +185,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readExtension() {
+    void readExtension() {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         JsonUtil.readJsonAndUpdate(getClass().getResourceAsStream("/SensitivityAnalysisParametersWithExtension.json"), parameters, objectMapper);
         assertEquals(1, parameters.getExtensions().size());
@@ -194,7 +194,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void updateExtensions() {
+    void updateExtensions() {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         DummyExtension extension = new DummyExtension();
         extension.setParameterBoolean(false);
@@ -210,7 +210,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readError() throws IOException {
+    void readError() throws IOException {
         try (var is = getClass().getResourceAsStream("/SensitivityAnalysisParametersInvalid.json")) {
             SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
             AssertionError e = assertThrows(AssertionError.class, () -> JsonUtil.readJsonAndUpdate(is, parameters, objectMapper));
@@ -219,7 +219,7 @@ public class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testSensitivityAnalysisResultContingencyStatusSerializer() throws IOException {
+    void testSensitivityAnalysisResultContingencyStatusSerializer() throws IOException {
         SensitivityAnalysisResult.SensitivityContingencyStatus value = new SensitivityAnalysisResult.SensitivityContingencyStatus("C1", SensitivityAnalysisResult.Status.SUCCESS);
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),

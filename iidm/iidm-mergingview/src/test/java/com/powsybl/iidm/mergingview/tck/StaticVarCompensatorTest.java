@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractStaticVarCompensatorTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest { }
+class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest { }

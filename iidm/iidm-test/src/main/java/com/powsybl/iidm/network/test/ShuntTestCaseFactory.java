@@ -16,6 +16,8 @@ import java.util.Objects;
  */
 public final class ShuntTestCaseFactory {
 
+    private static final String SHUNT = "SHUNT";
+
     private ShuntTestCaseFactory() {
     }
 
@@ -28,7 +30,7 @@ public final class ShuntTestCaseFactory {
 
         network.getVoltageLevel("VL1")
                 .newShuntCompensator()
-                    .setId("SHUNT")
+                    .setId(SHUNT)
                     .setBus("B1")
                     .setConnectableBus("B1")
                     .setSectionCount(1)
@@ -46,6 +48,17 @@ public final class ShuntTestCaseFactory {
         return network;
     }
 
+    public static Network createWithActivePower(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+        ShuntCompensator s = network.getShuntCompensator(SHUNT);
+        s.getTerminal().setP(1.0);
+        return network;
+    }
+
+    public static Network createWithActivePower() {
+        return createWithActivePower(NetworkFactory.findDefault());
+    }
+
     public static Network createNonLinear() {
         return createNonLinear(NetworkFactory.findDefault());
     }
@@ -55,7 +68,7 @@ public final class ShuntTestCaseFactory {
 
         network.getVoltageLevel("VL1")
                 .newShuntCompensator()
-                    .setId("SHUNT")
+                    .setId(SHUNT)
                     .setBus("B1")
                     .setConnectableBus("B1")
                     .setSectionCount(1)

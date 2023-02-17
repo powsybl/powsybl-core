@@ -6,7 +6,7 @@
  */
 package com.powsybl.computation.local;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -14,14 +14,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class LocalCommandExecutorTest {
+class LocalCommandExecutorTest {
 
     private static class FakeUnixLocalCommandExecutor extends UnixLocalCommandExecutor {
         @Override
@@ -40,7 +40,7 @@ public class LocalCommandExecutorTest {
     }
 
     @Test
-    public void testWithoutTimeoutCall() {
+    void testWithoutTimeoutCall() {
         FakeUnixLocalCommandExecutor unixFake = new FakeUnixLocalCommandExecutor();
         FakeUnixLocalCommandExecutor winFake = new FakeUnixLocalCommandExecutor();
         try {

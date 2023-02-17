@@ -12,14 +12,12 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.SV;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractLineTest {
@@ -34,14 +32,11 @@ public abstract class AbstractLineTest {
 
     private static final String DUPLICATE = "duplicate";
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private Network network;
     private VoltageLevel voltageLevelA;
     private VoltageLevel voltageLevelB;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NoEquipmentNetworkFactory.create();
         voltageLevelA = network.getVoltageLevel("vl1");
@@ -159,6 +154,26 @@ public abstract class AbstractLineTest {
         assertFalse(acLine.checkPermanentLimit2(LimitType.CURRENT));
         assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, 0.9f, LimitType.CURRENT));
         assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
+    }
+
+    @Test
+    public void testDefaultLine() {
+        Line acLine = network.newLine()
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+
+        assertEquals(0.0, acLine.getG1(), 0.0);
+        assertEquals(0.0, acLine.getG2(), 0.0);
+        assertEquals(0.0, acLine.getB1(), 0.0);
+        assertEquals(0.0, acLine.getB2(), 0.0);
+
+        assertSame(voltageLevelA, acLine.getTerminal1().getVoltageLevel());
+        assertSame(voltageLevelB, acLine.getTerminal2().getVoltageLevel());
     }
 
     @Test
@@ -380,51 +395,44 @@ public abstract class AbstractLineTest {
 
     @Test
     public void invalidR() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, Double.NaN, 2.0, 3.0, 3.5, 4.0, 4.5);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, Double.NaN, 2.0, 3.0, 3.5, 4.0, 4.5));
+        assertTrue(e.getMessage().contains("r is invalid"));
     }
 
     @Test
     public void invalidX() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, Double.NaN, 3.0, 3.5, 4.0, 4.5);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, 1.0, Double.NaN, 3.0, 3.5, 4.0, 4.5));
+        assertTrue(e.getMessage().contains("x is invalid"));
     }
 
     @Test
     public void invalidG1() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("g1 is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, Double.NaN, 3.5, 4.0, 4.5);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, Double.NaN, 3.5, 4.0, 4.5));
+        assertTrue(e.getMessage().contains("g1 is invalid"));
     }
 
     @Test
     public void invalidG2() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("g2 is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, Double.NaN, 4.0, 4.5);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, Double.NaN, 4.0, 4.5));
+        assertTrue(e.getMessage().contains("g2 is invalid"));
     }
 
     @Test
     public void invalidB1() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("b1 is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, 3.5, Double.NaN, 4.5);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, 3.5, Double.NaN, 4.5));
+        assertTrue(e.getMessage().contains("b1 is invalid"));
     }
 
     @Test
     public void invalidB2() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("b2 is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, 3.5, 4.0, Double.NaN);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, 3.5, 4.0, Double.NaN));
+        assertTrue(e.getMessage().contains("b2 is invalid"));
     }
 
     @Test
     public void duplicateAcLine() {
         createLineBetweenVoltageAB(DUPLICATE, DUPLICATE, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
-        thrown.expect(PowsyblException.class);
-        createLineBetweenVoltageAB(DUPLICATE, DUPLICATE, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
+        assertThrows(PowsyblException.class, () -> createLineBetweenVoltageAB(DUPLICATE, DUPLICATE, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5));
     }
 
     @Test
@@ -698,10 +706,8 @@ public abstract class AbstractLineTest {
 
     @Test
     public void halfLine1NotSet() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("half line 1 is not set");
         // adder
-        network.newTieLine()
+        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
                 .setVoltageLevel1("vl1")
@@ -711,15 +717,14 @@ public abstract class AbstractLineTest {
                 .setBus2("busB")
                 .setConnectableBus2("busB")
                 .setUcteXnodeCode("ucte")
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("half line 1 is not set"));
     }
 
     @Test
     public void halfLine2NotSet() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("half line 2 is not set");
         // adder
-        network.newTieLine()
+        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
                 .setVoltageLevel1("vl1")
@@ -739,88 +744,79 @@ public abstract class AbstractLineTest {
                 .setG1(30.0)
                 .setG2(35.0)
                 .add()
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("half line 2 is not set"));
     }
 
     @Test
     public void invalidHalfLineCharacteristicsR() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is not set for half line 1");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
-                3.0, 3.5, 4.0, 4.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
+                3.0, 3.5, 4.0, 4.5, "code"));
+        assertTrue(e.getMessage().contains("r is not set for half line 1"));
     }
 
     @Test
     public void invalidHalfLineCharacteristicsX() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is not set for half line 1");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
-                3.0, 3.5, 4.0, 4.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
+                3.0, 3.5, 4.0, 4.5, "code"));
+        assertTrue(e.getMessage().contains("x is not set for half line 1"));
     }
 
     @Test
     public void invalidHalfLineCharacteristicsG1() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("g1 is not set for half line 1");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                Double.NaN, 3.5, 4.0, 4.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
+                Double.NaN, 3.5, 4.0, 4.5, "code"));
+        assertTrue(e.getMessage().contains("g1 is not set for half line 1"));
     }
 
     @Test
     public void invalidHalfLineCharacteristicsG2() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("g2 is not set for half line 1");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, Double.NaN, 4.0, 4.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
+                3.0, Double.NaN, 4.0, 4.5, "code"));
+        assertTrue(e.getMessage().contains("g2 is not set for half line 1"));
     }
 
     @Test
     public void invalidHalfLineCharacteristicsB1() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("b1 is not set for half line 1");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, 3.5, Double.NaN, 4.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
+                3.0, 3.5, Double.NaN, 4.5, "code"));
+        assertTrue(e.getMessage().contains("b1 is not set for half line 1"));
     }
 
     @Test
     public void invalidHalfLineCharacteristicsB2() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("b2 is not set for half line 1");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, 3.5, 4.0, Double.NaN, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
+                3.0, 3.5, 4.0, Double.NaN, "code"));
+        assertTrue(e.getMessage().contains("b2 is not set for half line 1"));
     }
 
     @Test
     public void halfLineIdNull() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("id is not set for half line 1");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
+                3.0, 3.5, 4.0, 4.5, "code"));
+        assertTrue(e.getMessage().contains("id is not set for half line 1"));
     }
 
     @Test
     public void halfLineIdEmpty() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("id is not set for half line 1");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
+                3.0, 3.5, 4.0, 4.5, "code"));
+        assertTrue(e.getMessage().contains("id is not set for half line 1"));
     }
 
     @Test
     public void uctecodeNull() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("ucteXnodeCode is not set");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, null);
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
+                3.0, 3.5, 4.0, 4.5, null));
+        assertTrue(e.getMessage().contains("ucteXnodeCode is not set"));
     }
 
     @Test
     public void duplicate() {
         createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
                 3.0, 3.5, 4.0, 4.5, DUPLICATE);
-        thrown.expect(PowsyblException.class);
-        createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
-                3.0, 3.5, 4.0, 4.5, DUPLICATE);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
+                3.0, 3.5, 4.0, 4.5, DUPLICATE));
     }
 
     @Test

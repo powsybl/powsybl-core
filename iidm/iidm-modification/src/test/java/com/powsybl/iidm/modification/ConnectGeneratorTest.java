@@ -9,22 +9,22 @@ package com.powsybl.iidm.modification;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public class ConnectGeneratorTest {
+class ConnectGeneratorTest {
     private Network network;
     private Generator g2;
     private Generator g3;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = FourSubstationsNodeBreakerFactory.create();
         Generator g1 = network.getGenerator("GH1");
         g2 = network.getGenerator("GH2");
@@ -38,7 +38,7 @@ public class ConnectGeneratorTest {
     }
 
     @Test
-    public void testConnectVoltageRegulatorOff() {
+    void testConnectVoltageRegulatorOff() {
         g2.setVoltageRegulatorOn(false);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
@@ -46,7 +46,7 @@ public class ConnectGeneratorTest {
     }
 
     @Test
-    public void testConnectVoltageRegulatorOnWithAlreadyConnectedGenerators() {
+    void testConnectVoltageRegulatorOnWithAlreadyConnectedGenerators() {
         g2.setVoltageRegulatorOn(true);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
@@ -54,7 +54,7 @@ public class ConnectGeneratorTest {
     }
 
     @Test
-    public void testConnectVoltageRegulatorOnWithoutAlreadyConnectedGenerators() {
+    void testConnectVoltageRegulatorOnWithoutAlreadyConnectedGenerators() {
         g3.getTerminal().disconnect();
         g2.setVoltageRegulatorOn(true);
         new ConnectGenerator(g2.getId()).apply(network);

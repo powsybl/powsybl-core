@@ -11,35 +11,30 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.SV;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class LineAdapterTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+class LineAdapterTest {
 
     private MergingView mergingView;
 
     private Network networkRef;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         mergingView = MergingView.create("LineAdapterTest", "iidm");
         networkRef = BatteryNetworkFactory.create();
         mergingView.merge(networkRef);
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         final Line lineRef = networkRef.getLine("NHV1_NHV2_1");
         final Line lineAdapted = mergingView.getLine(lineRef.getId());
         // setter / getter
@@ -163,7 +158,7 @@ public class LineAdapterTest {
     }
 
     @Test
-    public void adderFromSameNetworkTests() {
+    void adderFromSameNetworkTests() {
         // adder line with both voltage level in same network
         final Line okLine = createLine(mergingView,
                                        "okLine",
@@ -176,7 +171,7 @@ public class LineAdapterTest {
     }
 
     @Test
-    public void adderFromBothNetworkTests() {
+    void adderFromBothNetworkTests() {
         final Network noEquipNetwork = NoEquipmentNetworkFactory.create();
         mergingView.merge(noEquipNetwork);
         // adder line with both voltage level in different network
@@ -190,17 +185,16 @@ public class LineAdapterTest {
         assertEquals(lineOnBothNetwork, mergingView.getLine("lineOnBothNetworkId"));
 
         // Exception(s)
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The network already contains an object with the id 'lineOnBothNetworkId'");
-        mergingView.newLine()
+        PowsyblException e = assertThrows(PowsyblException.class, () -> mergingView.newLine()
                        .setId("lineOnBothNetworkId")
                        .setVoltageLevel1("vl1")
                        .setVoltageLevel2("VLBAT")
-                   .add();
+                   .add());
+        assertTrue(e.getMessage().contains("The network already contains an object with the id 'lineOnBothNetworkId'"));
     }
 
     @Test
-    public void checkXnodeValuesUpdateTests() {
+    void checkXnodeValuesUpdateTests() {
         final Network noEquipNetwork = NoEquipmentNetworkFactory.create();
         mergingView.merge(noEquipNetwork);
         // adder line with both voltage level in different network
@@ -258,16 +252,15 @@ public class LineAdapterTest {
     }
 
     @Test
-    public void addLineWithoutIdTests() {
+    void addLineWithoutIdTests() {
         mergingView.merge(NoEquipmentNetworkFactory.create());
 
         // Exception(s)
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Line id is not set");
-        mergingView.newLine()
+        PowsyblException e = assertThrows(PowsyblException.class, () -> mergingView.newLine()
                        .setVoltageLevel1("vl1")
                        .setVoltageLevel2("VLBAT")
-                   .add();
+                   .add());
+        assertTrue(e.getMessage().contains("Line id is not set"));
     }
 
     private static Line createLine(Network network, String id, String name,

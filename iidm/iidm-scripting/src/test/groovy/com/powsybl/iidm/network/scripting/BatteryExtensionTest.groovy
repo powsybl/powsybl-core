@@ -7,10 +7,10 @@
 package com.powsybl.iidm.network.scripting
 
 import com.powsybl.iidm.network.*
-import org.junit.Test
+import org.junit.jupiter.api.Test
 
-import static org.junit.Assert.assertEquals
-import static org.junit.Assert.assertNotNull
+import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.junit.jupiter.api.Assertions.assertNotNull
 
 /**
  * @author Miora VEDELAGO <miora.ralambotiana at rte-france.com>

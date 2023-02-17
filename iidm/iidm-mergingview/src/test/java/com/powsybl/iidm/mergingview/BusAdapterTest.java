@@ -12,25 +12,25 @@ import com.powsybl.iidm.network.Network.BusView;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collection;
 
 import java.util.stream.StreamSupport;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class BusAdapterTest {
+class BusAdapterTest {
     private MergingView mergingView;
     private Bus bus;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("BatteryAdapterTest", "iidm");
         mergingView.merge(EurostagTutorialExample1Factory.create());
         mergingView.merge(HvdcTestNetwork.createVsc());
@@ -42,7 +42,7 @@ public class BusAdapterTest {
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         assertNotNull(bus.getVoltageLevel());
         bus.setV(0.0d);
         assertEquals(0.0d, bus.getV(), 0.0d);
@@ -74,7 +74,7 @@ public class BusAdapterTest {
     }
 
     @Test
-    public void testSynchronousComponentSetterGetter() {
+    void testSynchronousComponentSetterGetter() {
         MergingView view = MergingView.create("testSynchronousComponentSetterGetter", "iidm");
         view.merge(HvdcTestNetwork.createVsc());
         HvdcLine l = view.getHvdcLine("L");
@@ -98,7 +98,7 @@ public class BusAdapterTest {
     }
 
     @Test
-    public void testGetMergedLine() {
+    void testGetMergedLine() {
         // Networks creation
         Network network1 = NoEquipmentNetworkFactory.create();
         Network network2 = NetworkFactory.findDefault().createNetwork("test2", "test");
@@ -187,7 +187,7 @@ public class BusAdapterTest {
     }
 
     @Test
-    public void testComponentVisitor() {
+    void testComponentVisitor() {
         final Network noEquipNetwork = NoEquipmentNetworkFactory.create();
         final String vlId1 = "vl1";
         final String vlId2 = "vl2";
@@ -225,7 +225,8 @@ public class BusAdapterTest {
         Mockito.verify(visitor1, Mockito.never()).visitLine(Mockito.any(Line.class), Mockito.any(Branch.Side.class));
 
         // Add second DanglingLine -> Creation of MergedLine
-        DanglingLine dl2 = createDanglingLine(vl2, baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, busId2);
+        view.newSubstation().setId("S").add().newVoltageLevel().setId("VL").setNominalV(220).setTopologyKind(TopologyKind.BUS_BREAKER).add().getBusBreakerView().newBus().setId("B").add();
+        DanglingLine dl2 = createDanglingLine(view.getVoltageLevel("VL"), baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, "B");
 
         // Mock TopologyVisitor
         TopologyVisitor visitor2 = Mockito.mock(TopologyVisitor.class);
@@ -242,7 +243,7 @@ public class BusAdapterTest {
     }
 
     @Test
-    public void testConnectedComponentSetterGetter() {
+    void testConnectedComponentSetterGetter() {
         Network network1 = createGeneratorNetwork();
         Network network2 = createLoadNetwork();
 
@@ -387,7 +388,7 @@ public class BusAdapterTest {
     }
 
     @Test
-    public void testBusViewSetterGetter() {
+    void testBusViewSetterGetter() {
         final BusView busView = mergingView.getBusView();
         assertNotNull(busView);
 
@@ -405,7 +406,7 @@ public class BusAdapterTest {
     }
 
     @Test
-    public void testBusBreakerViewSetterGetter() {
+    void testBusBreakerViewSetterGetter() {
         final BusBreakerView busBreakerView = mergingView.getBusBreakerView();
         assertNotNull(busBreakerView);
 

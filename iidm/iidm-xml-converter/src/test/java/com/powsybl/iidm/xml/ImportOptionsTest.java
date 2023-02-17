@@ -7,19 +7,19 @@
 package com.powsybl.iidm.xml;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ImportOptionsTest {
+class ImportOptionsTest {
 
     @Test
-    public void importOptionsTest() {
+    void importOptionsTest() {
         ImportOptions options = new ImportOptions();
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         options.setExtensions(extensionsList);
@@ -30,7 +30,7 @@ public class ImportOptionsTest {
     }
 
     @Test
-    public void importOptionsTest2() {
+    void importOptionsTest2() {
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         ImportOptions options = new ImportOptions(Boolean.FALSE);
         options.setExtensions(extensionsList);
@@ -41,7 +41,7 @@ public class ImportOptionsTest {
     }
 
     @Test
-    public void importOptionsDefaultValues() {
+    void importOptionsDefaultValues() {
         ImportOptions options = new ImportOptions(Boolean.FALSE);
 
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());

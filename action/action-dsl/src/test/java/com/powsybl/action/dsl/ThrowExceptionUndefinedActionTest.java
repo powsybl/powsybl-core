@@ -9,31 +9,28 @@ package com.powsybl.action.dsl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class ThrowExceptionUndefinedActionTest {
-
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
+class ThrowExceptionUndefinedActionTest {
 
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = EurostagTutorialExample1Factory.create();
     }
 
     @Test
-    public void test() {
-        thrown.expect(ActionDslException.class);
-        thrown.expectMessage("Actions [action, action2] not found");
-        new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/exception-undefined-action.groovy"))).load(network);
+    void test() {
+        ActionDslException e = assertThrows(ActionDslException.class, () -> new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/exception-undefined-action.groovy"))).load(network));
+        assertTrue(e.getMessage().contains("Actions [action, action2] not found"));
     }
 
 }

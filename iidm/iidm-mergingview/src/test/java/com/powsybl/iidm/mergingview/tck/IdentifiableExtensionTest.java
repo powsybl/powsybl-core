@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractIdentifiableExtensionTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class IdentifiableExtensionTest extends AbstractIdentifiableExtensionTest { }
+class IdentifiableExtensionTest extends AbstractIdentifiableExtensionTest { }

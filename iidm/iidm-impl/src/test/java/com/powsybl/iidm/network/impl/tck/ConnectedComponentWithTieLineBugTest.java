@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractConnectedComponentWithTieLineBugTest;
 
-public class ConnectedComponentWithTieLineBugTest extends AbstractConnectedComponentWithTieLineBugTest { }
+class ConnectedComponentWithTieLineBugTest extends AbstractConnectedComponentWithTieLineBugTest { }

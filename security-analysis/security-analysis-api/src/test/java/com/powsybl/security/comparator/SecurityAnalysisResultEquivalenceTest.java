@@ -6,15 +6,15 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import org.apache.commons.io.output.NullWriter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.contingency.Contingency;
@@ -25,10 +25,10 @@ import com.powsybl.security.results.PostContingencyResult;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class SecurityAnalysisResultEquivalenceTest {
+class SecurityAnalysisResultEquivalenceTest {
 
     @Test
-    public void equivalent() {
+    void equivalent() {
         SecurityAnalysisResultEquivalence resultEquivalence = new SecurityAnalysisResultEquivalence(0.1, NullWriter.NULL_WRITER);
 
         LimitViolation line1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);

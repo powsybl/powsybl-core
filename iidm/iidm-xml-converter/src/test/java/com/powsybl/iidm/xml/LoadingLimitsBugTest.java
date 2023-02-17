@@ -9,17 +9,17 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadingLimitsBugTest extends AbstractConverterTest {
+class LoadingLimitsBugTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2020-07-16T10:08:48.321+02:00"));
         // to reproduce the bug we need a 2 windings transformer without any data

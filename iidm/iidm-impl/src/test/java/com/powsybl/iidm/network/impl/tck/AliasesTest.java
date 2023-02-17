@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractAliasesTest;
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class AliasesTest extends AbstractAliasesTest {
+class AliasesTest extends AbstractAliasesTest {
 }

@@ -10,17 +10,17 @@ import com.powsybl.action.simulator.loadflow.*;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
+class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
 
     private final List<String> preContActions = new ArrayList<>();
     private final List<String> postContActions = new ArrayList<>();
@@ -82,7 +82,7 @@ public class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
     }
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         engine.start(actionDb, "contingency1");
 
         // check action1 is activated in pre-contingency state and action2 in post-contingency state
@@ -91,7 +91,7 @@ public class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
     }
 
     @Test
-    public void testWithIgnorePreContingencyViolations() {
+    void testWithIgnorePreContingencyViolations() {
         engine = new LoadFlowActionSimulator(network, computationManager, new LoadFlowActionSimulatorConfig("LoadFlowMock", 3, true, false),
                 applyIfWorks(), new LoadFlowParameters(), createObserver());
         engine.start(actionDb, "contingency1");

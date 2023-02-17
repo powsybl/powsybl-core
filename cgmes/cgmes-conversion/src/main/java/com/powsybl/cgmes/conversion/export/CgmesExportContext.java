@@ -32,7 +32,6 @@ public class CgmesExportContext {
     private static final String DCTERMINAL = "DCTerminal";
     private static final String ACDCCONVERTERDCTERMINAL = "ACDCConverterDCTerminal";
 
-    private static final String TERMINAL_NETWORK = "Terminal_Network";
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     private static final String REGION_ID = "regionId";
     private static final String REGION_NAME = "regionName";
@@ -46,10 +45,10 @@ public class CgmesExportContext {
     private String boundaryEqId; // may be null
     private String boundaryTpId; // may be null
 
-    private final ModelDescription eqModelDescription = new ModelDescription("EQ Model", cim.getProfile("EQ"));
-    private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfile("TP"));
-    private final ModelDescription svModelDescription = new ModelDescription("SV Model", cim.getProfile("SV"));
-    private final ModelDescription sshModelDescription = new ModelDescription("SSH Model", cim.getProfile("SSH"));
+    private final ModelDescription eqModelDescription = new ModelDescription("EQ Model", cim.getProfileUri("EQ"));
+    private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfileUri("TP"));
+    private final ModelDescription svModelDescription = new ModelDescription("SV Model", cim.getProfileUri("SV"));
+    private final ModelDescription sshModelDescription = new ModelDescription("SSH Model", cim.getProfileUri("SSH"));
 
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
@@ -69,23 +68,23 @@ public class CgmesExportContext {
     // TP.dependentOn EQ[, EQ_BD][, TP_BD]
     // SSH.dependentOn EQ
     public void updateDependencies() {
-        String eqModelId = getEqModelDescription().getId();
-        if (eqModelId != null) {
+        Set<String> eqModelIds = getEqModelDescription().getIds();
+        if (!eqModelIds.isEmpty()) {
             getTpModelDescription()
                     .clearDependencies()
-                    .addDependency(eqModelId);
+                    .addDependencies(eqModelIds);
             getSshModelDescription()
                     .clearDependencies()
-                    .addDependency(eqModelId);
+                    .addDependencies(eqModelIds);
             getSvModelDescription().clearDependencies();
-            String tpModelId = getTpModelDescription().getId();
-            if (tpModelId != null) {
-                getSvModelDescription().addDependency(tpModelId);
+            Set<String> tpModelIds = getTpModelDescription().getIds();
+            if (!tpModelIds.isEmpty()) {
+                getSvModelDescription().addDependencies(tpModelIds);
             }
-            String sshModelId = getSshModelDescription().getId();
-            if (sshModelId != null) {
-                getSvModelDescription().addDependency(sshModelId);
-                getSvModelDescription().addDependency(sshModelId);
+            Set<String> sshModelIds = getSshModelDescription().getIds();
+            if (!sshModelIds.isEmpty()) {
+                getSvModelDescription().addDependencies(sshModelIds);
+                getSvModelDescription().addDependencies(sshModelIds);
             }
             if (boundaryEqId != null) {
                 getEqModelDescription().addDependency(boundaryEqId);
@@ -111,7 +110,7 @@ public class CgmesExportContext {
         private int version = 1;
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
-        private String id = null;
+        private Set<String> ids = new HashSet<>();
 
         // TODO Each model may have a list of profiles, not only one
         private String profile;
@@ -153,6 +152,11 @@ public class CgmesExportContext {
             return this;
         }
 
+        public ModelDescription addDependencies(Set<String> dependencies) {
+            this.dependencies.addAll(Objects.requireNonNull(dependencies));
+            return this;
+        }
+
         public ModelDescription clearDependencies() {
             this.dependencies.clear();
             return this;
@@ -176,12 +180,21 @@ public class CgmesExportContext {
             return this;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setIds(List<String> ids) {
+            this.ids.clear();
+            this.ids.addAll(Objects.requireNonNull(ids));
         }
 
-        public String getId() {
-            return id;
+        public void addId(String id) {
+            this.ids.add(Objects.requireNonNull(id));
+        }
+
+        public void setIds(String... ids) {
+            setIds(Arrays.asList(Objects.requireNonNull(ids)));
+        }
+
+        public Set<String> getIds() {
+            return Collections.unmodifiableSet(ids);
         }
     }
 
@@ -385,10 +398,10 @@ public class CgmesExportContext {
 
     private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
         if (c instanceof DanglingLine) {
-            String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_NETWORK).orElse(null);
+            String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL).orElse(null);
             if (terminalId == null) {
                 terminalId = CgmesExportUtil.getUniqueId();
-                c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_NETWORK);
+                c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL);
             }
             String boundaryId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY).orElse(null);
             if (boundaryId == null) {
@@ -399,7 +412,12 @@ public class CgmesExportContext {
             int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
-                terminalId = CgmesExportUtil.getUniqueId();
+                if (c instanceof TieLine && c.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber)) { // TODO fix when merging is handled properly
+                    terminalId = c.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber);
+                    c.removeAlias(terminalId);
+                } else {
+                    terminalId = CgmesExportUtil.getUniqueId();
+                }
                 c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber);
             }
         }
@@ -536,10 +554,10 @@ public class CgmesExportContext {
     public CgmesExportContext setCimVersion(int cimVersion) {
         cim = CgmesNamespace.getCim(cimVersion);
         if (cim.hasProfiles()) {
-            eqModelDescription.setProfile(cim.getProfile("EQ"));
-            tpModelDescription.setProfile(cim.getProfile("TP"));
-            svModelDescription.setProfile(cim.getProfile("SV"));
-            sshModelDescription.setProfile(cim.getProfile("SSH"));
+            eqModelDescription.setProfile(cim.getProfileUri("EQ"));
+            tpModelDescription.setProfile(cim.getProfileUri("TP"));
+            svModelDescription.setProfile(cim.getProfileUri("SV"));
+            sshModelDescription.setProfile(cim.getProfileUri("SSH"));
         }
         return this;
     }

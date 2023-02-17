@@ -9,8 +9,8 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +33,10 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class HvdcConversionTest {
+class HvdcConversionTest {
 
     @Test
-    public void smallNodeBreakerHvdc() throws IOException {
+    void smallNodeBreakerHvdc() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.smallNodeBreakerHvdc(), config);
 
@@ -55,7 +55,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() throws IOException {
+    void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1inverter2rectifier(), config);
 
@@ -74,7 +74,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() throws IOException {
+    void smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2BothConvertersTargetPpcc1rectifier2inverter(), config);
 
@@ -93,7 +93,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() throws IOException {
+    void smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2(), config);
 
@@ -112,7 +112,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcVscReactiveQPcc() throws IOException {
+    void smallNodeBreakerHvdcVscReactiveQPcc() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcVscReactiveQPcc(), config);
 
@@ -131,7 +131,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcMissingDCLineSegment() throws IOException {
+    void smallNodeBreakerHvdcMissingDCLineSegment() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingDCLineSegment(), config);
 
@@ -140,7 +140,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcMissingAcDcConverters() throws IOException {
+    void smallNodeBreakerHvdcMissingAcDcConverters() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingAcDcConverters(), config);
 
@@ -149,7 +149,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcNanTargetPpcc() throws IOException {
+    void smallNodeBreakerHvdcNanTargetPpcc() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNanTargetPpcc(), config);
 
@@ -168,7 +168,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcTwoDcLineSegments() throws IOException {
+    void smallNodeBreakerHvdcTwoDcLineSegments() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcTwoDcLineSegments(), config);
 
@@ -187,7 +187,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcTwoDcLineSegmentsOneTransformer() throws IOException {
+    void smallNodeBreakerHvdcTwoDcLineSegmentsOneTransformer() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcTwoDcLineSegmentsOneTransformer(), config);
 
@@ -206,7 +206,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcTwoAcDcConvertersOneDcLineSegment() throws IOException {
+    void smallNodeBreakerHvdcTwoAcDcConvertersOneDcLineSegment() throws IOException {
         Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcTwoAcDcConvertersOneDcLineSegments(), config);
 
@@ -231,7 +231,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcWithOneTransformer() throws IOException {
+    void smallNodeBreakerHvdcWithOneTransformer() throws IOException {
         Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithTransformers(), config);
 
@@ -250,7 +250,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcWithTwoTransformers() throws IOException {
+    void smallNodeBreakerHvdcWithTwoTransformers() throws IOException {
         Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithTwoTransformers(), config);
 
@@ -269,7 +269,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcWithDifferentConverterTypes() throws IOException {
+    void smallNodeBreakerHvdcWithDifferentConverterTypes() throws IOException {
         Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithDifferentConverterTypes(), config);
 
@@ -285,7 +285,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcWithVsCapabilityCurve() throws IOException {
+    void smallNodeBreakerHvdcWithVsCapabilityCurve() throws IOException {
         Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve(), config);
 
@@ -309,7 +309,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcTwoAcDcConvertersTwoDcLineSegments() throws IOException {
+    void smallNodeBreakerHvdcTwoAcDcConvertersTwoDcLineSegments() throws IOException {
         Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcTwoAcDcConvertersTwoDcLineSegments(), config);
 
@@ -334,7 +334,7 @@ public class HvdcConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdcTwoAcDcConvertersTwoDcLineSegmentsNoAcConnectionAtOneEnd() throws IOException {
+    void smallNodeBreakerHvdcTwoAcDcConvertersTwoDcLineSegmentsNoAcConnectionAtOneEnd() throws IOException {
         Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcTwoAcDcConvertersTwoDcLineSegmentsNoAcConnectionAtOneEnd(), config);
 

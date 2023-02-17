@@ -98,7 +98,7 @@ final class ModificationReports {
     static void createdNewSymmetricalTopology(Reporter reporter, String voltageLevelId, int busbarCount, int sectionCount) {
         reporter.report(Report.builder()
                 .withKey("SymmetricalTopologyCreated")
-                .withDefaultMessage("New symmetrical topology in voltage level ${voltageLevelId}: creation of ${busbarCount} busbar(s) with ${sectionCount} section(s) each.")
+                .withDefaultMessage("New symmetrical topology in voltage level ${voltageLevelId}: creation of ${busbarCount} bus(es) or busbar(s) with ${sectionCount} section(s) each.")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withValue("busbarCount", busbarCount)
                 .withValue("sectionCount", sectionCount)
@@ -282,6 +282,15 @@ final class ModificationReports {
                 .withKey("voltageLevelNotFound")
                 .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removedVoltageLevelReport(Reporter reporter, String voltageLevelId) {
+        reporter.report(Report.builder()
+                .withKey("removeVoltageLevel")
+                .withDefaultMessage("Voltage level ${voltageLevelId}, its equipments and the branches it is connected to have been removed")
+                .withValue(CONNECTABLE_ID, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }

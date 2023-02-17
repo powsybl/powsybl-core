@@ -10,25 +10,25 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityVariableSetTest extends AbstractConverterTest {
+class SensitivityVariableSetTest extends AbstractConverterTest {
 
     private static final double EPSILON_COMPARISON = 1e-5;
 
     @Test
-    public void test() {
+    void test() {
         WeightedSensitivityVariable variable = new WeightedSensitivityVariable("v1", 3.4);
         assertEquals("v1", variable.getId());
         assertEquals(3.4, variable.getWeight(), EPSILON_COMPARISON);
@@ -45,7 +45,7 @@ public class SensitivityVariableSetTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testKeepInsertionOrder() {
+    void testKeepInsertionOrder() {
         SensitivityVariableSet variableSet = new SensitivityVariableSet("id", List.of(new WeightedSensitivityVariable("firstV", 3.4),
                 new WeightedSensitivityVariable("secondV", 2.1), new WeightedSensitivityVariable("bVariable", 4.1),
                 new WeightedSensitivityVariable("aVariable", 6.1)));
@@ -60,7 +60,7 @@ public class SensitivityVariableSetTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testJson() throws IOException {
+    void testJson() throws IOException {
         SensitivityVariableSet variableSet = new SensitivityVariableSet("id", List.of(new WeightedSensitivityVariable("v1", 3.4),
                                                                                       new WeightedSensitivityVariable("v2", 2.1)));
         ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();

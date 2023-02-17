@@ -16,7 +16,7 @@ import com.powsybl.tools.Tool;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class CompareSecurityAnalysisResultsToolTest extends AbstractToolTest {
+class CompareSecurityAnalysisResultsToolTest extends AbstractToolTest {
 
     @Override
     protected Iterable<Tool> getTools() {

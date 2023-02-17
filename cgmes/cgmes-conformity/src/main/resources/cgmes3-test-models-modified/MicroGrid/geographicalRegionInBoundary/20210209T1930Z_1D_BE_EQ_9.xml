@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+  <md:FullModel rdf:about="urn:uuid:9e7050a8-960b-4e1a-8e34-7f56bc2b2a7b">
+    <md:Model.created>2021-02-09T19:28:14Z</md:Model.created>
+    <md:Model.scenarioTime>2021-02-09T19:30:00Z</md:Model.scenarioTime>
+    <md:Model.description>CGMES Conformity Assessment Test Configuration. The Test Configuration is owned by ENTSO-E and is provided by ENTSO-E “as it is”. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+    <md:Model.modelingAuthoritySet>http://elia.be/CGMES</md:Model.modelingAuthoritySet>
+    <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    <md:Model.profile>http://iec.ch/TC57/ns/CIM/Operation-EU/3.0</md:Model.profile>
+    <md:Model.version>5</md:Model.version>
+    <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66" />
+    <md:Model.profile>http://iec.ch/TC57/ns/CIM/ShortCircuit-EU/3.0</md:Model.profile>
+  </md:FullModel>
+  <cim:SubGeographicalRegion rdf:ID="_02047c0b-b5a4-4e0d-bae6-fc5437a55e74">
+    <cim:IdentifiedObject.name>ELIA-Anvers</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_7bf89875-1476-4d1a-a56d-a2965cce3575" />
+    <cim:IdentifiedObject.mRID>02047c0b-b5a4-4e0d-bae6-fc5437a55e74</cim:IdentifiedObject.mRID>
+  </cim:SubGeographicalRegion>
+  <cim:Substation rdf:ID="_87f7002b-056f-4a6a-a872-1744eea757e3">
+    <cim:IdentifiedObject.name>Anvers</cim:IdentifiedObject.name>
+    <eu:IdentifiedObject.shortName>Anvers</eu:IdentifiedObject.shortName>
+    <cim:Substation.Region rdf:resource="#_02047c0b-b5a4-4e0d-bae6-fc5437a55e74" />
+    <cim:IdentifiedObject.mRID>87f7002b-056f-4a6a-a872-1744eea757e3</cim:IdentifiedObject.mRID>
+  </cim:Substation>
+  <cim:SubGeographicalRegion rdf:ID="_61378219-a236-4070-bbec-4e30a6ac848d">
+    <cim:IdentifiedObject.name>ELIA-Brussels</cim:IdentifiedObject.name>
+    <cim:SubGeographicalRegion.Region rdf:resource="#_7bf89875-1476-4d1a-a56d-a2965cce3575" />
+    <cim:IdentifiedObject.mRID>61378219-a236-4070-bbec-4e30a6ac848d</cim:IdentifiedObject.mRID>
+  </cim:SubGeographicalRegion>
+  <cim:Substation rdf:ID="_37e14a0f-5e34-4647-a062-8bfd9305fa9d">
+    <cim:IdentifiedObject.name>PP_Brussels</cim:IdentifiedObject.name>
+    <eu:IdentifiedObject.shortName>PP_Brussels</eu:IdentifiedObject.shortName>
+    <cim:Substation.Region rdf:resource="#_61378219-a236-4070-bbec-4e30a6ac848d" />
+    <cim:IdentifiedObject.mRID>37e14a0f-5e34-4647-a062-8bfd9305fa9d</cim:IdentifiedObject.mRID>
+  </cim:Substation>
+</rdf:RDF>

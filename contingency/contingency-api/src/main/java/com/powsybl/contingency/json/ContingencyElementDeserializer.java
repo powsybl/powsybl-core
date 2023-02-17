@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
 
                 case "type":
                     parser.nextToken();
-                    type = parser.readValueAs(ContingencyElementType.class);
+                    type = JsonUtil.readValue(ctx, parser, ContingencyElementType.class);
                     break;
 
                 default:
@@ -83,6 +84,9 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
 
                 case LOAD:
                     return new LoadContingency(id);
+
+                case BUS:
+                    return new BusContingency(id);
 
                 default:
                     throw new AssertionError("Unexpected ContingencyElementType value: " + type);

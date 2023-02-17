@@ -18,7 +18,7 @@ import com.powsybl.loadflow.validation.ValidationType;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
-public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatterWriterTest {
+class ValidationFormatterCsvWriterTest extends AbstractValidationFormatterWriterTest {
 
     @Override
     protected String getFlowsContent() {

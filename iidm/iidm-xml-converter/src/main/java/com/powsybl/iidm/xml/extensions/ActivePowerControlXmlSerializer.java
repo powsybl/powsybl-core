@@ -40,6 +40,7 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
                         .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of("1.0", "1.1"))
                         .build(),
                 new ImmutableMap.Builder<String, String>()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/active_power_control/1_0")
@@ -73,7 +74,7 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
     @Override
     public ActivePowerControl<T> read(T identifiable, XmlReaderContext context) {
         boolean participate = XmlUtil.readBoolAttribute(context.getReader(), "participate");
-        double droop = XmlUtil.readDoubleAttribute(context.getReader(), "droop");
+        double droop = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "droop");
         double participationFactor = Double.NaN;
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(AssertionError::new);

@@ -6,20 +6,20 @@
  */
 package com.powsybl.commons.datasource;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class CompressionFormatTest {
+class CompressionFormatTest {
 
     @Test
-    public void test() {
+    void test() {
         assertEquals(5, CompressionFormat.values().length);
         assertEquals("bz2", CompressionFormat.BZIP2.getExtension());
         assertEquals("gz", CompressionFormat.GZIP.getExtension());

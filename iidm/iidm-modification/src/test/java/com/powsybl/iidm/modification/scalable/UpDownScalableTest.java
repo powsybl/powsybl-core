@@ -8,22 +8,22 @@ package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class UpDownScalableTest {
+class UpDownScalableTest {
     private static final double EPSILON = 1e-3;
 
     @Test
-    public void checkWorksAsExpectedWhenGoingUp() {
+    void checkWorksAsExpectedWhenGoingUp() {
         Network testNetwork = ScalableTestNetwork.createNetwork();
         Scalable upScalable = Scalable.onGenerator("g2");
         Scalable downScalable = Scalable.onLoad("l1");
@@ -37,7 +37,7 @@ public class UpDownScalableTest {
     }
 
     @Test
-    public void checkWorksAsExpectedWhenGoingDown() {
+    void checkWorksAsExpectedWhenGoingDown() {
         Network testNetwork = ScalableTestNetwork.createNetwork();
         Scalable upScalable = Scalable.onGenerator("g2");
         Scalable downScalable = Scalable.onLoad("l1");
@@ -51,7 +51,7 @@ public class UpDownScalableTest {
     }
 
     @Test
-    public void checkComputesCorrectlyMinMaxAndInitialValues() {
+    void checkComputesCorrectlyMinMaxAndInitialValues() {
         Network testNetwork = ScalableTestNetwork.createNetwork();
         testNetwork.getLoad("l1").getTerminal().setP(-100.);
         Scalable upScalable = Scalable.onGenerator("g2");
@@ -66,7 +66,7 @@ public class UpDownScalableTest {
     }
 
     @Test
-    public void checkInjectionFilteringWorksAsExpected() {
+    void checkInjectionFilteringWorksAsExpected() {
         Network testNetwork = ScalableTestNetwork.createNetwork();
         Scalable upScalable = Scalable.proportional(50, Scalable.onGenerator("g2"), 50, Scalable.onGenerator("unknown generator"));
         Scalable downScalable = Scalable.onLoad("l1", 50, 200);

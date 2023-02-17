@@ -8,9 +8,9 @@
 package com.powsybl.action.simulator;
 
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class PreDefinedMethodsTest extends AbstractLoadFlowRulesEngineTest {
+class PreDefinedMethodsTest extends AbstractLoadFlowRulesEngineTest {
     @Override
     protected Network createNetwork() {
         Network network = EurostagTutorialExample1WithTemporaryLimitFactory.create();
@@ -28,7 +28,7 @@ public class PreDefinedMethodsTest extends AbstractLoadFlowRulesEngineTest {
     }
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         engine.start(actionDb);
     }
 }

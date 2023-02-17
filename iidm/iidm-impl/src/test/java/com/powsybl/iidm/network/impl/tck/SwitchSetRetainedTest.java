@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractSwitchSetRetainedTest;
 
-public class SwitchSetRetainedTest extends AbstractSwitchSetRetainedTest { }
+class SwitchSetRetainedTest extends AbstractSwitchSetRetainedTest { }

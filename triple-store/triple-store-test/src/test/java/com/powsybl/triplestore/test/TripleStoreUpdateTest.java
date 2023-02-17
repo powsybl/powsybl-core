@@ -7,22 +7,24 @@
 
 package com.powsybl.triplestore.test;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreException;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
  *
  */
-public class TripleStoreUpdateTest {
+class TripleStoreUpdateTest {
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         // A new tester with "fresh" data is created for every test,
         // so changes made to the triplestores in one test do no impact other tests
         String base = "foo:foaf";
@@ -34,7 +36,7 @@ public class TripleStoreUpdateTest {
     }
 
     @Test
-    public void testInsert() {
+    void testInsert() {
         Expected expectedContents = new Expected().expect("nick", "SweetCaroline", "Wonderland");
         tester.testQuery(queries.get("selectNickName"), expectedContents);
         tester.testUpdate(queries.get("insertNickName"));
@@ -43,7 +45,7 @@ public class TripleStoreUpdateTest {
     }
 
     @Test
-    public void testDelete() {
+    void testDelete() {
         Expected expectedContents = new Expected().expect("lastName", "Channing", "Liddell", "Marley");
         tester.testQuery(queries.get("selectLastName"), expectedContents);
         tester.testUpdate(queries.get("deleteLastName"));
@@ -52,7 +54,7 @@ public class TripleStoreUpdateTest {
     }
 
     @Test
-    public void testUpdate() {
+    void testUpdate() {
         Expected expectedContents = new Expected()
             .expect("lastName", "Marley")
             .expect("person", "http://example/bob");
@@ -65,7 +67,7 @@ public class TripleStoreUpdateTest {
     }
 
     @Test
-    public void testUpdateTwoGraphs() {
+    void testUpdateTwoGraphs() {
         Expected expectedContents = new Expected()
             .expect("lastName", "Channing", "Liddell", "Marley")
             .expect("person",
@@ -91,7 +93,7 @@ public class TripleStoreUpdateTest {
     }
 
     @Test
-    public void testUpdateOnlyModifiesCopiedTriplestore() {
+    void testUpdateOnlyModifiesCopiedTriplestore() {
         tester.createCopies();
         // Check that an update operation applied to a copied triplestore
         // do not change the source triplestore, only the copy
@@ -104,9 +106,9 @@ public class TripleStoreUpdateTest {
         tester.testQueryOnCopies(queries.get("selectNickName"), expectedContentsUpdated);
     }
 
-    @Test(expected = TripleStoreException.class)
-    public void testMalformedQuery() {
-        tester.testUpdate(queries.get("malformedQuery"));
+    @Test
+    void testMalformedQuery() {
+        assertThrows(TripleStoreException.class, () -> tester.testUpdate(queries.get("malformedQuery")));
     }
 
     private static QueryCatalog queries;

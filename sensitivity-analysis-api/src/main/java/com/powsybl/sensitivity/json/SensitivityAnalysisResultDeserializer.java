@@ -8,15 +8,14 @@ package com.powsybl.sensitivity.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityValue;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,18 +42,17 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
 
                 case "sensitivityFactors":
                     parser.nextToken();
-                    factors = parser.readValueAs(new TypeReference<ArrayList<SensitivityFactor>>() { });
+                    factors = JsonUtil.readList(deserializationContext, parser, SensitivityFactor.class);
                     break;
 
                 case "sensitivityValues":
                     parser.nextToken();
-                    sensitivityValues = parser.readValueAs(new TypeReference<ArrayList<SensitivityValue>>() { });
+                    sensitivityValues = JsonUtil.readList(deserializationContext, parser, SensitivityValue.class);
                     break;
 
                 case "contingencyStatus":
                     parser.nextToken();
-                    contingencyStatus = parser.readValueAs(new TypeReference<ArrayList<SensitivityAnalysisResult.SensitivityContingencyStatus>>() {
-                    });
+                    contingencyStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityContingencyStatus.class);
                     break;
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());

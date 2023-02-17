@@ -1,9 +1,9 @@
 {
-  "version" : "1.7",
+  "version" : "1.8",
   "voltageInitMode" : "PREVIOUS_VALUES",
   "transformerVoltageControlOn" : true,
   "phaseShifterRegulationOn" : false,
-  "noGeneratorReactiveLimits" : true,
+  "useReactiveLimits" : false,
   "twtSplitShuntAdmittance" : false,
   "shuntCompensatorVoltageControlOn" : false,
   "readSlackBus" : true,

@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 
@@ -38,10 +38,10 @@ import java.util.Properties;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
+class SteadyStateHypothesisExportTest extends AbstractConverterTest {
 
     @Test
-    public void microGridBE() throws IOException, XMLStreamException {
+    void microGridBE() throws IOException, XMLStreamException {
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
@@ -51,7 +51,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void microGridBEWithHiddenTapChangers() throws IOException, XMLStreamException {
+    void microGridBEWithHiddenTapChangers() throws IOException, XMLStreamException {
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
@@ -61,7 +61,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void microGridBEWithSharedRegulatingControl() throws IOException, XMLStreamException {
+    void microGridBEWithSharedRegulatingControl() throws IOException, XMLStreamException {
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
@@ -70,7 +70,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void smallGrid() throws IOException, XMLStreamException {
+    void smallGrid() throws IOException, XMLStreamException {
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
@@ -82,7 +82,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void smallGridHVDC() throws IOException, XMLStreamException {
+    void smallGridHVDC() throws IOException, XMLStreamException {
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
                 ExportXmlCompare::sameScenarioTime,
                 ExportXmlCompare::ensuringIncreasedModelVersion,

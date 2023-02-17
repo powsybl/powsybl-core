@@ -15,7 +15,7 @@
     <xs:element name="activePowerControl">
         <xs:complexType>
             <xs:attribute name="participate" use="required" type="xs:boolean"/>
-            <xs:attribute name="droop" use="required" type="xs:double"/>
+            <xs:attribute name="droop" use="optional" type="xs:double"/>
             <xs:attribute name="participationFactor" use="optional" type="xs:double"/>
         </xs:complexType>
     </xs:element>

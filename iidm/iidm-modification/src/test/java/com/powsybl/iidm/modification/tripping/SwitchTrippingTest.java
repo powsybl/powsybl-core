@@ -9,18 +9,17 @@ package com.powsybl.iidm.modification.tripping;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SwitchTrippingTest extends AbstractTrippingTest {
+class SwitchTrippingTest extends AbstractTrippingTest {
 
     @Test
-    public void switchTrippingTest() {
+    void switchTrippingTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
 
         assertFalse(network.getSwitch("S1VL1_LD1_BREAKER").isOpen());
@@ -30,11 +29,11 @@ public class SwitchTrippingTest extends AbstractTrippingTest {
         assertTrue(network.getSwitch("S1VL1_LD1_BREAKER").isOpen());
     }
 
-    @Test(expected = PowsyblException.class)
-    public void unknownSwitchTrippingTest() {
+    @Test
+    void unknownSwitchTrippingTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
 
         SwitchTripping tripping = new SwitchTripping("switch");
-        tripping.apply(network);
+        assertThrows(PowsyblException.class, () -> tripping.apply(network));
     }
 }

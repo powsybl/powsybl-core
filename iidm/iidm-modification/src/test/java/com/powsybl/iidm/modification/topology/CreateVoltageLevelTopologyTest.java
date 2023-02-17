@@ -12,28 +12,30 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.joda.time.DateTime;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
+class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
-                .withBusbarCount(3)
+                .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
@@ -43,11 +45,11 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testComplete() throws IOException {
+    void testComplete() throws IOException {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
-                .withBusbarCount(3)
+                .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
                 .withBusbarSectionPrefixId("BBS_TEST")
                 .withSwitchPrefixId("SW_TEST")
@@ -59,32 +61,36 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithNullSwitchKind() {
-        CreateVoltageLevelTopologyBuilder builder = new CreateVoltageLevelTopologyBuilder()
+    void testWithNullSwitchKind() {
+        Network network = createNbNetwork();
+        CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
-                .withBusbarCount(3)
+                .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
-                .withSwitchKinds(SwitchKind.BREAKER, null, SwitchKind.DISCONNECTOR);
-        PowsyblException e = assertThrows(PowsyblException.class, builder::build);
+                .withSwitchKinds(SwitchKind.BREAKER, null, SwitchKind.DISCONNECTOR)
+                .build();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
         assertEquals("All switch kinds must be defined", e.getMessage());
     }
 
     @Test
-    public void testWithUnsupportedSwitchKind() {
-        CreateVoltageLevelTopologyBuilder builder = new CreateVoltageLevelTopologyBuilder()
+    void testWithUnsupportedSwitchKind() {
+        Network network = createNbNetwork();
+        CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
-                .withBusbarCount(3)
+                .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
-                .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.LOAD_BREAK_SWITCH, SwitchKind.DISCONNECTOR);
-        PowsyblException e = assertThrows(PowsyblException.class, builder::build);
+                .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.LOAD_BREAK_SWITCH, SwitchKind.DISCONNECTOR)
+                .build();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
         assertEquals("Switch kinds must be DISCONNECTOR or BREAKER", e.getMessage());
     }
 
     @Test
-    public void testWithNegativeCount() {
+    void testWithNegativeCount() {
         CreateVoltageLevelTopologyBuilder modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
-                .withBusbarCount(-1)
+                .withAlignedBusesOrBusbarCount(-1)
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR);
         PowsyblException e = assertThrows(PowsyblException.class, modification::build);
@@ -92,11 +98,11 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithOneSection() {
+    void testWithOneSection() {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
-                .withBusbarCount(2)
+                .withAlignedBusesOrBusbarCount(2)
                 .withSectionCount(1)
                 .build();
         modification.apply(network);
@@ -119,22 +125,24 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithUnexpectedSwitchKindsSize() {
-        CreateVoltageLevelTopologyBuilder modification = new CreateVoltageLevelTopologyBuilder()
+    void testWithUnexpectedSwitchKindsSize() {
+        Network network = createNbNetwork();
+        CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
-                .withBusbarCount(3)
+                .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
-                .withSwitchKinds(SwitchKind.BREAKER);
-        PowsyblException e = assertThrows(PowsyblException.class, modification::build);
+                .withSwitchKinds(SwitchKind.BREAKER)
+                .build();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
         assertEquals("Unexpected switch kinds count (1). Should be 3", e.getMessage());
     }
 
     @Test
-    public void testWithNotExistingVoltageLevel() {
+    void testWithNotExistingVoltageLevel() {
         Network network = createNbNetwork();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId("NOT_EXISTING")
-                .withBusbarCount(3)
+                .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
@@ -143,15 +151,32 @@ public class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithBusBreakerVoltageLevel() {
-        Network network = EurostagTutorialExample1Factory.create();
+    void testWithBusBreakerVoltageLevel() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.newVoltageLevel()
+                .setId("VLTEST")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
-                .withVoltageLevelId("VLHV1")
-                .withBusbarCount(3)
+                .withVoltageLevelId("VLTEST")
+                .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
-                .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
-        assertEquals("Voltage Level VLHV1 has an unsupported topology BUS_BREAKER. Should be NODE_BREAKER", e.getMessage());
+        modification.apply(network);
+        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/eurostag-new-voltage-level.xml");
+    }
+
+    @Test
+    void testErrorIfNotSwitchKindsDefinedAndNodeBreaker() {
+        Network network = createNbNetwork();
+        CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
+                .withVoltageLevelId(VLTEST)
+                .withAlignedBusesOrBusbarCount(3)
+                .withSectionCount(4)
+                .build();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
+        assertEquals("Unexpected switch kinds count (0). Should be 3", e.getMessage());
     }
 }

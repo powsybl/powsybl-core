@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_8" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="IEEE_24_bus" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_9" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="IEEE_24_bus" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -9,7 +9,7 @@
                 <iidm:regulatingTerminal id="B1-SwSH1"/>
                 <iidm:minMaxReactiveLimits minQ="-9900.0" maxQ="9900.0"/>
             </iidm:generator>
-            <iidm:shunt id="B1-SwSH1" sectionCount="2" voltageRegulatorOn="false" targetV="137.31" targetDeadband="1.3799999999999955" bus="B1" connectableBus="B1">
+            <iidm:shunt id="B1-SwSH1" sectionCount="2" voltageRegulatorOn="false" bus="B1" connectableBus="B1">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.00630119722747322" g="0.0"/>
@@ -98,12 +98,11 @@
                 <iidm:bus id="B6" name="6           " v="125.35506" angle="0.3902"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B6-L1 " loadType="UNDEFINED" p0="68.0" q0="14.0" bus="B6" connectableBus="B6"/>
-            <iidm:shunt id="B6-SwSH1" sectionCount="2" voltageRegulatorOn="false" targetV="137.31" targetDeadband="1.3799999999999955" bus="B6" connectableBus="B6">
+            <iidm:shunt id="B6-SwSH1" sectionCount="2" voltageRegulatorOn="false" bus="B6" connectableBus="B6">
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.005250997689561016" g="0.0"/>
                 </iidm:shuntNonLinearModel>
-                <iidm:regulatingTerminal id="B6-L1 "/>
             </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>
