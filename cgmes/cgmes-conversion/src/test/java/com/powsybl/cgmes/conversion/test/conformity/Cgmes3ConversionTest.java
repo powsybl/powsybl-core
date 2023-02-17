@@ -304,14 +304,14 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    public void smallGridBalances() throws IOException {
+    void smallGridBalances() throws IOException {
         Network network = new CgmesImport().importData(Cgmes3Catalog.smallGrid().dataSource(), NetworkFactory.findDefault(), null);
 
         balanceCheck(network, 0.0001);
     }
 
     @Test
-    public void smallGridBalancesDanglingLinesCompletionVoltageAsProperties() throws IOException {
+    void smallGridBalancesDanglingLinesCompletionVoltageAsProperties() throws IOException {
         Network network = new CgmesImport().importData(Cgmes3Catalog.smallGrid().dataSource(), NetworkFactory.findDefault(), null);
 
         // Set boundary voltages as properties
@@ -326,7 +326,7 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    public void smallGridBalancesDanglingLinesCompletionVoltageAsPropertiesInvalidateNetworkFlow() throws IOException {
+    void smallGridBalancesDanglingLinesCompletionVoltageAsPropertiesInvalidateNetworkFlow() throws IOException {
         Network network = new CgmesImport().importData(Cgmes3Catalog.smallGrid().dataSource(), NetworkFactory.findDefault(), null);
 
         // Set boundary voltages as properties
