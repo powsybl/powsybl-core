@@ -10,19 +10,19 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ParameterDefaultValueConfigTest {
+class ParameterDefaultValueConfigTest {
 
     private FileSystem fileSystem;
 
@@ -30,21 +30,21 @@ public class ParameterDefaultValueConfigTest {
 
     private ParameterDefaultValueConfig defaultValueConfig;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig config = new InMemoryPlatformConfig(fileSystem);
         moduleConfig = config.createModuleConfig("import-export-parameters-default-value");
         defaultValueConfig = new ParameterDefaultValueConfig(config);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void test() {
+    void test() {
         moduleConfig.setStringProperty("test_i", Integer.toString(3));
         Parameter parameter = new Parameter("i", ParameterType.INTEGER, "an integer", 1);
         Parameter parameter2 = new Parameter("i2", ParameterType.INTEGER, "an other integer", 2);

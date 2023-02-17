@@ -12,19 +12,19 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.results.PostContingencyResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class SecurityAnalysisResultBuilderTest {
+class SecurityAnalysisResultBuilderTest {
 
     private Contingency createContingency() {
         return new Contingency("contingency");
@@ -95,7 +95,7 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     @Test
-    public void testSARBuilder() {
+    void testSARBuilder() {
         testSARBuilder(true);
         testSARBuilder(false);
     }

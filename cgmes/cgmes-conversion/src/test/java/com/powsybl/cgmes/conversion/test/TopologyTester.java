@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class TopologyTester {
+class TopologyTester {
 
-    public TopologyTester(CgmesModel cgmes, Network n) {
+    TopologyTester(CgmesModel cgmes, Network n) {
         this.cgmes = cgmes;
         this.network = n;
     }
@@ -36,7 +36,7 @@ public class TopologyTester {
     // set the retained flag for each switch and this problem will be avoided
     // For connectivity created at bus-breaker level we can not set the "retained"
     // flag
-    public boolean test(boolean strict) {
+    boolean test(boolean strict) {
         // Only makes sense if the network has been obtained
         // from CGMES node-breaker detailed data
         if (!network.getProperty(Conversion.NETWORK_PS_CGMES_MODEL_DETAIL)

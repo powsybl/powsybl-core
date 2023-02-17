@@ -10,19 +10,19 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class LimitViolationTest {
+class LimitViolationTest {
 
     private final Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
@@ -35,7 +35,7 @@ public class LimitViolationTest {
     }
 
     @Test
-    public void testCountry() {
+    void testCountry() {
         List<LimitViolation> violations = Security.checkLimits(network);
 
         List<Country> expectedCountries = Arrays.asList(Country.FR, Country.BE, Country.FR, Country.BE, Country.FR);
@@ -45,7 +45,7 @@ public class LimitViolationTest {
     }
 
     @Test
-    public void emptyCountry() {
+    void emptyCountry() {
         network.getSubstation("P2").setCountry(null);
 
         List<LimitViolation> violations = Security.checkLimits(network);
@@ -57,7 +57,7 @@ public class LimitViolationTest {
     }
 
     @Test
-    public void testNominalVoltages() {
+    void testNominalVoltages() {
         List<LimitViolation> violations = Security.checkLimits(network);
 
         List<Double> expectedVoltages = Arrays.asList(380.0, 380.0, 380.0, 380.0, 380.0);
@@ -69,7 +69,7 @@ public class LimitViolationTest {
     }
 
     @Test
-    public void testVoltageLevelIds() {
+    void testVoltageLevelIds() {
         List<LimitViolation> violations = Security.checkLimits(network);
 
         List<String> expectedVoltageLevelIds = Arrays.asList("VLHV1", "VLHV2", "VLHV1", "VLHV2", "VLHV1");
@@ -81,7 +81,7 @@ public class LimitViolationTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         LimitViolation limitViolation1 = new LimitViolation("testId", null, LimitViolationType.HIGH_VOLTAGE, "high", Integer.MAX_VALUE,
                 420, 1, 500, null);
         LimitViolation limitViolation2 = new LimitViolation("testId", null, LimitViolationType.CURRENT, null, 6300,

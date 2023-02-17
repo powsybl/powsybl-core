@@ -11,19 +11,19 @@ import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.modification.tripping.ShuntCompensatorTripping;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class ShuntCompensatorContingencyTest {
+class ShuntCompensatorContingencyTest {
 
     @Test
-    public void test() {
+    void test() {
         Contingency contingency = Contingency.shuntCompensator("id");
         assertEquals("id", contingency.getId());
         assertEquals(1, contingency.getElements().size());
@@ -42,7 +42,7 @@ public class ShuntCompensatorContingencyTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         Network network = HvdcTestNetwork.createLcc();
         ContingencyList contingencyList = ContingencyList.of(Contingency.shuntCompensator("C1_Filter2"), Contingency.shuntCompensator("unknown"));
         List<Contingency> contingencies = contingencyList.getContingencies(network);

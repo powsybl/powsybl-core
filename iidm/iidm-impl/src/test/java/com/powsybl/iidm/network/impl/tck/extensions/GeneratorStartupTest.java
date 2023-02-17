@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractGeneratorStartupTest;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class GeneratorStartupTest extends AbstractGeneratorStartupTest {
+class GeneratorStartupTest extends AbstractGeneratorStartupTest {
 }

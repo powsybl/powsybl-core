@@ -8,20 +8,20 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class PhaseTapChangerAdapterTest {
+class PhaseTapChangerAdapterTest {
     private MergingView mergingView;
     private Terminal terminal;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("PhaseTapChangerAdapterTest", "iidm");
         mergingView.merge(NoEquipmentNetworkFactory.create());
 
@@ -44,7 +44,7 @@ public class PhaseTapChangerAdapterTest {
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         final TwoWindingsTransformer twt = mergingView.getTwoWindingsTransformer("twt");
 
         // adder

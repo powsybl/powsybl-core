@@ -10,18 +10,18 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class TableFormatterConfigTest {
+class TableFormatterConfigTest {
 
     private void testConfig(TableFormatterConfig config, Locale locale, char separator, String invalidString, boolean printHeader, boolean printTitle) {
         assertEquals(locale, config.getLocale());
@@ -32,7 +32,7 @@ public class TableFormatterConfigTest {
     }
 
     @Test
-    public void testConfig() throws IOException {
+    void testConfig() throws IOException {
         TableFormatterConfig config = new TableFormatterConfig();
 
         testConfig(config, Locale.getDefault(), ';', "inv", true, true);

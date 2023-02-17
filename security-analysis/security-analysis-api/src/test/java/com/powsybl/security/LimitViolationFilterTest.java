@@ -6,8 +6,8 @@
  */
 package com.powsybl.security;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.file.FileSystem;
 import java.util.Arrays;
@@ -16,9 +16,9 @@ import java.util.List;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -30,14 +30,14 @@ import com.powsybl.iidm.network.Country;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LimitViolationFilterTest {
+class LimitViolationFilterTest {
 
     private FileSystem fileSystem;
 
     private InMemoryPlatformConfig platformConfig;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("limit-violation-default-filter");
@@ -46,13 +46,13 @@ public class LimitViolationFilterTest {
         moduleConfig.setStringListProperty("countries", Arrays.asList("FR", "BE"));
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
     @Test
-    public void load() throws Exception {
+    void load() throws Exception {
         LimitViolationFilter filter = LimitViolationFilter.load(platformConfig);
         assertEquals(EnumSet.of(LimitViolationType.CURRENT, LimitViolationType.LOW_VOLTAGE), filter.getViolationTypes());
         assertEquals(150.0, filter.getMinBaseVoltage(), 0.0);
@@ -80,7 +80,7 @@ public class LimitViolationFilterTest {
     }
 
     @Test
-    public void apply() throws Exception {
+    void apply() throws Exception {
         Network network = TestingNetworkFactory.create();
 
         LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 1000.0, 1, 1100.0, Branch.Side.ONE);

@@ -14,22 +14,22 @@ import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  */
-public class VoltagePerReactivePowerControlXmlSerializerTest extends AbstractConverterTest {
+class VoltagePerReactivePowerControlXmlSerializerTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = SvcTestCaseFactory.create();
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");

@@ -14,19 +14,19 @@ import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Coline Piloquet <coline.piloquet@rte-france.com>
  */
-public class IdentifiableShortCircuitXmlSerializerTest extends AbstractConverterTest {
+class IdentifiableShortCircuitXmlSerializerTest extends AbstractConverterTest {
     @Test
-    public void testXmlSerializer() throws IOException {
+    void testXmlSerializer() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2016-12-07T11:18:52.881+01:00"));
         VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");

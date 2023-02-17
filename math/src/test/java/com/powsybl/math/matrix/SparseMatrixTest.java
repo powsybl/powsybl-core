@@ -7,16 +7,16 @@
 package com.powsybl.math.matrix;
 
 import com.powsybl.commons.PowsyblException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SparseMatrixTest extends AbstractMatrixTest {
+class SparseMatrixTest extends AbstractMatrixTest {
 
     private final MatrixFactory matrixFactory = new SparseMatrixFactory();
 
@@ -28,12 +28,12 @@ public class SparseMatrixTest extends AbstractMatrixTest {
     }
 
     @Override
-    public MatrixFactory getOtherMatrixFactory() {
+    protected MatrixFactory getOtherMatrixFactory() {
         return otherMatrixFactory;
     }
 
     @Test
-    public void testSparsePrint() throws IOException {
+    void testSparsePrint() throws IOException {
         Matrix a = createA(matrixFactory);
         String expected = String.join(System.lineSeparator(),
                 "rowCount=3",
@@ -47,32 +47,32 @@ public class SparseMatrixTest extends AbstractMatrixTest {
         assertEquals(expected, print(a));
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testWrongColumnOrder() {
+    @Test
+    void testWrongColumnOrder() {
         Matrix a = matrixFactory.create(2, 2, 2);
         a.set(0, 0, 1d);
         a.set(1, 0, 1d);
         a.set(0, 1, 1d);
-        a.set(1, 0, 1d);
+        assertThrows(PowsyblException.class, () -> a.set(1, 0, 1d));
     }
 
-    @Test(expected = PowsyblException.class)
-    public void testWrongColumnOrderWithAdd() {
+    @Test
+    void testWrongColumnOrderWithAdd() {
         Matrix a = matrixFactory.create(2, 2, 2);
         a.add(0, 0, 1d);
         a.add(1, 0, 1d);
         a.add(0, 1, 1d);
-        a.add(1, 0, 1d);
+        assertThrows(PowsyblException.class, () -> a.add(1, 0, 1d));
     }
 
     @Test
-    public void testInitSparseMatrixFromCpp() {
+    void testInitSparseMatrixFromCpp() {
         SparseMatrix m = new SparseMatrix(2, 5, new int[] {0, -1, 2, -1, 3, 4}, new int[] {0, 1, 0, 1}, new double[] {1d, 2d, 3d, 4d});
         assertArrayEquals(new int[] {2, 0, 1, 0, 1}, m.getColumnValueCount());
     }
 
     @Test
-    public void testRedecompose() {
+    void testRedecompose() {
         Matrix matrix = getMatrixFactory().create(2, 2, 2);
         matrix.set(0, 0, 3);
         matrix.set(1, 0, 4);

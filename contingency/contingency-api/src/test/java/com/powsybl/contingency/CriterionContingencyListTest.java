@@ -14,25 +14,25 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class CriterionContingencyListTest {
+class CriterionContingencyListTest {
 
     Network fourSubstationNetwork;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         fourSubstationNetwork = FourSubstationsNodeBreakerFactory.create();
         fourSubstationNetwork.getSubstation("S1").setCountry(Country.FR);
         fourSubstationNetwork.getSubstation("S2").setCountry(Country.BE);
@@ -53,7 +53,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testCountries() {
+    void testCountries() {
         // lines in France
         TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR),
                 Collections.emptyList());
@@ -111,7 +111,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testNominalVoltage() {
+    void testNominalVoltage() {
 
         // load on 225 kV
         SingleNominalVoltageCriterion singleNominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
@@ -157,7 +157,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testProperty() {
+    void testProperty() {
         // self
         List<String> values = new ArrayList<>();
         values.add("val1");
@@ -195,7 +195,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testRegex() {
+    void testRegex() {
         RegexCriterion regexCriterion = new RegexCriterion("3$");
         ContingencyList contingencyList = new LineCriterionContingencyList("list1",
                 null, null, Collections.emptyList(), regexCriterion);
@@ -205,7 +205,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testThreeWindingsTransformer() {
+    void testThreeWindingsTransformer() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         network.getSubstation("SUBSTATION").setCountry(Country.FR);
         SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
@@ -300,7 +300,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testBranchesProperties() {
+    void testBranchesProperties() {
         // transfo
         // one side
         PropertyCriterion transformerPropertyCriterion = new PropertyCriterion("property",
@@ -379,7 +379,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testDanglingLines() {
+    void testDanglingLines() {
         // dangling lines
         Network network = DanglingLineNetworkFactory.create();
         SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
@@ -394,7 +394,7 @@ public class CriterionContingencyListTest {
     }
 
     @Test
-    public void testSomeInjections() {
+    void testSomeInjections() {
         SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(390.0, 440.0, false, false));

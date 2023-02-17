@@ -7,8 +7,8 @@
 
 package com.powsybl.triplestore.test;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -17,10 +17,10 @@ import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class FoafGraphsTest {
+class FoafGraphsTest {
 
-    @BeforeClass
-    public static void setUp() {
+    @BeforeAll
+    static void setUp() {
         queries = new QueryCatalog("foaf/foaf-graphs.sparql");
         String base = "foo:foaf";
         String[] inputs = {"foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl"};
@@ -36,13 +36,13 @@ public class FoafGraphsTest {
     }
 
     @Test
-    public void testLastNames() {
+    void testLastNames() {
         Expected expected = new Expected().expect("lastName", "Channing", "Liddell", "Marley");
         tester.testQuery(queries.get("lastNames"), expected);
     }
 
     @Test
-    public void testLastNamesGraph() {
+    void testLastNamesGraph() {
         Expected expected = new Expected()
                 .expect("lastName", "Channing", "Liddell", "Marley")
                 .expect("graphLastnames",
@@ -57,7 +57,7 @@ public class FoafGraphsTest {
     }
 
     @Test
-    public void testLastNameOnlyIfNick() {
+    void testLastNameOnlyIfNick() {
         Expected expected = new Expected()
                 .expect("lastName", "Channing", "Liddell", null)
                 .expect("graphLastnames",
@@ -72,7 +72,7 @@ public class FoafGraphsTest {
     }
 
     @Test
-    public void testLastNameOnlyIfNickFailsForImplBadNestedGraphs() {
+    void testLastNameOnlyIfNickFailsForImplBadNestedGraphs() {
         Expected expected = new Expected()
                 .expect("lastName", null, null, null)
                 .expect("graphLastnames", null, null, null)

@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractNetworkExtensionsTest;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class NetworkExtensionsTest extends AbstractNetworkExtensionsTest {
+class NetworkExtensionsTest extends AbstractNetworkExtensionsTest {
 }

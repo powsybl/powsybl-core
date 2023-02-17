@@ -20,15 +20,15 @@ import com.powsybl.iidm.network.util.BranchData;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class DebugPhaseTapChanger {
+class DebugPhaseTapChanger {
 
-    public DebugPhaseTapChanger(TwoWindingsTransformer tx, int side, PowerFlow expected) {
+    DebugPhaseTapChanger(TwoWindingsTransformer tx, int side, PowerFlow expected) {
         this.tx = tx;
         this.side = side;
         this.expected = expected;
     }
 
-    public void debug() {
+    void debug() {
         Consumer<TwoWindingsTransformer> nop = tx -> {
         };
         Consumer<TwoWindingsTransformer> minusAngle = tx -> {

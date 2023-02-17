@@ -11,34 +11,30 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.SV;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class DanglingLineAdapterTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+class DanglingLineAdapterTest {
 
     private MergingView mergingView;
 
     private Network noEquipNetwork;
     private Network eurostagNetwork;
 
-    @Before
-    public void initNetwork() {
+    @BeforeEach
+    void initNetwork() {
         mergingView = MergingView.create("DanglingLineAdapterTest", "iidm");
         noEquipNetwork = NoEquipmentNetworkFactory.create();
         eurostagNetwork = EurostagTutorialExample1Factory.create();
     }
 
     @Test
-    public void baseTests() {
+    void baseTests() {
         mergingView.merge(noEquipNetwork);
 
         double r = 10.0;
@@ -112,7 +108,7 @@ public class DanglingLineAdapterTest {
     }
 
     @Test
-    public void mergedDanglingLine() {
+    void mergedDanglingLine() {
         mergingView.merge(noEquipNetwork);
         double p10 = 0.11710908004064359;
         double q10 = -0.012883304869602126;
@@ -377,13 +373,12 @@ public class DanglingLineAdapterTest {
         assertEquals(0, mergedLine.getExtensions().size());
 
         // Exception(s)
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("No terminal connected to voltage level invalid");
-        mergedLine.getTerminal("invalid");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> mergedLine.getTerminal("invalid"));
+        assertTrue(e.getMessage().contains("No terminal connected to voltage level invalid"));
     }
 
     @Test
-    public void testProperties() {
+    void testProperties() {
         final DanglingLine dl1 = createDanglingLine(noEquipNetwork, "vl1", "dl1", "dl", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busA");
         dl1.setProperty("ucteCode", dl1.getUcteXnodeCode()); // test equals property
         dl1.setProperty("id", dl1.getId()); // test not equals property
@@ -411,7 +406,7 @@ public class DanglingLineAdapterTest {
     }
 
     @Test
-    public void testListener() {
+    void testListener() {
         mergingView.merge(noEquipNetwork);
         mergingView.newSubstation().setId("S").add().newVoltageLevel().setId("VL").setNominalV(220).setTopologyKind(TopologyKind.BUS_BREAKER).add().getBusBreakerView().newBus().setId("B").add();
         createDanglingLine(mergingView, "VL", "testListener1", "testListener2", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "testListenerCode", "B");
@@ -430,7 +425,7 @@ public class DanglingLineAdapterTest {
     }
 
     @Test
-    public void mergedDanglingLineWithSameId() {
+    void mergedDanglingLineWithSameId() {
         double p0 = 1.0;
         double q0 = 1.0;
         Network network = EurostagTutorialExample1Factory.create();
@@ -443,7 +438,7 @@ public class DanglingLineAdapterTest {
     }
 
     @Test
-    public void failDanglingLinesWithSameIdAndNullXnodeCode() {
+    void failDanglingLinesWithSameIdAndNullXnodeCode() {
         double p0 = 1.0;
         double q0 = 1.0;
         Network network = EurostagTutorialExample1Factory.create();
@@ -458,7 +453,7 @@ public class DanglingLineAdapterTest {
     }
 
     @Test
-    public void failDanglingLinesWithSameIdAndDifferentXnodeCode() {
+    void failDanglingLinesWithSameIdAndDifferentXnodeCode() {
         double p0 = 1.0;
         double q0 = 1.0;
         Network network = EurostagTutorialExample1Factory.create();
@@ -473,7 +468,7 @@ public class DanglingLineAdapterTest {
     }
 
     @Test
-    public void multipleDanglingLines() {
+    void multipleDanglingLines() {
         createDanglingLine(noEquipNetwork, "vl1", "dl1", "dl1_name", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "busA");
         createDanglingLine(eurostagNetwork, "VLHV1", "dl2", "dl2_name", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", "NHV1");
         createDanglingLine(eurostagNetwork, "VLHV1", "dl3", "dl3_name", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code", null, "NHV1");

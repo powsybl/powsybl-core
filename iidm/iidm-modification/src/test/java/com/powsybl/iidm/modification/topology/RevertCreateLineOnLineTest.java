@@ -12,20 +12,20 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class RevertCreateLineOnLineTest extends AbstractConverterTest {
+class RevertCreateLineOnLineTest extends AbstractConverterTest {
 
     @Test
-    public void revertCreateLineOnLineNbTest() throws IOException {
+    void revertCreateLineOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
@@ -46,7 +46,7 @@ public class RevertCreateLineOnLineTest extends AbstractConverterTest {
                 .withLineToBeDeletedId("CJ_2")
                 .withMergedLineId("CJ")
                 .build();
-        assertThrows("Line line1NotFound is not found", PowsyblException.class, () -> modificationWithError1.apply(network, true, Reporter.NO_OP));
+        assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, Reporter.NO_OP), "Line line1NotFound is not found");
         final NetworkModification modificationWithError11 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("line1NotFound")
                 .withLineToBeMerged2Id("CJ_1")
@@ -62,7 +62,7 @@ public class RevertCreateLineOnLineTest extends AbstractConverterTest {
                 .withLineToBeDeletedId("CJ_3")
                 .withMergedLineId("CJ")
                 .build();
-        assertThrows("Line line2NotFound is not found", PowsyblException.class, () -> modificationWithError2.apply(network, true, Reporter.NO_OP));
+        assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, Reporter.NO_OP), "Line line2NotFound is not found");
         final NetworkModification modificationWithError21 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("line2NotFound")
@@ -78,7 +78,7 @@ public class RevertCreateLineOnLineTest extends AbstractConverterTest {
                 .withLineToBeDeletedId("line3NotFound")
                 .withMergedLineId("CJ")
                 .build();
-        assertThrows("Line line3NotFound is not found", PowsyblException.class, () -> modificationWithError3.apply(network, true, Reporter.NO_OP));
+        assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, Reporter.NO_OP), "Line line3NotFound is not found");
         final NetworkModification modificationWithError31 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
@@ -94,7 +94,7 @@ public class RevertCreateLineOnLineTest extends AbstractConverterTest {
                 .withLineToBeDeletedId("LINE34")
                 .withMergedLineId("CJ")
                 .build();
-        assertThrows("Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34", PowsyblException.class, () -> modificationWithError4.apply(network, true, Reporter.NO_OP));
+        assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, Reporter.NO_OP), "Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34");
         final NetworkModification modificationWithError41 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
@@ -116,7 +116,7 @@ public class RevertCreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void revertCreateLineOnLineNbBbTest() throws IOException {
+    void revertCreateLineOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
@@ -135,7 +135,7 @@ public class RevertCreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void revertCreateLineOnLineBbTest() throws IOException {
+    void revertCreateLineOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
@@ -154,7 +154,7 @@ public class RevertCreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         RevertCreateLineOnLine modification = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("NHV1_NHV2_1")
                 .withLineToBeMerged2Id("NHV1_NHV2_2")
@@ -178,7 +178,7 @@ public class RevertCreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testSetters() {
+    void testSetters() {
         RevertCreateLineOnLine modification = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("NHV1_NHV2_1")
                 .withLineToBeMerged2Id("NHV1_NHV2_2")

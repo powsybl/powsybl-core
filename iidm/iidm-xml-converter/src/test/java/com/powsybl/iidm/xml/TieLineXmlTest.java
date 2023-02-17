@@ -7,17 +7,17 @@
 
 package com.powsybl.iidm.xml;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class TieLineXmlTest extends AbstractXmlConverterTest {
+class TieLineXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         roundTripAllVersionedXmlTest("tieline.xml");
     }
 }

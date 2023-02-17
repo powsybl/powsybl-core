@@ -15,19 +15,19 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.*;
 import java.io.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class CgmesConformity3ConversionTest {
+class CgmesConformity3ConversionTest {
     @Test
-    public void microGridBaseCaseBEMergedWithNL() {
+    void microGridBaseCaseBEMergedWithNL() {
         Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
         assertNotEquals("unknown", be.getId());
         int nSubBE = be.getSubstationCount();

@@ -9,30 +9,26 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class TerminalAdapterTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+class TerminalAdapterTest {
 
     private MergingView mergingView;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("TerminalAdapterTest", "iidm");
         mergingView.merge(EurostagTutorialExample1Factory.create());
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         final Terminal t1 = mergingView.getLoad("LOAD").getTerminal();
         assertTrue(t1 instanceof TerminalAdapter);
         assertTrue(t1.getVoltageLevel() instanceof BusBreakerVoltageLevelAdapter);
@@ -67,11 +63,9 @@ public class TerminalAdapterTest {
         assertNotNull(nodeBreakerView);
         assertTrue(nodeBreakerView instanceof TerminalAdapter.NodeBreakerViewAdapter);
 
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Not supported in a bus breaker topology");
-        nodeBreakerView.getNode();
+        PowsyblException e = assertThrows(PowsyblException.class, nodeBreakerView::getNode);
+        assertTrue(e.getMessage().contains("Not supported in a bus breaker topology"));
 
-        // Not implemented yet !
-        TestUtil.notImplemented(() -> t1.traverse(null));
+        assertThrows(NullPointerException.class, () -> t1.traverse(null));
     }
 }

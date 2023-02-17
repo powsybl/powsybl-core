@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
@@ -20,15 +20,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TimeSeriesMetadataTest {
+class TimeSeriesMetadataTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:00:00Z"),
                                                                      Duration.ofMinutes(15));
         ImmutableMap<String, String> tags = ImmutableMap.of("var1", "value1");
@@ -79,7 +79,7 @@ public class TimeSeriesMetadataTest {
     }
 
     @Test
-    public void testInfiniteIndex() throws IOException {
+    void testInfiniteIndex() throws IOException {
         assertEquals("infiniteIndex", InfiniteTimeSeriesIndex.INSTANCE.getType());
         assertEquals(2, InfiniteTimeSeriesIndex.INSTANCE.getPointCount());
         assertEquals(InfiniteTimeSeriesIndex.START_TIME, InfiniteTimeSeriesIndex.INSTANCE.getTimeAt(0));

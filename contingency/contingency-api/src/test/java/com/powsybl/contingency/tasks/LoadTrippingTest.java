@@ -10,18 +10,18 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.NetworkModification;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class LoadTrippingTest {
+class LoadTrippingTest {
 
     @Test
-    public void loadTrippingTest() {
+    void loadTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
         assertTrue(network.getLoad("LOAD").getTerminal().isConnected());
 

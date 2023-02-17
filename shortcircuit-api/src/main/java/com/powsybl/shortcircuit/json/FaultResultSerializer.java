@@ -36,23 +36,46 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         if (faultResult.getTimeConstant() != null) {
             jsonGenerator.writeStringField("timeConstant", faultResult.getTimeConstant().toString());
         }
-        if (!(faultResult.getFeederResults()).isEmpty()) {
-            serializerProvider.defaultSerializeField("feederResult", faultResult.getFeederResults(), jsonGenerator);
+        if (faultResult instanceof FortescueFaultResult) {
+            fortescueResultSerialization((FortescueFaultResult) faultResult, jsonGenerator, serializerProvider);
+
+        } else if (faultResult instanceof MagnitudeFaultResult) {
+            magnitudeResultSerialization(faultResult, jsonGenerator, serializerProvider);
         }
         if (!(faultResult.getLimitViolations()).isEmpty()) {
             serializerProvider.defaultSerializeField("limitViolations", faultResult.getLimitViolations(), jsonGenerator);
         }
-        if (faultResult.getCurrent() != null) {
-            serializerProvider.defaultSerializeField("current", faultResult.getCurrent(), jsonGenerator);
-        }
-        if (faultResult.getVoltage() != null) {
-            serializerProvider.defaultSerializeField("voltage", faultResult.getVoltage(), jsonGenerator);
-        }
         if (!(faultResult.getShortCircuitBusResults()).isEmpty()) {
             serializerProvider.defaultSerializeField("shortCircuitBusResults", faultResult.getShortCircuitBusResults(), jsonGenerator);
         }
+
         JsonUtil.writeExtensions(faultResult, jsonGenerator, serializerProvider);
 
         jsonGenerator.writeEndObject();
     }
+
+    private void fortescueResultSerialization(FortescueFaultResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        if (!((result.getFeederResults()).isEmpty())) {
+            serializerProvider.defaultSerializeField("feederResult", result.getFeederResults(), jsonGenerator);
+        }
+        if (result.getCurrent() != null) {
+            serializerProvider.defaultSerializeField("current", result.getCurrent(), jsonGenerator);
+        }
+        if (result.getVoltage() != null) {
+            serializerProvider.defaultSerializeField("voltage", result.getVoltage(), jsonGenerator);
+        }
+    }
+
+    private void magnitudeResultSerialization(FaultResult faultResult, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        if (!((faultResult.getFeederResults()).isEmpty())) {
+            serializerProvider.defaultSerializeField("feederResult", faultResult.getFeederResults(), jsonGenerator);
+        }
+        if (!Double.isNaN(((MagnitudeFaultResult) faultResult).getCurrent())) {
+            serializerProvider.defaultSerializeField("currentMagnitude", ((MagnitudeFaultResult) faultResult).getCurrent(), jsonGenerator);
+        }
+        if (!Double.isNaN(((MagnitudeFaultResult) faultResult).getVoltage())) {
+            serializerProvider.defaultSerializeField("voltageMagnitude", ((MagnitudeFaultResult) faultResult).getVoltage(), jsonGenerator);
+        }
+    }
+
 }

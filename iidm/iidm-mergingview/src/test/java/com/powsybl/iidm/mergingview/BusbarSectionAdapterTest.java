@@ -10,25 +10,25 @@ import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyVisitor;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class BusbarSectionAdapterTest {
+class BusbarSectionAdapterTest {
     private MergingView mergingView;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("BusbarSectionAdapterTest", "iidm");
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         final Network networkRef = NetworkTest1Factory.create();
         mergingView.merge(networkRef);
 

@@ -11,36 +11,36 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class JavaScriptPostProcessorTest {
+class JavaScriptPostProcessorTest {
 
     private FileSystem fileSystem;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         Path script = platformConfig.getConfigDir().map(p -> p.resolve(JavaScriptPostProcessor.SCRIPT_NAME)).orElse(null);
         assertNotNull(script);

@@ -18,37 +18,37 @@ import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class TripleStoreWriteTest {
+class TripleStoreWriteTest {
 
     private FileSystem fileSystem;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void testWriteSubset() throws IOException {
+    void testWriteSubset() throws IOException {
         GridModelReferenceResources resources = CgmesConformity1Catalog.microGridBaseCaseBE();
 
         for (String impl : TripleStoreFactory.allImplementations()) {

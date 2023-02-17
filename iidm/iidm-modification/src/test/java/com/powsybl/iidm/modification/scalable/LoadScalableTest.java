@@ -10,17 +10,17 @@ import com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Ameni Walha <ameni.walha at rte-france.com>
  */
-public class LoadScalableTest {
+class LoadScalableTest {
 
     private Network network;
     private Scalable l1;
@@ -30,8 +30,8 @@ public class LoadScalableTest {
     private Scalable l4;
     private ScalingConvention convention;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
 
         network = createNetwork();
         l1 = Scalable.onLoad("l1");
@@ -43,23 +43,23 @@ public class LoadScalableTest {
 
     }
 
-    @Test(expected = NullPointerException.class)
-    public void testConstructorThrowWhenIdIsNull() {
-        new LoadScalable(null);
-    }
-
-    @Test(expected = PowsyblException.class)
-    public void testConstructorInvalidP() {
-        new LoadScalable("l1", 10, 0);
+    @Test
+    void testConstructorThrowWhenIdIsNull() {
+        assertThrows(NullPointerException.class, () -> new LoadScalable(null));
     }
 
     @Test
-    public void testInitialValue() {
+    void testConstructorInvalidP() {
+        assertThrows(PowsyblException.class, () -> new LoadScalable("l1", 10, 0));
+    }
+
+    @Test
+    void testInitialValue() {
         assertEquals(0, l1.initialValue(network), 1e-3);
     }
 
     @Test
-    public void testMaximumlValue() {
+    void testMaximumlValue() {
         assertEquals(Double.MAX_VALUE, l1.maximumValue(network, LOAD), 0.);
         assertEquals(-20, l3.maximumValue(network), 0.);
         assertEquals(-20, l3.maximumValue(network, GENERATOR), 0.);
@@ -67,7 +67,7 @@ public class LoadScalableTest {
     }
 
     @Test
-    public void testMinimumlValue() {
+    void testMinimumlValue() {
         assertEquals(0, l1.minimumValue(network, LOAD), 0.);
         assertEquals(-100, l3.minimumValue(network), 0.);
         assertEquals(-100, l3.minimumValue(network, GENERATOR), 0.);
@@ -75,7 +75,7 @@ public class LoadScalableTest {
     }
 
     @Test
-    public void testLoadScaleGeneratorConvention() {
+    void testLoadScaleGeneratorConvention() {
         //test with ScalingConvention.GENERATOR
         convention = GENERATOR;
 
@@ -125,7 +125,7 @@ public class LoadScalableTest {
     }
 
     @Test
-    public void testLoadScaleLoadConvention() {
+    void testLoadScaleLoadConvention() {
 
         //test with ScalingConvention.LOAD
         convention = LOAD;
@@ -169,7 +169,7 @@ public class LoadScalableTest {
     }
 
     @Test
-    public void testConstantPowerFactor() {
+    void testConstantPowerFactor() {
         //test with ScalingConvention.GENERATOR
         convention = GENERATOR;
 

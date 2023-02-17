@@ -12,21 +12,16 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractMinMaxReactiveLimitsTest {
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private Generator generator;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Network network = FictitiousSwitchFactory.create();
         generator = network.getGenerator("CB");
@@ -48,23 +43,20 @@ public abstract class AbstractMinMaxReactiveLimitsTest {
 
     @Test
     public void invalidMinQ() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("minimum reactive power is not set");
-        addMinMaxReactiveLimits(Double.NaN, 100.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> addMinMaxReactiveLimits(Double.NaN, 100.0));
+        assertTrue(e.getMessage().contains("minimum reactive power is not set"));
     }
 
     @Test
     public void invalidMaxQ() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("maximum reactive power is not set");
-        addMinMaxReactiveLimits(10.0, Double.NaN);
+        ValidationException e = assertThrows(ValidationException.class, () -> addMinMaxReactiveLimits(10.0, Double.NaN));
+        assertTrue(e.getMessage().contains("maximum reactive power is not set"));
     }
 
     @Test
     public void invalidMinQBiggerThenMaxQ() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("maximum reactive power is expected to be greater than or equal to minimum reactive power");
-        addMinMaxReactiveLimits(2.0, 1.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> addMinMaxReactiveLimits(2.0, 1.0));
+        assertTrue(e.getMessage().contains("maximum reactive power is expected to be greater than or equal to minimum reactive power"));
     }
 
     private void addMinMaxReactiveLimits(double minQ, double maxQ) {

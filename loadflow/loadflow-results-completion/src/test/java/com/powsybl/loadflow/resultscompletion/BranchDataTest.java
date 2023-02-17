@@ -6,9 +6,9 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.util.BranchData;
 
@@ -16,10 +16,10 @@ import com.powsybl.iidm.network.util.BranchData;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class BranchDataTest extends AbstractLoadFlowResultsCompletionTest {
+class BranchDataTest extends AbstractLoadFlowResultsCompletionTest {
 
     @Test
-    public void testLine() {
+    void testLine() {
         BranchData lineData = new BranchData(line, 0.1f, false);
         assertEquals(lineP1, lineData.getComputedP1(), 0.0001);
         assertEquals(lineQ1, lineData.getComputedQ1(), 0.0001);
@@ -28,7 +28,7 @@ public class BranchDataTest extends AbstractLoadFlowResultsCompletionTest {
     }
 
     @Test
-    public void testTransformer() {
+    void testTransformer() {
         BranchData twtData = new BranchData(transformer, 0.1f, false, true);
         assertEquals(twtP1, twtData.getComputedP1(), 0.0001);
         assertEquals(twtQ1, twtData.getComputedQ1(), 0.0001);
