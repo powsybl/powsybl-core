@@ -8,26 +8,26 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class VscConverterStationAdapterTest {
+class VscConverterStationAdapterTest {
 
     private MergingView mergingView;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         mergingView = MergingView.create("VscConverterStationAdapterTest", "iidm");
         mergingView.merge(HvdcTestNetwork.createVsc());
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         final VscConverterStation cs1 = mergingView.getVscConverterStation("C1");
         assertNotNull(cs1);
         assertSame(cs1, mergingView.getHvdcConverterStation("C1"));
@@ -76,7 +76,7 @@ public class VscConverterStationAdapterTest {
     }
 
     @Test
-    public void testRegulatingTerminal() {
+    void testRegulatingTerminal() {
         final VscConverterStation cs1 = mergingView.getVscConverterStation("C1");
         final VscConverterStation cs2 = mergingView.getVscConverterStation("C2");
         assertEquals(cs1.getTerminal(), cs2.getRegulatingTerminal());

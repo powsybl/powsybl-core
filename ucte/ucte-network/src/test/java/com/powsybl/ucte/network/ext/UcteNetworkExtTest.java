@@ -7,17 +7,17 @@
 package com.powsybl.ucte.network.ext;
 
 import com.powsybl.ucte.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class UcteNetworkExtTest extends UcteNetworkImplTest {
+class UcteNetworkExtTest extends UcteNetworkImplTest {
 
     @Test
-    public void test() {
+    void test() {
         UcteNetworkExt network = (UcteNetworkExt) UcteNetworkFactory.createNetwork(() -> new UcteNetworkExt(new UcteNetworkImpl(), 0.01));
         testNetwork(network);
     }

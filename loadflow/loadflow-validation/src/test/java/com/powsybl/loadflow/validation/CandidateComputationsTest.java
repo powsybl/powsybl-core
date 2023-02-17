@@ -14,21 +14,21 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.function.Supplier;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class CandidateComputationsTest {
+class CandidateComputationsTest {
 
     private InMemoryPlatformConfig platformConfig;
     private FileSystem fileSystem;
@@ -41,7 +41,7 @@ public class CandidateComputationsTest {
     }
 
     @Test
-    public void loadFlowExists() {
+    void loadFlowExists() {
         CandidateComputation computation = CandidateComputations.getComputation("loadflow")
                 .orElseGet(failure());
         assertNotNull(computation);
@@ -63,7 +63,7 @@ public class CandidateComputationsTest {
     }
 
     @Test
-    public void runDummyComputation() {
+    void runDummyComputation() {
         Network network = EurostagTutorialExample1Factory.create();
 
         CandidateComputation computation = CandidateComputations.getComputation("dummy").orElseGet(failure());
@@ -75,29 +75,29 @@ public class CandidateComputationsTest {
     }
 
     @Test
-    public void listComputationsNames() {
+    void listComputationsNames() {
         assertTrue(ImmutableSet.copyOf(CandidateComputations.getComputationsNames()).containsAll(ImmutableSet.of("dummy", "loadflow")));
     }
 
     @Test
-    public void listComputations() {
+    void listComputations() {
         assertTrue(ImmutableSet.copyOf(CandidateComputations.getComputationsNames()).containsAll(ImmutableSet.of("dummy", "loadflow")));
         assertEquals(ImmutableSet.of("dummy", "loadflow"), ImmutableSet.copyOf(CandidateComputations.getComputationsNames()));
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void runLoadFlowMock() {
+    void runLoadFlowMock() {
         platformConfig.createModuleConfig("loadflow-validation").setStringProperty("load-flow-name", "LoadFlowMock");
 
         Network network = EurostagTutorialExample1Factory.create();

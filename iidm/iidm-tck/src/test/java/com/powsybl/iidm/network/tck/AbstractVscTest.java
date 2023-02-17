@@ -8,13 +8,13 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -27,7 +27,7 @@ public abstract class AbstractVscTest {
     protected VscConverterStation cs1;
     private VscConverterStation cs2;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = HvdcTestNetwork.createVsc();
         hvdcLine = network.getHvdcLine("L");

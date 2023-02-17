@@ -6,19 +6,19 @@
  */
 package com.powsybl.commons.config;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class EmptyPlatformConfigTest {
+class EmptyPlatformConfigTest {
 
     @Test
-    public void test() {
+    void test() {
         assertEquals(Optional.empty(), PlatformConfig.defaultConfig().getConfigDir());
         assertEquals(Optional.empty(), PlatformConfig.defaultConfig().getOptionalModuleConfig("any"));
         assertEquals("com.powsybl.commons.config.PlatformConfig$EmptyModuleConfigRepository", PlatformConfig.defaultConfig().getRepository().getClass().getName());

@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractBatteryTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class BatteryTest extends AbstractBatteryTest { }
+class BatteryTest extends AbstractBatteryTest { }

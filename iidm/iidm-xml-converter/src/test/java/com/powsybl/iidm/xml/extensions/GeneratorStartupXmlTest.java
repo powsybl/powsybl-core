@@ -14,20 +14,20 @@ import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GeneratorStartupXmlTest extends AbstractXmlConverterTest {
+class GeneratorStartupXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = createTestNetwork();
 
         // extends generator

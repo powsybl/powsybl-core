@@ -6,22 +6,23 @@
  */
 package com.powsybl.timeseries;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TimeSeriesVersionsTest {
+class TimeSeriesVersionsTest {
 
     @Test
-    public void test() {
+    void test() {
         assertEquals(3, TimeSeriesVersions.check(3));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testException() {
-        TimeSeriesVersions.check(-1);
+    @Test
+    void testException() {
+        assertThrows(IllegalArgumentException.class, () -> TimeSeriesVersions.check(-1));
     }
 }

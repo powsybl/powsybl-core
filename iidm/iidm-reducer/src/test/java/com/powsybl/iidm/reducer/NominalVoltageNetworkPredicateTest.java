@@ -8,24 +8,20 @@ package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class NominalVoltageNetworkPredicateTest {
+class NominalVoltageNetworkPredicateTest {
 
     private static final String INVALID_MINIMAL_NOMINAL_VOLTAGE_MESSAGE = "Minimal nominal voltage must be greater or equal to zero";
-
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
+    private static final String INVALID_MAXIMAL_NOMINAL_VOLTAGE_MESSAGE = "Maximal nominal voltage must be greater or equal to zero";
 
     @Test
-    public void testVHV() {
+    void testVHV() {
         NetworkPredicate predicate = new NominalVoltageNetworkPredicate(200.0, 400.0);
 
         Network network = EurostagTutorialExample1Factory.create();
@@ -34,24 +30,22 @@ public class NominalVoltageNetworkPredicateTest {
     }
 
     @Test
-    public void testFailure() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Minimal nominal voltage is undefined");
-        new NominalVoltageNetworkPredicate(Double.NaN, Double.NaN);
+    void testFailure() {
+        IllegalArgumentException e;
 
-        thrown.expectMessage(INVALID_MINIMAL_NOMINAL_VOLTAGE_MESSAGE);
-        new NominalVoltageNetworkPredicate(-400.0, Double.NaN);
+        e = assertThrows(IllegalArgumentException.class, () -> new NominalVoltageNetworkPredicate(Double.NaN, Double.NaN));
+        assertTrue(e.getMessage().contains("Minimal nominal voltage is undefined"));
 
-        thrown.expectMessage("Maximal nominal voltage is undefined");
-        new NominalVoltageNetworkPredicate(400.0, Double.NaN);
+        e = assertThrows(IllegalArgumentException.class, () -> new NominalVoltageNetworkPredicate(-400.0, Double.NaN));
+        assertTrue(e.getMessage().contains(INVALID_MINIMAL_NOMINAL_VOLTAGE_MESSAGE));
 
-        thrown.expectMessage(INVALID_MINIMAL_NOMINAL_VOLTAGE_MESSAGE);
-        new NominalVoltageNetworkPredicate(400.0, -400.0);
+        e = assertThrows(IllegalArgumentException.class, () -> new NominalVoltageNetworkPredicate(400.0, Double.NaN));
+        assertTrue(e.getMessage().contains("Maximal nominal voltage is undefined"));
 
-        thrown.expectMessage(INVALID_MINIMAL_NOMINAL_VOLTAGE_MESSAGE);
-        new NominalVoltageNetworkPredicate(400.0, -400.0);
+        e = assertThrows(IllegalArgumentException.class, () -> new NominalVoltageNetworkPredicate(400.0, -400.0));
+        assertTrue(e.getMessage().contains(INVALID_MAXIMAL_NOMINAL_VOLTAGE_MESSAGE));
 
-        thrown.expectMessage("Nominal voltage range is empty");
-        new NominalVoltageNetworkPredicate(400.0, 0.0);
+        e = assertThrows(IllegalArgumentException.class, () -> new NominalVoltageNetworkPredicate(400.0, 0.0));
+        assertTrue(e.getMessage().contains("Nominal voltage range is empty"));
     }
 }

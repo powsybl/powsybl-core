@@ -8,7 +8,7 @@ package com.powsybl.cgmes.gl;
 
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Arrays;
 
@@ -18,14 +18,14 @@ import static com.powsybl.cgmes.gl.GLTestUtils.*;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public abstract class AbstractCgmesGLTest {
+abstract class AbstractCgmesGLTest {
 
     protected final String namespace = "http://network#";
     protected PropertyBags substationsPropertyBags;
     protected PropertyBags linesPropertyBags;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         substationsPropertyBags = new PropertyBags(Arrays.asList(createSubstationPropertyBag(namespace + "Substation1", "Substation1", CgmesGLUtils.COORDINATE_SYSTEM_NAME,
                                                                                              CgmesGLUtils.COORDINATE_SYSTEM_URN, SUBSTATION_1.getLongitude(), SUBSTATION_1.getLatitude()),
                                                                  createSubstationPropertyBag(namespace + "Substation2", "Substation2", CgmesGLUtils.COORDINATE_SYSTEM_NAME,

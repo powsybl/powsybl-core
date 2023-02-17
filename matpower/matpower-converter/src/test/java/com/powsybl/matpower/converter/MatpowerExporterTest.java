@@ -14,19 +14,19 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.matpower.model.MatpowerModel;
 import com.powsybl.matpower.model.MatpowerReader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MatpowerExporterTest {
+class MatpowerExporterTest {
 
     private static void exportToMatAndCompareTo(Network network, String refJsonFile) throws IOException {
         MemDataSource dataSource = new MemDataSource();
@@ -41,13 +41,13 @@ public class MatpowerExporterTest {
     }
 
     @Test
-    public void testEsgTutu1() throws IOException {
+    void testEsgTutu1() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
         exportToMatAndCompareTo(network, "/sim1.json");
     }
 
     @Test
-    public void testMicroGridBe() throws IOException {
+    void testMicroGridBe() throws IOException {
         Network network = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource());
         exportToMatAndCompareTo(network, "/be.json");
     }

@@ -6,16 +6,16 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.output.NullWriter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Terminal.BusView;
@@ -25,7 +25,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class BusesValidationTest extends AbstractValidationTest {
+class BusesValidationTest extends AbstractValidationTest {
 
     private final double loadP = 47.2786;
     private final double loadQ = 163.38244;
@@ -51,8 +51,8 @@ public class BusesValidationTest extends AbstractValidationTest {
 
     private Bus bus;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         super.setUp();
 
         Terminal loadTerminal = Mockito.mock(Terminal.class);
@@ -119,7 +119,7 @@ public class BusesValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkBusesValues() {
+    void checkBusesValues() {
         assertTrue(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
@@ -146,13 +146,13 @@ public class BusesValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkBuses() {
+    void checkBuses() {
         assertTrue(BusesValidation.INSTANCE.checkBuses(bus, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(BusesValidation.INSTANCE.checkBuses(bus, strictConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
-    public void checkNetworkBuses() throws IOException {
+    void checkNetworkBuses() throws IOException {
         Network.BusView networkBusView = Mockito.mock(Network.BusView.class);
         Mockito.when(networkBusView.getBusStream()).thenAnswer(dummy -> Stream.of(bus));
         Network network = Mockito.mock(Network.class);

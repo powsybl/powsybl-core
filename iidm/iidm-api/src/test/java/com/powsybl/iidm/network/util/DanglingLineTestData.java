@@ -20,16 +20,16 @@ import com.powsybl.iidm.network.Terminal.BusView;
  */
 class DanglingLineTestData {
 
-    public static double r = 0.05;
-    public static double x = 0.2;
-    public static double G = 0.0;
-    public static double B = 0.000001;
+    static double r = 0.05;
+    static double x = 0.2;
+    static double G = 0.0;
+    static double B = 0.000001;
 
-    public static double U = 406.62;
-    public static double ANGLE = -8.60;
+    static double U = 406.62;
+    static double ANGLE = -8.60;
 
-    public static double P0 = -367.40;
-    public static double Q0 = 63.73;
+    static double P0 = -367.40;
+    static double Q0 = 63.73;
 
     private Bus bus;
     private BusView busView;
@@ -65,21 +65,21 @@ class DanglingLineTestData {
         Mockito.when(danglingLine.getQ0()).thenReturn(Q0);
     }
 
-    public DanglingLine getDanglingLine() {
+    DanglingLine getDanglingLine() {
         return danglingLine;
     }
 
-    public void setInvalidNetworkVoltage() {
+    void setInvalidNetworkVoltage() {
         Mockito.when(bus.getV()).thenReturn(Double.NaN);
         Mockito.when(bus.getAngle()).thenReturn(Double.NaN);
     }
 
-    public void setInvalidNetworkFlow() {
+    void setInvalidNetworkFlow() {
         Mockito.when(terminal.getP()).thenReturn(Double.NaN);
         Mockito.when(terminal.getQ()).thenReturn(Double.NaN);
     }
 
-    public void setZ0() {
+    void setZ0() {
         Mockito.when(danglingLine.getR()).thenReturn(0.0);
         Mockito.when(danglingLine.getX()).thenReturn(0.0);
         Mockito.when(danglingLine.getG()).thenReturn(0.0);

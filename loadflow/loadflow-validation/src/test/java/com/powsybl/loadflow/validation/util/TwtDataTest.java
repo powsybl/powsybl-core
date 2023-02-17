@@ -9,21 +9,21 @@ package com.powsybl.loadflow.validation.util;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
 import com.powsybl.iidm.network.util.TwtData;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class TwtDataTest {
+class TwtDataTest {
 
     @Test
-    public void test() {
+    void test() {
         TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false, false);
 
         assertEquals(TwtTestData.P1, twtData.getComputedP(Side.ONE), .3);
@@ -38,7 +38,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testSplitShuntAdmittance() {
+    void testSplitShuntAdmittance() {
         ThreeWindingsTransformer twt = new TwtTestData().get3WTransformer();
         TwtData twtData = new TwtData(twt, 0, false, true);
         boolean ok = t3xCompareFlow(twtData, 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531);
@@ -46,7 +46,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd1End2End3Connected() {
+    void testEnd1End2End3Connected() {
         ThreeWindingsTransformer twt = new TwtTestData().get3WTransformer();
         TwtData twtData = new TwtData(twt, 0, false);
         boolean ok = t3xCompareFlow(twtData, 99.227288294050, 2.747147185208, -216.195866533486, -85.490493190353, 117.988318295633, 92.500849015581);
@@ -57,7 +57,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd2End3Connected() {
+    void testEnd2End3Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg1Disconnected();
 
@@ -71,7 +71,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd1End3Connected() {
+    void testEnd1End3Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg2Disconnected();
 
@@ -85,7 +85,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd1End2Connected() {
+    void testEnd1End2Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg3Disconnected();
 
@@ -99,7 +99,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd1Connected() {
+    void testEnd1Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg2Disconnected();
         twtTestData.setLeg3Disconnected();
@@ -114,7 +114,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd2Connected() {
+    void testEnd2Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg1Disconnected();
         twtTestData.setLeg3Disconnected();
@@ -129,7 +129,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd3Connected() {
+    void testEnd3Connected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg1Disconnected();
         twtTestData.setLeg2Disconnected();
@@ -144,7 +144,7 @@ public class TwtDataTest {
     }
 
     @Test
-    public void testEnd1End2End3Disconnected() {
+    void testEnd1End2End3Disconnected() {
         TwtTestData twtTestData = new TwtTestData();
         twtTestData.setLeg1Disconnected();
         twtTestData.setLeg2Disconnected();

@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.Substation;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -23,9 +23,9 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class FakeSubstationsConversionTest {
+class FakeSubstationsConversionTest {
     @Test
-    public void fakeSubstations() {
+    void fakeSubstations() {
         CgmesModel cgmes = new InMemoryCgmesModel()
                 .substations("Sub1", "Sub2", "Sub3");
         Network n = new Conversion(cgmes).convert();
@@ -33,6 +33,6 @@ public class FakeSubstationsConversionTest {
                 .map(Substation::getId)
                 .collect(Collectors.toList());
         List<String> expecteds = cgmes.substations().pluckLocals("Substation");
-        Assert.assertEquals(expecteds, actuals);
+        assertEquals(expecteds, actuals);
     }
 }

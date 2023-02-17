@@ -10,22 +10,22 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.tripping.GeneratorTripping;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class ActionTest {
+class ActionTest {
 
     @Test
-    public void test() {
+    void test() {
         NetworkModification mock = Mockito.mock(NetworkModification.class);
         List<NetworkModification> modifications = new ArrayList<>();
 
@@ -44,7 +44,7 @@ public class ActionTest {
     }
 
     @Test
-    public void testInvalid() {
+    void testInvalid() {
         testInvalid(null, Collections.emptyList());
         testInvalid("id", null);
     }
@@ -58,7 +58,7 @@ public class ActionTest {
     }
 
     @Test
-    public void testRun() {
+    void testRun() {
         Network network = EurostagTutorialExample1Factory.create();
         assertTrue(network.getGenerator("GEN").getTerminal().isConnected());
 

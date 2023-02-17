@@ -28,25 +28,25 @@ import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameter
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class Cgmes3ConversionTest {
+class Cgmes3ConversionTest {
 
     private static final String PROPERTY_V = "v";
     private static final String PROPERTY_ANGLE = "angle";
 
     @Test
-    public void loadNetworkMicroGrid() {
+    void loadNetworkMicroGrid() {
         // Check that CGMES importer supports check existence of valid CGMES 3 (CIM100) files
         CgmesImport importer = new CgmesImport();
         ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
@@ -56,7 +56,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void microGrid() throws IOException {
+    void microGrid() throws IOException {
         Properties importParams = new Properties();
         ConversionTester t = new ConversionTester(
             importParams,
@@ -67,7 +67,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void microGridConvertBoundary() throws IOException {
+    void microGridConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
@@ -79,7 +79,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void microGridOperationalLimits() throws IOException {
+    void microGridOperationalLimits() throws IOException {
         Network n = networkModel(Cgmes3Catalog.microGrid(), new Conversion.Config());
 
         Line ln = n.getLine("ffbabc27-1ccd-4fdc-b037-e341706c8d29");
@@ -112,7 +112,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void microGridWithAndWithoutTpSv() {
+    void microGridWithAndWithoutTpSv() {
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.microGrid().dataSource(),
             NetworkFactory.findDefault(), null);
@@ -128,7 +128,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void miniGrid() throws IOException {
+    void miniGrid() throws IOException {
         Properties importParams = new Properties();
         ConversionTester t = new ConversionTester(
             importParams,
@@ -139,7 +139,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void miniGridConvertBoundary() throws IOException {
+    void miniGridConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
@@ -151,7 +151,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void miniGridOperationalLimits() throws IOException {
+    void miniGridOperationalLimits() throws IOException {
         Network n = networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
 
         TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
@@ -172,7 +172,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void miniGridWithAndWithoutTpSv() throws IOException {
+    void miniGridWithAndWithoutTpSv() throws IOException {
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.miniGrid().dataSource(),
             NetworkFactory.findDefault(), null);
@@ -188,7 +188,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void smallGrid() throws IOException {
+    void smallGrid() throws IOException {
         Properties importParams = new Properties();
         ConversionTester t = new ConversionTester(
             importParams,
@@ -199,7 +199,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void smallGridConvertBoundary() throws IOException {
+    void smallGridConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
@@ -211,7 +211,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void smallGridOperationalLimits() throws IOException {
+    void smallGridOperationalLimits() throws IOException {
         Network n = networkModel(Cgmes3Catalog.smallGrid(), new Conversion.Config());
 
         Line ln = n.getLine("04658820-c766-11e1-8775-005056c00008");
@@ -230,7 +230,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void smallGridWithAndWithoutTpSv() throws IOException {
+    void smallGridWithAndWithoutTpSv() throws IOException {
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.smallGrid().dataSource(),
             NetworkFactory.findDefault(), null);
@@ -246,7 +246,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void svedala() throws IOException {
+    void svedala() throws IOException {
         Properties importParams = new Properties();
         ConversionTester t = new ConversionTester(
             importParams,
@@ -257,7 +257,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void svedalaConvertBoundary() throws IOException {
+    void svedalaConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
@@ -269,7 +269,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void svedalaOperationalLimits() throws IOException {
+    void svedalaOperationalLimits() throws IOException {
         Network n = networkModel(Cgmes3Catalog.svedala(), new Conversion.Config());
 
         Line ln = n.getLine("c6278b38-b777-4ad9-b395-50c4009afdff");
@@ -288,7 +288,7 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void svedalaWithAndWithoutTpSv() throws IOException {
+    void svedalaWithAndWithoutTpSv() throws IOException {
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.svedala().dataSource(),
             NetworkFactory.findDefault(), null);

@@ -13,10 +13,10 @@ import com.powsybl.commons.extensions.ExtensionAdderProvider
 import com.powsybl.iidm.network.Country
 import com.powsybl.iidm.network.Network
 import com.powsybl.iidm.network.Substation
-import org.junit.Before
-import org.junit.Test
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
-import static org.junit.Assert.*
+import static org.junit.jupiter.api.Assertions.*
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -89,7 +89,7 @@ class IdentifiableExtensionGroovyTest {
 
     private Substation s
 
-    @Before
+    @BeforeEach
     void setUp() throws Exception {
         Network network = Network.create("test", "test")
         s = network.newSubstation()

@@ -14,33 +14,28 @@ import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class MergingNetworkTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+class MergingNetworkTest {
 
     private MergingView mergingView;
     private Network n1;
     private Network n2;
     private Network n3;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("MergingNetworkTest", "iidm");
 
         n1 = Network.create("n1", "iidm");
@@ -49,7 +44,7 @@ public class MergingNetworkTest {
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         mergingView.merge(n1, n2);
         assertSame(mergingView, mergingView.getNetwork());
         assertSame(mergingView, mergingView.getIdentifiable("n1").getNetwork());
@@ -87,7 +82,7 @@ public class MergingNetworkTest {
         assertFalse(mergingView.hasProperty());
 
         // Identifiables
-        assertFalse("MergingView cannot be empty", mergingView.getIdentifiables().isEmpty());
+        assertFalse(mergingView.getIdentifiables().isEmpty(), "MergingView cannot be empty");
 
         // Substations
         assertTrue(mergingView.getCountries().isEmpty());
@@ -137,7 +132,7 @@ public class MergingNetworkTest {
         assertFalse(mergingView.getStaticVarCompensators().iterator().hasNext());
         assertEquals(0, mergingView.getStaticVarCompensatorStream().count());
         assertEquals(0, mergingView.getStaticVarCompensatorCount());
-        assertEquals(Iterables.toArray(mergingView.getStaticVarCompensators(), StaticVarCompensator.class),
+        assertArrayEquals(Iterables.toArray(mergingView.getStaticVarCompensators(), StaticVarCompensator.class),
                 Iterables.toArray(mergingView.getConnectables(StaticVarCompensator.class), StaticVarCompensator.class));
         assertFalse(mergingView.getConnectables(StaticVarCompensator.class).iterator().hasNext());
         assertEquals(0, mergingView.getConnectableStream(StaticVarCompensator.class).count());
@@ -187,7 +182,7 @@ public class MergingNetworkTest {
         assertFalse(mergingView.getLines().iterator().hasNext());
         assertEquals(0, mergingView.getLineStream().count());
         assertEquals(0, mergingView.getLineCount());
-        assertEquals(Iterables.toArray(mergingView.getLines(), Line.class), Iterables.toArray(mergingView.getConnectables(Line.class), Line.class));
+        assertArrayEquals(Iterables.toArray(mergingView.getLines(), Line.class), Iterables.toArray(mergingView.getConnectables(Line.class), Line.class));
         assertEquals(0, mergingView.getConnectableStream(Line.class).count());
         assertEquals(0, mergingView.getConnectableCount(Line.class));
 
@@ -195,7 +190,7 @@ public class MergingNetworkTest {
         assertFalse(mergingView.getDanglingLines().iterator().hasNext());
         assertEquals(0, mergingView.getDanglingLineStream().count());
         assertEquals(0, mergingView.getDanglingLineCount());
-        assertEquals(Iterables.toArray(mergingView.getDanglingLines(), DanglingLine.class), Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class));
+        assertArrayEquals(Iterables.toArray(mergingView.getDanglingLines(), DanglingLine.class), Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class));
         assertEquals(0, mergingView.getConnectableStream(DanglingLine.class).count());
         assertEquals(0, mergingView.getConnectableCount(DanglingLine.class));
 
@@ -232,7 +227,7 @@ public class MergingNetworkTest {
     }
 
     @Test
-    public void testNonEmptyConnectableGetters() {
+    void testNonEmptyConnectableGetters() {
         // Init networks
         n1 = EurostagTutorialExample1Factory.create();
         n1.getLine("NHV1_NHV2_1").remove();
@@ -281,66 +276,63 @@ public class MergingNetworkTest {
 
         // TwoWindingsTransformers
         assertEquals(Arrays.asList("NGEN_NHV1", "NHV2_NLOAD"), mergingView.getConnectableStream(TwoWindingsTransformer.class).map(TwoWindingsTransformer::getId).collect(Collectors.toList()));
-        assertEquals(Iterables.toArray(mergingView.getConnectables(TwoWindingsTransformer.class), TwoWindingsTransformer.class),
+        assertArrayEquals(Iterables.toArray(mergingView.getConnectables(TwoWindingsTransformer.class), TwoWindingsTransformer.class),
                 mergingView.getConnectableStream(TwoWindingsTransformer.class).toArray());
         assertEquals(2, mergingView.getConnectableCount(TwoWindingsTransformer.class));
 
         // Loads
         assertEquals(Collections.singletonList("LOAD"), mergingView.getConnectableStream(Load.class).map(Load::getId).collect(Collectors.toList()));
-        assertEquals(Iterables.toArray(mergingView.getConnectables(Load.class), Load.class), mergingView.getConnectableStream(Load.class).toArray());
+        assertArrayEquals(Iterables.toArray(mergingView.getConnectables(Load.class), Load.class), mergingView.getConnectableStream(Load.class).toArray());
         assertEquals(1, mergingView.getConnectableCount(Load.class));
 
         // Generator
         assertEquals(Arrays.asList("GEN", "G"), mergingView.getConnectableStream(Generator.class).map(Generator::getId).collect(Collectors.toList()));
-        assertEquals(Iterables.toArray(mergingView.getConnectables(Generator.class), Generator.class),
+        assertArrayEquals(Iterables.toArray(mergingView.getConnectables(Generator.class), Generator.class),
                 mergingView.getConnectableStream(Generator.class).toArray());
         assertEquals(2, mergingView.getConnectableCount(Generator.class));
 
         // Lines
         assertEquals(Arrays.asList("NHV1_NHV2_2", "DL1 + DL2"), mergingView.getConnectableStream(Line.class).map(Line::getId).collect(Collectors.toList()));
-        assertEquals(Iterables.toArray(mergingView.getConnectables(Line.class), Line.class),
+        assertArrayEquals(Iterables.toArray(mergingView.getConnectables(Line.class), Line.class),
                 mergingView.getConnectableStream(Line.class).toArray());
         assertEquals(2, mergingView.getConnectableCount(Line.class));
 
         // DanglingLines
         assertEquals(Collections.singletonList("DL"), mergingView.getConnectableStream(DanglingLine.class).map(DanglingLine::getId).collect(Collectors.toList()));
-        assertEquals(Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class),
+        assertArrayEquals(Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class),
                 mergingView.getConnectableStream(DanglingLine.class).toArray());
         assertEquals(1, mergingView.getConnectableCount(DanglingLine.class));
 
         // Connectables
-        assertEquals(Arrays.asList("LOAD", "NHV1_NHV2_2", "NGEN_NHV1", "DL1 + DL2", "NHV2_NLOAD", "GEN", "G", "DL"),
-                mergingView.getConnectableStream().map(Connectable::getId).collect(Collectors.toList()));
-        assertEquals(Iterables.toArray(mergingView.getConnectables(), Connectable.class),
+        assertArrayEquals(new String[]{"LOAD", "NHV1_NHV2_2", "NGEN_NHV1", "DL1 + DL2", "NHV2_NLOAD", "GEN", "G", "DL"},
+                mergingView.getConnectableStream().map(Connectable::getId).toArray());
+        assertArrayEquals(Iterables.toArray(mergingView.getConnectables(), Connectable.class),
                 mergingView.getConnectableStream().toArray());
         assertEquals(8, mergingView.getConnectableCount());
     }
 
     @Test
-    public void failMergeIfMultiVariants() {
+    void failMergeIfMultiVariants() {
         n1.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "Failed");
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Merging of multi-variants network is not supported");
-        mergingView.merge(n1);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> mergingView.merge(n1));
+        assertTrue(e.getMessage().contains("Merging of multi-variants network is not supported"));
     }
 
     @Test
-    public void failMergeWithSameObj() {
+    void failMergeWithSameObj() {
         addSubstation(n1, "P1", Country.FR, false);
         addSubstation(n2, "P1", Country.FR, false);
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The object 'P1' already exists into merging view");
-        mergingView.merge(n1, n2);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> mergingView.merge(n1, n2));
+        assertTrue(e.getMessage().contains("The object 'P1' already exists into merging view"));
     }
 
     @Test
-    public void failAddSameObj() {
+    void failAddSameObj() {
         addSubstation(mergingView, "P1", Country.FR, false);
         Substation autoIdSub = addSubstation(mergingView, "P1", Country.FR, true);
         assertSame(autoIdSub, mergingView.getSubstation("P1#0"));
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The network already contains an object 'SubstationAdapter' with the id 'P1'");
-        addSubstation(mergingView, "P1", Country.FR, false);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> addSubstation(mergingView, "P1", Country.FR, false));
+        assertTrue(e.getMessage().contains("The network already contains an object 'SubstationAdapter' with the id 'P1'"));
     }
 
     private static Substation addSubstation(final Network network, final String substationId, final Country country, boolean ensureIdUnicity) {

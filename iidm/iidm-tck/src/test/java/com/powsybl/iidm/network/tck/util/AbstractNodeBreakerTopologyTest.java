@@ -12,9 +12,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import com.powsybl.iidm.network.util.NodeBreakerTopology;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>

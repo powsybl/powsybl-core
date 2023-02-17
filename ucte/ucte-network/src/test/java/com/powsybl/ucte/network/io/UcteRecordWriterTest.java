@@ -6,19 +6,19 @@
  */
 package com.powsybl.ucte.network.io;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class UcteRecordWriterTest {
+class UcteRecordWriterTest {
 
     @Test
-    public void shouldWriteZeroPaddedPositiveDouble() throws IOException {
+    void shouldWriteZeroPaddedPositiveDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -32,7 +32,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test
-    public void shouldWriteShrinkedPositiveDouble() throws IOException {
+    void shouldWriteShrinkedPositiveDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -46,7 +46,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test
-    public void shouldWriteZeroPaddedNegativeDouble() throws IOException {
+    void shouldWriteZeroPaddedNegativeDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -60,7 +60,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test
-    public void shouldNotUseScientificNotationForSmallDouble() throws IOException {
+    void shouldNotUseScientificNotationForSmallDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -74,7 +74,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test
-    public void shouldReturnEmptyValueOnNanInput() throws IOException {
+    void shouldReturnEmptyValueOnNanInput() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -87,32 +87,32 @@ public class UcteRecordWriterTest {
         assertEquals(String.format("%n"), writer.toString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnBigPositiveDouble() throws IOException {
+    @Test
+    void shouldFailOnBigPositiveDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
 
         double input = 12345678;
-        recordWriter.writeDouble(input, 0, 6);
-        recordWriter.newLine();
-        bufferedWriter.close();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnBigNegativeDouble() throws IOException {
-        StringWriter writer = new StringWriter();
-        BufferedWriter bufferedWriter = new BufferedWriter(writer);
-        UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
-
-        double input = -12345678;
-        recordWriter.writeDouble(input, 0, 6);
+        assertThrows(IllegalArgumentException.class, () -> recordWriter.writeDouble(input, 0, 6));
         recordWriter.newLine();
         bufferedWriter.close();
     }
 
     @Test
-    public void shouldSucceedOnLimitBigPositiveDouble() throws IOException {
+    void shouldFailOnBigNegativeDouble() throws IOException {
+        StringWriter writer = new StringWriter();
+        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+        UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
+
+        double input = -12345678;
+        assertThrows(IllegalArgumentException.class, () -> recordWriter.writeDouble(input, 0, 6));
+        recordWriter.newLine();
+        bufferedWriter.close();
+    }
+
+    @Test
+    void shouldSucceedOnLimitBigPositiveDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -125,20 +125,20 @@ public class UcteRecordWriterTest {
         assertEquals(String.format("999999%n"), writer.toString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnLimitBigPositiveDouble() throws IOException {
+    @Test
+    void shouldFailOnLimitBigPositiveDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
 
         double input = 1000000.1;
-        recordWriter.writeDouble(input, 0, 6);
+        assertThrows(IllegalArgumentException.class, () -> recordWriter.writeDouble(input, 0, 6));
         recordWriter.newLine();
         bufferedWriter.close();
     }
 
     @Test
-    public void shouldSucceedOnLimitBigNegativeDouble() throws IOException {
+    void shouldSucceedOnLimitBigNegativeDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -151,44 +151,44 @@ public class UcteRecordWriterTest {
         assertEquals(String.format("-99999%n"), writer.toString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnLimitBigNegativeDouble() throws IOException {
+    @Test
+    void shouldFailOnLimitBigNegativeDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
 
         double input = -100000.1;
-        recordWriter.writeDouble(input, 0, 6);
-        recordWriter.newLine();
-        bufferedWriter.close();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnBigPositiveInteger() throws IOException {
-        StringWriter writer = new StringWriter();
-        BufferedWriter bufferedWriter = new BufferedWriter(writer);
-        UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
-
-        int input = 12345678;
-        recordWriter.writeInteger(input, 0, 6);
-        recordWriter.newLine();
-        bufferedWriter.close();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnBigNegativeInteger() throws IOException {
-        StringWriter writer = new StringWriter();
-        BufferedWriter bufferedWriter = new BufferedWriter(writer);
-        UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
-
-        int input = -12345678;
-        recordWriter.writeInteger(input, 0, 6);
+        assertThrows(IllegalArgumentException.class, () -> recordWriter.writeDouble(input, 0, 6));
         recordWriter.newLine();
         bufferedWriter.close();
     }
 
     @Test
-    public void shouldSucceedOnLimitBigPositiveInteger() throws IOException {
+    void shouldFailOnBigPositiveInteger() throws IOException {
+        StringWriter writer = new StringWriter();
+        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+        UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
+
+        int input = 12345678;
+        assertThrows(IllegalArgumentException.class, () -> recordWriter.writeInteger(input, 0, 6));
+        recordWriter.newLine();
+        bufferedWriter.close();
+    }
+
+    @Test
+    void shouldFailOnBigNegativeInteger() throws IOException {
+        StringWriter writer = new StringWriter();
+        BufferedWriter bufferedWriter = new BufferedWriter(writer);
+        UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
+
+        int input = -12345678;
+        assertThrows(IllegalArgumentException.class, () -> recordWriter.writeInteger(input, 0, 6));
+        recordWriter.newLine();
+        bufferedWriter.close();
+    }
+
+    @Test
+    void shouldSucceedOnLimitBigPositiveInteger() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -201,20 +201,20 @@ public class UcteRecordWriterTest {
         assertEquals(String.format("999999%n"), writer.toString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnLimitBigPositiveInteger() throws IOException {
+    @Test
+    void shouldFailOnLimitBigPositiveInteger() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
 
         int input = 1000000;
-        recordWriter.writeInteger(input, 0, 6);
+        assertThrows(IllegalArgumentException.class, () -> recordWriter.writeInteger(input, 0, 6));
         recordWriter.newLine();
         bufferedWriter.close();
     }
 
     @Test
-    public void shouldSucceedOnLimitBigNegativeInteger() throws IOException {
+    void shouldSucceedOnLimitBigNegativeInteger() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -227,14 +227,14 @@ public class UcteRecordWriterTest {
         assertEquals(String.format("-99999%n"), writer.toString());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnLimitBigNegativeInteger() throws IOException {
+    @Test
+    void shouldFailOnLimitBigNegativeInteger() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
 
         int input = -100000;
-        recordWriter.writeInteger(input, 0, 6);
+        assertThrows(IllegalArgumentException.class, () -> recordWriter.writeInteger(input, 0, 6));
         recordWriter.newLine();
         bufferedWriter.close();
     }

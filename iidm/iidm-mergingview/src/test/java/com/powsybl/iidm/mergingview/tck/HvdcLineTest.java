@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractHvdcLineTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class HvdcLineTest extends AbstractHvdcLineTest { }
+class HvdcLineTest extends AbstractHvdcLineTest { }

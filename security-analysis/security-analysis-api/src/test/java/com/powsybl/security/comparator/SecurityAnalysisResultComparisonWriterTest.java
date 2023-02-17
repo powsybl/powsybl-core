@@ -6,8 +6,8 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -17,9 +17,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
@@ -29,7 +29,7 @@ import com.powsybl.security.LimitViolationType;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class SecurityAnalysisResultComparisonWriterTest {
+class SecurityAnalysisResultComparisonWriterTest {
 
     LimitViolation vlViolation;
     LimitViolation lineViolation;
@@ -38,8 +38,8 @@ public class SecurityAnalysisResultComparisonWriterTest {
     Writer writer;
     SecurityAnalysisResultComparisonWriter comparisonWriter;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         vlViolation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
         lineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.0, Branch.Side.ONE);
         similarLineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.09, Branch.Side.ONE);
@@ -48,13 +48,13 @@ public class SecurityAnalysisResultComparisonWriterTest {
         comparisonWriter = new SecurityAnalysisResultComparisonWriter(writer);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         comparisonWriter.close();
     }
 
     @Test
-    public void write() {
+    void write() {
         String content = String.join(System.lineSeparator(),
                                      "Security Analysis Results Comparison",
                                      String.join(";", "Contingency", "StatusResult1", "StatusResult2", "Equipment", "End", "ViolationType",
@@ -92,7 +92,7 @@ public class SecurityAnalysisResultComparisonWriterTest {
     }
 
     @Test
-    public void writeMissingResult1() {
+    void writeMissingResult1() {
         String content = String.join(System.lineSeparator(),
                                      "Security Analysis Results Comparison",
                                      String.join(";", "Contingency", "StatusResult1", "StatusResult2", "Equipment", "End", "ViolationType",
@@ -130,7 +130,7 @@ public class SecurityAnalysisResultComparisonWriterTest {
     }
 
     @Test
-    public void writeMissingResult2() {
+    void writeMissingResult2() {
         String content = String.join(System.lineSeparator(),
                                      "Security Analysis Results Comparison",
                                      String.join(";", "Contingency", "StatusResult1", "StatusResult2", "Equipment", "End", "ViolationType",
@@ -166,7 +166,7 @@ public class SecurityAnalysisResultComparisonWriterTest {
     }
 
     @Test
-    public void nullInput() {
+    void nullInput() {
         try {
             comparisonWriter.write((Boolean) null, null, true);
             fail();

@@ -7,7 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -16,10 +16,10 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class HvdcXmlTest extends AbstractXmlConverterTest {
+class HvdcXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void roundTripLccTest() throws IOException {
+    void roundTripLccTest() throws IOException {
         roundTripXmlTest(HvdcTestNetwork.createLcc(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
@@ -30,7 +30,7 @@ public class HvdcXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void roundTripVscTest() throws IOException {
+    void roundTripVscTest() throws IOException {
         roundTripXmlTest(HvdcTestNetwork.createVsc(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,

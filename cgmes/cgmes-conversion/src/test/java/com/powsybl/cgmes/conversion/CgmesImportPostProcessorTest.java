@@ -14,21 +14,21 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.triplestore.api.TripleStore;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CgmesImportPostProcessorTest {
+class CgmesImportPostProcessorTest {
 
     class FakeCgmesImportPostProcessor implements CgmesImportPostProcessor {
 
@@ -55,20 +55,20 @@ public class CgmesImportPostProcessorTest {
 
     private final List<String> activatedPostProcessorNames = new ArrayList<>();
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         modelResources = CgmesConformity1Catalog.microGridBaseCaseBE();
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
         activatedPostProcessorNames.clear();
     }
 
     @Test
-    public void testParameters() {
+    void testParameters() {
         CgmesImport cgmesImport = new CgmesImport(List.of(new FakeCgmesImportPostProcessor("foo")));
         Parameter parameter = cgmesImport.getParameters().stream()
                 .filter(p -> p.getName().equals("iidm.import.cgmes.post-processors"))
@@ -78,7 +78,7 @@ public class CgmesImportPostProcessorTest {
     }
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         CgmesImport cgmesImport = new CgmesImport(Collections.singletonList(new FakeCgmesImportPostProcessor("foo")));
         Properties properties = new Properties();
         cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), properties);
@@ -86,7 +86,7 @@ public class CgmesImportPostProcessorTest {
     }
 
     @Test
-    public void testList() {
+    void testList() {
         CgmesImport cgmesImport = new CgmesImport(Arrays.asList(new FakeCgmesImportPostProcessor("foo"),
                                                                                 new FakeCgmesImportPostProcessor("bar"),
                                                                                 new FakeCgmesImportPostProcessor("baz")));

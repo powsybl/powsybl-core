@@ -16,8 +16,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,17 +25,17 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Collections;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class BashCompletionToolTest extends AbstractToolTest {
+class BashCompletionToolTest extends AbstractToolTest {
 
     private BashCompletionTool tool;
 
-    @Before
+    @BeforeEach
     @Override
     public void setUp() throws Exception {
         tool = new BashCompletionTool();
@@ -63,7 +63,7 @@ public class BashCompletionToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void testBehaviour() throws IOException {
+    void testBehaviour() throws IOException {
 
         Options options1 = new Options();
         options1.addOption(Option.builder("I").hasArg().build());

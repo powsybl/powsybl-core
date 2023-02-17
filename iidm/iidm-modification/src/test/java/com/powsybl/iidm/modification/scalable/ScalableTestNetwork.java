@@ -11,12 +11,12 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Ameni Walha <ameni.walha at rte-france.com>
  */
-public final class ScalableTestNetwork {
+final class ScalableTestNetwork {
     private ScalableTestNetwork() {
         throw new AssertionError("No default constructor in utility class");
     }
 
-    public static Network createNetwork() {
+    static Network createNetwork() {
         Network network = Network.create("network", "test");
         Substation s = network.newSubstation()
                 .setId("s")
@@ -97,7 +97,7 @@ public final class ScalableTestNetwork {
         return network;
     }
 
-    public static Network createNetworkWithDanglingLine() {
+    static Network createNetworkWithDanglingLine() {
         Network network = Network.create("network", "test");
         Substation s = network.newSubstation()
                 .setId("s")

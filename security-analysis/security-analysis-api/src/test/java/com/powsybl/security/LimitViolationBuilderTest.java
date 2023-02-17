@@ -8,19 +8,19 @@ package com.powsybl.security;
 
 import com.powsybl.iidm.network.Branch;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class LimitViolationBuilderTest {
+class LimitViolationBuilderTest {
 
     @Test
-    public void insufficientInfoThrows() {
+    void insufficientInfoThrows() {
         LimitViolationBuilder builder = new LimitViolationBuilder();
         Assertions.assertThatNullPointerException().isThrownBy(builder::build);
         builder.subject("id");
@@ -38,7 +38,7 @@ public class LimitViolationBuilderTest {
     }
 
     @Test
-    public void buildCurrentViolation() {
+    void buildCurrentViolation() {
         LimitViolationBuilder builder = LimitViolations.current()
                 .subject("id")
                 .duration(20, TimeUnit.MINUTES)
@@ -71,7 +71,7 @@ public class LimitViolationBuilderTest {
     }
 
     @Test
-    public void buildLowVoltageViolation() {
+    void buildLowVoltageViolation() {
         LimitViolationBuilder builder = LimitViolations.lowVoltage()
                 .subject("id")
                 .limit(1500)
@@ -88,7 +88,7 @@ public class LimitViolationBuilderTest {
     }
 
     @Test
-    public void buildHighVoltageViolation() {
+    void buildHighVoltageViolation() {
         LimitViolationBuilder builder = LimitViolations.highVoltage()
                 .subject("id")
                 .limit(1500)
@@ -105,7 +105,7 @@ public class LimitViolationBuilderTest {
     }
 
     @Test
-    public void builLowShortCircuitCurrentViolation() {
+    void builLowShortCircuitCurrentViolation() {
         LimitViolationBuilder builder = LimitViolations.lowShortCircuitCurrent()
                 .subject("id")
                 .limit(1500)
@@ -122,7 +122,7 @@ public class LimitViolationBuilderTest {
     }
 
     @Test
-    public void buildHighShortCircuitCurrentViolation() {
+    void buildHighShortCircuitCurrentViolation() {
         LimitViolationBuilder builder = LimitViolations.highShortCircuitCurrent()
                 .subject("id")
                 .limit(1500)
@@ -139,7 +139,7 @@ public class LimitViolationBuilderTest {
     }
 
     @Test
-    public void buildActivePowerViolation() {
+    void buildActivePowerViolation() {
         LimitViolationBuilder builder = LimitViolations.activePower()
                                                        .subject("id")
                                                        .limit(1500)
@@ -158,7 +158,7 @@ public class LimitViolationBuilderTest {
     }
 
     @Test
-    public void buildApparentPowerViolation() {
+    void buildApparentPowerViolation() {
         LimitViolationBuilder builder = LimitViolations.apparentPower()
                                                        .subject("id")
                                                        .limit(1500)
@@ -177,7 +177,7 @@ public class LimitViolationBuilderTest {
     }
 
     @Test
-    public void testComparator() {
+    void testComparator() {
         LimitViolationBuilder builder = LimitViolations.highVoltage()
                 .subject("id")
                 .limit(1500)
@@ -193,7 +193,7 @@ public class LimitViolationBuilderTest {
     }
 
     @Test
-    public void testLimitNameInVoltageLimitViolation() {
+    void testLimitNameInVoltageLimitViolation() {
         LimitViolationBuilder builder = LimitViolations.highVoltage()
                 .subject("id")
                 .type(LimitViolationType.HIGH_VOLTAGE)

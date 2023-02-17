@@ -6,18 +6,18 @@
  */
 package com.powsybl.iidm.xml;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class OptionalLoadTypeBugTest extends AbstractXmlConverterTest {
+class OptionalLoadTypeBugTest extends AbstractXmlConverterTest {
 
     @Test
-    public void shouldNotThrowNullPointerExceptionTest() {
+    void shouldNotThrowNullPointerExceptionTest() {
         assertNotNull(NetworkXml.read(getVersionedNetworkAsStream("optionalLoadTypeBug.xml", IidmXmlVersion.V_1_0)));
         assertNotNull(NetworkXml.read(getVersionedNetworkAsStream("optionalLoadTypeBug.xml", CURRENT_IIDM_XML_VERSION)));
     }

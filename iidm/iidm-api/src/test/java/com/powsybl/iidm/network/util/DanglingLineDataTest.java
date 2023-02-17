@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.network.util;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,10 +19,10 @@ import com.powsybl.iidm.network.DanglingLine;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class DanglingLineDataTest {
+class DanglingLineDataTest {
 
     @Test
-    public void test() {
+    void test() {
         DanglingLine danglingLine = new DanglingLineTestData().getDanglingLine();
         DanglingLineData dlData = new DanglingLineData(danglingLine);
 
@@ -35,7 +35,7 @@ public class DanglingLineDataTest {
     }
 
     @Test
-    public void testNetworkFlow() {
+    void testNetworkFlow() {
         DanglingLineTestData dlTestData = new DanglingLineTestData();
         DanglingLine danglingLine = dlTestData.getDanglingLine();
         DanglingLineData dlData = new DanglingLineData(danglingLine);
@@ -49,7 +49,7 @@ public class DanglingLineDataTest {
     }
 
     @Test
-    public void testInvalidNetworkVoltage() {
+    void testInvalidNetworkVoltage() {
         DanglingLineTestData dlTestData = new DanglingLineTestData();
         dlTestData.setInvalidNetworkVoltage();
         DanglingLine danglingLine = dlTestData.getDanglingLine();
@@ -64,7 +64,7 @@ public class DanglingLineDataTest {
     }
 
     @Test
-    public void testInvalidNetworkFlow() {
+    void testInvalidNetworkFlow() {
         DanglingLineTestData dlTestData = new DanglingLineTestData();
         dlTestData.setInvalidNetworkFlow();
         DanglingLine danglingLine = dlTestData.getDanglingLine();
@@ -79,7 +79,7 @@ public class DanglingLineDataTest {
     }
 
     @Test
-    public void testZ0() {
+    void testZ0() {
         DanglingLineTestData dlTestData = new DanglingLineTestData();
         dlTestData.setZ0();
         DanglingLine danglingLine = dlTestData.getDanglingLine();
@@ -94,7 +94,7 @@ public class DanglingLineDataTest {
     }
 
     @Test
-    public void testZ0WithNetworkFlow() {
+    void testZ0WithNetworkFlow() {
         DanglingLineTestData dlTestData = new DanglingLineTestData();
         dlTestData.setZ0();
         dlTestData.setInvalidNetworkFlow();

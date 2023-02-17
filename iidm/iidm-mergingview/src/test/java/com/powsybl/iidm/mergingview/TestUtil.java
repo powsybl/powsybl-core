@@ -6,14 +6,14 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.powsybl.commons.PowsyblException;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public final class TestUtil {
+final class TestUtil {
 
     private TestUtil() {
     }

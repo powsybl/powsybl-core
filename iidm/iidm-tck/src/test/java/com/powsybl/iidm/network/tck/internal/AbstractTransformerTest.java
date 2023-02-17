@@ -8,19 +8,14 @@ package com.powsybl.iidm.network.tck.internal;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
 
 public abstract class AbstractTransformerTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     protected Network network;
     protected Substation substation;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NoEquipmentNetworkFactory.create();
         substation = network.getSubstation("sub");
