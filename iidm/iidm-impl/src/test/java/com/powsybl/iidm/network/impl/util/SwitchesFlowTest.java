@@ -6,10 +6,10 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
@@ -30,10 +30,10 @@ import com.powsybl.iidm.network.util.SwitchesFlow;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class SwitchesFlowTest {
+class SwitchesFlowTest {
 
     @Test
-    public void switchesFlowNodeBreaker() {
+    void switchesFlowNodeBreaker() {
 
         Network network = createNodeBreaker();
 
@@ -304,7 +304,7 @@ public class SwitchesFlowTest {
     }
 
     @Test
-    public void switchesFlowBusBreaker() {
+    void switchesFlowBusBreaker() {
 
         Network network = createBusBreaker();
 

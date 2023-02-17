@@ -8,17 +8,17 @@ package com.powsybl.timeseries;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.timeseries.ast.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeCalcEqualsTest {
+class NodeCalcEqualsTest {
 
     @Test
-    public void integerTest() {
+    void integerTest() {
         new EqualsTester()
                 .addEqualityGroup(new IntegerNodeCalc(1), new IntegerNodeCalc(1))
                 .addEqualityGroup(new IntegerNodeCalc(2), new IntegerNodeCalc(2))
@@ -26,7 +26,7 @@ public class NodeCalcEqualsTest {
     }
 
     @Test
-    public void floatTest() {
+    void floatTest() {
         new EqualsTester()
                 .addEqualityGroup(new FloatNodeCalc(1.3f), new FloatNodeCalc(1.3f))
                 .addEqualityGroup(new FloatNodeCalc(2.4f), new FloatNodeCalc(2.4f))
@@ -34,7 +34,7 @@ public class NodeCalcEqualsTest {
     }
 
     @Test
-    public void doubleTest() {
+    void doubleTest() {
         new EqualsTester()
                 .addEqualityGroup(new DoubleNodeCalc(1.3), new DoubleNodeCalc(1.3))
                 .addEqualityGroup(new DoubleNodeCalc(2.4), new DoubleNodeCalc(2.4))
@@ -42,7 +42,7 @@ public class NodeCalcEqualsTest {
     }
 
     @Test
-    public void bigDecimalTest() {
+    void bigDecimalTest() {
         new EqualsTester()
                 .addEqualityGroup(new BigDecimalNodeCalc(BigDecimal.valueOf(1.3)), new BigDecimalNodeCalc(BigDecimal.valueOf(1.3)))
                 .addEqualityGroup(new BigDecimalNodeCalc(BigDecimal.valueOf(2.4)), new BigDecimalNodeCalc(BigDecimal.valueOf(2.4)))
@@ -50,7 +50,7 @@ public class NodeCalcEqualsTest {
     }
 
     @Test
-    public void timeSeriesNameTest() {
+    void timeSeriesNameTest() {
         new EqualsTester()
                 .addEqualityGroup(new TimeSeriesNameNodeCalc("ts1"), new TimeSeriesNameNodeCalc("ts1"))
                 .addEqualityGroup(new TimeSeriesNameNodeCalc("ts2"), new TimeSeriesNameNodeCalc("ts2"))
@@ -58,7 +58,7 @@ public class NodeCalcEqualsTest {
     }
 
     @Test
-    public void timeSeriesNumTest() {
+    void timeSeriesNumTest() {
         new EqualsTester()
                 .addEqualityGroup(new TimeSeriesNumNodeCalc(1), new TimeSeriesNumNodeCalc(1))
                 .addEqualityGroup(new TimeSeriesNumNodeCalc(2), new TimeSeriesNumNodeCalc(2))
@@ -66,7 +66,7 @@ public class NodeCalcEqualsTest {
     }
 
     @Test
-    public void timeTest() {
+    void timeTest() {
         new EqualsTester()
                 .addEqualityGroup(new TimeNodeCalc(new IntegerNodeCalc(1)), new TimeNodeCalc(new IntegerNodeCalc(1)))
                 .addEqualityGroup(new TimeNodeCalc(new IntegerNodeCalc(2)), new TimeNodeCalc(new IntegerNodeCalc(2)))
@@ -74,7 +74,7 @@ public class NodeCalcEqualsTest {
     }
 
     @Test
-    public void binaryOperationTest() {
+    void binaryOperationTest() {
         new EqualsTester()
                 .addEqualityGroup(BinaryOperation.plus(new IntegerNodeCalc(1), new IntegerNodeCalc(2)),
                                   BinaryOperation.plus(new IntegerNodeCalc(1), new IntegerNodeCalc(2)))
@@ -84,7 +84,7 @@ public class NodeCalcEqualsTest {
     }
 
     @Test
-    public void unaryOperationTest() {
+    void unaryOperationTest() {
         new EqualsTester()
                 .addEqualityGroup(UnaryOperation.negative(new IntegerNodeCalc(1)),
                                   UnaryOperation.negative(new IntegerNodeCalc(1)))
@@ -94,7 +94,7 @@ public class NodeCalcEqualsTest {
     }
 
     @Test
-    public void minOperationTest() {
+    void minOperationTest() {
         new EqualsTester()
                 .addEqualityGroup(new MinNodeCalc(new IntegerNodeCalc(1), 3), new MinNodeCalc(new IntegerNodeCalc(1), 3))
                 .addEqualityGroup(new MinNodeCalc(new IntegerNodeCalc(2), 5), new MinNodeCalc(new IntegerNodeCalc(2), 5))
@@ -102,7 +102,7 @@ public class NodeCalcEqualsTest {
     }
 
     @Test
-    public void maxOperationTest() {
+    void maxOperationTest() {
         new EqualsTester()
                 .addEqualityGroup(new MaxNodeCalc(new IntegerNodeCalc(1), 3), new MaxNodeCalc(new IntegerNodeCalc(1), 3))
                 .addEqualityGroup(new MaxNodeCalc(new IntegerNodeCalc(2), 5), new MaxNodeCalc(new IntegerNodeCalc(2), 5))

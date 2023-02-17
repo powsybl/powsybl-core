@@ -8,8 +8,8 @@ package com.powsybl.commons.test;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,13 +27,13 @@ public abstract class AbstractConverterTest {
     protected FileSystem fileSystem;
     protected Path tmpDir;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws IOException {
         fileSystem.close();
     }
@@ -61,11 +61,14 @@ public abstract class AbstractConverterTest {
 
     protected <T> T roundTripTest(T data, BiConsumer<T, Path> out, Function<Path, T> in, BiConsumer<InputStream, InputStream> compare, String ref) throws IOException {
         Path xmlFile = writeTest(data, out, compare, ref);
+        try (InputStream is1 = Files.newInputStream(xmlFile)) {
+            compare.accept(getClass().getResourceAsStream(ref), is1);
+        }
         T data2 = in.apply(xmlFile);
         Path xmlFile2 = tmpDir.resolve("data2");
         out.accept(data2, xmlFile2);
-        try (InputStream is = Files.newInputStream(xmlFile2)) {
-            compare.accept(getClass().getResourceAsStream(ref), is);
+        try (InputStream is2 = Files.newInputStream(xmlFile2)) {
+            compare.accept(getClass().getResourceAsStream(ref), is2);
         }
         return data2;
     }

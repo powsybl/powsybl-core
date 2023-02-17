@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractTwoWindingsTransformerTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class TwoWindingsTransformerTest extends AbstractTwoWindingsTransformerTest { }
+class TwoWindingsTransformerTest extends AbstractTwoWindingsTransformerTest { }

@@ -13,33 +13,33 @@ import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest.DummyExtension;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
-public class LoadFlowParametersTest {
+class LoadFlowParametersTest {
 
     InMemoryPlatformConfig platformConfig;
     FileSystem fileSystem;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
@@ -69,7 +69,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void testNoConfig() {
+    void testNoConfig() {
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
@@ -90,7 +90,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void checkConfig() {
+    void checkConfig() {
         boolean transformerVoltageControlOn = true;
         boolean noGeneratorReactiveLimits = true;
         boolean phaseShifterRegulationOn = true;
@@ -134,7 +134,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void checkIncompleteConfig() {
+    void checkIncompleteConfig() {
         boolean transformerVoltageControlOn = true;
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
         moduleConfig.setStringProperty("transformerVoltageControlOn", Boolean.toString(transformerVoltageControlOn));
@@ -150,7 +150,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void checkDefaultPlatformConfig() {
+    void checkDefaultPlatformConfig() {
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters);
         checkValues(parameters, LoadFlowParameters.DEFAULT_VOLTAGE_INIT_MODE,
@@ -163,7 +163,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void checkConstructorByVoltageInitMode() {
+    void checkConstructorByVoltageInitMode() {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode);
         checkValues(parameters, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
@@ -176,7 +176,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void checkConstructorByVoltageInitModeAndTransformerVoltageControlOn() {
+    void checkConstructorByVoltageInitModeAndTransformerVoltageControlOn() {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
         boolean transformerVoltageControlOn = true;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode, transformerVoltageControlOn);
@@ -196,7 +196,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void checkConstructorByLoadFlowParameters() {
+    void checkConstructorByLoadFlowParameters() {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode);
         checkValues(parameters, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
@@ -236,7 +236,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void checkSetters() {
+    void checkSetters() {
         boolean transformerVoltageControlOn = true;
         boolean useReactiveLimits = false;
         boolean phaseShifterRegulationOn = true;
@@ -274,7 +274,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void checkClone() {
+    void checkClone() {
         boolean transformerVoltageControlOn = true;
         boolean useReactiveLimits = false;
         boolean phaseShifterRegulationOn = true;
@@ -302,7 +302,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void testExtensions() {
+    void testExtensions() {
         LoadFlowParameters parameters = new LoadFlowParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
@@ -314,7 +314,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void testCopyWithExtension() {
+    void testCopyWithExtension() {
         LoadFlowParameters parameters = new LoadFlowParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
@@ -326,7 +326,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void testNoExtensions() {
+    void testNoExtensions() {
         LoadFlowParameters parameters = new LoadFlowParameters();
 
         assertEquals(0, parameters.getExtensions().size());
@@ -336,7 +336,7 @@ public class LoadFlowParametersTest {
     }
 
     @Test
-    public void testExtensionFromConfig() {
+    void testExtensionFromConfig() {
         LoadFlowParameters parameters = LoadFlowParameters.load(platformConfig);
 
         assertEquals(1, parameters.getExtensions().size());

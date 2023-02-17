@@ -14,24 +14,19 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.ValidationException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractSubstationTest {
 
     private static final String SUB_NAME = "sub_name";
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private Network network;
 
-    @Before
+    @BeforeEach
     public void initNetwork() {
         network = Network.create("test", "test");
     }
@@ -100,7 +95,6 @@ public abstract class AbstractSubstationTest {
 
     @Test
     public void addNullTag() {
-        thrown.expect(ValidationException.class);
         Substation substation = network.newSubstation()
                                         .setId("sub")
                                         .setName(SUB_NAME)
@@ -109,9 +103,8 @@ public abstract class AbstractSubstationTest {
                                         .setEnsureIdUnicity(false)
                                         .setGeographicalTags("geoTag1", "geoTag2")
                                     .add();
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("geographical tag is null");
-        substation.addGeographicalTag(null);
+        ValidationException e = assertThrows(ValidationException.class, () -> substation.addGeographicalTag(null));
+        assertTrue(e.getMessage().contains("geographical tag is null"));
     }
 
     @Test
@@ -121,13 +114,13 @@ public abstract class AbstractSubstationTest {
                 .setName(SUB_NAME)
                 .setCountry(Country.AD)
             .add();
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("with the id 'duplicate'");
-        network.newSubstation()
-                .setId("duplicate")
-                .setName(SUB_NAME)
-                .setCountry(Country.AD)
-            .add();
+        PowsyblException e = assertThrows(PowsyblException.class, () ->
+                network.newSubstation()
+                        .setId("duplicate")
+                        .setName(SUB_NAME)
+                        .setCountry(Country.AD)
+                        .add());
+        assertTrue(e.getMessage().contains("with the id 'duplicate'"));
     }
 
 }

@@ -9,6 +9,6 @@ package com.powsybl.commons.extensions;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class Foo extends AbstractExtendable<Foo> {
+class Foo extends AbstractExtendable<Foo> {
 
 }

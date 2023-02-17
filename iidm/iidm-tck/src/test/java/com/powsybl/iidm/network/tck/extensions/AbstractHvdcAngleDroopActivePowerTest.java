@@ -15,14 +15,14 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
@@ -31,7 +31,7 @@ public abstract class AbstractHvdcAngleDroopActivePowerTest {
 
     private Network network;
 
-    @Before
+    @BeforeEach
     public void initNetwork() {
         network = HvdcTestNetwork.createLcc();
     }

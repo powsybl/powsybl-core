@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractLoadTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class LoadTest extends AbstractLoadTest { }
+class LoadTest extends AbstractLoadTest { }

@@ -10,20 +10,20 @@ import com.google.common.collect.Lists;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.apache.commons.cli.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class ToolOptionsTest {
+class ToolOptionsTest {
 
     private ToolRunningContext context;
     private FileSystem fileSystem;
@@ -32,20 +32,20 @@ public class ToolOptionsTest {
         VALUE
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         context = Mockito.mock(ToolRunningContext.class);
         Mockito.when(context.getFileSystem()).thenReturn(fileSystem);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void test() throws ParseException {
+    void test() throws ParseException {
         CommandLineParser parser = new DefaultParser();
 
         Options options = new Options();

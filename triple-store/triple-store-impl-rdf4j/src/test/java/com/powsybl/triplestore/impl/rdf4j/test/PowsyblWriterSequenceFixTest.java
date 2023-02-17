@@ -20,8 +20,8 @@ import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFHandlerException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlunit.builder.DiffBuilder;
@@ -37,12 +37,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class PowsyblWriterSequenceFixTest {
+class PowsyblWriterSequenceFixTest {
 
     private final PropertyBags objects = new PropertyBags();
     private final List<String> objectProperties = Arrays.asList("id", "property1", "property2");
@@ -52,8 +53,8 @@ public class PowsyblWriterSequenceFixTest {
     private final String objectType = "http://test/type1";
     private final String expected = "/fix-powsybl-writer-objects.xml";
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         PropertyBag object = new PropertyBag(objectProperties);
         object.put("id", "object1");
         object.put("property1", "object1-property1-value");
@@ -87,28 +88,28 @@ public class PowsyblWriterSequenceFixTest {
     // have been added to the triple store,
     // all attempts to write them to XML should be successful
 
-    @Test(expected = RDFHandlerException.class)
-    public void testRioWriteWithBadAddSequence() {
-        test(false, this::addPropertiesObjects);
-    }
-
-    @Test(expected = RDFHandlerException.class)
-    public void testRioWriteWithProperObjectSequenceBadTypeSequence() {
-        test(false, this::addObjectPropertiesType);
+    @Test
+    void testRioWriteWithBadAddSequence() {
+        assertThrows(RDFHandlerException.class, () -> test(false, this::addPropertiesObjects));
     }
 
     @Test
-    public void testRioWriteWithProperAddSequence() {
+    void testRioWriteWithProperObjectSequenceBadTypeSequence() {
+        assertThrows(RDFHandlerException.class, () -> test(false, this::addObjectPropertiesType));
+    }
+
+    @Test
+    void testRioWriteWithProperAddSequence() {
         test(false, this::addObjectTypeProperties);
     }
 
     @Test
-    public void testRioWriteOverrideWithBadAddSequence() {
+    void testRioWriteOverrideWithBadAddSequence() {
         test(true, this::addPropertiesObjects);
     }
 
     @Test
-    public void testRioWriteOverrideWithProperObjectSequenceBadTypeSequence() {
+    void testRioWriteOverrideWithProperObjectSequenceBadTypeSequence() {
         test(true, this::addObjectPropertiesType);
     }
 

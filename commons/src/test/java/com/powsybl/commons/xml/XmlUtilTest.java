@@ -9,7 +9,7 @@ package com.powsybl.commons.xml;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -21,12 +21,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class XmlUtilTest {
+class XmlUtilTest {
 
     private static final String XML = String.join(System.lineSeparator(),
             "<a>",
@@ -37,7 +37,7 @@ public class XmlUtilTest {
             "</a>");
 
     @Test
-    public void readUntilEndElementWithDepthTest() throws XMLStreamException {
+    void readUntilEndElementWithDepthTest() throws XMLStreamException {
         Map<String, Integer> depths = new HashMap<>();
         try (StringReader reader = new StringReader(XML)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
@@ -51,7 +51,7 @@ public class XmlUtilTest {
     }
 
     @Test
-    public void nestedReadUntilEndElementWithDepthTest() throws XMLStreamException {
+    void nestedReadUntilEndElementWithDepthTest() throws XMLStreamException {
         Map<String, Integer> depths = new HashMap<>();
         try (StringReader reader = new StringReader(XML)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
@@ -76,7 +76,7 @@ public class XmlUtilTest {
     }
 
     @Test
-    public void readUntilStartElementTest() throws XMLStreamException {
+    void readUntilStartElementTest() throws XMLStreamException {
         readUntilStartElementTest("/a", "a");
         readUntilStartElementTest("/a/b/c", "c");
         readUntilStartElementTest("/a/d", "d");
@@ -111,7 +111,7 @@ public class XmlUtilTest {
     }
 
     @Test
-    public void readTextTest() throws XMLStreamException {
+    void readTextTest() throws XMLStreamException {
         String xml = "<a>hello</a>";
         try (StringReader reader = new StringReader(xml)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
@@ -124,7 +124,7 @@ public class XmlUtilTest {
     }
 
     @Test
-    public void initializeWriterDefault() throws XMLStreamException {
+    void initializeWriterDefault() throws XMLStreamException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, " ", baos);
         writer.close();
@@ -132,7 +132,7 @@ public class XmlUtilTest {
     }
 
     @Test
-    public void initializeWriter() throws XMLStreamException {
+    void initializeWriter() throws XMLStreamException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         XMLStreamWriter writer = XmlUtil.initializeWriter(false, " ", baos, StandardCharsets.ISO_8859_1);
         writer.close();

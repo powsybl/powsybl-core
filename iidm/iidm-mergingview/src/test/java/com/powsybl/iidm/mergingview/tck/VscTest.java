@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractVscTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class VscTest extends AbstractVscTest { }
+class VscTest extends AbstractVscTest { }

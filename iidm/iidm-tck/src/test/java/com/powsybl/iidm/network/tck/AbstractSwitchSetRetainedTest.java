@@ -8,9 +8,12 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -69,5 +72,29 @@ public abstract class AbstractSwitchSetRetainedTest {
         variantManager.setWorkingVariant("backup");
         assertTrue(b1.isRetained());
         assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
+    }
+
+    @Test
+    public void testCloseRetainedSwitch() {
+        Network network = createNetwork();
+        VoltageLevel vl = network.getVoltageLevel("VL");
+        assertNotNull(vl);
+
+        Switch b1 = network.getSwitch("B1");
+        assertNotNull(b1);
+        assertTrue(b1.isRetained());
+        assertFalse(b1.isOpen());
+
+        List<Bus> buses0 = vl.getBusBreakerView().getBusStream().collect(Collectors.toList());
+
+        b1.setOpen(true);
+
+        List<Bus> buses1 = vl.getBusBreakerView().getBusStream().collect(Collectors.toList());
+        assertEquals(buses0, buses1);
+
+        b1.setOpen(false);
+
+        List<Bus> buses2 = vl.getBusBreakerView().getBusStream().collect(Collectors.toList());
+        assertEquals(buses0, buses2);
     }
 }

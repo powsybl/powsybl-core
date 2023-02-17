@@ -10,7 +10,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.shortcircuit.BranchFault;
 import com.powsybl.shortcircuit.BusFault;
 import com.powsybl.shortcircuit.Fault;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -18,16 +18,16 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class JsonShortCircuitInputTest extends AbstractConverterTest {
+class JsonShortCircuitInputTest extends AbstractConverterTest {
 
     @Test
-    public void roundTrip() throws IOException {
+    void roundTrip() throws IOException {
         List<Fault> faults = new ArrayList<>();
         faults.add(new BranchFault("F1", "branchId", 1.0, 2.0, Fault.ConnectionType.PARALLEL, Fault.FaultType.SINGLE_PHASE, 3.0));
         faults.add(new BusFault("F2", "busId", 1.1, 2.2, Fault.ConnectionType.SERIES, Fault.FaultType.THREE_PHASE));
@@ -36,7 +36,7 @@ public class JsonShortCircuitInputTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readUnexpectedField() throws IOException {
+    void readUnexpectedField() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultsFileInvalid.json"), fileSystem.getPath("/FaultsFileInvalid.json"));
 
         Path path = fileSystem.getPath("/FaultsFileInvalid.json");
@@ -45,7 +45,7 @@ public class JsonShortCircuitInputTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readNoType() throws IOException {
+    void readNoType() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultsFileNoType.json"), fileSystem.getPath("/FaultsFileNoType.json"));
 
         Path path = fileSystem.getPath("/FaultsFileNoType.json");

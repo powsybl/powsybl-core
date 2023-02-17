@@ -23,7 +23,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class Repackager {
+class Repackager {
 
     Repackager(ReadOnlyDataSource dataSource) {
         this.dataSource = dataSource;

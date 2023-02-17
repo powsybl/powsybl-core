@@ -13,17 +13,17 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.NetworkModification;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class BranchTrippingTest {
+class BranchTrippingTest {
 
     @Test
-    public void lineTrippingTest() {
+    void lineTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
         Line line = network.getLine("NHV1_NHV2_1");
 
@@ -52,7 +52,7 @@ public class BranchTrippingTest {
     }
 
     @Test
-    public void transformerTrippingTest() {
+    void transformerTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("NHV2_NLOAD");
 
@@ -81,7 +81,7 @@ public class BranchTrippingTest {
     }
 
     @Test
-    public void legacyTest() {
+    void legacyTest() {
         Network network = EurostagTutorialExample1Factory.create();
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("NHV2_NLOAD");
 

@@ -12,20 +12,20 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class CreateCouplingDeviceTest extends AbstractConverterTest {
+class CreateCouplingDeviceTest extends AbstractConverterTest {
 
     @Test
-    public void createCouplingDevice2BusbarSectionsSameSectionIndex() throws IOException {
+    void createCouplingDevice2BusbarSectionsSameSectionIndex() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         NetworkModification couplingDeviceModif = new CreateCouplingDeviceBuilder()
                 .withBusbarSectionId1("bbs1")
@@ -38,7 +38,7 @@ public class CreateCouplingDeviceTest extends AbstractConverterTest {
     }
 
     @Test
-    public void createCouplingDevice2BusbarSectionsDifferentSectionIndex() throws IOException {
+    void createCouplingDevice2BusbarSectionsDifferentSectionIndex() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         NetworkModification couplingDeviceModif = new CreateCouplingDeviceBuilder()
                 .withBusbarSectionId1("bbs1")
@@ -50,7 +50,7 @@ public class CreateCouplingDeviceTest extends AbstractConverterTest {
     }
 
     @Test
-    public void createCouplingDeviceThrowsException() {
+    void createCouplingDeviceThrowsException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
         NetworkModification couplingDeviceModifWrongBbs = new CreateCouplingDeviceBuilder()
@@ -76,7 +76,7 @@ public class CreateCouplingDeviceTest extends AbstractConverterTest {
     }
 
     @Test
-    public void createCouplingDeviceWithoutPositionExtensions() throws IOException {
+    void createCouplingDeviceWithoutPositionExtensions() throws IOException {
         Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
         NetworkModification modification = new CreateCouplingDeviceBuilder()
                 .withBusbarSectionId1("bbs1")
@@ -88,7 +88,7 @@ public class CreateCouplingDeviceTest extends AbstractConverterTest {
     }
 
     @Test
-    public void createCouplingDevice3BusbarSections() throws IOException {
+    void createCouplingDevice3BusbarSections() throws IOException {
         Network network = Network.read("testNetwork3BusbarSections.xiidm", getClass().getResourceAsStream("/testNetwork3BusbarSections.xiidm"));
         NetworkModification modification = new CreateCouplingDeviceBuilder()
                 .withBusbarSectionId1("VLTEST13")

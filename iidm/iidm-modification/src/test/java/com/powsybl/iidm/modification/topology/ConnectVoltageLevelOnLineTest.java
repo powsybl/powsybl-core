@@ -15,20 +15,20 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
+class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
 
     @Test
-    public void attachVoltageLevelOnLineNbTest() throws IOException {
+    void attachVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
@@ -40,7 +40,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void connectVoltageLevelOnLineNbBbTest() throws IOException {
+    void connectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
@@ -52,7 +52,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void connectVoltageLevelOnLineBbTest() throws IOException {
+    void connectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("bus")
@@ -64,7 +64,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).build();
@@ -78,7 +78,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testSetters() {
+    void testSetters() {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         ConnectVoltageLevelOnLine modification = new ConnectVoltageLevelOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).build();
@@ -95,7 +95,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testCompleteBuilder() throws IOException {
+    void testCompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withPositionPercent(40)
@@ -112,7 +112,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testIncompleteBuilder() throws IOException {
+    void testIncompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
@@ -124,7 +124,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExceptions() {
+    void testExceptions() {
         Network network1 = createNbNetworkWithBusbarSection();
 
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
@@ -144,7 +144,7 @@ public class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testIgnore() throws IOException {
+    void testIgnore() throws IOException {
         Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
         NetworkModification modification1 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")

@@ -11,9 +11,9 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.triplestore.api.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,14 +22,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class ExportTest {
+class ExportTest {
 
     private final String networkId = "network-id";
     private final String cimNamespace = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
@@ -56,14 +56,14 @@ public class ExportTest {
     private FileSystem fileSystem;
     private Path exportFolder;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         exportFolder = Files.createDirectory(fileSystem.getPath(exportFolderName));
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
@@ -86,7 +86,7 @@ public class ExportTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         for (String implementation : TripleStoreFactory.allImplementations()) {
             // create export triple store
             TripleStore exportTripleStore = TripleStoreFactory.create(implementation);

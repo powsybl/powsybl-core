@@ -6,19 +6,19 @@
  */
 package com.powsybl.ucte.network;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.powsybl.ucte.network.UcteCountryCode.isUcteCountryCode;
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class UcteCountryCodeTest {
+class UcteCountryCodeTest {
 
     @Test
-    public void test() {
+    void test() {
         final char[] countryCodeNodes = {
             'O', 'A', 'B', 'V', 'W', '3', 'S', 'C', 'D',
             'K', 'E', 'F', '5', 'G', 'M', 'H', 'I', '1',
@@ -42,13 +42,13 @@ public class UcteCountryCodeTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void unknownCountryCode() {
-        UcteCountryCode.fromUcteCode('&');
+    @Test
+    void unknownCountryCode() {
+        assertThrows(IllegalArgumentException.class, () -> UcteCountryCode.fromUcteCode('&'));
     }
 
     @Test
-    public void isUcteCountryCodeTest() {
+    void isUcteCountryCodeTest() {
         assertTrue(isUcteCountryCode('A'));
         assertTrue(isUcteCountryCode('1'));
         assertFalse(isUcteCountryCode('&'));

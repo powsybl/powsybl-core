@@ -30,10 +30,18 @@ public class InjectionCriterionContingencyListSerializer extends StdSerializer<I
         jsonGenerator.writeStringField("version", ContingencyList.getVersion());
         jsonGenerator.writeStringField("name", criterionContingencyList.getName());
         jsonGenerator.writeStringField("identifiableType", criterionContingencyList.getIdentifiableType().toString());
-        jsonGenerator.writeObjectField("countryCriterion", criterionContingencyList.getCountryCriterion());
-        jsonGenerator.writeObjectField("nominalVoltageCriterion", criterionContingencyList.getNominalVoltageCriterion());
-        jsonGenerator.writeObjectField("propertyCriteria", criterionContingencyList.getPropertyCriteria());
-        jsonGenerator.writeObjectField("regexCriterion", criterionContingencyList.getRegexCriterion());
+        serializerProvider.defaultSerializeField("countryCriterion",
+                criterionContingencyList.getCountryCriterion(),
+                jsonGenerator);
+        serializerProvider.defaultSerializeField("nominalVoltageCriterion",
+                criterionContingencyList.getNominalVoltageCriterion(),
+                jsonGenerator);
+        serializerProvider.defaultSerializeField("propertyCriteria",
+                criterionContingencyList.getPropertyCriteria(),
+                jsonGenerator);
+        serializerProvider.defaultSerializeField("regexCriterion",
+                criterionContingencyList.getRegexCriterion(),
+                jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

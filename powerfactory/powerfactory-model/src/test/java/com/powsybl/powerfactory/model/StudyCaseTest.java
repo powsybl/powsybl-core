@@ -6,8 +6,8 @@
  */
 package com.powsybl.powerfactory.model;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -16,16 +16,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StudyCaseTest extends AbstractPowerFactoryTest {
+class StudyCaseTest extends AbstractPowerFactoryTest {
 
     private StudyCase studyCase;
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
         var studyTime = Instant.parse("2021-10-30T09:35:25Z");
@@ -33,7 +33,7 @@ public class StudyCaseTest extends AbstractPowerFactoryTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         assertEquals("test", studyCase.getName());
         Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
         assertEquals(studyTime, studyCase.getTime());
@@ -42,7 +42,7 @@ public class StudyCaseTest extends AbstractPowerFactoryTest {
     }
 
     @Test
-    public void jsonTest() throws IOException {
+    void jsonTest() throws IOException {
         var studyCase2 = roundTripTest(studyCase, StudyCase::writeJson, StudyCase::readJson, "/studyCase.json");
         assertEquals("test", studyCase2.getName());
         Instant studyTime = Instant.parse("2021-10-30T09:35:25Z");
@@ -58,7 +58,7 @@ public class StudyCaseTest extends AbstractPowerFactoryTest {
     }
 
     @Test
-    public void loaderTest() {
+    void loaderTest() {
         var loader = new JsonStudyCaseLoader();
         assertEquals(StudyCase.class, loader.getDataClass());
         assertEquals("json", loader.getExtension());

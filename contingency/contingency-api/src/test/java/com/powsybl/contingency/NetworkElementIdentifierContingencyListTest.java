@@ -13,20 +13,20 @@ import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentif
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class NetworkElementIdentifierContingencyListTest {
+class NetworkElementIdentifierContingencyListTest {
 
     @Test
-    public void testSimpleIdentifier() {
+    void testSimpleIdentifier() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
         networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier("LINE_S2S3"));
@@ -41,7 +41,7 @@ public class NetworkElementIdentifierContingencyListTest {
     }
 
     @Test
-    public void testUcteIdentifier() {
+    void testUcteIdentifier() {
         Network network = EurostagTutorialExample1Factory.create();
         List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
         networkElementIdentifierList.add(new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '1'));
@@ -52,7 +52,7 @@ public class NetworkElementIdentifierContingencyListTest {
     }
 
     @Test
-    public void testIdentifierList() {
+    void testIdentifierList() {
         Network network = EurostagTutorialExample1Factory.create();
         List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
         List<NetworkElementIdentifier> networkElementIdentifierListElements = new ArrayList<>();

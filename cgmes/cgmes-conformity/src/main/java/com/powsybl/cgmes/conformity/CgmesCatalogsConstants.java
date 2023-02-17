@@ -14,6 +14,7 @@ final class CgmesCatalogsConstants {
 
     static final String CGMES_3_TEST_MODELS = "/cgmes3-test-models";
     static final String ENTSOE_CONFORMITY_1 = "/conformity/cas-1.1.3-data-4.0.3";
+    static final String ENTSOE_CONFORMITY_3 = "/conformity/cas-3-data-3.0.2";
 
     static final String MICRO_GRID_BE_BASE = ENTSOE_CONFORMITY_1
             + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
@@ -41,6 +42,13 @@ final class CgmesCatalogsConstants {
             + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
     static final String SMALL_GRID_NODE_BREAKER_BD_BASE = ENTSOE_CONFORMITY_1
             + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+
+    static final String MICRO_GRID_3_BE_BASE = ENTSOE_CONFORMITY_3
+            + "/MicroGrid/BaseCase/MicroGrid-BE-MAS/";
+    static final String MICRO_GRID_3_NL_BASE = ENTSOE_CONFORMITY_3
+            + "/MicroGrid/BaseCase/MicroGrid-NL-MAS/";
+    static final String MICRO_GRID_3_BD_BASE = ENTSOE_CONFORMITY_3
+            + "/MicroGrid/BaseCase/MicroGrid-BD-MAS/";
 
     static final String CGMES_3_MICRO_GRID_BASE = CGMES_3_TEST_MODELS + "/MicroGrid/";
     static final String CGMES_3_MINI_GRID_BASE = CGMES_3_TEST_MODELS + "/MiniGrid/";

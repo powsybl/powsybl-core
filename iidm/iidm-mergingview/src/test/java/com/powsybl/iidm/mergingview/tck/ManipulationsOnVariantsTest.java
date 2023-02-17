@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractManipulationsOnVariantsTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class ManipulationsOnVariantsTest extends AbstractManipulationsOnVariantsTest { }
+class ManipulationsOnVariantsTest extends AbstractManipulationsOnVariantsTest { }

@@ -7,16 +7,16 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeBreakerConnectTest {
+class NodeBreakerConnectTest {
 
     /**
      * <pre>
@@ -138,7 +138,7 @@ public class NodeBreakerConnectTest {
     }
 
     @Test
-    public void testNodeBreakerConnectConnectedLoad() {
+    void testNodeBreakerConnectConnectedLoad() {
         Network network = createNetwork();
         Load l = network.getLoad("LD");
         assertTrue(l.getTerminal().isConnected());
@@ -150,7 +150,7 @@ public class NodeBreakerConnectTest {
     }
 
     @Test
-    public void testNodeBreakerDisconnectDisconnectedLoad() {
+    void testNodeBreakerDisconnectDisconnectedLoad() {
         Network network = createNetwork();
         network.getSwitch("B3").setOpen(true);
         Load l = network.getLoad("LD");
@@ -162,7 +162,7 @@ public class NodeBreakerConnectTest {
     }
 
     @Test
-    public void testNodeBreakerDisconnectionDiamond() {
+    void testNodeBreakerDisconnectionDiamond() {
         Network network = createDiamondNetwork();
         Load l = network.getLoad("L");
         assertTrue(l.getTerminal().isConnected());

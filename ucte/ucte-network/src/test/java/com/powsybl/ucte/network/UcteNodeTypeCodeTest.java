@@ -6,19 +6,19 @@
  */
 package com.powsybl.ucte.network;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.powsybl.ucte.network.UcteNodeTypeCode.*;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class UcteNodeTypeCodeTest {
+class UcteNodeTypeCodeTest {
 
     @Test
-    public void test() {
+    void test() {
         assertEquals(4, values().length);
         assertArrayEquals(new UcteNodeTypeCode[] {PQ, QT, PU, UT}, UcteNodeTypeCode.values());
     }
