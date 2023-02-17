@@ -190,9 +190,9 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public void remove() {
-        removed = true;
         regulated.forEach(RegulatingPoint::remove);
         regulated.clear();
+        removed = true;
     }
 
     @Override

@@ -7,21 +7,51 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import gnu.trove.list.array.TIntArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.function.Supplier;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-class RegulatingPoint {
+class RegulatingPoint implements MultiVariantObject {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RegulatingPoint.class);
+
+    private final String regulatedEquipmentId;
     private final Supplier<TerminalExt> localTerminalSupplier;
     private TerminalExt terminal = null;
 
-    RegulatingPoint(Supplier<TerminalExt> localTerminalSupplier) {
+    // attributes depending on the variant
+
+    private final TBooleanArrayList regulating;
+    private final TIntArrayList regulationMode;
+
+    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, boolean regulating) {
+        this.regulatedEquipmentId = regulatedEquipmentId;
         this.localTerminalSupplier = localTerminalSupplier;
+        this.regulating = new TBooleanArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.regulating.add(regulating);
+        }
+        this.regulationMode = null;
     }
 
-    void set(TerminalExt terminal) {
+    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, int regulationMode) {
+        this.regulatedEquipmentId = regulatedEquipmentId;
+        this.localTerminalSupplier = localTerminalSupplier;
+        this.regulationMode = new TIntArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.regulationMode.add(regulationMode);
+        }
+        this.regulating = null;
+    }
+
+    void setTerminal(TerminalExt terminal) {
         if (this.terminal != null) {
             this.terminal.removeRegulatingPoint(this);
         }
@@ -31,11 +61,83 @@ class RegulatingPoint {
         }
     }
 
-    TerminalExt get() {
+    TerminalExt getTerminal() {
         return terminal;
     }
 
+    boolean setRegulating(int index, boolean regulating) {
+        return this.regulating.set(index, regulating);
+    }
+
+    boolean isRegulating(int index) {
+        return regulating.get(index);
+    }
+
+    int setRegulationMode(int index, int regulationMode) {
+        return this.regulationMode.set(index, regulationMode);
+    }
+
+    int getRegulationMode(int index) {
+        return regulationMode.get(index);
+    }
+
     void remove() {
+        LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", terminal.getConnectable().getId(), regulatedEquipmentId);
         terminal = localTerminalSupplier.get();
+        if (regulating != null) {
+            for (int i = 0; i < this.regulating.size(); i++) {
+                this.regulating.set(i, false);
+            }
+        }
+        if (regulationMode != null) {
+            for (int i = 0; i < this.regulationMode.size(); i++) {
+                this.regulationMode.set(i, StaticVarCompensator.RegulationMode.OFF.ordinal());
+            }
+        }
+    }
+
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        if (regulating != null) {
+            regulating.ensureCapacity(regulating.size() + number);
+        }
+        if (regulationMode != null) {
+            regulationMode.ensureCapacity(regulationMode.size() + number);
+        }
+        for (int i = 0; i < number; i++) {
+            if (regulating != null) {
+                regulating.add(regulating.get(sourceIndex));
+            }
+            if (regulationMode != null) {
+                regulationMode.add(regulationMode.get(sourceIndex));
+            }
+        }
+    }
+
+    @Override
+    public void reduceVariantArraySize(int number) {
+        if (regulating != null) {
+            regulating.remove(regulating.size() - number, number);
+        }
+        if (regulationMode != null) {
+            regulationMode.remove(regulationMode.size() - number, number);
+        }
+    }
+
+    @Override
+    public void deleteVariantArrayElement(int index) {
+        // nothing to do
+    }
+
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        for (int index : indexes) {
+            if (regulating != null) {
+                regulating.set(index, regulating.get(sourceIndex));
+            }
+            if (regulationMode != null) {
+                regulationMode.set(index, regulationMode.get(sourceIndex));
+            }
+        }
     }
 }
