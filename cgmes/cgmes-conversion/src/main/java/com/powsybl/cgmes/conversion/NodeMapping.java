@@ -20,7 +20,8 @@ import java.util.Map;
  */
 public class NodeMapping {
 
-    public NodeMapping() {
+    public NodeMapping(Context context) {
+        this.context = context;
         cgmes2iidm = new HashMap<>(100);
         voltageLevelNumNodes = new HashMap<>(100);
     }
@@ -29,7 +30,7 @@ public class NodeMapping {
         String uniqueId;
         int i = 0;
         do {
-            uniqueId = id + "#" + Integer.toString(i++);
+            uniqueId = id + "#" + i++;
         } while (cgmes2iidm.containsKey(uniqueId) && i < Integer.MAX_VALUE);
         int iidmNodeForTopologicalNode = newNode(vl);
         cgmes2iidm.put(uniqueId, iidmNodeForTopologicalNode);
@@ -55,11 +56,12 @@ public class NodeMapping {
         // in addition to the information of opened switches also set
         // the terminal.connected property to false,
         // we have decided to create fictitious switches to precisely
-        // map this situation to IIDM
+        // map this situation to IIDM.
+        // This behavior can be disabled through configuration.
 
         boolean connected = t.connected() && equipmentIsConnected;
 
-        if (connected) {
+        if (connected || !context.config().isCreateFictitiousSwitchesForDisconnectedTerminals()) {
             // TODO(Luma): do not add an internal connection if is has already been added?
             vl.getNodeBreakerView().newInternalConnection()
                     .setNode1(iidmNodeForConductingEquipment)
@@ -97,4 +99,5 @@ public class NodeMapping {
 
     private final Map<String, Integer> cgmes2iidm;
     private final Map<VoltageLevel, Integer> voltageLevelNumNodes;
+    private final Context context;
 }
