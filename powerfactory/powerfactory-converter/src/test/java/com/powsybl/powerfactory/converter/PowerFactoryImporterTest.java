@@ -277,7 +277,7 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void mediumVoltageLoad() {
+    void mediumVoltageLoad() {
         assertTrue(importAndCompareXiidm("MediumVoltageLoad"));
     }
 
