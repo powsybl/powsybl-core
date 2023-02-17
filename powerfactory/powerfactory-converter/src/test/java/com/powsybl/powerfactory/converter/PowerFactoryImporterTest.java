@@ -277,7 +277,7 @@ class PowerFactoryImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void lineWithOnlyOneSideTest() {
+    void lineWithOnlyOneSideTest() {
         assertTrue(importAndCompareXiidm("LineWithOnlyOneSide"));
     }
 
