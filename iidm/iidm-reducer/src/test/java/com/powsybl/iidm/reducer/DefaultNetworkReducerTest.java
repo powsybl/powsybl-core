@@ -7,6 +7,7 @@
 package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRangeAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -276,7 +277,28 @@ class DefaultNetworkReducerTest {
         assertEquals(1, observerVsc.getHvdcLineReplacedCount());
         assertEquals(1, observerVsc.getHvdcLineRemovedCount());
         assertEquals(1, networkVsc.getGeneratorCount());
+        Generator gen = networkVsc.getGenerator("L");
+        assertEquals(300, gen.getMaxP());
+        assertEquals(-300, gen.getMinP());
 
+    }
+
+    @Test
+    void testHvdcReplacementActivePowerRange() {
+        Network networkVsc = HvdcTestNetwork.createVsc();
+        HvdcLine line = networkVsc.getHvdcLine("L");
+        line.newExtension(HvdcOperatorActivePowerRangeAdder.class)
+                .withOprFromCS2toCS1(120)
+                .withOprFromCS1toCS2(80)
+                .add();
+        NetworkReducer reducerVsc = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .build();
+        reducerVsc.reduce(networkVsc);
+
+        Generator gen = networkVsc.getGenerator("L");
+        assertEquals(120, gen.getMaxP());
+        assertEquals(-80, gen.getMinP());
     }
 
     @Test
