@@ -139,6 +139,13 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     }
 
     @Test
+    void readJsonVersion19() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion19.json"));
+        assertEquals(0.8d, parameters.getDcPowerFactor(), 0d);
+    }
+
+    @Test
     void readJsonVersion10Exception() {
         InputStream inputStream = getClass().getResourceAsStream("/LoadFlowParametersVersion10Exception.json");
         assertThrows(PowsyblException.class, () -> JsonLoadFlowParameters.read(inputStream), "LoadFlowParameters. Tag: t2wtSplitShuntAdmittance is not valid for version 1.0. Version should be > 1.0");
