@@ -7,10 +7,13 @@
 package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+
+import static java.lang.Math.min;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -239,13 +242,26 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceHvdcLineByGenerator(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal) {
+        double maxP;
+        double minP;
+        double lineMaxP = hvdcLine.getMaxP();
+        HvdcOperatorActivePowerRange ext = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
+        if (ext != null) {
+            boolean cs1Kept = hvdcLine.getConverterStation1().getTerminal() == terminal;
+            maxP = cs1Kept ? min(ext.getOprFromCS2toCS1(), lineMaxP) : min(ext.getOprFromCS1toCS2(), lineMaxP);
+            minP = cs1Kept ? -min(ext.getOprFromCS1toCS2(), lineMaxP) : -min(ext.getOprFromCS2toCS1(), lineMaxP);
+        } else {
+            maxP = lineMaxP;
+            minP = -lineMaxP;
+        }
+
         GeneratorAdder genAdder = vl.newGenerator()
                 .setId(hvdcLine.getId())
                 .setName(hvdcLine.getOptionalName().orElse(null))
                 .setEnergySource(EnergySource.OTHER)
                 .setVoltageRegulatorOn(false)
-                .setMaxP(checkP(terminal))
-                .setMinP(0)
+                .setMaxP(maxP)
+                .setMinP(minP)
                 .setTargetP(checkP(terminal))
                 .setTargetQ(checkQ(terminal));
         fillNodeOrBus(genAdder, terminal);
