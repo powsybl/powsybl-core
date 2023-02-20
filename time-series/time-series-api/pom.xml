@@ -60,11 +60,6 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava-testlib</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-config-test</artifactId>
             <version>${project.version}</version>
