@@ -12,6 +12,8 @@ import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationType;
 import org.assertj.core.api.Assertions;
+
+import static com.powsybl.iidm.network.util.LimitViolationUtils.PERMANENT_LIMIT_NAME;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -56,6 +59,31 @@ class DefaultLimitViolationDetectorTest {
                     assertEquals(1101, l.getValue(), 0d);
                     assertSame(Branch.Side.TWO, l.getSide());
                     assertEquals(600, l.getAcceptableDuration());
+                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                });
+    }
+
+    @Test
+    void testLimitReductionOnCurrentPermanentLimit() {
+        final double i = 460;
+        Optional<? extends LoadingLimits> line1Limits = line1.getLimits(LimitType.CURRENT, Branch.Side.ONE);
+        assertTrue(line1Limits.isPresent()
+            && line1Limits.get().getTemporaryLimits().isEmpty()
+            && line1Limits.get().getPermanentLimit() > i); // no overload expected
+
+        // no violation if limitReduction is 1
+        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
+        cdetector.checkLimitViolation(line1, Branch.Side.ONE, i, violationsCollector::add, LimitType.CURRENT);
+        assertTrue(violationsCollector.isEmpty());
+
+        // violation reported if limitReduction is 0.9
+        cdetector = new DefaultLimitViolationDetector(0.9f, EnumSet.allOf(LoadingLimitType.class));
+        cdetector.checkLimitViolation(line1, Branch.Side.ONE, i, violationsCollector::add, LimitType.CURRENT);
+        Assertions.assertThat(violationsCollector)
+                .hasSize(1)
+                .allSatisfy(l -> {
+                    assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(0.9f, l.getLimitReduction());
                 });
     }
 
@@ -129,7 +157,7 @@ class DefaultLimitViolationDetectorTest {
         line1 = network.getLine("NHV1_NHV2_1");
         line2 = network.getLine("NHV1_NHV2_2");
 
-        detector.checkPermanentLimit(line1, Branch.Side.TWO, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
+        detector.checkPermanentLimit(line1, Branch.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
@@ -137,6 +165,7 @@ class DefaultLimitViolationDetectorTest {
                       assertEquals(1100, l.getLimit(), 0d);
                       assertEquals(1101, l.getValue(), 0d);
                       assertSame(Branch.Side.TWO, l.getSide());
+                      assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
 
@@ -147,7 +176,7 @@ class DefaultLimitViolationDetectorTest {
         line1 = network.getLine("NHV1_NHV2_1");
         line2 = network.getLine("NHV1_NHV2_2");
 
-        detector.checkPermanentLimit(line1, Branch.Side.TWO, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
+        detector.checkPermanentLimit(line1, Branch.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
@@ -155,6 +184,7 @@ class DefaultLimitViolationDetectorTest {
                       assertEquals(1100, l.getLimit(), 0d);
                       assertEquals(1101, l.getValue(), 0d);
                       assertSame(Branch.Side.TWO, l.getSide());
+                      assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
 
@@ -172,6 +202,7 @@ class DefaultLimitViolationDetectorTest {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
                       assertSame(Branch.Side.TWO, l.getSide());
+                      assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
 
@@ -189,6 +220,7 @@ class DefaultLimitViolationDetectorTest {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
                       assertSame(Branch.Side.TWO, l.getSide());
+                      assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
 
