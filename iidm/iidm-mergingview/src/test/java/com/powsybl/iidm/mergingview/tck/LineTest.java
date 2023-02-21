@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractLineTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class LineTest extends AbstractLineTest { }
+class LineTest extends AbstractLineTest { }

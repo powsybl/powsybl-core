@@ -6,17 +6,18 @@
  */
 package com.powsybl.ucte.network;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class UcteElementStatusTest {
+class UcteElementStatusTest {
 
     @Test
-    public void test() {
+    void test() {
         int[] status = {0, 8, 1, 9, 2, 7};
 
         assertEquals(6, UcteElementStatus.values().length);
@@ -27,8 +28,8 @@ public class UcteElementStatusTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void unknownElementStatus() {
-        UcteElementStatus.fromCode(10);
+    @Test
+    void unknownElementStatus() {
+        assertThrows(IllegalArgumentException.class, () -> UcteElementStatus.fromCode(10));
     }
 }

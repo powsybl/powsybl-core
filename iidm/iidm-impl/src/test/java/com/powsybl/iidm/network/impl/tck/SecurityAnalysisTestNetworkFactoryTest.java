@@ -12,5 +12,5 @@ import com.powsybl.iidm.network.tck.AbstractSecurityAnalysisTestNetworkFactoryTe
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class SecurityAnalysisTestNetworkFactoryTest extends AbstractSecurityAnalysisTestNetworkFactoryTest {
+class SecurityAnalysisTestNetworkFactoryTest extends AbstractSecurityAnalysisTestNetworkFactoryTest {
 }

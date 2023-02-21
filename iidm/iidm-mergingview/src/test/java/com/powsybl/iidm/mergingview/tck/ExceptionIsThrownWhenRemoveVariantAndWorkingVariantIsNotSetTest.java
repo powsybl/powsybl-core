@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractExceptionIsThrownWhenRemoveVariantAn
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class ExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest extends AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest { }
+class ExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest extends AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest { }

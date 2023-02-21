@@ -35,8 +35,8 @@
 
         <!-- junit is required by testcontainers, and powsybl parent pom implies test scope, we need to override it -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>

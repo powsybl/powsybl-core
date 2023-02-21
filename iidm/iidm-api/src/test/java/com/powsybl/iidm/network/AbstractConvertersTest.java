@@ -8,10 +8,8 @@ package com.powsybl.iidm.network;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -20,10 +18,7 @@ import java.nio.file.Path;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public abstract class AbstractConvertersTest {
-
-    @Rule
-    public ExpectedException expected = ExpectedException.none();
+abstract class AbstractConvertersTest {
 
     protected FileSystem fileSystem;
     protected Path path;
@@ -33,15 +28,15 @@ public abstract class AbstractConvertersTest {
     protected static final String UNSUPPORTED_FORMAT = "UNSUPPORTED";
     protected static final String EXTENSION = "tst";
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         path = fileSystem.getPath("/work/foo.tst");
         badPath = fileSystem.getPath("/work/baz.txt");
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 }

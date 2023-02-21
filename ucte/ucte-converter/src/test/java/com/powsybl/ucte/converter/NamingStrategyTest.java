@@ -14,20 +14,20 @@ import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteElementId;
 import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UcteVoltageLevelCode;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class NamingStrategyTest {
+class NamingStrategyTest {
 
     @Test
-    public void testUcteCode() {
+    void testUcteCode() {
         NamingStrategy strategy = new DefaultNamingStrategy();
 
         UcteNodeCode code = strategy.getUcteNodeCode("FABCDE12");
@@ -41,7 +41,7 @@ public class NamingStrategyTest {
     }
 
     @Test
-    public void testUcteElementId() {
+    void testUcteElementId() {
         NamingStrategy strategy = new DefaultNamingStrategy();
 
         UcteElementId elementId = strategy.getUcteElementId("FABCDE12 BFGHIJ2A 1");
@@ -55,7 +55,7 @@ public class NamingStrategyTest {
     }
 
     @Test
-    public void testWithNetwork() {
+    void testWithNetwork() {
         ResourceDataSource dataSource = new ResourceDataSource("expectedExport", new ResourceSet("/", "expectedExport.uct"));
 
         UcteImporter importer = new UcteImporter();

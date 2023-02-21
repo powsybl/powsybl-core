@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractMinMaxReactiveLimitsTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class MinMaxReactiveLimitsTest extends AbstractMinMaxReactiveLimitsTest { }
+class MinMaxReactiveLimitsTest extends AbstractMinMaxReactiveLimitsTest { }

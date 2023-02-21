@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractBranchObservabilityTest;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class BranchObservabilityTest extends AbstractBranchObservabilityTest {
+class BranchObservabilityTest extends AbstractBranchObservabilityTest {
 }

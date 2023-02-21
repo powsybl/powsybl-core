@@ -8,26 +8,26 @@ package com.powsybl.iidm.network;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class BusRefTest {
+class BusRefTest {
 
     private final Bus bvBus = mock(Bus.class);
     private final Bus bbvBus = mock(Bus.class);
 
     @Test
-    public void testIdBasedBusRef() throws JsonProcessingException {
+    void testIdBasedBusRef() throws JsonProcessingException {
         Network network = mock(Network.class);
         Network.BusView bv = mock(Network.BusView.class);
 
@@ -93,7 +93,7 @@ public class BusRefTest {
     }
 
     @Test
-    public void testBranch() throws JsonProcessingException {
+    void testBranch() throws JsonProcessingException {
         Network network = mock(Network.class);
         Branch branch = mock(Branch.class);
         when(network.getIdentifiable("branchId")).thenReturn(branch);
@@ -123,7 +123,7 @@ public class BusRefTest {
     }
 
     @Test
-    public void testInvalidBranch() {
+    void testInvalidBranch() {
         Network network = mock(Network.class);
         when(network.getBranch("branchId")).thenReturn(null);
 

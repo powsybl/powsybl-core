@@ -4,35 +4,35 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.ZipFileDataSource;
 import com.powsybl.iidm.network.*;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TopologyExportCornerCasesTest extends AbstractConverterTest {
+class TopologyExportCornerCasesTest extends AbstractConverterTest {
 
     @Test
-    public void testExportSwitchesBusBreaker() {
+    void testExportSwitchesBusBreaker() {
         test(createSwitchesBBNetwork(), true, true,
                 new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_2", "voltageLevel1_3", "voltageLevel1_4"});
     }
 
     @Test
-    public void testExportParallelSwitchesNodeBreaker() {
+    void testExportParallelSwitchesNodeBreaker() {
         test(createParallelSwitchesNBNetwork(), true, true,
                 new String[] {"voltageLevel1_0"});
     }
 
     @Test
-    public void testExportSwitchesNodeBreaker() {
+    void testExportSwitchesNodeBreaker() {
         test(createSwitchesNBNetwork(), true, true,
                 new String[] {"voltageLevel1_0", "voltageLevel1_2", "voltageLevel1_8"});
     }
 
     @Test
-    public void testExportGeneratorDisconnectedTransformerBusBreaker() {
+    void testExportGeneratorDisconnectedTransformerBusBreaker() {
         // The calculated BusView from bus-breaker iidm and from node-breaker iidm is different
         // The condition for a valid bus in the BusView for bus-breaker and node-breaker is slightly different
         // So we end up with different bus-view buses
@@ -41,21 +41,21 @@ public class TopologyExportCornerCasesTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExportGeneratorTransformerNodeBreaker() {
+    void testExportGeneratorTransformerNodeBreaker() {
         test(createGeneratorTransformerNBNetwork(), true, true,
                 new String[] {"voltageLevel1_0", "voltageLevel2_0"});
     }
 
-    @Ignore("Mismatch in bus view bus definition from node/breaker and bus/breaker topologies")
+    @Disabled("Mismatch in bus view bus definition from node/breaker and bus/breaker topologies")
     // FIXME(Luma): consider adding busbar section to exported EQ when we save a bus/breaker topology as node/breaker
     @Test
-    public void testExportDisconnectedLoadBusBreaker() {
+    void testExportDisconnectedLoadBusBreaker() {
         test(createDisconnectedLoadBBNetwork(), false, true,
                 new String[] {"voltageLevel1_0", "voltageLevel1_1"});
     }
 
     @Test
-    public void testExportDisconnectedLoadNodeBreaker() {
+    void testExportDisconnectedLoadNodeBreaker() {
         test(createDisconnectedLoadNBNetwork(), false, true,
                 new String[] {"voltageLevel1_0", "voltageLevel1_1", "voltageLevel1_3"});
     }

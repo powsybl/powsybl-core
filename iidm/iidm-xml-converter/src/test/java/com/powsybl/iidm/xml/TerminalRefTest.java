@@ -6,17 +6,17 @@
  */
 package com.powsybl.iidm.xml;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class TerminalRefTest extends AbstractXmlConverterTest {
+class TerminalRefTest extends AbstractXmlConverterTest {
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripAllVersionedXmlTest("terminalRef.xiidm");
         roundTripAllVersionedXmlTest("regulatingTerminal.xml");
     }

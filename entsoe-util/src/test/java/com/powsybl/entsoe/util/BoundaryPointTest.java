@@ -7,19 +7,19 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.iidm.network.Country;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class BoundaryPointTest {
+class BoundaryPointTest {
 
     @Test
-    public void test() {
+    void test() {
         BoundaryPoint bp = new BoundaryPoint("name", Country.FR, Country.BE);
         assertEquals("name", bp.getName());
         assertEquals("name", bp.toString());

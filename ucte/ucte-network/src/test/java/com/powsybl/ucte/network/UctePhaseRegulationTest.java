@@ -6,18 +6,18 @@
  */
 package com.powsybl.ucte.network;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class UctePhaseRegulationTest {
+class UctePhaseRegulationTest {
 
     @Test
-    public void test() {
+    void test() {
         UctePhaseRegulation phaseRegulation = new UctePhaseRegulation(1.0, 2, 3, 4.0);
 
         assertEquals(1.0, phaseRegulation.getDu(), 0.0);

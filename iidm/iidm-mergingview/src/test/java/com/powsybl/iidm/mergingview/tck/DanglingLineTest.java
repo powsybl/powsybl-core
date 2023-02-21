@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractDanglingLineTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class DanglingLineTest extends AbstractDanglingLineTest { }
+class DanglingLineTest extends AbstractDanglingLineTest { }

@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 import com.powsybl.commons.datasource.ResourceSet;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +26,10 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class AlternativeQueriesForRatioTapChangersTest {
+class AlternativeQueriesForRatioTapChangersTest {
 
-    @BeforeClass
-    public static void setUp() {
+    @BeforeAll
+    static void setUp() {
         GridModelReference model = new GridModelReferenceResources(
                 "not_all_tap_changers_have_control",
                 null,
@@ -67,7 +67,7 @@ public class AlternativeQueriesForRatioTapChangersTest {
     }
 
     @Test
-    public void simple() throws IOException {
+    void simple() throws IOException {
         // All ratio tap changers should have the property lowStep
         long s = tester.expected().resultSize();
         Expected expected = new Expected()
@@ -77,22 +77,22 @@ public class AlternativeQueriesForRatioTapChangersTest {
     }
 
     @Test
-    public void noGraphClauses() throws IOException {
+    void noGraphClauses() throws IOException {
         tester.test("noGraphClauses");
     }
 
     @Test
-    public void nestedGraph() throws IOException {
+    void nestedGraph() throws IOException {
         testerNestedGraph.test("nestedGraph");
     }
 
     @Test
-    public void optionalFilteredEquals() throws IOException {
+    void optionalFilteredEquals() throws IOException {
         tester.test("optionalFilteredEquals");
     }
 
     @Test
-    public void optionalFilteredSameTerm() throws IOException {
+    void optionalFilteredSameTerm() throws IOException {
         tester.test("optionalFilteredSameTerm");
     }
 

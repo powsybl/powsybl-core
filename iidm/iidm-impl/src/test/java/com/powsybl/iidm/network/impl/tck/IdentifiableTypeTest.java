@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractIdentifiableTypeTest;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class IdentifiableTypeTest extends AbstractIdentifiableTypeTest {
+class IdentifiableTypeTest extends AbstractIdentifiableTypeTest {
 }

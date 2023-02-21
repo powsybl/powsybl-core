@@ -6,18 +6,17 @@
  */
 package com.powsybl.ucte.network;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class UcteFormatVersionTest {
+class UcteFormatVersionTest {
 
     @Test
-    public void test() {
+    void test() {
         String[] dates = {"2003.09.01", "2007.05.01"};
 
         assertEquals(2, UcteFormatVersion.values().length);
@@ -30,8 +29,8 @@ public class UcteFormatVersionTest {
         assertNull(UcteFormatVersion.findByDate(null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testUnknownFormatVersion() {
-        UcteFormatVersion.findByDate("1970.01.01");
+    @Test
+    void testUnknownFormatVersion() {
+        assertThrows(IllegalArgumentException.class, () -> UcteFormatVersion.findByDate("1970.01.01"));
     }
 }

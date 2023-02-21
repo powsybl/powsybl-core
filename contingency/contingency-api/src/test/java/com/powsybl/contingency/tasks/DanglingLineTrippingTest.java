@@ -10,26 +10,26 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.modification.NetworkModification;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class DanglingLineTrippingTest {
+class DanglingLineTrippingTest {
 
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = DanglingLineNetworkFactory.create();
     }
 
     @Test
-    public void dlTrippingTest() {
+    void dlTrippingTest() {
         assertTrue(network.getDanglingLine("DL").getTerminal().isConnected());
 
         Contingency contingency = Contingency.danglingLine("DL");

@@ -19,8 +19,8 @@ import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -28,12 +28,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam<tadam at silicom.fr>
  */
-public class SecurityAnalysisProviderTest {
+class SecurityAnalysisProviderTest {
 
     private static final String DEFAULT_PROVIDER_NAME = "DefaultSecurityAnalysis";
 
@@ -48,8 +48,8 @@ public class SecurityAnalysisProviderTest {
     private List<OperatorStrategy> operatorStrategies;
     private List<Action> actions;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = Mockito.mock(Network.class);
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
@@ -66,68 +66,68 @@ public class SecurityAnalysisProviderTest {
     }
 
     @Test
-    public void testDefaultProvider() {
+    void testDefaultProvider() {
         SecurityAnalysis.Runner defaultSecurityAnalysisRunner = SecurityAnalysis.find();
         assertEquals(DEFAULT_PROVIDER_NAME, defaultSecurityAnalysisRunner.getName());
         assertEquals("1.0", defaultSecurityAnalysisRunner.getVersion());
     }
 
     @Test
-    public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
+    void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
         CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, Reporter.NO_OP);
         assertNotNull(report.get());
     }
 
     @Test
-    public void testAsyncDefaultProviderWithFilter() throws InterruptedException, ExecutionException {
+    void testAsyncDefaultProviderWithFilter() throws InterruptedException, ExecutionException {
         CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, contingenciesProvider, parameters, computationManager, filter);
         assertNotNull(report.get());
     }
 
     @Test
-    public void testAsyncDefaultProviderWithComputationManager() throws InterruptedException, ExecutionException {
+    void testAsyncDefaultProviderWithComputationManager() throws InterruptedException, ExecutionException {
         CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, contingenciesProvider, parameters, computationManager);
         assertNotNull(report.get());
     }
 
     @Test
-    public void testAsyncDefaultProviderWithMiminumArguments() throws InterruptedException, ExecutionException {
+    void testAsyncDefaultProviderWithMiminumArguments() throws InterruptedException, ExecutionException {
         CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, Collections.emptyList());
         assertNotNull(report.get());
     }
 
     @Test
-    public void testSyncDefaultProvider() {
+    void testSyncDefaultProvider() {
         SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions);
         assertNotNull(report);
     }
 
     @Test
-    public void testSyncDefaultProviderMonitor() {
+    void testSyncDefaultProviderMonitor() {
         SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, monitors, Reporter.NO_OP);
         assertNotNull(report);
     }
 
     @Test
-    public void testSyncDefaultProviderWithFilter() {
+    void testSyncDefaultProviderWithFilter() {
         SecurityAnalysisReport report = SecurityAnalysis.run(network, contingenciesProvider, parameters, computationManager, filter);
         assertNotNull(report);
     }
 
     @Test
-    public void testSyncDefaultProviderWithComputationManager() {
+    void testSyncDefaultProviderWithComputationManager() {
         SecurityAnalysisReport report = SecurityAnalysis.run(network, contingenciesProvider, parameters, computationManager);
         assertNotNull(report);
     }
 
     @Test
-    public void testSyncDefaultProviderWithParameters() {
+    void testSyncDefaultProviderWithParameters() {
         SecurityAnalysisReport report = SecurityAnalysis.run(network, Collections.emptyList(), parameters);
         assertNotNull(report);
     }
 
     @Test
-    public void testSyncDefaultProviderWithMiminumArguments() {
+    void testSyncDefaultProviderWithMiminumArguments() {
         SecurityAnalysisReport report = SecurityAnalysis.run(network, Collections.emptyList());
         assertNotNull(report);
     }

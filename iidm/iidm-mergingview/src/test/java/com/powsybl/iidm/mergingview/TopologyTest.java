@@ -10,18 +10,18 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class TopologyTest {
+class TopologyTest {
 
     @Test
-    public void test() {
+    void test() {
         MergingView cgm = MergingViewFactory.createCGM(null);
         Network n1 = cgm.getNetwork("n1");
         Network n2 = cgm.getNetwork("n2");

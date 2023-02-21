@@ -13,9 +13,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
@@ -122,57 +122,57 @@ public abstract class AbstractAliasesTest {
         assertTrue(generator.getAliases().contains("alias#0"));
     }
 
-    @Test(expected = PowsyblException.class)
+    @Test
     public void failWhenDuplicatedAlias() {
         Network network = NetworkTest1Factory.create();
         Load load = network.getLoad("load1");
         Generator generator = network.getGenerator("generator1");
         load.addAlias("Alias");
-        generator.addAlias("Alias");
+        assertThrows(PowsyblException.class, () -> generator.addAlias("Alias"));
     }
 
-    @Test(expected = PowsyblException.class)
+    @Test
     public void failWhenAliasEqualToAnId() {
         Network network = NetworkTest1Factory.create();
         Generator generator = network.getGenerator("generator1");
-        generator.addAlias("load1");
+        assertThrows(PowsyblException.class, () -> generator.addAlias("load1"));
     }
 
-    @Test(expected = PowsyblException.class)
+    @Test
     public void failWhenRemovingNonExistingAlias() {
         Network network = NetworkTest1Factory.create();
         Load load = network.getLoad("load1");
-        load.removeAlias("Load alias");
+        assertThrows(PowsyblException.class, () -> load.removeAlias("Load alias"));
     }
 
-    @Test(expected = PowsyblException.class)
+    @Test
     public void failWhenAliasTypeIsNull() {
         Network network = NetworkTest1Factory.create();
         Load load = network.getLoad("load1");
-        load.getAliasFromType(null);
+        assertThrows(PowsyblException.class, () -> load.getAliasFromType(null));
     }
 
-    @Test(expected = PowsyblException.class)
+    @Test
     public void failWhenAliasTypeIsEmpty() {
         Network network = NetworkTest1Factory.create();
         Load load = network.getLoad("load1");
-        load.getAliasFromType("");
+        assertThrows(PowsyblException.class, () -> load.getAliasFromType(""));
     }
 
-    @Test(expected = PowsyblException.class)
+    @Test
     public void mergeFailWhenAliasEqualsToAnIdOfOtherNetwork() {
         Network network = EurostagTutorialExample1Factory.create();
         Network otherNetwork = FourSubstationsNodeBreakerFactory.create();
         otherNetwork.getGenerator("GH1").addAlias("NHV2_NLOAD");
-        network.merge(otherNetwork);
+        assertThrows(PowsyblException.class, () -> network.merge(otherNetwork));
     }
 
-    @Test(expected = PowsyblException.class)
+    @Test
     public void mergeFailWhenAliasEqualsToAnAliasOfOtherNetwork() {
         Network network = EurostagTutorialExample1Factory.create();
         Network otherNetwork = FourSubstationsNodeBreakerFactory.create();
         network.getTwoWindingsTransformer("NHV2_NLOAD").addAlias("Alias");
         otherNetwork.getGenerator("GH1").addAlias("Alias");
-        network.merge(otherNetwork);
+        assertThrows(PowsyblException.class, () -> network.merge(otherNetwork));
     }
 }

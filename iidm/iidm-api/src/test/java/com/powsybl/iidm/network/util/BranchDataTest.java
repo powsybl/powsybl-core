@@ -6,12 +6,12 @@
  */
 package com.powsybl.iidm.network.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,12 +22,12 @@ import com.powsybl.iidm.network.Branch.Side;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class BranchDataTest {
+class BranchDataTest {
 
     // Test BranchData
 
     @Test
-    public void testBranchDataFlow() {
+    void testBranchDataFlow() {
         Line line = new BranchTestData().getLine();
         BranchData branchData = new BranchData(line, 0, false);
         boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
@@ -35,7 +35,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio1() {
+    void testBranchDataFlowStructuralRatio1() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV1(395.0);
 
@@ -46,7 +46,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio1Vnominal2Zero() {
+    void testBranchDataFlowStructuralRatio1Vnominal2Zero() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV1(395.0);
         branchTestData.setNominalV2(0.0);
@@ -58,7 +58,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio1Vnominal2NaN() {
+    void testBranchDataFlowStructuralRatio1Vnominal2NaN() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV1(395.0);
         branchTestData.setNominalV2(Double.NaN);
@@ -70,7 +70,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio1VoltageLevel2Null() {
+    void testBranchDataFlowStructuralRatio1VoltageLevel2Null() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV1(395.0);
         branchTestData.setVoltageLevel2Null();
@@ -82,7 +82,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio2Vnominal1Zero() {
+    void testBranchDataFlowStructuralRatio2Vnominal1Zero() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV2(395.0);
         branchTestData.setNominalV1(0.0);
@@ -94,7 +94,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio2Vnominal1NaN() {
+    void testBranchDataFlowStructuralRatio2Vnominal1NaN() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV2(395.0);
         branchTestData.setNominalV1(Double.NaN);
@@ -106,7 +106,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio2VoltageLevel1Null() {
+    void testBranchDataFlowStructuralRatio2VoltageLevel1Null() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV2(395.0);
         branchTestData.setVoltageLevel1Null();
@@ -118,7 +118,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testBranchDataFlowStructuralRatio2() {
+    void testBranchDataFlowStructuralRatio2() {
         BranchTestData branchTestData = new BranchTestData();
         branchTestData.setNominalV2(395.0);
 
@@ -165,7 +165,7 @@ public class BranchDataTest {
     // Some tests for a transmission line disconnected at one end
 
     @Test
-    public void testDanglingLine() {
+    void testDanglingLine() {
         BranchTestCase t = lineEnd2Disconnected();
 
         // First obtain results when end 2 is disconnected
@@ -186,7 +186,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testDanglingLineDifferentY() {
+    void testDanglingLineDifferentY() {
         BranchTestCase t = lineEnd2Disconnected();
         t.branch.id = "Dangling-Y1-Y2-different";
         // End 1 admittance to ground has different value of End 2
@@ -247,17 +247,17 @@ public class BranchDataTest {
     // a transmission line and a phase shift transformer
 
     @Test
-    public void testCAS2EntsoeLoadFlowExplicitLine() {
+    void testCAS2EntsoeLoadFlowExplicitLine() {
         checkTestCase("line", cas2EntsoeLoadFlowExplicitLine());
     }
 
     @Test
-    public void testCAS2EntsoeLoadFlowExplicitPhaseShiftTransformer() {
+    void testCAS2EntsoeLoadFlowExplicitPhaseShiftTransformer() {
         checkTestCase("pst", cas2EntsoeLoadFlowExplicitPhaseShiftTransformer());
     }
 
     @Test
-    public void testCAS2EntsoeLoadFlowExplicitLineAndPhaseShifter() {
+    void testCAS2EntsoeLoadFlowExplicitLineAndPhaseShifter() {
         BranchTestCase line = cas2EntsoeLoadFlowExplicitLine();
         BranchTestCase pst = cas2EntsoeLoadFlowExplicitPhaseShiftTransformer();
         Flow load = cas2EntsoeLoadFlowExplicitLoad();
@@ -286,7 +286,7 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testCAS2EntsoeLoadFlowExplicitLineAndPhaseShifterMovedToEnd1() {
+    void testCAS2EntsoeLoadFlowExplicitLineAndPhaseShifterMovedToEnd1() {
         BranchTestCase line = cas2EntsoeLoadFlowExplicitLine();
         BranchTestCase pst = cas2EntsoeLoadFlowExplicitPhaseShiftTransformer();
         Flow load = cas2EntsoeLoadFlowExplicitLoad();
@@ -395,37 +395,37 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxBC() {
+    void testCAS1EntsoeMicroGrid3wTxBC() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.BC);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxBCNoTxRegulation() {
+    void testCAS1EntsoeMicroGrid3wTxBCNoTxRegulation() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.BC_NO_TRANSFORMER_REGULATION);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxBCAreaControlOn() {
+    void testCAS1EntsoeMicroGrid3wTxBCAreaControlOn() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.BC_AREA_CONTROL_ON);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxT1() {
+    void testCAS1EntsoeMicroGrid3wTxT1() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T1);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxT2() {
+    void testCAS1EntsoeMicroGrid3wTxT2() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T2);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxT3() {
+    void testCAS1EntsoeMicroGrid3wTxT3() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T3);
     }
 
     @Test
-    public void testCAS1EntsoeMicroGrid3wTxT4() {
+    void testCAS1EntsoeMicroGrid3wTxT4() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T4);
     }
 

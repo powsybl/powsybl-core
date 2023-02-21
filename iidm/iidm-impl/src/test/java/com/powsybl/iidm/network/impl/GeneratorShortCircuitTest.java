@@ -12,16 +12,16 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
 import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Coline Piloquet <coline.piloquet@rte-france.com>
  */
-public class GeneratorShortCircuitTest {
+class GeneratorShortCircuitTest {
     @Test
-    public void testWithoutTransformer() {
+    void testWithoutTransformer() {
         Network network = EurostagTutorialExample1Factory.create();
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
@@ -39,7 +39,7 @@ public class GeneratorShortCircuitTest {
     }
 
     @Test
-    public void testWithTransformer() {
+    void testWithTransformer() {
         Network network = EurostagTutorialExample1Factory.create();
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
@@ -60,7 +60,7 @@ public class GeneratorShortCircuitTest {
     }
 
     @Test
-    public void testWithoutSubTransX() {
+    void testWithoutSubTransX() {
         Network network = EurostagTutorialExample1Factory.create();
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
@@ -75,7 +75,7 @@ public class GeneratorShortCircuitTest {
     }
 
     @Test
-    public void testWithoutTransX() {
+    void testWithoutTransX() {
         Network network = EurostagTutorialExample1Factory.create();
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);

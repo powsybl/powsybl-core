@@ -19,21 +19,21 @@ import com.powsybl.iidm.network.extensions.FourSubstationsNodeBreakerWithExtensi
 import com.powsybl.iidm.network.impl.extensions.BusbarSectionPositionImpl;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.apache.commons.lang3.Range;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class TopologyModificationUtilsTest extends AbstractConverterTest {
+class TopologyModificationUtilsTest extends AbstractConverterTest {
 
     @Test
-    public void testFeederOrders() {
+    void testFeederOrders() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         Set<Integer> feederOrders = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vl1"));
         assertEquals(13, feederOrders.size());
@@ -45,7 +45,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testGetPositionsByConnectable() {
+    void testGetPositionsByConnectable() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         Map<String, List<Integer>> positionsByConnectable = getFeederPositionsByConnectable(network.getVoltageLevel("vl1"));
         assertTrue(positionsByConnectable.containsKey("load1"));
@@ -54,7 +54,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testGetPositionsByConnectableWithInternalLine() {
+    void testGetPositionsByConnectableWithInternalLine() {
         Network network = Network.read("network-node-breaker-with-new-internal-line.xml", getClass().getResourceAsStream("/network-node-breaker-with-new-internal-line.xml"));
         Map<String, List<Integer>> positionsByConnectable = getFeederPositionsByConnectable(network.getVoltageLevel("vl1"));
         assertEquals(List.of(14, 105), positionsByConnectable.get("lineTest"));
@@ -62,7 +62,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testGetFeedersByConnectable() {
+    void testGetFeedersByConnectable() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         Map<String, List<ConnectablePosition.Feeder>> feeders = getFeedersByConnectable(network.getVoltageLevel("vl1"));
         assertFalse(feeders.isEmpty());
@@ -81,7 +81,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testGetFeedersByConnectableWithInternalLine() {
+    void testGetFeedersByConnectableWithInternalLine() {
         Network network = Network.read("network-node-breaker-with-new-internal-line.xml", getClass().getResourceAsStream("/network-node-breaker-with-new-internal-line.xml"));
         Map<String, List<ConnectablePosition.Feeder>> feeders = getFeedersByConnectable(network.getVoltageLevel("vl1"));
         assertEquals(2, feeders.get("lineTest").size());
@@ -94,7 +94,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testGetUnusedPositionsWithEmptyVoltageLevel() {
+    void testGetUnusedPositionsWithEmptyVoltageLevel() {
         Network network = Network.create("n", "test");
         VoltageLevel vl1 = network.newVoltageLevel().setId("vl1").setNominalV(400).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         BusbarSection bbs = vl1.getNodeBreakerView().newBusbarSection().setId("b1").setNode(2).add();
@@ -112,7 +112,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testNoConnectablePositionExt() {
+    void testNoConnectablePositionExt() {
         Network network = Network.read("network-nb-no-connectable-position.xiidm", getClass().getResourceAsStream("/network-nb-no-connectable-position.xiidm"));
         Optional<Range<Integer>> unusedOrderPositionsBefore = TopologyModificationUtils.getUnusedOrderPositionsBefore(network.getBusbarSection("vl_test_1_1"));
         Optional<Range<Integer>> unusedOrderPositionsAfter = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("vl_test_1_1"));
@@ -123,7 +123,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testInvalidFeederReturnsNoPosition() {
+    void testInvalidFeederReturnsNoPosition() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         network.getLoad("LD1").newExtension(ConnectablePositionAdder.class)
                 .newFeeder1()
@@ -136,7 +136,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testGetFeederPositionsWithInternalLine() {
+    void testGetFeederPositionsWithInternalLine() {
         Network network = Network.read("network-node-breaker-with-new-internal-line.xml", getClass().getResourceAsStream("/network-node-breaker-with-new-internal-line.xml"));
         Set<Integer> feederOrders = TopologyModificationUtils.getFeederPositions(network.getVoltageLevel("vl1"));
         assertEquals(15, feederOrders.size());
@@ -144,7 +144,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testGetFirstBbs() {
+    void testGetFirstBbs() {
         Network network = FourSubstationsNodeBreakerWithExtensionsFactory.create();
         BusbarSection firstBbs = getFirstBusbarSection(network.getVoltageLevel("S1VL2"));
         assertEquals("S1VL2_BBS1", firstBbs.getId());
@@ -157,7 +157,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testGetFeedersByConnectableReturnEmptyListIfEmptyVoltageLevel() {
+    void testGetFeedersByConnectableReturnEmptyListIfEmptyVoltageLevel() {
         Network network = FourSubstationsNodeBreakerWithExtensionsFactory.create();
         network.newVoltageLevel().setId("VLTEST").setNominalV(380).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         Map<String, List<ConnectablePosition.Feeder>> feedersByConnectable = getFeedersByConnectable(network.getVoltageLevel("VLTEST"));
@@ -165,7 +165,7 @@ public class TopologyModificationUtilsTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testGetFeederPositionsWithoutPositionInExtension() {
+    void testGetFeederPositionsWithoutPositionInExtension() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         network.getLoad("LD1").newExtension(ConnectablePositionAdder.class)
                 .newFeeder()

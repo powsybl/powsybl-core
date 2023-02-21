@@ -9,20 +9,20 @@ package com.powsybl.tools.autocompletion;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class BashCommandTest {
+class BashCommandTest {
 
     @Test
-    public void testConversion() {
+    void testConversion() {
         Options inputOptions = new Options();
         inputOptions.addOption(Option.builder().longOpt("file")
                 .hasArg()

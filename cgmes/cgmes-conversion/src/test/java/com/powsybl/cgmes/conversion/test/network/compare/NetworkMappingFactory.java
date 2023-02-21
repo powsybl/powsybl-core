@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public interface NetworkMappingFactory {
+interface NetworkMappingFactory {
 
     NetworkMapping create(Network expected, Network actual);
 
