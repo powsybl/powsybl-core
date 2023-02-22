@@ -6,6 +6,7 @@
  */
 package com.powsybl.shortcircuit.json;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractConverterTest;
@@ -43,7 +44,7 @@ class JsonFortescueValueTest extends AbstractConverterTest {
 
     private static List<FortescueValue> read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return createObjectMapper().readerForListOf(FortescueValue.class).readValue(is);
+            return createObjectMapper().disable(DeserializationFeature.WRAP_EXCEPTIONS).readerForListOf(FortescueValue.class).readValue(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -61,7 +62,7 @@ class JsonFortescueValueTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/FortescueValueInvalid.json"), fileSystem.getPath("/FortescueValueInvalid.json"));
 
         Path path = fileSystem.getPath("/FortescueValueInvalid.json");
-        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Unexpected field: unexpected (through reference chain: java.util.ArrayList[0])", e.getMessage());
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> read(path));
+        assertEquals("Unexpected field: unexpected", e.getMessage());
     }
 }

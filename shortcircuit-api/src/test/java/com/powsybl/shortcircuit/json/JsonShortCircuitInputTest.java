@@ -12,7 +12,7 @@ import com.powsybl.shortcircuit.BusFault;
 import com.powsybl.shortcircuit.Fault;
 import org.junit.jupiter.api.Test;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -40,8 +40,8 @@ class JsonShortCircuitInputTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/FaultsFileInvalid.json"), fileSystem.getPath("/FaultsFileInvalid.json"));
 
         Path path = fileSystem.getPath("/FaultsFileInvalid.json");
-        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> Fault.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Unexpected field: unexpected (through reference chain: java.util.ArrayList[0])", e.getMessage());
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> Fault.read(path));
+        assertEquals("Unexpected field: unexpected", e.getMessage());
     }
 
     @Test
@@ -49,7 +49,7 @@ class JsonShortCircuitInputTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/FaultsFileNoType.json"), fileSystem.getPath("/FaultsFileNoType.json"));
 
         Path path = fileSystem.getPath("/FaultsFileNoType.json");
-        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> Fault.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Required type field is missing (through reference chain: java.util.ArrayList[0])", e.getMessage());
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> Fault.read(path));
+        assertEquals("Required type field is missing", e.getMessage());
     }
 }
