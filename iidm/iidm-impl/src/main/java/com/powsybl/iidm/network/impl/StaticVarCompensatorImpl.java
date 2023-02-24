@@ -40,7 +40,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         this.voltageSetpoint = new TDoubleArrayList(variantArraySize);
         this.reactivePowerSetpoint = new TDoubleArrayList(variantArraySize);
         regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, regulationMode != null ? regulationMode.ordinal() : -1);
-        regulatingPoint.setTerminal(regulatingTerminal);
+        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         for (int i = 0; i < variantArraySize; i++) {
             this.voltageSetpoint.add(voltageSetpoint);
             this.reactivePowerSetpoint.add(reactivePowerSetpoint);
@@ -130,25 +130,25 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         NetworkImpl n = getNetwork();
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, n.getMinValidationLevel());
         int variantIndex = n.getVariantIndex();
-        RegulationMode oldValue = RegulationMode.values()[regulatingPoint.setRegulationMode(variantIndex,
-                regulationMode != null ? regulationMode.ordinal() : -1)];
+        int oldValueOrdinal = regulatingPoint.setRegulationMode(variantIndex,
+                regulationMode != null ? regulationMode.ordinal() : -1);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
-        notifyUpdate("regulationMode", variantId, oldValue, regulationMode);
+        notifyUpdate("regulationMode", variantId, oldValueOrdinal == -1 ? null : RegulationMode.values()[oldValueOrdinal], regulationMode);
         return this;
     }
 
     @Override
     public TerminalExt getRegulatingTerminal() {
-        return regulatingPoint.getTerminal();
+        return regulatingPoint.getRegulatingTerminal();
     }
 
     @Override
     public StaticVarCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        Terminal oldValue = regulatingPoint.getTerminal();
-        regulatingPoint.setTerminal((TerminalExt) regulatingTerminal);
-        notifyUpdate("regulatingTerminal", oldValue, regulatingPoint.getTerminal());
+        Terminal oldValue = regulatingPoint.getRegulatingTerminal();
+        regulatingPoint.setRegulatingTerminal((TerminalExt) regulatingTerminal);
+        notifyUpdate("regulatingTerminal", oldValue, regulatingPoint.getRegulatingTerminal());
         return this;
     }
 

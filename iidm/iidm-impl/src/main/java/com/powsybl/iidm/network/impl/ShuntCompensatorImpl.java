@@ -45,7 +45,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         this.network = network;
         int variantArraySize = this.network.get().getVariantManager().getVariantArraySize();
         regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn);
-        regulatingPoint.setTerminal(regulatingTerminal);
+        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         this.sectionCount = new ArrayList<>(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
@@ -153,15 +153,15 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public TerminalExt getRegulatingTerminal() {
-        return regulatingPoint.getTerminal();
+        return regulatingPoint.getRegulatingTerminal();
     }
 
     @Override
     public ShuntCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        Terminal oldValue = regulatingPoint.getTerminal();
-        regulatingPoint.setTerminal((TerminalExt) regulatingTerminal);
-        notifyUpdate("regulatingTerminal", oldValue, regulatingPoint.getTerminal());
+        Terminal oldValue = regulatingPoint.getRegulatingTerminal();
+        regulatingPoint.setRegulatingTerminal((TerminalExt) regulatingTerminal);
+        notifyUpdate("regulatingTerminal", oldValue, regulatingPoint.getRegulatingTerminal());
         return this;
     }
 

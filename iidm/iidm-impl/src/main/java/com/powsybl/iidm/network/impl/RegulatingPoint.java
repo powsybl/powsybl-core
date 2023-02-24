@@ -24,7 +24,7 @@ class RegulatingPoint implements MultiVariantObject {
 
     private final String regulatedEquipmentId;
     private final Supplier<TerminalExt> localTerminalSupplier;
-    private TerminalExt terminal = null;
+    private TerminalExt regulatingTerminal = null;
 
     // attributes depending on the variant
 
@@ -51,18 +51,18 @@ class RegulatingPoint implements MultiVariantObject {
         this.regulating = null;
     }
 
-    void setTerminal(TerminalExt terminal) {
-        if (this.terminal != null) {
-            this.terminal.removeRegulatingPoint(this);
+    void setRegulatingTerminal(TerminalExt regulatingTerminal) {
+        if (this.regulatingTerminal != null) {
+            this.regulatingTerminal.removeRegulatingPoint(this);
         }
-        this.terminal = terminal != null ? terminal : localTerminalSupplier.get();
-        if (this.terminal != null) {
-            this.terminal.setAsRegulatingPoint(this);
+        this.regulatingTerminal = regulatingTerminal != null ? regulatingTerminal : localTerminalSupplier.get();
+        if (this.regulatingTerminal != null) {
+            this.regulatingTerminal.setAsRegulatingPoint(this);
         }
     }
 
-    TerminalExt getTerminal() {
-        return terminal;
+    TerminalExt getRegulatingTerminal() {
+        return regulatingTerminal;
     }
 
     boolean setRegulating(int index, boolean regulating) {
@@ -81,18 +81,14 @@ class RegulatingPoint implements MultiVariantObject {
         return regulationMode.get(index);
     }
 
-    void remove() {
-        LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", terminal.getConnectable().getId(), regulatedEquipmentId);
-        terminal = localTerminalSupplier.get();
+    void removeRegulatingTerminal() {
+        LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", regulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
+        regulatingTerminal = localTerminalSupplier.get();
         if (regulating != null) {
-            for (int i = 0; i < this.regulating.size(); i++) {
-                this.regulating.set(i, false);
-            }
+            regulating.fill(0, regulating.size(), false);
         }
         if (regulationMode != null) {
-            for (int i = 0; i < this.regulationMode.size(); i++) {
-                this.regulationMode.set(i, StaticVarCompensator.RegulationMode.OFF.ordinal());
-            }
+            regulationMode.fill(0, regulationMode.size(), StaticVarCompensator.RegulationMode.OFF.ordinal());
         }
     }
 

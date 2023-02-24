@@ -52,7 +52,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.ratedS = ratedS;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn);
-        regulatingPoint.setTerminal(regulatingTerminal);
+        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         this.targetP = new TDoubleArrayList(variantArraySize);
         this.targetQ = new TDoubleArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
@@ -133,14 +133,14 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public TerminalExt getRegulatingTerminal() {
-        return regulatingPoint.getTerminal();
+        return regulatingPoint.getRegulatingTerminal();
     }
 
     @Override
     public GeneratorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        Terminal oldValue = regulatingPoint.getTerminal();
-        regulatingPoint.setTerminal((TerminalExt) regulatingTerminal);
+        Terminal oldValue = regulatingPoint.getRegulatingTerminal();
+        regulatingPoint.setRegulatingTerminal((TerminalExt) regulatingTerminal);
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
         return this;
     }
