@@ -10,7 +10,6 @@ package com.powsybl.iidm.xml;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.stream.Stream;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
