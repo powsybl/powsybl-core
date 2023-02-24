@@ -12,6 +12,7 @@ import com.powsybl.shortcircuit.StudyType;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -98,7 +99,7 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/FaultParametersFileInvalid.json"), fileSystem.getPath("/FaultParametersFileInvalid.json"));
 
         Path path = fileSystem.getPath("/FaultParametersFileInvalid.json");
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> FaultParameters.read(path));
-        assertEquals("Unexpected field: unexpected", e.getMessage());
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Unexpected field: unexpected (through reference chain: java.util.ArrayList[0])", e.getMessage());
     }
 }

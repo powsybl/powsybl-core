@@ -6,7 +6,6 @@
  */
 package com.powsybl.shortcircuit;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.json.ShortCircuitAnalysisJsonModule;
@@ -144,7 +143,7 @@ public class FaultParameters {
 
     public static List<FaultParameters> read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return createObjectMapper().disable(DeserializationFeature.WRAP_EXCEPTIONS).readerForListOf(FaultParameters.class).readValue(is);
+            return createObjectMapper().readerForListOf(FaultParameters.class).readValue(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
