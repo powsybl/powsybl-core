@@ -50,6 +50,8 @@ public interface TreeDataReader {
 
     String readContent();
 
+    String readText(String endNodeName);
+
     String readUntilEndNode(String endElementName, EventHandler eventHandler);
 
     String readUntilEndNodeWithDepth(String endElementName, EventHandlerWithDepth eventHandler);

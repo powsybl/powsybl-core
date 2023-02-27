@@ -101,6 +101,11 @@ public class XmlReader implements TreeDataReader {
     }
 
     @Override
+    public String readText(String endNodeName) {
+        return readUntilEndNode(endNodeName, () -> { });
+    }
+
+    @Override
     public String readUntilEndNode(String endNodeName, EventHandler eventHandler) {
         try {
             return XmlUtil.readUntilEndElement(endNodeName, reader, eventHandler);

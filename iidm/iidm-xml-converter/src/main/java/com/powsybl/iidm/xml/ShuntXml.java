@@ -56,8 +56,8 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "targetDeadband",
                 sc.getTargetDeadband(), IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
         writeNodeOrBus(null, sc.getTerminal(), context);
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_9, context, () -> XmlUtil.writeOptionalDouble("p", sc.getTerminal().getP(), Double.NaN, context.getWriter()));
-        XmlUtil.writeOptionalDouble("q", sc.getTerminal().getQ(), Double.NaN, context.getWriter());
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_9, context, () -> context.getWriter().writeDoubleAttribute("p", sc.getTerminal().getP(), Double.NaN));
+        context.getWriter().writeDoubleAttribute("q", sc.getTerminal().getQ(), Double.NaN);
     }
 
     @Override

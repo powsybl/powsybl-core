@@ -88,6 +88,11 @@ public class JsonReader implements TreeDataReader {
     }
 
     @Override
+    public String readText(String endNodeName) {
+        return null;
+    }
+
+    @Override
     public String readUntilEndNode(String endElementName, EventHandler eventHandler) {
         return null;
     }
