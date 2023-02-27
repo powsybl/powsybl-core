@@ -92,6 +92,12 @@ class RegulatingPoint implements MultiVariantObject {
         }
     }
 
+    void remove() {
+        if (regulatingTerminal != null) {
+            regulatingTerminal.removeRegulatingPoint(this);
+        }
+    }
+
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         if (regulating != null) {
