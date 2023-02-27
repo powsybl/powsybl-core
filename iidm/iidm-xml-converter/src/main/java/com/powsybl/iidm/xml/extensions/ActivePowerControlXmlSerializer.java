@@ -48,8 +48,8 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
 
     @Override
     public void write(ActivePowerControl<T> activePowerControl, XmlWriterContext context) {
-            context.getWriter().writeBooleanAttribute("participate", activePowerControl.isParticipate());
-            context.getWriter().writeDoubleAttribute("droop", activePowerControl.getDroop());
+        context.getWriter().writeBooleanAttribute("participate", activePowerControl.isParticipate());
+        context.getWriter().writeDoubleAttribute("droop", activePowerControl.getDroop());
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         String extVersionStr = networkContext.getExtensionVersion(ConnectablePosition.NAME)
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
