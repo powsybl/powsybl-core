@@ -8,6 +8,7 @@ package com.powsybl.security.condition;
 
 import com.google.common.collect.ImmutableList;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,16 +21,27 @@ import java.util.Objects;
 public class AllViolationCondition implements Condition {
 
     private final List<String> violationIds;
+    private final List<ConditionFilter> conditionFilters;
 
     public static final String NAME = "ALL_VIOLATION";
 
     public AllViolationCondition(List<String> violationIds) {
+        this(violationIds, Collections.emptyList());
+    }
+
+    public AllViolationCondition(List<String> violationIds, List<ConditionFilter> conditionFilters) {
         this.violationIds = ImmutableList.copyOf(Objects.requireNonNull(violationIds));
+        this.conditionFilters = ImmutableList.copyOf(Objects.requireNonNull(conditionFilters));
     }
 
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public List<ConditionFilter> getFilters() {
+        return conditionFilters;
     }
 
     public List<String> getViolationIds() {

@@ -6,6 +6,9 @@
  */
 package com.powsybl.security.condition;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * describes when an action is taken
  *
@@ -13,4 +16,13 @@ package com.powsybl.security.condition;
  */
 public interface Condition {
     String getType();
+
+    default List<ConditionFilter> getFilters() {
+        return Collections.emptyList();
+    }
+
+    enum ConditionFilter {
+        VOLTAGE,
+        CURRENT,
+    }
 }

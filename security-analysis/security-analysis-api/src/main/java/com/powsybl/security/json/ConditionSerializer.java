@@ -26,6 +26,9 @@ public class ConditionSerializer extends StdSerializer<Condition> {
     public void serialize(Condition condition, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", condition.getType());
+        if (!condition.getFilters().isEmpty()) {
+            serializerProvider.defaultSerializeField("filters", condition.getFilters(), jsonGenerator);
+        }
         switch (condition.getType()) {
             case AllViolationCondition.NAME:
                 serializerProvider.defaultSerializeField("violationIds", ((AllViolationCondition) condition).getViolationIds(), jsonGenerator);
@@ -35,8 +38,6 @@ public class ConditionSerializer extends StdSerializer<Condition> {
                 break;
             case TrueCondition.NAME:
             case AnyViolationCondition.NAME:
-            case AnyCurrentViolationCondition.NAME:
-            case AnyVoltageViolationCondition.NAME:
                 break;
             default:
                 throw new IllegalArgumentException("condition type \'" + condition.getType() + "\' does not exist");

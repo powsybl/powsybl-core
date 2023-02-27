@@ -8,6 +8,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.condition.*;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,6 +19,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
     private static class ParsingContext {
         String type;
         List<String> violationIds;
+        List<Condition.ConditionFilter> conditionFilters = Collections.emptyList();
     }
 
     public ConditionDeserializer() {
@@ -36,6 +38,10 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                     parser.nextToken();
                     context.violationIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     return true;
+                case "filters":
+                    parser.nextToken();
+                    context.conditionFilters = JsonUtil.readList(deserializationContext, parser, Condition.ConditionFilter.class);
+                    return true;
                 default:
                     return false;
             }
@@ -44,15 +50,11 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
             case TrueCondition.NAME:
                 return new TrueCondition();
             case AnyViolationCondition.NAME:
-                return new AnyViolationCondition();
+                return new AnyViolationCondition(context.conditionFilters);
             case AtLeastOneViolationCondition.NAME:
-                return new AtLeastOneViolationCondition(context.violationIds);
+                return new AtLeastOneViolationCondition(context.violationIds, context.conditionFilters);
             case AllViolationCondition.NAME:
-                return new AllViolationCondition(context.violationIds);
-            case AnyCurrentViolationCondition.NAME:
-                return new AnyCurrentViolationCondition();
-            case AnyVoltageViolationCondition.NAME:
-                return new AnyVoltageViolationCondition();
+                return new AllViolationCondition(context.violationIds, context.conditionFilters);
             default:
                 throw new JsonMappingException(parser, "Unexpected condition type: " + context.type);
         }

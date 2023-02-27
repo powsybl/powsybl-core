@@ -19,9 +19,8 @@ import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
-import com.powsybl.security.condition.AnyCurrentViolationCondition;
 import com.powsybl.security.condition.AnyViolationCondition;
-import com.powsybl.security.condition.AnyVoltageViolationCondition;
+import com.powsybl.security.condition.Condition;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
@@ -93,10 +92,16 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     @Test
     void operatorStrategyRoundTrip() throws IOException {
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        operatorStrategies.add(new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"), new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3")));
-        operatorStrategies.add(new OperatorStrategy("id2", ContingencyContext.specificContingency("contingencyId2"), new AnyViolationCondition(), List.of("actionId4")));
-        operatorStrategies.add(new OperatorStrategy("id3", ContingencyContext.specificContingency("contingencyId1"), new AnyVoltageViolationCondition(), Arrays.asList("actionId1", "actionId3")));
-        operatorStrategies.add(new OperatorStrategy("id4", ContingencyContext.specificContingency("contingencyId3"), new AnyCurrentViolationCondition(), Arrays.asList("actionId1", "actionId2", "actionId4")));
+        operatorStrategies.add(new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"),
+                new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3")));
+        operatorStrategies.add(new OperatorStrategy("id2", ContingencyContext.specificContingency("contingencyId2"),
+                new AnyViolationCondition(), List.of("actionId4")));
+        operatorStrategies.add(new OperatorStrategy("id3", ContingencyContext.specificContingency("contingencyId1"),
+                new AnyViolationCondition(Collections.singletonList(Condition.ConditionFilter.CURRENT)),
+                Arrays.asList("actionId1", "actionId3")));
+        operatorStrategies.add(new OperatorStrategy("id4", ContingencyContext.specificContingency("contingencyId3"),
+                new AnyViolationCondition(Collections.singletonList(Condition.ConditionFilter.VOLTAGE)),
+                Arrays.asList("actionId1", "actionId2", "actionId4")));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
     }

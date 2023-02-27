@@ -21,7 +21,8 @@
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
     "condition" : {
-      "type" : "ANY_VOLTAGE_VIOLATION_CONDITION"
+      "type" : "ANY_VIOLATION_CONDITION",
+      "filters" : [ "CURRENT" ]
     },
     "actionIds" : [ "actionId1", "actionId3" ]
   }, {
@@ -29,7 +30,8 @@
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId3",
     "condition" : {
-      "type" : "ANY_CURRENT_VIOLATION_CONDITION"
+      "type" : "ANY_VIOLATION_CONDITION",
+      "filters" : [ "VOLTAGE" ]
     },
     "actionIds" : [ "actionId1", "actionId2", "actionId4" ]
   } ]
