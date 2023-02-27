@@ -45,6 +45,11 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
+    protected RegulatingPoint createRegulatingPoint(int variantArraySize, boolean regulating) {
+        return new RegulatingPoint(parent.getTransformer().getId(), () -> null, variantArraySize, regulating, true);
+    }
+
+    @Override
     protected Integer getRelativeNeutralPosition() {
         for (int i = 0; i < steps.size(); i++) {
             RatioTapChangerStepImpl step = steps.get(i);

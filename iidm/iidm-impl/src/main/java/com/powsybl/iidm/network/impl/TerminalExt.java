@@ -54,6 +54,8 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     String getConnectionInfo();
 
+    void removeAsRegulationPoint();
+
     void remove();
 
     void setAsRegulatingPoint(RegulatingPoint rp);

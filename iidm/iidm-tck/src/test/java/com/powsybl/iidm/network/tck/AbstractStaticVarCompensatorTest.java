@@ -118,7 +118,7 @@ public abstract class AbstractStaticVarCompensatorTest {
 
         network.getLoad("L2").remove();
         assertEquals(svc4.getTerminal(), svc4.getRegulatingTerminal());
-        assertEquals(StaticVarCompensator.RegulationMode.OFF, svc4.getRegulationMode());
+        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc4.getRegulationMode());
     }
 
     @Test

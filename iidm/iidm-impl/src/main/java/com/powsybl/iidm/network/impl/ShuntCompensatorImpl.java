@@ -44,7 +44,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = this.network.get().getVariantManager().getVariantArraySize();
-        regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn);
+        regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, true);
         regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         this.sectionCount = new ArrayList<>(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);

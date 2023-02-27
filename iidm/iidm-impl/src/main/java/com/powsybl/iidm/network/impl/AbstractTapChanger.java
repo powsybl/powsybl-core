@@ -47,7 +47,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         this.steps = steps;
         steps.forEach(s -> s.setParent(this));
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        regulatingPoint = new RegulatingPoint(parent.getTransformer().getId(), () -> null, variantArraySize, regulating);
+        regulatingPoint = createRegulatingPoint(variantArraySize, regulating);
         regulatingPoint.setRegulatingTerminal(regulationTerminal);
         this.tapPosition = new ArrayList<>(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
@@ -58,6 +58,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         this.type = Objects.requireNonNull(type);
         relativeNeutralPosition = getRelativeNeutralPosition();
     }
+
+    protected abstract RegulatingPoint createRegulatingPoint(int variantArraySize, boolean regulating);
 
     protected NetworkImpl getNetwork() {
         return parent.getNetwork();

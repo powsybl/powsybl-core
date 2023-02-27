@@ -8,11 +8,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import gnu.trove.list.array.TIntArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -24,6 +26,7 @@ class RegulatingPoint implements MultiVariantObject {
 
     private final String regulatedEquipmentId;
     private final Supplier<TerminalExt> localTerminalSupplier;
+    private boolean useVoltageRegulation;
     private TerminalExt regulatingTerminal = null;
 
     // attributes depending on the variant
@@ -31,9 +34,10 @@ class RegulatingPoint implements MultiVariantObject {
     private final TBooleanArrayList regulating;
     private final TIntArrayList regulationMode;
 
-    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, boolean regulating) {
+    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, boolean regulating, boolean useVoltageRegulation) {
         this.regulatedEquipmentId = regulatedEquipmentId;
         this.localTerminalSupplier = localTerminalSupplier;
+        this.useVoltageRegulation = useVoltageRegulation;
         this.regulating = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.regulating.add(regulating);
@@ -41,9 +45,10 @@ class RegulatingPoint implements MultiVariantObject {
         this.regulationMode = null;
     }
 
-    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, int regulationMode) {
+    RegulatingPoint(String regulatedEquipmentId, Supplier<TerminalExt> localTerminalSupplier, int variantArraySize, int regulationMode, boolean useVoltageRegulation) {
         this.regulatedEquipmentId = regulatedEquipmentId;
         this.localTerminalSupplier = localTerminalSupplier;
+        this.useVoltageRegulation = useVoltageRegulation;
         this.regulationMode = new TIntArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.regulationMode.add(regulationMode);
@@ -69,6 +74,10 @@ class RegulatingPoint implements MultiVariantObject {
         return this.regulating.set(index, regulating);
     }
 
+    void setUseVoltageRegulation(boolean useVoltageRegulation) {
+        this.useVoltageRegulation = useVoltageRegulation;
+    }
+
     boolean isRegulating(int index) {
         return regulating.get(index);
     }
@@ -82,8 +91,20 @@ class RegulatingPoint implements MultiVariantObject {
     }
 
     void removeRegulatingTerminal() {
+        Objects.requireNonNull(regulatingTerminal);
+        TerminalExt localTerminal = localTerminalSupplier.get();
+        if (localTerminal != null && useVoltageRegulation) { // if local voltage regulation, we keep the regulating status, and re-locate the regulation at the regulated equipment
+            Bus bus = regulatingTerminal.getBusView().getBus();
+            Bus localBus = localTerminal.getBusView().getBus();
+            if (bus != null && bus == localBus) {
+                LOG.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", regulatingTerminal.getConnectable().getId(),
+                        regulatedEquipmentId, regulatedEquipmentId);
+                regulatingTerminal = localTerminal;
+                return;
+            }
+        }
         LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", regulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
-        regulatingTerminal = localTerminalSupplier.get();
+        regulatingTerminal = localTerminal;
         if (regulating != null) {
             regulating.fill(0, regulating.size(), false);
         }

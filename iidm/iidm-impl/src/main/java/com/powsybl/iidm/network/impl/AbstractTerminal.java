@@ -83,6 +83,12 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
+    public void removeAsRegulationPoint() {
+        regulated.forEach(RegulatingPoint::removeRegulatingTerminal);
+        regulated.clear();
+    }
+
+    @Override
     public double getP() {
         if (removed) {
             throw new PowsyblException("Cannot access p of removed equipment " + connectable.id);
@@ -190,8 +196,6 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public void remove() {
-        regulated.forEach(RegulatingPoint::removeRegulatingTerminal);
-        regulated.clear();
         removed = true;
     }
 
