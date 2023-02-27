@@ -10,11 +10,8 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.*;
-import com.powsybl.security.results.BranchResult;
-import com.powsybl.security.results.BusResult;
-import com.powsybl.security.results.PostContingencyResult;
-import com.powsybl.security.results.ThreeWindingsTransformerResult;
-import org.junit.Test;
+import com.powsybl.security.results.*;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -23,15 +20,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class PostContingencyResultTest extends AbstractConverterTest {
+class PostContingencyResultTest extends AbstractConverterTest {
 
     @Test
-    public void testGetters() {
+    void testGetters() {
         Contingency contingency = new Contingency("contingency");
         LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
         LimitViolationsResult result = new LimitViolationsResult(Collections.singletonList(violation));
@@ -42,16 +39,22 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResult> busResults = new ArrayList<>();
         busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults);
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults,
+                new ConnectivityResult(1, 2, 5.0, 10.0, Set.of("Id1", "Id2")));
         assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getNetworkResult().getBranchResult("branchId"));
         assertEquals(new BusResult("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getNetworkResult().getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getNetworkResult().getThreeWindingsTransformerResult("threeWindingsTransformerId"));
         assertEquals(PostContingencyComputationStatus.CONVERGED, postContingencyResult.getStatus());
+        assertEquals(1, postContingencyResult.getConnectivityResult().getCreatedSynchronousComponentCount());
+        assertEquals(2, postContingencyResult.getConnectivityResult().getCreatedConnectedComponentCount());
+        assertEquals(5.0, postContingencyResult.getConnectivityResult().getDisconnectedLoadActivePower());
+        assertEquals(10.0, postContingencyResult.getConnectivityResult().getDisconnectedGenerationActivePower());
+        assertEquals(Set.of("Id1", "Id2"), postContingencyResult.getConnectivityResult().getDisconnectedElements());
     }
 
     @Test
-    public void roundTrip() throws IOException {
+    void roundTrip() throws IOException {
         Contingency contingency = new Contingency("contingency");
         LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
         LimitViolationsResult result = new LimitViolationsResult(Collections.singletonList(violation));
@@ -62,11 +65,12 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         branchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResult> busResults = new ArrayList<>();
         busResults.add(new BusResult("voltageLevelId", "busId", 400, 3.14));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults);
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, PostContingencyComputationStatus.CONVERGED, result, branchResults, busResults, threeWindingsTransformerResults,
+                new ConnectivityResult(1, 1, 5.0, 10.0, Collections.emptySet()));
         roundTripTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
     }
 
-    public void write(PostContingencyResult postContingencyResult, Path jsonFile) {
+    void write(PostContingencyResult postContingencyResult, Path jsonFile) {
         try {
             OutputStream out = Files.newOutputStream(jsonFile);
             JsonUtil.createObjectMapper()
@@ -78,7 +82,7 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         }
     }
 
-    public PostContingencyResult read(Path jsonFile) {
+    PostContingencyResult read(Path jsonFile) {
         try {
             return JsonUtil.createObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule())

@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractMainConnectedComponentWithSwitchTest;
 
-public class MainConnectedComponentWithSwitchTest extends AbstractMainConnectedComponentWithSwitchTest { }
+class MainConnectedComponentWithSwitchTest extends AbstractMainConnectedComponentWithSwitchTest { }

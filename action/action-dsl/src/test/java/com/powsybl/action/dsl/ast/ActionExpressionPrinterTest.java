@@ -9,22 +9,22 @@ package com.powsybl.action.dsl.ast;
 import com.powsybl.action.dsl.ConditionDslLoader;
 import com.powsybl.dsl.ast.ExpressionNode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ActionExpressionPrinterTest {
+class ActionExpressionPrinterTest {
 
     @Test
-    public void test() {
+    void test() {
         String script = "loadingRank('NHV1_NHV2_1', ['NHV1_NHV2_1', 'NHV1_NHV2_2'])";
         ExpressionNode node = (ExpressionNode) new ConditionDslLoader(script).load(EurostagTutorialExample1Factory.create());
         assertEquals(script, ActionExpressionPrinter.toString(node));

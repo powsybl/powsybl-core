@@ -126,10 +126,12 @@ SELECT ?Substation ?name ?SubRegion ?subRegionName ?Region ?regionName
         a cim:Substation ;
         cim:IdentifiedObject.name ?name ;
         cim:Substation.Region ?SubRegion .
+} GRAPH ?graph2 {
     ?SubRegion
         cim:SubGeographicalRegion.Region ?Region ;
         cim:IdentifiedObject.name ?subRegionName .
-    ?Region cim:IdentifiedObject.name ?regionName
+} GRAPH ?graph3 {
+    ?Region cim:IdentifiedObject.name ?regionName .
 }}
 
 # query: voltageLevels

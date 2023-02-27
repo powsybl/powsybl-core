@@ -10,15 +10,13 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractShuntCompensatorTest {
 
@@ -31,14 +29,11 @@ public abstract class AbstractShuntCompensatorTest {
 
     private static final String TEST_MULTI_VARIANT = "testMultiVariant";
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private Network network;
     private VoltageLevel voltageLevel;
     private Terminal terminal;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NoEquipmentNetworkFactory.create();
         network.getVoltageLevel("vl2").newLoad()
@@ -183,17 +178,39 @@ public abstract class AbstractShuntCompensatorTest {
     }
 
     @Test
+    public void testDefaultShuntCompensator() {
+        ShuntCompensatorAdder adder = createShuntAdder(SHUNT, "shuntName", 6, terminal, true, 200, 10);
+        adder.newLinearModel()
+                .setBPerSection(5.0)
+                .setMaximumSectionCount(10)
+                .add();
+        ShuntCompensator shuntCompensator = adder.add();
+
+        ShuntCompensatorLinearModel shuntLinearModel = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
+        assertTrue(Double.isNaN(shuntLinearModel.getGPerSection()));
+        assertEquals(0.0, shuntCompensator.getG(), 0.0);
+
+        shuntCompensator.remove();
+        adder.setSectionCount(1)
+             .newNonLinearModel()
+                .beginSection()
+                    .setB(5.0)
+                .endSection()
+                .add();
+        ShuntCompensator shuntCompensator2 = adder.setId(SHUNT + "_2").add();
+        assertEquals(0.0, shuntCompensator2.getG(0), 0.0);
+    }
+
+    @Test
     public void invalidbPerSection() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("section susceptance is invalid");
-        createLinearShunt(INVALID, INVALID, Double.NaN, Double.NaN, 5, 10, null, false, Double.NaN, Double.NaN);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLinearShunt(INVALID, INVALID, Double.NaN, Double.NaN, 5, 10, null, false, Double.NaN, Double.NaN));
+        assertTrue(e.getMessage().contains("section susceptance is invalid"));
     }
 
     @Test
     public void invalidNegativeMaxPerSection() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("should be greater than 0");
-        createLinearShunt(INVALID, INVALID, 2.0, Double.NaN, 0, -1, null, false, Double.NaN, Double.NaN);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLinearShunt(INVALID, INVALID, 2.0, Double.NaN, 0, -1, null, false, Double.NaN, Double.NaN));
+        assertTrue(e.getMessage().contains("should be greater than 0"));
     }
 
     @Test
@@ -302,17 +319,14 @@ public abstract class AbstractShuntCompensatorTest {
 
     @Test
     public void invalidEmptyNonLinearModel() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("a shunt compensator must have at least one section");
         ShuntCompensatorAdder adder = createShuntAdder(INVALID, INVALID, 6, terminal, true, 200, 10);
-        adder.newNonLinearModel().add();
+        ValidationException e = assertThrows(ValidationException.class, () -> adder.newNonLinearModel().add());
+        assertTrue(e.getMessage().contains("a shunt compensator must have at least one section"));
     }
 
     @Test
     public void undefinedModel() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("the shunt compensator model has not been defined");
-        voltageLevel.newShuntCompensator()
+        ValidationException e = assertThrows(ValidationException.class, () -> voltageLevel.newShuntCompensator()
                 .setId(INVALID)
                 .setName(INVALID)
                 .setConnectableBus("busA")
@@ -321,7 +335,8 @@ public abstract class AbstractShuntCompensatorTest {
                 .setVoltageRegulatorOn(false)
                 .setTargetV(Double.NaN)
                 .setTargetDeadband(Double.NaN)
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("the shunt compensator model has not been defined"));
     }
 
     @Test
@@ -385,32 +400,28 @@ public abstract class AbstractShuntCompensatorTest {
 
     @Test
     public void invalidRegulatingTerminal() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("regulating terminal is not part of the network");
         Network tmp = EurostagTutorialExample1Factory.create();
         Terminal tmpTerminal = tmp.getGenerator("GEN").getTerminal();
-        createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, tmpTerminal, false, Double.NaN, Double.NaN);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, tmpTerminal, false, Double.NaN, Double.NaN));
+        assertTrue(e.getMessage().contains("regulating terminal is not part of the network"));
     }
 
     @Test
     public void invalidTargetV() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("invalid value (-10.0) for voltage setpoint");
-        createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, null, true, -10, 0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, null, true, -10, 0));
+        assertTrue(e.getMessage().contains("invalid value (-10.0) for voltage setpoint"));
     }
 
     @Test
     public void invalidNanTargetV() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("invalid value (NaN) for voltage setpoint (voltage regulator is on)");
-        createLinearShunt(INVALID, INVALID, 5.0, 1.0, 6, 10, null, true, Double.NaN, 0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLinearShunt(INVALID, INVALID, 5.0, 1.0, 6, 10, null, true, Double.NaN, 0));
+        assertTrue(e.getMessage().contains("invalid value (NaN) for voltage setpoint (voltage regulator is on)"));
     }
 
     @Test
     public void invalidTargetDeadband() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("Unexpected value for target deadband of shunt compensator: -10.0");
-        createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, null, false, Double.NaN, -10);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, null, false, Double.NaN, -10));
+        assertTrue(e.getMessage().contains("Unexpected value for target deadband of shunt compensator: -10.0"));
     }
 
     @Test

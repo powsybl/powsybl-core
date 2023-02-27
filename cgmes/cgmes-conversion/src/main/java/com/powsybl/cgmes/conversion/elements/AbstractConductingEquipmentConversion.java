@@ -248,13 +248,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
         context.terminalMapping().add(terminalId(boundarySide), dl.getBoundary(), 2);
         dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + ".Terminal_Boundary", terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
-        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + ".Terminal_Network", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
-        Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> {
-            dl.addAlias(tn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
-            dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE, tn); // TODO: delete when aliases are correctly handled by mergedlines
-        });
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
+        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal");
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
+        Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
         Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn ->
             dl.addAlias(cn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY)
         );

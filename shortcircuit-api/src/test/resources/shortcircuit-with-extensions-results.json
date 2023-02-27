@@ -1,6 +1,7 @@
 {
-  "version" : "1.0",
+  "version" : "1.1",
   "faultResults" : [ {
+    "status" : "SUCCESS",
     "fault" : {
       "type" : "BUS",
       "id" : "id",
@@ -11,6 +12,7 @@
       "faultType" : "THREE_PHASE"
     },
     "shortCircuitPower" : 1.0,
+    "currentMagnitude" : 1.0,
     "limitViolations" : [ {
       "subjectId" : "vlId",
       "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
@@ -21,16 +23,15 @@
         "DummyLimitViolationExtension" : { }
       }
     } ],
-    "current" : {
-      "directMagnitude" : 1.0
-    },
     "shortCircuitBusResults" : [ {
       "voltageLevelId" : "vlId",
       "busId" : "busId",
+      "initialVoltageMagnitude" : 4800.0,
       "voltage" : {
         "directMagnitude" : 2004.0,
         "directAngle" : 2005.0
-      }
+      },
+      "voltageDropProportional" : 70.0
     } ],
     "extensions" : {
       "DummyFaultResultExtension" : { }

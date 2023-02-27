@@ -13,7 +13,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.tools.ExporterMockWithReporter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -25,12 +25,12 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class ExportersTest extends AbstractConvertersTest {
+class ExportersTest extends AbstractConvertersTest {
 
     private static final String FOO_TST = "foo.tst";
     private static final String WORK_FOO_TST = "/work/" + FOO_TST;
@@ -39,56 +39,55 @@ public class ExportersTest extends AbstractConvertersTest {
     private final ExportersLoader loader = new ExportersLoaderList(testExporter);
 
     @Test
-    public void getFormats() {
+    void getFormats() {
         Collection<String> formats = Exporter.getFormats(loader);
         assertEquals(1, formats.size());
         assertTrue(formats.contains(TEST_FORMAT));
     }
 
     @Test
-    public void getExporter() {
+    void getExporter() {
         Exporter exporter = Exporter.find(loader, TEST_FORMAT);
         assertNotNull(exporter);
         assertSame(testExporter, exporter);
     }
 
     @Test
-    public void getNullExporter() {
+    void getNullExporter() {
         Exporter exporter = Exporter.find(loader, UNSUPPORTED_FORMAT);
         assertNull(exporter);
     }
 
     @Test
-    public void createDataSource1() throws IOException {
+    void createDataSource1() throws IOException {
         Files.createFile(fileSystem.getPath(WORK_FOO_TST));
         DataSource dataSource = Exporters.createDataSource(fileSystem.getPath("/work/"), "foo", null);
         assertTrue(dataSource.exists(FOO_TST));
     }
 
     @Test
-    public void createDataSource2() throws IOException {
+    void createDataSource2() throws IOException {
         Files.createFile(fileSystem.getPath(WORK_FOO_TST));
         DataSource dataSource = Exporters.createDataSource(path, null);
         assertTrue(dataSource.exists(FOO_TST));
     }
 
     @Test
-    public void createDataSource3() throws IOException {
+    void createDataSource3() throws IOException {
         Files.createFile(fileSystem.getPath(WORK_FOO_TST));
         DataSource dataSource = Exporters.createDataSource(path);
         assertTrue(dataSource.exists(FOO_TST));
     }
 
     @Test
-    public void failExport() {
-        expected.expect(PowsyblException.class);
-        expected.expectMessage("Export format " + UNSUPPORTED_FORMAT + " not supported");
+    void failExport() {
         Network network = Mockito.spy(Network.class);
-        network.write(loader, UNSUPPORTED_FORMAT, null, Exporters.createDataSource(path));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> network.write(loader, UNSUPPORTED_FORMAT, null, Exporters.createDataSource(path)));
+        assertEquals("Export format " + UNSUPPORTED_FORMAT + " not supported", e.getMessage());
     }
 
     @Test
-    public void export1() throws IOException {
+    void export1() throws IOException {
         DataSource dataSource = Exporters.createDataSource(path);
         Network network = Mockito.spy(Network.class);
         network.write(loader, TEST_FORMAT, null, dataSource);
@@ -98,7 +97,7 @@ public class ExportersTest extends AbstractConvertersTest {
     }
 
     @Test
-    public void export2() throws IOException {
+    void export2() throws IOException {
         Network network = Mockito.spy(Network.class);
         network.write(loader, TEST_FORMAT, null, path);
         DataSource dataSource = Exporters.createDataSource(path);
@@ -108,7 +107,7 @@ public class ExportersTest extends AbstractConvertersTest {
     }
 
     @Test
-    public void export3() throws IOException {
+    void export3() throws IOException {
         Path dir = Files.createTempDirectory("tmp-export");
         Network network = Mockito.spy(Network.class);
         network.write(loader, TEST_FORMAT, null, dir.toString(), "tmp");
@@ -118,7 +117,7 @@ public class ExportersTest extends AbstractConvertersTest {
     }
 
     @Test
-    public void exportWithReporter() throws Exception {
+    void exportWithReporter() throws Exception {
         Exporter testExporter = new ExporterMockWithReporter();
         DataSource dataSource = Exporters.createDataSource(path);
         ReporterModel reporter = new ReporterModel("reportTest", "Testing exporter reporter");

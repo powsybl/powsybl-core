@@ -7,12 +7,12 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +33,10 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class TieFlowConversionTest {
+class TieFlowConversionTest {
 
     @Test
-    public void smallBaseCaseTieFlowMappedToSwitch() throws IOException {
+    void smallBaseCaseTieFlowMappedToSwitch() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(Cgmes3ModifiedCatalog.smallGridBaseCaseTieFlowMappedToSwitch(), config);
 
@@ -51,7 +51,7 @@ public class TieFlowConversionTest {
     }
 
     @Test
-    public void smallBaseCaseTieFlowMappedToEquivalentInjection() throws IOException {
+    void smallBaseCaseTieFlowMappedToEquivalentInjection() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(Cgmes3ModifiedCatalog.smallGridBaseCaseTieFlowMappedToEquivalentInjection(), config);
 
@@ -66,7 +66,7 @@ public class TieFlowConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection() throws IOException {
+    void microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection(), config);
 
@@ -81,7 +81,7 @@ public class TieFlowConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBEWithTieFlowMappedToSwitch() throws IOException {
+    void microGridBaseCaseBEWithTieFlowMappedToSwitch() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToSwitch(), config);
 

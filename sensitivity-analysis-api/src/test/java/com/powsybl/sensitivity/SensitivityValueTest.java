@@ -10,19 +10,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityValueTest extends AbstractConverterTest {
+class SensitivityValueTest extends AbstractConverterTest {
 
     @Test
-    public void test() {
+    void test() {
         SensitivityValue value = new SensitivityValue(0, -1, 1d, 2d);
         assertEquals(0, value.getFactorIndex());
         assertEquals(-1, value.getContingencyIndex());
@@ -32,7 +32,7 @@ public class SensitivityValueTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testJson() throws IOException {
+    void testJson() throws IOException {
         SensitivityValue value = new SensitivityValue(0, 0, 1d, 2d);
         ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),

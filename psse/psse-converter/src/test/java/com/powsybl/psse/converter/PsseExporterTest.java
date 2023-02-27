@@ -21,10 +21,10 @@ import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,7 +36,7 @@ import java.util.Properties;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class PsseExporterTest extends AbstractConverterTest {
+class PsseExporterTest extends AbstractConverterTest {
 
     private Network importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
         Properties properties = new Properties();
@@ -63,19 +63,19 @@ public class PsseExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void importExportTest14() throws IOException {
+    void importExportTest14() throws IOException {
         Network network = importTest("IEEE_14_bus", "IEEE_14_bus.raw", false);
         exportTest(network, "IEEE_14_bus_exported", "IEEE_14_bus_exported.raw");
     }
 
     @Test
-    public void importExportTest14Completed() throws IOException {
+    void importExportTest14Completed() throws IOException {
         Network network = importTest("IEEE_14_bus_completed", "IEEE_14_bus_completed.raw", false);
         exportTest(network, "IEEE_14_bus_completed_exported", "IEEE_14_bus_completed_exported.raw");
     }
 
     @Test
-    public void importExportTest24() throws IOException {
+    void importExportTest24() throws IOException {
         Network network = importTest("IEEE_24_bus", "IEEE_24_bus.raw", false);
         changeIEEE24BusNetwork(network);
         exportTest(network, "IEEE_24_bus_updated_exported", "IEEE_24_bus_updated_exported.raw");
@@ -114,79 +114,97 @@ public class PsseExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void importExportTest30() throws IOException {
+    void importExportTest30() throws IOException {
         Network network = importTest("IEEE_30_bus", "IEEE_30_bus.raw", false);
         exportTest(network, "IEEE_30_bus_updated_exported", "IEEE_30_bus_updated_exported.raw");
     }
 
     @Test
-    public void importExportTest57() throws IOException {
+    void importExportTest57() throws IOException {
         Network network = importTest("IEEE_57_bus", "IEEE_57_bus.raw", false);
         exportTest(network, "IEEE_57_bus_updated_exported", "IEEE_57_bus_updated_exported.raw");
     }
 
     @Test
-    public void importExportTest118() throws IOException {
+    void importExportTest118() throws IOException {
         Network network = importTest("IEEE_118_bus", "IEEE_118_bus.raw", false);
         exportTest(network, "IEEE_118_bus_updated_exported", "IEEE_118_bus_updated_exported.raw");
     }
 
     @Test
-    public void importExportTestT3W() throws IOException {
+    void importExportTestT3W() throws IOException {
         Network network = importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.raw", false);
         exportTest(network, "ThreeMIB_T3W_modified_exported", "ThreeMIB_T3W_modified_exported.raw");
     }
 
     @Test
-    public void importExportTestT3Wphase() throws IOException {
+    void importExportTestT3Wphase() throws IOException {
         Network network = importTest("ThreeMIB_T3W_phase", "ThreeMIB_T3W_phase.raw", false);
         exportTest(network, "ThreeMIB_T3W_phase_exported", "ThreeMIB_T3W_phase_exported.raw");
     }
 
     @Test
-    public void importExportRemoteControl() throws IOException {
+    void importExportRemoteControl() throws IOException {
         Network network = importTest("remoteControl", "remoteControl.raw", false);
         exportTest(network, "remoteControl_updated_exported", "remoteControl_updated_exported.raw");
     }
 
     @Test
-    public void importExportExampleVersion32() throws IOException {
+    void importExportExampleVersion32() throws IOException {
         Network network = importTest("ExampleVersion32", "ExampleVersion32.raw", false);
         exportTest(network, "ExampleVersion32_exported", "ExampleVersion32_exported.raw");
     }
 
     @Test
-    public void importExportSwitchedShunt() throws IOException {
+    void importExportSwitchedShunt() throws IOException {
         Network network = importTest("SwitchedShunt", "SwitchedShunt.raw", false);
         exportTest(network, "SwitchedShunt_exported", "SwitchedShunt_exported.raw");
     }
 
     @Test
-    public void importExportTwoTerminalDc() throws IOException {
+    void importExportTwoTerminalDc() throws IOException {
         Network network = importTest("twoTerminalDc", "twoTerminalDc.raw", false);
         exportTest(network, "twoTerminalDc_updated_exported", "twoTerminalDc_updated_exported.raw");
     }
 
     @Test
-    public void importExportIEEE14BusRev35() throws IOException {
+    void importExportParallelTwoTerminalDcBetweenSameAcBuses() throws IOException {
+        Network network = importTest("parallelTwoTerminalDcBetweenSameAcBuses", "parallelTwoTerminalDcBetweenSameAcBuses.raw", false);
+        exportTest(network, "parallelTwoTerminalDcBetweenSameAcBuses_updated_exported", "parallelTwoTerminalDcBetweenSameAcBuses_updated_exported.raw");
+    }
+
+    @Test
+    void importExportIEEE14BusRev35() throws IOException {
         Network network = importTest("IEEE_14_bus_rev35", "IEEE_14_bus_rev35.raw", false);
         exportTest(network, "IEEE_14_bus_rev35_exported", "IEEE_14_bus_rev35_exported.raw");
     }
 
     @Test
-    public void importExportIEEE14BusRev35x() throws IOException {
+    void importExportIEEE14BusRev35x() throws IOException {
         Network network = importTest("IEEE_14_bus_rev35", "IEEE_14_bus_rev35.rawx", false);
         exportTest(network, "IEEE_14_bus_rev35_exported", "IEEE_14_bus_rev35_exported.rawx");
     }
 
     @Test
-    public void importExportTwoWindingsTransformerPhase() throws IOException {
+    void importExportTwoWindingsTransformerPhase() throws IOException {
         Network network = importTest("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
         exportTest(network, "TwoWindingsTransformerPhase_exported", "TwoWindingsTransformerPhase_exported.raw");
     }
 
     @Test
-    public void exportDataTest() throws IOException {
+    void importExportRawCaseWithSpecialCharacters() throws IOException {
+        Network network = importTest("RawCaseWithSpecialCharacters", "RawCaseWithSpecialCharacters.raw", false);
+        exportTest(network, "RawCaseWithSpecialCharacters_exported", "RawCaseWithSpecialCharacters_exported.raw");
+    }
+
+    @Test
+    void importExportRawxCaseWithSpecialCharacters() throws IOException {
+        Network network = importTest("RawxCaseWithSpecialCharacters", "RawxCaseWithSpecialCharacters.rawx", false);
+        exportTest(network, "RawxCaseWithSpecialCharacters_exported", "RawxCaseWithSpecialCharacters_exported.rawx");
+    }
+
+    @Test
+    void exportDataTest() throws IOException {
         PsseExporter psseExporter = new PsseExporter();
 
         assertEquals("Update IIDM to PSS/E ", psseExporter.getComment());

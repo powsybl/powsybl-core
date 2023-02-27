@@ -9,14 +9,14 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class NodeBreakerCleanTest {
+class NodeBreakerCleanTest {
 
     @Test
-    public void removeSwitchAndCleanTopology() {
+    void removeSwitchAndCleanTopology() {
         Network network = NetworkTest1Factory.create();
 
         VoltageLevel vl = network.getVoltageLevel("voltageLevel1");

@@ -12,16 +12,16 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuit;
 import com.powsybl.iidm.network.extensions.IdentifiableShortCircuitAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Coline Piloquet <coline.piloquet@rte-france.com>
  */
-public class IdentifiableShortCircuitTest {
+class IdentifiableShortCircuitTest {
     @Test
-    public void test() {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create();
         VoltageLevel voltageLevel = network.getVoltageLevel("VLLOAD");
         assertNotNull(voltageLevel);
@@ -39,7 +39,7 @@ public class IdentifiableShortCircuitTest {
     }
 
     @Test
-    public void testWithoutIp() {
+    void testWithoutIp() {
         Network network = EurostagTutorialExample1Factory.create();
         VoltageLevel voltageLevel = network.getVoltageLevel("VLLOAD");
         assertNotNull(voltageLevel);
@@ -48,7 +48,7 @@ public class IdentifiableShortCircuitTest {
     }
 
     @Test
-    public void testWithoutIpMin() {
+    void testWithoutIpMin() {
         Network network = EurostagTutorialExample1Factory.create();
         VoltageLevel voltageLevel = network.getVoltageLevel("VLLOAD");
         assertNotNull(voltageLevel);

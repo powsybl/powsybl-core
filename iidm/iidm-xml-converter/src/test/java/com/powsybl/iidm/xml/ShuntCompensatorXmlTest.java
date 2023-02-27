@@ -10,29 +10,24 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
+class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void linearShuntTest() throws IOException {
-        Network network = ShuntTestCaseFactory.create();
+    void linearShuntTest() throws IOException {
+        Network network = ShuntTestCaseFactory.createWithActivePower();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
         roundTripXmlTest(network,
@@ -45,7 +40,7 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void nonLinearShuntTest() throws IOException {
+    void nonLinearShuntTest() throws IOException {
         Network network = ShuntTestCaseFactory.createNonLinear();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setProperty("test", "test");
@@ -86,7 +81,7 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void unsupportedWriteTest() {
+    void unsupportedWriteTest() {
         Network network = ShuntTestCaseFactory.create();
         testForAllPreviousVersions(IidmXmlVersion.V_1_2, v -> write(network, v.toString(".")));
     }

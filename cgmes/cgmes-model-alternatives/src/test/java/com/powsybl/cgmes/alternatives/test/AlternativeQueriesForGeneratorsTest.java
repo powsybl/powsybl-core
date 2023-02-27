@@ -10,8 +10,8 @@ package com.powsybl.cgmes.alternatives.test;
 import java.io.IOException;
 import java.util.function.Consumer;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.cgmes.alternatives.test.AlternativeQueriesTester.Expected;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
@@ -23,10 +23,10 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class AlternativeQueriesForGeneratorsTest {
+class AlternativeQueriesForGeneratorsTest {
 
-    @BeforeClass
-    public static void setUp() {
+    @BeforeAll
+    static void setUp() {
         GridModelReference model = CgmesConformity1Catalog.smallBusBranch();
         Expected expected = new Expected()
                 .resultSize(19)
@@ -61,12 +61,12 @@ public class AlternativeQueriesForGeneratorsTest {
     }
 
     @Test
-    public void usingGraphClauses() throws IOException {
+    void usingGraphClauses() throws IOException {
         testerWorkingWithNestedGraphClauses.test("usingGraphClauses");
     }
 
     @Test
-    public void noGraphClauses() throws IOException {
+    void noGraphClauses() throws IOException {
         tester.test("noGraphClauses");
     }
 

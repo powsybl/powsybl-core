@@ -35,10 +35,10 @@ import com.powsybl.security.results.BusResult;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.strategy.OperatorStrategy;
 import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -50,14 +50,12 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
-
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class SecurityAnalysisTest {
+class SecurityAnalysisTest {
 
     private static class SecurityAnalysisModificationTest extends AbstractNetworkModification {
         @Override
@@ -72,19 +70,19 @@ public class SecurityAnalysisTest {
 
     private PlatformConfig platformConfig;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void run() {
+    void run() {
         Network network = EurostagTutorialExample1Factory.create();
         ((Bus) network.getIdentifiable("NHV1")).setV(380.0);
         ((Bus) network.getIdentifiable("NHV2")).setV(380.0);
@@ -115,7 +113,7 @@ public class SecurityAnalysisTest {
         SecurityAnalysisInterceptorMock interceptorMock = new SecurityAnalysisInterceptorMock();
         List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        operatorStrategies.add(new OperatorStrategy("operatorStrategy", "c1",
+        operatorStrategies.add(new OperatorStrategy("operatorStrategy", ContingencyContext.specificContingency("c1"),
                 new AnyViolationCondition(), Collections.singletonList("action1")));
 
         List<Action> actions = new ArrayList<>();
@@ -147,13 +145,13 @@ public class SecurityAnalysisTest {
         assertNotNull(extension2);
         assertEquals(1192.5631358010583, extension2.getPreContingencyValue(), 0.0);
 
-        Assert.assertEquals(1, interceptorMock.getOnPostContingencyResultCount());
-        Assert.assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
-        Assert.assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
+        assertEquals(1, interceptorMock.getOnPostContingencyResultCount());
+        assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
+        assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
     }
 
     @Test
-    public void runWithoutContingency() {
+    void runWithoutContingency() {
         Network network = EurostagTutorialExample1Factory.create();
         ComputationManager computationManager = createMockComputationManager();
 
@@ -165,7 +163,7 @@ public class SecurityAnalysisTest {
         interceptors.add(interceptorMock);
 
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        operatorStrategies.add(new OperatorStrategy("operatorStrategy", "c1", new AnyViolationCondition(), Collections.singletonList("action1")));
+        operatorStrategies.add(new OperatorStrategy("operatorStrategy", ContingencyContext.specificContingency("c1"), new AnyViolationCondition(), Collections.singletonList("action1")));
 
         List<Action> actions = new ArrayList<>();
         actions.add(new SwitchAction("action1", "switchId", true));
@@ -180,9 +178,9 @@ public class SecurityAnalysisTest {
         assertEquals(0, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         assertEquals(0, result.getPostContingencyResults().size());
 
-        Assert.assertEquals(0, interceptorMock.getOnPostContingencyResultCount());
-        Assert.assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
-        Assert.assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
+        assertEquals(0, interceptorMock.getOnPostContingencyResultCount());
+        assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
+        assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
     }
 
     private static ComputationManager createMockComputationManager() {
@@ -196,7 +194,7 @@ public class SecurityAnalysisTest {
     }
 
     @Test
-    public void testStateMonitors() {
+    void testStateMonitors() {
         Network network = EurostagTutorialExample1Factory.create();
         ((Bus) network.getIdentifiable("NHV1")).setV(380.0);
         ((Bus) network.getIdentifiable("NHV1")).setAngle(0.0);

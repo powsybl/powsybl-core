@@ -7,18 +7,18 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.iidm.network.DanglingLine;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class XnodeTest {
+class XnodeTest {
 
     @Test
-    public void test() {
+    void test() {
         DanglingLine dl = Mockito.mock(DanglingLine.class);
         Xnode xnode = new XnodeImpl(dl, "XXXXXX11");
 

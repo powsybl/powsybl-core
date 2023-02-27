@@ -28,7 +28,7 @@ public class OperatorStrategyListSerializer extends StdSerializer<OperatorStrate
     public void serialize(OperatorStrategyList operatorStrategyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
-        jsonGenerator.writeObjectField("operatorStrategies", operatorStrategyList.getOperatorStrategies());
+        serializerProvider.defaultSerializeField("operatorStrategies", operatorStrategyList.getOperatorStrategies(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

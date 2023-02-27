@@ -14,30 +14,31 @@ import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.ComparisonUtils;
+import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
+class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
 
     @Test
-    public void actionRoundTrip() throws IOException {
+    void actionRoundTrip() throws IOException {
         List<Action> actions = new ArrayList<>();
         actions.add(new SwitchAction("id1", "switchId1", true));
         actions.add(new MultipleActionsAction("id2", Collections.singletonList(new SwitchAction("id3", "switchId2", true))));
@@ -52,30 +53,66 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new GeneratorActionBuilder().withId("id11").withGeneratorId("generatorId2").withVoltageRegulatorOn(false).withTargetQ(400.0).build());
         actions.add(new LoadActionBuilder().withId("id12").withLoadId("loadId1").withRelativeValue(false).withActivePowerValue(50.0).build());
         actions.add(new LoadActionBuilder().withId("id13").withLoadId("loadId1").withRelativeValue(true).withReactivePowerValue(5.0).build());
+        actions.add(new RatioTapChangerTapPositionAction("id14", "transformerId4", false, 2, ThreeWindingsTransformer.Side.THREE));
+        actions.add(new RatioTapChangerTapPositionAction("id15", "transformerId5", true, 1));
+        actions.add(RatioTapChangerRegulationAction.activateRegulation("id16", "transformerId5", ThreeWindingsTransformer.Side.THREE));
+        actions.add(PhaseTapChangerRegulationAction.activateAndChangeRegulationMode("id17", "transformerId5", ThreeWindingsTransformer.Side.ONE,
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 10.0));
+        actions.add(PhaseTapChangerRegulationAction.deactivateRegulation("id18",
+                "transformerId6", ThreeWindingsTransformer.Side.ONE));
+        actions.add(PhaseTapChangerRegulationAction.activateAndChangeRegulationMode("id19",
+                "transformerId6", ThreeWindingsTransformer.Side.ONE,
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 15.0));
+        actions.add(RatioTapChangerRegulationAction.activateRegulationAndChangeTargetV("id20", "transformerId5", 90.0));
+        actions.add(RatioTapChangerRegulationAction.deactivateRegulation("id21", "transformerId5", ThreeWindingsTransformer.Side.THREE));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }
 
     @Test
-    public void operatorStrategyRoundTrip() throws IOException {
-        List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        operatorStrategies.add(new OperatorStrategy("id1", "contingencyId1", new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3")));
-        operatorStrategies.add(new OperatorStrategy("id1", "contingencyId1", new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3")));
-        OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
-        roundTripTest(operatorStrategyList, OperatorStrategyList::writeFile, OperatorStrategyList::readFile, "/OperatorStrategyFileTest.json");
+    void actionsReadV10() throws IOException {
+        ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream("/ActionFileTestV1.0.json"));
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            actionList.writeJsonOutputStream(bos);
+            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/ActionFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+        }
     }
 
     @Test
-    public void wrongActions() {
+    void operatorStrategyReadV10() throws IOException {
+        OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.0.json"));
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            operatorStrategies.write(bos);
+            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/OperatorStrategyFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+        }
+    }
+
+    @Test
+    void operatorStrategyRoundTrip() throws IOException {
+        List<OperatorStrategy> operatorStrategies = new ArrayList<>();
+        operatorStrategies.add(new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"), new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3")));
+        operatorStrategies.add(new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"), new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3")));
+        OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
+        roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
+    }
+
+    @Test
+    void wrongActions() {
         final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json");
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action relative value field can't be null\n" +
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
                 ActionList.readJsonInputStream(inputStream)).getMessage());
 
         final InputStream inputStream2 = getClass().getResourceAsStream("/WrongActionFileTest2.json");
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action value field can't equal zero\n" +
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action tapPosition field can't equal zero\n" +
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
                 ActionList.readJsonInputStream(inputStream2)).getMessage());
+
+        final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json");
+        assertTrue(assertThrows(UncheckedIOException.class, () -> ActionList
+                .readJsonInputStream(inputStream3))
+                .getMessage()
+                .contains("actions. Tag: value is not valid for version 1.1. Version should be <= 1.0"));
     }
 
     @JsonTypeName(DummyAction.NAME)
@@ -96,7 +133,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testJsonPlugins() throws JsonProcessingException {
+    void testJsonPlugins() throws JsonProcessingException {
 
         Module jsonModule = new SimpleModule()
                 .registerSubtypes(DummyAction.class);

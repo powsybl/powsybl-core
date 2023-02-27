@@ -8,15 +8,15 @@ package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
 
-public class ParallelLoadFlowActionSimulatorTest {
+class ParallelLoadFlowActionSimulatorTest {
 
     private ComputationManager computationManager;
 
@@ -24,8 +24,8 @@ public class ParallelLoadFlowActionSimulatorTest {
 
     private List<String> contingencies;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         Network network = mock(Network.class);
         computationManager = mock(ComputationManager.class);
 
@@ -37,7 +37,7 @@ public class ParallelLoadFlowActionSimulatorTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         when(contingencies.size()).thenReturn(11);
 
         String script = "";
@@ -50,7 +50,7 @@ public class ParallelLoadFlowActionSimulatorTest {
     }
 
     @Test
-    public void testContingencySizeSmallerThanTasks() {
+    void testContingencySizeSmallerThanTasks() {
         when(contingencies.size()).thenReturn(3);
 
         String script = "";

@@ -13,5 +13,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractHvdcOperatorActivePowerRa
 /**
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
-public class HvdcOperatorActivePowerRangeTest extends AbstractHvdcOperatorActivePowerRangeTest {
+class HvdcOperatorActivePowerRangeTest extends AbstractHvdcOperatorActivePowerRangeTest {
 }

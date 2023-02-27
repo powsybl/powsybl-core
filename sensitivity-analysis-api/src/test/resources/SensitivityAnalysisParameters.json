@@ -1,11 +1,11 @@
 {
   "version" : "1.0",
   "load-flow-parameters" : {
-    "version" : "1.7",
+    "version" : "1.8",
     "voltageInitMode" : "UNIFORM_VALUES",
     "transformerVoltageControlOn" : false,
     "phaseShifterRegulationOn" : false,
-    "noGeneratorReactiveLimits" : false,
+    "useReactiveLimits" : true,
     "twtSplitShuntAdmittance" : false,
     "shuntCompensatorVoltageControlOn" : false,
     "readSlackBus" : true,

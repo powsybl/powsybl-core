@@ -9,21 +9,21 @@ package com.powsybl.ucte.converter;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.ucte.network.UcteCountryCode;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Mathieu BAGUE {@literal <mathieu.bague at rte-france.com>}
  */
-public class KosovoTest {
+class KosovoTest {
 
     @Test
-    public void testCountryMapping() {
+    void testCountryMapping() {
         // Old buggy implementation considers that the Entsoe code matches with the ISO 3166 code
-        Assert.assertThrows("No emum constant for com.powsybl.iidm.network.Country.KS", IllegalArgumentException.class, () -> Country.valueOf(UcteCountryCode.KS.name()));
+        assertThrows(IllegalArgumentException.class, () -> Country.valueOf(UcteCountryCode.KS.name()), "No emum constant for com.powsybl.iidm.network.Country.KS");
 
         // New code uses the mapping table to find the ISO 3166 code
-        Assert.assertEquals(Country.XK, EntsoeGeographicalCode.valueOf(UcteCountryCode.KS.name()).getCountry());
+        assertEquals(Country.XK, EntsoeGeographicalCode.valueOf(UcteCountryCode.KS.name()).getCountry());
     }
 
 }

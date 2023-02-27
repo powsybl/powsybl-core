@@ -14,9 +14,10 @@ import org.apache.commons.math3.util.Pair;
 
 /**
  * The aim of this class is to store the magnitude and angle of current or voltage on the three phases, and the
- * the magnitude and angle of current or voltage for the Fortescue direct, zero and indirect components.
+ * the magnitude and angle of current or voltage for the Fortescue direct, zero and inverse components.
  *
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
  */
 public class FortescueValue {
 
@@ -149,8 +150,7 @@ public class FortescueValue {
         Pair<Double, Double> phase2 = getPolarFromCartesian(mGphase.get(2, 0), mGphase.get(3, 0));
         Pair<Double, Double> phase3 = getPolarFromCartesian(mGphase.get(4, 0), mGphase.get(5, 0));
 
-        ThreePhaseValue threePhaseValue = new ThreePhaseValue(phase1.getKey() / Math.sqrt(3), phase2.getKey() / Math.sqrt(3), phase3.getKey() / Math.sqrt(3), phase1.getValue(), phase2.getValue(), phase3.getValue());
-        return threePhaseValue;
+        return new ThreePhaseValue(phase1.getKey() / Math.sqrt(3), phase2.getKey() / Math.sqrt(3), phase3.getKey() / Math.sqrt(3), phase1.getValue(), phase2.getValue(), phase3.getValue());
     }
 
     static Matrix getFortescueMatrix(MatrixFactory matrixFactory) {

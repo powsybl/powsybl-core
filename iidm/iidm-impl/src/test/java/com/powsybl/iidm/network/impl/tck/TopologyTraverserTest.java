@@ -13,16 +13,16 @@ import com.powsybl.iidm.network.tck.AbstractTopologyTraverserTest;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.math.graph.TraverseResult;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
+class TopologyTraverserTest extends AbstractTopologyTraverserTest {
 
     @Test
-    public void testTerminateTraverser() {
+    void testTerminateTraverser() {
         Network network = createMixedNodeBreakerBusBreakerNetwork();
         Terminal startGNbv = network.getGenerator("G").getTerminal();
         List<Pair<String, Integer>> visited1 = getVisitedList(startGNbv, s -> s != null && s.getId().equals("BR2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
@@ -45,7 +45,7 @@ public class TopologyTraverserTest extends AbstractTopologyTraverserTest {
     }
 
     @Test
-    public void testTraversalOrder() {
+    void testTraversalOrder() {
         Network network = FictitiousSwitchFactory.create();
         List<Pair<String, Integer>> visited = getVisitedList(network.getGenerator("CB").getTerminal(), s -> TraverseResult.CONTINUE);
         assertEquals(List.of(Pair.of("CB", 0), Pair.of("O", 0), Pair.of("P", 0), Pair.of("CF", 0),

@@ -8,6 +8,7 @@ package com.powsybl.security.strategy;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.security.condition.Condition;
 
 import java.util.List;
@@ -26,13 +27,13 @@ import java.util.Objects;
  */
 public class OperatorStrategy extends AbstractExtendable<OperatorStrategy> {
     private final String id;
-    private final String contingencyId;
+    private final ContingencyContext contingencyContext;
     private final Condition condition;  // under which circumstances do I want to trigger my action
     private final List<String> actionIds;
 
-    public OperatorStrategy(String id, String contingencyId, Condition condition, List<String> actionIds) {
+    public OperatorStrategy(String id, ContingencyContext contingencyContext, Condition condition, List<String> actionIds) {
         this.id = Objects.requireNonNull(id);
-        this.contingencyId = Objects.requireNonNull(contingencyId);
+        this.contingencyContext = Objects.requireNonNull(contingencyContext);
         this.condition = Objects.requireNonNull(condition);
         this.actionIds = ImmutableList.copyOf(Objects.requireNonNull(actionIds));
     }
@@ -47,8 +48,8 @@ public class OperatorStrategy extends AbstractExtendable<OperatorStrategy> {
     /**
      * The contingency which this strategy applies to.
      */
-    public String getContingencyId() {
-        return contingencyId;
+    public ContingencyContext getContingencyContext() {
+        return contingencyContext;
     }
 
     /**

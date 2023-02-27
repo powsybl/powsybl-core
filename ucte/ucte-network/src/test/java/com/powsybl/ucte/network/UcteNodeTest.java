@@ -7,17 +7,17 @@
 package com.powsybl.ucte.network;
 
 import com.powsybl.commons.reporter.Reporter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class UcteNodeTest {
+class UcteNodeTest {
 
     @Test
-    public void test() {
+    void test() {
         UcteNodeCode code1 = new UcteNodeCode(UcteCountryCode.FR, "AAAAA", UcteVoltageLevelCode.VL_380, '1');
         UcteNode node = new UcteNode(code1, "name", UcteNodeStatus.REAL, UcteNodeTypeCode.UT,
                 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, UctePowerPlantType.C);
@@ -110,7 +110,7 @@ public class UcteNodeTest {
     }
 
     @Test
-    public void testIsRegulatingVoltage() {
+    void testIsRegulatingVoltage() {
         UcteNode node = createNode();
 
         node.setTypeCode(UcteNodeTypeCode.PQ);
@@ -127,7 +127,7 @@ public class UcteNodeTest {
     }
 
     @Test
-    public void testIsGenerator() {
+    void testIsGenerator() {
         UcteNode node = createNode();
 
         assertFalse(node.isGenerator());
@@ -167,7 +167,7 @@ public class UcteNodeTest {
     }
 
     @Test
-    public void testIsRegulatingFrequency() {
+    void testIsRegulatingFrequency() {
         UcteNode node = createNode();
 
         assertFalse(node.isRegulatingFrequency());
@@ -183,7 +183,7 @@ public class UcteNodeTest {
     }
 
     @Test
-    public void testFix() {
+    void testFix() {
         UcteNode node = createNode();
         node.setTypeCode(UcteNodeTypeCode.UT);
 

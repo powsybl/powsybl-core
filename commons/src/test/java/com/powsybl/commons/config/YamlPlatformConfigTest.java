@@ -11,7 +11,7 @@ import com.google.common.jimfs.Jimfs;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -24,13 +24,13 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class YamlPlatformConfigTest {
+class YamlPlatformConfigTest {
 
     enum E {
         E1,
@@ -39,7 +39,7 @@ public class YamlPlatformConfigTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
             try (Writer writer = Files.newBufferedWriter(cfgDir.resolve("config.yml"), StandardCharsets.UTF_8)) {

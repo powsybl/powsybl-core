@@ -6,10 +6,10 @@
  */
 package com.powsybl.security.comparator;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
@@ -19,10 +19,10 @@ import com.powsybl.security.LimitViolationType;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class LimitViolationEquivalenceTest {
+class LimitViolationEquivalenceTest {
 
     @Test
-    public void equivalent() {
+    void equivalent() {
         LimitViolationEquivalence violationEquivalence = new LimitViolationEquivalence(0.1);
 
         LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);

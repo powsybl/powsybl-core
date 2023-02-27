@@ -8,8 +8,8 @@ package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention;
 import com.powsybl.iidm.network.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,12 +18,12 @@ import java.util.List;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class ScalableTest {
+class ScalableTest {
 
     private Network network;
     private Scalable g1;
@@ -41,8 +41,8 @@ public class ScalableTest {
 
     private ScalingConvention convention;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
 
         network = createNetwork();
         g1 = Scalable.onGenerator("g1");
@@ -69,7 +69,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testInitialValue() {
+    void testInitialValue() {
         assertEquals(0.0, g1.initialValue(network), 0.0);
 
         Scalable scalable = Scalable.stack(g1, g2, g3);
@@ -96,7 +96,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testMaximumValue() {
+    void testMaximumValue() {
         //By default ScalingConvention.GENERATOR
         assertEquals(100.0, g1.maximumValue(network), 0.0);
         assertEquals(80.0, g3.maximumValue(network), 0.0);
@@ -116,7 +116,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testMaximumValueLoadConvention() {
+    void testMaximumValueLoadConvention() {
         convention = LOAD;
         assertEquals(0, g1.maximumValue(network, convention), 0.0);
         assertEquals(0, g3.maximumValue(network, convention), 0.0);
@@ -136,7 +136,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testMinimumValue() {
+    void testMinimumValue() {
         //By default ScalingConvention.GENERATOR
         assertEquals(0., g1.minimumValue(network), 0.0);
         assertEquals(0.0, g3.minimumValue(network), 0.0);
@@ -156,7 +156,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testMinimumValueLoadConvention() {
+    void testMinimumValueLoadConvention() {
         convention = LOAD;
         assertEquals(-100., g1.minimumValue(network, convention), 0.0);
         assertEquals(-80.0, g3.minimumValue(network, convention), 0.0);
@@ -176,7 +176,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testProportionalScalableGenerator() {
+    void testProportionalScalableGenerator() {
         double done = Scalable.proportional(Arrays.asList(70.f, 30.f), Arrays.asList(g1, g2)).scale(network, 100.0);
         assertEquals(100.0, done, 0.0);
         assertEquals(70.0, network.getGenerator("g1").getTargetP(), 1e-5);
@@ -222,7 +222,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testProportionalScale() {
+    void testProportionalScale() {
         //By default ScalingConvention.GENERATOR
         reset();
         double done = Scalable.proportional(Arrays.asList(70.f, 30.f), Arrays.asList(g1, l1)).scale(network, 100.0);
@@ -250,7 +250,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testProportionalScaleLoadConvention() {
+    void testProportionalScaleLoadConvention() {
         convention = LOAD;
         reset();
 
@@ -285,7 +285,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testConstantPowerFactorScaling() {
+    void testConstantPowerFactorScaling() {
         reset();
         network.getLoad("l1").setQ0(10);
         network.getLoad("l1").setP0(100);
@@ -297,7 +297,20 @@ public class ScalableTest {
     }
 
     @Test
-    public void testStackScale() {
+    void testConstantPowerFactorScalingWithLoadConvention() {
+        reset();
+        network.getLoad("l1").setQ0(10);
+        network.getLoad("l1").setP0(100);
+        network.getGenerator("g1").setTargetP(70);
+        double done = Scalable.proportional(Arrays.asList(50.f, 50.f), Arrays.asList(g1, l1)).scaleWithConstantPowerFactor(network, 100.0, LOAD);
+        assertEquals(100.0, done, 1e-5);
+        assertEquals(150.0, network.getLoad("l1").getP0(), 1e-5);
+        assertEquals(15.0, network.getLoad("l1").getQ0(), 1e-5);
+        assertEquals(20.0, network.getGenerator("g1").getTargetP(), 1e-5);
+    }
+
+    @Test
+    void testStackScale() {
         //By default ScalingConvention.GENERATOR
         Scalable scalable = Scalable.stack(g1, g2);
 
@@ -341,7 +354,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testStackScaleLoadConvention() {
+    void testStackScaleLoadConvention() {
         convention = LOAD;
         Scalable scalable = Scalable.stack(g1, g2);
 
@@ -385,7 +398,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testListGenerators() {
+    void testListGenerators() {
         Generator generator1 = network.getGenerator("g1");
         Generator generator2 = network.getGenerator("g2");
 
@@ -428,7 +441,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testFilterInjections() {
+    void testFilterInjections() {
         Generator generator1 = network.getGenerator("g1");
         Generator generator2 = network.getGenerator("g2");
         Load load1 = network.getLoad("l1");
@@ -511,7 +524,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testProportionalScalableIterativeMode() {
+    void testProportionalScalableIterativeMode() {
         double done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, s, unknownGenerator)).scale(network, 100.0);
         assertEquals(70.0, done, 0.0);
         assertEquals(70.0, network.getGenerator("g1").getTargetP(), 1e-5);
@@ -547,7 +560,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testExceptionWhenIncorrectArgumentsInProportionalScalableConstructor() {
+    void testExceptionWhenIncorrectArgumentsInProportionalScalableConstructor() {
         var gens = Arrays.asList(g1, g2, g3);
         assertThrows(NullPointerException.class, () -> Scalable.proportional(null, gens));
 
@@ -558,7 +571,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testProportionalScaleIterativeThreeSteps() {
+    void testProportionalScaleIterativeThreeSteps() {
         double done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3), false).scale(network, 270.0);
         assertEquals(181.0, done, 0.0);
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-3);
@@ -574,7 +587,7 @@ public class ScalableTest {
     }
 
     @Test
-    public void testScalableReuse() {
+    void testScalableReuse() {
         Scalable scalable = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3), true);
         double done = scalable.scale(network, 270.0);
         assertEquals(270.0, done, 0.0);
