@@ -6,53 +6,19 @@
  */
 package com.powsybl.timeseries;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
-class BigStringBufferTest {
+class BigStringBufferTest extends AbstractBigBufferTest {
 
     private static final int BUFFER_SIZE_INTS = 1 << 28;
 
-    private int allocatorCount;
-
-    private ByteBuffer testStringAllocator(int capacity) {
-        allocatorCount++;
-        ByteBuffer mockbyte = Mockito.mock(ByteBuffer.class);
-        IntBuffer mockint = Mockito.mock(IntBuffer.class);
-        when(mockbyte.asIntBuffer()).thenReturn(mockint);
-        Map<Integer, Integer> map = new HashMap<>();
-        when(mockint.put(anyInt(), anyInt())).thenAnswer(invocation -> {
-            Object[] args = invocation.getArguments();
-            IntBuffer mock = (IntBuffer) invocation.getMock();
-            map.put((int) args[0], (int) args[1]);
-            return mock;
-        });
-        when(mockint.get(anyInt())).thenAnswer(invocation -> {
-            return map.get(invocation.getArguments()[0]);
-        });
-        return mockbyte;
-    }
-
-    @BeforeEach
-    void before() {
-        allocatorCount = 0;
-    }
-
     private void bufferTester(long size) {
-        BigStringBuffer buffer = new BigStringBuffer(this::testStringAllocator, size);
+        BigStringBuffer buffer = new BigStringBuffer(this::testAllocator, size);
         //Simple writes at the begining
         for (int i = 0; i < 10; i++) {
             buffer.putString(i, Integer.toString(i));
@@ -84,36 +50,36 @@ class BigStringBufferTest {
     @Test
     void testSimple() {
         bufferTester(10);
-        assertEquals(1, allocatorCount);
+        assertEquals(1, channels.size());
     }
 
     @Test
     void testMultipleBuffers() {
         bufferTester(400000000);
-        assertEquals(2, allocatorCount);
+        assertEquals(2, channels.size());
     }
 
     @Test
     void testHuge() {
         bufferTester(10000000000L);
-        assertEquals(38, allocatorCount);
+        assertEquals(38, channels.size());
     }
 
     @Test
     void testSizeBufferMinus1() {
         bufferTester(BUFFER_SIZE_INTS - 1);
-        assertEquals(1, allocatorCount);
+        assertEquals(1, channels.size());
     }
 
     @Test
     void testSizeBufferExact() {
         bufferTester(BUFFER_SIZE_INTS);
-        assertEquals(1, allocatorCount);
+        assertEquals(1, channels.size());
     }
 
     @Test
     void testSizeBufferPlus1() {
         bufferTester(BUFFER_SIZE_INTS + 1);
-        assertEquals(2, allocatorCount);
+        assertEquals(2, channels.size());
     }
 }
