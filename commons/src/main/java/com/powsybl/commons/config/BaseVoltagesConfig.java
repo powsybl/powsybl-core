@@ -9,6 +9,7 @@ package com.powsybl.commons.config;
 import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -136,7 +137,7 @@ public class BaseVoltagesConfig {
         private static final List<String> BASE_VOLTAGE_CONFIG_REQUIRED_FIELDS = Arrays.asList("name", "minValue", "maxValue", "profile");
 
         BaseVoltagesConfigConstructor() {
-            super(BaseVoltagesConfig.class);
+            super(BaseVoltagesConfig.class, new LoaderOptions());
         }
 
         @Override
