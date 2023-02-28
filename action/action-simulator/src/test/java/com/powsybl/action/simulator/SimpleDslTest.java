@@ -7,14 +7,14 @@
 package com.powsybl.action.simulator;
 
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SimpleDslTest extends AbstractLoadFlowRulesEngineTest {
+class SimpleDslTest extends AbstractLoadFlowRulesEngineTest {
 
     @Override
     protected Network createNetwork() {
@@ -30,7 +30,7 @@ public class SimpleDslTest extends AbstractLoadFlowRulesEngineTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         assertEquals(600, network.getLoad("LOAD").getP0(), 1e-6);
         engine.start(actionDb);
         assertEquals(601, network.getLoad("LOAD").getP0(), 1e-6);

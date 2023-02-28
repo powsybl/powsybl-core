@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractStandbyAutomatonTest;
 /**
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  */
-public class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
+class StandbyAutomatonTest extends AbstractStandbyAutomatonTest {
 }

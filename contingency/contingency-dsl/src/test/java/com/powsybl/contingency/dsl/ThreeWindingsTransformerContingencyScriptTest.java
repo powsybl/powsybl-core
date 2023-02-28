@@ -13,9 +13,9 @@ import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.ThreeWindingsTransformerContingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -25,13 +25,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ThreeWindingsTransformerContingencyScriptTest {
+class ThreeWindingsTransformerContingencyScriptTest {
 
     private FileSystem fileSystem;
 
@@ -39,15 +39,15 @@ public class ThreeWindingsTransformerContingencyScriptTest {
 
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         dslFile = fileSystem.getPath("/test.dsl");
         network = ThreeWindingsTransformerNetworkFactory.create();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         fileSystem.close();
     }
 
@@ -58,7 +58,7 @@ public class ThreeWindingsTransformerContingencyScriptTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         writeToDslFile("contingency('3WT_CONTINGENCY') {",
                 "    equipments '3WT'",
                 "}");

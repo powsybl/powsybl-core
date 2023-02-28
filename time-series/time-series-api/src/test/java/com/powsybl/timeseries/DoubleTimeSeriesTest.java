@@ -7,19 +7,19 @@
 package com.powsybl.timeseries;
 
 import com.google.common.collect.ImmutableList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Iterator;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DoubleTimeSeriesTest {
+class DoubleTimeSeriesTest {
 
     @Test
-    public void test() {
+    void test() {
         // ts1 1 1 1 1 1 1 1 1
         // ts2 2 2 2 3 3 3 2 2
         // ts3 4 4 5 5 5 4 4 4

@@ -10,22 +10,22 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.math.graph.TraverseResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class TopologyTraverserAdapterTest {
+class TopologyTraverserAdapterTest {
 
     @Test
-    public void test() {
+    void test() {
         MergingView cgm = MergingViewFactory.createCGM(null);
         Terminal start1 = cgm.getLoad("LOAD1").getTerminal();
         List<String> visited1 = recordVisited(start1, s -> TraverseResult.CONTINUE);

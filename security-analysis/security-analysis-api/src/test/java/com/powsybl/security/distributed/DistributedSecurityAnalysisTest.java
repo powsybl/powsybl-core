@@ -17,9 +17,9 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.io.IOException;
@@ -31,13 +31,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class DistributedSecurityAnalysisTest {
+class DistributedSecurityAnalysisTest {
 
     private FileSystem fileSystem;
     private Path workingDir;
@@ -45,15 +45,15 @@ public class DistributedSecurityAnalysisTest {
     private Network network = EurostagTutorialExample1Factory.create();
     private ContingenciesProvider contingencies = newContingenciesProvider();
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         workingDir = fileSystem.getPath("/working-dir");
         Files.createDirectory(workingDir);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
@@ -94,7 +94,7 @@ public class DistributedSecurityAnalysisTest {
      * Checks config class.
      */
     @Test
-    public void testConfig() {
+    void testConfig() {
         ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
         assertFalse(config.isDebug());
         assertEquals("itools", config.getItoolsCommand());
@@ -116,7 +116,7 @@ public class DistributedSecurityAnalysisTest {
      * Checks config class read from config file.
      */
     @Test
-    public void testConfigFromFile() throws IOException {
+    void testConfigFromFile() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
 

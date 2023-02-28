@@ -15,8 +15,8 @@ import com.powsybl.iidm.network.NetworkFactoryMock;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -25,7 +25,7 @@ import java.util.Collections;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class ConversionToolTest extends AbstractToolTest {
+class ConversionToolTest extends AbstractToolTest {
 
     private PlatformConfig platformConfig;
 
@@ -44,7 +44,7 @@ public class ConversionToolTest extends AbstractToolTest {
         };
     }
 
-    @Before
+    @BeforeEach
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -79,7 +79,7 @@ public class ConversionToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void testConversion() throws IOException {
+    void testConversion() throws IOException {
         String[] commandLine = new String[] {
             "convert-network", "--input-file", "/input.txt",
             "--import-parameters", "/import-parameters.xml", "-Iparam1=value1",

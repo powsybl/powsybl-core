@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractThreeWindingsTransformerT
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class ThreeWindingsTransformerToBeEstimatedTest extends AbstractThreeWindingsTransformerToBeEstimatedTest {
+class ThreeWindingsTransformerToBeEstimatedTest extends AbstractThreeWindingsTransformerToBeEstimatedTest {
 }

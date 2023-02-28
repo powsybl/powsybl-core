@@ -8,15 +8,13 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractDanglingLineTest {
 
@@ -30,13 +28,10 @@ public abstract class AbstractDanglingLineTest {
 
     private static final String BUS_VL_ID = "bus_vl";
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private Network network;
     private VoltageLevel voltageLevel;
 
-    @Before
+    @BeforeEach
     public void initNetwork() {
         network = Network.create("test", "test");
         Substation substation = network.newSubstation()
@@ -157,52 +152,46 @@ public abstract class AbstractDanglingLineTest {
 
     @Test
     public void testInvalidR() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is invalid");
-        createDanglingLine(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, "code"));
+        assertTrue(e.getMessage().contains("r is invalid"));
     }
 
     @Test
     public void testInvalidX() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is invalid");
-        createDanglingLine(INVALID, INVALID, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, "code"));
+        assertTrue(e.getMessage().contains("x is invalid"));
     }
 
     @Test
     public void testInvalidG() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("g is invalid");
-        createDanglingLine(INVALID, INVALID, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, "code"));
+        assertTrue(e.getMessage().contains("g is invalid"));
     }
 
     @Test
     public void testInvalidB() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("b is invalid");
-        createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, "code"));
+        assertTrue(e.getMessage().contains("b is invalid"));
+
     }
 
     @Test
     public void testInvalidP0() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("p0 is invalid");
-        createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code"));
+        assertTrue(e.getMessage().contains("p0 is invalid"));
     }
 
     @Test
     public void testInvalidQ0() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("q0 is invalid");
-        createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code"));
+        assertTrue(e.getMessage().contains("q0 is invalid"));
     }
 
     @Test
     public void duplicateDanglingLine() {
         createDanglingLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
         assertNotNull(network.getDanglingLine(DUPLICATE));
-        thrown.expect(PowsyblException.class);
-        createDanglingLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createDanglingLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code"));
     }
 
     @Test

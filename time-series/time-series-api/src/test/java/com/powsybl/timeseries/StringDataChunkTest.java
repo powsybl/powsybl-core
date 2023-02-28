@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
@@ -23,15 +23,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringDataChunkTest {
+class StringDataChunkTest {
 
     @Test
-    public void baseTest() throws IOException {
+    void baseTest() throws IOException {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"a", "b", "c"});
         assertEquals(1, chunk.getOffset());
         assertEquals(3, chunk.getLength());
@@ -73,7 +73,7 @@ public class StringDataChunkTest {
     }
 
     @Test
-    public void compressTest() throws IOException {
+    void compressTest() throws IOException {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"aaa", "bbb", "bbb", "bbb", "bbb", "ccc"});
         StringDataChunk maybeCompressedChunk = chunk.tryToCompress();
         assertTrue(maybeCompressedChunk instanceof CompressedStringDataChunk);
@@ -105,13 +105,13 @@ public class StringDataChunkTest {
     }
 
     @Test
-    public void compressFailureTest() throws IOException {
+    void compressFailureTest() throws IOException {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"aaa", "bbb", "bbb", "ccc"});
         assertSame(chunk, chunk.tryToCompress());
     }
 
     @Test
-    public void splitTest() throws IOException {
+    void splitTest() throws IOException {
         UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[]{"a", "b", "c"});
         try {
             chunk.splitAt(1);
@@ -135,7 +135,7 @@ public class StringDataChunkTest {
     }
 
     @Test
-    public void compressedSplitTest() throws IOException {
+    void compressedSplitTest() throws IOException {
         // index  0   1   2   3   4   5
         // value  NaN a   a   b   b   b
         //            [-------]   [---]
@@ -166,7 +166,7 @@ public class StringDataChunkTest {
     }
 
     @Test
-    public void uncompressedMergeTest() {
+    void uncompressedMergeTest() {
         UncompressedStringDataChunk chunk1 = new UncompressedStringDataChunk(1, new String[]{"a", "b", "c", "d", "e"});
         UncompressedStringDataChunk chunk2 = new UncompressedStringDataChunk(6, new String[]{"f", "g"});
         UncompressedStringDataChunk chunk3 = new UncompressedStringDataChunk(1, new String[]{"f", "g"});
@@ -188,7 +188,7 @@ public class StringDataChunkTest {
     }
 
     @Test
-    public void compressedMergeTest() {
+    void compressedMergeTest() {
         CompressedStringDataChunk chunk1 = new CompressedStringDataChunk(1, 5, new String[]{"a", "b"}, new int[]{2, 3});
         CompressedStringDataChunk chunk2 = new CompressedStringDataChunk(6, 5, new String[]{"c", "d"}, new int[]{2, 3});
         CompressedStringDataChunk chunk3 = new CompressedStringDataChunk(11, 3, new String[]{"d", "e"}, new int[]{2, 1});
@@ -221,7 +221,7 @@ public class StringDataChunkTest {
     }
 
     @Test
-    public void nullIssueTest() {
+    void nullIssueTest() {
         String json = String.join(System.lineSeparator(),
                 "{",
                 "  \"offset\" : 0,",

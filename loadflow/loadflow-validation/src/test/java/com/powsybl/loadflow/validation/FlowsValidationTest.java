@@ -12,8 +12,8 @@ import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -21,13 +21,13 @@ import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class FlowsValidationTest extends AbstractValidationTest {
+class FlowsValidationTest extends AbstractValidationTest {
 
     private final double r = 0.04;
     private final double x = 0.423;
@@ -61,8 +61,8 @@ public class FlowsValidationTest extends AbstractValidationTest {
     private ValidationConfig looseConfigSpecificCompatibility;
     private ValidationConfig strictConfigSpecificCompatibility;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         super.setUp();
 
         double p1 = 39.5056;
@@ -144,7 +144,7 @@ public class FlowsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkFlows() {
+    void checkFlows() {
         double p1 = 40.0744;
         double q1 = 2.3124743;
         double p2 = -40.073254;
@@ -189,7 +189,7 @@ public class FlowsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkLineFlows() {
+    void checkLineFlows() {
         assertTrue(FlowsValidation.INSTANCE.checkFlows(line1, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(FlowsValidation.INSTANCE.checkFlows(line1, strictConfig, NullWriter.NULL_WRITER));
         Mockito.when(bus1.isInMainConnectedComponent()).thenReturn(false);
@@ -198,7 +198,7 @@ public class FlowsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkTransformerFlows() {
+    void checkTransformerFlows() {
         assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer1, looseConfig, NullWriter.NULL_WRITER));
         assertFalse(FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.NULL_WRITER));
         Mockito.when(bus1.isInMainConnectedComponent()).thenReturn(false);
@@ -207,13 +207,13 @@ public class FlowsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkTransformerFlowsSpecificCompatibility() {
+    void checkTransformerFlowsSpecificCompatibility() {
         assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer1, looseConfigSpecificCompatibility, NullWriter.NULL_WRITER));
         assertFalse(FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfigSpecificCompatibility, NullWriter.NULL_WRITER));
     }
 
     @Test
-    public void checkNetworkFlows() throws IOException {
+    void checkNetworkFlows() throws IOException {
         Line line2 = Mockito.mock(Line.class);
         Mockito.when(line2.getId()).thenReturn("line2");
         Mockito.when(line2.getTerminal1()).thenReturn(terminal1);

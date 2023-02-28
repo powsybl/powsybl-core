@@ -8,11 +8,11 @@ package com.powsybl.action.simulator;
 
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class WhenConditionWithBooleanTest extends AbstractLoadFlowRulesEngineTest {
+class WhenConditionWithBooleanTest extends AbstractLoadFlowRulesEngineTest {
 
     @Override
     protected Network createNetwork() {
@@ -28,7 +28,7 @@ public class WhenConditionWithBooleanTest extends AbstractLoadFlowRulesEngineTes
     }
 
     @Test
-    public void test() {
+    void test() {
         Load load = network.getLoad("LOAD");
         assertEquals(600.0, load.getP0(), 0.0);
         engine.start(actionDb);

@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractNodeBreakerDisconnectionDoublePathBugTest;
 
-public class NodeBreakerDisconnectionDoublePathBugTest extends AbstractNodeBreakerDisconnectionDoublePathBugTest { }
+class NodeBreakerDisconnectionDoublePathBugTest extends AbstractNodeBreakerDisconnectionDoublePathBugTest { }

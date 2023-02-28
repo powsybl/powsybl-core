@@ -9,26 +9,25 @@ package com.powsybl.iidm.modification.tripping;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class DanglingLineTrippingTest extends AbstractTrippingTest {
+class DanglingLineTrippingTest extends AbstractTrippingTest {
 
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = DanglingLineNetworkFactory.create();
     }
 
     @Test
-    public void dlTrippingTest() {
+    void dlTrippingTest() {
         assertTrue(network.getDanglingLine("DL").getTerminal().isConnected());
 
         DanglingLineTripping tripping = new DanglingLineTripping("DL");
@@ -37,9 +36,9 @@ public class DanglingLineTrippingTest extends AbstractTrippingTest {
         assertFalse(network.getDanglingLine("DL").getTerminal().isConnected());
     }
 
-    @Test(expected = PowsyblException.class)
-    public void unknownDlTest() {
+    @Test
+    void unknownDlTest() {
         DanglingLineTripping tripping = new DanglingLineTripping("DL_THAT_DO_NOT_EXIST");
-        tripping.apply(network);
+        assertThrows(PowsyblException.class, () -> tripping.apply(network));
     }
 }

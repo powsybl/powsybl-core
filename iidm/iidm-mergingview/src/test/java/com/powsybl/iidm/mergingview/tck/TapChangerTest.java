@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractTapChangerTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class TapChangerTest extends AbstractTapChangerTest { }
+class TapChangerTest extends AbstractTapChangerTest { }

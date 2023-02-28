@@ -8,25 +8,25 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class BatteryAdapterTest {
+class BatteryAdapterTest {
     private MergingView mergingView;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("BatteryAdapterTest", "iidm");
         mergingView.merge(NoEquipmentNetworkFactory.create());
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         double delta = 0.0;
         final VoltageLevel vlbat = mergingView.getVoltageLevel("vl1");
         final Battery battery = vlbat.newBattery()

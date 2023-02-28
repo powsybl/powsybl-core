@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -18,10 +18,10 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest {
+class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest {
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripXmlTest(
                 networkWithInternalConnections(),
                 NetworkXml::writeAndValidate,
