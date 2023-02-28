@@ -6,53 +6,52 @@
  */
 package com.powsybl.timeseries;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.io.TempDir;
 
-import java.nio.file.StandardOpenOption;
-import java.nio.channels.FileChannel;
+import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
+import java.nio.channels.FileChannel;
 import java.nio.file.Path;
-
-import java.util.List;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
 abstract class AbstractBigBufferTest {
 
-    private Path tempdir;
+    @TempDir
+    Path tempDir;
+
     protected List<FileChannel> channels;
 
     protected ByteBuffer testAllocator(int capacity) {
         try {
             FileChannel channel = FileChannel.open(
-                tempdir.resolve(Integer.toString(channels.size())),
+                tempDir.resolve(Integer.toString(channels.size())),
                 StandardOpenOption.READ, StandardOpenOption.WRITE,
                 StandardOpenOption.CREATE_NEW, StandardOpenOption.SPARSE,
                 StandardOpenOption.DELETE_ON_CLOSE);
             channels.add(channel);
-            ByteBuffer bytebuffer = channel.map(FileChannel.MapMode.PRIVATE, 0, capacity);
-            return bytebuffer;
+            return channel.map(FileChannel.MapMode.PRIVATE, 0, capacity);
         } catch (Exception e) {
             throw new RuntimeException("error in allocator test", e);
         }
     }
 
     @BeforeEach
-    void before() throws Exception {
-        tempdir = Files.createTempDirectory("powsybltimeseriestest");
+    void before() {
         channels = new ArrayList<>();
     }
 
     @AfterEach
-    void after() throws Exception {
+    void after() throws IOException {
         for (FileChannel channel : channels) {
             channel.close();
         }
-        Files.delete(tempdir);
     }
 
 }
