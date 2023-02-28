@@ -17,8 +17,12 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -116,37 +120,24 @@ class CreateCouplingDeviceTest extends AbstractConverterTest {
                 "/network_test_bus_breaker_with_coupling_device.xiidm");
     }
 
-    @Test
-    void createCouplingDeviceThrowsExceptionIfNotBusbarSectionOrBusId() {
+    @ParameterizedTest
+    @MethodSource("parameters")
+    void createCouplingDeviceThrowsException(String bbs1, String bbs2, String message) {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         NetworkModification modification = new CreateCouplingDeviceBuilder()
-                .withBusOrBusbarSectionId1("bbs1")
-                .withBusOrBusbarSectionId2("gen1")
+                .withBusOrBusbarSectionId1(bbs1)
+                .withBusOrBusbarSectionId2(bbs2)
                 .build();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
-        assertEquals("Unexpected type of identifiable gen1: GENERATOR", e2.getMessage());
+        assertEquals(message, e2.getMessage());
     }
 
-    @Test
-    void createCouplingDeviceThrowsExceptionIfWrongBusbarSectionOrBusId1() {
-        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        NetworkModification modification = new CreateCouplingDeviceBuilder()
-                .withBusOrBusbarSectionId1("bb1")
-                .withBusOrBusbarSectionId2("bbs2")
-                .build();
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
-        assertEquals("Identifiable bb1 not found.", e2.getMessage());
-    }
-
-    @Test
-    void createCouplingDeviceThrowsExceptionIfWrongBusbarSectionOrBusId2() {
-        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        NetworkModification modification = new CreateCouplingDeviceBuilder()
-                .withBusOrBusbarSectionId1("bbs1")
-                .withBusOrBusbarSectionId2("bb2")
-                .build();
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
-        assertEquals("Identifiable bb2 not found.", e2.getMessage());
+    private static Stream<Arguments> parameters() {
+        return Stream.of(
+                Arguments.of("bbs1", "gen1", "Unexpected type of identifiable gen1: GENERATOR"),
+                Arguments.of("bb1", "bbs2", "Identifiable bb1 not found."),
+                Arguments.of("bbs1", "bb2", "Identifiable bb2 not found.")
+        );
     }
 
     private Network createSimpleBusBreakerNetwork() {
