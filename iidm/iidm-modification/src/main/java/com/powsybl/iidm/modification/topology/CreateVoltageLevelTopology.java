@@ -173,7 +173,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             for (int busNum = lowBusOrBusbarIndex; busNum < lowSectionIndex + alignedBusesOrBusbarCount; busNum++) {
                 String bus1Id = busOrBusbarSectionPrefixId + SEPARATOR + busNum + SEPARATOR + sectionNum;
                 String bus2Id = busOrBusbarSectionPrefixId + SEPARATOR + busNum + SEPARATOR + (sectionNum + 1);
-                createBusBreakerSwitch(bus1Id, bus2Id, switchPrefixId + SEPARATOR, SEPARATOR + busNum + SEPARATOR + sectionNum, voltageLevel.getBusBreakerView());
+                createBusBreakerSwitch(bus1Id, bus2Id, switchPrefixId, SEPARATOR + busNum + SEPARATOR + sectionNum, voltageLevel.getBusBreakerView());
             }
         }
     }
