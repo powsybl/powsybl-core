@@ -278,7 +278,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     break;
 
                 case LINE:
-                    LineImpl line = (LineImpl) connectable;
+                    Line line = (Line) connectable;
                     visitor.visitLine(line, line.getTerminal1() == terminal ? Branch.Side.ONE
                                                                             : Branch.Side.TWO);
                     break;
