@@ -19,6 +19,8 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
+
+import org.apache.commons.math3.complex.Complex;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -301,8 +303,20 @@ public class IeeeCdfImporter implements Importer {
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
         String voltageLevel1Id = containerMapping.getVoltageLevelId(ieeeCdfBranch.getTapBusNumber());
         String voltageLevel2Id = containerMapping.getVoltageLevelId(ieeeCdfBranch.getzBusNumber());
+        VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
-        double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
+
+        double vnom1 = voltageLevel1.getNominalV();
+        double vnom2 = voltageLevel2.getNominalV();
+        double sbase = perUnitContext.getSb();
+        double r = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ieeeCdfBranch.getResistance(), vnom1, vnom2, sbase);
+        double x = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ieeeCdfBranch.getReactance(), vnom1, vnom2, sbase);
+        Complex ytr = impedanceToAdmittance(r, x);
+        double g1 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getReal(), 0.0, vnom1, vnom2, sbase);
+        double b1 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getImaginary(), ieeeCdfBranch.getChargingSusceptance() * 0.5, vnom1, vnom2, sbase);
+        double g2 = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getReal(), 0.0, vnom1, vnom2, sbase);
+        double b2 = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getImaginary(), ieeeCdfBranch.getChargingSusceptance() * 0.5, vnom1, vnom2, sbase);
+
         network.newLine()
                 .setId(id)
                 .setBus1(bus1Id)
@@ -311,13 +325,30 @@ public class IeeeCdfImporter implements Importer {
                 .setBus2(bus2Id)
                 .setConnectableBus2(bus2Id)
                 .setVoltageLevel2(voltageLevel2Id)
-                .setR(ieeeCdfBranch.getResistance() * zb)
-                .setX(ieeeCdfBranch.getReactance() * zb)
-                .setG1(0)
-                .setB1(ieeeCdfBranch.getChargingSusceptance() / zb / 2)
-                .setG2(0)
-                .setB2(ieeeCdfBranch.getChargingSusceptance() / zb / 2)
+                .setR(r)
+                .setX(x)
+                .setG1(g1)
+                .setB1(b1)
+                .setG2(g2)
+                .setB2(b2)
                 .add();
+    }
+
+    // avoid NaN when r and x, both are 0.0
+    private static Complex impedanceToAdmittance(double r, double x) {
+        return r == 0.0 && x == 0.0 ? new Complex(0.0, 0.0) : new Complex(r, x).reciprocal();
+    }
+
+    private static double impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double impedance, double vnom1, double vnom2, double sbase) {
+        return impedance * vnom1 * vnom2 / sbase;
+    }
+
+    private static double admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+        return shuntAdmittance * sbase / (vnom1 * vnom1) - (1 - vnom2 / vnom1) * admittanceTransmissionEu;
+    }
+
+    static double admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+        return shuntAdmittance * sbase / (vnom2 * vnom2) - (1 - vnom1 / vnom2) * admittanceTransmissionEu;
     }
 
     private static TwoWindingsTransformer createTransformer(IeeeCdfBranch ieeeCdfBranch, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
