@@ -107,6 +107,9 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 new AllViolationCondition(Arrays.asList("violation1", "violation2"),
                         Collections.singletonList(Condition.ConditionFilter.VOLTAGE)),
                 Arrays.asList("actionId1", "actionId5")));
+        operatorStrategies.add(new OperatorStrategy("id6", ContingencyContext.specificContingency("contingencyId5"),
+                new AllViolationCondition(Arrays.asList("violation1", "violation2")),
+                List.of("actionId3")));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
     }

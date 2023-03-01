@@ -44,5 +44,14 @@
       "violationIds" : [ "violation1", "violation2" ]
     },
     "actionIds" : [ "actionId1", "actionId5" ]
+  }, {
+    "id" : "id6",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingencyId5",
+    "condition" : {
+      "type" : "ALL_VIOLATION",
+      "violationIds" : [ "violation1", "violation2" ]
+    },
+    "actionIds" : [ "actionId3" ]
   } ]
 }
