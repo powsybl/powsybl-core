@@ -34,5 +34,15 @@
       "filters" : [ "VOLTAGE" ]
     },
     "actionIds" : [ "actionId1", "actionId2", "actionId4" ]
+  }, {
+    "id" : "id5",
+    "contingencyContextType" : "SPECIFIC",
+    "contingencyId" : "contingencyId4",
+    "condition" : {
+      "type" : "ALL_VIOLATION",
+      "filters" : [ "VOLTAGE" ],
+      "violationIds" : [ "violation1", "violation2" ]
+    },
+    "actionIds" : [ "actionId1", "actionId5" ]
   } ]
 }

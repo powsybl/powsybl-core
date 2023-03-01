@@ -19,6 +19,7 @@ import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
+import com.powsybl.security.condition.AllViolationCondition;
 import com.powsybl.security.condition.AnyViolationCondition;
 import com.powsybl.security.condition.Condition;
 import com.powsybl.security.condition.TrueCondition;
@@ -102,6 +103,10 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         operatorStrategies.add(new OperatorStrategy("id4", ContingencyContext.specificContingency("contingencyId3"),
                 new AnyViolationCondition(Collections.singletonList(Condition.ConditionFilter.VOLTAGE)),
                 Arrays.asList("actionId1", "actionId2", "actionId4")));
+        operatorStrategies.add(new OperatorStrategy("id5", ContingencyContext.specificContingency("contingencyId4"),
+                new AllViolationCondition(Arrays.asList("violation1", "violation2"),
+                        Collections.singletonList(Condition.ConditionFilter.VOLTAGE)),
+                Arrays.asList("actionId1", "actionId5")));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");
     }
