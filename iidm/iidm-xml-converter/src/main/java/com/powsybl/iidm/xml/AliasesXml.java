@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
@@ -35,7 +37,7 @@ public final class AliasesXml {
         }
     }
 
-    public static void read(Identifiable<?> identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
+    public static <T extends Identifiable> void read(T identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
         if (!context.getReader().getLocalName().equals(ALIAS)) {
             throw new IllegalStateException();
         }
@@ -43,6 +45,14 @@ public final class AliasesXml {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().getAttributeValue(null, "type"));
         String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
         identifiable.addAlias(alias, aliasType[0]);
+    }
+
+    public static <T extends Identifiable> void read(List<Consumer<T>> toApply, NetworkXmlReaderContext context) throws XMLStreamException {
+        assert context.getReader().getLocalName().equals(ALIAS);
+        String[] aliasType = new String[1];
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().getAttributeValue(null, "type"));
+        String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
+        toApply.add(identifiable -> identifiable.addAlias(alias, aliasType[0]));
     }
 
     private AliasesXml() {

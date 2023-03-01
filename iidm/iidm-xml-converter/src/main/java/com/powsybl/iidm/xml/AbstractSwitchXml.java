@@ -18,7 +18,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends AbstractIdentifiableXml<Switch, A, VoltageLevel> {
+abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends AbstractSimpleIdentifiableXml<Switch, A, VoltageLevel> {
 
     static final String ROOT_ELEMENT_NAME = "switch";
 
