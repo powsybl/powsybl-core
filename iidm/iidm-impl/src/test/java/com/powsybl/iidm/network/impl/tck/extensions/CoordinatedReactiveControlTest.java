@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractCoordinatedReactiveContro
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CoordinatedReactiveControlTest extends AbstractCoordinatedReactiveControlTest {
+class CoordinatedReactiveControlTest extends AbstractCoordinatedReactiveControlTest {
 }

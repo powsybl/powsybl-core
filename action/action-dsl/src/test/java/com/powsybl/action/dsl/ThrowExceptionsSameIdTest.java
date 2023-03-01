@@ -9,38 +9,34 @@ package com.powsybl.action.dsl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class ThrowExceptionsSameIdTest {
-
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
+class ThrowExceptionsSameIdTest {
 
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = EurostagTutorialExample1Factory.create();
     }
 
     @Test
-    public void testRule() {
-        thrown.expect(ActionDslException.class);
-        thrown.expectMessage("Rule 'rule1' is defined several times");
-        new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/exception-rule.groovy"))).load(network);
+    void testRule() {
+        ActionDslException e = assertThrows(ActionDslException.class, () -> new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/exception-rule.groovy"))).load(network));
+        assertTrue(e.getMessage().contains("Rule 'rule1' is defined several times"));
     }
 
     @Test
-    public void testAction() {
-        thrown.expect(ActionDslException.class);
-        thrown.expectMessage("Action 'action1' is defined several times");
-        new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/exception-action.groovy"))).load(network);
+    void testAction() {
+        ActionDslException e = assertThrows(ActionDslException.class, () -> new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/exception-action.groovy"))).load(network));
+        assertTrue(e.getMessage().contains("Action 'action1' is defined several times"));
     }
 
 }

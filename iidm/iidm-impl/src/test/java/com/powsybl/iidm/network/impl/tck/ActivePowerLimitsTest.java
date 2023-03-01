@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractActivePowerLimitsTest;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class ActivePowerLimitsTest extends AbstractActivePowerLimitsTest {
+class ActivePowerLimitsTest extends AbstractActivePowerLimitsTest {
 }

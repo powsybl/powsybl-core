@@ -13,8 +13,8 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.*;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class AmplNetworkWriterTest extends AbstractConverterTest {
+class AmplNetworkWriterTest extends AbstractConverterTest {
 
     private void assertEqualsToRef(MemDataSource dataSource, String suffix, String refFileName) throws IOException {
         try (InputStream actual = new ByteArrayInputStream(dataSource.getData(suffix, "txt"))) {
@@ -35,15 +35,15 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void test() {
+    void test() {
         AmplExporter exporter = new AmplExporter();
-        Assert.assertEquals("AMPL", exporter.getFormat());
-        Assert.assertEquals("IIDM to AMPL converter", exporter.getComment());
-        Assert.assertEquals(5, exporter.getParameters().size());
+        assertEquals("AMPL", exporter.getFormat());
+        assertEquals("IIDM to AMPL converter", exporter.getComment());
+        assertEquals(5, exporter.getParameters().size());
     }
 
     @Test
-    public void writeEurostag() throws IOException {
+    void writeEurostag() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
 
         MemDataSource dataSource = new MemDataSource();
@@ -61,7 +61,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeNetworkWithExtension() throws IOException {
+    void writeNetworkWithExtension() throws IOException {
         Network network = Network.create("sim1", "test");
 
         network.addExtension(FooNetworkExtension.class, new FooNetworkExtension());
@@ -74,7 +74,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeShunt() throws IOException {
+    void writeShunt() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents();
 
         MemDataSource dataSource = new MemDataSource();
@@ -85,7 +85,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeShunt2() throws IOException {
+    void writeShunt2() throws IOException {
         Network network = ShuntTestCaseFactory.createNonLinear();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setSectionCount(2);
@@ -98,7 +98,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeLcc() throws IOException {
+    void writeLcc() throws IOException {
         Network network = HvdcTestNetwork.createLcc();
 
         MemDataSource dataSource = new MemDataSource();
@@ -110,7 +110,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writePhaseTapChanger() throws IOException {
+    void writePhaseTapChanger() throws IOException {
         Network network = PhaseShifterTestCaseFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
@@ -120,7 +120,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeSVC() throws IOException {
+    void writeSVC() throws IOException {
         Network network = SvcTestCaseFactory.createWithMoreSVCs();
 
         MemDataSource dataSource = new MemDataSource();
@@ -130,7 +130,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeBattery() throws IOException {
+    void writeBattery() throws IOException {
         Network network = BatteryNetworkFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
@@ -140,7 +140,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeThreeWindingsTransformer() throws IOException {
+    void writeThreeWindingsTransformer() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         network.getThreeWindingsTransformer("3WT").getLeg1()
                 .newPhaseTapChanger()
@@ -168,7 +168,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeVsc() throws IOException {
+    void writeVsc() throws IOException {
         Network network = HvdcTestNetwork.createVsc();
 
         MemDataSource dataSource = new MemDataSource();
@@ -180,7 +180,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeCurrentLimits() throws IOException {
+    void writeCurrentLimits() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithCurrentLimits();
 
         MemDataSource dataSource = new MemDataSource();
@@ -190,7 +190,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeTieLine() throws IOException {
+    void writeTieLine() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
 
         Properties properties = new Properties();
@@ -205,7 +205,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeDanglingLines() throws IOException {
+    void writeDanglingLines() throws IOException {
         Network network = DanglingLineNetworkFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
@@ -219,7 +219,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeExtensions() throws IOException {
+    void writeExtensions() throws IOException {
         Network network = HvdcTestNetwork.createLcc();
         HvdcLine l = network.getHvdcLine("L");
         l.addExtension(FooExtension.class, new FooExtension());

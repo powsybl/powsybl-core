@@ -7,27 +7,27 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class TieLineAdapterTest {
+class TieLineAdapterTest {
 
     private MergingView network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = MergingView.create("TieLineAdapterTest", "iidm");
         network.merge(createNetwork());
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         final TieLine tieLine = (TieLineAdapter) network.getLine("l1 + l2");
         assertTrue(tieLine.isTieLine());
 

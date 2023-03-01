@@ -17,7 +17,7 @@ import com.powsybl.commons.parameters.Parameter;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>

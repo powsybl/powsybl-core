@@ -11,7 +11,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.*;
 import com.powsybl.security.results.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,15 +20,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static junit.framework.TestCase.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class PostContingencyResultTest extends AbstractConverterTest {
+class PostContingencyResultTest extends AbstractConverterTest {
 
     @Test
-    public void testGetters() {
+    void testGetters() {
         Contingency contingency = new Contingency("contingency");
         LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
         LimitViolationsResult result = new LimitViolationsResult(Collections.singletonList(violation));
@@ -54,7 +54,7 @@ public class PostContingencyResultTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTrip() throws IOException {
+    void roundTrip() throws IOException {
         Contingency contingency = new Contingency("contingency");
         LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
         LimitViolationsResult result = new LimitViolationsResult(Collections.singletonList(violation));
@@ -70,7 +70,7 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         roundTripTest(postContingencyResult, this::write, this::read, "/PostContingencyResultTest.json");
     }
 
-    public void write(PostContingencyResult postContingencyResult, Path jsonFile) {
+    void write(PostContingencyResult postContingencyResult, Path jsonFile) {
         try {
             OutputStream out = Files.newOutputStream(jsonFile);
             JsonUtil.createObjectMapper()
@@ -82,7 +82,7 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         }
     }
 
-    public PostContingencyResult read(Path jsonFile) {
+    PostContingencyResult read(Path jsonFile) {
         try {
             return JsonUtil.createObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule())

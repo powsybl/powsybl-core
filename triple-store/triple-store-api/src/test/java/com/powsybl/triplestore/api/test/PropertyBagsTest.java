@@ -7,13 +7,13 @@
 
 package com.powsybl.triplestore.api.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -21,9 +21,9 @@ import com.powsybl.triplestore.api.PropertyBags;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class PropertyBagsTest {
-    @BeforeClass
-    public static void setup() {
+class PropertyBagsTest {
+    @BeforeAll
+    static void setup() {
         bags = new PropertyBags();
         List<String> properties = Arrays.asList("key0", "key1");
         PropertyBag b0 = new PropertyBag(properties, true, true);
@@ -37,7 +37,7 @@ public class PropertyBagsTest {
     }
 
     @Test
-    public void testPluck() {
+    void testPluck() {
         List<String> expectedLocalValues0 = Arrays.asList("key0-value0", "key0-value1");
         List<String> expectedLocalValues1 = Arrays.asList("key1-value0", "key1-value1");
         assertEquals(expectedLocalValues0, bags.pluckLocals("key0"));
@@ -51,7 +51,7 @@ public class PropertyBagsTest {
     }
 
     @Test
-    public void testTabulateLocals() {
+    void testTabulateLocals() {
         String expected = String.join(System.lineSeparator(),
                 "key0 \t key1",
                 "key0-value0 \t key1-value0",
@@ -60,7 +60,7 @@ public class PropertyBagsTest {
     }
 
     @Test
-    public void testTabulate() {
+    void testTabulate() {
         String expected = String.join(System.lineSeparator(),
                 "key0 \t key1",
                 "http://example.com/#key0-value0 \t http://example.com/#key1-value0",
@@ -69,7 +69,7 @@ public class PropertyBagsTest {
     }
 
     @Test
-    public void testPivot() {
+    void testPivot() {
         PropertyBags bs = new PropertyBags();
         List<String> properties = Arrays.asList("id", "key", "value");
         String propertyp = "http://example.com/#p";

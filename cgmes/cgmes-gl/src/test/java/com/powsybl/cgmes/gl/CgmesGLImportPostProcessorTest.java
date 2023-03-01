@@ -7,16 +7,16 @@
 package com.powsybl.cgmes.gl;
 
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class CgmesGLImportPostProcessorTest extends CgmesGLModelTest {
+class CgmesGLImportPostProcessorTest extends CgmesGLModelTest {
 
     @Test
-    public void process() {
+    void process() {
         Network network = GLTestUtils.getNetwork();
         new CgmesGLImportPostProcessor(queryCatalog).process(network, tripleStore);
         GLTestUtils.checkNetwork(network);

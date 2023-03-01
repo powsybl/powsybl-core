@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractTopologyTraverserTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class TopologyTraverserTest extends AbstractTopologyTraverserTest { }
+class TopologyTraverserTest extends AbstractTopologyTraverserTest { }

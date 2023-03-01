@@ -10,24 +10,24 @@ import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.interceptors.*;
 import com.powsybl.security.results.*;
 import com.powsybl.security.strategy.OperatorStrategy;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class SecurityAnalysisResultBuilderTest {
+class SecurityAnalysisResultBuilderTest {
 
     private final Network network = EurostagTutorialExample1Factory.createWithCurrentLimits();
 
     @Test
-    public void failedResult() {
+    void failedResult() {
 
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
                 new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
@@ -40,7 +40,7 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     @Test
-    public void completeResultWithCustomContext() {
+    void completeResultWithCustomContext() {
         SecurityAnalysisInterceptor securityAnalysisInterceptorMock = new MockInterceptor();
         CustomContext preResultContext = new CustomContext(network, "pre");
         CustomContext baseContext = new CustomContext(network, "all");
@@ -78,7 +78,7 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     @Test
-    public void completeResult() {
+    void completeResult() {
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
                 new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
 
@@ -151,7 +151,7 @@ public class SecurityAnalysisResultBuilderTest {
 
         private int calledCount = 0;
 
-        public MockContext(Network network) {
+        MockContext(Network network) {
             super(network);
         }
 
@@ -168,17 +168,17 @@ public class SecurityAnalysisResultBuilderTest {
 
         private final String name;
 
-        public CustomContext(Network network, String name) {
+        CustomContext(Network network, String name) {
             super(network);
             this.name = Objects.requireNonNull(name);
         }
 
-        public String getName() {
+        String getName() {
             return name;
         }
     }
 
-    static class MockInterceptor extends DefaultSecurityAnalysisInterceptor {
+    public static class MockInterceptor extends DefaultSecurityAnalysisInterceptor {
 
         @Override
         public void onPreContingencyResult(PreContingencyResult preContingencyResult, SecurityAnalysisResultContext context) {
@@ -227,7 +227,7 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     @Test
-    public void operatorStrategyResultCreation() {
+    void operatorStrategyResultCreation() {
         //Build result with 1 operator strategy
         OperatorStrategy operatorStrategy = new OperatorStrategy("strat1", ContingencyContext.specificContingency("cont1"), new TrueCondition(),
                 List.of("action1", "action2"));

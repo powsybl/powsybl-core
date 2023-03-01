@@ -12,20 +12,20 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
+class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
 
     @Test
-    public void revertConnectVoltageLevelOnLineNbTest() throws IOException {
+    void revertConnectVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
@@ -47,21 +47,21 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine2Id("CJ_2")
                 .withLineId("CJ")
                 .build();
-        assertThrows("Line line1NotFound is not found", PowsyblException.class, () -> modificationWithError1.apply(network, true, Reporter.NO_OP));
+        assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, Reporter.NO_OP), "Line line1NotFound is not found");
 
         final NetworkModification modificationWithError2 = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("CJ_1")
                 .withLine2Id("line2NotFound")
                 .withLineId("CJ")
                 .build();
-        assertThrows("Line line2NotFound is not found", PowsyblException.class, () -> modificationWithError2.apply(network, true, Reporter.NO_OP));
+        assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, Reporter.NO_OP), "Line line2NotFound is not found");
 
         final NetworkModification modificationWithError3 = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("CJ_1")
                 .withLine2Id("LINE34")
                 .withLineId("CJ")
                 .build();
-        assertThrows("Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities", PowsyblException.class, () -> modificationWithError3.apply(network, true, Reporter.NO_OP));
+        assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, Reporter.NO_OP), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
 
         // create limits on tee point side
         Line line1 = network.getLine("CJ_1");
@@ -85,7 +85,7 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void revertConnectVoltageLevelOnLineNbBbTest() throws IOException {
+    void revertConnectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
@@ -105,7 +105,7 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void revertConnectVoltageLevelOnLineBbTest() throws IOException {
+    void revertConnectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("bus")
@@ -125,7 +125,7 @@ public class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         Network network = createNbBbNetwork();
         Line line1 = network.getLine("NHV1_NHV2_1");
         Line line2 = network.getLine("NHV1_NHV2_2");

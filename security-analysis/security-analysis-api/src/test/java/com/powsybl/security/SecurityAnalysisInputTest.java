@@ -10,7 +10,7 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 
@@ -20,10 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class SecurityAnalysisInputTest {
+class SecurityAnalysisInputTest {
 
     @Test
-    public void test() {
+    void test() {
 
         Network network = Mockito.mock(Network.class);
         SecurityAnalysisInput inputs = new SecurityAnalysisInput(network, INITIAL_VARIANT_ID);

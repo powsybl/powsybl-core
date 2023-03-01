@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractFictitiousSwitchTest;
 
-public class FictitiousSwitchTest extends AbstractFictitiousSwitchTest { }
+class FictitiousSwitchTest extends AbstractFictitiousSwitchTest { }

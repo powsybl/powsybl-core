@@ -8,22 +8,23 @@
 package com.powsybl.triplestore.api.test;
 
 import com.powsybl.triplestore.api.PropertyBag;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class PropertyBagTest {
+class PropertyBagTest {
 
-    @BeforeClass
-    public static void setUp() {
+    @BeforeAll
+    static void setUp() {
         localsWithUnderscoreWithEscape = new PropertyBag(Arrays.asList("id", "name", "enum"), false, false);
+
         locals = new PropertyBag(Arrays.asList("id", "name", "enum"), true);
         numbers = new PropertyBag(Collections.singletonList("value"), true);
         booleans = new PropertyBag(Collections.singletonList("value"), true);
@@ -39,7 +40,7 @@ public class PropertyBagTest {
     }
 
     @Test
-    public void testHashCodeEquals() {
+    void testHashCodeEquals() {
         // Same property names and different values
         assertNotEquals(locals.hashCode(), localsWithUnderscoreWithEscape.hashCode());
         assertNotEquals(locals, localsWithUnderscoreWithEscape);
@@ -58,7 +59,7 @@ public class PropertyBagTest {
     }
 
     @Test
-    public void testLocals() {
+    void testLocals() {
         assertEquals("id0-id1-id2 +id3", locals.getId("id"));
         assertEquals("id0", locals.getId0("id"));
         assertEquals("_id0-id1-id2%20%2bid3", locals.getLocal("id"));
@@ -73,7 +74,7 @@ public class PropertyBagTest {
     }
 
     @Test
-    public void testTabulateLocals() {
+    void testTabulateLocals() {
         String expected = String.join(System.lineSeparator(),
                 "",
                 "    id   : _id0-id1-id2%20%2bid3",
@@ -93,7 +94,7 @@ public class PropertyBagTest {
     }
 
     @Test
-    public void testTabulate() {
+    void testTabulate() {
         String expected = String.join(System.lineSeparator(),
                 "locals",
                 "    id   : http://example.com/#_id0-id1-id2%20%2bid3",
@@ -103,7 +104,7 @@ public class PropertyBagTest {
     }
 
     @Test
-    public void testValidFloats() {
+    void testValidFloats() {
         double defaultValue = -1.0;
 
         numbers.put("value", "0");
@@ -128,7 +129,7 @@ public class PropertyBagTest {
     }
 
     @Test
-    public void testBadFloatValues() {
+    void testBadFloatValues() {
         // Bad values for doubles return a NaN instead of throwing a number format exception
 
         numbers.put("value", "nan(ind)");
@@ -148,7 +149,7 @@ public class PropertyBagTest {
     }
 
     @Test
-    public void testValidInts() {
+    void testValidInts() {
         int defaultValue = -1;
 
         ints.put("value", "0");
@@ -164,14 +165,14 @@ public class PropertyBagTest {
         assertEquals(-123, ints.asInt("value"));
     }
 
-    @Test(expected = NumberFormatException.class)
-    public void testBadInt0() {
+    @Test
+    void testBadInt0() {
         ints.put("value", "bad0");
-        ints.asInt("value", -1);
+        assertThrows(NumberFormatException.class, () -> ints.asInt("value", -1));
     }
 
     @Test
-    public void testBooleans() {
+    void testBooleans() {
         booleans.put("value", "true");
         assertTrue(booleans.asBoolean("value", false));
 
@@ -196,7 +197,7 @@ public class PropertyBagTest {
     }
 
     @Test
-    public void testCopy() {
+    void testCopy() {
         // Ensure we can change a value in the copy and the original is not modified
         PropertyBag locals1 = locals.copy();
         locals1.put("id", "http://example.com/#_id0-id1-id2-0");

@@ -7,10 +7,10 @@
 
 package com.powsybl.cgmes.alternatives.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,9 +33,9 @@ import com.powsybl.triplestore.api.QueryCatalog;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class AlternativeQueriesTester {
+class AlternativeQueriesTester {
 
-    public AlternativeQueriesTester(List<String> tripleStoreImplementations,
+    AlternativeQueriesTester(List<String> tripleStoreImplementations,
         QueryCatalog queries,
         GridModelReference gridModel,
         Expected expected) {
@@ -43,7 +43,7 @@ public class AlternativeQueriesTester {
         this(tripleStoreImplementations, queries, gridModel, expected, 1, true, null, false);
     }
 
-    public AlternativeQueriesTester(List<String> tripleStoreImplementations,
+    AlternativeQueriesTester(List<String> tripleStoreImplementations,
         QueryCatalog queries,
         GridModelReference gridModel,
         Expected expected,
@@ -51,7 +51,7 @@ public class AlternativeQueriesTester {
         this(tripleStoreImplementations, queries, gridModel, expected, 1, true, null, cacheModels);
     }
 
-    public AlternativeQueriesTester(List<String> tripleStoreImplementations,
+    AlternativeQueriesTester(List<String> tripleStoreImplementations,
         QueryCatalog queries,
         GridModelReference gridModel,
         Expected expected, int experiments,
@@ -69,11 +69,11 @@ public class AlternativeQueriesTester {
         this.cachedModels = cacheModels ? new HashMap<>(implementations.size()) : null;
     }
 
-    public Expected expected() {
+    Expected expected() {
         return this.expected;
     }
 
-    public void load() {
+    void load() {
         if (cacheModels) {
             // Load the model for every triple store implementation
             for (String impl : implementations) {
@@ -85,7 +85,7 @@ public class AlternativeQueriesTester {
         }
     }
 
-    public void test(String alternative, Expected expected, Consumer<PropertyBags> consumer) throws IOException {
+    void test(String alternative, Expected expected, Consumer<PropertyBags> consumer) throws IOException {
         String queryText = queries.get(alternative);
         assertNotNull(queryText);
         assertFalse(queryText.isEmpty());
@@ -94,32 +94,32 @@ public class AlternativeQueriesTester {
         }
     }
 
-    public void test(String alternative) throws IOException {
+    void test(String alternative) throws IOException {
         // If no explicit expected result, use the default expected result for the
         // tester
         test(alternative, this.expected);
     }
 
-    public void test(String alternative, Expected expected) throws IOException {
+    void test(String alternative, Expected expected) throws IOException {
         test(alternative, expected, this.consumer);
     }
 
-    public static class Expected {
-        public Expected() {
+    static class Expected {
+        Expected() {
             resultSize = 0;
             propertyCount = new HashMap<>();
         }
 
-        public Expected resultSize(long resultSize) {
+        Expected resultSize(long resultSize) {
             this.resultSize = resultSize;
             return this;
         }
 
-        public long resultSize() {
+        long resultSize() {
             return this.resultSize;
         }
 
-        public Expected propertyCount(String property, long count) {
+        Expected propertyCount(String property, long count) {
             this.propertyCount.put(property, count);
             return this;
         }

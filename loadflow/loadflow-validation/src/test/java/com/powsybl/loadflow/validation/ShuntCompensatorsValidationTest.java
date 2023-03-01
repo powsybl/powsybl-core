@@ -6,16 +6,16 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.output.NullWriter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Terminal.BusView;
@@ -25,7 +25,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
+class ShuntCompensatorsValidationTest extends AbstractValidationTest {
 
     private double q = 170.50537;
     private double p = Float.NaN;
@@ -42,8 +42,8 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     private Terminal shuntTerminal;
     private BusView shuntBusView;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         super.setUp();
 
         Bus shuntBus = Mockito.mock(Bus.class);
@@ -78,7 +78,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkShuntsValues() {
+    void checkShuntsValues() {
         // “p” is always NaN
         assertTrue(ShuntCompensatorsValidation.INSTANCE.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         p = 1;
@@ -107,7 +107,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkShunts() {
+    void checkShunts() {
         // “q” = - bPerSection * currentSectionCount * v^2
         assertTrue(ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
         Mockito.when(shuntTerminal.getQ()).thenReturn(171.52);
@@ -121,7 +121,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkNetworkShunts() throws IOException {
+    void checkNetworkShunts() throws IOException {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getShuntCompensatorStream()).thenAnswer(dummy -> Stream.of(shunt));

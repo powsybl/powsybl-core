@@ -22,7 +22,7 @@ import com.powsybl.security.action.*;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -30,15 +30,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
+class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
 
     @Test
-    public void actionRoundTrip() throws IOException {
+    void actionRoundTrip() throws IOException {
         List<Action> actions = new ArrayList<>();
         actions.add(new SwitchAction("id1", "switchId1", true));
         actions.add(new MultipleActionsAction("id2", Collections.singletonList(new SwitchAction("id3", "switchId2", true))));
@@ -70,7 +70,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void actionsReadV10() throws IOException {
+    void actionsReadV10() throws IOException {
         ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream("/ActionFileTestV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             actionList.writeJsonOutputStream(bos);
@@ -79,7 +79,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void operatorStrategyReadV10() throws IOException {
+    void operatorStrategyReadV10() throws IOException {
         OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             operatorStrategies.write(bos);
@@ -88,7 +88,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void operatorStrategyRoundTrip() throws IOException {
+    void operatorStrategyRoundTrip() throws IOException {
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
         operatorStrategies.add(new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"), new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3")));
         operatorStrategies.add(new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"), new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3")));
@@ -97,7 +97,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void wrongActions() {
+    void wrongActions() {
         final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json");
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action relative value field can't be null\n" +
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
@@ -133,7 +133,7 @@ public class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testJsonPlugins() throws JsonProcessingException {
+    void testJsonPlugins() throws JsonProcessingException {
 
         Module jsonModule = new SimpleModule()
                 .registerSubtypes(DummyAction.class);

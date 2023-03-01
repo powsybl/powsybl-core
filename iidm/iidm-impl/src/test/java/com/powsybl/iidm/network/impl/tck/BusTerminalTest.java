@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractBusTerminalTest;
 
-public class BusTerminalTest extends AbstractBusTerminalTest { }
+class BusTerminalTest extends AbstractBusTerminalTest { }

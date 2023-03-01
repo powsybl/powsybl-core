@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.AbstractCorruptedNetworkWhenSecondNodeAlread
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CorruptedNetworkWhenSecondNodeAlreadyUsed extends AbstractCorruptedNetworkWhenSecondNodeAlreadyUsed {
+class CorruptedNetworkWhenSecondNodeAlreadyUsed extends AbstractCorruptedNetworkWhenSecondNodeAlreadyUsed {
 }

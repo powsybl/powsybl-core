@@ -11,28 +11,28 @@ import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.cgmes.model.test.CgmesModelTester;
 import com.powsybl.cgmes.model.GridModelReferenceResources;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class Cim14SmallCasesTest {
+class Cim14SmallCasesTest {
 
     @Test
-    public void small1() {
+    void small1() {
         new CgmesModelTester(Cim14SmallCasesCatalog.small1()).test();
     }
 
     @Test
-    public void small1PlusInvalidFileContent() throws IOException {
+    void small1PlusInvalidFileContent() throws IOException {
         GridModelReferenceResources t = Cim14SmallCasesCatalog.small1PlusInvalidFileContent();
         // The data source contains invalid files
         CgmesOnDataSource c = new CgmesOnDataSource(t.dataSource());
@@ -44,17 +44,17 @@ public class Cim14SmallCasesTest {
     }
 
     @Test
-    public void m7Buses() {
+    void m7Buses() {
         new CgmesModelTester(Cim14SmallCasesCatalog.m7buses()).test();
     }
 
     @Test
-    public void ieee14() {
+    void ieee14() {
         new CgmesModelTester(Cim14SmallCasesCatalog.ieee14()).test();
     }
 
     @Test
-    public void nordic32() {
+    void nordic32() {
         new CgmesModelTester(Cim14SmallCasesCatalog.nordic32()).test();
     }
 

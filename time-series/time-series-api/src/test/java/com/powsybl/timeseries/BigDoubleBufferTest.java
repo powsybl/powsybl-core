@@ -6,8 +6,8 @@
  */
 package com.powsybl.timeseries;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.ByteBuffer;
@@ -15,13 +15,13 @@ import java.nio.DoubleBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
-public class BigDoubleBufferTest {
+class BigDoubleBufferTest {
 
     private static final int BUFFER_SIZE_DOUBLES = 1 << 27;
 
@@ -45,8 +45,8 @@ public class BigDoubleBufferTest {
         return mockbyte;
     }
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         allocatorCount = 0;
     }
 
@@ -81,37 +81,37 @@ public class BigDoubleBufferTest {
     }
 
     @Test
-    public void testSimple() {
+    void testSimple() {
         bufferTester(10);
         assertEquals(1, allocatorCount);
     }
 
     @Test
-    public void testMultipleBuffers() {
+    void testMultipleBuffers() {
         bufferTester(200000000);
         assertEquals(2, allocatorCount);
     }
 
     @Test
-    public void testHuge() {
+    void testHuge() {
         bufferTester(10000000000L);
         assertEquals(75, allocatorCount);
     }
 
     @Test
-    public void testSizeBufferMinus1() {
+    void testSizeBufferMinus1() {
         bufferTester(BUFFER_SIZE_DOUBLES - 1);
         assertEquals(1, allocatorCount);
     }
 
     @Test
-    public void testSizeBufferExact() {
+    void testSizeBufferExact() {
         bufferTester(BUFFER_SIZE_DOUBLES);
         assertEquals(1, allocatorCount);
     }
 
     @Test
-    public void testSizeBufferPlus1() {
+    void testSizeBufferPlus1() {
         bufferTester(BUFFER_SIZE_DOUBLES + 1);
         assertEquals(2, allocatorCount);
     }

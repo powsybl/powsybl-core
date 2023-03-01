@@ -14,22 +14,22 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClo
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es
  */
-public class ThreeWindingsTransformerPhaseAngleClockXmlSerializerTest extends AbstractConverterTest {
+class ThreeWindingsTransformerPhaseAngleClockXmlSerializerTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         network.setCaseDate(DateTime.parse("2018-03-05T13:30:30.486+01:00"));
         ThreeWindingsTransformer transformer = network.getThreeWindingsTransformer("3WT");

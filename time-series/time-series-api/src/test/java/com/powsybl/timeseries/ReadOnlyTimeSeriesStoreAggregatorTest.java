@@ -7,21 +7,21 @@
 package com.powsybl.timeseries;
 
 import com.google.common.collect.Sets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ReadOnlyTimeSeriesStoreAggregatorTest {
+class ReadOnlyTimeSeriesStoreAggregatorTest {
 
     @Test
-    public void test() {
+    void test() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(10000, 10001, 1);
         DoubleTimeSeries ts1 = TimeSeries.createDouble("ts1", index, 1d, 2d);
         DoubleTimeSeries ts2 = TimeSeries.createDouble("ts2", index, 3d, 4d);

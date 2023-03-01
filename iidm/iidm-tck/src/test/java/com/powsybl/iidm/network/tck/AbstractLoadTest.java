@@ -9,28 +9,23 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractLoadTest {
 
     private static final String TO_REMOVE = "toRemove";
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     Network network;
     VoltageLevel voltageLevel;
 
-    @Before
+    @BeforeEach
     public void initNetwork() {
         network = FictitiousSwitchFactory.create();
         voltageLevel = network.getVoltageLevel("C");
@@ -53,16 +48,14 @@ public abstract class AbstractLoadTest {
 
     @Test
     public void invalidP0() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("p0 is invalid");
-        createLoad("invalid", Double.NaN, 1.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLoad("invalid", Double.NaN, 1.0));
+        assertTrue(e.getMessage().contains("p0 is invalid"));
     }
 
     @Test
     public void invalidQ0() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("q0 is invalid");
-        createLoad("invalid", 20.0, Double.NaN);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLoad("invalid", 20.0, Double.NaN));
+        assertTrue(e.getMessage().contains("q0 is invalid"));
     }
 
     @Test
@@ -114,17 +107,15 @@ public abstract class AbstractLoadTest {
                         .setQ0(1.0)
                         .setNode(1)
                     .add();
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("with the id 'duplicate'");
-        createLoad("duplicate", 2.0, 1.0);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createLoad("duplicate", 2.0, 1.0));
+        assertTrue(e.getMessage().contains("with the id 'duplicate'"));
     }
 
     @Test
     public void duplicateId() {
         // "C" id of voltageLevel
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("with the id 'C'");
-        createLoad("C", 2.0, 1.0);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createLoad("C", 2.0, 1.0));
+        assertTrue(e.getMessage().contains("with the id 'C'"));
     }
 
     @Test

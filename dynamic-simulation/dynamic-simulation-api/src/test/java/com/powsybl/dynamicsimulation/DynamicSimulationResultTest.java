@@ -6,14 +6,14 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.timeseries.DoubleTimeSeries;
 import com.powsybl.timeseries.IrregularTimeSeriesIndex;
@@ -25,10 +25,10 @@ import com.powsybl.timeseries.TimeSeriesIndex;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class DynamicSimulationResultTest {
+class DynamicSimulationResultTest {
 
     @Test
-    public void test() {
+    void test() {
         Map <String, TimeSeries> curves = new HashMap<>();
         TimeSeriesIndex index = new IrregularTimeSeriesIndex(new long[] {32, 64, 128, 256});
         curves.put("NETWORK__BUS____2-BUS____5-1_AC_iSide2", TimeSeries.createDouble("NETWORK__BUS____2-BUS____5-1_AC_iSide2", index, 333.847331, 333.847321, 333.847300, 333.847259));

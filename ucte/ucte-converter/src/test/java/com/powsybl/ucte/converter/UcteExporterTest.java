@@ -15,7 +15,7 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,13 +23,13 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 
-public class UcteExporterTest extends AbstractConverterTest {
+class UcteExporterTest extends AbstractConverterTest {
 
     /**
      * Utility method to load a network file from resource directory without calling
@@ -54,7 +54,7 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testMerge() throws IOException {
+    void testMerge() throws IOException {
         Network networkFR = loadNetworkFromResourceFile("/frTestGridForMerging.uct");
         testExporter(networkFR, "/frTestGridForMerging.uct");
 
@@ -67,7 +67,7 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testMergeProperties() throws IOException {
+    void testMergeProperties() throws IOException {
         Network networkFR = loadNetworkFromResourceFile("/frForMergeProperties.uct");
         testExporter(networkFR, "/frForMergeProperties.uct");
 
@@ -80,13 +80,13 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExport() throws IOException {
+    void testExport() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         testExporter(network, "/expectedExport.uct");
     }
 
     @Test
-    public void testExporter() {
+    void testExporter() {
         var exporter = new UcteExporter();
         assertEquals("UCTE", exporter.getFormat());
         assertNotEquals("IIDM", exporter.getFormat());
@@ -96,25 +96,25 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testCouplerToXnodeImport() throws IOException {
+    void testCouplerToXnodeImport() throws IOException {
         Network network = loadNetworkFromResourceFile("/couplerToXnodeExample.uct");
         testExporter(network, "/couplerToXnodeExample.uct");
     }
 
     @Test
-    public void shouldNotUseScientificalNotationForExport() throws IOException {
+    void shouldNotUseScientificalNotationForExport() throws IOException {
         Network network = loadNetworkFromResourceFile("/testGridNoScientificNotation.uct");
         testExporter(network, "/testGridNoScientificNotation.uct");
     }
 
     @Test
-    public void testDefaultOneNamingStrategy() {
+    void testDefaultOneNamingStrategy() {
         NamingStrategy defaultNamingStrategy = UcteExporter.findNamingStrategy(null, ImmutableList.of(new DefaultNamingStrategy()));
         assertEquals("Default", defaultNamingStrategy.getName());
     }
 
     @Test
-    public void testDefaultTwoNamingStrategies() {
+    void testDefaultTwoNamingStrategies() {
         try {
             UcteExporter.findNamingStrategy(null, ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
             fail();
@@ -123,7 +123,7 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testDefaultNoNamingStrategy() {
+    void testDefaultNoNamingStrategy() {
         try {
             UcteExporter.findNamingStrategy(null, ImmutableList.of());
             fail();
@@ -132,7 +132,7 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testChosenTwoNamingStrategies() {
+    void testChosenTwoNamingStrategies() {
         NamingStrategy namingStrategy = UcteExporter.findNamingStrategy("Default", ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
         assertEquals("Default", namingStrategy.getName());
         namingStrategy = UcteExporter.findNamingStrategy("OtherNamingStrategy", ImmutableList.of(new DefaultNamingStrategy(), new OtherNamingStrategy()));
@@ -140,37 +140,37 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithIdDuplicationBetweenLineAndTransformer() throws IOException {
+    void testWithIdDuplicationBetweenLineAndTransformer() throws IOException {
         Network network = loadNetworkFromResourceFile("/id_duplication_test.uct");
         testExporter(network, "/id_duplication_test.uct");
     }
 
     @Test
-    public void testElementStatusHandling() throws IOException {
+    void testElementStatusHandling() throws IOException {
         Network network = loadNetworkFromResourceFile("/multipleStatusTests.uct");
         testExporter(network, "/multipleStatusTests.uct");
     }
 
     @Test
-    public void testVoltageRegulatingXnode() throws IOException {
+    void testVoltageRegulatingXnode() throws IOException {
         Network network = loadNetworkFromResourceFile("/frVoltageRegulatingXnode.uct");
         testExporter(network, "/frVoltageRegulatingXnode.uct");
     }
 
     @Test
-    public void testMissingPermanentLimit() throws IOException {
+    void testMissingPermanentLimit() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport_withoutPermanentLimit.uct");
         testExporter(network, "/expectedExport_withoutPermanentLimit.uct");
     }
 
     @Test
-    public void testXnodeTransformer() throws IOException {
+    void testXnodeTransformer() throws IOException {
         Network network = loadNetworkFromResourceFile("/xNodeTransformer.uct");
         testExporter(network, "/xNodeTransformer.uct");
     }
 
     @Test
-    public void testValidationUtil() throws IOException {
+    void testValidationUtil() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         for (Bus bus : network.getBusView().getBuses()) {
             bus.setV(bus.getVoltageLevel().getNominalV() * 1.4);
@@ -190,19 +190,19 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTripOfNetworkWithXnodesConnectedToOneClosedLineMustSucceed() throws IOException {
+    void roundTripOfNetworkWithXnodesConnectedToOneClosedLineMustSucceed() throws IOException {
         Network network = loadNetworkFromResourceFile("/xnodeOneClosedLine.uct");
         testExporter(network, "/xnodeOneClosedLine.uct");
     }
 
     @Test
-    public void roundTripOfNetworkWithXnodesConnectedToTwoClosedLineMustSucceed() throws IOException {
+    void roundTripOfNetworkWithXnodesConnectedToTwoClosedLineMustSucceed() throws IOException {
         Network network = loadNetworkFromResourceFile("/xnodeTwoClosedLine.uct");
         testExporter(network, "/xnodeTwoClosedLine.uct");
     }
 
     @Test
-    public void roundTripOfNetworkWithPstAngleRegulationMustSucceed() throws IOException {
+    void roundTripOfNetworkWithPstAngleRegulationMustSucceed() throws IOException {
         Network network = loadNetworkFromResourceFile("/phaseShifterActivePowerOn.uct");
         testExporter(network, "/phaseShifterActivePowerOn.uct");
     }

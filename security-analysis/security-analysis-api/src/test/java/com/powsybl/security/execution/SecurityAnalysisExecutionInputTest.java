@@ -12,21 +12,21 @@ import com.google.common.io.ByteSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.EnumSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class SecurityAnalysisExecutionInputTest {
+class SecurityAnalysisExecutionInputTest {
 
     @Test
-    public void defaultValues() {
+    void defaultValues() {
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
 
         assertFalse(input.getContingenciesSource().isPresent());
@@ -37,7 +37,7 @@ public class SecurityAnalysisExecutionInputTest {
     }
 
     @Test
-    public void setters() {
+    void setters() {
         Network network = Mockito.mock(Network.class);
         ByteSource source = ByteSource.wrap(new byte[0]);
         SecurityAnalysisParameters params = new SecurityAnalysisParameters();

@@ -10,7 +10,7 @@ import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.monitor.StateMonitorIndex;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
@@ -19,10 +19,10 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class StateMonitorIndexTest {
+class StateMonitorIndexTest {
 
     @Test
-    public void test() {
+    void test() {
         List<StateMonitor> monitors = new ArrayList<>();
         monitors.add(new StateMonitor(new ContingencyContext("contingency1", ContingencyContextType.SPECIFIC),
             Collections.singleton("Branch1"), Collections.singleton("Bus1"), Collections.singleton("ThreeWindingsTransformer1")));

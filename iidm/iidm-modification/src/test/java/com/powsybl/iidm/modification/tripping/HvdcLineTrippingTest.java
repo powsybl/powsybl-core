@@ -11,18 +11,17 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class HvdcLineTrippingTest {
+class HvdcLineTrippingTest {
 
     @Test
-    public void lineTrippingTest() {
+    void lineTrippingTest() {
         Network network = HvdcTestNetwork.createLcc();
         HvdcLine hvdcLine = network.getHvdcLine("L");
         Terminal terminal1 = hvdcLine.getConverterStation1().getTerminal();
@@ -58,19 +57,19 @@ public class HvdcLineTrippingTest {
         assertFalse(terminal2.isConnected());
     }
 
-    @Test(expected = PowsyblException.class)
-    public void unknownHvdcLineTrippingTest() {
+    @Test
+    void unknownHvdcLineTrippingTest() {
         Network network = HvdcTestNetwork.createLcc();
 
         HvdcLineTripping tripping = new HvdcLineTripping("unknownHvdcLine");
-        tripping.apply(network);
+        assertThrows(PowsyblException.class, () -> tripping.apply(network));
     }
 
-    @Test(expected = PowsyblException.class)
-    public void unknownVoltageLevelTrippingTest() {
+    @Test
+    void unknownVoltageLevelTrippingTest() {
         Network network = HvdcTestNetwork.createLcc();
 
         HvdcLineTripping tripping = new HvdcLineTripping("L", "unknownVoltageLevel");
-        tripping.apply(network);
+        assertThrows(PowsyblException.class, () -> tripping.apply(network));
     }
 }

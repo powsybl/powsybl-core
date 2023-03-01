@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.network.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Branch;
@@ -26,10 +26,10 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class SVTest {
+class SVTest {
 
     @Test
-    public void testLine() {
+    void testLine() {
         Line line = new LineTestData().getLine();
 
         double tol = 0.0001;
@@ -59,7 +59,7 @@ public class SVTest {
     }
 
     @Test
-    public void testDanglingLine() {
+    void testDanglingLine() {
         DanglingLine dl = new DanglingLineTestData().getDanglingLine();
 
         double tol = 0.0001;
@@ -109,7 +109,7 @@ public class SVTest {
     }
 
     @Test
-    public void testTwoWindingsTransformer() {
+    void testTwoWindingsTransformer() {
         TwoWindingsTransformer twt = new TwoWindingsTransformerTestData().getTwoWindingsTransformer();
 
         double tol = 0.0001;
@@ -139,7 +139,7 @@ public class SVTest {
     }
 
     @Test
-    public void testTwoWindingsTransformerWithoutRtc() {
+    void testTwoWindingsTransformerWithoutRtc() {
         TwoWindingsTransformer twt = new TwoWindingsTransformerWithoutRtcTestData().getTwoWindingsTransformer();
 
         double tol = 0.0001;
@@ -169,7 +169,7 @@ public class SVTest {
     }
 
     @Test
-    public void testTwoWindingsTransformerWithoutPtc() {
+    void testTwoWindingsTransformerWithoutPtc() {
         TwoWindingsTransformer twt = new TwoWindingsTransformerWithoutPtcTestData().getTwoWindingsTransformer();
 
         double tol = 0.0001;
@@ -199,7 +199,7 @@ public class SVTest {
     }
 
     @Test
-    public void testHalfLine() {
+    void testHalfLine() {
         TieLine.HalfLine halfLine = new HalfLineTestData().getHalfLine();
 
         double tol = 0.0001;
