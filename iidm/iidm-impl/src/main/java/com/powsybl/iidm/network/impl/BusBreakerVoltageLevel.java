@@ -902,36 +902,42 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public boolean connect(TerminalExt terminal) {
-        assert terminal instanceof BusTerminal;
+        if (terminal instanceof BusTerminal) {
 
-        // already connected?
-        if (terminal.isConnected()) {
-            return false;
+            // already connected?
+            if (terminal.isConnected()) {
+                return false;
+            }
+
+            ((BusTerminal) terminal).setConnected(true);
+
+            // invalidate connected components
+            invalidateCache();
+
+            return true;
+        } else {
+            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
         }
-
-        ((BusTerminal) terminal).setConnected(true);
-
-        // invalidate connected components
-        invalidateCache();
-
-        return true;
     }
 
     @Override
     public boolean disconnect(TerminalExt terminal) {
-        assert terminal instanceof BusTerminal;
+        if (terminal instanceof BusTerminal) {
 
-        // already disconnected?
-        if (!terminal.isConnected()) {
-            return false;
+            // already disconnected?
+            if (!terminal.isConnected()) {
+                return false;
+            }
+
+            ((BusTerminal) terminal).setConnected(false);
+
+            // invalidate connected components
+            invalidateCache();
+
+            return true;
+        } else {
+            throw new IllegalStateException("Given TerminalExt not suported: " + terminal.getClass().getName());
         }
-
-        ((BusTerminal) terminal).setConnected(false);
-
-        // invalidate connected components
-        invalidateCache();
-
-        return true;
     }
 
     void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser) {

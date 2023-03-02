@@ -54,7 +54,9 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     private final TreeMap<Double, Point> points;
 
     ReactiveCapabilityCurveImpl(TreeMap<Double, Point> points) {
-        assert points.size() >= 2;
+        if (points.size() < 2) {
+            throw new IllegalStateException("Points size must be >= 2");
+        }
         this.points = points;
     }
 
@@ -85,8 +87,9 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     @Override
     public double getMinQ(double p) {
-        assert points.size() >= 2;
-
+        if (points.size() < 2) {
+            throw new IllegalStateException("points size should be >= 2");
+        }
         Point pt = points.get(p);
         if (pt != null) {
             return pt.getMinQ();
@@ -109,8 +112,9 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
 
     @Override
     public double getMaxQ(double p) {
-        assert points.size() >= 2;
-
+        if (points.size() < 2) {
+            throw new IllegalStateException("points size should be >= 2");
+        }
         Point pt = points.get(p);
         if (pt != null) {
             return pt.getMaxQ();

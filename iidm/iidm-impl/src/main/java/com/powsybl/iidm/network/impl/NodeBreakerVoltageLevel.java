@@ -1160,75 +1160,82 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public boolean connect(TerminalExt terminal) {
-        assert terminal instanceof NodeTerminal;
+        if (terminal instanceof NodeTerminal) {
 
-        // already connected?
-        if (terminal.isConnected()) {
-            return false;
-        }
+            // already connected?
+            if (terminal.isConnected()) {
+                return false;
+            }
 
-        int node = ((NodeTerminal) terminal).getNode();
-        // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
-        // paths are already sorted
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnector);
-        boolean connected = false;
-        if (!paths.isEmpty()) {
-            // the shorted path is the best, close all opened breakers of the path
-            TIntArrayList shortestPath = paths.get(0);
-            for (int i = 0; i < shortestPath.size(); i++) {
-                int e = shortestPath.get(i);
-                SwitchImpl sw = graph.getEdgeObject(e);
-                if (sw != null && sw.getKind() == SwitchKind.BREAKER && sw.isOpen()) {
-                    sw.setOpen(false);
-                    connected = true;
+            int node = ((NodeTerminal) terminal).getNode();
+            // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
+            // paths are already sorted
+            List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnector);
+            boolean connected = false;
+            if (!paths.isEmpty()) {
+                // the shorted path is the best, close all opened breakers of the path
+                TIntArrayList shortestPath = paths.get(0);
+                for (int i = 0; i < shortestPath.size(); i++) {
+                    int e = shortestPath.get(i);
+                    SwitchImpl sw = graph.getEdgeObject(e);
+                    if (sw != null && sw.getKind() == SwitchKind.BREAKER && sw.isOpen()) {
+                        sw.setOpen(false);
+                        connected = true;
+                    }
                 }
             }
+            return connected;
+        } else {
+            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
         }
-        return connected;
     }
 
     @Override
     public boolean disconnect(TerminalExt terminal) {
-        assert terminal instanceof NodeTerminal;
-
-        // already disconnected?
-        if (!terminal.isConnected()) {
-            return false;
-        }
-
-        int node = ((NodeTerminal) terminal).getNode();
-        // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
-        // (because otherwise there is nothing we can do to connected the terminal using only breakers)
-        List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnector);
-        if (paths.isEmpty()) {
-            return false;
-        }
-
-        for (TIntArrayList path : paths) {
-            boolean pathOpen = false;
-            for (int i = 0; i < path.size(); i++) {
-                int e = path.get(i);
-                SwitchImpl sw = graph.getEdgeObject(e);
-                if (sw != null && sw.getKind() == SwitchKind.BREAKER) {
-                    if (!sw.isOpen()) {
-                        sw.setOpen(true);
-                    }
-                    // just one open breaker is enough to disconnect the terminal, so we can stop
-                    pathOpen = true;
-                    break;
-                }
-            }
-            if (!pathOpen) {
+        if (terminal instanceof NodeTerminal) {
+            // already disconnected?
+            if (!terminal.isConnected()) {
                 return false;
             }
+
+            int node = ((NodeTerminal) terminal).getNode();
+            // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
+            // (because otherwise there is nothing we can do to connected the terminal using only breakers)
+            List<TIntArrayList> paths = graph.findAllPaths(node, NodeBreakerVoltageLevel::isBusbarSection, NodeBreakerVoltageLevel::isOpenedDisconnector);
+            if (paths.isEmpty()) {
+                return false;
+            }
+
+            for (TIntArrayList path : paths) {
+                boolean pathOpen = false;
+                for (int i = 0; i < path.size(); i++) {
+                    int e = path.get(i);
+                    SwitchImpl sw = graph.getEdgeObject(e);
+                    if (sw != null && sw.getKind() == SwitchKind.BREAKER) {
+                        if (!sw.isOpen()) {
+                            sw.setOpen(true);
+                        }
+                        // just one open breaker is enough to disconnect the terminal, so we can stop
+                        pathOpen = true;
+                        break;
+                    }
+                }
+                if (!pathOpen) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
         }
-        return true;
     }
 
     boolean isConnected(TerminalExt terminal) {
-        assert terminal instanceof NodeTerminal;
-
-        return terminal.getBusView().getBus() != null;
+        if (terminal instanceof NodeTerminal) {
+            return terminal.getBusView().getBus() != null;
+        } else {
+            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
+        }
     }
 
     void traverse(NodeTerminal terminal, Terminal.TopologyTraverser traverser) {
