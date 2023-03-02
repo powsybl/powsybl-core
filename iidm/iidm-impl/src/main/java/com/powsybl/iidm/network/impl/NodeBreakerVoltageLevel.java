@@ -52,6 +52,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerVoltageLevel.class);
 
+    private static final String WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE = "Given TerminalExt not supported: ";
+
     private static final boolean DRAW_SWITCH_ID = true;
 
     private static final BusChecker CALCULATED_BUS_CHECKER = new CalculatedBusChecker();
@@ -1186,7 +1188,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
             return connected;
         } else {
-            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
+            throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
         }
     }
 
@@ -1226,7 +1228,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
             return true;
         } else {
-            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
+            throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
         }
     }
 
@@ -1234,7 +1236,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         if (terminal instanceof NodeTerminal) {
             return terminal.getBusView().getBus() != null;
         } else {
-            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
+            throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
         }
     }
 
