@@ -63,9 +63,6 @@ public abstract class AbstractTapChangerTapPositionActionDeserializer<T extends 
     }
 
     protected void checkFields(ParsingContext context, JsonParser jsonParser) throws JsonMappingException {
-        if (context.tapPosition == 0) {
-            throw JsonMappingException.from(jsonParser, "for phase tap changer tap position action tapPosition field can't equal zero");
-        }
         if (context.relativeValue == null) {
             throw JsonMappingException.from(jsonParser, "for phase tap changer tap position action relative value field can't be null");
         }
