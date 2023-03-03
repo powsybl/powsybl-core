@@ -47,7 +47,7 @@ public class PropertyBag extends HashMap<String, String> {
         if (value == null) {
             return null;
         }
-        return modifyIdentifier(value, false);
+        return extractIdentifier(value, false);
     }
 
     public String getId(String property) {
@@ -55,7 +55,7 @@ public class PropertyBag extends HashMap<String, String> {
         if (value == null) {
             return null;
         }
-        return modifyIdentifier(value, true);
+        return extractIdentifier(value, true);
     }
 
     public String getId0(String property) {
@@ -141,7 +141,7 @@ public class PropertyBag extends HashMap<String, String> {
         return "";
     }
 
-    private String modifyIdentifier(String s, boolean isIdentifier) {
+    private String extractIdentifier(String s, boolean isIdentifier) {
         String s1 = s;
         int iHash = s.indexOf('#');
         if (iHash >= 0) {
