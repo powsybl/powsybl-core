@@ -55,13 +55,13 @@ class PowsyblWriterSequenceFixTest {
 
     @BeforeEach
     void setUp() {
-        PropertyBag object = new PropertyBag(objectProperties);
+        PropertyBag object = new PropertyBag(objectProperties, true);
         object.put("id", "object1");
         object.put("property1", "object1-property1-value");
         object.put("property2", "object1-property2-value");
         objects.add(object);
 
-        object = new PropertyBag(objectProperties);
+        object = new PropertyBag(objectProperties, true);
         object.put("id", "object2");
         object.put("property1", "object2-property1-value");
         object.put("property2", "object2-property2-value");

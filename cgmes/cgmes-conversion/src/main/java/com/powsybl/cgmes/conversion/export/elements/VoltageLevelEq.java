@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
@@ -17,8 +18,8 @@ import javax.xml.stream.XMLStreamWriter;
 public final class VoltageLevelEq {
 
     public static void write(String id, String voltageLevelName, double lowVoltageLimit, double highVoltageLimit,
-                             String substationId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("VoltageLevel", id, voltageLevelName, cimNamespace, writer);
+                             String substationId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("VoltageLevel", id, voltageLevelName, cimNamespace, writer, context);
         if (!Double.isNaN(lowVoltageLimit)) {
             writer.writeStartElement(cimNamespace, "VoltageLevel.lowVoltageLimit");
             writer.writeCharacters(CgmesExportUtil.format(lowVoltageLimit));
@@ -29,8 +30,8 @@ public final class VoltageLevelEq {
             writer.writeCharacters(CgmesExportUtil.format(highVoltageLimit));
             writer.writeEndElement();
         }
-        CgmesExportUtil.writeReference("VoltageLevel.Substation", substationId, cimNamespace, writer);
-        CgmesExportUtil.writeReference("VoltageLevel.BaseVoltage", baseVoltageId, cimNamespace, writer);
+        CgmesExportUtil.writeReference("VoltageLevel.Substation", substationId, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("VoltageLevel.BaseVoltage", baseVoltageId, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 
