@@ -35,7 +35,7 @@ public class TripleStoreOptions {
         return unescapeIdentifiers;
     }
 
-    public TripleStoreOptions setUnescapeIdentifiers(boolean unescapeIdentifiers) {
+    public TripleStoreOptions decodeEscapedIdentifiers(boolean unescapeIdentifiers) {
         this.unescapeIdentifiers = unescapeIdentifiers;
         return this;
     }

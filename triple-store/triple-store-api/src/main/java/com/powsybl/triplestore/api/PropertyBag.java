@@ -21,15 +21,15 @@ import java.util.stream.Collectors;
  */
 public class PropertyBag extends HashMap<String, String> {
 
-    public PropertyBag(List<String> propertyNames, boolean unescapeIdentifiers) {
-        this(propertyNames, true, unescapeIdentifiers);
+    public PropertyBag(List<String> propertyNames, boolean decodeEscapedIdentifiers) {
+        this(propertyNames, true, decodeEscapedIdentifiers);
     }
 
-    public PropertyBag(List<String> propertyNames, boolean removeInitialUnderscoreForIdentifiers, boolean unescapeIdentifiers) {
+    public PropertyBag(List<String> propertyNames, boolean removeInitialUnderscoreForIdentifiers, boolean decodeEscapedIdentifiers) {
         super(propertyNames.size());
         this.propertyNames = propertyNames;
         this.removeInitialUnderscoreForIdentifiers = removeInitialUnderscoreForIdentifiers;
-        this.unescapeIdentifiers = unescapeIdentifiers;
+        this.decodeEscapedIdentifiers = decodeEscapedIdentifiers;
     }
 
     public List<String> propertyNames() {
@@ -153,7 +153,7 @@ public class PropertyBag extends HashMap<String, String> {
             if (removeInitialUnderscoreForIdentifiers && s1.length() > 0 && s1.charAt(0) == '_') {
                 s1 = s1.substring(1);
             }
-            if (unescapeIdentifiers) {
+            if (decodeEscapedIdentifiers) {
                 s1 = URLDecoder.decode(s1, StandardCharsets.UTF_8);
             }
         }
@@ -214,7 +214,7 @@ public class PropertyBag extends HashMap<String, String> {
 
     public PropertyBag copy() {
         // Create just a shallow copy of this property bag
-        PropertyBag pb1 = new PropertyBag(propertyNames, removeInitialUnderscoreForIdentifiers, unescapeIdentifiers);
+        PropertyBag pb1 = new PropertyBag(propertyNames, removeInitialUnderscoreForIdentifiers, decodeEscapedIdentifiers);
         pb1.setResourceNames(resourceNames);
         pb1.setClassPropertyNames(classPropertyNames);
         pb1.setMultivaluedProperty(multiValuedPropertyNames);
@@ -224,7 +224,7 @@ public class PropertyBag extends HashMap<String, String> {
 
     private final List<String> propertyNames;
     private final boolean removeInitialUnderscoreForIdentifiers;
-    private final boolean unescapeIdentifiers;
+    private final boolean decodeEscapedIdentifiers;
     private final List<String> resourceNames = new ArrayList<>();
     private final List<String> classPropertyNames = new ArrayList<>();
     private final List<String> multiValuedPropertyNames = new ArrayList<>();
