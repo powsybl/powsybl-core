@@ -125,6 +125,7 @@ public class CgmesImport implements Importer {
         } else if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_RDFID)) {
             options.setRemoveInitialUnderscoreForIdentifiers(false);
         }
+        options.decodeEscapedIdentifiers(Parameter.readBoolean(getFormat(), p, DECODE_ESCAPED_IDENTIFIERS_PARAMETER, defaultValueConfig));
         Reporter tripleStoreReporter = reporter.createSubReporter("CGMESTriplestore", "Reading CGMES Triplestore");
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReporter, options);
         Reporter conversionReporter = reporter.createSubReporter("CGMESConversion", "Importing CGMES file(s)");
@@ -305,6 +306,7 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
     public static final String CREATE_ACTIVE_POWER_CONTROL_EXTENSION = "iidm.import.cgmes.create-active-power-control-extension";
+    public static final String DECODE_ESCAPED_IDENTIFIERS = "iidm.import.cgmes.decode-escaped-identifiers";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -401,6 +403,11 @@ public class CgmesImport implements Importer {
             "Source for IIDM identifiers",
             SOURCE_FOR_IIDM_ID_MRID,
             List.of(SOURCE_FOR_IIDM_ID_MRID, SOURCE_FOR_IIDM_ID_RDFID));
+    private static final Parameter DECODE_ESCAPED_IDENTIFIERS_PARAMETER = new Parameter(
+            DECODE_ESCAPED_IDENTIFIERS,
+            ParameterType.BOOLEAN,
+            "Decode escaped special characters in IDs",
+            Boolean.TRUE);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
@@ -418,7 +425,9 @@ public class CgmesImport implements Importer {
             SOURCE_FOR_IIDM_ID_PARAMETER,
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
-            CREATE_ACTIVE_POWER_CONTROL_EXTENSION_PARAMETER);
+            CREATE_ACTIVE_POWER_CONTROL_EXTENSION_PARAMETER,
+            STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
+            DECODE_ESCAPED_IDENTIFIERS_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter postProcessorsParameter;

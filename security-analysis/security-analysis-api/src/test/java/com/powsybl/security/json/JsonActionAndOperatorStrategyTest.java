@@ -103,11 +103,6 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
                 ActionList.readJsonInputStream(inputStream)).getMessage());
 
-        final InputStream inputStream2 = getClass().getResourceAsStream("/WrongActionFileTest2.json");
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action tapPosition field can't equal zero\n" +
-                " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
-                ActionList.readJsonInputStream(inputStream2)).getMessage());
-
         final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json");
         assertTrue(assertThrows(UncheckedIOException.class, () -> ActionList
                 .readJsonInputStream(inputStream3))

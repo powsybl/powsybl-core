@@ -187,7 +187,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                 List<String> names = r.getBindingNames();
                 while (r.hasNext()) {
                     BindingSet s = r.next();
-                    PropertyBag result = new PropertyBag(names, getOptions().isRemoveInitialUnderscoreForIdentifiers());
+                    PropertyBag result = new PropertyBag(names, getOptions().isRemoveInitialUnderscoreForIdentifiers(), getOptions().unescapeIdentifiers());
 
                     names.forEach(name -> {
                         if (s.hasBinding(name)) {

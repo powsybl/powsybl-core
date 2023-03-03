@@ -52,13 +52,17 @@ class SourceForIidmIdentifiersTest {
     void tipleStoreOptions() {
         TripleStoreOptions options0 = new TripleStoreOptions();
         assertTrue(options0.isRemoveInitialUnderscoreForIdentifiers());
-        TripleStoreOptions options1 = new TripleStoreOptions(true);
+        assertTrue(options0.unescapeIdentifiers());
+        TripleStoreOptions options1 = new TripleStoreOptions(true, true);
         assertTrue(options1.isRemoveInitialUnderscoreForIdentifiers());
-        TripleStoreOptions options2 = new TripleStoreOptions(false);
+        assertTrue(options1.unescapeIdentifiers());
+        TripleStoreOptions options2 = new TripleStoreOptions(false, false);
         assertFalse(options2.isRemoveInitialUnderscoreForIdentifiers());
+        assertFalse(options2.unescapeIdentifiers());
 
         TripleStore ts = TripleStoreFactory.create(options2);
         assertFalse(ts.getOptions().isRemoveInitialUnderscoreForIdentifiers());
+        assertFalse(ts.getOptions().unescapeIdentifiers());
     }
 
 }
