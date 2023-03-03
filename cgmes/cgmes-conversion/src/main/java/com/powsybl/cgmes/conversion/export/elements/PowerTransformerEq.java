@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
@@ -28,17 +29,18 @@ public final class PowerTransformerEq {
     private static final String EQ_POWERTRANSFORMEREND_RATEDS = "PowerTransformerEnd.ratedS";
     private static final String EQ_POWERTRANSFORMEREND_RATEDU = "PowerTransformerEnd.ratedU";
 
-    public static void write(String id, String transformerName, String equipmentContainer, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("PowerTransformer", id, transformerName, cimNamespace, writer);
+    public static void write(String id, String transformerName, String equipmentContainer, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("PowerTransformer", id, transformerName, cimNamespace, writer, context);
         if (equipmentContainer != null) {
-            CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer);
+            CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
         }
         writer.writeEndElement();
     }
 
     public static void writeEnd(String id, String transformerEndName, String transformerId, int endNumber, double r, double x, double g, double b,
-                                double ratedS, double ratedU, String terminalId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("PowerTransformerEnd", id, transformerEndName, cimNamespace, writer);
+                                double ratedS, double ratedU, String terminalId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
+                                CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("PowerTransformerEnd", id, transformerEndName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_TRANSFORMEREND_ENDNUMBER);
         writer.writeCharacters(CgmesExportUtil.format(endNumber));
         writer.writeEndElement();
@@ -62,9 +64,9 @@ public final class PowerTransformerEq {
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDU);
         writer.writeCharacters(CgmesExportUtil.format(ratedU));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference(EQ_POWERTRANSFORMEREND_POWERTRANSFORMER, transformerId, cimNamespace, writer);
-        CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_TERMINAL, terminalId, cimNamespace, writer);
-        CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_BASEVOLTAGE, baseVoltageId, cimNamespace, writer);
+        CgmesExportUtil.writeReference(EQ_POWERTRANSFORMEREND_POWERTRANSFORMER, transformerId, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_TERMINAL, terminalId, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_BASEVOLTAGE, baseVoltageId, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 

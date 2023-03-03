@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.iidm.network.SwitchKind;
 
@@ -17,9 +18,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class SwitchEq {
 
-    public static void write(String id, String switchName, SwitchKind switchKind, String equipmentContainer, boolean open, boolean retained, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(switchClassname(switchKind), id, switchName, cimNamespace, writer);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer);
+    public static void write(String id, String switchName, SwitchKind switchKind, String equipmentContainer, boolean open, boolean retained, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName(switchClassname(switchKind), id, switchName, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", equipmentContainer, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "Switch.normalOpen");
         writer.writeCharacters(CgmesExportUtil.format(open));
         writer.writeEndElement();
