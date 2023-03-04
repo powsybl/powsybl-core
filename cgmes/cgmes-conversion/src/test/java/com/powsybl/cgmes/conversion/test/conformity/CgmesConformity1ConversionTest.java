@@ -183,6 +183,7 @@ class CgmesConformity1ConversionTest {
         // have proper balances from SV values
         Properties params = new Properties();
         params.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
+        params.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS, "true");
         ConversionTester t = new ConversionTester(
             params,
             TripleStoreFactory.onlyDefaultImplementation(),

@@ -400,7 +400,7 @@ public class CgmesImport implements Importer {
             CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS,
             ParameterType.BOOLEAN,
             "Create fictitious switches for disconnected terminals (relevant for node-breaker models only)",
-            Boolean.TRUE);
+            Boolean.FALSE);
     private static final Parameter STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
