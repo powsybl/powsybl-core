@@ -46,19 +46,19 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
 
     void setPartOfGeneratingUnit(boolean partOfGeneratingUnit);
 
-    double getR1Ground();
+    double getGroundingR1();
 
-    void setR1Ground(double r1Ground);
+    void setGroundingR1(double groundingR1);
 
-    double getR2Ground();
+    double getGroundingR2();
 
-    void setR2Ground(double r2Ground);
+    void setGroundingR2(double groundingR2);
 
-    double getX1Ground();
+    double getGroundingX1();
 
-    void setX1Ground(double x1Ground);
+    void setGroundingX1(double groundingX1);
 
-    double getX2Ground();
+    double getGroundingX2();
 
-    void setX2Ground(double x2Ground);
+    void setGroundingX2(double groundingX2);
 }

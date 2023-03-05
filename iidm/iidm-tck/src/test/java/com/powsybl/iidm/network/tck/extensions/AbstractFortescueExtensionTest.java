@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.extensions.GeneratorFortescueAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,5 +33,12 @@ public abstract class AbstractFortescueExtensionTest {
                 .withGroundingX(0.3d)
                 .add();
         assertSame(GeneratorFortescue.GeneratorType.ROTATING_MACHINE, fortescue.getGeneratorType());
+        assertEquals(0.1d, fortescue.getRo());
+        assertEquals(2d, fortescue.getXo());
+        assertEquals(0.2d, fortescue.getRi());
+        assertEquals(2.4d, fortescue.getXi());
+        assertTrue(fortescue.isToGround());
+        assertEquals(0.02d, fortescue.getGroundingR());
+        assertEquals(0.3d, fortescue.getGroundingX());
     }
 }

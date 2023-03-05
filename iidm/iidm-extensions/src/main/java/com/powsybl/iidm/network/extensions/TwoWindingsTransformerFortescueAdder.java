@@ -27,11 +27,11 @@ public interface TwoWindingsTransformerFortescueAdder extends ExtensionAdder<Two
 
     TwoWindingsTransformerFortescueAdder withLeg2ConnectionType(LegConnectionType leg2ConnectionType);
 
-    TwoWindingsTransformerFortescueAdder withR1Ground(double r1Ground);
+    TwoWindingsTransformerFortescueAdder withGroundingR1(double r1Ground);
 
-    TwoWindingsTransformerFortescueAdder withX1Ground(double x1Ground);
+    TwoWindingsTransformerFortescueAdder withGroundingX1(double x1Ground);
 
-    TwoWindingsTransformerFortescueAdder withR2Ground(double r2Ground);
+    TwoWindingsTransformerFortescueAdder withGroundingR2(double r2Ground);
 
-    TwoWindingsTransformerFortescueAdder withX2Ground(double x2Ground);
+    TwoWindingsTransformerFortescueAdder withGroundingX2(double x2Ground);
 }

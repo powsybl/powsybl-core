@@ -38,4 +38,16 @@ public interface ThreeWindingsTransformerFortescueAdder extends ExtensionAdder<T
     ThreeWindingsTransformerFortescueAdder withLeg2ConnectionType(LegConnectionType leg2ConnectionType);
 
     ThreeWindingsTransformerFortescueAdder withLeg3ConnectionType(LegConnectionType leg3ConnectionType);
+
+    ThreeWindingsTransformerFortescueAdder withLeg1GroundingR(double leg1GroundingR);
+
+    ThreeWindingsTransformerFortescueAdder withLeg1GroundingX(double leg1GroundingX);
+
+    ThreeWindingsTransformerFortescueAdder withLeg2GroundingR(double leg2GroundingR);
+
+    ThreeWindingsTransformerFortescueAdder withLeg2GroundingX(double leg2GroundingX);
+
+    ThreeWindingsTransformerFortescueAdder withLeg3GroundingR(double leg3GroundingR);
+
+    ThreeWindingsTransformerFortescueAdder withLeg3GroundingX(double leg3GroundingX);
 }

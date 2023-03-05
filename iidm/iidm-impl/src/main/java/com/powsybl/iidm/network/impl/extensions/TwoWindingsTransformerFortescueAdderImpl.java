@@ -28,10 +28,10 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
     private boolean freeFluxes = DEFAULT_FREE_FLUXES;
     private LegConnectionType leg1ConnectionType = DEFAULT_LEG1_CONNECTION_TYPE;
     private LegConnectionType leg2ConnectionType = DEFAULT_LEG2_CONNECTION_TYPE;
-    private double r1Ground = DEFAULT_GROUNDING_R;
-    private double x1Ground = DEFAULT_GROUNDING_X;
-    private double r2Ground = DEFAULT_GROUNDING_R;
-    private double x2Ground = DEFAULT_GROUNDING_X;
+    private double groundingR1 = DEFAULT_GROUNDING_R;
+    private double groundingX1 = DEFAULT_GROUNDING_X;
+    private double groundingR2 = DEFAULT_GROUNDING_R;
+    private double groundingX2 = DEFAULT_GROUNDING_X;
 
     public TwoWindingsTransformerFortescueAdderImpl(TwoWindingsTransformer twt) {
         super(twt);
@@ -44,7 +44,7 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
 
     @Override
     protected TwoWindingsTransformerFortescueImpl createExtension(TwoWindingsTransformer twt) {
-        return new TwoWindingsTransformerFortescueImpl(twt, partOfGeneratingUnit, ro, xo, freeFluxes, leg1ConnectionType, leg2ConnectionType, r1Ground, x1Ground, r2Ground, x2Ground);
+        return new TwoWindingsTransformerFortescueImpl(twt, partOfGeneratingUnit, ro, xo, freeFluxes, leg1ConnectionType, leg2ConnectionType, groundingR1, groundingX1, groundingR2, groundingX2);
     }
 
     @Override
@@ -84,26 +84,26 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
     }
 
     @Override
-    public TwoWindingsTransformerFortescueAdderImpl withR1Ground(double r1Ground) {
-        this.r1Ground = r1Ground;
+    public TwoWindingsTransformerFortescueAdderImpl withGroundingR1(double groundingR1) {
+        this.groundingR1 = groundingR1;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerFortescueAdderImpl withX1Ground(double x1Ground) {
-        this.x1Ground = x1Ground;
+    public TwoWindingsTransformerFortescueAdderImpl withGroundingX1(double groundingX1) {
+        this.groundingX1 = groundingX1;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerFortescueAdderImpl withR2Ground(double r2Ground) {
-        this.r2Ground = r2Ground;
+    public TwoWindingsTransformerFortescueAdderImpl withGroundingR2(double groundingR2) {
+        this.groundingR2 = groundingR2;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerFortescueAdderImpl withX2Ground(double x2Ground) {
-        this.x2Ground = x2Ground;
+    public TwoWindingsTransformerFortescueAdderImpl withGroundingX2(double groundingX2) {
+        this.groundingX2 = groundingX2;
         return this;
     }
 }

@@ -34,6 +34,12 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
     private LegConnectionType leg1ConnectionType = DEFAULT_LEG1_CONNECTION_TYPE;
     private LegConnectionType leg2ConnectionType = DEFAULT_LEG2_CONNECTION_TYPE;
     private LegConnectionType leg3ConnectionType = DEFAULT_LEG3_CONNECTION_TYPE;
+    private double leg1GroundingR = DEFAULT_GROUNDING_R;
+    private double leg1GroundingX = DEFAULT_GROUNDING_X;
+    private double leg2GroundingR = DEFAULT_GROUNDING_R;
+    private double leg2GroundingX = DEFAULT_GROUNDING_X;
+    private double leg3GroundingR = DEFAULT_GROUNDING_R;
+    private double leg3GroundingX = DEFAULT_GROUNDING_X;
 
     public ThreeWindingsTransformerFortescueAdderImpl(ThreeWindingsTransformer twt) {
         super(twt);
@@ -46,9 +52,9 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
 
     @Override
     protected ThreeWindingsTransformerFortescueImpl createExtension(ThreeWindingsTransformer twt) {
-        var leg1 = new ThreeWindingsTransformerFortescue.LegFortescue(leg1Ro, leg1Xo, leg1FreeFluxes, leg1ConnectionType);
-        var leg2 = new ThreeWindingsTransformerFortescue.LegFortescue(leg2Ro, leg2Xo, leg2FreeFluxes, leg2ConnectionType);
-        var leg3 = new ThreeWindingsTransformerFortescue.LegFortescue(leg3Ro, leg3Xo, leg3FreeFluxes, leg3ConnectionType);
+        var leg1 = new ThreeWindingsTransformerFortescue.LegFortescue(leg1Ro, leg1Xo, leg1FreeFluxes, leg1ConnectionType, leg1GroundingR, leg1GroundingX);
+        var leg2 = new ThreeWindingsTransformerFortescue.LegFortescue(leg2Ro, leg2Xo, leg2FreeFluxes, leg2ConnectionType, leg2GroundingR, leg2GroundingX);
+        var leg3 = new ThreeWindingsTransformerFortescue.LegFortescue(leg3Ro, leg3Xo, leg3FreeFluxes, leg3ConnectionType, leg3GroundingR, leg3GroundingX);
         return new ThreeWindingsTransformerFortescueImpl(twt, leg1, leg2, leg3);
     }
 
@@ -121,6 +127,42 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
     @Override
     public ThreeWindingsTransformerFortescueAdderImpl withLeg3ConnectionType(LegConnectionType leg3ConnectionType) {
         this.leg3ConnectionType = Objects.requireNonNull(leg3ConnectionType);
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerFortescueAdderImpl withLeg1GroundingR(double leg1GroundingR) {
+        this.leg1GroundingR = leg1GroundingR;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerFortescueAdderImpl withLeg1GroundingX(double leg1GroundingX) {
+        this.leg1GroundingX = leg1GroundingX;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerFortescueAdderImpl withLeg2GroundingR(double leg2GroundingR) {
+        this.leg2GroundingR = leg2GroundingR;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerFortescueAdderImpl withLeg2GroundingX(double leg2GroundingX) {
+        this.leg2GroundingX = leg2GroundingX;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerFortescueAdderImpl withLeg3GroundingR(double leg3GroundingR) {
+        this.leg3GroundingR = leg3GroundingR;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerFortescueAdderImpl withLeg3GroundingX(double leg3GroundingX) {
+        this.leg3GroundingX = leg3GroundingX;
         return this;
     }
 }

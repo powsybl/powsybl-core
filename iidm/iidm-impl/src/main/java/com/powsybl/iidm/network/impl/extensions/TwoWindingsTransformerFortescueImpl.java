@@ -25,13 +25,13 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     private LegConnectionType leg1ConnectionType;
     private LegConnectionType leg2ConnectionType;
     private boolean partOfGeneratingUnit;
-    private double r1Ground;
-    private double x1Ground;
-    private double r2Ground;
-    private double x2Ground;
+    private double groundingR1;
+    private double groundingX1;
+    private double groundingR2;
+    private double groundingX2;
 
     public TwoWindingsTransformerFortescueImpl(TwoWindingsTransformer twt, boolean partOfGeneratingUnit, double ro, double xo, boolean freeFluxes,
-                                               LegConnectionType leg1ConnectionType, LegConnectionType leg2ConnectionType, double r1Ground, double x1Ground, double r2Ground, double x2Ground) {
+                                               LegConnectionType leg1ConnectionType, LegConnectionType leg2ConnectionType, double groundingR1, double groundingX1, double groundingR2, double groundingX2) {
         super(twt);
         this.partOfGeneratingUnit = partOfGeneratingUnit;
         this.ro = ro;
@@ -39,10 +39,10 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
         this.freeFluxes = freeFluxes;
         this.leg1ConnectionType = Objects.requireNonNull(leg1ConnectionType);
         this.leg2ConnectionType = Objects.requireNonNull(leg2ConnectionType);
-        this.r1Ground = r1Ground;
-        this.x1Ground = x1Ground;
-        this.r2Ground = r2Ground;
-        this.x2Ground = x2Ground;
+        this.groundingR1 = groundingR1;
+        this.groundingX1 = groundingX1;
+        this.groundingR2 = groundingR2;
+        this.groundingX2 = groundingX2;
     }
 
     @Override
@@ -106,42 +106,42 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     }
 
     @Override
-    public double getR1Ground() {
-        return r1Ground;
+    public double getGroundingR1() {
+        return groundingR1;
     }
 
     @Override
-    public void setR1Ground(double r1Ground) {
-        this.r1Ground = r1Ground;
+    public void setGroundingR1(double groundingR1) {
+        this.groundingR1 = groundingR1;
     }
 
     @Override
-    public double getR2Ground() {
-        return r2Ground;
+    public double getGroundingR2() {
+        return groundingR2;
     }
 
     @Override
-    public void setR2Ground(double r2Ground) {
-        this.r2Ground = r2Ground;
+    public void setGroundingR2(double groundingR2) {
+        this.groundingR2 = groundingR2;
     }
 
     @Override
-    public double getX1Ground() {
-        return x1Ground;
+    public double getGroundingX1() {
+        return groundingX1;
     }
 
     @Override
-    public void setX1Ground(double x1Ground) {
-        this.x1Ground = x1Ground;
+    public void setGroundingX1(double groundingX1) {
+        this.groundingX1 = groundingX1;
     }
 
     @Override
-    public double getX2Ground() {
-        return x2Ground;
+    public double getGroundingX2() {
+        return groundingX2;
     }
 
     @Override
-    public void setX2Ground(double x2Ground) {
-        this.x2Ground = x2Ground;
+    public void setGroundingX2(double groundingX2) {
+        this.groundingX2 = groundingX2;
     }
 }
