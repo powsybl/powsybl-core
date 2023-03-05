@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.iidm.network.extensions.GeneratorFortescue;
 import com.powsybl.iidm.network.extensions.GeneratorFortescueAdder;
+import com.powsybl.iidm.network.extensions.LineFortescue;
+import com.powsybl.iidm.network.extensions.LineFortescueAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -58,5 +60,24 @@ public abstract class AbstractFortescueExtensionTest {
         assertFalse(fortescue.isToGround());
         assertEquals(0.0001d, fortescue.getGroundingR());
         assertEquals(0.35d, fortescue.getGroundingX());
+    }
+
+    @Test
+    void testLine() {
+        var network = EurostagTutorialExample1Factory.create();
+        var l = network.getLine("NHV1_NHV2_1");
+        LineFortescue fortescue = l.newExtension(LineFortescueAdder.class)
+                .withRo(0.1d)
+                .withXo(2d)
+                .add();
+
+        assertEquals(0.1d, fortescue.getRo());
+        assertEquals(2d, fortescue.getXo());
+
+        fortescue.setRo(0.11d);
+        fortescue.setXo(2.03d);
+
+        assertEquals(0.11d, fortescue.getRo());
+        assertEquals(2.03d, fortescue.getXo());
     }
 }
