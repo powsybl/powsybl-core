@@ -20,8 +20,8 @@
             <xs:attribute name="ri" type="xs:double"/>
             <xs:attribute name="xi" type="xs:double"/>
             <xs:attribute name="toGround" use="required" type="xs:boolean"/>
-            <xs:attribute name="groundingR" use="required" type="xs:double"/>
-            <xs:attribute name="groundingX" use="required" type="xs:double"/>
+            <xs:attribute name="groundingR" type="xs:double"/>
+            <xs:attribute name="groundingX" type="xs:double"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>
