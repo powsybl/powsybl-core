@@ -40,5 +40,23 @@ public abstract class AbstractFortescueExtensionTest {
         assertTrue(fortescue.isToGround());
         assertEquals(0.02d, fortescue.getGroundingR());
         assertEquals(0.3d, fortescue.getGroundingX());
+
+        fortescue.setGeneratorType(GeneratorFortescue.GeneratorType.FEEDER);
+        fortescue.setRo(0.11d);
+        fortescue.setXo(2.03d);
+        fortescue.setRi(0.1d);
+        fortescue.setXi(2.3d);
+        fortescue.setToGround(false);
+        fortescue.setGroundingR(0.0001d);
+        fortescue.setGroundingX(0.35d);
+
+        assertSame(GeneratorFortescue.GeneratorType.FEEDER, fortescue.getGeneratorType());
+        assertEquals(0.11d, fortescue.getRo());
+        assertEquals(2.03d, fortescue.getXo());
+        assertEquals(0.1d, fortescue.getRi());
+        assertEquals(2.3d, fortescue.getXi());
+        assertFalse(fortescue.isToGround());
+        assertEquals(0.0001d, fortescue.getGroundingR());
+        assertEquals(0.35d, fortescue.getGroundingX());
     }
 }
