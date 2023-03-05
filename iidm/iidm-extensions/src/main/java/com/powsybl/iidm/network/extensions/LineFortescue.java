@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Line;
  */
 public interface LineFortescue extends Extension<Line> {
 
-    String NAME = "lineShortCircuit";
+    String NAME = "lineFortescue";
 
     @Override
     default String getName() {

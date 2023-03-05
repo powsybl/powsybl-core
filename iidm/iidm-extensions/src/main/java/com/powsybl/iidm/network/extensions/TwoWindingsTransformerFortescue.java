@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  */
 public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTransformer> {
 
-    String NAME = "twoWindingsTransformerShortCircuit";
+    String NAME = "twoWindingsTransformerFortescue";
 
     @Override
     default String getName() {

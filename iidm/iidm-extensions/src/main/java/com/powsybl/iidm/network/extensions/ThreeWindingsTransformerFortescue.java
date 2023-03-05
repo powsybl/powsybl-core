@@ -17,7 +17,7 @@ import java.util.Objects;
  */
 public interface ThreeWindingsTransformerFortescue extends Extension<ThreeWindingsTransformer> {
 
-    String NAME = "threeWindingsTransformerShortCircuit";
+    String NAME = "threeWindingsTransformerFortescue";
 
     class LegFortescue {
 
