@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
@@ -16,10 +17,10 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class BusbarSectionEq {
 
-    public static void write(String id, String busName, String voltageLevelId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("BusbarSection", id, busName, cimNamespace, writer);
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", voltageLevelId, cimNamespace, writer);
-        CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltageId, cimNamespace, writer);
+    public static void write(String id, String busName, String voltageLevelId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("BusbarSection", id, busName, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", voltageLevelId, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltageId, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 
