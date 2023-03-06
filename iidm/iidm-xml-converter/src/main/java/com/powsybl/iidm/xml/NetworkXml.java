@@ -424,8 +424,9 @@ public final class NetworkXml {
             }
 
             IidmXmlVersion version = IidmXmlVersion.fromNamespaceURI(reader.getNamespaceURI());
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
 
-            String id = reader.getAttributeValue(null, ID);
+            String id = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, ID));
             DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
             String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
@@ -433,8 +434,6 @@ public final class NetworkXml {
             Network network = networkFactory.createNetwork(id, sourceFormat);
             network.setCaseDate(date);
             network.setForecastDistance(forecastDistance);
-
-            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
 
             ValidationLevel[] minValidationLevel = new ValidationLevel[1];
             minValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
