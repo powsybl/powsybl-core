@@ -10,7 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import com.powsybl.iidm.network.util.SV;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -180,81 +179,14 @@ public class LineAdapterTest {
         final Network noEquipNetwork = NoEquipmentNetworkFactory.create();
         mergingView.merge(noEquipNetwork);
         // adder line with both voltage level in different network
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("Should not create a line between two sub-networks: create a tie line");
         final Line lineOnBothNetwork = createLine(mergingView,
                                                   "lineOnBothNetworkId",
                                                   "lineOnBothNetworkName",
                                                   "vl1",
                                                   "busA",
                                                   "busA");
-        assertNotNull(lineOnBothNetwork);
-        assertEquals(lineOnBothNetwork, mergingView.getLine("lineOnBothNetworkId"));
-
-        // Exception(s)
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The network already contains an object with the id 'lineOnBothNetworkId'");
-        mergingView.newLine()
-                       .setId("lineOnBothNetworkId")
-                       .setVoltageLevel1("vl1")
-                       .setVoltageLevel2("VLBAT")
-                   .add();
-    }
-
-    @Test
-    public void checkXnodeValuesUpdateTests() {
-        final Network noEquipNetwork = NoEquipmentNetworkFactory.create();
-        mergingView.merge(noEquipNetwork);
-        // adder line with both voltage level in different network
-        final Line lineOnBothNetwork = createLine(mergingView,
-                "lineOnBothNetworkId",
-                "lineOnBothNetworkName",
-                "vl1",
-                "busA",
-                "busA");
-        assertTrue(lineOnBothNetwork instanceof MergedLine);
-
-        // Get both DanglingLine
-        final DanglingLine dl1 = noEquipNetwork.getDanglingLine("lineOnBothNetworkId_1");
-        final DanglingLine dl2 = networkRef.getDanglingLine("lineOnBothNetworkId_2");
-        assertNotNull(dl1);
-        assertNotNull(dl2);
-        // Check initial P, Q, V & Angle
-        assertTrue(Double.isNaN(dl1.getTerminal().getP()));
-        assertTrue(Double.isNaN(dl1.getTerminal().getQ()));
-        assertTrue(Double.isNaN(dl1.getTerminal().getBusView().getBus().getV()));
-        assertTrue(Double.isNaN(dl1.getTerminal().getBusView().getBus().getAngle()));
-        assertTrue(Double.isNaN(dl2.getTerminal().getP()));
-        assertTrue(Double.isNaN(dl2.getTerminal().getQ()));
-        assertTrue(Double.isNaN(dl2.getTerminal().getBusView().getBus().getV()));
-        assertTrue(Double.isNaN(dl2.getTerminal().getBusView().getBus().getAngle()));
-        double p1 = -605.0;
-        double q1 = -302.5;
-        double v1 = 380.0;
-        double angle1 = -1e-4;
-        double p2 = 600.0;
-        double q2 = 300.0;
-        double v2 = 400.0;
-        double angle2 = -1.7e-3;
-        double lossesQ = q1 + q2;
-        // Update P & Q
-        dl1.setP0(-607.7783748702557);
-        dl1.setQ0(-75.43639718320378);
-        dl1.getTerminal().setP(p1).setQ(q1);
-        dl1.getTerminal().getBusView().getBus().setV(v1).setAngle(angle1);
-        dl2.setP0(596.6050999999967);
-        dl2.setQ0(546.8941796000062);
-        dl2.getTerminal().setP(p2).setQ(q2);
-        dl2.getTerminal().getBusView().getBus().setV(v2).setAngle(angle2);
-        // Check P & Q are updated
-        SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE).otherSide(dl1, true);
-        SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.ONE).otherSide(dl2, true);
-        assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV1.getQ(), dl1.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 1.0e-8);
-        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 1.0e-8);
-        assertEquals(expectedSV2.getP(), dl2.getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV2.getQ(), dl2.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 1.0e-8);
-        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 1.0e-8);
     }
 
     @Test
@@ -266,7 +198,7 @@ public class LineAdapterTest {
         thrown.expectMessage("Line id is not set");
         mergingView.newLine()
                        .setVoltageLevel1("vl1")
-                       .setVoltageLevel2("VLBAT")
+                       .setVoltageLevel2("vl2")
                    .add();
     }
 

@@ -272,7 +272,7 @@ public class CgmesMappingTest extends AbstractConverterTest {
         for (Bus be : buses) {
             // Build an id for the bus based on the concat of ids of connected equipment
             SortedSet<String> eqIds = new TreeSet<>();
-            be.getConnectedTerminals().iterator().forEachRemaining(t -> eqIds.add(t.getConnectable().getId()));
+            be.getConnectedTerminals().iterator().forEachRemaining(t -> eqIds.add(getId(t.getConnectable())));
             // Ignore empty buses
             if (!eqIds.isEmpty()) {
                 String busId = String.join(",", eqIds);
@@ -280,6 +280,14 @@ public class CgmesMappingTest extends AbstractConverterTest {
             }
         }
         return busIds;
+    }
+
+    private static String getId(Connectable<?> c) {
+        if (c instanceof DanglingLine) {
+            DanglingLine dl = (DanglingLine) c;
+            return dl.getTieLine().map(TieLine::getId).orElseGet(dl::getId);
+        }
+        return c.getId();
     }
 
     @Test

@@ -273,26 +273,17 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.generation = generation != null ? generation.attach(this) : null;
     }
 
-    void setParent(TieLineImpl parent, Branch.Side side) {
+    OperationalLimitsHolderImpl getLimitsHolder() {
+        return operationalLimitsHolder;
+    }
+
+    void setParent(TieLineImpl parent) {
         this.parent = parent;
-        if (side == Branch.Side.ONE) {
-            this.operationalLimitsHolder = parent.operationalLimitsHolder1;
-        } else if (side == Branch.Side.TWO) {
-            this.operationalLimitsHolder = parent.operationalLimitsHolder2;
-        }
     }
 
     @Override
     public TerminalExt getTerminal() {
-        return parent != null ? null : terminals.get(0);
-    }
-
-    @Override
-    public List<TerminalExt> getTerminals() {
-        if (parent != null) {
-            return Collections.emptyList();
-        }
-        return super.getTerminals();
+        return terminals.get(0);
     }
 
     @Override
@@ -302,7 +293,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public void remove() {
-        if (parent != null) {
+        if (parent != null) { // TODO: should not throw error but only remove tie line
             throw new UnsupportedOperationException("Parent tie line " + parent.getId() + " should be removed, not the child dangling line");
         }
         super.remove();
@@ -318,7 +309,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     protected String getTypeDescription() {
-        return parent != null ? "Tie line's dangling line" : "Dangling line";
+        return "Dangling line";
     }
 
     @Override

@@ -29,12 +29,10 @@ public final class UcteAliasesCreation {
 
     public static void createAliases(Network network) {
         Set<String> duplicatedAliases = new HashSet<>();
-        network.getBranchStream().forEach(branch -> {
-            if (branch instanceof TieLine) {
-                TieLine tieLine = (TieLine) branch;
-                addHalfElementNameAliases(tieLine, duplicatedAliases);
-            }
-            addElementNameAlias(branch, duplicatedAliases);
+        network.getBranchStream().forEach(branch -> addElementNameAlias(branch, duplicatedAliases));
+        network.getTieLineStream().forEach(tieLine -> {
+            addHalfElementNameAliases(tieLine, duplicatedAliases);
+            addElementNameAlias(tieLine, duplicatedAliases);
         });
         network.getSwitchStream().forEach(switchEl -> addElementNameAlias(switchEl, duplicatedAliases));
         network.getDanglingLineStream().filter(dl -> !dl.isMerged()).forEach(dl -> addElementNameAlias(dl, duplicatedAliases));

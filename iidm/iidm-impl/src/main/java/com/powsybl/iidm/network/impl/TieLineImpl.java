@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.TieLineUtil;
@@ -16,34 +17,42 @@ import com.powsybl.iidm.network.util.TieLineUtil;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class TieLineImpl extends AbstractBranch<Line> implements TieLine {
+class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
+
+    @Override
+    public NetworkImpl getNetwork() {
+        if (removed) {
+            throw new PowsyblException("Cannot access network of removed tie line " + id);
+        }
+        return networkRef.get();
+    }
 
     @Override
     protected String getTypeDescription() {
-        return "AC Line";
+        return "Tie Line";
     }
 
     private DanglingLineImpl half1;
 
     private DanglingLineImpl half2;
 
+    private final Ref<NetworkImpl> networkRef;
+
+    private boolean removed = false;
+
     TieLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
-        super(network, id, name, fictitious);
+        super(id, name, fictitious);
+        this.networkRef = network;
     }
 
     void attachDanglingLines(DanglingLineImpl half1, DanglingLineImpl half2) {
-        this.half1 = attach(half1, Side.ONE);
-        this.half2 = attach(half2, Side.TWO);
+        this.half1 = attach(half1);
+        this.half2 = attach(half2);
     }
 
-    private DanglingLineImpl attach(DanglingLineImpl half, Side side) {
-        half.setParent(this, side);
+    private DanglingLineImpl attach(DanglingLineImpl half) {
+        half.setParent(this);
         return half;
-    }
-
-    @Override
-    public boolean isTieLine() {
-        return true;
     }
 
     @Override
@@ -62,7 +71,7 @@ class TieLineImpl extends AbstractBranch<Line> implements TieLine {
     }
 
     @Override
-    public DanglingLineImpl getHalf(Side side) {
+    public DanglingLineImpl getHalf(Branch.Side side) {
         switch (side) {
             case ONE:
                 return half1;
@@ -73,19 +82,21 @@ class TieLineImpl extends AbstractBranch<Line> implements TieLine {
         }
     }
 
+    @Override
+    public DanglingLine getHalf(String voltageLevelId) {
+        if (half1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return half1;
+        }
+        if (half2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return half2;
+        }
+        return null;
+    }
+
     // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getR() {
         return TieLineUtil.getR(half1, half2);
-    }
-
-    private ValidationException createNotSupportedForTieLines() {
-        return new ValidationException(this, "direct modification of characteristics not supported for tie lines");
-    }
-
-    @Override
-    public LineImpl setR(double r) {
-        throw createNotSupportedForTieLines();
     }
 
     // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
@@ -95,18 +106,8 @@ class TieLineImpl extends AbstractBranch<Line> implements TieLine {
     }
 
     @Override
-    public LineImpl setX(double x) {
-        throw createNotSupportedForTieLines();
-    }
-
-    @Override
     public double getG1() {
         return TieLineUtil.getG1(half1, half2);
-    }
-
-    @Override
-    public LineImpl setG1(double g1) {
-        throw createNotSupportedForTieLines();
     }
 
     @Override
@@ -115,18 +116,8 @@ class TieLineImpl extends AbstractBranch<Line> implements TieLine {
     }
 
     @Override
-    public LineImpl setB1(double b1) {
-        throw createNotSupportedForTieLines();
-    }
-
-    @Override
     public double getG2() {
         return TieLineUtil.getG2(half1, half2);
-    }
-
-    @Override
-    public LineImpl setG2(double g2) {
-        throw createNotSupportedForTieLines();
     }
 
     @Override
@@ -135,14 +126,18 @@ class TieLineImpl extends AbstractBranch<Line> implements TieLine {
     }
 
     @Override
-    public LineImpl setB2(double b2) {
-        throw createNotSupportedForTieLines();
-    }
-
-    @Override
     public void remove() {
+        NetworkImpl network = getNetwork();
+        network.getListeners().notifyBeforeRemoval(this);
+
+        // Remove dangling lines
         half1.removeFromParent();
         half2.removeFromParent();
-        super.remove();
+
+        // Remove this voltage level from the network
+        network.getIndex().remove(this);
+
+        network.getListeners().notifyAfterRemoval(id);
+        removed = true;
     }
 }

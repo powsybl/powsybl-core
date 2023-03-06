@@ -162,7 +162,7 @@ package com.powsybl.iidm.network;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public interface TieLine extends Line, Container<Line> {
+public interface TieLine extends Identifiable<TieLine>, LineCharacteristicsGetters, Container<TieLine> {
 
     @Override
     default ContainerType getContainerType() {
@@ -188,5 +188,19 @@ public interface TieLine extends Line, Container<Line> {
     /**
      * Get a given side half of the line characteristics
      */
-    DanglingLine getHalf(Side side);
+    DanglingLine getHalf(Branch.Side side);
+
+    /**
+     * Get a half of the line characteristics in the given voltage level
+     */
+    DanglingLine getHalf(String voltageLevelId);
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.TIE_LINE;
+    }
+
+    void remove();
+
+    Network getNetwork();
 }

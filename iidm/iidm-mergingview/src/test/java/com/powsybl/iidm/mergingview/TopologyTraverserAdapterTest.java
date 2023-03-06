@@ -29,7 +29,7 @@ public class TopologyTraverserAdapterTest {
         MergingView cgm = MergingViewFactory.createCGM(null);
         Terminal start1 = cgm.getLoad("LOAD1").getTerminal();
         List<String> visited1 = recordVisited(start1, s -> TraverseResult.CONTINUE);
-        assertEquals(Arrays.asList("LOAD1", "BBS1", "DL1 + DL2"), visited1);
+        assertEquals(Arrays.asList("LOAD1", "BBS1", "DL1"), visited1);
 
         List<String> visited1bis = recordVisited(start1,
             aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER ? TraverseResult.CONTINUE : TraverseResult.TERMINATE_PATH);
@@ -38,11 +38,11 @@ public class TopologyTraverserAdapterTest {
         Terminal start2 = cgm.getLoad("LOAD2").getTerminal();
         List<String> visited2 = recordVisited(start2, s -> TraverseResult.CONTINUE);
 
-        assertEquals(Arrays.asList("LOAD2", "DL1 + DL2"), visited2);
+        assertEquals(Arrays.asList("LOAD2", "DL2"), visited2);
 
         List<String> visited3 = recordVisited(start2, s -> TraverseResult.CONTINUE,
-            t -> t.getConnectable().getId().equals("DL1 + DL2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
-        assertEquals(Arrays.asList("LOAD2", "DL1 + DL2"), visited3);
+            t -> t.getConnectable().getId().equals("DL2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(Arrays.asList("LOAD2", "DL2"), visited3);
     }
 
     private List<String> recordVisited(Terminal start, Function<Switch, TraverseResult> switchPredicate) {

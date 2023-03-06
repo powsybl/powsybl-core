@@ -11,6 +11,7 @@ import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.univocity.parsers.csv.*;
 
@@ -90,9 +91,19 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         // Equivalent injections of dangling lines
         // Transformer ends of power transformers
         // Tap changers of power transformers
-        String id = identifiable.getAliasFromType(aliasType)
-                .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
-        return getCgmesId(identifiable, id, "_" + aliasType + "_" + "UUID");
+        String id;
+        Identifiable<?> realIdentifiable = identifiable;
+        if (identifiable instanceof DanglingLine) {
+            DanglingLine dl = (DanglingLine) identifiable;
+            id = identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+            if (dl.isMerged()) {
+                realIdentifiable = dl.getTieLine().orElseThrow(IllegalStateException::new);
+            }
+        } else {
+            id = identifiable.getAliasFromType(aliasType)
+                    .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+        }
+        return getCgmesId(realIdentifiable, id, "_" + aliasType + "_" + "UUID");
     }
 
     @Override

@@ -118,13 +118,13 @@ public class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
     @Test
     public void testTieLine() throws IOException {
         Network network = NetworkXml.read(getVersionedNetworkAsStream("tieline.xml", CURRENT_IIDM_XML_VERSION));
-        TieLine tl = (TieLine) network.getLine("NHV1_NHV2_1");
-        createLoadingLimits(tl::newActivePowerLimits1);
-        createLoadingLimits(tl::newActivePowerLimits2);
-        createLoadingLimits(tl::newApparentPowerLimits1);
-        createLoadingLimits(tl::newApparentPowerLimits2);
-        createLoadingLimits(tl::newCurrentLimits1);
-        createLoadingLimits(tl::newCurrentLimits2);
+        TieLine tl = network.getTieLine("NHV1_NHV2_1");
+        createLoadingLimits(tl.getHalf1()::newActivePowerLimits);
+        createLoadingLimits(tl.getHalf2()::newActivePowerLimits);
+        createLoadingLimits(tl.getHalf1()::newApparentPowerLimits);
+        createLoadingLimits(tl.getHalf2()::newApparentPowerLimits);
+        createLoadingLimits(tl.getHalf1()::newCurrentLimits);
+        createLoadingLimits(tl.getHalf2()::newCurrentLimits);
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,

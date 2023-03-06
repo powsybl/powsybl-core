@@ -540,18 +540,18 @@ public class CgmesConformity1ModifiedConversionTest {
 
     private static void compareMerges(String tieLineId, ReadOnlyDataSource dsAssembled, ReadOnlyDataSource ds1, ReadOnlyDataSource ds2) {
         Network networkAssembled = Network.read(dsAssembled);
-        Line lineAssembled = networkAssembled.getLine(tieLineId);
+        TieLine lineAssembled = networkAssembled.getTieLine(tieLineId);
 
         Network n1 = Network.read(ds1);
         Network n2 = Network.read(ds2);
         Network networkMergingView = MergingView.create("1+2", "CGMES");
         networkMergingView.merge(n1, n2);
-        Line lineMergingView = networkMergingView.getLine(tieLineId);
+        TieLine lineMergingView = networkMergingView.getTieLine(tieLineId);
 
         Network networkMerged = Network.read(ds1);
         Network n2bis = Network.read(ds2);
         networkMerged.merge(n2bis);
-        Line lineMerged = networkMergingView.getLine(tieLineId);
+        TieLine lineMerged = networkMergingView.getTieLine(tieLineId);
 
         final double tolerance = 1e-10;
 
@@ -579,7 +579,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        Line m = network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        TieLine m = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
 
         assertEquals(1.02, m.getR(), tolerance);
         assertEquals(12.0, m.getX(), tolerance);
@@ -598,7 +598,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledTransformerAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        Line m = network.getLine("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13");
+        TieLine m = network.getTieLine("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13");
 
         assertEquals(4.848348287766889, m.getR(), tolerance);
         assertEquals(80.20069732770635, m.getX(), tolerance);
@@ -615,7 +615,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledThreeLinesAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        Line line = network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        TieLine line = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
         assertNotNull(line);
     }
 
@@ -628,7 +628,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEquivalentBranchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        Line m = network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        TieLine m = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
         assertEquals(2.02, m.getR(), tolerance);
         assertEquals(22.0, m.getX(), tolerance);
         assertEquals(0.0, m.getG1(), tolerance);

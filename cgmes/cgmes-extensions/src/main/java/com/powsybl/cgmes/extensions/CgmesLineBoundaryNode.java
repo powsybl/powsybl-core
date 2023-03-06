@@ -7,14 +7,14 @@
 package com.powsybl.cgmes.extensions;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.TieLine;
 
 import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface CgmesLineBoundaryNode extends Extension<Line> {
+public interface CgmesLineBoundaryNode extends Extension<TieLine> {
 
     String NAME = "cgmesLineBoundaryNode";
 

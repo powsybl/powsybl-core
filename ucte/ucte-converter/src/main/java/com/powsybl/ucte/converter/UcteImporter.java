@@ -1073,10 +1073,10 @@ public class UcteImporter implements Importer {
         TieLine mergeLine = adder.add();
         properties.forEach(mergeLine::setProperty);
         if (!Double.isNaN(permanentLimit1)) {
-            mergeLine.newCurrentLimits1().setPermanentLimit(permanentLimit1).add();
+            mergeLine.getHalf1().newCurrentLimits().setPermanentLimit(permanentLimit1).add();
         }
         if (!Double.isNaN(permanentLimit2)) {
-            mergeLine.newCurrentLimits2().setPermanentLimit(permanentLimit2).add();
+            mergeLine.getHalf2().newCurrentLimits().setPermanentLimit(permanentLimit2).add();
         }
 
         mergeLine.newExtension(MergedXnodeAdder.class)

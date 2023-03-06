@@ -39,7 +39,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         return index != null ? index.toString() : "";
     }
 
-    protected static boolean hasValidOperationalLimits(Branch<?> branch, NetworkXmlWriterContext context) {
+    static boolean hasValidOperationalLimits(Branch<?> branch, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0) {
             return !branch.getOperationalLimits1().isEmpty() || !branch.getOperationalLimits2().isEmpty();
         }
@@ -53,7 +53,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         return limitsHolder.getCurrentLimits().isPresent();
     }
 
-    protected static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
+    static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
         switch (topologyLevel) {
             case NODE_BREAKER:
@@ -155,7 +155,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         adder.setVoltageLevel(voltageLevelId);
     }
 
-    protected static void writePQ(Integer index, Terminal t, XMLStreamWriter writer) throws XMLStreamException {
+    static void writePQ(Integer index, Terminal t, XMLStreamWriter writer) throws XMLStreamException {
         XmlUtil.writeOptionalDouble("p" + indexToString(index), t.getP(), Double.NaN, writer);
         XmlUtil.writeOptionalDouble("q" + indexToString(index), t.getQ(), Double.NaN, writer);
     }

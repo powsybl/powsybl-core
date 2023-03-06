@@ -726,8 +726,18 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
+    public Iterable<TieLine> getTieLines() {
+        return index.getTieLines();
+    }
+
+    @Override
     public Stream<Line> getLineStream() {
         return index.getLineStream();
+    }
+
+    @Override
+    public Stream<TieLine> getTieLineStream() {
+        return index.getTieLineStream();
     }
 
     @Override
@@ -736,8 +746,18 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
+    public int getTieLineCount() {
+        return index.getTieLineCount();
+    }
+
+    @Override
     public Line getLine(final String id) {
-        return Optional.ofNullable(index.getMergedLine(id)).orElse(index.get(n -> n.getLine(id), index::getLine));
+        return index.get(n -> n.getLine(id), index::getLine);
+    }
+
+    @Override
+    public TieLine getTieLine(String id) {
+        return Optional.ofNullable(index.getMergedLine(id)).orElse(index.get(n -> n.getTieLine(id), index::getTieLine));
     }
 
     // DanglingLines
@@ -758,8 +778,7 @@ public final class MergingView implements Network, MultiVariantObject {
 
     @Override
     public DanglingLine getDanglingLine(final String id) {
-        final DanglingLine dl = index.get(n -> n.getDanglingLine(id), index::getDanglingLine);
-        return dl == null || index.isMerged(dl) ? null : dl;
+        return index.get(n -> n.getDanglingLine(id), index::getDanglingLine);
     }
 
     // HvdcLines

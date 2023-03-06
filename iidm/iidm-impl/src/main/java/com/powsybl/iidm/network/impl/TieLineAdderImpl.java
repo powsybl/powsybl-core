@@ -235,8 +235,8 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious());
         terminal1.setNum(1);
         terminal2.setNum(2);
-        line.addTerminal(terminal1);
-        line.addTerminal(terminal2);
+        half1.addTerminal(terminal1);
+        half2.addTerminal(terminal2);
         voltageLevel1.attach(terminal1, false);
         voltageLevel2.attach(terminal2, false);
         line.attachDanglingLines(half1, half2);

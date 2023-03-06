@@ -624,6 +624,11 @@ public interface Network extends Container<Network> {
     Iterable<Line> getLines();
 
     /**
+     * Get all tie lines.
+     */
+    Iterable<TieLine> getTieLines();
+
+    /**
      * Get a branch
      * @param branchId the id of the branch
      */
@@ -650,9 +655,19 @@ public interface Network extends Container<Network> {
     Stream<Line> getLineStream();
 
     /**
+     * Get all tie lines.
+     */
+    Stream<TieLine> getTieLineStream();
+
+    /**
      * Get the AC line count.
      */
     int getLineCount();
+
+    /**
+     * Get the tie line count.
+     */
+    int getTieLineCount();
 
     /**
      * Get a AC line.
@@ -660,6 +675,13 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the AC line
      */
     Line getLine(String id);
+
+    /**
+     * Get a tie line.
+     *
+     * @param id the id or an alias of the AC line
+     */
+    TieLine getTieLine(String id);
 
     /**
      * Get a builder to create a new AC tie line.
@@ -1206,6 +1228,8 @@ public interface Network extends Container<Network> {
                 return (Stream<I>) getDanglingLineStream();
             case LINE:
                 return (Stream<I>) getLineStream();
+            case TIE_LINE:
+                return (Stream<I>) getTieLineStream();
             case LOAD:
                 return (Stream<I>) getLoadStream();
             case BATTERY:

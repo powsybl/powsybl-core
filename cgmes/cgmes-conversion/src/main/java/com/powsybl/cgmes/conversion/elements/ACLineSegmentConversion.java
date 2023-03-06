@@ -74,7 +74,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
 
     public static void convertBoundaryLines(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
 
-        Line mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
+        TieLine mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
 
         mline.addAlias(boundaryLine1.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
         mline.addAlias(boundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1");
@@ -83,14 +83,13 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         mline.addAlias(boundaryLine2.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2");
         mline.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2", boundaryLine2.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
 
-        context.convertedTerminal(boundaryLine1.getModelTerminalId(), mline.getTerminal1(), 1, boundaryLine1.getModelPowerFlow());
-        context.convertedTerminal(boundaryLine2.getModelTerminalId(), mline.getTerminal2(), 2, boundaryLine2.getModelPowerFlow());
+        context.convertedTerminal(boundaryLine1.getModelTerminalId(), mline.getHalf1().getTerminal(), 1, boundaryLine1.getModelPowerFlow());
+        context.convertedTerminal(boundaryLine2.getModelTerminalId(), mline.getHalf2().getTerminal(), 2, boundaryLine2.getModelPowerFlow());
 
-        TieLine tl = (TieLine) mline;
-        context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), tl.getHalf1().getBoundary(), 2);
-        context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), tl.getHalf2().getBoundary(), 1);
+        context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), mline.getHalf1().getBoundary(), 2);
+        context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), mline.getHalf2().getBoundary(), 1);
 
-        context.namingStrategy().readIdMapping(tl, "TieLine"); // TODO: maybe this should be refined for merged line
+        context.namingStrategy().readIdMapping(mline, "TieLine"); // TODO: maybe this should be refined for merged line
     }
 
     private void convertLine() {
@@ -118,7 +117,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
 
     // Before creating the TieLine the initial branches are reoriented if it is necessary,
     // then the setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
-    private static Line createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
+    private static TieLine createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
         TieLineAdder adder = context.network().newTieLine()
                 .setVoltageLevel1(boundaryLine1.getModelIidmVoltageLevelId())
                 .setVoltageLevel2(boundaryLine2.getModelIidmVoltageLevelId());

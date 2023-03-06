@@ -39,7 +39,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
         if (getIndex().isMerged(this)) {
             return Optional.of(getIndex().getMergedLineByCode(getUcteXnodeCode()));
         }
-        return getDelegate().getTieLine().map(tl -> (TieLine) getIndex().getLine(tl));
+        return getDelegate().getTieLine().map(tl -> getIndex().getTieLine(tl));
     }
 
     @Override

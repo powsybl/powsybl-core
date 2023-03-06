@@ -6,13 +6,14 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.TieLine;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class TieLineAdapter extends LineAdapter implements TieLine {
+public class TieLineAdapter extends AbstractIdentifiableAdapter<TieLine> implements TieLine {
 
     private final DanglingLine half1;
     private final DanglingLine half2;
@@ -23,12 +24,17 @@ public class TieLineAdapter extends LineAdapter implements TieLine {
         this.half2 = index.getDanglingLine(delegate.getHalf2());
     }
 
+    @Override
+    public final void remove() {
+        throw MergingView.createNotImplementedException();
+    }
+
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
     @Override
     public String getUcteXnodeCode() {
-        return ((TieLine) getDelegate()).getUcteXnodeCode();
+        return (getDelegate()).getUcteXnodeCode();
     }
 
     @Override
@@ -42,7 +48,7 @@ public class TieLineAdapter extends LineAdapter implements TieLine {
     }
 
     @Override
-    public DanglingLine getHalf(Side side) {
+    public DanglingLine getHalf(Branch.Side side) {
         switch (side) {
             case ONE:
                 return half1;
@@ -51,5 +57,47 @@ public class TieLineAdapter extends LineAdapter implements TieLine {
             default:
                 throw new AssertionError("Unexpected side: " + side);
         }
+    }
+
+    @Override
+    public DanglingLine getHalf(String voltageLevelId) {
+
+        if (half1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return half1;
+        }
+        if (half2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return half2;
+        }
+        return null;
+    }
+
+    @Override
+    public double getR() {
+        return getDelegate().getR();
+    }
+
+    @Override
+    public double getX() {
+        return getDelegate().getX();
+    }
+
+    @Override
+    public double getG1() {
+        return getDelegate().getG1();
+    }
+
+    @Override
+    public double getG2() {
+        return getDelegate().getG2();
+    }
+
+    @Override
+    public double getB1() {
+        return getDelegate().getB1();
+    }
+
+    @Override
+    public double getB2() {
+        return getDelegate().getB2();
     }
 }

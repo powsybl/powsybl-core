@@ -170,20 +170,16 @@ public class BusAdapterTest {
         // Check that methods returning lines and dangling lines return adapters (wrapped objects)
         Bus mergedBusA = mergingView.getBusBreakerView().getBus("busA");
 
-        assertTrue(mergedBusA.getLineStream().allMatch(l -> l instanceof LineAdapter || l instanceof MergedLine));
+        assertTrue(mergedBusA.getLineStream().allMatch(l -> l instanceof LineAdapter));
         assertTrue(mergedBusA.getDanglingLineStream().allMatch(dl -> dl instanceof DanglingLineAdapter));
 
         // Check that merged dangling lines are not present anymore and that merged line exist
-        assertTrue(mergedBusA.getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
-        assertTrue(StreamSupport.stream(mergedBusA.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
-        assertFalse(mergedBusA.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
-        assertFalse(StreamSupport.stream(mergedBusA.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertFalse(mergedBusA.getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertFalse(StreamSupport.stream(mergedBusA.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
 
         Bus mergedBusC = mergingView.getBusBreakerView().getBus("busC");
-        assertTrue(mergedBusC.getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
-        assertTrue(StreamSupport.stream(mergedBusC.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
-        assertFalse(mergedBusC.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
-        assertFalse(StreamSupport.stream(mergedBusC.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertFalse(mergedBusC.getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(StreamSupport.stream(mergedBusC.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
     }
 
     @Test
@@ -233,12 +229,12 @@ public class BusAdapterTest {
         // Visit
         busA.visitConnectedEquipments(visitor2);
         // Check MergedLine is visited
-        Mockito.verify(visitor2, Mockito.times(1)).visitLine(Mockito.any(Line.class), Mockito.any(Branch.Side.class));
+        Mockito.verify(visitor2, Mockito.times(1)).visitDanglingLine(Mockito.any(DanglingLine.class));
         busA.visitConnectedOrConnectableEquipments(visitor2);
         // Check MergedLine is visited
-        Mockito.verify(visitor2, Mockito.times(2)).visitLine(Mockito.any(Line.class), Mockito.any(Branch.Side.class));
+        Mockito.verify(visitor2, Mockito.times(2)).visitDanglingLine(Mockito.any(DanglingLine.class));
         // Check no DanglingLine is visited
-        Mockito.verify(visitor2, Mockito.never()).visitDanglingLine(dl1);
+        Mockito.verify(visitor2, Mockito.times(2)).visitDanglingLine(dl1);
         Mockito.verify(visitor2, Mockito.never()).visitDanglingLine(dl2);
     }
 

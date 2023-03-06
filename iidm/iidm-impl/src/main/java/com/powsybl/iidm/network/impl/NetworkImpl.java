@@ -290,7 +290,12 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Iterable<Line> getLines() {
-        return Iterables.concat(index.getAll(LineImpl.class), index.getAll(TieLineImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(LineImpl.class));
+    }
+
+    @Override
+    public Iterable<TieLine> getTieLines() {
+        return Collections.unmodifiableCollection(index.getAll(TieLineImpl.class));
     }
 
     @Override
@@ -320,21 +325,32 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Stream<Line> getLineStream() {
-        return Stream.concat(index.getAll(LineImpl.class).stream(), index.getAll(TieLineImpl.class).stream());
+        return index.getAll(LineImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public Stream<TieLine> getTieLineStream() {
+        return index.getAll(TieLineImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getLineCount() {
-        return index.getAll(LineImpl.class).size() + index.getAll(TieLineImpl.class).size();
+        return index.getAll(LineImpl.class).size();
+    }
+
+    @Override
+    public int getTieLineCount() {
+        return index.getAll(TieLineImpl.class).size();
     }
 
     @Override
     public Line getLine(String id) {
-        Line line = index.get(id, LineImpl.class);
-        if (line == null) {
-            line = index.get(id, TieLineImpl.class);
-        }
-        return line;
+        return index.get(id, LineImpl.class);
+    }
+
+    @Override
+    public TieLine getTieLine(String id) {
+        return index.get(id, TieLineImpl.class);
     }
 
     @Override
@@ -1030,10 +1046,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                 la.setNode2(mergedLine.node2);
             }
             TieLineImpl l = la.add();
-            l.getLimitsHolder1().setOperationalLimits(LimitType.CURRENT, mergedLine.limits1);
-            l.getLimitsHolder2().setOperationalLimits(LimitType.CURRENT, mergedLine.limits2);
-            l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
-            l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
+            l.getHalf1().getLimitsHolder().setOperationalLimits(LimitType.CURRENT, mergedLine.limits1);
+            l.getHalf2().getLimitsHolder().setOperationalLimits(LimitType.CURRENT, mergedLine.limits2);
+            l.getHalf1().getTerminal().setP(mergedLine.p1).setQ(mergedLine.q1);
+            l.getHalf2().getTerminal().setP(mergedLine.p2).setQ(mergedLine.q2);
             mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
             mergedLine.aliases.forEach(l::addAlias);
 

@@ -103,6 +103,11 @@ abstract class AbstractComponentsManager<C extends Component> {
             Bus bus2 = line.getTerminal2().getBusView().getBus();
             addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
         }
+        for (TieLine tl : getNetwork().getTieLines()) {
+            Bus bus1 = tl.getHalf1().getTerminal().getBusView().getBus();
+            Bus bus2 = tl.getHalf2().getTerminal().getBusView().getBus();
+            addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
+        }
         for (TwoWindingsTransformer transfo : getNetwork().getTwoWindingsTransformers()) {
             Bus bus1 = transfo.getTerminal1().getBusView().getBus();
             Bus bus2 = transfo.getTerminal2().getBusView().getBus();

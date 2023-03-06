@@ -7,8 +7,8 @@
 
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.junit.Test;
 
@@ -28,9 +28,9 @@ public class TopologyTest {
         assertNotNull(n1);
         assertNotNull(n2);
 
-        Line mergedLine = cgm.getLine("DL1 + DL2");
+        TieLine mergedLine = cgm.getTieLine("DL1 + DL2");
         assertNotNull(mergedLine);
-        assertNotNull(mergedLine.getTerminal1().getBusView().getBus());
+        assertNotNull(mergedLine.getHalf1().getTerminal().getBusView().getBus());
         // FIXME(mathbagu) assertNotNull(mergedLine.getTerminal2().getBusView().getBus());
 
         final String idVL1 = "VL1";

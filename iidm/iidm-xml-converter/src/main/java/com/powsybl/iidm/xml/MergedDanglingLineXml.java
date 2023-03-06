@@ -44,8 +44,8 @@ public final class MergedDanglingLineXml extends AbstractIdentifiableXml<Danglin
         adder.setFictitious(fictitious);
         double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
         double q = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");
-        subElements.add(dl -> dl.getParentTerminal().ifPresent(t -> t.setP(p)));
-        subElements.add(dl -> dl.getParentTerminal().ifPresent(t -> t.setQ(q)));
+        subElements.add(dl -> dl.getTerminal().setP(p));
+        subElements.add(dl -> dl.getTerminal().setQ(q));
         readElement(id, adder, context);
 
         readUntilEndRootElement(context.getReader(), () -> {
@@ -80,7 +80,7 @@ public final class MergedDanglingLineXml extends AbstractIdentifiableXml<Danglin
 
     @Override
     protected void writeRootElementAttributes(DanglingLine identifiable, TieLine parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        DanglingLineXml.writeRootElementAttributesInternal(identifiable, () -> identifiable.getParentTerminal().orElseThrow(IllegalStateException::new), context);
+        DanglingLineXml.writeRootElementAttributesInternal(identifiable, identifiable::getTerminal, context);
     }
 
     @Override

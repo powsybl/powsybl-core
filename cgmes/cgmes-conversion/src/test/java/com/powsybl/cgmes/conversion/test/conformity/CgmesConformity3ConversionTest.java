@@ -13,7 +13,6 @@ import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.mergingview.MergingView;
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import org.junit.Test;
@@ -42,7 +41,7 @@ public class CgmesConformity3ConversionTest {
         be.merge(nl);
         int nSub = be.getSubstationCount();
         assertEquals(nSubBE + nSubNL, nSub);
-        long nTl = be.getLineStream().filter(l -> l instanceof TieLine).count();
+        long nTl = be.getTieLineCount();
         // All dangling lines must have been converted to tie lines
         assertEquals(nDlBE, nTl);
 
@@ -59,18 +58,15 @@ public class CgmesConformity3ConversionTest {
         byte[] xml = export(network, context);
 
         // For all tie lines we have exported the power flows with the right terminal identifiers
-        for (Line l : network.getLines()) {
-            if (l instanceof TieLine) {
-                TieLine tieLine = (TieLine) l;
-                String terminal1 = tieLine.getAliasFromType("CGMES.Terminal1").orElseThrow();
-                String terminal2 = tieLine.getAliasFromType("CGMES.Terminal2").orElseThrow();
-                assertEquals(tieLine.getProperty("CGMES.Terminal_1"), terminal1);
-                assertEquals(tieLine.getProperty("CGMES.Terminal_2"), terminal2);
-                String terminal1Resource = "#_" + terminal1;
-                String terminal2Resource = "#_" + terminal2;
-                assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
-                assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
-            }
+        for (TieLine tieLine : network.getTieLines()) {
+            String terminal1 = tieLine.getAliasFromType("CGMES.Terminal1").orElseThrow();
+            String terminal2 = tieLine.getAliasFromType("CGMES.Terminal2").orElseThrow();
+            assertEquals(tieLine.getProperty("CGMES.Terminal_1"), terminal1);
+            assertEquals(tieLine.getProperty("CGMES.Terminal_2"), terminal2);
+            String terminal1Resource = "#_" + terminal1;
+            String terminal2Resource = "#_" + terminal2;
+            assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
+            assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
         }
     }
 
@@ -122,20 +118,17 @@ public class CgmesConformity3ConversionTest {
 
         int nSub = n.getSubstationCount();
         assertEquals(nSubBE + nSubNL, nSub);
-        long nTl = n.getLineStream().filter(l -> l instanceof TieLine).count();
+        long nTl = n.getTieLineCount();
         // All dangling lines must have been converted to tie lines
         assertEquals(nDlBE, nTl);
-        for (Line l : n.getLines()) {
-            if (l instanceof TieLine) {
-                TieLine tl = (TieLine) l;
-                // The half1 and half1.boundary.dl must be the same object
-                // Both should correspond to objects at my level of merging
-                assertEquals(tl.getHalf1(), tl.getHalf1().getBoundary().getDanglingLine());
-                assertEquals(tl.getHalf2(), tl.getHalf2().getBoundary().getDanglingLine());
-            }
+        for (TieLine tl : n.getTieLines()) {
+            // The half1 and half1.boundary.dl must be the same object
+            // Both should correspond to objects at my level of merging
+            assertEquals(tl.getHalf1(), tl.getHalf1().getBoundary().getDanglingLine());
+            assertEquals(tl.getHalf2(), tl.getHalf2().getBoundary().getDanglingLine());
         }
         // No dangling lines should be seen in the merging view
         // Even if dangling line adapters have been added to the cached identifiables in the merging index
-        assertEquals(0, n.getDanglingLineCount());
+        assertEquals(10, n.getDanglingLineCount());
     }
 }

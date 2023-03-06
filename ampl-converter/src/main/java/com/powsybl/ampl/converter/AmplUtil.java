@@ -83,6 +83,9 @@ public final class AmplUtil {
         // Lines
         fillLines(mapper, network);
 
+        // Tie lines
+        fillTieLines(mapper, network);
+
         // Two windings transformers
         fillTwoWindingsTransformers(mapper, network);
 
@@ -119,17 +122,24 @@ public final class AmplUtil {
     private static void fillLines(StringToIntMapper<AmplSubset> mapper, Network network) {
         for (Line l : network.getLines()) {
             mapper.newInt(AmplSubset.BRANCH, l.getId());
-            if (l.isTieLine()) {
-                TieLine tl = (TieLine) l;
-                mapper.newInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tl));
-                mapper.newInt(AmplSubset.BUS, AmplUtil.getXnodeBusId(tl));
-                mapper.newInt(AmplSubset.BRANCH, tl.getHalf1().getId());
-                mapper.newInt(AmplSubset.BRANCH, tl.getHalf2().getId());
-            }
 
             // limits
             l.getCurrentLimits1().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, l.getId(), "_1_"));
             l.getCurrentLimits2().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, l.getId(), "_2_"));
+        }
+    }
+
+    public static void fillTieLines(StringToIntMapper<AmplSubset> mapper, Network network) {
+        for (TieLine tl : network.getTieLines()) {
+            mapper.newInt(AmplSubset.BRANCH, tl.getId());
+            mapper.newInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tl));
+            mapper.newInt(AmplSubset.BUS, AmplUtil.getXnodeBusId(tl));
+            mapper.newInt(AmplSubset.BRANCH, tl.getHalf1().getId());
+            mapper.newInt(AmplSubset.BRANCH, tl.getHalf2().getId());
+
+            // limits
+            tl.getHalf1().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_1_"));
+            tl.getHalf2().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_2_"));
         }
     }
 

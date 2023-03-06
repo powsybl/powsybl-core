@@ -30,7 +30,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
             return danglingLineData.getBoundaryBusU();
         }
 
-        Terminal t = getTerminal();
+        Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
         return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideU(parent, true);
     }
@@ -41,7 +41,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
         }
-        Terminal t = getTerminal();
+        Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
         return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideA(parent, true);
     }
@@ -51,7 +51,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         if (!parent.isMerged() && valid(parent.getP0(), parent.getQ0())) {
             return -parent.getP0();
         }
-        Terminal t = getTerminal();
+        Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
         return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideP(parent, true);
     }
@@ -61,7 +61,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         if (!parent.isMerged() && valid(parent.getP0(), parent.getQ0())) {
             return -parent.getQ0();
         }
-        Terminal t = getTerminal();
+        Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
         return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideQ(parent, true);
     }
@@ -69,7 +69,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
     // return a valid equipment of the network (DanglingLines inside a TieLine are not in the model)
     @Override
     public Connectable getConnectable() {
-        return parent.getTieLine().map(Connectable.class::cast).orElse(parent);
+        return parent;
     }
 
     @Override
@@ -79,7 +79,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public VoltageLevel getNetworkSideVoltageLevel() {
-        return getTerminal().getVoltageLevel();
+        return parent.getTerminal().getVoltageLevel();
     }
 
     private static double getV(Bus b) {
@@ -92,9 +92,5 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     private static boolean valid(double p0, double q0) {
         return !Double.isNaN(p0) && !Double.isNaN(q0);
-    }
-
-    private Terminal getTerminal() {
-        return parent.getTieLine().map(tl -> tl.getTerminal(tl.getHalf1() == parent ? Branch.Side.ONE : Branch.Side.TWO)).orElseGet(parent::getTerminal);
     }
 }

@@ -167,6 +167,14 @@ public class UcteExporter implements Exporter {
         for (Line line : network.getLines()) {
             convertLine(ucteNetwork, line, context);
         }
+        for (TieLine tl : network.getTieLines()) {
+            MergedXnode mergedXnode = tl.getExtension(MergedXnode.class);
+            if (mergedXnode != null) {
+                convertTieLine(ucteNetwork, mergedXnode, context);
+            } else {
+                convertTieLine(ucteNetwork, tl, context);
+            }
+        }
         for (TwoWindingsTransformer transformer : network.getTwoWindingsTransformers()) {
             convertTwoWindingsTransformer(ucteNetwork, transformer, context);
         }
@@ -354,9 +362,9 @@ public class UcteExporter implements Exporter {
      */
     private static void convertXNode(UcteNetwork ucteNetwork, MergedXnode mergedXnode, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(mergedXnode.getCode());
-        String geographicalName = mergedXnode.getExtendable().getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
+        String geographicalName = ((Identifiable<?>) mergedXnode.getExtendable()).getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
 
-        UcteNodeStatus xnodeStatus = getXnodeStatus(mergedXnode.getExtendable());
+        UcteNodeStatus xnodeStatus = getXnodeStatus((Identifiable<?>) mergedXnode.getExtendable());
         convertXNode(ucteNetwork, xnodeCode, geographicalName, xnodeStatus);
     }
 
@@ -440,11 +448,6 @@ public class UcteExporter implements Exporter {
      * @param context The context used to store temporary data during the conversion
      */
     private static void convertLine(UcteNetwork ucteNetwork, Line line, UcteExporterContext context) {
-        if (line.isTieLine()) {
-            convertTieLine(ucteNetwork, line, context);
-            return;
-        }
-
         LOGGER.trace("Converting line {}", line.getId());
 
         UcteElementId lineId = context.getNamingStrategy().getUcteElementId(line);
@@ -463,24 +466,6 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Convert a tie line to two {@link UcteLine} connected by a Xnode. In IIDM, tie lines might be instance of {@link TieLine} or have {@link MergedXnode} extension.
-     *
-     * @param ucteNetwork The target UcteNetwork
-     * @param line The tie line to dispatch
-     * @param context The context used to store temporary data during the conversion
-     */
-    private static void convertTieLine(UcteNetwork ucteNetwork, Line line, UcteExporterContext context) {
-        MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
-        if (mergedXnode != null) {
-            convertTieLine(ucteNetwork, mergedXnode, context);
-        } else if (line instanceof TieLine) {
-            convertTieLine(ucteNetwork, (TieLine) line, context);
-        } else {
-            throw new AssertionError("Unexpected TieLine type: " + line.getClass());
-        }
-    }
-
-    /**
      * Convert a {@link MergedXnode} to two {@link UcteLine} connected by a Xnode. Add the two {@link UcteLine} and the {@link UcteNode} to the network.
      *
      * @param ucteNetwork The target UcteNetwork
@@ -488,7 +473,7 @@ public class UcteExporter implements Exporter {
      * @param context The context used to store temporary data during the conversion
      */
     private static void convertTieLine(UcteNetwork ucteNetwork, MergedXnode mergedXnode, UcteExporterContext context) {
-        Line line = mergedXnode.getExtendable();
+        TieLine line = (TieLine) mergedXnode.getExtendable();
 
         LOGGER.trace("Converting TieLine {}", line.getId());
 
@@ -498,28 +483,28 @@ public class UcteExporter implements Exporter {
         // Create half line 1
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(mergedXnode.getLine1Name());
         String elementName1 = line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
-        UcteElementStatus status1 = line instanceof TieLine ? getStatusHalf((TieLine) line, Branch.Side.ONE) : getStatus(line, Branch.Side.ONE);
+        UcteElementStatus status1 = line instanceof TieLine ? getStatusHalf(line, Branch.Side.ONE) : getStatus(line, Branch.Side.ONE);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status1,
                 line.getR() * mergedXnode.getRdp(),
                 line.getX() * mergedXnode.getXdp(),
                 line.getB1(),
-                line.getCurrentLimits1().map(l -> (int) l.getPermanentLimit()).orElse(null),
+                line.getHalf1().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
 
         // Create half line2
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(mergedXnode.getLine2Name());
         String elementName2 = line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
-        UcteElementStatus status2 = line instanceof TieLine ? getStatusHalf((TieLine) line, Branch.Side.TWO) : getStatus(line, Branch.Side.TWO);
+        UcteElementStatus status2 = line instanceof TieLine ? getStatusHalf(line, Branch.Side.TWO) : getStatus(line, Branch.Side.TWO);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status2,
                 line.getR() * (1.0d - mergedXnode.getRdp()),
                 line.getX() * (1.0d - mergedXnode.getXdp()),
                 line.getB2(),
-                line.getCurrentLimits2().map(l -> (int) l.getPermanentLimit()).orElse(null),
+                line.getHalf2().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
     }
@@ -548,7 +533,7 @@ public class UcteExporter implements Exporter {
                 half1.getR(),
                 half1.getX(),
                 half1.getB(),
-                tieLine.getCurrentLimits1().map(l -> (int) l.getPermanentLimit()).orElse(null),
+                tieLine.getHalf1().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
 
@@ -563,7 +548,7 @@ public class UcteExporter implements Exporter {
                 half2.getR(),
                 half2.getX(),
                 half2.getB(),
-                tieLine.getCurrentLimits2().map(l -> (int) l.getPermanentLimit()).orElse(null),
+                tieLine.getHalf2().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
     }
@@ -638,31 +623,52 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static UcteElementStatus getStatus(Branch<?> branch, Branch.Side side) {
-        if (branch.isFictitious()) {
-            if (branch.getTerminal(side).isConnected()) {
-                return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
+    private static UcteElementStatus getStatus(Identifiable<?> identifiable, Branch.Side side) {
+        if (identifiable instanceof Branch) {
+            Branch<?> branch = (Branch<?>) identifiable;
+            if (branch.isFictitious()) {
+                if (branch.getTerminal(side).isConnected()) {
+                    return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
+                } else {
+                    return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
+                }
             } else {
-                return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
-            }
-        } else {
-            if (branch.getTerminal(side).isConnected()) {
-                return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
-            } else {
-                return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
+                if (branch.getTerminal(side).isConnected()) {
+                    return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
+                } else {
+                    return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
+                }
             }
         }
+        if (identifiable instanceof TieLine) {
+            TieLine branch = (TieLine) identifiable;
+            if (branch.isFictitious()) {
+                if (branch.getHalf(side).getTerminal().isConnected()) {
+                    return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
+                } else {
+                    return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
+                }
+            } else {
+                if (branch.getHalf(side).getTerminal().isConnected()) {
+                    return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
+                } else {
+                    return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
+                }
+            }
+
+        }
+        throw new IllegalStateException();
     }
 
     private static UcteElementStatus getStatusHalf(TieLine tieLine, Branch.Side side) {
         if (tieLine.getHalf(side).isFictitious()) {
-            if (tieLine.getTerminal(side).isConnected()) {
+            if (tieLine.getHalf(side).getTerminal().isConnected()) {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
             }
         } else {
-            if (tieLine.getTerminal(side).isConnected()) {
+            if (tieLine.getHalf(side).getTerminal().isConnected()) {
                 return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;

@@ -586,8 +586,7 @@ public abstract class AbstractLineTest {
                 .setG(hl2g1 + hl2g2)
                 .add();
         TieLine tieLine = adder.add();
-        assertTrue(tieLine.isTieLine());
-        assertEquals(IdentifiableType.LINE, tieLine.getType());
+        assertEquals(IdentifiableType.TIE_LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
         assertEquals("hl1", tieLine.getHalf1().getId());
         assertEquals(HALF1_NAME, tieLine.getHalf1().getOptionalName().orElse(null));
@@ -598,49 +597,6 @@ public abstract class AbstractLineTest {
         assertEquals(0.02649999999, tieLine.getG2(), tol);
         assertEquals(0.08499999999, tieLine.getB1(), tol);
         assertEquals(0.0285, tieLine.getB2(), tol);
-
-        // invalid set line characteristics on tieLine
-        try {
-            tieLine.setR(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
-        try {
-            tieLine.setX(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
-        try {
-            tieLine.setB1(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
-        try {
-            tieLine.setB2(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
-        try {
-            tieLine.setG1(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
-        try {
-            tieLine.setG2(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
 
         DanglingLine half1 = tieLine.getHalf1();
 
@@ -688,8 +644,8 @@ public abstract class AbstractLineTest {
         double v2 = 380.0;
         double angle1 = -1e-4;
         double angle2 = -1.7e-3;
-        tieLine.getTerminal1().setP(p1).setQ(q1).getBusView().getBus().setV(v1).setAngle(angle1);
-        tieLine.getTerminal2().setP(p2).setQ(q2).getBusView().getBus().setV(v2).setAngle(angle2);
+        tieLine.getHalf1().getTerminal().setP(p1).setQ(q1).getBusView().getBus().setV(v1).setAngle(angle1);
+        tieLine.getHalf2().getTerminal().setP(p2).setQ(q2).getBusView().getBus().setV(v2).setAngle(angle2);
 
         // test boundaries values
         SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE);
@@ -809,14 +765,13 @@ public abstract class AbstractLineTest {
     public void testRemove() {
         createTieLineWithHalfline2ByDefault(TO_REMOVE, TO_REMOVE, "id1", 1.0, 2.0,
                 6.5, 8.5, TO_REMOVE);
-        Line line = network.getLine(TO_REMOVE);
+        TieLine line = network.getTieLine(TO_REMOVE);
         assertNotNull(line);
-        assertTrue(line.isTieLine());
-        int count = network.getLineCount();
+        int count = network.getTieLineCount();
         line.remove();
         assertNull(network.getLine(TO_REMOVE));
         assertNotNull(line);
-        assertEquals(count - 1L, network.getLineCount());
+        assertEquals(count - 1L, network.getTieLineCount());
     }
 
     private Line createLineBetweenVoltageAB(String id, String name, double r, double x,

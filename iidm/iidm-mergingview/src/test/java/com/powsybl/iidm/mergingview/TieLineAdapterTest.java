@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.*;
 
 /**
@@ -28,20 +27,19 @@ public class TieLineAdapterTest {
 
     @Test
     public void testSetterGetter() {
-        final TieLine tieLine = (TieLineAdapter) network.getLine("l1 + l2");
-        assertTrue(tieLine.isTieLine());
+        final TieLine tieLine = network.getTieLine("l1 + l2");
 
         assertEquals("XNODE", tieLine.getUcteXnodeCode());
         assertNotNull(tieLine.getHalf1());
         assertNotNull(tieLine.getHalf2());
 
         assertSame(tieLine.getHalf1(), tieLine.getHalf1().getBoundary().getDanglingLine());
-        assertSame(tieLine, tieLine.getHalf1().getBoundary().getConnectable());
-        assertSame(tieLine.getTerminal1().getVoltageLevel(), tieLine.getHalf1().getBoundary().getNetworkSideVoltageLevel());
+        assertSame(tieLine.getHalf1(), tieLine.getHalf1().getBoundary().getConnectable());
+        assertSame(tieLine.getHalf1().getTerminal().getVoltageLevel(), tieLine.getHalf1().getBoundary().getNetworkSideVoltageLevel());
 
         assertSame(tieLine.getHalf2(), tieLine.getHalf2().getBoundary().getDanglingLine());
-        assertSame(tieLine, tieLine.getHalf2().getBoundary().getConnectable());
-        assertSame(tieLine.getTerminal2().getVoltageLevel(), tieLine.getHalf2().getBoundary().getNetworkSideVoltageLevel());
+        assertSame(tieLine.getHalf2(), tieLine.getHalf2().getBoundary().getConnectable());
+        assertSame(tieLine.getHalf2().getTerminal().getVoltageLevel(), tieLine.getHalf2().getBoundary().getNetworkSideVoltageLevel());
 
         checkHalfLine(tieLine.getHalf1());
         checkHalfLine(tieLine.getHalf2());

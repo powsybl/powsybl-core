@@ -243,16 +243,16 @@ public final class EurostagTutorialExample1Factory {
                     .setUcteXnodeCode("XNODE2")
                     .add()
                 .add();
-        network.getLine("NHV1_NHV2_1").getTerminal1()
+        network.getTieLine("NHV1_NHV2_1").getHalf1().getTerminal()
                 .setP(302.4440612792969)
                 .setQ(98.74027252197266);
-        network.getLine("NHV1_NHV2_1").getTerminal2()
+        network.getTieLine("NHV1_NHV2_1").getHalf2().getTerminal()
                 .setP(-300.43389892578125)
                 .setQ(-137.18849182128906);
-        network.getLine("NHV1_NHV2_2").getTerminal1()
+        network.getTieLine("NHV1_NHV2_2").getHalf1().getTerminal()
                 .setP(302.4440612792969)
                 .setQ(98.74027252197266);
-        network.getLine("NHV1_NHV2_2").getTerminal2()
+        network.getTieLine("NHV1_NHV2_2").getHalf2().getTerminal()
                 .setP(-300.43389892578125)
                 .setQ(-137.188491821289060);
 

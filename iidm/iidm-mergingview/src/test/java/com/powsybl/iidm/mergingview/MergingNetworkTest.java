@@ -22,6 +22,7 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -297,23 +298,25 @@ public class MergingNetworkTest {
         assertEquals(2, mergingView.getConnectableCount(Generator.class));
 
         // Lines
-        assertEquals(Arrays.asList("NHV1_NHV2_2", "DL1 + DL2"), mergingView.getConnectableStream(Line.class).map(Line::getId).collect(Collectors.toList()));
+        assertEquals(List.of("NHV1_NHV2_2"), mergingView.getConnectableStream(Line.class).map(Line::getId).collect(Collectors.toList()));
+        assertEquals(List.of("DL1 + DL2"), mergingView.getIdentifiableStream(IdentifiableType.TIE_LINE).map(Identifiable::getId).collect(Collectors.toList()));
         assertEquals(Iterables.toArray(mergingView.getConnectables(Line.class), Line.class),
                 mergingView.getConnectableStream(Line.class).toArray());
-        assertEquals(2, mergingView.getConnectableCount(Line.class));
+        assertEquals(1, mergingView.getConnectableCount(Line.class));
+        assertEquals(1, mergingView.getTieLineCount());
 
         // DanglingLines
-        assertEquals(Collections.singletonList("DL"), mergingView.getConnectableStream(DanglingLine.class).map(DanglingLine::getId).collect(Collectors.toList()));
+        assertEquals(Collections.singletonList("DL"), mergingView.getConnectableStream(DanglingLine.class).filter(dl -> !dl.isMerged()).map(DanglingLine::getId).collect(Collectors.toList()));
         assertEquals(Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class),
                 mergingView.getConnectableStream(DanglingLine.class).toArray());
-        assertEquals(1, mergingView.getConnectableCount(DanglingLine.class));
+        assertEquals(3, mergingView.getConnectableCount(DanglingLine.class));
 
         // Connectables
-        assertEquals(Arrays.asList("LOAD", "NHV1_NHV2_2", "NGEN_NHV1", "DL1 + DL2", "NHV2_NLOAD", "GEN", "G", "DL"),
+        assertEquals(Arrays.asList("LOAD", "NHV1_NHV2_2", "NGEN_NHV1", "DL1", "NHV2_NLOAD", "GEN", "G", "DL", "DL2"),
                 mergingView.getConnectableStream().map(Connectable::getId).collect(Collectors.toList()));
         assertEquals(Iterables.toArray(mergingView.getConnectables(), Connectable.class),
                 mergingView.getConnectableStream().toArray());
-        assertEquals(8, mergingView.getConnectableCount());
+        assertEquals(9, mergingView.getConnectableCount());
     }
 
     @Test
