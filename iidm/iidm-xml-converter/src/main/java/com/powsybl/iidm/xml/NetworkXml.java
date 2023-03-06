@@ -250,7 +250,7 @@ public final class NetworkXml {
 
     private static void writeMainAttributes(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getWriter();
-        writer.writeAttribute(ID, n.getId());
+        writer.writeAttribute(ID, context.getAnonymizer().anonymizeString(n.getId()));
         writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
         writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
         writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
