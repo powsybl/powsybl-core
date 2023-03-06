@@ -271,11 +271,11 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private void fakeObjectsFromIdentifiers(String propertyNameId, String[] ids, PropertyBags objects) {
         String[] propertyNames = {propertyNameId};
         for (String id : ids) {
-            PropertyBag p = new PropertyBag(Arrays.asList(propertyNames));
+            PropertyBag p = new PropertyBag(Arrays.asList(propertyNames), true);
             p.put(propertyNameId, id);
             objects.add(p);
         }
-        PropertyBag p = new PropertyBag(Arrays.asList("Type", "numObjects"));
+        PropertyBag p = new PropertyBag(Arrays.asList("Type", "numObjects"), true);
         p.put("Type", propertyNameId);
         p.put("numObjects", "" + ids.length);
         numObjectsByType.add(p);
