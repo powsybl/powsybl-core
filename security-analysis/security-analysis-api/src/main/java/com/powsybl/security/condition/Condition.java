@@ -6,6 +6,8 @@
  */
 package com.powsybl.security.condition;
 
+import com.powsybl.security.LimitViolationType;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -17,12 +19,7 @@ import java.util.List;
 public interface Condition {
     String getType();
 
-    default List<ConditionFilter> getFilters() {
+    default List<LimitViolationType> getFilters() {
         return Collections.emptyList();
-    }
-
-    enum ConditionFilter {
-        VOLTAGE,
-        CURRENT,
     }
 }

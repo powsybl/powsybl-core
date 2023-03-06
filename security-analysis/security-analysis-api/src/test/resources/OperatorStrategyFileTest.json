@@ -31,7 +31,7 @@
     "contingencyId" : "contingencyId3",
     "condition" : {
       "type" : "ANY_VIOLATION_CONDITION",
-      "filters" : [ "VOLTAGE" ]
+      "filters" : [ "LOW_VOLTAGE" ]
     },
     "actionIds" : [ "actionId1", "actionId2", "actionId4" ]
   }, {
@@ -40,7 +40,7 @@
     "contingencyId" : "contingencyId4",
     "condition" : {
       "type" : "ALL_VIOLATION",
-      "filters" : [ "VOLTAGE" ],
+      "filters" : [ "HIGH_VOLTAGE" ],
       "violationIds" : [ "violation1", "violation2" ]
     },
     "actionIds" : [ "actionId1", "actionId5" ]

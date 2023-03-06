@@ -7,6 +7,7 @@
 package com.powsybl.security.condition;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.security.LimitViolationType;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,13 +24,13 @@ public class AtLeastOneViolationCondition implements Condition {
     public static final String NAME = "AT_LEAST_ONE_VIOLATION";
 
     private final List<String> violationIds;
-    private final List<ConditionFilter> conditionFilters;
+    private final List<LimitViolationType> conditionFilters;
 
     public AtLeastOneViolationCondition(List<String> violationIds) {
         this(violationIds, Collections.emptyList());
     }
 
-    public AtLeastOneViolationCondition(List<String> violationIds, List<ConditionFilter> conditionFilters) {
+    public AtLeastOneViolationCondition(List<String> violationIds, List<LimitViolationType> conditionFilters) {
         this.violationIds = ImmutableList.copyOf(Objects.requireNonNull(violationIds));
         this.conditionFilters = ImmutableList.copyOf(Objects.requireNonNull(conditionFilters));
     }
@@ -44,7 +45,7 @@ public class AtLeastOneViolationCondition implements Condition {
     }
 
     @Override
-    public List<ConditionFilter> getFilters() {
+    public List<LimitViolationType> getFilters() {
         return conditionFilters;
     }
 }

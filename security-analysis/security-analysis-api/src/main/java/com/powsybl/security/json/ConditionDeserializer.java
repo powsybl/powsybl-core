@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.condition.*;
 
 import java.io.IOException;
@@ -19,7 +20,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
     private static class ParsingContext {
         String type;
         List<String> violationIds;
-        List<Condition.ConditionFilter> conditionFilters = Collections.emptyList();
+        List<LimitViolationType> conditionFilters = Collections.emptyList();
     }
 
     public ConditionDeserializer() {
@@ -40,7 +41,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                     return true;
                 case "filters":
                     parser.nextToken();
-                    context.conditionFilters = JsonUtil.readList(deserializationContext, parser, Condition.ConditionFilter.class);
+                    context.conditionFilters = JsonUtil.readList(deserializationContext, parser, LimitViolationType.class);
                     return true;
                 default:
                     return false;

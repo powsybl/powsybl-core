@@ -21,7 +21,6 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
 import com.powsybl.security.condition.AllViolationCondition;
 import com.powsybl.security.condition.AnyViolationCondition;
-import com.powsybl.security.condition.Condition;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
@@ -34,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.powsybl.security.LimitViolationType.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -98,14 +98,14 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         operatorStrategies.add(new OperatorStrategy("id2", ContingencyContext.specificContingency("contingencyId2"),
                 new AnyViolationCondition(), List.of("actionId4")));
         operatorStrategies.add(new OperatorStrategy("id3", ContingencyContext.specificContingency("contingencyId1"),
-                new AnyViolationCondition(Collections.singletonList(Condition.ConditionFilter.CURRENT)),
+                new AnyViolationCondition(Collections.singletonList(CURRENT)),
                 Arrays.asList("actionId1", "actionId3")));
         operatorStrategies.add(new OperatorStrategy("id4", ContingencyContext.specificContingency("contingencyId3"),
-                new AnyViolationCondition(Collections.singletonList(Condition.ConditionFilter.VOLTAGE)),
+                new AnyViolationCondition(Collections.singletonList(LOW_VOLTAGE)),
                 Arrays.asList("actionId1", "actionId2", "actionId4")));
         operatorStrategies.add(new OperatorStrategy("id5", ContingencyContext.specificContingency("contingencyId4"),
                 new AllViolationCondition(Arrays.asList("violation1", "violation2"),
-                        Collections.singletonList(Condition.ConditionFilter.VOLTAGE)),
+                        Collections.singletonList(HIGH_VOLTAGE)),
                 Arrays.asList("actionId1", "actionId5")));
         operatorStrategies.add(new OperatorStrategy("id6", ContingencyContext.specificContingency("contingencyId5"),
                 new AllViolationCondition(Arrays.asList("violation1", "violation2")),
