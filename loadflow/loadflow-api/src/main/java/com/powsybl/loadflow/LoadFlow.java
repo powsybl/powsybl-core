@@ -145,6 +145,10 @@ public final class LoadFlow {
         return find().runAsync(network);
     }
 
+    public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, Reporter reporter) {
+        return find().run(network, workingStateId, computationManager, parameters, reporter);
+    }
+
     public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
         return find().run(network, workingStateId, computationManager, parameters);
     }
