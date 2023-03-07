@@ -9,7 +9,7 @@ package com.powsybl.security.condition;
 import com.powsybl.security.LimitViolationType;
 
 import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 /**
  * describes when an action is taken
@@ -19,7 +19,7 @@ import java.util.List;
 public interface Condition {
     String getType();
 
-    default List<LimitViolationType> getFilters() {
-        return Collections.emptyList();
+    default Set<LimitViolationType> getFilters() {
+        return Collections.emptySet();
     }
 }
