@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2023, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    SPDX-License-Identifier: MPL-2.0
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:t3f="http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_fortescue/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_fortescue/1_0"
+           elementFormDefault="qualified">
+    <xs:complexType name="LegFortescue">
+        <xs:attribute name="r0" type="xs:double"/>
+        <xs:attribute name="x0" type="xs:double"/>
+        <xs:attribute name="freeFluxes" use="required" type="xs:boolean"/>
+        <xs:attribute name="connectionType" use="required" type="xs:string"/>
+        <xs:attribute name="groundingR" type="xs:double"/>
+        <xs:attribute name="groundingX" type="xs:double"/>
+    </xs:complexType>
+    <xs:element name="threeWindingsTransformerFortescue">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="leg1" type="t3f:LegFortescue" />
+                <xs:element name="leg2" type="t3f:LegFortescue" />
+                <xs:element name="leg3" type="t3f:LegFortescue" />
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

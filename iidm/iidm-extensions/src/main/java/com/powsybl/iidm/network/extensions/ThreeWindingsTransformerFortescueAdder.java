@@ -15,39 +15,32 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
  */
 public interface ThreeWindingsTransformerFortescueAdder extends ExtensionAdder<ThreeWindingsTransformer, ThreeWindingsTransformerFortescue> {
 
-    ThreeWindingsTransformerFortescueAdder withLeg1R0(double leg1R0);
+    interface LegFortescueAdder {
 
-    ThreeWindingsTransformerFortescueAdder withLeg2R0(double leg2R0);
+        LegFortescueAdder withR0(double r0);
 
-    ThreeWindingsTransformerFortescueAdder withLeg3R0(double leg3R0);
+        LegFortescueAdder withX0(double x0);
 
-    ThreeWindingsTransformerFortescueAdder withLeg1X0(double leg1X0);
+        LegFortescueAdder withFreeFluxes(boolean freeFluxes);
 
-    ThreeWindingsTransformerFortescueAdder withLeg2X0(double leg2X0);
+        LegFortescueAdder withConnectionType(WindingConnectionType connectionType);
 
-    ThreeWindingsTransformerFortescueAdder withLeg3X0(double leg3X0);
+        LegFortescueAdder withGroundingR(double groundingR);
 
-    ThreeWindingsTransformerFortescueAdder withLeg1FreeFluxes(boolean leg1FreeFluxes);
+        LegFortescueAdder withGroundingX(double groundingX);
 
-    ThreeWindingsTransformerFortescueAdder withLeg2FreeFluxes(boolean leg2FreeFluxes);
+        LegFortescueAdder leg1();
 
-    ThreeWindingsTransformerFortescueAdder withLeg3FreeFluxes(boolean leg3FreeFluxes);
+        LegFortescueAdder leg2();
 
-    ThreeWindingsTransformerFortescueAdder withLeg1ConnectionType(WindingConnectionType leg1ConnectionType);
+        LegFortescueAdder leg3();
 
-    ThreeWindingsTransformerFortescueAdder withLeg2ConnectionType(WindingConnectionType leg2ConnectionType);
+        ThreeWindingsTransformerFortescue add();
+    }
 
-    ThreeWindingsTransformerFortescueAdder withLeg3ConnectionType(WindingConnectionType leg3ConnectionType);
+    LegFortescueAdder leg1();
 
-    ThreeWindingsTransformerFortescueAdder withLeg1GroundingR(double leg1GroundingR);
+    LegFortescueAdder leg2();
 
-    ThreeWindingsTransformerFortescueAdder withLeg1GroundingX(double leg1GroundingX);
-
-    ThreeWindingsTransformerFortescueAdder withLeg2GroundingR(double leg2GroundingR);
-
-    ThreeWindingsTransformerFortescueAdder withLeg2GroundingX(double leg2GroundingX);
-
-    ThreeWindingsTransformerFortescueAdder withLeg3GroundingR(double leg3GroundingR);
-
-    ThreeWindingsTransformerFortescueAdder withLeg3GroundingX(double leg3GroundingX);
+    LegFortescueAdder leg3();
 }

@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -118,5 +119,66 @@ public abstract class AbstractFortescueExtensionTest {
         assertEquals(0.33d, fortescue.getGroundingX1());
         assertEquals(0.045d, fortescue.getGroundingR2());
         assertEquals(0.0001d, fortescue.getGroundingX2());
+    }
+
+    @Test
+    void testThreeWindingsTransformer() {
+        var network = ThreeWindingsTransformerNetworkFactory.create();
+        var twt = network.getThreeWindingsTransformer("3WT");
+        ThreeWindingsTransformerFortescue fortescue = twt.newExtension(ThreeWindingsTransformerFortescueAdder.class)
+                .leg1()
+                    .withR0(0.1d)
+                    .withX0(2d)
+                    .withFreeFluxes(true)
+                    .withConnectionType(WindingConnectionType.Y_GROUNDED)
+                    .withGroundingR(0.02d)
+                    .withGroundingX(0.3d)
+                .leg2()
+                    .withR0(0.2d)
+                    .withX0(2.1d)
+                    .withFreeFluxes(false)
+                    .withConnectionType(WindingConnectionType.Y)
+                    .withGroundingR(0.12d)
+                    .withGroundingX(0.4d)
+                .leg3()
+                    .withR0(0.3d)
+                    .withX0(2.2d)
+                    .withFreeFluxes(true)
+                    .withConnectionType(WindingConnectionType.DELTA)
+                    .withGroundingR(0.22d)
+                    .withGroundingX(0.5d)
+                .add();
+        assertEquals(0.1d, fortescue.getLeg1().getR0());
+        assertEquals(2d, fortescue.getLeg1().getX0());
+        assertTrue(fortescue.getLeg1().isFreeFluxes());
+        assertSame(WindingConnectionType.Y_GROUNDED, fortescue.getLeg1().getConnectionType());
+        assertEquals(0.02d, fortescue.getLeg1().getGroundingR());
+        assertEquals(0.3d, fortescue.getLeg1().getGroundingX());
+        assertEquals(0.2d, fortescue.getLeg2().getR0());
+        assertEquals(2.1d, fortescue.getLeg2().getX0());
+        assertFalse(fortescue.getLeg2().isFreeFluxes());
+        assertSame(WindingConnectionType.Y, fortescue.getLeg2().getConnectionType());
+        assertEquals(0.12d, fortescue.getLeg2().getGroundingR());
+        assertEquals(0.4d, fortescue.getLeg2().getGroundingX());
+        assertEquals(0.3d, fortescue.getLeg3().getR0());
+        assertEquals(2.2d, fortescue.getLeg3().getX0());
+        assertTrue(fortescue.getLeg3().isFreeFluxes());
+        assertSame(WindingConnectionType.DELTA, fortescue.getLeg3().getConnectionType());
+        assertEquals(0.22d, fortescue.getLeg3().getGroundingR());
+        assertEquals(0.5d, fortescue.getLeg3().getGroundingX());
+
+        fortescue.getLeg1().setR0(1.1d);
+        fortescue.getLeg1().setX0(3d);
+        fortescue.getLeg1().setFreeFluxes(false);
+        fortescue.getLeg1().setConnectionType(WindingConnectionType.DELTA);
+        fortescue.getLeg1().setGroundingR(1.2d);
+        fortescue.getLeg1().setGroundingX(3.1d);
+
+        assertEquals(1.1d, fortescue.getLeg1().getR0());
+        assertEquals(3d, fortescue.getLeg1().getX0());
+        assertFalse(fortescue.getLeg1().isFreeFluxes());
+        assertSame(WindingConnectionType.DELTA, fortescue.getLeg1().getConnectionType());
+        assertEquals(1.2d, fortescue.getLeg1().getGroundingR());
+        assertEquals(3.1d, fortescue.getLeg1().getGroundingX());
     }
 }

@@ -22,24 +22,75 @@ import static com.powsybl.iidm.network.extensions.FortescueConstants.*;
  */
 public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensionAdder<ThreeWindingsTransformer, ThreeWindingsTransformerFortescue> implements ThreeWindingsTransformerFortescueAdder {
 
-    private double leg1R0 = Double.NaN;
-    private double leg2R0 = Double.NaN;
-    private double leg3R0 = Double.NaN;
-    private double leg1X0 = Double.NaN;
-    private double leg2X0 = Double.NaN;
-    private double leg3X0 = Double.NaN;
-    private boolean leg1FreeFluxes = DEFAULT_FREE_FLUXES;
-    private boolean leg2FreeFluxes = DEFAULT_FREE_FLUXES;
-    private boolean leg3FreeFluxes = DEFAULT_FREE_FLUXES;
-    private WindingConnectionType leg1ConnectionType = DEFAULT_LEG1_CONNECTION_TYPE;
-    private WindingConnectionType leg2ConnectionType = DEFAULT_LEG2_CONNECTION_TYPE;
-    private WindingConnectionType leg3ConnectionType = DEFAULT_LEG3_CONNECTION_TYPE;
-    private double leg1GroundingR = DEFAULT_GROUNDING_R;
-    private double leg1GroundingX = DEFAULT_GROUNDING_X;
-    private double leg2GroundingR = DEFAULT_GROUNDING_R;
-    private double leg2GroundingX = DEFAULT_GROUNDING_X;
-    private double leg3GroundingR = DEFAULT_GROUNDING_R;
-    private double leg3GroundingX = DEFAULT_GROUNDING_X;
+    private final LegFortescueAdderImpl legAdder1 = new LegFortescueAdderImpl();
+    private final LegFortescueAdderImpl legAdder2 = new LegFortescueAdderImpl();
+    private final LegFortescueAdderImpl legAdder3 = new LegFortescueAdderImpl();
+
+    private class LegFortescueAdderImpl implements LegFortescueAdder {
+
+        private double r0 = Double.NaN;
+        private double x0 = Double.NaN;
+        private boolean freeFluxes = DEFAULT_FREE_FLUXES;
+        private WindingConnectionType connectionType = DEFAULT_LEG1_CONNECTION_TYPE;
+        private double groundingR = DEFAULT_GROUNDING_R;
+        private double groundingX = DEFAULT_GROUNDING_X;
+
+        @Override
+        public LegFortescueAdder withR0(double r0) {
+            this.r0 = r0;
+            return this;
+        }
+
+        @Override
+        public LegFortescueAdder withX0(double x0) {
+            this.x0 = x0;
+            return this;
+        }
+
+        @Override
+        public LegFortescueAdder withFreeFluxes(boolean freeFluxes) {
+            this.freeFluxes = freeFluxes;
+            return this;
+        }
+
+        @Override
+        public LegFortescueAdder withConnectionType(WindingConnectionType connectionType) {
+            this.connectionType = Objects.requireNonNull(connectionType);
+            return this;
+        }
+
+        @Override
+        public LegFortescueAdder withGroundingR(double groundingR) {
+            this.groundingR = groundingR;
+            return this;
+        }
+
+        @Override
+        public LegFortescueAdder withGroundingX(double groundingX) {
+            this.groundingX = groundingX;
+            return this;
+        }
+
+        @Override
+        public LegFortescueAdder leg1() {
+            return legAdder1;
+        }
+
+        @Override
+        public LegFortescueAdder leg2() {
+            return legAdder2;
+        }
+
+        @Override
+        public LegFortescueAdder leg3() {
+            return legAdder3;
+        }
+
+        @Override
+        public ThreeWindingsTransformerFortescue add() {
+            return ThreeWindingsTransformerFortescueAdderImpl.this.add();
+        }
+    }
 
     public ThreeWindingsTransformerFortescueAdderImpl(ThreeWindingsTransformer twt) {
         super(twt);
@@ -52,117 +103,24 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
 
     @Override
     protected ThreeWindingsTransformerFortescueImpl createExtension(ThreeWindingsTransformer twt) {
-        var leg1 = new ThreeWindingsTransformerFortescue.LegFortescue(leg1R0, leg1X0, leg1FreeFluxes, leg1ConnectionType, leg1GroundingR, leg1GroundingX);
-        var leg2 = new ThreeWindingsTransformerFortescue.LegFortescue(leg2R0, leg2X0, leg2FreeFluxes, leg2ConnectionType, leg2GroundingR, leg2GroundingX);
-        var leg3 = new ThreeWindingsTransformerFortescue.LegFortescue(leg3R0, leg3X0, leg3FreeFluxes, leg3ConnectionType, leg3GroundingR, leg3GroundingX);
+        var leg1 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder1.r0, legAdder1.x0, legAdder1.freeFluxes, legAdder1.connectionType, legAdder1.groundingR, legAdder1.groundingX);
+        var leg2 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder2.r0, legAdder2.x0, legAdder2.freeFluxes, legAdder2.connectionType, legAdder2.groundingR, legAdder2.groundingX);
+        var leg3 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder3.r0, legAdder3.x0, legAdder3.freeFluxes, legAdder3.connectionType, legAdder3.groundingR, legAdder3.groundingX);
         return new ThreeWindingsTransformerFortescueImpl(twt, leg1, leg2, leg3);
     }
 
     @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg1R0(double leg1R0) {
-        this.leg1R0 = leg1R0;
-        return this;
+    public LegFortescueAdder leg1() {
+        return legAdder1;
     }
 
     @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg2R0(double leg2R0) {
-        this.leg2R0 = leg2R0;
-        return this;
+    public LegFortescueAdder leg2() {
+        return legAdder2;
     }
 
     @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg3R0(double leg3R0) {
-        this.leg3R0 = leg3R0;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg1X0(double leg1X0) {
-        this.leg1X0 = leg1X0;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg2X0(double leg2X0) {
-        this.leg2X0 = leg2X0;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg3X0(double leg3X0) {
-        this.leg3X0 = leg3X0;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg1FreeFluxes(boolean leg1FreeFluxes) {
-        this.leg1FreeFluxes = leg1FreeFluxes;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg2FreeFluxes(boolean leg2FreeFluxes) {
-        this.leg2FreeFluxes = leg2FreeFluxes;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg3FreeFluxes(boolean leg3FreeFluxes) {
-        this.leg3FreeFluxes = leg3FreeFluxes;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg1ConnectionType(WindingConnectionType leg1ConnectionType) {
-        this.leg1ConnectionType = Objects.requireNonNull(leg1ConnectionType);
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg2ConnectionType(WindingConnectionType leg2ConnectionType) {
-        this.leg2ConnectionType = Objects.requireNonNull(leg2ConnectionType);
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg3ConnectionType(WindingConnectionType leg3ConnectionType) {
-        this.leg3ConnectionType = Objects.requireNonNull(leg3ConnectionType);
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg1GroundingR(double leg1GroundingR) {
-        this.leg1GroundingR = leg1GroundingR;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg1GroundingX(double leg1GroundingX) {
-        this.leg1GroundingX = leg1GroundingX;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg2GroundingR(double leg2GroundingR) {
-        this.leg2GroundingR = leg2GroundingR;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg2GroundingX(double leg2GroundingX) {
-        this.leg2GroundingX = leg2GroundingX;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg3GroundingR(double leg3GroundingR) {
-        this.leg3GroundingR = leg3GroundingR;
-        return this;
-    }
-
-    @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg3GroundingX(double leg3GroundingX) {
-        this.leg3GroundingX = leg3GroundingX;
-        return this;
+    public LegFortescueAdder leg3() {
+        return legAdder3;
     }
 }
