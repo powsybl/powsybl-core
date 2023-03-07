@@ -15,17 +15,17 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
  */
 public interface ThreeWindingsTransformerFortescueAdder extends ExtensionAdder<ThreeWindingsTransformer, ThreeWindingsTransformerFortescue> {
 
-    ThreeWindingsTransformerFortescueAdder withLeg1Ro(double leg1Ro);
+    ThreeWindingsTransformerFortescueAdder withLeg1R0(double leg1R0);
 
-    ThreeWindingsTransformerFortescueAdder withLeg2Ro(double leg2Ro);
+    ThreeWindingsTransformerFortescueAdder withLeg2R0(double leg2R0);
 
-    ThreeWindingsTransformerFortescueAdder withLeg3Ro(double leg3Ro);
+    ThreeWindingsTransformerFortescueAdder withLeg3R0(double leg3R0);
 
-    ThreeWindingsTransformerFortescueAdder withLeg1Xo(double leg1Xo);
+    ThreeWindingsTransformerFortescueAdder withLeg1X0(double leg1X0);
 
-    ThreeWindingsTransformerFortescueAdder withLeg2Xo(double leg2Xo);
+    ThreeWindingsTransformerFortescueAdder withLeg2X0(double leg2X0);
 
-    ThreeWindingsTransformerFortescueAdder withLeg3Xo(double leg3Xo);
+    ThreeWindingsTransformerFortescueAdder withLeg3X0(double leg3X0);
 
     ThreeWindingsTransformerFortescueAdder withLeg1FreeFluxes(boolean leg1FreeFluxes);
 

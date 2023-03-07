@@ -22,11 +22,11 @@ public interface LineFortescue extends Extension<Line> {
         return NAME;
     }
 
-    double getRo();
+    double getR0();
 
-    void setRo(double ro);
+    void setR0(double r0);
 
-    double getXo();
+    double getX0();
 
-    void setXo(double xo);
+    void setX0(double x0);
 }

@@ -17,13 +17,13 @@ public interface GeneratorFortescueAdder extends ExtensionAdder<Generator, Gener
 
     GeneratorFortescueAdder withGrounded(boolean grounded);
 
-    GeneratorFortescueAdder withRo(double ro);
+    GeneratorFortescueAdder withR0(double r0);
 
-    GeneratorFortescueAdder withXo(double xo);
+    GeneratorFortescueAdder withX0(double x0);
 
-    GeneratorFortescueAdder withRi(double ri);
+    GeneratorFortescueAdder withR2(double r2);
 
-    GeneratorFortescueAdder withXi(double xi);
+    GeneratorFortescueAdder withX2(double x2);
 
     GeneratorFortescueAdder withGroundingR(double groundingR);
 

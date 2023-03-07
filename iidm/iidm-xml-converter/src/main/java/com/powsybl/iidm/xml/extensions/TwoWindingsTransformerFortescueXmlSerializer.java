@@ -33,8 +33,8 @@ public class TwoWindingsTransformerFortescueXmlSerializer extends AbstractExtens
 
     @Override
     public void write(TwoWindingsTransformerFortescue twtFortescue, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeOptionalDouble("ro", twtFortescue.getRo(), Double.NaN, context.getWriter());
-        XmlUtil.writeOptionalDouble("xo", twtFortescue.getXo(), Double.NaN, context.getWriter());
+        XmlUtil.writeOptionalDouble("r0", twtFortescue.getR0(), Double.NaN, context.getWriter());
+        XmlUtil.writeOptionalDouble("x0", twtFortescue.getX0(), Double.NaN, context.getWriter());
         context.getWriter().writeAttribute("freeFluxes", Boolean.toString(twtFortescue.isFreeFluxes()));
         context.getWriter().writeAttribute("connectionType1", twtFortescue.getConnectionType1().name());
         context.getWriter().writeAttribute("connectionType2", twtFortescue.getConnectionType2().name());
@@ -46,9 +46,8 @@ public class TwoWindingsTransformerFortescueXmlSerializer extends AbstractExtens
 
     @Override
     public TwoWindingsTransformerFortescue read(TwoWindingsTransformer twt, XmlReaderContext context) throws XMLStreamException {
-        boolean partOfGeneratingUnit = XmlUtil.readBoolAttribute(context.getReader(), "partOfGeneratingUnit");
-        double ro = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ro");
-        double xo = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xo");
+        double r0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r0");
+        double x0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x0");
         boolean freeFluxes = XmlUtil.readBoolAttribute(context.getReader(), "freeFluxes");
         WindingConnectionType connectionType1 = WindingConnectionType.valueOf(context.getReader().getAttributeValue(null, "connectionType1"));
         WindingConnectionType connectionType2 = WindingConnectionType.valueOf(context.getReader().getAttributeValue(null, "connectionType2"));
@@ -57,8 +56,8 @@ public class TwoWindingsTransformerFortescueXmlSerializer extends AbstractExtens
         double groundingR2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingR2", 0);
         double groundingX2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingX2", 0);
         return twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
-                .withRo(ro)
-                .withXo(xo)
+                .withR0(r0)
+                .withX0(x0)
                 .withFreeFluxes(freeFluxes)
                 .withConnectionType1(connectionType1)
                 .withConnectionType2(connectionType2)

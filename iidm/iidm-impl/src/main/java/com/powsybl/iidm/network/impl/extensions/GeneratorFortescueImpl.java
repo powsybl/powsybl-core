@@ -17,20 +17,20 @@ import com.powsybl.iidm.network.extensions.GeneratorFortescue;
 public class GeneratorFortescueImpl extends AbstractExtension<Generator> implements GeneratorFortescue {
 
     private boolean grounded;
-    private double ro;
-    private double xo;
-    private double ri;
-    private double xi;
+    private double r0;
+    private double x0;
+    private double r2;
+    private double x2;
     private double groundingR;
     private double groundingX;
 
-    public GeneratorFortescueImpl(Generator generator, boolean grounded, double ro, double xo, double ri, double xi, double groundingR, double groundingX) {
+    public GeneratorFortescueImpl(Generator generator, boolean grounded, double r0, double x0, double r2, double x2, double groundingR, double groundingX) {
         super(generator);
         this.grounded = grounded;
-        this.ro = ro;
-        this.xo = xo;
-        this.ri = ri;
-        this.xi = xi;
+        this.r0 = r0;
+        this.x0 = x0;
+        this.r2 = r2;
+        this.x2 = x2;
         this.groundingR = groundingR;
         this.groundingX = groundingX;
     }
@@ -66,42 +66,42 @@ public class GeneratorFortescueImpl extends AbstractExtension<Generator> impleme
     }
 
     @Override
-    public double getRo() {
-        return ro;
+    public double getR0() {
+        return r0;
     }
 
     @Override
-    public void setRo(double ro) {
-        this.ro = ro;
+    public void setR0(double r0) {
+        this.r0 = r0;
     }
 
     @Override
-    public double getXo() {
-        return xo;
+    public double getX0() {
+        return x0;
     }
 
     @Override
-    public void setXo(double xo) {
-        this.xo = xo;
+    public void setX0(double x0) {
+        this.x0 = x0;
     }
 
     @Override
-    public double getRi() {
-        return ri;
+    public double getR2() {
+        return r2;
     }
 
     @Override
-    public void setRi(double ri) {
-        this.ri = ri;
+    public void setR2(double r2) {
+        this.r2 = r2;
     }
 
     @Override
-    public double getXi() {
-        return xi;
+    public double getX2() {
+        return x2;
     }
 
     @Override
-    public void setXi(double xi) {
-        this.xi = xi;
+    public void setX2(double x2) {
+        this.x2 = x2;
     }
 }

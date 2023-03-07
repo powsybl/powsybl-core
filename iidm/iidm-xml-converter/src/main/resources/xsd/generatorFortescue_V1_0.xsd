@@ -14,10 +14,10 @@
            elementFormDefault="qualified">
     <xs:element name="generatorFortescue">
         <xs:complexType>
-            <xs:attribute name="ro" type="xs:double"/>
-            <xs:attribute name="xo" type="xs:double"/>
-            <xs:attribute name="ri" type="xs:double"/>
-            <xs:attribute name="xi" type="xs:double"/>
+            <xs:attribute name="r0" type="xs:double"/>
+            <xs:attribute name="x0" type="xs:double"/>
+            <xs:attribute name="r2" type="xs:double"/>
+            <xs:attribute name="x2" type="xs:double"/>
             <xs:attribute name="grounded" use="required" type="xs:boolean"/>
             <xs:attribute name="groundingR" type="xs:double"/>
             <xs:attribute name="groundingX" type="xs:double"/>

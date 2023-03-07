@@ -21,17 +21,17 @@ public interface ThreeWindingsTransformerFortescue extends Extension<ThreeWindin
 
     class LegFortescue {
 
-        private double ro;
-        private double xo;
+        private double r0;
+        private double x0;
         private boolean freeFluxes;
         private WindingConnectionType connectionType;
         private double groundingR;
         private double groundingX;
 
-        public LegFortescue(double ro, double xo, boolean freeFluxes, WindingConnectionType connectionType,
+        public LegFortescue(double r0, double x0, boolean freeFluxes, WindingConnectionType connectionType,
                             double groundingR, double groundingX) {
-            this.ro = ro;
-            this.xo = xo;
+            this.r0 = r0;
+            this.x0 = x0;
             this.freeFluxes = freeFluxes;
             this.connectionType = Objects.requireNonNull(connectionType);
             this.groundingR = groundingR;
@@ -46,20 +46,20 @@ public interface ThreeWindingsTransformerFortescue extends Extension<ThreeWindin
             this.freeFluxes = freeFluxes;
         }
 
-        public double getRo() {
-            return ro;
+        public double getR0() {
+            return r0;
         }
 
-        public void setRo(double ro) {
-            this.ro = ro;
+        public void setR0(double r0) {
+            this.r0 = r0;
         }
 
-        public double getXo() {
-            return xo;
+        public double getX0() {
+            return x0;
         }
 
-        public void setXo(double xo) {
-            this.xo = xo;
+        public void setX0(double x0) {
+            this.x0 = x0;
         }
 
         public WindingConnectionType getConnectionType() {

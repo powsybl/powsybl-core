@@ -34,19 +34,19 @@ public interface GeneratorFortescue extends Extension<Generator> {
 
     void setGroundingX(double groundingX);
 
-    double getRo();
+    double getR0();
 
-    void setRo(double ro);
+    void setR0(double r0);
 
-    double getXo();
+    double getX0();
 
-    void setXo(double xo);
+    void setX0(double x0);
 
-    double getRi();
+    double getR2();
 
-    void setRi(double ri);
+    void setR2(double r2);
 
-    double getXi();
+    double getX2();
 
-    void setXi(double xi);
+    void setX2(double x2);
 }

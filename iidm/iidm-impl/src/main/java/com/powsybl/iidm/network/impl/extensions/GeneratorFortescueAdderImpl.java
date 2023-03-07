@@ -20,10 +20,10 @@ import static com.powsybl.iidm.network.extensions.FortescueConstants.*;
 public class GeneratorFortescueAdderImpl extends AbstractExtensionAdder<Generator, GeneratorFortescue> implements GeneratorFortescueAdder {
 
     private boolean grounded = DEFAULT_TO_GROUND;
-    private double ro = Double.NaN;
-    private double xo = Double.NaN;
-    private double ri = Double.NaN;
-    private double xi = Double.NaN;
+    private double r0 = Double.NaN;
+    private double x0 = Double.NaN;
+    private double r2 = Double.NaN;
+    private double x2 = Double.NaN;
     private double groundingR = DEFAULT_GROUNDING_R;
     private double groundingX = DEFAULT_GROUNDING_X;
 
@@ -38,7 +38,7 @@ public class GeneratorFortescueAdderImpl extends AbstractExtensionAdder<Generato
 
     @Override
     protected GeneratorFortescue createExtension(Generator generator) {
-        return new GeneratorFortescueImpl(generator, grounded, ro, xo, ri, xi, groundingR, groundingX);
+        return new GeneratorFortescueImpl(generator, grounded, r0, x0, r2, x2, groundingR, groundingX);
     }
 
     @Override
@@ -48,26 +48,26 @@ public class GeneratorFortescueAdderImpl extends AbstractExtensionAdder<Generato
     }
 
     @Override
-    public GeneratorFortescueAdderImpl withRo(double ro) {
-        this.ro = ro;
+    public GeneratorFortescueAdderImpl withR0(double ro) {
+        this.r0 = ro;
         return this;
     }
 
     @Override
-    public GeneratorFortescueAdderImpl withXo(double xo) {
-        this.xo = xo;
+    public GeneratorFortescueAdderImpl withX0(double xo) {
+        this.x0 = xo;
         return this;
     }
 
     @Override
-    public GeneratorFortescueAdderImpl withRi(double ri) {
-        this.ri = ri;
+    public GeneratorFortescueAdderImpl withR2(double r2) {
+        this.r2 = r2;
         return this;
     }
 
     @Override
-    public GeneratorFortescueAdderImpl withXi(double xi) {
-        this.xi = xi;
+    public GeneratorFortescueAdderImpl withX2(double x2) {
+        this.x2 = x2;
         return this;
     }
 

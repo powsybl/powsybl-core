@@ -17,9 +17,9 @@ import com.powsybl.iidm.network.extensions.LineFortescueAdder;
  */
 public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFortescue> implements LineFortescueAdder {
 
-    private double ro = Double.NaN;
+    private double r0 = Double.NaN;
 
-    private double xo = Double.NaN;
+    private double x0 = Double.NaN;
 
     public LineFortescueAdderImpl(Line line) {
         super(line);
@@ -32,18 +32,18 @@ public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFor
 
     @Override
     protected LineFortescueImpl createExtension(Line line) {
-        return new LineFortescueImpl(line, ro, xo);
+        return new LineFortescueImpl(line, r0, x0);
     }
 
     @Override
-    public LineFortescueAdderImpl withRo(double ro) {
-        this.ro = ro;
+    public LineFortescueAdderImpl withR0(double r0) {
+        this.r0 = r0;
         return this;
     }
 
     @Override
-    public LineFortescueAdderImpl withXo(double xo) {
-        this.xo = xo;
+    public LineFortescueAdderImpl withX0(double x0) {
+        this.x0 = x0;
         return this;
     }
 }
