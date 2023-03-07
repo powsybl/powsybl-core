@@ -38,14 +38,6 @@ public class HvdcAction extends AbstractAction {
     private final Double p0;
     private final Boolean relativeValue;
 
-    public HvdcAction(String id, String hvdcId, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Boolean relativeValue) {
-        this(id, hvdcId, false, activePowerSetpoint, converterMode, null, null, relativeValue);
-    }
-
-    public HvdcAction(String id, String hvdcId, Double droop, Double p0) {
-        this(id, hvdcId, true, null, null, droop, p0, null);
-    }
-
     public HvdcAction(String id, String hvdcId, boolean acEmulationEnabled, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, Boolean relativeValue) {
         super(id);
         this.hvdcId = hvdcId;
@@ -58,19 +50,19 @@ public class HvdcAction extends AbstractAction {
     }
 
     public static HvdcAction activateAcEmulationMode(String id, String hvdcId) {
-        return activateAcEmulationMode(id, hvdcId, null, null);
-    }
-
-    public static HvdcAction activateAcEmulationMode(String id, String hvdcId, Double droop, Double p0) {
-        return new HvdcAction(id, hvdcId, droop, p0);
+        return new HvdcActionBuilder()
+                .withId(id)
+                .withHvdcId(hvdcId)
+                .withAcEmulationEnabled(true)
+                .build();
     }
 
     public static HvdcAction activateActivePowerSetpointMode(String id, String hvdcId) {
-        return activateActivePowerSetpointMode(id, hvdcId, null, null, null);
-    }
-
-    public static HvdcAction activateActivePowerSetpointMode(String id, String hvdcId, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Boolean relativeValue) {
-        return new HvdcAction(id, hvdcId, activePowerSetpoint, converterMode, relativeValue);
+        return new HvdcActionBuilder()
+                .withId(id)
+                .withHvdcId(hvdcId)
+                .withAcEmulationEnabled(false)
+                .build();
     }
 
     @Override

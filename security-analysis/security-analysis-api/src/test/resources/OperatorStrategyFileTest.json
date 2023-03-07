@@ -19,7 +19,7 @@
   }, {
     "id" : "id3",
     "contingencyContextType" : "SPECIFIC",
-    "contingencyId" : "contingencyId1",
+    "contingencyId" : "contingencyId2",
     "condition" : {
       "type" : "ANY_VIOLATION_CONDITION",
       "filters" : [ "CURRENT" ]

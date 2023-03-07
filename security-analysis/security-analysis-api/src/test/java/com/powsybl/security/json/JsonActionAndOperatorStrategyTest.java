@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
@@ -69,10 +68,8 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 15.0));
         actions.add(RatioTapChangerRegulationAction.activateRegulationAndChangeTargetV("id20", "transformerId5", 90.0));
         actions.add(RatioTapChangerRegulationAction.deactivateRegulation("id21", "transformerId5", ThreeWindingsTransformer.Side.THREE));
-        actions.add(HvdcAction.activateActivePowerSetpointMode("id22", "hvdc1", 100.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, false));
-        actions.add(HvdcAction.activateAcEmulationMode("id23", "hvdc1", 1.1, 120.0));
-        actions.add(HvdcAction.activateActivePowerSetpointMode("id24", "hvdc2"));
-        actions.add(HvdcAction.activateAcEmulationMode("id25", "hvdc2"));
+        actions.add(HvdcAction.activateActivePowerSetpointMode("id22", "hvdc2"));
+        actions.add(HvdcAction.activateAcEmulationMode("id23", "hvdc2"));
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }
