@@ -902,42 +902,40 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public boolean connect(TerminalExt terminal) {
-        if (terminal instanceof BusTerminal) {
-
-            // already connected?
-            if (terminal.isConnected()) {
-                return false;
-            }
-
-            ((BusTerminal) terminal).setConnected(true);
-
-            // invalidate connected components
-            invalidateCache();
-
-            return true;
-        } else {
+        if (!(terminal instanceof BusTerminal)) {
             throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
         }
+
+        // already connected?
+        if (terminal.isConnected()) {
+            return false;
+        }
+
+        ((BusTerminal) terminal).setConnected(true);
+
+        // invalidate connected components
+        invalidateCache();
+
+        return true;
     }
 
     @Override
     public boolean disconnect(TerminalExt terminal) {
-        if (terminal instanceof BusTerminal) {
-
-            // already disconnected?
-            if (!terminal.isConnected()) {
-                return false;
-            }
-
-            ((BusTerminal) terminal).setConnected(false);
-
-            // invalidate connected components
-            invalidateCache();
-
-            return true;
-        } else {
-            throw new IllegalStateException("Given TerminalExt not suported: " + terminal.getClass().getName());
+        if (!(terminal instanceof BusTerminal)) {
+            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
         }
+        // already disconnected?
+        if (!terminal.isConnected()) {
+            return false;
+        }
+
+        ((BusTerminal) terminal).setConnected(false);
+
+        // invalidate connected components
+        invalidateCache();
+
+        return true;
+
     }
 
     void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser) {
