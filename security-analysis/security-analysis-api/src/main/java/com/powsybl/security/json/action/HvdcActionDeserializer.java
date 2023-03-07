@@ -14,6 +14,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.security.action.HvdcAction;
+import com.powsybl.security.action.HvdcActionBuilder;
 
 import java.io.IOException;
 
@@ -80,7 +81,15 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
                     return false;
             }
         });
-        return new HvdcAction(context.id, context.hvdcId, context.acEmulationEnabled, context.activePowerSetpoint, context.converterMode,
-                context.droop, context.p0, context.relativeValue);
+        return new HvdcActionBuilder()
+                .withId(context.id)
+                .withHvdcId(context.hvdcId)
+                .withAcEmulationEnabled(context.acEmulationEnabled)
+                .withActivePowerSetpoint(context.activePowerSetpoint)
+                .withConverterMode(context.converterMode)
+                .withDroop(context.droop)
+                .withP0(context.p0)
+                .withRelativeValue(context.relativeValue)
+                .build();
     }
 }

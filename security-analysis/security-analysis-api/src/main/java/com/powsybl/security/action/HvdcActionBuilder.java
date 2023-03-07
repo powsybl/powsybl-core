@@ -38,27 +38,27 @@ public class HvdcActionBuilder {
         return this;
     }
 
-    public HvdcActionBuilder withAcEmulationEnabled(boolean acEmulationEnabled) {
+    public HvdcActionBuilder withAcEmulationEnabled(Boolean acEmulationEnabled) {
         this.acEmulationEnabled = acEmulationEnabled;
         return this;
     }
 
-    public HvdcActionBuilder withActivePowerSetpoint(double activePowerSetpoint) {
+    public HvdcActionBuilder withActivePowerSetpoint(Double activePowerSetpoint) {
         this.activePowerSetpoint = activePowerSetpoint;
         return this;
     }
 
-    public HvdcActionBuilder withDroop(double droop) {
+    public HvdcActionBuilder withDroop(Double droop) {
         this.droop = droop;
         return this;
     }
 
-    public HvdcActionBuilder withP0(double p0) {
+    public HvdcActionBuilder withP0(Double p0) {
         this.p0 = p0;
         return this;
     }
 
-    public HvdcActionBuilder withRelativeValue(boolean relativeValue) {
+    public HvdcActionBuilder withRelativeValue(Boolean relativeValue) {
         this.relativeValue = relativeValue;
         return this;
     }

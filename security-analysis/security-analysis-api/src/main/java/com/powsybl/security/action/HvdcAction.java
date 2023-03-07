@@ -38,7 +38,7 @@ public class HvdcAction extends AbstractAction {
     private final Double p0;
     private final Boolean relativeValue;
 
-    public HvdcAction(String id, String hvdcId, boolean acEmulationEnabled, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, Boolean relativeValue) {
+    protected HvdcAction(String id, String hvdcId, boolean acEmulationEnabled, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, Boolean relativeValue) {
         super(id);
         this.hvdcId = hvdcId;
         this.acEmulationEnabled = acEmulationEnabled;
