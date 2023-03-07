@@ -34,13 +34,13 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
 
     void setFreeFluxes(boolean freeFluxes);
 
-    LegConnectionType getLeg1ConnectionType();
+    WindingConnectionType getConnectionType1();
 
-    void setLeg1ConnectionType(LegConnectionType leg1ConnectionType);
+    void setConnectionType1(WindingConnectionType connectionType1);
 
-    LegConnectionType getLeg2ConnectionType();
+    WindingConnectionType getConnectionType2();
 
-    void setLeg2ConnectionType(LegConnectionType leg2ConnectionType);
+    void setConnectionType2(WindingConnectionType connectionType2);
 
     boolean isPartOfGeneratingUnit();
 

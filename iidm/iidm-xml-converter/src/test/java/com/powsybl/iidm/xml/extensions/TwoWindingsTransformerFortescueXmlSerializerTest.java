@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml.extensions;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.LegConnectionType;
+import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescueAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -37,8 +37,8 @@ class TwoWindingsTransformerFortescueXmlSerializerTest extends AbstractConverter
                 .withRo(0.1d)
                 .withXo(2d)
                 .withFreeFluxes(true)
-                .withLeg1ConnectionType(LegConnectionType.Y_GROUNDED)
-                .withLeg2ConnectionType(LegConnectionType.DELTA)
+                .withConnectionType1(WindingConnectionType.Y_GROUNDED)
+                .withConnectionType2(WindingConnectionType.DELTA)
                 .withGroundingR1(0.02d)
                 .withGroundingX1(0.3d)
                 .withGroundingR2(0.04d)
@@ -58,8 +58,8 @@ class TwoWindingsTransformerFortescueXmlSerializerTest extends AbstractConverter
         assertEquals(fortescue.getRo(), fortescue2.getRo(), 0);
         assertEquals(fortescue.getXo(), fortescue2.getXo(), 0);
         assertEquals(fortescue.isFreeFluxes(), fortescue2.isFreeFluxes());
-        assertSame(fortescue.getLeg1ConnectionType(), fortescue2.getLeg1ConnectionType());
-        assertSame(fortescue.getLeg2ConnectionType(), fortescue2.getLeg2ConnectionType());
+        assertSame(fortescue.getConnectionType1(), fortescue2.getConnectionType1());
+        assertSame(fortescue.getConnectionType2(), fortescue2.getConnectionType2());
         assertEquals(fortescue.getGroundingR1(), fortescue2.getGroundingR1(), 0);
         assertEquals(fortescue.getGroundingX1(), fortescue2.getGroundingX1(), 0);
         assertEquals(fortescue.getGroundingR2(), fortescue2.getGroundingR2(), 0);

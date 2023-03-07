@@ -13,7 +13,7 @@ import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.LegConnectionType;
+import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescueAdder;
 
@@ -37,8 +37,8 @@ public class TwoWindingsTransformerFortescueXmlSerializer extends AbstractExtens
         XmlUtil.writeOptionalDouble("ro", twtFortescue.getRo(), Double.NaN, context.getWriter());
         XmlUtil.writeOptionalDouble("xo", twtFortescue.getXo(), Double.NaN, context.getWriter());
         context.getWriter().writeAttribute("freeFluxes", Boolean.toString(twtFortescue.isFreeFluxes()));
-        context.getWriter().writeAttribute("leg1ConnectionType", twtFortescue.getLeg1ConnectionType().name());
-        context.getWriter().writeAttribute("leg2ConnectionType", twtFortescue.getLeg2ConnectionType().name());
+        context.getWriter().writeAttribute("connectionType1", twtFortescue.getConnectionType1().name());
+        context.getWriter().writeAttribute("connectionType2", twtFortescue.getConnectionType2().name());
         XmlUtil.writeOptionalDouble("groundingR1", twtFortescue.getGroundingR1(), 0, context.getWriter());
         XmlUtil.writeOptionalDouble("groundingX1", twtFortescue.getGroundingX1(), 0, context.getWriter());
         XmlUtil.writeOptionalDouble("groundingR2", twtFortescue.getGroundingR2(), 0, context.getWriter());
@@ -51,8 +51,8 @@ public class TwoWindingsTransformerFortescueXmlSerializer extends AbstractExtens
         double ro = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ro");
         double xo = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xo");
         boolean freeFluxes = XmlUtil.readBoolAttribute(context.getReader(), "freeFluxes");
-        LegConnectionType leg1ConnectionType = LegConnectionType.valueOf(context.getReader().getAttributeValue(null, "leg1ConnectionType"));
-        LegConnectionType leg2ConnectionType = LegConnectionType.valueOf(context.getReader().getAttributeValue(null, "leg2ConnectionType"));
+        WindingConnectionType connectionType1 = WindingConnectionType.valueOf(context.getReader().getAttributeValue(null, "connectionType1"));
+        WindingConnectionType connectionType2 = WindingConnectionType.valueOf(context.getReader().getAttributeValue(null, "connectionType2"));
         double groundingR1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingR1", 0);
         double groundingX1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingX1", 0);
         double groundingR2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingR2", 0);
@@ -62,8 +62,8 @@ public class TwoWindingsTransformerFortescueXmlSerializer extends AbstractExtens
                 .withRo(ro)
                 .withXo(xo)
                 .withFreeFluxes(freeFluxes)
-                .withLeg1ConnectionType(leg1ConnectionType)
-                .withLeg2ConnectionType(leg2ConnectionType)
+                .withConnectionType1(connectionType1)
+                .withConnectionType2(connectionType2)
                 .withGroundingR1(groundingR1)
                 .withGroundingX1(groundingX1)
                 .withGroundingR2(groundingR2)

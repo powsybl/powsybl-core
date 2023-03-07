@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.extensions;
  * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public enum LegConnectionType {
+public enum WindingConnectionType {
     Y,
     Y_GROUNDED,
     DELTA

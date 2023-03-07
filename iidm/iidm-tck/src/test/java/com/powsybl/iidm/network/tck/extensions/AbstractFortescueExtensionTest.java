@@ -87,8 +87,8 @@ public abstract class AbstractFortescueExtensionTest {
                 .withRo(0.1d)
                 .withXo(2d)
                 .withFreeFluxes(true)
-                .withLeg1ConnectionType(LegConnectionType.Y_GROUNDED)
-                .withLeg2ConnectionType(LegConnectionType.DELTA)
+                .withConnectionType1(WindingConnectionType.Y_GROUNDED)
+                .withConnectionType2(WindingConnectionType.DELTA)
                 .withGroundingR1(0.02d)
                 .withGroundingX1(0.3d)
                 .withGroundingR2(0.04d)
@@ -98,8 +98,8 @@ public abstract class AbstractFortescueExtensionTest {
         assertEquals(0.1d, fortescue.getRo());
         assertEquals(2d, fortescue.getXo());
         assertTrue(fortescue.isFreeFluxes());
-        assertSame(LegConnectionType.Y_GROUNDED, fortescue.getLeg1ConnectionType());
-        assertSame(LegConnectionType.DELTA, fortescue.getLeg2ConnectionType());
+        assertSame(WindingConnectionType.Y_GROUNDED, fortescue.getConnectionType1());
+        assertSame(WindingConnectionType.DELTA, fortescue.getConnectionType2());
         assertEquals(0.02d, fortescue.getGroundingR1());
         assertEquals(0.3d, fortescue.getGroundingX1());
         assertEquals(0.04d, fortescue.getGroundingR2());
@@ -109,8 +109,8 @@ public abstract class AbstractFortescueExtensionTest {
         fortescue.setRo(0.11d);
         fortescue.setXo(2.03d);
         fortescue.setFreeFluxes(false);
-        fortescue.setLeg1ConnectionType(LegConnectionType.Y);
-        fortescue.setLeg2ConnectionType(LegConnectionType.Y_GROUNDED);
+        fortescue.setConnectionType1(WindingConnectionType.Y);
+        fortescue.setConnectionType2(WindingConnectionType.Y_GROUNDED);
         fortescue.setGroundingR1(0.03d);
         fortescue.setGroundingX1(0.33d);
         fortescue.setGroundingR2(0.045d);
@@ -120,8 +120,8 @@ public abstract class AbstractFortescueExtensionTest {
         assertEquals(0.11d, fortescue.getRo());
         assertEquals(2.03d, fortescue.getXo());
         assertFalse(fortescue.isFreeFluxes());
-        assertSame(LegConnectionType.Y, fortescue.getLeg1ConnectionType());
-        assertSame(LegConnectionType.Y_GROUNDED, fortescue.getLeg2ConnectionType());
+        assertSame(WindingConnectionType.Y, fortescue.getConnectionType1());
+        assertSame(WindingConnectionType.Y_GROUNDED, fortescue.getConnectionType2());
         assertEquals(0.03d, fortescue.getGroundingR1());
         assertEquals(0.33d, fortescue.getGroundingX1());
         assertEquals(0.045d, fortescue.getGroundingR2());

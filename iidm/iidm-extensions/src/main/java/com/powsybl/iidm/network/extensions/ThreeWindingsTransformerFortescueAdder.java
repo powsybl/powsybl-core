@@ -33,11 +33,11 @@ public interface ThreeWindingsTransformerFortescueAdder extends ExtensionAdder<T
 
     ThreeWindingsTransformerFortescueAdder withLeg3FreeFluxes(boolean leg3FreeFluxes);
 
-    ThreeWindingsTransformerFortescueAdder withLeg1ConnectionType(LegConnectionType leg1ConnectionType);
+    ThreeWindingsTransformerFortescueAdder withLeg1ConnectionType(WindingConnectionType leg1ConnectionType);
 
-    ThreeWindingsTransformerFortescueAdder withLeg2ConnectionType(LegConnectionType leg2ConnectionType);
+    ThreeWindingsTransformerFortescueAdder withLeg2ConnectionType(WindingConnectionType leg2ConnectionType);
 
-    ThreeWindingsTransformerFortescueAdder withLeg3ConnectionType(LegConnectionType leg3ConnectionType);
+    ThreeWindingsTransformerFortescueAdder withLeg3ConnectionType(WindingConnectionType leg3ConnectionType);
 
     ThreeWindingsTransformerFortescueAdder withLeg1GroundingR(double leg1GroundingR);
 

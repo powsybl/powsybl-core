@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.LegConnectionType;
+import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescue;
 
 import java.util.Objects;
@@ -22,8 +22,8 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     private double ro;
     private double xo;
     private boolean freeFluxes; // free fluxes mean that magnetizing impedance Zm is infinite, by default, fluxes are forced and Zm exists
-    private LegConnectionType leg1ConnectionType;
-    private LegConnectionType leg2ConnectionType;
+    private WindingConnectionType connectionType1;
+    private WindingConnectionType connectionType2;
     private boolean partOfGeneratingUnit;
     private double groundingR1;
     private double groundingX1;
@@ -31,14 +31,14 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     private double groundingX2;
 
     public TwoWindingsTransformerFortescueImpl(TwoWindingsTransformer twt, boolean partOfGeneratingUnit, double ro, double xo, boolean freeFluxes,
-                                               LegConnectionType leg1ConnectionType, LegConnectionType leg2ConnectionType, double groundingR1, double groundingX1, double groundingR2, double groundingX2) {
+                                               WindingConnectionType connectionType1, WindingConnectionType connectionType2, double groundingR1, double groundingX1, double groundingR2, double groundingX2) {
         super(twt);
         this.partOfGeneratingUnit = partOfGeneratingUnit;
         this.ro = ro;
         this.xo = xo;
         this.freeFluxes = freeFluxes;
-        this.leg1ConnectionType = Objects.requireNonNull(leg1ConnectionType);
-        this.leg2ConnectionType = Objects.requireNonNull(leg2ConnectionType);
+        this.connectionType1 = Objects.requireNonNull(connectionType1);
+        this.connectionType2 = Objects.requireNonNull(connectionType2);
         this.groundingR1 = groundingR1;
         this.groundingX1 = groundingX1;
         this.groundingR2 = groundingR2;
@@ -76,23 +76,23 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     }
 
     @Override
-    public LegConnectionType getLeg1ConnectionType() {
-        return leg1ConnectionType;
+    public WindingConnectionType getConnectionType1() {
+        return connectionType1;
     }
 
     @Override
-    public void setLeg1ConnectionType(LegConnectionType leg1ConnectionType) {
-        this.leg1ConnectionType = Objects.requireNonNull(leg1ConnectionType);
+    public void setConnectionType1(WindingConnectionType connectionType1) {
+        this.connectionType1 = Objects.requireNonNull(connectionType1);
     }
 
     @Override
-    public LegConnectionType getLeg2ConnectionType() {
-        return leg2ConnectionType;
+    public WindingConnectionType getConnectionType2() {
+        return connectionType2;
     }
 
     @Override
-    public void setLeg2ConnectionType(LegConnectionType leg2ConnectionType) {
-        this.leg2ConnectionType = Objects.requireNonNull(leg2ConnectionType);
+    public void setConnectionType2(WindingConnectionType connectionType2) {
+        this.connectionType2 = Objects.requireNonNull(connectionType2);
     }
 
     @Override

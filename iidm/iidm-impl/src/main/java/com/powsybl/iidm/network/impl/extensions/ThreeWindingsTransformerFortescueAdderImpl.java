@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.extensions.LegConnectionType;
+import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerFortescueAdder;
 
@@ -31,9 +31,9 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
     private boolean leg1FreeFluxes = DEFAULT_FREE_FLUXES;
     private boolean leg2FreeFluxes = DEFAULT_FREE_FLUXES;
     private boolean leg3FreeFluxes = DEFAULT_FREE_FLUXES;
-    private LegConnectionType leg1ConnectionType = DEFAULT_LEG1_CONNECTION_TYPE;
-    private LegConnectionType leg2ConnectionType = DEFAULT_LEG2_CONNECTION_TYPE;
-    private LegConnectionType leg3ConnectionType = DEFAULT_LEG3_CONNECTION_TYPE;
+    private WindingConnectionType leg1ConnectionType = DEFAULT_LEG1_CONNECTION_TYPE;
+    private WindingConnectionType leg2ConnectionType = DEFAULT_LEG2_CONNECTION_TYPE;
+    private WindingConnectionType leg3ConnectionType = DEFAULT_LEG3_CONNECTION_TYPE;
     private double leg1GroundingR = DEFAULT_GROUNDING_R;
     private double leg1GroundingX = DEFAULT_GROUNDING_X;
     private double leg2GroundingR = DEFAULT_GROUNDING_R;
@@ -113,19 +113,19 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
     }
 
     @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg1ConnectionType(LegConnectionType leg1ConnectionType) {
+    public ThreeWindingsTransformerFortescueAdderImpl withLeg1ConnectionType(WindingConnectionType leg1ConnectionType) {
         this.leg1ConnectionType = Objects.requireNonNull(leg1ConnectionType);
         return this;
     }
 
     @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg2ConnectionType(LegConnectionType leg2ConnectionType) {
+    public ThreeWindingsTransformerFortescueAdderImpl withLeg2ConnectionType(WindingConnectionType leg2ConnectionType) {
         this.leg2ConnectionType = Objects.requireNonNull(leg2ConnectionType);
         return this;
     }
 
     @Override
-    public ThreeWindingsTransformerFortescueAdderImpl withLeg3ConnectionType(LegConnectionType leg3ConnectionType) {
+    public ThreeWindingsTransformerFortescueAdderImpl withLeg3ConnectionType(WindingConnectionType leg3ConnectionType) {
         this.leg3ConnectionType = Objects.requireNonNull(leg3ConnectionType);
         return this;
     }

@@ -23,9 +23,9 @@ public interface TwoWindingsTransformerFortescueAdder extends ExtensionAdder<Two
 
     TwoWindingsTransformerFortescueAdder withFreeFluxes(boolean freeFluxes);
 
-    TwoWindingsTransformerFortescueAdder withLeg1ConnectionType(LegConnectionType leg1ConnectionType);
+    TwoWindingsTransformerFortescueAdder withConnectionType1(WindingConnectionType connectionType1);
 
-    TwoWindingsTransformerFortescueAdder withLeg2ConnectionType(LegConnectionType leg2ConnectionType);
+    TwoWindingsTransformerFortescueAdder withConnectionType2(WindingConnectionType connectionType2);
 
     TwoWindingsTransformerFortescueAdder withGroundingR1(double r1Ground);
 

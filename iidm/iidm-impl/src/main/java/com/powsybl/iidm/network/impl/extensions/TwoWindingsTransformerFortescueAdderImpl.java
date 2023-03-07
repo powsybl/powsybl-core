@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.LegConnectionType;
+import com.powsybl.iidm.network.extensions.WindingConnectionType;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescue;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerFortescueAdder;
 
@@ -26,8 +26,8 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
     private double ro = Double.NaN;
     private double xo = Double.NaN;
     private boolean freeFluxes = DEFAULT_FREE_FLUXES;
-    private LegConnectionType leg1ConnectionType = DEFAULT_LEG1_CONNECTION_TYPE;
-    private LegConnectionType leg2ConnectionType = DEFAULT_LEG2_CONNECTION_TYPE;
+    private WindingConnectionType connectionType1 = DEFAULT_LEG1_CONNECTION_TYPE;
+    private WindingConnectionType connectionType2 = DEFAULT_LEG2_CONNECTION_TYPE;
     private double groundingR1 = DEFAULT_GROUNDING_R;
     private double groundingX1 = DEFAULT_GROUNDING_X;
     private double groundingR2 = DEFAULT_GROUNDING_R;
@@ -44,7 +44,7 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
 
     @Override
     protected TwoWindingsTransformerFortescueImpl createExtension(TwoWindingsTransformer twt) {
-        return new TwoWindingsTransformerFortescueImpl(twt, partOfGeneratingUnit, ro, xo, freeFluxes, leg1ConnectionType, leg2ConnectionType, groundingR1, groundingX1, groundingR2, groundingX2);
+        return new TwoWindingsTransformerFortescueImpl(twt, partOfGeneratingUnit, ro, xo, freeFluxes, connectionType1, connectionType2, groundingR1, groundingX1, groundingR2, groundingX2);
     }
 
     @Override
@@ -72,14 +72,14 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
     }
 
     @Override
-    public TwoWindingsTransformerFortescueAdderImpl withLeg1ConnectionType(LegConnectionType leg1ConnectionType) {
-        this.leg1ConnectionType = Objects.requireNonNull(leg1ConnectionType);
+    public TwoWindingsTransformerFortescueAdderImpl withConnectionType1(WindingConnectionType connectionType1) {
+        this.connectionType1 = Objects.requireNonNull(connectionType1);
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerFortescueAdderImpl withLeg2ConnectionType(LegConnectionType leg2ConnectionType) {
-        this.leg2ConnectionType = Objects.requireNonNull(leg2ConnectionType);
+    public TwoWindingsTransformerFortescueAdderImpl withConnectionType2(WindingConnectionType connectionType2) {
+        this.connectionType2 = Objects.requireNonNull(connectionType2);
         return this;
     }
 
