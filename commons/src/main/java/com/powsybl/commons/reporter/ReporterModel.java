@@ -18,6 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+import static com.powsybl.commons.reporter.TypedValue.*;
+
 /**
  * An in-memory implementation of {@link Reporter}.
  *
@@ -34,6 +36,7 @@ public class ReporterModel extends AbstractReporter {
 
     private final List<ReporterModel> subReporters = new ArrayList<>();
     private final List<Report> reports = new ArrayList<>();
+    TypedValue severityThreshold;
 
     /**
      * ReporterModel constructor, with no associated values.
@@ -148,5 +151,18 @@ public class ReporterModel extends AbstractReporter {
         }
 
         return reporter;
+    }
+
+    @Override
+    public void setSeverityThreshold(TypedValue severityType) {
+        if (TRACE_SEVERITY.equals(severityType) || DEBUG_SEVERITY.equals(severityType) || INFO_SEVERITY.equals(severityType) || WARN_SEVERITY.equals(severityType) || ERROR_SEVERITY.equals(severityType)) {
+            severityThreshold = severityType;
+        } else {
+            throw new IllegalArgumentException("Severity not supported");
+        }
+    }
+
+    public boolean isEnabled(TypedValue severityType) {
+        return severityType == severityThreshold;
     }
 }

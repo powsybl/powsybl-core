@@ -131,6 +131,10 @@ public interface Reporter {
      */
     void report(Report report);
 
+    boolean isEnabled(TypedValue severityType);
+
+    void setSeverityThreshold(TypedValue severityThreshold);
+
     class NoOpImpl extends AbstractReporter {
         public NoOpImpl() {
             super("noOp", "NoOp", Collections.emptyMap());
@@ -144,6 +148,15 @@ public interface Reporter {
         @Override
         public void report(Report report) {
             // No-op
+        }
+
+        @Override
+        public boolean isEnabled(TypedValue severityType) {
+            return false;
+        }
+
+        @Override
+        public void setSeverityThreshold(TypedValue severityThreshold) {
         }
 
     }
