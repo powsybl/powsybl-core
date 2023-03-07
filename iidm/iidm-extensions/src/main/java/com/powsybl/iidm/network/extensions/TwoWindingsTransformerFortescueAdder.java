@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  */
 public interface TwoWindingsTransformerFortescueAdder extends ExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerFortescue> {
 
-    TwoWindingsTransformerFortescueAdder withPartOfGeneratingUnit(boolean partOfGeneratingUnit);
-
     TwoWindingsTransformerFortescueAdder withRo(double ro);
 
     TwoWindingsTransformerFortescueAdder withXo(double xo);

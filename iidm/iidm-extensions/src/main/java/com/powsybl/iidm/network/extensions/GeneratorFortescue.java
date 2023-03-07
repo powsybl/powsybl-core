@@ -17,20 +17,14 @@ public interface GeneratorFortescue extends Extension<Generator> {
 
     String NAME = "generatorFortescue";
 
-    enum GeneratorType {
-        UNKNOWN,
-        ROTATING_MACHINE,
-        FEEDER;
-    }
-
     @Override
     default String getName() {
         return NAME;
     }
 
-    boolean isToGround();
+    boolean isGrounded();
 
-    void setToGround(boolean toGround);
+    void setGrounded(boolean grounded);
 
     double getGroundingR();
 
@@ -55,8 +49,4 @@ public interface GeneratorFortescue extends Extension<Generator> {
     double getXi();
 
     void setXi(double xi);
-
-    GeneratorType getGeneratorType();
-
-    void setGeneratorType(GeneratorType generatorType);
 }

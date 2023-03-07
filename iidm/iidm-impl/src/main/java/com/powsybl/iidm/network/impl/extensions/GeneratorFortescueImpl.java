@@ -10,43 +10,39 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorFortescue;
 
-import java.util.Objects;
-
 /**
  * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class GeneratorFortescueImpl extends AbstractExtension<Generator> implements GeneratorFortescue {
 
-    private boolean toGround;
+    private boolean grounded;
     private double ro;
     private double xo;
     private double ri;
     private double xi;
     private double groundingR;
     private double groundingX;
-    private GeneratorType generatorType;
 
-    public GeneratorFortescueImpl(Generator generator, boolean toGround, double ro, double xo, double ri, double xi, double groundingR, double groundingX, GeneratorType generatorType) {
+    public GeneratorFortescueImpl(Generator generator, boolean grounded, double ro, double xo, double ri, double xi, double groundingR, double groundingX) {
         super(generator);
-        this.toGround = toGround;
+        this.grounded = grounded;
         this.ro = ro;
         this.xo = xo;
         this.ri = ri;
         this.xi = xi;
         this.groundingR = groundingR;
         this.groundingX = groundingX;
-        this.generatorType = Objects.requireNonNull(generatorType);
     }
 
     @Override
-    public boolean isToGround() {
-        return toGround;
+    public boolean isGrounded() {
+        return grounded;
     }
 
     @Override
-    public void setToGround(boolean toGround) {
-        this.toGround = toGround;
+    public void setGrounded(boolean grounded) {
+        this.grounded = grounded;
     }
 
     @Override
@@ -107,15 +103,5 @@ public class GeneratorFortescueImpl extends AbstractExtension<Generator> impleme
     @Override
     public void setXi(double xi) {
         this.xi = xi;
-    }
-
-    @Override
-    public GeneratorType getGeneratorType() {
-        return generatorType;
-    }
-
-    @Override
-    public void setGeneratorType(GeneratorType generatorType) {
-        this.generatorType = Objects.requireNonNull(generatorType);
     }
 }

@@ -22,39 +22,35 @@ public abstract class AbstractFortescueExtensionTest {
         var network = EurostagTutorialExample1Factory.create();
         var gen = network.getGenerator("GEN");
         GeneratorFortescue fortescue = gen.newExtension(GeneratorFortescueAdder.class)
-                .withGeneratorType(GeneratorFortescue.GeneratorType.ROTATING_MACHINE)
                 .withRo(0.1d)
                 .withXo(2d)
                 .withRi(0.2d)
                 .withXi(2.4d)
-                .withToGround(true)
+                .withGrounded(true)
                 .withGroundingR(0.02d)
                 .withGroundingX(0.3d)
                 .add();
-        assertSame(GeneratorFortescue.GeneratorType.ROTATING_MACHINE, fortescue.getGeneratorType());
         assertEquals(0.1d, fortescue.getRo());
         assertEquals(2d, fortescue.getXo());
         assertEquals(0.2d, fortescue.getRi());
         assertEquals(2.4d, fortescue.getXi());
-        assertTrue(fortescue.isToGround());
+        assertTrue(fortescue.isGrounded());
         assertEquals(0.02d, fortescue.getGroundingR());
         assertEquals(0.3d, fortescue.getGroundingX());
 
-        fortescue.setGeneratorType(GeneratorFortescue.GeneratorType.FEEDER);
         fortescue.setRo(0.11d);
         fortescue.setXo(2.03d);
         fortescue.setRi(0.1d);
         fortescue.setXi(2.3d);
-        fortescue.setToGround(false);
+        fortescue.setGrounded(false);
         fortescue.setGroundingR(0.0001d);
         fortescue.setGroundingX(0.35d);
 
-        assertSame(GeneratorFortescue.GeneratorType.FEEDER, fortescue.getGeneratorType());
         assertEquals(0.11d, fortescue.getRo());
         assertEquals(2.03d, fortescue.getXo());
         assertEquals(0.1d, fortescue.getRi());
         assertEquals(2.3d, fortescue.getXi());
-        assertFalse(fortescue.isToGround());
+        assertFalse(fortescue.isGrounded());
         assertEquals(0.0001d, fortescue.getGroundingR());
         assertEquals(0.35d, fortescue.getGroundingX());
     }
@@ -83,7 +79,6 @@ public abstract class AbstractFortescueExtensionTest {
         var network = EurostagTutorialExample1Factory.create();
         var twt = network.getTwoWindingsTransformer("NGEN_NHV1");
         TwoWindingsTransformerFortescue fortescue = twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
-                .withPartOfGeneratingUnit(false)
                 .withRo(0.1d)
                 .withXo(2d)
                 .withFreeFluxes(true)
@@ -94,7 +89,6 @@ public abstract class AbstractFortescueExtensionTest {
                 .withGroundingR2(0.04d)
                 .withGroundingX2(0.95d)
                 .add();
-        assertFalse(fortescue.isPartOfGeneratingUnit());
         assertEquals(0.1d, fortescue.getRo());
         assertEquals(2d, fortescue.getXo());
         assertTrue(fortescue.isFreeFluxes());
@@ -105,7 +99,6 @@ public abstract class AbstractFortescueExtensionTest {
         assertEquals(0.04d, fortescue.getGroundingR2());
         assertEquals(0.95d, fortescue.getGroundingX2());
 
-        fortescue.setPartOfGeneratingUnit(true);
         fortescue.setRo(0.11d);
         fortescue.setXo(2.03d);
         fortescue.setFreeFluxes(false);
@@ -116,7 +109,6 @@ public abstract class AbstractFortescueExtensionTest {
         fortescue.setGroundingR2(0.045d);
         fortescue.setGroundingX2(0.0001d);
 
-        assertTrue(fortescue.isPartOfGeneratingUnit());
         assertEquals(0.11d, fortescue.getRo());
         assertEquals(2.03d, fortescue.getXo());
         assertFalse(fortescue.isFreeFluxes());

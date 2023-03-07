@@ -32,12 +32,11 @@ class GeneratorFortescueXmlSerializerTest extends AbstractConverterTest {
         Generator gen = network.getGenerator("GEN");
         assertNotNull(gen);
         GeneratorFortescue fortescue = gen.newExtension(GeneratorFortescueAdder.class)
-                .withGeneratorType(GeneratorFortescue.GeneratorType.ROTATING_MACHINE)
                 .withRo(0.1d)
                 .withXo(2d)
                 .withRi(0.2d)
                 .withXi(2.4d)
-                .withToGround(true)
+                .withGrounded(true)
                 .withGroundingR(0.02d)
                 .withGroundingX(0.3d)
                 .add();
@@ -51,12 +50,11 @@ class GeneratorFortescueXmlSerializerTest extends AbstractConverterTest {
         GeneratorFortescue fortescue2 = gen2.getExtension(GeneratorFortescue.class);
         assertNotNull(fortescue2);
 
-        assertSame(fortescue.getGeneratorType(), fortescue2.getGeneratorType());
         assertEquals(fortescue.getRo(), fortescue2.getRo(), 0);
         assertEquals(fortescue.getXo(), fortescue2.getXo(), 0);
         assertEquals(fortescue.getRi(), fortescue2.getRi(), 0);
         assertEquals(fortescue.getXi(), fortescue2.getXi(), 0);
-        assertEquals(fortescue.isToGround(), fortescue2.isToGround());
+        assertEquals(fortescue.isGrounded(), fortescue2.isGrounded());
         assertEquals(fortescue.getGroundingR(), fortescue2.getGroundingR(), 0);
         assertEquals(fortescue.getGroundingX(), fortescue2.getGroundingX(), 0);
     }

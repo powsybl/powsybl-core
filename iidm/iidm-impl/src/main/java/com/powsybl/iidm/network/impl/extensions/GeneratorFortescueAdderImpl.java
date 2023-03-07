@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorFortescue;
 import com.powsybl.iidm.network.extensions.GeneratorFortescueAdder;
 
-import java.util.Objects;
-
 import static com.powsybl.iidm.network.extensions.FortescueConstants.*;
 
 /**
@@ -21,14 +19,13 @@ import static com.powsybl.iidm.network.extensions.FortescueConstants.*;
  */
 public class GeneratorFortescueAdderImpl extends AbstractExtensionAdder<Generator, GeneratorFortescue> implements GeneratorFortescueAdder {
 
-    private boolean toGround = DEFAULT_TO_GROUND;
+    private boolean grounded = DEFAULT_TO_GROUND;
     private double ro = Double.NaN;
     private double xo = Double.NaN;
     private double ri = Double.NaN;
     private double xi = Double.NaN;
     private double groundingR = DEFAULT_GROUNDING_R;
     private double groundingX = DEFAULT_GROUNDING_X;
-    private GeneratorFortescue.GeneratorType generatorType = GeneratorFortescue.GeneratorType.ROTATING_MACHINE;
 
     public GeneratorFortescueAdderImpl(Generator generator) {
         super(generator);
@@ -41,12 +38,12 @@ public class GeneratorFortescueAdderImpl extends AbstractExtensionAdder<Generato
 
     @Override
     protected GeneratorFortescue createExtension(Generator generator) {
-        return new GeneratorFortescueImpl(generator, toGround, ro, xo, ri, xi, groundingR, groundingX, generatorType);
+        return new GeneratorFortescueImpl(generator, grounded, ro, xo, ri, xi, groundingR, groundingX);
     }
 
     @Override
-    public GeneratorFortescueAdderImpl withToGround(boolean toGround) {
-        this.toGround = toGround;
+    public GeneratorFortescueAdderImpl withGrounded(boolean grounded) {
+        this.grounded = grounded;
         return this;
     }
 
@@ -83,12 +80,6 @@ public class GeneratorFortescueAdderImpl extends AbstractExtensionAdder<Generato
     @Override
     public GeneratorFortescueAdderImpl withGroundingX(double groundingX) {
         this.groundingX = groundingX;
-        return this;
-    }
-
-    @Override
-    public GeneratorFortescueAdderImpl withGeneratorType(GeneratorFortescue.GeneratorType generatorType) {
-        this.generatorType = Objects.requireNonNull(generatorType);
         return this;
     }
 }

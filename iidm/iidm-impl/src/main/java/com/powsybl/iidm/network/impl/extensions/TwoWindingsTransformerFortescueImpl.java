@@ -24,16 +24,15 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     private boolean freeFluxes; // free fluxes mean that magnetizing impedance Zm is infinite, by default, fluxes are forced and Zm exists
     private WindingConnectionType connectionType1;
     private WindingConnectionType connectionType2;
-    private boolean partOfGeneratingUnit;
     private double groundingR1;
     private double groundingX1;
     private double groundingR2;
     private double groundingX2;
 
-    public TwoWindingsTransformerFortescueImpl(TwoWindingsTransformer twt, boolean partOfGeneratingUnit, double ro, double xo, boolean freeFluxes,
-                                               WindingConnectionType connectionType1, WindingConnectionType connectionType2, double groundingR1, double groundingX1, double groundingR2, double groundingX2) {
+    public TwoWindingsTransformerFortescueImpl(TwoWindingsTransformer twt, double ro, double xo, boolean freeFluxes,
+                                               WindingConnectionType connectionType1, WindingConnectionType connectionType2,
+                                               double groundingR1, double groundingX1, double groundingR2, double groundingX2) {
         super(twt);
-        this.partOfGeneratingUnit = partOfGeneratingUnit;
         this.ro = ro;
         this.xo = xo;
         this.freeFluxes = freeFluxes;
@@ -93,16 +92,6 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     @Override
     public void setConnectionType2(WindingConnectionType connectionType2) {
         this.connectionType2 = Objects.requireNonNull(connectionType2);
-    }
-
-    @Override
-    public boolean isPartOfGeneratingUnit() {
-        return partOfGeneratingUnit;
-    }
-
-    @Override
-    public void setPartOfGeneratingUnit(boolean partOfGeneratingUnit) {
-        this.partOfGeneratingUnit = partOfGeneratingUnit;
     }
 
     @Override

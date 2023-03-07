@@ -22,7 +22,6 @@ import static com.powsybl.iidm.network.extensions.FortescueConstants.*;
  */
 public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerFortescue> implements TwoWindingsTransformerFortescueAdder {
 
-    private boolean partOfGeneratingUnit = false;
     private double ro = Double.NaN;
     private double xo = Double.NaN;
     private boolean freeFluxes = DEFAULT_FREE_FLUXES;
@@ -44,13 +43,7 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
 
     @Override
     protected TwoWindingsTransformerFortescueImpl createExtension(TwoWindingsTransformer twt) {
-        return new TwoWindingsTransformerFortescueImpl(twt, partOfGeneratingUnit, ro, xo, freeFluxes, connectionType1, connectionType2, groundingR1, groundingX1, groundingR2, groundingX2);
-    }
-
-    @Override
-    public TwoWindingsTransformerFortescueAdderImpl withPartOfGeneratingUnit(boolean partOfGeneratingUnit) {
-        this.partOfGeneratingUnit = partOfGeneratingUnit;
-        return this;
+        return new TwoWindingsTransformerFortescueImpl(twt, ro, xo, freeFluxes, connectionType1, connectionType2, groundingR1, groundingX1, groundingR2, groundingX2);
     }
 
     @Override

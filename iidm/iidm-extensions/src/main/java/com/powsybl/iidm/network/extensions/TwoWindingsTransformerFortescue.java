@@ -42,10 +42,6 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
 
     void setConnectionType2(WindingConnectionType connectionType2);
 
-    boolean isPartOfGeneratingUnit();
-
-    void setPartOfGeneratingUnit(boolean partOfGeneratingUnit);
-
     double getGroundingR1();
 
     void setGroundingR1(double groundingR1);

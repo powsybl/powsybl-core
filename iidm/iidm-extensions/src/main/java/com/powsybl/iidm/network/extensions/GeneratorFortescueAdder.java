@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Generator;
  */
 public interface GeneratorFortescueAdder extends ExtensionAdder<Generator, GeneratorFortescue> {
 
-    GeneratorFortescueAdder withToGround(boolean toGround);
+    GeneratorFortescueAdder withGrounded(boolean grounded);
 
     GeneratorFortescueAdder withRo(double ro);
 
@@ -28,6 +28,4 @@ public interface GeneratorFortescueAdder extends ExtensionAdder<Generator, Gener
     GeneratorFortescueAdder withGroundingR(double groundingR);
 
     GeneratorFortescueAdder withGroundingX(double groundingX);
-
-    GeneratorFortescueAdder withGeneratorType(GeneratorFortescue.GeneratorType generatorType);
 }

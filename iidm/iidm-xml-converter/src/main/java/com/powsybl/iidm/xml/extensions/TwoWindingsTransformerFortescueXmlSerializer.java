@@ -33,7 +33,6 @@ public class TwoWindingsTransformerFortescueXmlSerializer extends AbstractExtens
 
     @Override
     public void write(TwoWindingsTransformerFortescue twtFortescue, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("partOfGeneratingUnit", Boolean.toString(twtFortescue.isPartOfGeneratingUnit()));
         XmlUtil.writeOptionalDouble("ro", twtFortescue.getRo(), Double.NaN, context.getWriter());
         XmlUtil.writeOptionalDouble("xo", twtFortescue.getXo(), Double.NaN, context.getWriter());
         context.getWriter().writeAttribute("freeFluxes", Boolean.toString(twtFortescue.isFreeFluxes()));
@@ -58,7 +57,6 @@ public class TwoWindingsTransformerFortescueXmlSerializer extends AbstractExtens
         double groundingR2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingR2", 0);
         double groundingX2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingX2", 0);
         return twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
-                .withPartOfGeneratingUnit(partOfGeneratingUnit)
                 .withRo(ro)
                 .withXo(xo)
                 .withFreeFluxes(freeFluxes)

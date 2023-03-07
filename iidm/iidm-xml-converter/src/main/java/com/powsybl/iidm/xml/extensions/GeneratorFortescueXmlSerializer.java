@@ -32,33 +32,30 @@ public class GeneratorFortescueXmlSerializer extends AbstractExtensionXmlSeriali
 
     @Override
     public void write(GeneratorFortescue generatorFortescue, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("generatorType", generatorFortescue.getGeneratorType().name());
         XmlUtil.writeOptionalDouble("ro", generatorFortescue.getRo(), Double.NaN, context.getWriter());
         XmlUtil.writeOptionalDouble("xo", generatorFortescue.getXo(), Double.NaN, context.getWriter());
         XmlUtil.writeOptionalDouble("ri", generatorFortescue.getRi(), Double.NaN, context.getWriter());
         XmlUtil.writeOptionalDouble("xi", generatorFortescue.getXi(), Double.NaN, context.getWriter());
-        context.getWriter().writeAttribute("toGround", Boolean.toString(generatorFortescue.isToGround()));
+        context.getWriter().writeAttribute("grounded", Boolean.toString(generatorFortescue.isGrounded()));
         XmlUtil.writeOptionalDouble("groundingR", generatorFortescue.getGroundingR(), 0, context.getWriter());
         XmlUtil.writeOptionalDouble("groundingX", generatorFortescue.getGroundingX(), 0, context.getWriter());
     }
 
     @Override
     public GeneratorFortescue read(Generator generator, XmlReaderContext context) throws XMLStreamException {
-        GeneratorFortescue.GeneratorType generatorType = GeneratorFortescue.GeneratorType.valueOf(context.getReader().getAttributeValue(null, "generatorType"));
         double ro = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ro");
         double xo = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xo");
         double ri = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ri");
         double xi = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xi");
-        boolean toGround = XmlUtil.readBoolAttribute(context.getReader(), "toGround");
+        boolean toGround = XmlUtil.readBoolAttribute(context.getReader(), "grounded");
         double groundingR = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingR", 0);
         double groundingX = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingX", 0);
         return generator.newExtension(GeneratorFortescueAdder.class)
-                .withGeneratorType(generatorType)
                 .withRo(ro)
                 .withXo(xo)
                 .withRi(ri)
                 .withXi(xi)
-                .withToGround(toGround)
+                .withGrounded(toGround)
                 .withGroundingR(groundingR)
                 .withGroundingX(groundingX)
                 .add();

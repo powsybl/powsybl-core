@@ -33,7 +33,6 @@ class TwoWindingsTransformerFortescueXmlSerializerTest extends AbstractConverter
         var twt = network.getTwoWindingsTransformer("NGEN_NHV1");
         assertNotNull(twt);
         TwoWindingsTransformerFortescue fortescue = twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
-                .withPartOfGeneratingUnit(false)
                 .withRo(0.1d)
                 .withXo(2d)
                 .withFreeFluxes(true)
@@ -54,7 +53,6 @@ class TwoWindingsTransformerFortescueXmlSerializerTest extends AbstractConverter
         TwoWindingsTransformerFortescue fortescue2 = twt2.getExtension(TwoWindingsTransformerFortescue.class);
         assertNotNull(fortescue2);
 
-        assertEquals(fortescue.isPartOfGeneratingUnit(), fortescue2.isPartOfGeneratingUnit());
         assertEquals(fortescue.getRo(), fortescue2.getRo(), 0);
         assertEquals(fortescue.getXo(), fortescue2.getXo(), 0);
         assertEquals(fortescue.isFreeFluxes(), fortescue2.isFreeFluxes());
