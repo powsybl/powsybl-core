@@ -109,7 +109,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
         }
     }
 
-    private static AssertionError createUnexpectedOperatorException(String operatorName) {
-        return new AssertionError("Unexpected operator: " + operatorName);
+    private static IllegalStateException createUnexpectedOperatorException(String operatorName) {
+        return new IllegalStateException("Unexpected operator: " + operatorName);
     }
 }

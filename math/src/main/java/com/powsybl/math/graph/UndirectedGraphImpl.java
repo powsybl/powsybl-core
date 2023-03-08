@@ -597,7 +597,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             } else if (v == v1) {
                 findAllPaths(e, v2, pathComplete, pathCancelled, path2, encountered2, paths);
             } else {
-                throw new AssertionError();
+                throw new IllegalStateException();
             }
         }
     }

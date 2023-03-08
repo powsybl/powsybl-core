@@ -31,13 +31,13 @@ class ReadOnlyTimeSeriesStoreAggregatorTest {
         assertEquals(Sets.newHashSet("ts2", "ts1"), store12.getTimeSeriesNames(null));
         assertTrue(store12.timeSeriesExists("ts1"));
         assertFalse(store12.timeSeriesExists("ts3"));
-        assertEquals(new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index), store12.getTimeSeriesMetadata("ts1").orElseThrow(AssertionError::new));
+        assertEquals(new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index), store12.getTimeSeriesMetadata("ts1").orElseThrow(IllegalStateException::new));
         assertEquals(Arrays.asList(new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index),
                                    new TimeSeriesMetadata("ts2", TimeSeriesDataType.DOUBLE, index)),
                      store12.getTimeSeriesMetadata(Sets.newHashSet("ts1", "ts2")));
         assertEquals(Collections.emptySet(), store12.getTimeSeriesDataVersions());
         assertEquals(Collections.emptySet(), store12.getTimeSeriesDataVersions("ts1"));
-        assertSame(ts1, store12.getDoubleTimeSeries("ts1", 1).orElseThrow(AssertionError::new));
+        assertSame(ts1, store12.getDoubleTimeSeries("ts1", 1).orElseThrow(IllegalStateException::new));
         assertFalse(store12.getDoubleTimeSeries("ts3", 1).isPresent());
         assertEquals(Arrays.asList(ts1, ts2), store12.getDoubleTimeSeries(Sets.newHashSet("ts1", "ts2"), 1));
         assertEquals(Arrays.asList(ts1, ts2), store12.getDoubleTimeSeries(1));

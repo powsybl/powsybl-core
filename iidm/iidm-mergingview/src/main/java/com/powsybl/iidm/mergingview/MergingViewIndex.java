@@ -500,7 +500,7 @@ class MergingViewIndex {
             case HVDC_CONVERTER_STATION:
                 return getHvdcConverterStation((HvdcConverterStation) connectable);
             default:
-                throw new AssertionError(connectable.getType().name() + " is not valid to be adapted to connectable");
+                throw new IllegalStateException(connectable.getType().name() + " is not valid to be adapted to connectable");
         }
     }
 
@@ -514,7 +514,7 @@ class MergingViewIndex {
             case TWO_WINDINGS_TRANSFORMER:
                 return getTwoWindingsTransformer((TwoWindingsTransformer) b);
             default:
-                throw new AssertionError(b.getType().name() + " is not valid to be adapted to branch");
+                throw new IllegalStateException(b.getType().name() + " is not valid to be adapted to branch");
         }
     }
 

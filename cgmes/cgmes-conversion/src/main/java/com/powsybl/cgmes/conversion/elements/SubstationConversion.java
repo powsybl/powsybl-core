@@ -46,7 +46,9 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
 
         String iidmSubstationId = context.substationIdMapping().substationIidm(id);
         Substation substation = context.network().getSubstation(iidmSubstationId);
-        assert substation == null;
+        if (substation != null) {
+            throw new IllegalStateException("Substation should be null");
+        }
         SubstationAdder adder = context.network().newSubstation()
                 .setId(iidmSubstationId)
                 .setName(iidmName())

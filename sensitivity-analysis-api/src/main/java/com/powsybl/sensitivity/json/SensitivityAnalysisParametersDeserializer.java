@@ -57,7 +57,7 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
