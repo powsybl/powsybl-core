@@ -2,7 +2,6 @@
   "type" : "identifier",
   "version" : "1.0",
   "name" : "list1",
-  "identifiableType" : "LINE",
   "identifiers" : [ {
     "type" : "ID_BASED",
     "identifier" : "identifier"

@@ -38,7 +38,7 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractConverterT
         networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier"));
         networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("vl1", "vl2", '1'));
         networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections.singletonList(new IdBasedNetworkElementIdentifier("identifier1"))));
-        return new IdentifierContingencyList("list1", "LINE", networkElementIdentifiers);
+        return new IdentifierContingencyList("list1", networkElementIdentifiers);
     }
 
     @Test
