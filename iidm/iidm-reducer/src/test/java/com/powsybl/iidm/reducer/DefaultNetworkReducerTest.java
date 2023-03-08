@@ -276,6 +276,9 @@ class DefaultNetworkReducerTest {
         assertEquals(1, observerVsc.getHvdcLineReplacedCount());
         assertEquals(1, observerVsc.getHvdcLineRemovedCount());
         assertEquals(1, networkVsc.getGeneratorCount());
+        Generator gen = networkVsc.getGenerator("L");
+        assertEquals(300, gen.getMaxP());
+        assertEquals(-300, gen.getMinP());
 
     }
 

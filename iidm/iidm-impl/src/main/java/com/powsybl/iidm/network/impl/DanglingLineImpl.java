@@ -59,7 +59,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         GenerationImpl attach(DanglingLineImpl danglingLine) {
             if (this.danglingLine != null) {
-                throw new AssertionError("DanglingLine.Generation already attached to " + this.danglingLine.getId());
+                throw new IllegalStateException("DanglingLine.Generation already attached to " + this.danglingLine.getId());
             }
 
             this.danglingLine = Objects.requireNonNull(danglingLine);

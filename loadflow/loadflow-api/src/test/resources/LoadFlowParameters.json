@@ -1,5 +1,5 @@
 {
-  "version" : "1.8",
+  "version" : "1.9",
   "voltageInitMode" : "PREVIOUS_VALUES",
   "transformerVoltageControlOn" : true,
   "phaseShifterRegulationOn" : false,
@@ -14,5 +14,6 @@
   "dcUseTransformerRatio" : true,
   "countriesToBalance" : [ ],
   "connectedComponentMode" : "MAIN",
-  "hvdcAcEmulation" : true
+  "hvdcAcEmulation" : true,
+  "dcPowerFactor" : 1.0
 }

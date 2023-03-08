@@ -33,7 +33,7 @@ public final class ShortCircuitAnalysis {
     private static final String NOT_NULL_FAULT_MESSAGE = "Fault characteristics should not be null";
 
     private ShortCircuitAnalysis() {
-        throw new AssertionError("Utility class should not been instantiated");
+        throw new IllegalStateException("Utility class should not been instantiated");
     }
 
     public static final class Runner implements Versionable {

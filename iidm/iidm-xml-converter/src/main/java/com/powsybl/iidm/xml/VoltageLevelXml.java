@@ -71,7 +71,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                 break;
 
             default:
-                throw new AssertionError("Unexpected TopologyLevel value: " + topologyLevel);
+                throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
         }
 
         writeGenerators(vl, context);
@@ -246,7 +246,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         if (c instanceof Substation) {
             return ((Substation) c).newVoltageLevel();
         }
-        throw new AssertionError();
+        throw new IllegalStateException();
     }
 
     @Override
@@ -338,7 +338,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected element: " + context.getReader().getLocalName());
+                    throw new IllegalStateException("Unexpected element: " + context.getReader().getLocalName());
             }
         });
     }
@@ -388,7 +388,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected element: " + context.getReader().getLocalName());
+                    throw new IllegalStateException("Unexpected element: " + context.getReader().getLocalName());
             }
         });
     }

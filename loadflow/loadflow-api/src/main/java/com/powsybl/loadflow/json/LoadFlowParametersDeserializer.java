@@ -165,13 +165,19 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setHvdcAcEmulation(parser.readValueAs(Boolean.class));
                     break;
 
+                case "dcPowerFactor":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: dcPowerFactor" + parser.getCurrentName(), version, "1.9");
+                    parser.nextToken();
+                    parameters.setDcPowerFactor(parser.readValueAs(Double.class));
+                    break;
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));

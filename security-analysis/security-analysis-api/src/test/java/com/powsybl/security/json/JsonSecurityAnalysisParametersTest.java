@@ -59,7 +59,7 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
     @Test
     void readError() {
         InputStream inputStream = getClass().getResourceAsStream("/SecurityAnalysisParametersInvalid.json");
-        assertThrows(AssertionError.class, () -> JsonSecurityAnalysisParameters.read(inputStream), "Unexpected field: unexpected");
+        assertThrows(IllegalStateException.class, () -> JsonSecurityAnalysisParameters.read(inputStream), "Unexpected field: unexpected");
     }
 
     @Test

@@ -166,7 +166,7 @@ public final class TopologyModificationUtils {
             int node = terminal.getNodeBreakerView().getNode();
             nodeSetter.accept(node, adder);
         } else {
-            throw new AssertionError();
+            throw new IllegalStateException();
         }
     }
 
@@ -253,14 +253,14 @@ public final class TopologyModificationUtils {
                 .add();
     }
 
-    static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String lineId, VoltageLevel.BusBreakerView view) {
-        createBusBreakerSwitch(busId1, middleBusId, lineId + "_", "_1", view);
-        createBusBreakerSwitch(middleBusId, busId2, lineId + "_", "_2", view);
+    static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String prefix, VoltageLevel.BusBreakerView view) {
+        createBusBreakerSwitch(busId1, middleBusId, prefix, "_1", view);
+        createBusBreakerSwitch(middleBusId, busId2, prefix, "_2", view);
     }
 
     static void createBusBreakerSwitch(String busId1, String busId2, String prefix, String suffix, VoltageLevel.BusBreakerView view) {
         view.newSwitch()
-                .setId(prefix + "SW" + suffix)
+                .setId(prefix + "_SW" + suffix)
                 .setEnsureIdUnicity(true)
                 .setOpen(false)
                 .setBus1(busId1)
@@ -503,7 +503,7 @@ public final class TopologyModificationUtils {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reporter, connectable);
             if (throwException) {
-                throw new AssertionError("Given connectable not supported: " + connectable.getClass().getName());
+                throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
             }
             return Collections.emptyList();
         }
@@ -526,7 +526,7 @@ public final class TopologyModificationUtils {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reporter, connectable);
             if (throwException) {
-                throw new AssertionError("Given connectable not supported: " + connectable.getClass().getName());
+                throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
             }
         }
         return Collections.emptyList();

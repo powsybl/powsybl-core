@@ -285,7 +285,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
     @Test
     void readError() throws IOException {
         try (var is = getClass().getResourceAsStream("/ShortCircuitParametersInvalid.json")) {
-            AssertionError e = assertThrows(AssertionError.class, () -> JsonShortCircuitParameters.read(is));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonShortCircuitParameters.read(is));
             assertEquals("Unexpected field: unexpected", e.getMessage());
         }
     }

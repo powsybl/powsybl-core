@@ -56,7 +56,7 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
         if (ol == null || limitClazz.isInstance(ol)) {
             return (L) ol;
         }
-        throw new AssertionError("Unexpected class for operational limits of type " + type + ". Expected: " + ol.getClass().getName() + ", actual: " + limitClazz.getName() + ".");
+        throw new IllegalStateException("Unexpected class for operational limits of type " + type + ". Expected: " + ol.getClass().getName() + ", actual: " + limitClazz.getName() + ".");
     }
 
     CurrentLimitsAdder newCurrentLimits() {

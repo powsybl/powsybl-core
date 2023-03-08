@@ -89,7 +89,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type, minVoltageDropProportionalThreshold, withSimpleResult);

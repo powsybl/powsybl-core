@@ -26,8 +26,8 @@ class PropertyBagsTest {
     static void setup() {
         bags = new PropertyBags();
         List<String> properties = Arrays.asList("key0", "key1");
-        PropertyBag b0 = new PropertyBag(properties);
-        PropertyBag b1 = new PropertyBag(properties);
+        PropertyBag b0 = new PropertyBag(properties, true, true);
+        PropertyBag b1 = new PropertyBag(properties, true, true);
         bags.add(b0);
         bags.add(b1);
         b0.put("key0", "http://example.com/#key0-value0");
@@ -75,8 +75,8 @@ class PropertyBagsTest {
         String propertyp = "http://example.com/#p";
         String propertyq = "http://example.com/#q";
 
-        PropertyBag b0p = new PropertyBag(properties);
-        PropertyBag b0q = new PropertyBag(properties);
+        PropertyBag b0p = new PropertyBag(properties, true);
+        PropertyBag b0q = new PropertyBag(properties, true);
         b0p.put("id", "http://example.com/#id0");
         b0p.put("key", propertyp);
         b0p.put("value", "http://example.com/#id0-p-value");
@@ -86,8 +86,8 @@ class PropertyBagsTest {
         bs.add(b0p);
         bs.add(b0q);
 
-        PropertyBag b1p = new PropertyBag(properties);
-        PropertyBag b1q = new PropertyBag(properties);
+        PropertyBag b1p = new PropertyBag(properties, true);
+        PropertyBag b1q = new PropertyBag(properties, true);
         b1p.put("id", "http://example.com/#id1");
         b1p.put("key", propertyp);
         b1p.put("value", "http://example.com/#id1-p-value");
