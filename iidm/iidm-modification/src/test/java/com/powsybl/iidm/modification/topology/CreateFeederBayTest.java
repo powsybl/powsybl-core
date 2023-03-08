@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.apache.commons.lang3.Range;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -25,15 +25,15 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.g
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class CreateFeederBayTest extends AbstractConverterTest {
+class CreateFeederBayTest extends AbstractConverterTest {
 
     @Test
-    public void baseNodeBreakerLoadTest() throws IOException {
+    void baseNodeBreakerLoadTest() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -53,7 +53,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
     }
 
     @Test
-    public void baseBusBreakerLoadTest() throws IOException {
+    void baseBusBreakerLoadTest() throws IOException {
         Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
         LoadAdder loadAdder = network.getVoltageLevel("VLGEN").newLoad()
                 .setId("newLoad")
@@ -73,7 +73,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
     }
 
     @Test
-    public void getUnusedOrderPositionAfter() {
+    void getUnusedOrderPositionAfter() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -100,7 +100,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
     }
 
     @Test
-    public void getUnusedOrderPositionBefore() {
+    void getUnusedOrderPositionBefore() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -127,7 +127,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testException() {
+    void testException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -167,7 +167,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
     }
 
     @Test
-    public void baseGeneratorTest() throws IOException {
+    void baseGeneratorTest() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         GeneratorAdder generatorAdder = network.getVoltageLevel("vl1").newGenerator()
                 .setId("newGenerator")
@@ -192,7 +192,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
     }
 
     @Test
-    public void baseEquipmentsTest() throws IOException {
+    void baseEquipmentsTest() throws IOException {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
         BatteryAdder batteryAdder = network.getVoltageLevel("vl1").newBattery()
                 .setId("newBattery")
@@ -311,7 +311,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithoutExtension() {
+    void testWithoutExtension() {
         Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
@@ -340,7 +340,7 @@ public class CreateFeederBayTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExtensionsAreCreatedIfNoOtherConnectables() {
+    void testExtensionsAreCreatedIfNoOtherConnectables() {
         Network network = Network.read("network_one_voltage_level.xiidm", getClass().getResourceAsStream("/network_one_voltage_level.xiidm"));
         LoadAdder loadAdder = network.getVoltageLevel("VLTEST").newLoad()
                 .setId("newLoad")

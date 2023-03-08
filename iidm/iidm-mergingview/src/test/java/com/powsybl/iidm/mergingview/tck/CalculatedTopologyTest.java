@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractCalculatedTopologyTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class CalculatedTopologyTest extends AbstractCalculatedTopologyTest { }
+class CalculatedTopologyTest extends AbstractCalculatedTopologyTest { }

@@ -15,9 +15,8 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.MissingMethodException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 
 import java.util.Arrays;
@@ -26,30 +25,27 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class ActionDslLoaderTest {
-
-    @org.junit.Rule
-    public final ExpectedException exception = ExpectedException.none();
+class ActionDslLoaderTest {
 
     private Network network;
     private Supplier<ActionDslLoader> loaderSupplier1;
     private Supplier<ActionDslLoader> loaderSupplier2;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = EurostagTutorialExample1Factory.create();
         loaderSupplier1 = () -> new ActionDslLoader(new GroovyCodeSource(Objects.requireNonNull(ActionDslLoaderTest.class.getResource("/actions.groovy"))));
         loaderSupplier2 = () -> new ActionDslLoader(new GroovyCodeSource(Objects.requireNonNull(ActionDslLoaderTest.class.getResource("/actions2.groovy"))));
     }
 
     @Test
-    public void test() {
+    void test() {
         ActionDb actionDb = loaderSupplier1.get().load(network);
 
         assertEquals(2, actionDb.getContingencies().size());
@@ -75,7 +71,7 @@ public class ActionDslLoaderTest {
     }
 
     @Test
-    public void testBackwardCompatibility() {
+    void testBackwardCompatibility() {
         ActionDb actionDb = loaderSupplier2.get().load(network);
         Action fixedTapAction = actionDb.getAction("backwardCompatibility");
         assertNotNull(fixedTapAction);
@@ -91,16 +87,15 @@ public class ActionDslLoaderTest {
     }
 
     @Test
-    public void testDslExtension() {
+    void testDslExtension() {
         ActionDb actionDb = loaderSupplier2.get().load(network);
         Action another = actionDb.getAction("anotherAction");
-        exception.expect(RuntimeException.class);
-        exception.expectMessage("Switch 'switchId' not found");
-        another.run(network);
+        RuntimeException e = assertThrows(RuntimeException.class, () -> another.run(network));
+        assertTrue(e.getMessage().contains("Switch 'switchId' not found"));
     }
 
     @Test
-    public void testFixTapDslExtension() {
+    void testFixTapDslExtension() {
         ActionDb actionDb = loaderSupplier2.get().load(network);
         Action fixedTapAction = actionDb.getAction("fixedTap");
         assertNotNull(fixedTapAction);
@@ -129,7 +124,7 @@ public class ActionDslLoaderTest {
     }
 
     @Test
-    public void testDeltaTapDslExtension() {
+    void testDeltaTapDslExtension() {
         for (DeltaTapData data : provideParams()) {
             ActionDb actionDb = loaderSupplier2.get().load(network);
             Action deltaTapAction = actionDb.getAction(data.getTestName());
@@ -148,42 +143,38 @@ public class ActionDslLoaderTest {
     }
 
     @Test
-    public void testInvalidTransformerId() {
+    void testInvalidTransformerId() {
         ActionDb actionDb = loaderSupplier2.get().load(network);
         Action deltaTapAction = actionDb.getAction("InvalidTransformerId");
         assertNotNull(deltaTapAction);
         assertEquals(-10, ((PhaseShifterShiftTap) deltaTapAction.getModifications().get(0)).getTapDelta());
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Transformer 'NHV1_NHV2_1' not found");
-        deltaTapAction.run(network);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> deltaTapAction.run(network));
+        assertTrue(e.getMessage().contains("Transformer 'NHV1_NHV2_1' not found"));
     }
 
     @Test
-    public void testTransformerWithoutPhaseShifter() {
+    void testTransformerWithoutPhaseShifter() {
         ActionDb actionDb = loaderSupplier2.get().load(network);
         Action deltaTapAction = actionDb.getAction("TransformerWithoutPhaseShifter");
         assertNotNull(deltaTapAction);
         assertEquals(-10, ((PhaseShifterShiftTap) deltaTapAction.getModifications().get(0)).getTapDelta());
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Transformer 'NGEN_NHV1' is not a phase shifter");
-        deltaTapAction.run(network);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> deltaTapAction.run(network));
+        assertTrue(e.getMessage().contains("Transformer 'NGEN_NHV1' is not a phase shifter"));
     }
 
     @Test
-    public void testUnvalidate() {
+    void testUnvalidate() {
         ActionDb actionDb = loaderSupplier2.get().load(network);
         Action someAction = actionDb.getAction("someAction");
-        exception.expect(ActionDslException.class);
-        exception.expectMessage("Dsl extension task(closeSwitch) is forbidden in task script");
-        someAction.run(network);
+        ActionDslException e = assertThrows(ActionDslException.class, () -> someAction.run(network));
+        assertTrue(e.getMessage().contains("Dsl extension task(closeSwitch) is forbidden in task script"));
     }
 
     @Test
-    public void testUnKnownMethodInScript() {
+    void testUnKnownMethodInScript() {
         ActionDb actionDb = loaderSupplier2.get().load(network);
         Action someAction = actionDb.getAction("missingMethod");
-        exception.expect(MissingMethodException.class);
-        someAction.run(network);
+        assertThrows(MissingMethodException.class, () -> someAction.run(network));
     }
 
     private static <T> ArgumentMatcher<T> matches(Function<T, Boolean> predicate) {
@@ -196,7 +187,7 @@ public class ActionDslLoaderTest {
     }
 
     @Test
-    public void testHandler() {
+    void testHandler() {
         ActionDslHandler handler = mock(ActionDslHandler.class);
         loaderSupplier1.get().load(network, handler, null);
 

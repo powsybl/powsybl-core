@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractLccTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class LccTest extends AbstractLccTest { }
+class LccTest extends AbstractLccTest { }

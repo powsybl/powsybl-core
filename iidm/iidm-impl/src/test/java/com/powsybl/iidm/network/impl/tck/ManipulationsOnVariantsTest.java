@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractManipulationsOnVariantsTest;
 
-public class ManipulationsOnVariantsTest extends AbstractManipulationsOnVariantsTest { }
+class ManipulationsOnVariantsTest extends AbstractManipulationsOnVariantsTest { }

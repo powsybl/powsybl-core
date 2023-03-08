@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentif
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
 import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
 import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ import java.util.Objects;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class NetworkElementIdentifierContingencyListJsonTest extends AbstractConverterTest {
+class NetworkElementIdentifierContingencyListJsonTest extends AbstractConverterTest {
 
     private static IdentifierContingencyList create() {
         List<NetworkElementIdentifier> networkElementIdentifiers = new ArrayList<>();
@@ -42,7 +42,7 @@ public class NetworkElementIdentifierContingencyListJsonTest extends AbstractCon
     }
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripTest(create(), NetworkElementIdentifierContingencyListJsonTest::write, NetworkElementIdentifierContingencyListJsonTest::readContingencyList,
                 "/identifierContingencyList.json");
     }

@@ -11,19 +11,19 @@ import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.modification.tripping.BusbarSectionTripping;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class BusbarSectionContingencyTest {
+class BusbarSectionContingencyTest {
 
     @Test
-    public void test() {
+    void test() {
         Contingency contingency = Contingency.busbarSection("id");
         assertEquals("id", contingency.getId());
         assertEquals(1, contingency.getElements().size());
@@ -43,7 +43,7 @@ public class BusbarSectionContingencyTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         Network network = HvdcTestNetwork.createLcc();
         ContingencyList contingencyList = ContingencyList.of(Contingency.busbarSection("BBS1"), Contingency.busbarSection("bbs2"));
         List<Contingency> contingencies = contingencyList.getContingencies(network);

@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.*;
 import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ import java.util.Objects;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class ListOfContingencyListsJsonTest extends AbstractConverterTest {
+class ListOfContingencyListsJsonTest extends AbstractConverterTest {
 
     private static ListOfContingencyLists create() {
         List<ContingencyList> contingencyLists = new ArrayList<>();
@@ -68,7 +68,7 @@ public class ListOfContingencyListsJsonTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripTest(create(), ListOfContingencyListsJsonTest::write, ListOfContingencyListsJsonTest::readContingencyList,
                 "/contingencyListsList.json");
     }

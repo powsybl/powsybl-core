@@ -7,13 +7,13 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +31,10 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class JoinVoltageLevelTest {
+class JoinVoltageLevelTest {
 
     @Test
-    public void smallNodeBreakerJoinVoltageLevelSwitch() throws IOException {
+    void smallNodeBreakerJoinVoltageLevelSwitch() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerJoinVoltageLevelSwitch(), config);
 
@@ -50,7 +50,7 @@ public class JoinVoltageLevelTest {
     }
 
     @Test
-    public void miniNodeBreakerSwitchBetweenVoltageLevelsOpen() throws IOException {
+    void miniNodeBreakerSwitchBetweenVoltageLevelsOpen() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerSwitchBetweenVoltageLevelsOpen(), config);
 
@@ -68,7 +68,7 @@ public class JoinVoltageLevelTest {
     }
 
     @Test
-    public void smallNodeBreakerJoinVoltageLevelTx() throws IOException {
+    void smallNodeBreakerJoinVoltageLevelTx() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerJoinVoltageLevelTx(), config);
 

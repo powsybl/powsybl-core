@@ -8,7 +8,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,10 +20,10 @@ import static com.powsybl.commons.test.ComparisonUtils.compareXml;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class SkipExtensionTest extends AbstractXmlConverterTest {
+class SkipExtensionTest extends AbstractXmlConverterTest {
 
     @Test
-    public void testSkipExtension() throws IOException {
+    void testSkipExtension() throws IOException {
         Network network = NetworkXml.read(getVersionedNetworkAsStream("multiple-extensions.xml", IidmXmlVersion.V_1_0));
 
         Properties properties = new Properties();

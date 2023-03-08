@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.apache.commons.lang3.Range;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -28,18 +28,18 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.g
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateBranchFeederBaysTest extends AbstractConverterTest {
+class CreateBranchFeederBaysTest extends AbstractConverterTest {
 
     private final Network bbNetwork = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
     private final Network nbNetwork = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
     @Test
-    public void baseNodeBreakerLineTest() throws IOException {
+    void baseNodeBreakerLineTest() throws IOException {
         LineAdder lineAdder = nbNetwork.newLine()
                 .setId("lineTest")
                 .setR(1.0)
@@ -65,7 +65,7 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
     }
 
     @Test
-    public void baseBusBreakerLineTest() throws IOException {
+    void baseBusBreakerLineTest() throws IOException {
         LineAdder lineAdder = bbNetwork.newLine()
                 .setId("lineTest")
                 .setR(1.0)
@@ -90,7 +90,7 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
     }
 
     @Test
-    public void usedOrderLineTest() throws IOException {
+    void usedOrderLineTest() throws IOException {
         LineAdder lineAdder = nbNetwork.newLine()
                 .setId("lineTest")
                 .setR(1.0)
@@ -114,7 +114,7 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
     }
 
     @Test
-    public void baseInternalLineTest() throws IOException {
+    void baseInternalLineTest() throws IOException {
         LineAdder lineAdder = nbNetwork.newLine()
                 .setId("lineTest")
                 .setR(1.0)
@@ -138,7 +138,7 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
     }
 
     @Test
-    public void getUnusedOrderPositionAfter() {
+    void getUnusedOrderPositionAfter() {
         LineAdder lineAdder = nbNetwork.newLine()
                 .setId("lineTest")
                 .setR(1.0)
@@ -170,7 +170,7 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
     }
 
     @Test
-    public void getUnusedOrderPositionBefore() {
+    void getUnusedOrderPositionBefore() {
         LineAdder lineAdder = nbNetwork.newLine()
                 .setId("lineTest")
                 .setR(1.0)
@@ -202,7 +202,7 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testException() {
+    void testException() {
         LineAdder lineAdder = nbNetwork.newLine()
                 .setId("lineTest")
                 .setR(1.0)
@@ -254,7 +254,7 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
     }
 
     @Test
-    public void baseNodeBreakerTwoWindingsTransformerTest() throws IOException {
+    void baseNodeBreakerTwoWindingsTransformerTest() throws IOException {
         TwoWindingsTransformerAdder twtAdder = nbNetwork.getSubstation("subst")
                 .newTwoWindingsTransformer()
                 .setId("lineTest")
@@ -279,7 +279,7 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
     }
 
     @Test
-    public void baseBusBreakerTwoWindingsTransformerTest() throws IOException {
+    void baseBusBreakerTwoWindingsTransformerTest() throws IOException {
         TwoWindingsTransformerAdder twtAdder = bbNetwork.getSubstation("P1")
                 .newTwoWindingsTransformer()
                 .setId("twtTest")
@@ -304,7 +304,7 @@ public class CreateBranchFeederBaysTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testWithoutExtension() {
+    void testWithoutExtension() {
         Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
         LineAdder lineAdder = network.newLine()
                 .setId("lineTest")

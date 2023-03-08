@@ -18,12 +18,12 @@ import com.powsybl.iidm.xml.XMLImporter;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public final class Cim14SmallCasesNetworkCatalog {
+final class Cim14SmallCasesNetworkCatalog {
 
     private Cim14SmallCasesNetworkCatalog() {
     }
 
-    public static Network smallcase1() {
+    static Network smallcase1() {
         String sGenGeoTag = "1 ";
         String sInfGeoTag = "1 ";
         String genName = "GEN     ";
@@ -172,19 +172,19 @@ public final class Cim14SmallCasesNetworkCatalog {
         return network;
     }
 
-    public static Network ieee14() {
+    static Network ieee14() {
         return loadNetwork(Cim14SmallCasesCatalog.ieee14());
     }
 
-    public static Network nordic32() {
+    static Network nordic32() {
         return loadNetwork(Cim14SmallCasesCatalog.nordic32());
     }
 
-    public static Network m7buses() {
+    static Network m7buses() {
         return loadNetwork(Cim14SmallCasesCatalog.m7buses());
     }
 
-    public static Network txMicroBEAdapted() {
+    static Network txMicroBEAdapted() {
         return loadNetwork(Cim14SmallCasesCatalog.txMicroBEAdapted());
     }
 

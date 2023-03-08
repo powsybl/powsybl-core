@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractVoltagePerReactivePowerCo
 /**
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  */
-public class VoltagePerReactivePowerControlTest extends AbstractVoltagePerReactivePowerControlTest {
+class VoltagePerReactivePowerControlTest extends AbstractVoltagePerReactivePowerControlTest {
 }

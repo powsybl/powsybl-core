@@ -12,21 +12,21 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityAnalysisResultTest extends AbstractConverterTest {
+class SensitivityAnalysisResultTest extends AbstractConverterTest {
 
     @Test
-    public void testSide1() {
+    void testSide1() {
         SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
                                                           SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                           false, ContingencyContext.all());
@@ -86,7 +86,7 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testSide2() {
+    void testSide2() {
         SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_2, "l",
                 SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                 false, ContingencyContext.all());
@@ -141,7 +141,7 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testSide3() {
+    void testSide3() {
         SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_3, "l",
                 SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                 false, ContingencyContext.all());
@@ -197,7 +197,7 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testBusVoltage() {
+    void testBusVoltage() {
         SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BUS_VOLTAGE, "l",
                 SensitivityVariableType.BUS_TARGET_VOLTAGE, "g",
                 false, ContingencyContext.all());
@@ -238,7 +238,7 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testCompareSensivitiyValueKeysEqualsNotEquals() {
+    void testCompareSensivitiyValueKeysEqualsNotEquals() {
         SensitivityValueKey key1 = new SensitivityValueKey(null, "l1", "g1", SensitivityFunctionType.BRANCH_CURRENT_1, SensitivityVariableType.BUS_TARGET_VOLTAGE);
         SensitivityValueKey key2 = new SensitivityValueKey("c1", "l1", "g1", SensitivityFunctionType.BRANCH_CURRENT_1, SensitivityVariableType.BUS_TARGET_VOLTAGE);
         SensitivityValueKey key3 = new SensitivityValueKey(null, "l1", "g1", SensitivityFunctionType.BRANCH_CURRENT_2, SensitivityVariableType.BUS_TARGET_VOLTAGE);
@@ -258,7 +258,7 @@ public class SensitivityAnalysisResultTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testSerializeDeserialize() throws IOException {
+    void testSerializeDeserialize() throws IOException {
         SensitivityFactor factor1 = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1, "l",
                 SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                 false, ContingencyContext.all());

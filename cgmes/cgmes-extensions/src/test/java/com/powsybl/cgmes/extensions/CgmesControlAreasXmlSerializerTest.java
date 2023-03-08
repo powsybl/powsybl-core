@@ -11,17 +11,17 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class CgmesControlAreasXmlSerializerTest extends AbstractConverterTest {
+class CgmesControlAreasXmlSerializerTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2021-02-02T09:27:39.856+01:00"));
         network.getVoltageLevel("VLGEN")

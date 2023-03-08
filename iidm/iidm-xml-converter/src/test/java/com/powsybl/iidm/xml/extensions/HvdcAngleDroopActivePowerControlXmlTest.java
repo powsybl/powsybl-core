@@ -15,21 +15,21 @@ import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
-public class HvdcAngleDroopActivePowerControlXmlTest extends AbstractConverterTest {
+class HvdcAngleDroopActivePowerControlXmlTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = HvdcTestNetwork.createLcc();
 
         HvdcLine hvdcLine = network.getHvdcLine("L");

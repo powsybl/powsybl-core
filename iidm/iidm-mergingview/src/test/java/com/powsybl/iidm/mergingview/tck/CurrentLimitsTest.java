@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractCurrentLimitsTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class CurrentLimitsTest extends AbstractCurrentLimitsTest { }
+class CurrentLimitsTest extends AbstractCurrentLimitsTest { }

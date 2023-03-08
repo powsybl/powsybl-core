@@ -9,7 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,16 +18,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class MultiVariantMergingViewTest {
+class MultiVariantMergingViewTest {
 
     @Test
-    public void singleThreadTest() {
+    void singleThreadTest() {
         final MergingView mergingView = MergingView.create("SingleThreadTest", "iidm");
         mergingView.merge(EurostagTutorialExample1Factory.create());
         final VariantManager manager = mergingView.getVariantManager();
@@ -49,7 +49,7 @@ public class MultiVariantMergingViewTest {
     }
 
     @Test
-    public void multiThreadTest() throws InterruptedException {
+    void multiThreadTest() throws InterruptedException {
         final MergingView mergingView = MergingView.create("MultiThreadTest", "iidm");
         mergingView.merge(EurostagTutorialExample1Factory.create());
         final VariantManager manager = mergingView.getVariantManager();
@@ -93,7 +93,7 @@ public class MultiVariantMergingViewTest {
     }
 
     @Test
-    public void multiVariantTopologyTest() throws InterruptedException {
+    void multiVariantTopologyTest() throws InterruptedException {
         final MergingView mergingView = MergingView.create("MultiVariantTopologyTest", "iidm");
         mergingView.merge(EurostagTutorialExample1Factory.create());
         final VariantManager manager = mergingView.getVariantManager();
@@ -121,7 +121,7 @@ public class MultiVariantMergingViewTest {
     }
 
     @Test
-    public void variantNotSetTest() throws InterruptedException {
+    void variantNotSetTest() throws InterruptedException {
         final MergingView mergingView = MergingView.create("VariantNotSetTest", "iidm");
         mergingView.merge(EurostagTutorialExample1Factory.create());
         final VariantManager manager = mergingView.getVariantManager();
@@ -140,7 +140,7 @@ public class MultiVariantMergingViewTest {
     }
 
     @Test
-    public void variantSetTest() throws InterruptedException {
+    void variantSetTest() throws InterruptedException {
         final MergingView mergingView = MergingView.create("VariantNotSetTest", "iidm");
         mergingView.merge(EurostagTutorialExample1Factory.create());
         final VariantManager manager = mergingView.getVariantManager();

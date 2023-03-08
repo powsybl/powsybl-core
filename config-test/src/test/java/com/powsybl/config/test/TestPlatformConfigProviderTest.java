@@ -8,23 +8,23 @@ package com.powsybl.config.test;
 
 import com.powsybl.commons.config.BaseVoltagesConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
-public class TestPlatformConfigProviderTest {
+class TestPlatformConfigProviderTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         PlatformConfig platformConfig = PlatformConfig.defaultConfig();
         assertEquals("/work/" + TestPlatformConfigProvider.CONFIG_DIR,
                 platformConfig.getConfigDir().map(Path::toString).orElse(null));
@@ -37,7 +37,7 @@ public class TestPlatformConfigProviderTest {
     }
 
     @Test
-    public void testBaseVoltagesConfig() {
+    void testBaseVoltagesConfig() {
         BaseVoltagesConfig config = BaseVoltagesConfig.fromPlatformConfig();
         assertNotNull(config);
         assertEquals(1, config.getBaseVoltages().size());

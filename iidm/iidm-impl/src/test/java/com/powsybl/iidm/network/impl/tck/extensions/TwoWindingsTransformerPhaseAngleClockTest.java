@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractTwoWindingsTransformerPha
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class TwoWindingsTransformerPhaseAngleClockTest extends AbstractTwoWindingsTransformerPhaseAngleClockTest {
+class TwoWindingsTransformerPhaseAngleClockTest extends AbstractTwoWindingsTransformerPhaseAngleClockTest {
 }

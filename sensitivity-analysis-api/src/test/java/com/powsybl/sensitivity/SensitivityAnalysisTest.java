@@ -13,19 +13,19 @@ import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-public class SensitivityAnalysisTest {
+class SensitivityAnalysisTest {
 
     private static final String DEFAULT_PROVIDER_NAME = "SensitivityAnalysisMock";
 
@@ -38,8 +38,8 @@ public class SensitivityAnalysisTest {
     private List<SensitivityVariableSet> variableSets;
     private SensitivityAnalysisParameters parameters;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = EurostagTutorialExample1Factory.create();
         computationManager = Mockito.mock(ComputationManager.class);
         factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER_1,
@@ -56,14 +56,14 @@ public class SensitivityAnalysisTest {
     }
 
     @Test
-    public void testDefaultProvider() {
+    void testDefaultProvider() {
         SensitivityAnalysis.Runner runner = SensitivityAnalysis.find();
         assertEquals(DEFAULT_PROVIDER_NAME, runner.getName());
         assertEquals("1.0", runner.getVersion());
     }
 
     @Test
-    public void testRunAsyncWithReaderAndWriter() {
+    void testRunAsyncWithReaderAndWriter() {
         SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, factorReader, resultWriter,
                 contingencies, variableSets, parameters, computationManager, Reporter.NO_OP)
                 .join();
@@ -71,7 +71,7 @@ public class SensitivityAnalysisTest {
     }
 
     @Test
-    public void testRunAsync() {
+    void testRunAsync() {
         SensitivityAnalysisResult result = SensitivityAnalysis.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
                         contingencies, variableSets, parameters, computationManager, Reporter.NO_OP)
                 .join();
@@ -79,45 +79,45 @@ public class SensitivityAnalysisTest {
     }
 
     @Test
-    public void testRun() {
+    void testRun() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
                         contingencies, variableSets, parameters, computationManager, Reporter.NO_OP);
         assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testRunShort1() {
+    void testRunShort1() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, VariantManagerConstants.INITIAL_VARIANT_ID, List.of(factor),
                 contingencies, variableSets, parameters);
         assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testRunShort2() {
+    void testRunShort2() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), contingencies, variableSets, parameters);
         assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testRunShort3() {
+    void testRunShort3() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), contingencies, parameters);
         assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testRunShort4() {
+    void testRunShort4() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), contingencies);
         assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testRunShort5() {
+    void testRunShort5() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor));
         assertEquals(1, result.getValues().size());
     }
 
     @Test
-    public void testRunShort6() {
+    void testRunShort6() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, List.of(factor), parameters);
         assertEquals(1, result.getValues().size());
     }

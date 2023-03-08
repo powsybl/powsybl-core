@@ -14,17 +14,17 @@ import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class ThreeWindingsTransformerToBeEstimatedXmlTest extends AbstractXmlConverterTest {
+class ThreeWindingsTransformerToBeEstimatedXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
 

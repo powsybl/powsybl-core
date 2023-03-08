@@ -8,13 +8,13 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,7 +23,7 @@ public abstract class AbstractStaticVarCompensatorTest {
 
     private Network network;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = SvcTestCaseFactory.create();
     }

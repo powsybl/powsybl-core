@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractActivePowerControlTest;
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
-public class ActivePowerControlTest extends AbstractActivePowerControlTest {
+class ActivePowerControlTest extends AbstractActivePowerControlTest {
 }

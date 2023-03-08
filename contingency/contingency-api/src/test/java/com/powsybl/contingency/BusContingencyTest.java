@@ -12,20 +12,20 @@ import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.modification.tripping.BusTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
-public class BusContingencyTest {
+class BusContingencyTest {
 
     @Test
-    public void test() {
+    void test() {
         Contingency contingency = Contingency.bus("idBus");
         assertEquals("idBus", contingency.getId());
         assertEquals(1, contingency.getElements().size());
@@ -45,7 +45,7 @@ public class BusContingencyTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         Network network = EurostagTutorialExample1Factory.create();
         ContingencyList contingencyList = ContingencyList.of(Contingency.bus("NGEN"));
         List<Contingency> contingencies = contingencyList.getContingencies(network);

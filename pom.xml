@@ -115,7 +115,7 @@
         <jgrapht.version>1.5.1</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
         <jodatime.version>2.9.7</jodatime.version>
-        <junit.version>4.13.1</junit.version>
+        <junit-jupiter.version>5.5.2</junit-jupiter.version>
         <logback.version>1.2.10</logback.version>
         <maven.core.version>3.8.5</maven.core.version>
         <maven.plugin.annotations.version>3.6.0</maven.plugin.annotations.version>
@@ -126,7 +126,7 @@
         <rdf4j.version>4.2.2</rdf4j.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>1.7.22</slf4j.version>
-        <snakeyaml.version>1.33</snakeyaml.version>
+        <snakeyaml.version>2.0</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
         <stringtemplate.version>4.3.4</stringtemplate.version>
         <testcontainers.version>1.17.6</testcontainers.version>
@@ -179,7 +179,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <excludedGroups>com.powsybl.commons.test.DockerTests</excludedGroups>
+                            <excludedGroups>dockerTests</excludedGroups>
                         </configuration>
                     </plugin>
                 </plugins>
@@ -883,9 +883,9 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit-jupiter.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

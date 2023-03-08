@@ -16,19 +16,19 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class RegulatingTerminalConversionTest {
+class RegulatingTerminalConversionTest {
 
     @Test
-    public void microGridBaseCaseRegulatingTerminalsDefinedOnSwitches() {
+    void microGridBaseCaseRegulatingTerminalsDefinedOnSwitches() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(Cgmes3ModifiedCatalog.microGridBaseCaseRegulatingTerminalsDefinedOnSwitches(), config);
 
@@ -59,7 +59,7 @@ public class RegulatingTerminalConversionTest {
     }
 
     @Test
-    public void microGridBaseBECaseRegulatingTerminalsDefinedOnSwitches() {
+    void microGridBaseBECaseRegulatingTerminalsDefinedOnSwitches() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERegulatingTerminalsDefinedOnSwitches(), config);
 

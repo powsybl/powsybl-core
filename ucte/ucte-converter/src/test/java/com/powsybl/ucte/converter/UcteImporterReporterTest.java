@@ -19,7 +19,7 @@ import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,17 +30,17 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class UcteImporterReporterTest extends AbstractConverterTest {
+class UcteImporterReporterTest extends AbstractConverterTest {
 
     private static final String WORK_DIR = "/tmp";
 
     @Test
-    public void testReportElementName() throws Exception {
+    void testReportElementName() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
         ReporterModel reporter = new ReporterModel("testReportVoltageRegulatingXnode", "Test importing UCTE file ${file}",
@@ -67,7 +67,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTripReporterJsonTest() throws Exception {
+    void roundTripReporterJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
         ReporterModel reporter = new ReporterModel("roundTripReporterJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct");
         reporter.report("novalueReport", "No value report");
@@ -83,7 +83,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void jsonDeserializeNoSpecifiedDictionary() throws Exception {
+    void jsonDeserializeNoSpecifiedDictionary() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new ReporterModelJsonModule());
         ReporterModel rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
@@ -101,7 +101,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTripReporterJsonParallelImportTest() throws InterruptedException, ExecutionException, IOException {
+    void roundTripReporterJsonParallelImportTest() throws InterruptedException, ExecutionException, IOException {
         Path workDir = Files.createDirectory(fileSystem.getPath(WORK_DIR));
         Files.copy(getClass().getResourceAsStream("/frVoltageRegulatingXnode.uct"), fileSystem.getPath(WORK_DIR, "frVoltageRegulatingXnode.uct"));
         Files.copy(getClass().getResourceAsStream("/frTestGridForMerging.uct"), fileSystem.getPath(WORK_DIR, "frTestGridForMerging.uct"));

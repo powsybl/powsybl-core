@@ -9,25 +9,22 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
+class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("staticVarCompensatorRoundTripRef.xml");
 
@@ -40,7 +37,7 @@ public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void remoteRegulationRoundTripTest() throws IOException {
+    void remoteRegulationRoundTripTest() throws IOException {
         Network network = SvcTestCaseFactory.createWithRemoteRegulatingTerminal();
         addProperties(network);
         roundTripXmlTest(network,
@@ -50,20 +47,18 @@ public class StaticVarCompensatorXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void readFaultyVersionRegulatingSvcFile() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("staticVarCompensator.regulatingTerminal is not supported for IIDM-XML version 1.0. " +
-                "IIDM-XML version should be >= 1.1");
-        NetworkXml.read(getVersionedNetworkAsStream("faultyRegulatingStaticVarCompensatorRoundTripRef.xml", IidmXmlVersion.V_1_0));
+    void readFaultyVersionRegulatingSvcFile() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkXml.read(getVersionedNetworkAsStream("faultyRegulatingStaticVarCompensatorRoundTripRef.xml", IidmXmlVersion.V_1_0)));
+        assertTrue(e.getMessage().contains("staticVarCompensator.regulatingTerminal is not supported for IIDM-XML version 1.0. " +
+                "IIDM-XML version should be >= 1.1"));
     }
 
     @Test
-    public void writeFaultyVersionRegulatingSvcFile() throws IOException {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("staticVarCompensator.regulatingTerminal is not defined as default and not supported for IIDM-XML version 1.0. " +
-                "IIDM-XML version should be >= 1.1");
+    void writeFaultyVersionRegulatingSvcFile() throws IOException {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            NetworkXml.write(SvcTestCaseFactory.createWithRemoteRegulatingTerminal(), new ExportOptions().setVersion("1.0"), os);
+            PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkXml.write(SvcTestCaseFactory.createWithRemoteRegulatingTerminal(), new ExportOptions().setVersion("1.0"), os));
+            assertTrue(e.getMessage().contains("staticVarCompensator.regulatingTerminal is not defined as default and not supported for IIDM-XML version 1.0. " +
+                    "IIDM-XML version should be >= 1.1"));
         }
     }
 

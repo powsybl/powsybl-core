@@ -7,25 +7,25 @@
 package com.powsybl.computation;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ComputationParametersTest {
+class ComputationParametersTest {
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         ComputationParameters empty = ComputationParameters.empty();
         assertFalse(empty.getTimeout("cmd").isPresent());
     }
 
     @Test
-    public void testBuilder() {
+    void testBuilder() {
         String cmdId = "cmd";
         ComputationParameters opts = new ComputationParametersBuilder()
                 .setTimeout(cmdId, 10)
@@ -39,7 +39,7 @@ public class ComputationParametersTest {
     }
 
     @Test
-    public void testInvalid() {
+    void testInvalid() {
         try {
             ComputationParameters opts = new ComputationParametersBuilder()
                     .setTimeout("inv", 0)
@@ -51,7 +51,7 @@ public class ComputationParametersTest {
     }
 
     @Test
-    public void testExt() {
+    void testExt() {
         // prepare
         ComputationParameters base = ComputationParameters.empty();
         QuantumComputationParameters quantum = new QuantumComputationParameters(42);
@@ -76,7 +76,7 @@ public class ComputationParametersTest {
             return "QuantumComputationParameters";
         }
 
-        public int getAtLeastQubits() {
+        int getAtLeastQubits() {
             return atLeastQubits;
         }
     }

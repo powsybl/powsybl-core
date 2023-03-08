@@ -9,7 +9,7 @@ package com.powsybl.commons.config;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.yaml.snakeyaml.error.YAMLException;
 
@@ -23,16 +23,16 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class BaseVoltagesConfigTest {
+class BaseVoltagesConfigTest {
 
     @Test
-    public void test() {
+    void test() {
         BaseVoltagesConfig config = BaseVoltagesConfig.fromInputStream(getClass().getResourceAsStream("/base-voltages.yml"));
         assertNotNull(config);
         assertEquals(Arrays.asList("vl300to500", "vl180to300", "vl120to180", "vl70to120", "vl50to70", "vl30to50", "vl0to30"),
@@ -64,14 +64,14 @@ public class BaseVoltagesConfigTest {
     }
 
     @Test
-    public void testMissingPlatformConfigFile() {
+    void testMissingPlatformConfigFile() {
         PlatformConfig platformConfig = new PlatformConfig((ModuleConfigRepository) null, Path.of("./"));
-        assertThrows("No base voltages configuration found", PowsyblException.class,
-            () -> BaseVoltagesConfig.fromPlatformConfig(platformConfig, "unknown.yml"));
+        assertThrows(PowsyblException.class,
+            () -> BaseVoltagesConfig.fromPlatformConfig(platformConfig, "unknown.yml"), "No base voltages configuration found");
     }
 
     @Test
-    public void testNoConfigDir() {
+    void testNoConfigDir() {
         PlatformConfig mockedPc = Mockito.mock(PlatformConfig.class);
         Mockito.when(mockedPc.getConfigDir()).thenReturn(Optional.empty());
 
@@ -80,7 +80,7 @@ public class BaseVoltagesConfigTest {
     }
 
     @Test
-    public void testFromPath() throws IOException {
+    void testFromPath() throws IOException {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/base-voltages.yml")), fs.getPath("/work/my-base-voltages.yml"));
             Path workDir = fs.getPath("/work");
@@ -94,7 +94,7 @@ public class BaseVoltagesConfigTest {
     }
 
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         String empty = "baseVoltages:\ndefaultProfile: \"Def\"";
         BaseVoltagesConfig config = BaseVoltagesConfig.fromInputStream(new ByteArrayInputStream(empty.getBytes()));
         assertNotNull(config);
@@ -103,7 +103,7 @@ public class BaseVoltagesConfigTest {
     }
 
     @Test
-    public void testMalformed() {
+    void testMalformed() {
         String malformed1 = "baseVoltages:";
         ByteArrayInputStream inputStream1 = new ByteArrayInputStream(malformed1.getBytes());
         YAMLException e1 = assertThrows(YAMLException.class, () -> BaseVoltagesConfig.fromInputStream(inputStream1));
