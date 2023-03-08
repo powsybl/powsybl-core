@@ -86,7 +86,7 @@ class BranchObservabilityXmlTest extends AbstractConverterTest {
                 (n, path) -> NetworkXml.writeAndValidate(n, options, path),
                 NetworkXml::validateAndRead,
                 getVersionedNetworkPath("/branchObservabilityRoundTripRef.xml", version));
-        } catch (AssertionError err) {
+        } catch (IllegalStateException err) {
             NetworkXml.write(network, options, System.out);
             throw err;
         }

@@ -52,12 +52,12 @@ public interface Boundary {
     default VoltageLevel getNetworkSideVoltageLevel() {
         Connectable<?> c = getConnectable();
         if (c == null) {
-            throw new AssertionError("Missing parent connectable");
+            throw new IllegalStateException("Missing parent connectable");
         } else if (c instanceof Injection) {
             return ((Injection) c).getTerminal().getVoltageLevel();
         } else if (c instanceof Branch) {
             return ((Branch) c).getTerminal(getSide()).getVoltageLevel();
         }
-        throw new AssertionError("Unexpected parent connectable: " + c.getId());
+        throw new IllegalStateException("Unexpected parent connectable: " + c.getId());
     }
 }

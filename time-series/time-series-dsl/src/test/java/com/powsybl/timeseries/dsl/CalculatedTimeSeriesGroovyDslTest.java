@@ -77,7 +77,7 @@ class CalculatedTimeSeriesGroovyDslTest {
                     case 2:
                         return bazValues[point];
                     default:
-                        throw new AssertionError();
+                        throw new IllegalStateException();
                 }
             }
         });

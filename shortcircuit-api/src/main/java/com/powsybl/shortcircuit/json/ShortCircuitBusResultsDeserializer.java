@@ -72,7 +72,7 @@ class ShortCircuitBusResultsDeserializer {
                         break;
 
                     default:
-                        throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                        throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
                 }
             }
             if (voltage != null) {

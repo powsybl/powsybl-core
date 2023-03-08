@@ -48,7 +48,7 @@ public class ReactiveLimitsXml {
                 break;
 
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 

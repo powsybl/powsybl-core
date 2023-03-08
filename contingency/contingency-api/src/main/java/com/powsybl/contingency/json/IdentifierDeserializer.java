@@ -64,7 +64,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         if (type == null) {

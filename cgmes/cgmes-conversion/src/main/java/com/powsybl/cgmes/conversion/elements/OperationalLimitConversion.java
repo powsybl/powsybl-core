@@ -81,7 +81,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             case CURRENT_LIMIT:
                 return holder::newCurrentLimits;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
@@ -97,7 +97,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             case CURRENT_LIMIT:
                 return b::newCurrentLimits1;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
@@ -113,7 +113,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             case CURRENT_LIMIT:
                 return b::newCurrentLimits2;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 

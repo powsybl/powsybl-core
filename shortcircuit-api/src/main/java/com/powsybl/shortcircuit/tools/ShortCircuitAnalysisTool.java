@@ -83,7 +83,7 @@ public class ShortCircuitAnalysisTool implements Tool {
     static Network readNetwork(CommandLine line, ToolRunningContext context) {
         ToolOptions options = new ToolOptions(line, context);
         Path caseFile = options.getPath(CASE_FILE_OPTION)
-                .orElseThrow(AssertionError::new);
+                .orElseThrow(IllegalStateException::new);
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         return Network.read(caseFile);
     }

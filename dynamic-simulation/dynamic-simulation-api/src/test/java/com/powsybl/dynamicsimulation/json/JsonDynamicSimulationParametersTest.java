@@ -52,7 +52,7 @@ class JsonDynamicSimulationParametersTest extends AbstractConverterTest {
     @Test
     void readError() throws IOException {
         try (var is = getClass().getResourceAsStream("/DynamicSimulationParametersError.json")) {
-            AssertionError e = assertThrows(AssertionError.class, () -> JsonDynamicSimulationParameters.read(is));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonDynamicSimulationParameters.read(is));
             assertEquals("Unexpected field: unknownParameter", e.getMessage());
         }
     }

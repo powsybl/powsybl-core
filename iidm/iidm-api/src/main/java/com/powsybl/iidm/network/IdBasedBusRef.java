@@ -71,7 +71,7 @@ public class IdBasedBusRef extends AbstractBusRef {
                         terminal = branch.getTerminal2();
                         break;
                     default:
-                        throw new AssertionError("Unexpected side: " + side);
+                        throw new IllegalStateException("Unexpected side: " + side);
                 }
                 return chooseBusByLevel(terminal, level);
             } else {
