@@ -18,24 +18,19 @@ import java.util.*;
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class AtLeastOneViolationCondition implements Condition {
+public class AtLeastOneViolationCondition extends AbstractFilteredCondition {
 
     public static final String NAME = "AT_LEAST_ONE_VIOLATION";
 
     private final List<String> violationIds;
-    private final Set<LimitViolationType> conditionFilters;
 
     public AtLeastOneViolationCondition(List<String> violationIds) {
-        this(violationIds, Collections.emptyList());
-    }
-
-    public AtLeastOneViolationCondition(List<String> violationIds, List<LimitViolationType> conditionFilters) {
-        this(violationIds, new HashSet<>(conditionFilters));
+        this(violationIds, Collections.emptySet());
     }
 
     public AtLeastOneViolationCondition(List<String> violationIds, Set<LimitViolationType> conditionFilters) {
+        super(ImmutableSet.copyOf(Objects.requireNonNull(conditionFilters)));
         this.violationIds = ImmutableList.copyOf(Objects.requireNonNull(violationIds));
-        this.conditionFilters = ImmutableSet.copyOf(Objects.requireNonNull(conditionFilters));
     }
 
     @Override
@@ -45,10 +40,5 @@ public class AtLeastOneViolationCondition implements Condition {
 
     public List<String> getViolationIds() {
         return violationIds;
-    }
-
-    @Override
-    public Set<LimitViolationType> getFilters() {
-        return conditionFilters;
     }
 }

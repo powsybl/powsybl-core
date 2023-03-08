@@ -18,8 +18,4 @@ import java.util.Set;
  */
 public interface Condition {
     String getType();
-
-    default Set<LimitViolationType> getFilters() {
-        return Collections.emptySet();
-    }
 }

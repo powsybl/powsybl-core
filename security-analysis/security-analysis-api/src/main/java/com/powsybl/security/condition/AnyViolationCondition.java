@@ -18,30 +18,20 @@ import java.util.*;
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  *
  */
-public class AnyViolationCondition implements Condition {
+public class AnyViolationCondition extends AbstractFilteredCondition {
 
     public static final String NAME = "ANY_VIOLATION_CONDITION";
-    private final Set<LimitViolationType> conditionFilters;
 
     public AnyViolationCondition() {
         this(Collections.emptySet());
     }
 
-    public AnyViolationCondition(List<LimitViolationType> conditionFilters) {
-        this(new HashSet<>(conditionFilters));
-    }
-
     public AnyViolationCondition(Set<LimitViolationType> conditionFilters) {
-        this.conditionFilters = ImmutableSet.copyOf(Objects.requireNonNull(conditionFilters));
+        super(ImmutableSet.copyOf(Objects.requireNonNull(conditionFilters)));
     }
 
     @Override
     public String getType() {
         return NAME;
-    }
-
-    @Override
-    public Set<LimitViolationType> getFilters() {
-        return conditionFilters;
     }
 }

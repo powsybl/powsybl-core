@@ -98,14 +98,14 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         operatorStrategies.add(new OperatorStrategy("id2", ContingencyContext.specificContingency("contingencyId2"),
                 new AnyViolationCondition(), List.of("actionId4")));
         operatorStrategies.add(new OperatorStrategy("id3", ContingencyContext.specificContingency("contingencyId1"),
-                new AnyViolationCondition(Collections.singletonList(CURRENT)),
+                new AnyViolationCondition(Collections.singleton(CURRENT)),
                 Arrays.asList("actionId1", "actionId3")));
         operatorStrategies.add(new OperatorStrategy("id4", ContingencyContext.specificContingency("contingencyId3"),
-                new AnyViolationCondition(Collections.singletonList(LOW_VOLTAGE)),
+                new AnyViolationCondition(Collections.singleton(LOW_VOLTAGE)),
                 Arrays.asList("actionId1", "actionId2", "actionId4")));
         operatorStrategies.add(new OperatorStrategy("id5", ContingencyContext.specificContingency("contingencyId4"),
                 new AllViolationCondition(Arrays.asList("violation1", "violation2"),
-                        Collections.singletonList(HIGH_VOLTAGE)),
+                        Collections.singleton(HIGH_VOLTAGE)),
                 Arrays.asList("actionId1", "actionId5")));
         operatorStrategies.add(new OperatorStrategy("id6", ContingencyContext.specificContingency("contingencyId5"),
                 new AllViolationCondition(Arrays.asList("violation1", "violation2")),

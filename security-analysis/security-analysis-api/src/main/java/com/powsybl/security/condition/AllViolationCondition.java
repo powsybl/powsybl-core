@@ -18,34 +18,24 @@ import java.util.*;
  *
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class AllViolationCondition implements Condition {
+public class AllViolationCondition extends AbstractFilteredCondition {
 
     private final List<String> violationIds;
-    private final Set<LimitViolationType> conditionFilters;
 
     public static final String NAME = "ALL_VIOLATION";
 
     public AllViolationCondition(List<String> violationIds) {
-        this(violationIds, Collections.emptyList());
-    }
-
-    public AllViolationCondition(List<String> violationIds, List<LimitViolationType> conditionFilters) {
-        this(violationIds, new HashSet<>(conditionFilters));
+        this(violationIds, Collections.emptySet());
     }
 
     public AllViolationCondition(List<String> violationIds, Set<LimitViolationType> conditionFilters) {
+        super(ImmutableSet.copyOf(Objects.requireNonNull(conditionFilters)));
         this.violationIds = ImmutableList.copyOf(Objects.requireNonNull(violationIds));
-        this.conditionFilters = ImmutableSet.copyOf(Objects.requireNonNull(conditionFilters));
     }
 
     @Override
     public String getType() {
         return NAME;
-    }
-
-    @Override
-    public Set<LimitViolationType> getFilters() {
-        return conditionFilters;
     }
 
     public List<String> getViolationIds() {

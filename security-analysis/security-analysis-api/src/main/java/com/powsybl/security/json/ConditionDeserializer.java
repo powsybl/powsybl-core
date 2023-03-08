@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -11,6 +18,7 @@ import com.powsybl.security.condition.*;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -20,7 +28,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
     private static class ParsingContext {
         String type;
         List<String> violationIds;
-        List<LimitViolationType> conditionFilters = Collections.emptyList();
+        Set<LimitViolationType> conditionFilters = Collections.emptySet();
     }
 
     public ConditionDeserializer() {
@@ -41,7 +49,7 @@ public class ConditionDeserializer extends StdDeserializer<Condition> {
                     return true;
                 case "filters":
                     parser.nextToken();
-                    context.conditionFilters = JsonUtil.readList(deserializationContext, parser, LimitViolationType.class);
+                    context.conditionFilters = JsonUtil.readSet(deserializationContext, parser, LimitViolationType.class);
                     return true;
                 default:
                     return false;
