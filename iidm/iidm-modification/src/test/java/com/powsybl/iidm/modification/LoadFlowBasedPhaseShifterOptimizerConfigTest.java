@@ -30,9 +30,9 @@ class LoadFlowBasedPhaseShifterOptimizerConfigTest {
             moduleConfig.setStringProperty("load-flow-name", "LoadFlowMock");
 
             LoadFlowBasedPhaseShifterOptimizerConfig config = LoadFlowBasedPhaseShifterOptimizerConfig.load(platformConfig);
-            assertEquals("LoadFlowMock", config.getLoadFlowName().orElseThrow(AssertionError::new));
+            assertEquals("LoadFlowMock", config.getLoadFlowName().orElseThrow(IllegalStateException::new));
             config.setLoadFlowName("LoadFlowMock2");
-            assertEquals("LoadFlowMock2", config.getLoadFlowName().orElseThrow(AssertionError::new));
+            assertEquals("LoadFlowMock2", config.getLoadFlowName().orElseThrow(IllegalStateException::new));
         }
     }
 

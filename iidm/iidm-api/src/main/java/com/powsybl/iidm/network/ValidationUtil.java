@@ -473,7 +473,7 @@ public final class ValidationUtil {
                 break;
 
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }

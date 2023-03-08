@@ -400,7 +400,7 @@ class VariantManagerImplTest {
         }).start();
         cdl1.await();
         if (exceptionThrown[0] != null) {
-            throw new AssertionError(exceptionThrown[0]);
+            throw new IllegalStateException(exceptionThrown[0]);
         }
     }
 

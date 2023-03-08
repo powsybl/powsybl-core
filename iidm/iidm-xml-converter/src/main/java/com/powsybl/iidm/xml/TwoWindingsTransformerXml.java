@@ -30,7 +30,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected boolean hasSubElements(TwoWindingsTransformer twt) {
-        throw new AssertionError("Should not be called");
+        throw new IllegalStateException("Should not be called");
     }
 
     @Override
@@ -105,7 +105,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
         if (c instanceof Substation) {
             return ((Substation) c).newTwoWindingsTransformer();
         }
-        throw new AssertionError();
+        throw new IllegalStateException();
     }
 
     @Override

@@ -109,7 +109,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
     private void checkIterationPercentages() {
         double iterationPercentagesSum = scalablePercentageList.stream().mapToDouble(ScalablePercentage::getIterationPercentage).sum();
         if (Math.abs(100 - iterationPercentagesSum) > EPSILON) {
-            throw new AssertionError(String.format("Error in proportional scalable ventilation. Sum of percentages must be equals to 100 (%.2f)", iterationPercentagesSum));
+            throw new IllegalStateException(String.format("Error in proportional scalable ventilation. Sum of percentages must be equals to 100 (%.2f)", iterationPercentagesSum));
         }
     }
 

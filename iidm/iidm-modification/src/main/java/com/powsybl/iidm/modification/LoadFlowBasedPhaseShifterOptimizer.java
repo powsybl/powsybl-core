@@ -117,7 +117,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 runLoadFlow(network, tmpStateId);
                 // check there phase shifter is not overloaded
                 if (getI(phaseShifter) >= limit) {
-                    throw new AssertionError("Phase shifter should not be overload");
+                    throw new IllegalStateException("Phase shifter should not be overload");
                 }
             }
         } finally {

@@ -59,7 +59,7 @@ public class ConnectivityResultDeserializer extends StdDeserializer<Connectivity
                     disconnectedElements = JsonUtil.readSet(deserializationContext, parser, String.class);
                     break;
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 

@@ -67,7 +67,7 @@ public abstract class AbstractApparentPowerLimitsTest {
         testLimits1((ApparentPowerLimits) l.getLimits(LimitType.APPARENT_POWER, Branch.Side.ONE).orElse(null));
 
         // limits2
-        ApparentPowerLimits apparentPowerLimits2 = l.getApparentPowerLimits2().orElseThrow(AssertionError::new);
+        ApparentPowerLimits apparentPowerLimits2 = l.getApparentPowerLimits2().orElseThrow(IllegalStateException::new);
         testLimits2(apparentPowerLimits2);
         testLimits2((ApparentPowerLimits) l.getLimits(LimitType.APPARENT_POWER, Branch.Side.TWO).orElse(null));
 
