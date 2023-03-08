@@ -35,7 +35,7 @@ class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, Shunt
     @Override
     public ShuntCompensatorLinearModelImpl attach(ShuntCompensatorImpl shuntCompensator) {
         if (this.shuntCompensator != null) {
-            throw new AssertionError("ShuntCompensatorLinearModelImpl already attached to " + this.shuntCompensator.getId());
+            throw new IllegalStateException("ShuntCompensatorLinearModelImpl already attached to " + this.shuntCompensator.getId());
         }
 
         this.shuntCompensator = Objects.requireNonNull(shuntCompensator);

@@ -253,7 +253,7 @@ public class SecurityAnalysisTool implements Tool {
     static Network readNetwork(CommandLine line, ToolRunningContext context, ImportersLoader importersLoader) throws IOException {
         ToolOptions options = new ToolOptions(line, context);
         Path caseFile = options.getPath(CASE_FILE_OPTION)
-            .orElseThrow(AssertionError::new);
+            .orElseThrow(IllegalStateException::new);
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Network.read(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams, importersLoader);

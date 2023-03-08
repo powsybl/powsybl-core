@@ -61,7 +61,7 @@ class JsonFortescueValueTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/FortescueValueInvalid.json"), fileSystem.getPath("/FortescueValueInvalid.json"));
 
         Path path = fileSystem.getPath("/FortescueValueInvalid.json");
-        AssertionError e = assertThrows(AssertionError.class, () -> read(path));
-        assertEquals("Unexpected field: unexpected", e.getMessage());
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> read(path));
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Unexpected field: unexpected (through reference chain: java.util.ArrayList[0])", e.getMessage());
     }
 }

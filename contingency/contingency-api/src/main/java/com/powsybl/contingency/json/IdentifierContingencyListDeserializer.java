@@ -57,7 +57,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new IdentifierContingencyList(name, identifiableType, networkElementIdentifiers);

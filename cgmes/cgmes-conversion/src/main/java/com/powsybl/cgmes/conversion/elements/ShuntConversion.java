@@ -73,7 +73,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
                     });
             modelAdder.add();
         } else {
-            throw new AssertionError("Unexpected shunt type: " + shuntType);
+            throw new IllegalStateException("Unexpected shunt type: " + shuntType);
         }
         identify(adder);
         connect(adder);

@@ -97,7 +97,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                     sideToCheck = PropertyCriterion.SideToCheck.valueOf(parser.nextTextValue());
                     break;
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         if (type == null) {

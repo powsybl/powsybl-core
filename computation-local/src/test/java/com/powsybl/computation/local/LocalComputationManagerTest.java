@@ -235,7 +235,7 @@ class LocalComputationManagerTest {
             CompletableFuture<Object> result = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Object>() {
                 @Override
                 public List<CommandExecution> before(Path workingDir) {
-                    throw new AssertionError("Oups");
+                    throw new IllegalStateException("Oups");
                 }
             });
             // check that code is not hanging anymore when a java.lang.Error is thrown inside before

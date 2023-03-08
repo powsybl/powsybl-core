@@ -29,7 +29,7 @@ public class NodeCalcResolver extends NodeCalcCloner<Void> {
     public NodeCalc visit(TimeSeriesNameNodeCalc nodeCalc, Void arg) {
         Integer num = timeSeriesNums.get(nodeCalc.getTimeSeriesName());
         if (num == null) {
-            throw new AssertionError("Num of time series " + nodeCalc.getTimeSeriesName() + " not found");
+            throw new IllegalStateException("Num of time series " + nodeCalc.getTimeSeriesName() + " not found");
         }
         return new TimeSeriesNumNodeCalc(num);
     }

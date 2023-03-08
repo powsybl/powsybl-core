@@ -198,7 +198,7 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
         List<String> sortedBranchIds = sortBranches(branchIds);
         int i = sortedBranchIds.indexOf(branchIdToRank);
         if (i == -1) {
-            throw new AssertionError();
+            throw new IllegalStateException();
         }
         return sortedBranchIds.size() - i; // just a convention
     }
