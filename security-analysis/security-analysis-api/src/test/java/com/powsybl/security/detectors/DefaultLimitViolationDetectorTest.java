@@ -83,6 +83,8 @@ class DefaultLimitViolationDetectorTest {
                 .hasSize(1)
                 .allSatisfy(l -> {
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                    assertEquals(500, l.getLimit(), 0);
+                    assertEquals(460, l.getValue(), 0);
                     assertEquals(0.9f, l.getLimitReduction());
                 });
     }
@@ -185,6 +187,7 @@ class DefaultLimitViolationDetectorTest {
                       assertEquals(1101, l.getValue(), 0d);
                       assertSame(Branch.Side.TWO, l.getSide());
                       assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
+                      assertEquals(1.0f, l.getLimitReduction());
                   });
     }
 
