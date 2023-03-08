@@ -30,7 +30,7 @@ public class BusFilter {
             addBusOfOtherSideOfOpenBranches(buses, n, options);
 
             if (n.getThreeWindingsTransformerCount() != 0) {
-                throw new AssertionError("TODO");
+                throw new IllegalStateException("TODO");
             }
         }
         return new BusFilter(buses, options);

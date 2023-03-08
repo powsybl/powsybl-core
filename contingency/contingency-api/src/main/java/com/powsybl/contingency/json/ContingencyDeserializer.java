@@ -61,7 +61,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 

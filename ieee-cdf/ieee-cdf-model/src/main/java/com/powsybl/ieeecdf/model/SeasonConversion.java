@@ -22,7 +22,7 @@ public class SeasonConversion extends ObjectConversion<IeeeCdfTitle.Season> {
             case 'W':
                 return IeeeCdfTitle.Season.WINTER;
             default:
-                throw new AssertionError("Unknown season: " + season);
+                throw new IllegalStateException("Unknown season: " + season);
         }
     }
 
@@ -34,7 +34,7 @@ public class SeasonConversion extends ObjectConversion<IeeeCdfTitle.Season> {
             case WINTER:
                 return "W";
             default:
-                throw new AssertionError("Unknown season: " + season);
+                throw new IllegalStateException("Unknown season: " + season);
         }
     }
 }

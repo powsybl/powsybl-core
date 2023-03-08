@@ -213,7 +213,7 @@ class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     void readError() throws IOException {
         try (var is = getClass().getResourceAsStream("/SensitivityAnalysisParametersInvalid.json")) {
             SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
-            AssertionError e = assertThrows(AssertionError.class, () -> JsonUtil.readJsonAndUpdate(is, parameters, objectMapper));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonUtil.readJsonAndUpdate(is, parameters, objectMapper));
             assertEquals("Unexpected field: unexpected", e.getMessage());
         }
     }

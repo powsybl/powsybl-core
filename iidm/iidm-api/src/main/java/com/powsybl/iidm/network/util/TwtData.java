@@ -484,7 +484,7 @@ public class TwtData {
             case THREE:
                 return computedP3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -498,7 +498,7 @@ public class TwtData {
             case THREE:
                 return computedQ3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -512,7 +512,7 @@ public class TwtData {
             case THREE:
                 return p3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -526,7 +526,7 @@ public class TwtData {
             case THREE:
                 return q3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -540,7 +540,7 @@ public class TwtData {
             case THREE:
                 return u3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -558,7 +558,7 @@ public class TwtData {
             case THREE:
                 return theta3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -576,7 +576,7 @@ public class TwtData {
             case THREE:
                 return r3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -590,7 +590,7 @@ public class TwtData {
             case THREE:
                 return x3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -604,7 +604,7 @@ public class TwtData {
             case THREE:
                 return g31;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -618,7 +618,7 @@ public class TwtData {
             case THREE:
                 return b31;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -632,7 +632,7 @@ public class TwtData {
             case THREE:
                 return g32;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -646,7 +646,7 @@ public class TwtData {
             case THREE:
                 return b32;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -660,7 +660,7 @@ public class TwtData {
             case THREE:
                 return ratedU3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -674,7 +674,7 @@ public class TwtData {
             case THREE:
                 return connected3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -688,7 +688,7 @@ public class TwtData {
             case THREE:
                 return mainComponent3;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + ": " + side);
         }
     }
 

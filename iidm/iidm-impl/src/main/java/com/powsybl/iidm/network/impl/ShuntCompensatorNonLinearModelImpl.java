@@ -38,7 +38,7 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
 
         private SectionImpl attach(ShuntCompensatorImpl shuntCompensator) {
             if (this.shuntCompensator != null) {
-                throw new AssertionError("Section already attached to " + this.shuntCompensator.getId());
+                throw new IllegalStateException("Section already attached to " + this.shuntCompensator.getId());
             }
             this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
             return this;
@@ -88,7 +88,7 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
     @Override
     public ShuntCompensatorNonLinearModelImpl attach(ShuntCompensatorImpl shuntCompensator) {
         if (this.shuntCompensator != null) {
-            throw new AssertionError("ShuntCompensatorNonLinearModelImpl already attached to " + this.shuntCompensator.getId());
+            throw new IllegalStateException("ShuntCompensatorNonLinearModelImpl already attached to " + this.shuntCompensator.getId());
         }
 
         this.shuntCompensator = Objects.requireNonNull(shuntCompensator);

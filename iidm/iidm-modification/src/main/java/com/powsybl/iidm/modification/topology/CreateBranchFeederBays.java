@@ -55,7 +55,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return busOrBbsId2;
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         } else if (side == 2) {
             branchAdder.setConnectableBus2(bus.getId()).setBus2(bus.getId()).setVoltageLevel2(voltageLevelId);
         } else {
-            throw createSideAssertionError(side);
+            throw createSideIllegalStateException(side);
         }
     }
 
@@ -76,7 +76,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         } else if (side == 2) {
             branchAdder.setNode2(node).setVoltageLevel2(voltageLevelId);
         } else {
-            throw createSideAssertionError(side);
+            throw createSideIllegalStateException(side);
         }
     }
 
@@ -87,7 +87,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         } else if (branchAdder instanceof TwoWindingsTransformerAdder) {
             return ((TwoWindingsTransformerAdder) branchAdder).add();
         } else {
-            throw new AssertionError("Given BranchAdder not supported: " + branchAdder.getClass().getName());
+            throw new IllegalStateException("Given BranchAdder not supported: " + branchAdder.getClass().getName());
         }
     }
 
@@ -100,7 +100,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return branch.getTerminal2().getVoltageLevel();
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return positionOrder2;
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return Optional.ofNullable(feederName2);
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -133,7 +133,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return direction2;
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -145,7 +145,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return branch.getTerminal2().getNodeBreakerView().getNode();
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
     @Override
@@ -156,10 +156,10 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
         if (side == 2) {
             return connectablePositionAdder.newFeeder2();
         }
-        throw createSideAssertionError(side);
+        throw createSideIllegalStateException(side);
     }
 
-    private static AssertionError createSideAssertionError(int side) {
-        return new AssertionError("Unexpected side: " + side);
+    private static IllegalStateException createSideIllegalStateException(int side) {
+        return new IllegalStateException("Unexpected side: " + side);
     }
 }

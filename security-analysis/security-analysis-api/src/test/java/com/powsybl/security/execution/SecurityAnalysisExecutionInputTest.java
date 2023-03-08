@@ -55,7 +55,7 @@ class SecurityAnalysisExecutionInputTest {
 
         assertSame(network, input.getNetworkVariant().getNetwork());
         assertEquals("variantId", input.getNetworkVariant().getVariantId());
-        assertSame(source, input.getContingenciesSource().orElseThrow(AssertionError::new));
+        assertSame(source, input.getContingenciesSource().orElseThrow(IllegalStateException::new));
         assertSame(params, input.getParameters());
         assertEquals(ImmutableList.of("ext1", "ext2", "ext3"), input.getResultExtensions());
         assertEquals(EnumSet.of(LimitViolationType.CURRENT,
