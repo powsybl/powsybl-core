@@ -10,15 +10,23 @@
 -->
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:t2f="http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_fortescue/1_0"
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_fortescue/1_0"
            elementFormDefault="qualified">
+    <xs:simpleType name="WindingConnectionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Y"/>
+            <xs:enumeration value="Y_GROUNDED"/>
+            <xs:enumeration value="DELTA"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:element name="twoWindingsTransformerFortescue">
         <xs:complexType>
             <xs:attribute name="r0" type="xs:double"/>
             <xs:attribute name="x0" type="xs:double"/>
             <xs:attribute name="freeFluxes" use="required" type="xs:boolean"/>
-            <xs:attribute name="connectionType1" use="required" type="xs:string"/>
-            <xs:attribute name="connectionType2" use="required" type="xs:string"/>
+            <xs:attribute name="connectionType1" use="required" type="t2f:WindingConnectionType"/>
+            <xs:attribute name="connectionType2" use="required" type="t2f:WindingConnectionType"/>
             <xs:attribute name="groundingR1" type="xs:double"/>
             <xs:attribute name="groundingX1" type="xs:double"/>
             <xs:attribute name="groundingR2" type="xs:double"/>

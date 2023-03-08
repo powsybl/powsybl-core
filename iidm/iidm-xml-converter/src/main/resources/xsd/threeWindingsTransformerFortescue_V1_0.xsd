@@ -13,11 +13,18 @@
            xmlns:t3f="http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_fortescue/1_0"
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_fortescue/1_0"
            elementFormDefault="qualified">
+    <xs:simpleType name="WindingConnectionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Y"/>
+            <xs:enumeration value="Y_GROUNDED"/>
+            <xs:enumeration value="DELTA"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="LegFortescue">
         <xs:attribute name="r0" type="xs:double"/>
         <xs:attribute name="x0" type="xs:double"/>
         <xs:attribute name="freeFluxes" use="required" type="xs:boolean"/>
-        <xs:attribute name="connectionType" use="required" type="xs:string"/>
+        <xs:attribute name="connectionType" use="required" type="t3f:WindingConnectionType"/>
         <xs:attribute name="groundingR" type="xs:double"/>
         <xs:attribute name="groundingX" type="xs:double"/>
     </xs:complexType>
