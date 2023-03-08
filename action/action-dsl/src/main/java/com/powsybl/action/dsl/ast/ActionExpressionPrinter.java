@@ -77,7 +77,7 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
                 out.write("switch_");
                 break;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
         out.write("('");
         out.write(node.getComponentId());

@@ -37,7 +37,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected boolean hasSubElements(ThreeWindingsTransformer twt) {
-        throw new AssertionError("Should not be called");
+        throw new IllegalStateException("Should not be called");
     }
 
     @Override
@@ -143,7 +143,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         if (c instanceof Substation) {
             return ((Substation) c).newThreeWindingsTransformer();
         }
-        throw new AssertionError();
+        throw new IllegalStateException();
     }
 
     @Override

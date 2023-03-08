@@ -35,9 +35,9 @@ class LoadFlowActionSimulatorConfigTest {
 
             LoadFlowActionSimulatorConfig config = LoadFlowActionSimulatorConfig.load(platformConfig);
 
-            assertEquals("LoadFlowMock", config.getLoadFlowName().orElseThrow(AssertionError::new));
+            assertEquals("LoadFlowMock", config.getLoadFlowName().orElseThrow(IllegalStateException::new));
             config.setLoadFlowName("AnotherLoadFlowMock");
-            assertEquals("AnotherLoadFlowMock", config.getLoadFlowName().orElseThrow(AssertionError::new));
+            assertEquals("AnotherLoadFlowMock", config.getLoadFlowName().orElseThrow(IllegalStateException::new));
 
             assertEquals(15, config.getMaxIterations());
             config.setMaxIterations(10);

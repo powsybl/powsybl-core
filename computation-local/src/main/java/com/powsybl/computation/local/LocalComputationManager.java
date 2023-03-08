@@ -219,7 +219,7 @@ public class LocalComputationManager implements ComputationManager {
                         break;
 
                     default:
-                        throw new AssertionError("Unexpected FilePreProcessor value: " + file.getPreProcessor());
+                        throw new IllegalStateException("Unexpected FilePreProcessor value: " + file.getPreProcessor());
                 }
             }
         }
@@ -258,7 +258,7 @@ public class LocalComputationManager implements ComputationManager {
                 }
                 break;
             default:
-                throw new AssertionError("Unexpected CommandType value: " + command.getType());
+                throw new IllegalStateException("Unexpected CommandType value: " + command.getType());
         }
         return exitValue;
     }
@@ -280,7 +280,7 @@ public class LocalComputationManager implements ComputationManager {
                         }
 
                     } else {
-                        throw new AssertionError("Unexpected FilePostProcessor value: " + file.getPostProcessor());
+                        throw new IllegalStateException("Unexpected FilePostProcessor value: " + file.getPostProcessor());
                     }
                 }
             }

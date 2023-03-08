@@ -414,9 +414,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    protected Map<String, Object> toMap() {
-        ImmutableMap.Builder<String, Object> immutableMapBuilder = ImmutableMap.builder();
-        immutableMapBuilder
+    public Map<String, Object> toMap() {
+        return ImmutableMap.<String, Object>builder()
                 .put("voltageInitMode", voltageInitMode)
                 .put("transformerVoltageControlOn", transformerVoltageControlOn)
                 .put("useReactiveLimits", useReactiveLimits)
@@ -433,7 +432,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .put("computedConnectedComponentScope", connectedComponentMode)
                 .put("hvdcAcEmulation", hvdcAcEmulation)
                 .put("dcPowerFactor", dcPowerFactor);
-        return immutableMapBuilder.build();
+                .build();
     }
 
     /**

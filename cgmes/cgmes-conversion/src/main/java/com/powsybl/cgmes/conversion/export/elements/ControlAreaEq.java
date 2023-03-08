@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 
@@ -20,8 +21,8 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class ControlAreaEq {
     private static final String CONTROL_AREA_TYPE = "ControlAreaTypeKind.Interchange";
 
-    public static void write(String id, String controlAreaName, String energyIdentificationCodeEIC, String cimNamespace, String euNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("ControlArea", id, controlAreaName, cimNamespace, writer);
+    public static void write(String id, String controlAreaName, String energyIdentificationCodeEIC, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("ControlArea", id, controlAreaName, cimNamespace, writer, context);
         writer.writeStartElement(euNamespace, "IdentifiedObject.energyIdentCodeEic");
         writer.writeCharacters(energyIdentificationCodeEIC);
         writer.writeEndElement();

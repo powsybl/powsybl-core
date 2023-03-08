@@ -90,7 +90,7 @@ public final class UcteValidation {
                 }
                 break;
             default:
-                throw new AssertionError("Unexpected line status");
+                throw new IllegalStateException("Unexpected line status");
         }
     }
 

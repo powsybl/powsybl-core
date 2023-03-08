@@ -96,7 +96,7 @@ public class UcteImporter implements Importer {
             case BUSBAR_COUPLER_OUT_OF_OPERATION:
                 return false;
             default:
-                throw new AssertionError("Unexpected UcteElementStatus value: " + ucteElement.getStatus());
+                throw new IllegalStateException("Unexpected UcteElementStatus value: " + ucteElement.getStatus());
         }
     }
 
@@ -107,7 +107,7 @@ public class UcteImporter implements Importer {
             case REAL:
                 return false;
             default:
-                throw new AssertionError("Unexpected UcteNodeStatus value: " + ucteNode.getStatus());
+                throw new IllegalStateException("Unexpected UcteNodeStatus value: " + ucteNode.getStatus());
         }
     }
 
@@ -253,7 +253,7 @@ public class UcteImporter implements Importer {
                     energySource = EnergySource.OTHER;
                     break;
                 default:
-                    throw new AssertionError("Unexpected UctePowerPlantType value: " + ucteNode.getPowerPlantType());
+                    throw new IllegalStateException("Unexpected UctePowerPlantType value: " + ucteNode.getPowerPlantType());
             }
         }
 
@@ -488,7 +488,7 @@ public class UcteImporter implements Importer {
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected UcteElementStatus value: " + ucteLine.getStatus());
+                    throw new IllegalStateException("Unexpected UcteElementStatus value: " + ucteLine.getStatus());
             }
         }
     }
@@ -750,7 +750,7 @@ public class UcteImporter implements Importer {
                 break;
 
             default:
-                throw new AssertionError("Unexpected UcteElementStatus value: " + ucteElement.getStatus());
+                throw new IllegalStateException("Unexpected UcteElementStatus value: " + ucteElement.getStatus());
         }
         return connected;
     }

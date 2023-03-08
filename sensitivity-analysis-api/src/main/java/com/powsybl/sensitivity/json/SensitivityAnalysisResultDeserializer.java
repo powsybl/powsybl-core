@@ -55,13 +55,13 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                     contingencyStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityContingencyStatus.class);
                     break;
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 
         if (version == null || !version.equals("1.0")) {
             //Only 1.0 version is supported for now
-            throw new AssertionError("Version different than 1.0 not supported.");
+            throw new IllegalStateException("Version different than 1.0 not supported.");
         }
         return new SensitivityAnalysisResult(factors, contingencyStatus, sensitivityValues);
     }

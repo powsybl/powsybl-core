@@ -71,11 +71,11 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         if (null == type) {
-            throw new AssertionError("Required type field is missing");
+            throw new IllegalStateException("Required type field is missing");
         }
 
         Fault fault;
@@ -87,7 +87,7 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
                 fault = new BranchFault(id, elementId, r, x, connection, faultType, proportionalLocation);
                 break;
             default:
-                throw new AssertionError("Unexpected type: " + type.name());
+                throw new IllegalStateException("Unexpected type: " + type.name());
         }
         return fault;
     }

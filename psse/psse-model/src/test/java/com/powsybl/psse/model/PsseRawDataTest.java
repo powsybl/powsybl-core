@@ -758,7 +758,7 @@ class PsseRawDataTest extends AbstractConverterTest {
             String message = "Arrays are different:" + System.lineSeparator()
                 + "Expected: " + Arrays.toString(expected) + System.lineSeparator()
                 + "Actual  : " + Arrays.toString(actual);
-            throw new AssertionError(message);
+            throw new IllegalStateException(message);
         }
     }
 }

@@ -89,7 +89,7 @@ public final class IidmXmlUtil {
                 LOGGER.error(message(elementName, type, refVersion, context.getVersion(), reason));
             }
         } else {
-            throw new AssertionError("Unexpected behaviour: " + context.getOptions().getIidmVersionIncompatibilityBehavior());
+            throw new IllegalStateException("Unexpected behaviour: " + context.getOptions().getIidmVersionIncompatibilityBehavior());
         }
     }
 

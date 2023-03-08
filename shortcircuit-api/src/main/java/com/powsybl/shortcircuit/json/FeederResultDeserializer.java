@@ -51,7 +51,7 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> {
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         if (current == null) {

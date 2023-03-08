@@ -119,7 +119,7 @@ class UcteImporterTest {
         assertEquals(2, network.getVoltageLevelCount());
         assertEquals(1, network.getDanglingLineCount());
         assertEquals(1, network.getLineCount());
-        Line l = network.getLineStream().findFirst().orElseThrow(AssertionError::new);
+        Line l = network.getLineStream().findFirst().orElseThrow(IllegalStateException::new);
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());
         MergedXnode mergedXnode = l.getExtension(MergedXnode.class);
         assertNotNull(mergedXnode);

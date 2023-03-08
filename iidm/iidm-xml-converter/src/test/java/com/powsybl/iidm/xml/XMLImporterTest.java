@@ -84,6 +84,8 @@ class XMLImporterTest extends AbstractConverterTest {
         writeNetwork("/test6.xiidm", CURRENT_IIDM_XML_VERSION, false);
         writeNetwork("/testDummy.xiidm", "http://wwww.dummy.foo/", false);
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath("/test6_mapping.csv"), StandardCharsets.UTF_8)) {
+            writer.write("ZZ;test");
+            writer.newLine();
             writer.write("X1;P1");
             writer.newLine();
         }
