@@ -48,7 +48,9 @@ public final class AliasesXml {
     }
 
     public static <T extends Identifiable> void read(List<Consumer<T>> toApply, NetworkXmlReaderContext context) throws XMLStreamException {
-        assert context.getReader().getLocalName().equals(ALIAS);
+        if (!context.getReader().getLocalName().equals(ALIAS)) {
+            throw new IllegalStateException();
+        }
         String[] aliasType = new String[1];
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().getAttributeValue(null, "type"));
         String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
