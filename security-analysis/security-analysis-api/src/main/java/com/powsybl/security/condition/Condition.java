@@ -6,11 +6,6 @@
  */
 package com.powsybl.security.condition;
 
-import com.powsybl.security.LimitViolationType;
-
-import java.util.Collections;
-import java.util.Set;
-
 /**
  * describes when an action is taken
  *
