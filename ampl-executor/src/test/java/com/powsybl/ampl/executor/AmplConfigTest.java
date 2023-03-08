@@ -10,8 +10,8 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 
@@ -26,6 +26,6 @@ public class AmplConfigTest {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("ampl");
         moduleConfig.setStringProperty("homeDir", "/home/test/ampl");
         AmplConfig cfg = AmplConfig.getConfig(platformConfig);
-        Assert.assertEquals("Error parsing Ampl Home", "/home/test/ampl", cfg.getAmplHome());
+        Assertions.assertEquals("/home/test/ampl", cfg.getAmplHome(), "Error parsing Ampl Home");
     }
 }

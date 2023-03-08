@@ -73,8 +73,4 @@ public class DummyNetworkApplier implements NetworkApplier {
         // do nothing with the results
     }
 
-    @Override
-    public void applyReactiveSlack(int busNum, double q, String id, String substationId) {
-        // do nothing with the results
-    }
 }

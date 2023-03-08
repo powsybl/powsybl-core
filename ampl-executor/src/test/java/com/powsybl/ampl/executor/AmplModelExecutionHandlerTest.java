@@ -20,8 +20,8 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +62,7 @@ public class AmplModelExecutionHandlerTest {
         CompletableFuture<AmplResults> result = manager.execute(env, handler);
         AmplResults amplState = result.join();
         // Test assert
-        Assert.assertTrue("AmplResult must be OK.", amplState.isSuccess());
+        Assertions.assertTrue(amplState.isSuccess(), "AmplResult must be OK.");
         // Test cleaning
         manager.close();
     }
@@ -70,9 +70,8 @@ public class AmplModelExecutionHandlerTest {
     @Test
     public void testUtilities() {
         String amplBinPath = AmplModelExecutionHandler.getAmplBinPath(getAmplConfig());
-        Assert.assertEquals("Ampl binary is wrongly named ",
-                "/home/test/ampl" + File.separator + "ampl",
-                amplBinPath);
+        Assertions.assertEquals("/home/test/ampl" + File.separator + "ampl", amplBinPath,
+                "Ampl binary is wrongly named ");
         // next instruction must not throw
         AmplModelExecutionHandler.createAmplRunCommand(getAmplConfig(), new MockAmplModel());
     }
@@ -100,8 +99,10 @@ public class AmplModelExecutionHandlerTest {
         public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException {
             for (String amplResource : amplResourcesPathes) {
                 try (InputStream amplResourceStream = this.getClass().getClassLoader().getResourceAsStream(amplResource)) {
-                    Assert.assertNotNull("An Ampl result resources is missing : " + amplResource, amplResourceStream);
-                    Files.copy(amplResourceStream, workingDir.resolve(amplResource), StandardCopyOption.REPLACE_EXISTING);
+                    Assertions.assertNotNull(amplResourceStream,
+                            "An Ampl result resources is missing : " + amplResource);
+                    Files.copy(amplResourceStream, workingDir.resolve(amplResource),
+                            StandardCopyOption.REPLACE_EXISTING);
                 }
             }
             return 0;
