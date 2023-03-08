@@ -67,7 +67,12 @@ public class DefaultNetworkApplier implements NetworkApplier {
         if (vregul) {
             svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
         } else {
-            svc.setRegulationMode(StaticVarCompensator.RegulationMode.OFF).setReactivePowerSetpoint(-q);
+            if (q == 0) {
+                svc.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+            } else {
+                svc.setReactivePowerSetpoint(-q);
+                svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+            }
         }
 
         Terminal t = svc.getTerminal();
