@@ -431,7 +431,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .put("countriesToBalance", countriesToBalance)
                 .put("computedConnectedComponentScope", connectedComponentMode)
                 .put("hvdcAcEmulation", hvdcAcEmulation)
-                .put("dcPowerFactor", dcPowerFactor);
+                .put("dcPowerFactor", dcPowerFactor)
                 .build();
     }
 
