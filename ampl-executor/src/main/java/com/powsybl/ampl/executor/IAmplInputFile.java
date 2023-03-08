@@ -6,6 +6,9 @@
  */
 package com.powsybl.ampl.executor;
 
+import com.powsybl.ampl.converter.AmplSubset;
+import com.powsybl.commons.util.StringToIntMapper;
+
 import java.io.InputStream;
 
 /**
@@ -22,6 +25,9 @@ public interface IAmplInputFile {
 
     /**
      * InputStream to write in the file. Called before the ampl solve.
+     *
+     * @param networkAmplMapper Mapper to convert {@link com.powsybl.iidm.network.Network} IDs to Ampl IDs
+     *                          and vice versa
      */
-    InputStream getParameterFileAsStream();
+    InputStream getParameterFileAsStream(StringToIntMapper<AmplSubset> networkAmplMapper);
 }

@@ -6,6 +6,9 @@
  */
 package com.powsybl.ampl.executor;
 
+import com.powsybl.ampl.converter.AmplSubset;
+import com.powsybl.commons.util.StringToIntMapper;
+
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -26,7 +29,9 @@ public interface IAmplOutputFile {
      * <p>
      * No check is done on the presence of the file.
      *
-     * @param outputPath Path representing the outputfile
+     * @param outputPath        Path representing the outputfile
+     * @param networkAmplMapper Mapper to convert {@link com.powsybl.iidm.network.Network} IDs to Ampl IDs
+     *                          and vice versa
      */
-    void read(Path outputPath) throws IOException;
+    void read(Path outputPath, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException;
 }

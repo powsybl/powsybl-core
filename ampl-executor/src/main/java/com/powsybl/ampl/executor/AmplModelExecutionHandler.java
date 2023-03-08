@@ -6,12 +6,10 @@
  */
 package com.powsybl.ampl.executor;
 
-import com.powsybl.ampl.converter.AmplExporter;
-import com.powsybl.ampl.converter.AmplNetworkReader;
-import com.powsybl.ampl.converter.AmplReadableElement;
-import com.powsybl.ampl.converter.AmplUtil;
+import com.powsybl.ampl.converter.*;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
@@ -50,6 +48,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
     private final Network network;
     private final String networkVariant;
     private final AmplConfig config;
+    private final StringToIntMapper<AmplSubset> mapper;
 
     public AmplModelExecutionHandler(IAmplModel model, Network network, String networkVariant, AmplConfig config,
                                      IAmplParameters parameters) {
@@ -58,6 +57,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         this.networkVariant = networkVariant;
         this.config = config;
         this.parameters = parameters;
+        this.mapper = AmplUtil.createMapper(this.network);
     }
 
     /**
@@ -83,7 +83,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
      */
     private void exportAmplParameters(Path workingDir) throws IOException {
         for (IAmplInputFile param : parameters.getInputParameters()) {
-            try (InputStream paramStream = param.getParameterFileAsStream()) {
+            try (InputStream paramStream = param.getParameterFileAsStream(this.mapper)) {
                 Files.copy(paramStream, workingDir.resolve(param.getFileName()), StandardCopyOption.REPLACE_EXISTING);
             }
         }
@@ -109,7 +109,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
     private void readCustomFiles(Path workingDir) throws IOException {
         for (IAmplOutputFile amplOutputFile : parameters.getOutputParameters()) {
             Path outputPath = workingDir.resolve(amplOutputFile.getFileName());
-            amplOutputFile.read(outputPath);
+            amplOutputFile.read(outputPath, this.mapper);
         }
     }
 
@@ -145,7 +145,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         super.after(workingDir.toAbsolutePath(), report);
         DataSource networkAmplResults = new FileDataSource(workingDir, this.model.getOutputFilePrefix());
         AmplNetworkReader reader = new AmplNetworkReader(networkAmplResults, this.network, this.model.getVariant(),
-                AmplUtil.createMapper(this.network), this.model.getNetworkApplierFactory(), this.model.getOutputFormat());
+                mapper, this.model.getNetworkApplierFactory(), this.model.getOutputFormat());
         doAfterSuccess(workingDir, reader);
         return AmplResults.ok();
     }
