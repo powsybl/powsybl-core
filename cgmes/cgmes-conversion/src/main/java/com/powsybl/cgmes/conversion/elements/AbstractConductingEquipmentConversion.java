@@ -73,7 +73,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // It is assumed the property bags are already sorted
         this.numTerminals = ps.size();
         terminals = new TerminalData[] {null, null, null};
-        assert numTerminals <= 3;
+        if (numTerminals > 3) {
+            throw new IllegalStateException("numTerminals should be less or equal to 3 but is " + numTerminals);
+        }
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL, ps.get(k0), context);
@@ -464,7 +466,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     // Terminals
 
     protected void convertedTerminals(Terminal... ts) {
-        assert ts.length == numTerminals;
+        if (ts.length != numTerminals) {
+            throw new IllegalStateException();
+        }
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;
             Terminal t = ts[k];

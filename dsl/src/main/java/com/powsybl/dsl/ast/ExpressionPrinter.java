@@ -160,7 +160,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
         return null;
     }
 
-    private static AssertionError createUnexpectedOperatorException(String operatorName) {
-        return new AssertionError("Unexpected operator: " + operatorName);
+    private static IllegalStateException createUnexpectedOperatorException(String operatorName) {
+        return new IllegalStateException("Unexpected operator: " + operatorName);
     }
 }

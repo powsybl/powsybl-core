@@ -62,7 +62,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     @Test
     void readError() throws IOException {
         try (var is = getClass().getResourceAsStream("/LoadFlowParametersError.json")) {
-            AssertionError e = assertThrows(AssertionError.class, () -> JsonLoadFlowParameters.read(is));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonLoadFlowParameters.read(is));
             assertEquals("Unexpected field: unknownParameter", e.getMessage());
         }
     }
@@ -136,6 +136,13 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
         LoadFlowParameters parameters = JsonLoadFlowParameters
                 .read(getClass().getResourceAsStream("/LoadFlowParametersVersion18.json"));
         assertFalse(parameters.isUseReactiveLimits());
+    }
+
+    @Test
+    void readJsonVersion19() {
+        LoadFlowParameters parameters = JsonLoadFlowParameters
+                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion19.json"));
+        assertEquals(0.8d, parameters.getDcPowerFactor(), 0d);
     }
 
     @Test

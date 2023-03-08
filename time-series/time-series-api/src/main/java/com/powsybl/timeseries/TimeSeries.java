@@ -273,7 +273,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                     times.add(millis.longValue());
                     break;
                 default:
-                    throw new AssertionError("Unknown time format " + timeSeriesCsvConfig.timeFormat());
+                    throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
             }
         }
 

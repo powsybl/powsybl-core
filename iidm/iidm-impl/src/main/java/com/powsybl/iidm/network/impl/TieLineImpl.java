@@ -229,7 +229,7 @@ class TieLineImpl extends LineImpl implements TieLine {
             case TWO:
                 return half2;
             default:
-                throw new AssertionError("Unknown branch side " + side);
+                throw new IllegalStateException("Unknown branch side " + side);
         }
     }
 

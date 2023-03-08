@@ -244,7 +244,7 @@ class LimitViolationDetectorTest {
     void loadVoltageLevelHasNoViolationOnContingency1WithContingencyBlindDetector() {
         LimitViolationDetector detector = contingencyBlindDetector();
         detector.checkVoltage(contingency1, loadVoltageLevel, collectedViolations::add);
-        Bus loadBus = loadVoltageLevel.getBusView().getBusStream().findFirst().orElseThrow(AssertionError::new);
+        Bus loadBus = loadVoltageLevel.getBusView().getBusStream().findFirst().orElseThrow(IllegalStateException::new);
         detector.checkVoltage(contingency1, loadBus, collectedViolations::add);
         detector.checkVoltage(contingency1, loadBus, 500, collectedViolations::add);
         assertEquals(0, collectedViolations.size());

@@ -112,7 +112,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
             adder.withName(name);
         } else {
             NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
-            String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(AssertionError::new);
+            String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
             if (V_1_1.compareTo(extensionVersionStr) > 0) {
                 throw new PowsyblException("Feeder name is mandatory for version < 1.1");
             }
@@ -142,7 +142,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
                     break;
 
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         });
         return adder.add();

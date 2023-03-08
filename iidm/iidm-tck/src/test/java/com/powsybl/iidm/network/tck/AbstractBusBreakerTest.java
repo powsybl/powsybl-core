@@ -182,7 +182,7 @@ public abstract class AbstractBusBreakerTest {
         assertEquals(2.0, bus.getFictitiousQ0(), 0.0);
         Bus busViewBus = bus.getConnectedTerminalStream()
                 .map(t -> t.getBusView().getBus())
-                .filter(Objects::nonNull).findFirst().orElseThrow(AssertionError::new);
+                .filter(Objects::nonNull).findFirst().orElseThrow(IllegalStateException::new);
         assertEquals(1.0, busViewBus.getFictitiousP0(), 0.0);
         assertEquals(2.0, busViewBus.getFictitiousQ0(), 0.0);
         busViewBus.setFictitiousP0(3.0).setFictitiousQ0(4.0);

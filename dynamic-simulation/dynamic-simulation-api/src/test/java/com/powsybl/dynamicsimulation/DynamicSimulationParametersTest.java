@@ -58,27 +58,27 @@ class DynamicSimulationParametersTest {
 
     @Test
     void testConstructorStartTimeAsssertion() {
-        AssertionError e = assertThrows(AssertionError.class, () -> new DynamicSimulationParameters(-1, 0));
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> new DynamicSimulationParameters(-1, 0));
         assertTrue(e.getMessage().contains("Start time should be zero or positive"));
     }
 
     @Test
     void testConstructorStopTimeAsssertion() {
-        AssertionError e = assertThrows(AssertionError.class, () -> new DynamicSimulationParameters(0, 0));
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> new DynamicSimulationParameters(0, 0));
         assertTrue(e.getMessage().contains("Stop time should be greater than start time"));
     }
 
     @Test
     void testStartTimeAsssertion() {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
-        AssertionError e = assertThrows(AssertionError.class, () -> parameters.setStartTime(-1));
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> parameters.setStartTime(-1));
         assertTrue(e.getMessage().contains("Start time should be zero or positive"));
     }
 
     @Test
     void testStopTimeAsssertion() {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
-        AssertionError e = assertThrows(AssertionError.class, () -> parameters.setStopTime(0));
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> parameters.setStopTime(0));
         assertTrue(e.getMessage().contains("Stop time should be greater than start time"));
     }
 
