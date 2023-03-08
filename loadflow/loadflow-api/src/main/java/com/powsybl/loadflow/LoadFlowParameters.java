@@ -398,27 +398,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return balanceType;
     }
 
-    protected Map<String, Object> toMap() {
-        ImmutableMap.Builder<String, Object> immutableMapBuilder = ImmutableMap.builder();
-        immutableMapBuilder
-                .put("voltageInitMode", voltageInitMode)
-                .put("transformerVoltageControlOn", transformerVoltageControlOn)
-                .put("useReactiveLimits", useReactiveLimits)
-                .put("phaseShifterRegulationOn", phaseShifterRegulationOn)
-                .put("twtSplitShuntAdmittance", twtSplitShuntAdmittance)
-                .put("shuntCompensatorVoltageControlOn", shuntCompensatorVoltageControlOn)
-                .put("readSlackBus", readSlackBus)
-                .put("writeSlackBus", writeSlackBus)
-                .put("dc", dc)
-                .put("distributedSlack", distributedSlack)
-                .put("balanceType", balanceType)
-                .put("dcUseTransformerRatio", dcUseTransformerRatio)
-                .put("countriesToBalance", countriesToBalance)
-                .put("computedConnectedComponentScope", connectedComponentMode)
-                .put("hvdcAcEmulation", hvdcAcEmulation);
-        return immutableMapBuilder.build();
-    }
-
     public LoadFlowParameters setDcUseTransformerRatio(boolean dcUseTransformerRatio) {
         this.dcUseTransformerRatio = dcUseTransformerRatio;
         return this;
@@ -453,6 +432,26 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public LoadFlowParameters setHvdcAcEmulation(boolean hvdcAcEmulation) {
         this.hvdcAcEmulation = hvdcAcEmulation;
         return this;
+    }
+
+    public Map<String, Object> toMap() {
+        return ImmutableMap.<String, Object>builder()
+                .put("voltageInitMode", voltageInitMode)
+                .put("transformerVoltageControlOn", transformerVoltageControlOn)
+                .put("useReactiveLimits", useReactiveLimits)
+                .put("phaseShifterRegulationOn", phaseShifterRegulationOn)
+                .put("twtSplitShuntAdmittance", twtSplitShuntAdmittance)
+                .put("shuntCompensatorVoltageControlOn", shuntCompensatorVoltageControlOn)
+                .put("readSlackBus", readSlackBus)
+                .put("writeSlackBus", writeSlackBus)
+                .put("dc", dc)
+                .put("distributedSlack", distributedSlack)
+                .put("balanceType", balanceType)
+                .put("dcUseTransformerRatio", dcUseTransformerRatio)
+                .put("countriesToBalance", countriesToBalance)
+                .put("computedConnectedComponentScope", connectedComponentMode)
+                .put("hvdcAcEmulation", hvdcAcEmulation)
+                .build();
     }
 
     /**
