@@ -38,6 +38,9 @@ public interface ThreeWindingsTransformerFortescue extends Extension<ThreeWindin
             this.groundingX = groundingX;
         }
 
+        /**
+         * Free fluxes to true means that the magnetizing impedance Zm is infinite, i.e. fluxes are free.
+         */
         public boolean isFreeFluxes() {
             return freeFluxes;
         }
@@ -46,6 +49,9 @@ public interface ThreeWindingsTransformerFortescue extends Extension<ThreeWindin
             this.freeFluxes = freeFluxes;
         }
 
+        /**
+         * The zero sequence resistance of the leg.
+         */
         public double getRz() {
             return rz;
         }
@@ -54,6 +60,9 @@ public interface ThreeWindingsTransformerFortescue extends Extension<ThreeWindin
             this.rz = rz;
         }
 
+        /**
+         * The zero sequence reactance of the leg.
+         */
         public double getXz() {
             return xz;
         }
@@ -62,6 +71,9 @@ public interface ThreeWindingsTransformerFortescue extends Extension<ThreeWindin
             this.xz = xz;
         }
 
+        /**
+         * Get the winding connection type of the leg, see {@link WindingConnectionType}).
+         */
         public WindingConnectionType getConnectionType() {
             return connectionType;
         }
@@ -70,6 +82,10 @@ public interface ThreeWindingsTransformerFortescue extends Extension<ThreeWindin
             this.connectionType = Objects.requireNonNull(connectionType);
         }
 
+        /**
+         * If the leg is earthed, depending on {@link WindingConnectionType}, it represents the
+         * resistance part of the impedance to ground.
+         */
         public double getGroundingR() {
             return groundingR;
         }
@@ -78,6 +94,10 @@ public interface ThreeWindingsTransformerFortescue extends Extension<ThreeWindin
             this.groundingR = groundingR;
         }
 
+        /**
+         * If the leg is earthed, depending on {@link WindingConnectionType}, it represents the
+         * reactance part of the impedance to ground.
+         */
         public double getGroundingX() {
             return groundingX;
         }

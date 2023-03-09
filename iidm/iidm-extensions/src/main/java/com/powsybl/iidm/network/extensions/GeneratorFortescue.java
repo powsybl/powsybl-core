@@ -22,30 +22,51 @@ public interface GeneratorFortescue extends Extension<Generator> {
         return NAME;
     }
 
+    /**
+     * True if the generator is earthed.
+     */
     boolean isGrounded();
 
     void setGrounded(boolean grounded);
 
+    /**
+     * If the generator is earthed, it represents the resistance part of the impedance to ground.
+     */
     double getGroundingR();
 
     void setGroundingR(double groundingR);
 
+    /**
+     * If the generator is earthed, it represents the reactance part of the impedance to ground.
+     */
     double getGroundingX();
 
     void setGroundingX(double groundingX);
 
+    /**
+     * The zero sequence resistance of the generator.
+     */
     double getRz();
 
     void setRz(double rz);
 
+    /**
+     * The zero sequence reactance of the generator.
+     */
     double getXz();
 
     void setXz(double xz);
 
+    /**
+     * The negative sequence resistance of the generator.
+     */
     double getRn();
 
     void setRn(double rn);
 
+    /**
+     * The negative sequence reactance of the generator.
+     */
     double getXn();
 
     void setXn(double xn);

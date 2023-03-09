@@ -21,7 +21,7 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
 
     private double rz;
     private double xz;
-    private boolean freeFluxes; // free fluxes mean that magnetizing impedance Zm is infinite, by default, fluxes are forced and Zm exists
+    private boolean freeFluxes;
     private WindingConnectionType connectionType1;
     private WindingConnectionType connectionType2;
     private double groundingR1;
