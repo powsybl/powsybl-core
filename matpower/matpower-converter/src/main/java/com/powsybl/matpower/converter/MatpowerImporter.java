@@ -19,6 +19,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.matpower.model.*;
+
+import org.apache.commons.math3.complex.Complex;
 import org.jgrapht.alg.util.Pair;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -358,6 +360,17 @@ public class MatpowerImporter implements Importer {
                 branch = newTwt;
                 LOGGER.trace("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
             } else {
+                double vnom1 = voltageLevel1.getNominalV();
+                double vnom2 = voltageLevel2.getNominalV();
+                double sbase = context.getBaseMva();
+                double r = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(mBranch.getR(), vnom1, vnom2, sbase);
+                double x = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(mBranch.getX(), vnom1, vnom2, sbase);
+                Complex ytr = impedanceToAdmittance(r, x);
+                double g1 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getReal(), 0.0, vnom1, vnom2, sbase);
+                double b1 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getImaginary(), mBranch.getB() * 0.5, vnom1, vnom2, sbase);
+                double g2 = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getReal(), 0.0, vnom1, vnom2, sbase);
+                double b2 = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getImaginary(), mBranch.getB() * 0.5, vnom1, vnom2, sbase);
+
                 branch = network.newLine()
                         .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
@@ -367,12 +380,12 @@ public class MatpowerImporter implements Importer {
                         .setBus2(connectedBus2)
                         .setConnectableBus2(bus2Id)
                         .setVoltageLevel2(voltageLevel2Id)
-                        .setR(mBranch.getR() * zb)
-                        .setX(mBranch.getX() * zb)
-                        .setG1(0)
-                        .setB1(mBranch.getB() / zb / 2)
-                        .setG2(0)
-                        .setB2(mBranch.getB() / zb / 2)
+                        .setR(r)
+                        .setX(x)
+                        .setG1(g1)
+                        .setB1(b1)
+                        .setG2(g2)
+                        .setB2(b2)
                         .add();
                 LOGGER.trace("Created line {} {} {}", branch.getId(), bus1Id, bus2Id);
             }
@@ -385,6 +398,23 @@ public class MatpowerImporter implements Importer {
                 createApparentPowerLimits(mBranch, branch.newApparentPowerLimits2());
             }
         }
+    }
+
+    // avoid NaN when r and x, both are 0.0
+    private static Complex impedanceToAdmittance(double r, double x) {
+        return r == 0.0 && x == 0.0 ? new Complex(0.0, 0.0) : new Complex(r, x).reciprocal();
+    }
+
+    private static double impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double impedance, double vnom1, double vnom2, double sbase) {
+        return impedance * vnom1 * vnom2 / sbase;
+    }
+
+    private static double admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+        return shuntAdmittance * sbase / (vnom1 * vnom1) - (1 - vnom2 / vnom1) * admittanceTransmissionEu;
+    }
+
+    static double admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+        return shuntAdmittance * sbase / (vnom2 * vnom2) - (1 - vnom1 / vnom2) * admittanceTransmissionEu;
     }
 
     @Override
