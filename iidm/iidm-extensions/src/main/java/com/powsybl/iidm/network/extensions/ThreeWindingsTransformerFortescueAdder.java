@@ -17,9 +17,9 @@ public interface ThreeWindingsTransformerFortescueAdder extends ExtensionAdder<T
 
     interface LegFortescueAdder {
 
-        LegFortescueAdder withR0(double r0);
+        LegFortescueAdder withRz(double rz);
 
-        LegFortescueAdder withX0(double x0);
+        LegFortescueAdder withXz(double xz);
 
         LegFortescueAdder withFreeFluxes(boolean freeFluxes);
 

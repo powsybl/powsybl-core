@@ -34,8 +34,8 @@ public class ThreeWindingsTransformerFortescueXmlSerializer extends AbstractExte
     }
 
     private static void writeLeg(ThreeWindingsTransformerFortescue.LegFortescue legFortescue, XMLStreamWriter writer) throws XMLStreamException {
-        XmlUtil.writeOptionalDouble("r0", legFortescue.getR0(), Double.NaN, writer);
-        XmlUtil.writeOptionalDouble("x0", legFortescue.getX0(), Double.NaN, writer);
+        XmlUtil.writeOptionalDouble("rz", legFortescue.getRz(), Double.NaN, writer);
+        XmlUtil.writeOptionalDouble("xz", legFortescue.getXz(), Double.NaN, writer);
         writer.writeAttribute("freeFluxes", Boolean.toString(legFortescue.isFreeFluxes()));
         writer.writeAttribute("connectionType", legFortescue.getConnectionType().name());
         XmlUtil.writeOptionalDouble("groundingR", legFortescue.getGroundingR(), 0, writer);
@@ -53,14 +53,14 @@ public class ThreeWindingsTransformerFortescueXmlSerializer extends AbstractExte
     }
 
     private void readLeg(ThreeWindingsTransformerFortescueAdder.LegFortescueAdder legAdder, XMLStreamReader reader) {
-        double r0 = XmlUtil.readOptionalDoubleAttribute(reader, "r0");
-        double x0 = XmlUtil.readOptionalDoubleAttribute(reader, "x0");
+        double rz = XmlUtil.readOptionalDoubleAttribute(reader, "rz");
+        double xz = XmlUtil.readOptionalDoubleAttribute(reader, "xz");
         boolean freeFluxes = XmlUtil.readBoolAttribute(reader, "freeFluxes");
         WindingConnectionType connectionType = WindingConnectionType.valueOf(reader.getAttributeValue(null, "connectionType"));
         double groundingR = XmlUtil.readOptionalDoubleAttribute(reader, "groundingR", 0);
         double groundingX = XmlUtil.readOptionalDoubleAttribute(reader, "groundingX", 0);
-        legAdder.withR0(r0)
-                .withX0(x0)
+        legAdder.withRz(rz)
+                .withXz(xz)
                 .withFreeFluxes(freeFluxes)
                 .withConnectionType(connectionType)
                 .withGroundingR(groundingR)

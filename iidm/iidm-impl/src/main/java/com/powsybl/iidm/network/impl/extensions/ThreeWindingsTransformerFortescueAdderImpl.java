@@ -28,8 +28,8 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
 
     private class LegFortescueAdderImpl implements LegFortescueAdder {
 
-        private double r0 = Double.NaN;
-        private double x0 = Double.NaN;
+        private double rz = Double.NaN;
+        private double xz = Double.NaN;
         private boolean freeFluxes = DEFAULT_FREE_FLUXES;
         private WindingConnectionType connectionType;
         private double groundingR = DEFAULT_GROUNDING_R;
@@ -40,14 +40,14 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
         }
 
         @Override
-        public LegFortescueAdder withR0(double r0) {
-            this.r0 = r0;
+        public LegFortescueAdder withRz(double rz) {
+            this.rz = rz;
             return this;
         }
 
         @Override
-        public LegFortescueAdder withX0(double x0) {
-            this.x0 = x0;
+        public LegFortescueAdder withXz(double xz) {
+            this.xz = xz;
             return this;
         }
 
@@ -107,9 +107,9 @@ public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensio
 
     @Override
     protected ThreeWindingsTransformerFortescueImpl createExtension(ThreeWindingsTransformer twt) {
-        var leg1 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder1.r0, legAdder1.x0, legAdder1.freeFluxes, legAdder1.connectionType, legAdder1.groundingR, legAdder1.groundingX);
-        var leg2 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder2.r0, legAdder2.x0, legAdder2.freeFluxes, legAdder2.connectionType, legAdder2.groundingR, legAdder2.groundingX);
-        var leg3 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder3.r0, legAdder3.x0, legAdder3.freeFluxes, legAdder3.connectionType, legAdder3.groundingR, legAdder3.groundingX);
+        var leg1 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder1.rz, legAdder1.xz, legAdder1.freeFluxes, legAdder1.connectionType, legAdder1.groundingR, legAdder1.groundingX);
+        var leg2 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder2.rz, legAdder2.xz, legAdder2.freeFluxes, legAdder2.connectionType, legAdder2.groundingR, legAdder2.groundingX);
+        var leg3 = new ThreeWindingsTransformerFortescue.LegFortescue(legAdder3.rz, legAdder3.xz, legAdder3.freeFluxes, legAdder3.connectionType, legAdder3.groundingR, legAdder3.groundingX);
         return new ThreeWindingsTransformerFortescueImpl(twt, leg1, leg2, leg3);
     }
 

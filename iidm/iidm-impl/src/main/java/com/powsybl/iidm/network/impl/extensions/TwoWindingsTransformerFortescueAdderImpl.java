@@ -22,8 +22,8 @@ import static com.powsybl.iidm.network.extensions.FortescueConstants.*;
  */
 public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerFortescue> implements TwoWindingsTransformerFortescueAdder {
 
-    private double r0 = Double.NaN;
-    private double x0 = Double.NaN;
+    private double rz = Double.NaN;
+    private double xz = Double.NaN;
     private boolean freeFluxes = DEFAULT_FREE_FLUXES;
     private WindingConnectionType connectionType1 = DEFAULT_LEG1_CONNECTION_TYPE;
     private WindingConnectionType connectionType2 = DEFAULT_LEG2_CONNECTION_TYPE;
@@ -43,18 +43,18 @@ public class TwoWindingsTransformerFortescueAdderImpl extends AbstractExtensionA
 
     @Override
     protected TwoWindingsTransformerFortescueImpl createExtension(TwoWindingsTransformer twt) {
-        return new TwoWindingsTransformerFortescueImpl(twt, r0, x0, freeFluxes, connectionType1, connectionType2, groundingR1, groundingX1, groundingR2, groundingX2);
+        return new TwoWindingsTransformerFortescueImpl(twt, rz, xz, freeFluxes, connectionType1, connectionType2, groundingR1, groundingX1, groundingR2, groundingX2);
     }
 
     @Override
-    public TwoWindingsTransformerFortescueAdderImpl withR0(double r0) {
-        this.r0 = r0;
+    public TwoWindingsTransformerFortescueAdderImpl withRz(double rz) {
+        this.rz = rz;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerFortescueAdderImpl withX0(double x0) {
-        this.x0 = x0;
+    public TwoWindingsTransformerFortescueAdderImpl withXz(double xz) {
+        this.xz = xz;
         return this;
     }
 

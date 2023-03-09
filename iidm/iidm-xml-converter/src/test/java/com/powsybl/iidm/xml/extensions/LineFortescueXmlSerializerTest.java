@@ -33,8 +33,8 @@ class LineFortescueXmlSerializerTest extends AbstractConverterTest {
         Line l = network.getLine("NHV1_NHV2_1");
         assertNotNull(l);
         LineFortescue fortescue = l.newExtension(LineFortescueAdder.class)
-                .withR0(0.1d)
-                .withX0(2d)
+                .withRz(0.1d)
+                .withXz(2d)
                 .add();
 
         Network network2 = roundTripXmlTest(network,
@@ -46,7 +46,7 @@ class LineFortescueXmlSerializerTest extends AbstractConverterTest {
         LineFortescue fortescue2 = l2.getExtension(LineFortescue.class);
         assertNotNull(fortescue2);
 
-        assertEquals(fortescue.getR0(), fortescue2.getR0(), 0);
-        assertEquals(fortescue.getX0(), fortescue2.getX0(), 0);
+        assertEquals(fortescue.getRz(), fortescue2.getRz(), 0);
+        assertEquals(fortescue.getXz(), fortescue2.getXz(), 0);
     }
 }

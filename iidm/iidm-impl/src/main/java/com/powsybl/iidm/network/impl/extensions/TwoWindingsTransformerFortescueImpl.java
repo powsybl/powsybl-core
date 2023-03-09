@@ -19,8 +19,8 @@ import java.util.Objects;
  */
 public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWindingsTransformer> implements TwoWindingsTransformerFortescue {
 
-    private double r0;
-    private double x0;
+    private double rz;
+    private double xz;
     private boolean freeFluxes; // free fluxes mean that magnetizing impedance Zm is infinite, by default, fluxes are forced and Zm exists
     private WindingConnectionType connectionType1;
     private WindingConnectionType connectionType2;
@@ -29,12 +29,12 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     private double groundingR2;
     private double groundingX2;
 
-    public TwoWindingsTransformerFortescueImpl(TwoWindingsTransformer twt, double r0, double x0, boolean freeFluxes,
+    public TwoWindingsTransformerFortescueImpl(TwoWindingsTransformer twt, double rz, double xz, boolean freeFluxes,
                                                WindingConnectionType connectionType1, WindingConnectionType connectionType2,
                                                double groundingR1, double groundingX1, double groundingR2, double groundingX2) {
         super(twt);
-        this.r0 = r0;
-        this.x0 = x0;
+        this.rz = rz;
+        this.xz = xz;
         this.freeFluxes = freeFluxes;
         this.connectionType1 = Objects.requireNonNull(connectionType1);
         this.connectionType2 = Objects.requireNonNull(connectionType2);
@@ -45,23 +45,23 @@ public class TwoWindingsTransformerFortescueImpl extends AbstractExtension<TwoWi
     }
 
     @Override
-    public double getR0() {
-        return r0;
+    public double getRz() {
+        return rz;
     }
 
     @Override
-    public void setR0(double r0) {
-        this.r0 = r0;
+    public void setRz(double rz) {
+        this.rz = rz;
     }
 
     @Override
-    public double getX0() {
-        return x0;
+    public double getXz() {
+        return xz;
     }
 
     @Override
-    public void setX0(double x0) {
-        this.x0 = x0;
+    public void setXz(double xz) {
+        this.xz = xz;
     }
 
     @Override

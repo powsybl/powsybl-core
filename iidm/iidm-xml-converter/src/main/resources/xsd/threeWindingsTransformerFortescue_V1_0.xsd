@@ -21,8 +21,8 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="LegFortescue">
-        <xs:attribute name="r0" type="xs:double"/>
-        <xs:attribute name="x0" type="xs:double"/>
+        <xs:attribute name="rz" type="xs:double"/>
+        <xs:attribute name="xz" type="xs:double"/>
         <xs:attribute name="freeFluxes" use="required" type="xs:boolean"/>
         <xs:attribute name="connectionType" use="required" type="t3f:WindingConnectionType"/>
         <xs:attribute name="groundingR" type="xs:double"/>

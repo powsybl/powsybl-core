@@ -14,8 +14,8 @@
            elementFormDefault="qualified">
     <xs:element name="lineFortescue">
         <xs:complexType>
-            <xs:attribute name="r0" type="xs:double"/>
-            <xs:attribute name="x0" type="xs:double"/>
+            <xs:attribute name="rz" type="xs:double"/>
+            <xs:attribute name="xz" type="xs:double"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

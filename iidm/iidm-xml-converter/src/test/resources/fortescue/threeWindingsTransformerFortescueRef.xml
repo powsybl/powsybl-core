@@ -38,9 +38,9 @@
     </iidm:substation>
     <iidm:extension id="3WT">
         <t3f:threeWindingsTransformerFortescue>
-            <t3f:leg1 r0="0.1" x0="2.0" freeFluxes="true" connectionType="Y_GROUNDED" groundingR="0.02" groundingX="0.3"/>
-            <t3f:leg2 r0="0.2" x0="2.1" freeFluxes="false" connectionType="Y" groundingR="0.12" groundingX="0.4"/>
-            <t3f:leg3 r0="0.3" x0="2.2" freeFluxes="true" connectionType="DELTA" groundingR="0.22" groundingX="0.5"/>
+            <t3f:leg1 rz="0.1" xz="2.0" freeFluxes="true" connectionType="Y_GROUNDED" groundingR="0.02" groundingX="0.3"/>
+            <t3f:leg2 rz="0.2" xz="2.1" freeFluxes="false" connectionType="Y" groundingR="0.12" groundingX="0.4"/>
+            <t3f:leg3 rz="0.3" xz="2.2" freeFluxes="true" connectionType="DELTA" groundingR="0.22" groundingX="0.5"/>
         </t3f:threeWindingsTransformerFortescue>
     </iidm:extension>
 </iidm:network>

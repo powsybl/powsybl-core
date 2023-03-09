@@ -22,13 +22,13 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
         return NAME;
     }
 
-    double getR0();
+    double getRz();
 
-    void setR0(double r0);
+    void setRz(double rz);
 
-    double getX0();
+    double getXz();
 
-    void setX0(double x0);
+    void setXz(double xz);
 
     boolean isFreeFluxes();
 

@@ -22,8 +22,8 @@
     </xs:simpleType>
     <xs:element name="twoWindingsTransformerFortescue">
         <xs:complexType>
-            <xs:attribute name="r0" type="xs:double"/>
-            <xs:attribute name="x0" type="xs:double"/>
+            <xs:attribute name="rz" type="xs:double"/>
+            <xs:attribute name="xz" type="xs:double"/>
             <xs:attribute name="freeFluxes" use="required" type="xs:boolean"/>
             <xs:attribute name="connectionType1" use="required" type="t2f:WindingConnectionType"/>
             <xs:attribute name="connectionType2" use="required" type="t2f:WindingConnectionType"/>

@@ -34,22 +34,22 @@ class ThreeWindingsTransformerFortescueXmlSerializerTest extends AbstractConvert
 
         var fortescue = twt.newExtension(ThreeWindingsTransformerFortescueAdder.class)
                 .leg1()
-                    .withR0(0.1d)
-                    .withX0(2d)
+                    .withRz(0.1d)
+                    .withXz(2d)
                     .withFreeFluxes(true)
                     .withConnectionType(WindingConnectionType.Y_GROUNDED)
                     .withGroundingR(0.02d)
                     .withGroundingX(0.3d)
                 .leg2()
-                    .withR0(0.2d)
-                    .withX0(2.1d)
+                    .withRz(0.2d)
+                    .withXz(2.1d)
                     .withFreeFluxes(false)
                     .withConnectionType(WindingConnectionType.Y)
                     .withGroundingR(0.12d)
                     .withGroundingX(0.4d)
                 .leg3()
-                    .withR0(0.3d)
-                    .withX0(2.2d)
+                    .withRz(0.3d)
+                    .withXz(2.2d)
                     .withFreeFluxes(true)
                     .withConnectionType(WindingConnectionType.DELTA)
                     .withGroundingR(0.22d)
@@ -65,20 +65,20 @@ class ThreeWindingsTransformerFortescueXmlSerializerTest extends AbstractConvert
         var fortescue2 = twt2.getExtension(ThreeWindingsTransformerFortescue.class);
         assertNotNull(fortescue2);
 
-        assertEquals(0.1d, fortescue.getLeg1().getR0());
-        assertEquals(2d, fortescue.getLeg1().getX0());
+        assertEquals(0.1d, fortescue.getLeg1().getRz());
+        assertEquals(2d, fortescue.getLeg1().getXz());
         assertTrue(fortescue.getLeg1().isFreeFluxes());
         assertSame(WindingConnectionType.Y_GROUNDED, fortescue.getLeg1().getConnectionType());
         assertEquals(0.02d, fortescue.getLeg1().getGroundingR());
         assertEquals(0.3d, fortescue.getLeg1().getGroundingX());
-        assertEquals(0.2d, fortescue.getLeg2().getR0());
-        assertEquals(2.1d, fortescue.getLeg2().getX0());
+        assertEquals(0.2d, fortescue.getLeg2().getRz());
+        assertEquals(2.1d, fortescue.getLeg2().getXz());
         assertFalse(fortescue.getLeg2().isFreeFluxes());
         assertSame(WindingConnectionType.Y, fortescue.getLeg2().getConnectionType());
         assertEquals(0.12d, fortescue.getLeg2().getGroundingR());
         assertEquals(0.4d, fortescue.getLeg2().getGroundingX());
-        assertEquals(0.3d, fortescue.getLeg3().getR0());
-        assertEquals(2.2d, fortescue.getLeg3().getX0());
+        assertEquals(0.3d, fortescue.getLeg3().getRz());
+        assertEquals(2.2d, fortescue.getLeg3().getXz());
         assertTrue(fortescue.getLeg3().isFreeFluxes());
         assertSame(WindingConnectionType.DELTA, fortescue.getLeg3().getConnectionType());
         assertEquals(0.22d, fortescue.getLeg3().getGroundingR());

@@ -32,17 +32,17 @@ public class LineFortescueXmlSerializer extends AbstractExtensionXmlSerializer<L
 
     @Override
     public void write(LineFortescue lineFortescue, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeOptionalDouble("r0", lineFortescue.getR0(), Double.NaN, context.getWriter());
-        XmlUtil.writeOptionalDouble("x0", lineFortescue.getX0(), Double.NaN, context.getWriter());
+        XmlUtil.writeOptionalDouble("rz", lineFortescue.getRz(), Double.NaN, context.getWriter());
+        XmlUtil.writeOptionalDouble("xz", lineFortescue.getXz(), Double.NaN, context.getWriter());
     }
 
     @Override
     public LineFortescue read(Line line, XmlReaderContext context) throws XMLStreamException {
-        double r0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r0");
-        double x0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x0");
+        double rz = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "rz");
+        double xz = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xz");
         return line.newExtension(LineFortescueAdder.class)
-                .withR0(r0)
-                .withX0(x0)
+                .withRz(rz)
+                .withXz(xz)
                 .add();
     }
 }

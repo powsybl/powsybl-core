@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.Line;
  */
 public interface LineFortescueAdder extends ExtensionAdder<Line, LineFortescue> {
 
-    LineFortescueAdder withR0(double r0);
+    LineFortescueAdder withRz(double rz);
 
-    LineFortescueAdder withX0(double x0);
+    LineFortescueAdder withXz(double xz);
 }
