@@ -162,12 +162,7 @@ package com.powsybl.iidm.network;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public interface TieLine extends Identifiable<TieLine>, LineCharacteristicsGetters, Container<TieLine> {
-
-    @Override
-    default ContainerType getContainerType() {
-        return ContainerType.TIE_LINE;
-    }
+public interface TieLine extends Identifiable<TieLine>, LineCharacteristicsGetters {
 
     /**
      * Get the UCTE Xnode code corresponding to this line in the case where the

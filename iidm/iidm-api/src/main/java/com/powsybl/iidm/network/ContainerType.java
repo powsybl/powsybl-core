@@ -12,6 +12,5 @@ package com.powsybl.iidm.network;
 public enum ContainerType {
     NETWORK,
     SUBSTATION,
-    VOLTAGE_LEVEL,
-    TIE_LINE
+    VOLTAGE_LEVEL
 }
