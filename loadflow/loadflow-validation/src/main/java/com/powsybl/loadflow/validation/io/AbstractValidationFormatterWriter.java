@@ -298,7 +298,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                 writeTwts3wData();
                 break;
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + validationType);
+                throw new IllegalStateException("Unexpected ValidationType value: " + validationType);
         }
     }
 

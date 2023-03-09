@@ -51,6 +51,11 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     }
 
     @Override
+    protected RegulatingPoint createRegulatingPoint(int variantArraySize, boolean regulating) {
+        return new RegulatingPoint(parent.getTransformer().getId(), () -> null, variantArraySize, regulating, false);
+    }
+
+    @Override
     protected Integer getRelativeNeutralPosition() {
         for (int i = 0; i < steps.size(); i++) {
             PhaseTapChangerStepImpl step = steps.get(i);
@@ -120,6 +125,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     @Override
     public void remove() {
+        regulatingPoint.remove();
         parent.setPhaseTapChanger(null);
     }
 

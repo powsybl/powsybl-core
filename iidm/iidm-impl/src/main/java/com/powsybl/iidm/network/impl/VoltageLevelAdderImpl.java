@@ -104,7 +104,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
                 voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
         getNetwork().getIndex().checkAndAdd(voltageLevel);
         Optional.ofNullable(substation).ifPresent(s -> s.addVoltageLevel(voltageLevel));

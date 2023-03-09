@@ -36,7 +36,7 @@ import java.util.concurrent.CompletableFuture;
 public final class SecurityAnalysis {
 
     private SecurityAnalysis() {
-        throw new AssertionError("Utility class should not been instantiated");
+        throw new IllegalStateException("Utility class should not been instantiated");
     }
 
     /**
