@@ -22,18 +22,22 @@ import static com.powsybl.iidm.network.extensions.FortescueConstants.*;
  */
 public class ThreeWindingsTransformerFortescueAdderImpl extends AbstractExtensionAdder<ThreeWindingsTransformer, ThreeWindingsTransformerFortescue> implements ThreeWindingsTransformerFortescueAdder {
 
-    private final LegFortescueAdderImpl legAdder1 = new LegFortescueAdderImpl();
-    private final LegFortescueAdderImpl legAdder2 = new LegFortescueAdderImpl();
-    private final LegFortescueAdderImpl legAdder3 = new LegFortescueAdderImpl();
+    private final LegFortescueAdderImpl legAdder1 = new LegFortescueAdderImpl(DEFAULT_LEG1_CONNECTION_TYPE);
+    private final LegFortescueAdderImpl legAdder2 = new LegFortescueAdderImpl(DEFAULT_LEG2_CONNECTION_TYPE);
+    private final LegFortescueAdderImpl legAdder3 = new LegFortescueAdderImpl(DEFAULT_LEG3_CONNECTION_TYPE);
 
     private class LegFortescueAdderImpl implements LegFortescueAdder {
 
         private double r0 = Double.NaN;
         private double x0 = Double.NaN;
         private boolean freeFluxes = DEFAULT_FREE_FLUXES;
-        private WindingConnectionType connectionType = DEFAULT_LEG1_CONNECTION_TYPE;
+        private WindingConnectionType connectionType;
         private double groundingR = DEFAULT_GROUNDING_R;
         private double groundingX = DEFAULT_GROUNDING_X;
+
+        public LegFortescueAdderImpl(WindingConnectionType connectionType) {
+            this.connectionType = Objects.requireNonNull(connectionType);
+        }
 
         @Override
         public LegFortescueAdder withR0(double r0) {

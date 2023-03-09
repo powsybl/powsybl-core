@@ -15,7 +15,7 @@ public final class FortescueConstants {
     private FortescueConstants() {
     }
 
-    public static final boolean DEFAULT_TO_GROUND = false;
+    public static final boolean DEFAULT_GROUNDED = false;
     public static final double DEFAULT_GROUNDING_R = 0;
     public static final double DEFAULT_GROUNDING_X = 0;
     public static final boolean DEFAULT_FREE_FLUXES = true;

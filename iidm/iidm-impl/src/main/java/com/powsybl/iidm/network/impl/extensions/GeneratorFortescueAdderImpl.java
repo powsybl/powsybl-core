@@ -19,7 +19,7 @@ import static com.powsybl.iidm.network.extensions.FortescueConstants.*;
  */
 public class GeneratorFortescueAdderImpl extends AbstractExtensionAdder<Generator, GeneratorFortescue> implements GeneratorFortescueAdder {
 
-    private boolean grounded = DEFAULT_TO_GROUND;
+    private boolean grounded = DEFAULT_GROUNDED;
     private double r0 = Double.NaN;
     private double x0 = Double.NaN;
     private double r2 = Double.NaN;
