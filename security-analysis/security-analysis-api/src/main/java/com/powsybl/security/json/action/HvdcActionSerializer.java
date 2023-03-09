@@ -29,7 +29,7 @@ public class HvdcActionSerializer extends StdSerializer<HvdcAction> {
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
         jsonGenerator.writeStringField("hvdcId", action.getHvdcId());
-        jsonGenerator.writeBooleanField("acEmulationEnabled", action.isAcEmulationEnabled());
+        JsonUtil.writeOptionalBoolean(jsonGenerator, "acEmulationEnabled", action.isAcEmulationEnabled());
         JsonUtil.writeOptionalDouble(jsonGenerator, "activePowerSetpoint", action.getActivePowerSetpoint());
         JsonUtil.writeOptionalEnum(jsonGenerator, "converterMode", action.getConverterMode());
         JsonUtil.writeOptionalDouble(jsonGenerator, "droop", action.getDroop());

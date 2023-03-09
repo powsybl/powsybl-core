@@ -17,7 +17,7 @@ public class HvdcActionBuilder {
 
     private String id;
     private String hvdcId;
-    private boolean acEmulationEnabled;
+    private Boolean acEmulationEnabled;
     private Double activePowerSetpoint = null;
     private HvdcLine.ConvertersMode converterMode = null;
     private Double droop = null;

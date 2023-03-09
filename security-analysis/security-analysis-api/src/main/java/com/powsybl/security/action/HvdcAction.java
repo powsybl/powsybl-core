@@ -32,14 +32,14 @@ public class HvdcAction extends AbstractAction {
     public static final String NAME = "HVDC";
 
     private final String hvdcId;
-    private final boolean acEmulationEnabled;
+    private final Boolean acEmulationEnabled;
     private final Double activePowerSetpoint;
     private final HvdcLine.ConvertersMode converterMode;
     private final Double droop;
     private final Double p0;
     private final Boolean relativeValue;
 
-    HvdcAction(String id, String hvdcId, boolean acEmulationEnabled, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, Boolean relativeValue) {
+    HvdcAction(String id, String hvdcId, Boolean acEmulationEnabled, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, Boolean relativeValue) {
         super(id);
         this.hvdcId = Objects.requireNonNull(hvdcId);
         this.acEmulationEnabled = acEmulationEnabled;
@@ -75,8 +75,8 @@ public class HvdcAction extends AbstractAction {
         return p0 == null ? OptionalDouble.empty() : OptionalDouble.of(p0);
     }
 
-    public boolean isAcEmulationEnabled() {
-        return acEmulationEnabled;
+    public Optional<Boolean> isAcEmulationEnabled() {
+        return Optional.ofNullable(acEmulationEnabled);
     }
 
     public Optional<Boolean> isRelativeValue() {
