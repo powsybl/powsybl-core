@@ -80,7 +80,7 @@ class MergedLine implements TieLine {
             case TWO:
                 return getTerminal2();
             default:
-                throw new AssertionError(UNEXPECTED_SIDE_VALUE + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE_VALUE + side);
         }
     }
 
@@ -332,7 +332,7 @@ class MergedLine implements TieLine {
                 return checkPermanentLimit2(limitReduction, type);
 
             default:
-                throw new AssertionError(UNEXPECTED_SIDE_VALUE + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE_VALUE + side);
         }
     }
 
@@ -372,7 +372,7 @@ class MergedLine implements TieLine {
                 return checkTemporaryLimits2(limitReduction, type);
 
             default:
-                throw new AssertionError(UNEXPECTED_SIDE_VALUE + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE_VALUE + side);
         }
     }
 
@@ -540,7 +540,7 @@ class MergedLine implements TieLine {
             case TWO:
                 return half2;
             default:
-                throw new AssertionError("Unknown branch side " + side);
+                throw new IllegalStateException("Unknown branch side " + side);
         }
     }
 

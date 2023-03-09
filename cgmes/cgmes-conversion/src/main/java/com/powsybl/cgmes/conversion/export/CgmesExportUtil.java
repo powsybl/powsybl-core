@@ -125,45 +125,46 @@ public final class CgmesExportUtil {
         writer.writeEndElement();
     }
 
-    private static String toRdfId(String id) {
+    private static String toRdfId(String id, CgmesExportContext context) {
         // Handling ids: if received id is not prefixed by "_", add it to make it a valid RDF:Id
         // We have to be careful with "resource" and "about" references, and apply the same conversions
-        return id.startsWith("_") ? id : "_" + id;
+        // Encode IDs to be URL compatible (prevent issues when importing)
+        return context.encode(id.startsWith("_") ? id : "_" + id);
     }
 
-    private static String toMasterResourceId(String id) {
+    private static String toMasterResourceId(String id, CgmesExportContext context) {
         // Handling ids: if received id is prefixed by "_", remove it. Assuming it was added to comply with URN rules
-        return id.startsWith("_") ? id.substring(1) : id;
+        return context.encode(id.startsWith("_") ? id.substring(1) : id);
     }
 
-    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, className);
         // Writing mRID was optional in CIM 16, but is required since CIM 100
         // Only classes extending IdentifiedObject have an mRID
         // points of tables and curve data objects do not have mRID, although they have an RDF:ID
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, toRdfId(id));
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, toRdfId(id, context));
         if (writeMasterResourceId) {
             writer.writeStartElement(cimNamespace, "IdentifiedObject.mRID");
-            writer.writeCharacters(toMasterResourceId(id));
+            writer.writeCharacters(toMasterResourceId(id, context));
             writer.writeEndElement();
         }
     }
 
-    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writeStartId(className, id, true, cimNamespace, writer);
+    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        writeStartId(className, id, true, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(name);
         writer.writeEndElement();
     }
 
-    public static void writeReference(String refName, String referredId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeReference(String refName, String referredId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeEmptyElement(cimNamespace, refName);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId));
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId, context));
     }
 
-    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, className);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id));
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id, context));
     }
 
     public static Complex complexVoltage(double r, double x, double g, double b,
@@ -218,7 +219,7 @@ public final class CgmesExportUtil {
                     case TWO:
                         return 2;
                     default:
-                        throw new AssertionError("Incorrect branch side " + ((Branch<?>) c).getSide(t));
+                        throw new IllegalStateException("Incorrect branch side " + ((Branch<?>) c).getSide(t));
                 }
             } else if (c instanceof ThreeWindingsTransformer) {
                 switch (((ThreeWindingsTransformer) c).getSide(t)) {
@@ -229,7 +230,7 @@ public final class CgmesExportUtil {
                     case THREE:
                         return 3;
                     default:
-                        throw new AssertionError("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
+                        throw new IllegalStateException("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
                 }
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());

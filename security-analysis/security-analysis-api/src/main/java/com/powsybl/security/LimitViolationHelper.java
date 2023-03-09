@@ -36,7 +36,7 @@ public final class LimitViolationHelper {
             Bus bus = (Bus) identifiable;
             return bus.getVoltageLevel();
         } else {
-            throw new AssertionError("Unexpected identifiable type: " + identifiable.getClass());
+            throw new IllegalStateException("Unexpected identifiable type: " + identifiable.getClass());
         }
     }
 

@@ -29,7 +29,7 @@ class TripleStoreUtilsTest {
         Mockito.when(queryCatalog.get(Mockito.anyString())).thenReturn(null);
         Mockito.when(queryCatalog.get("test")).thenReturn("test");
         PropertyBags bags = new PropertyBags();
-        PropertyBag p = new PropertyBag(List.of("test"));
+        PropertyBag p = new PropertyBag(List.of("test"), true);
         p.put("test", "test");
         bags.add(p);
         Mockito.when(tripleStore.query("test")).thenReturn(bags);

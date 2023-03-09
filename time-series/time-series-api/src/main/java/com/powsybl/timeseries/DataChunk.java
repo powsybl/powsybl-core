@@ -231,9 +231,9 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
         } else if (context.stringValues != null && context.doubleValues == null) {
             context.stringChunks.add(new UncompressedStringDataChunk(context.offset, context.stringValues.toArray(new String[context.stringValues.size()])));
         } else if (context.stringValues != null && context.doubleValues != null) {
-            throw new AssertionError("doubleValues and stringValues are not expected to be non null at the same time");
+            throw new IllegalStateException("doubleValues and stringValues are not expected to be non null at the same time");
         } else {
-            throw new AssertionError("doubleValues and stringValues are not expected to be null at the same time");
+            throw new IllegalStateException("doubleValues and stringValues are not expected to be null at the same time");
         }
     }
 
@@ -252,9 +252,9 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
             context.stepLengths = null;
             context.uncompressedLength = -1;
         } else if (context.stringValues != null && context.doubleValues != null) {
-            throw new AssertionError("doubleValues and stringValues are not expected to be non null at the same time");
+            throw new IllegalStateException("doubleValues and stringValues are not expected to be non null at the same time");
         } else {
-            throw new AssertionError("doubleValues and stringValues are not expected to be null at the same time");
+            throw new IllegalStateException("doubleValues and stringValues are not expected to be null at the same time");
         }
     }
 

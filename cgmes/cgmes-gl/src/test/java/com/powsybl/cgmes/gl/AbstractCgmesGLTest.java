@@ -41,7 +41,7 @@ abstract class AbstractCgmesGLTest {
     }
 
     protected PropertyBag createSubstationPropertyBag(String powerSystemResource, String name, String crsName, String crsUrn, double x, double y) {
-        PropertyBag propertyBag = new PropertyBag(Arrays.asList("powerSystemResource", "name", "crsName", "crsUrn", "x", "y"));
+        PropertyBag propertyBag = new PropertyBag(Arrays.asList("powerSystemResource", "name", "crsName", "crsUrn", "x", "y"), true);
         propertyBag.put("powerSystemResource", powerSystemResource);
         propertyBag.put("name", name);
         propertyBag.put("crsName", crsName);
@@ -52,7 +52,7 @@ abstract class AbstractCgmesGLTest {
     }
 
     protected PropertyBag createLinePropertyBag(String powerSystemResource, String name, String crsName, String crsUrn, double x, double y, int seq) {
-        PropertyBag propertyBag = new PropertyBag(Arrays.asList("powerSystemResource", "name", "crsName", "crsUrn", "x", "y", "seq"));
+        PropertyBag propertyBag = new PropertyBag(Arrays.asList("powerSystemResource", "name", "crsName", "crsUrn", "x", "y", "seq"), true);
         propertyBag.put("powerSystemResource", powerSystemResource);
         propertyBag.put("name", name);
         propertyBag.put("crsName", crsName);

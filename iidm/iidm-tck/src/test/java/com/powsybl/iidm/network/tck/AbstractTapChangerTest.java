@@ -86,8 +86,8 @@ public abstract class AbstractTapChangerTest {
         assertEquals(10.0, phaseTapChanger.getRegulationValue(), 0.0);
 
         // setter getter
-        assertEquals(0, phaseTapChanger.getNeutralPosition().orElseThrow(AssertionError::new));
-        PhaseTapChangerStep neutralStep = phaseTapChanger.getNeutralStep().orElseThrow(AssertionError::new);
+        assertEquals(0, phaseTapChanger.getNeutralPosition().orElseThrow(IllegalStateException::new));
+        PhaseTapChangerStep neutralStep = phaseTapChanger.getNeutralStep().orElseThrow(IllegalStateException::new);
         assertEquals(1.0, neutralStep.getR(), 0.0);
         assertEquals(2.0, neutralStep.getX(), 0.0);
         assertEquals(3.0, neutralStep.getG(), 0.0);
@@ -108,10 +108,17 @@ public abstract class AbstractTapChangerTest {
         Terminal terminal2 = twt.getTerminal2();
         phaseTapChanger.setRegulationTerminal(terminal2);
         assertSame(terminal2, phaseTapChanger.getRegulationTerminal());
+        Terminal loadTerminal = twt.getTerminal1().getVoltageLevel().newLoad().setId("L").setP0(1.0).setQ0(1.0).setBus("busA").add().getTerminal();
+        phaseTapChanger.setRegulationTerminal(loadTerminal).setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER).setRegulating(true);
+        assertSame(loadTerminal, phaseTapChanger.getRegulationTerminal());
+        network.getLoad("L").remove();
+        assertNull(phaseTapChanger.getRegulationTerminal());
+        assertFalse(phaseTapChanger.isRegulating());
+        phaseTapChanger.setRegulationTerminal(terminal).setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
         int lowTapPosition = 2;
         phaseTapChanger.setLowTapPosition(lowTapPosition);
         assertEquals(lowTapPosition, phaseTapChanger.getLowTapPosition());
-        assertEquals(2, phaseTapChanger.getNeutralPosition().orElseThrow(AssertionError::new));
+        assertEquals(2, phaseTapChanger.getNeutralPosition().orElseThrow(IllegalStateException::new));
 
         try {
             phaseTapChanger.setTapPosition(5);
@@ -416,8 +423,8 @@ public abstract class AbstractTapChangerTest {
         assertEquals(3, ratioTapChanger.getStepCount());
 
         // setter getter
-        assertEquals(1, ratioTapChanger.getNeutralPosition().orElseThrow(AssertionError::new));
-        RatioTapChangerStep neutralStep = ratioTapChanger.getNeutralStep().orElseThrow(AssertionError::new);
+        assertEquals(1, ratioTapChanger.getNeutralPosition().orElseThrow(IllegalStateException::new));
+        RatioTapChangerStep neutralStep = ratioTapChanger.getNeutralStep().orElseThrow(IllegalStateException::new);
         assertEquals(39.78474, neutralStep.getR(), 0.0);
         assertEquals(39.784726, neutralStep.getX(), 0.0);
         assertEquals(0.0, neutralStep.getG(), 0.0);
