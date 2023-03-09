@@ -78,7 +78,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version10.json"));
         assertEquals(1, result.getFaultResults().size());
         FortescueFaultResult faultResult = (FortescueFaultResult) result.getFaultResult("id");
-        assertEquals(1.0, faultResult.getCurrent().getDirectMagnitude(), 0);
+        assertEquals(1.0, faultResult.getCurrent().getPositiveMagnitude(), 0);
         assertEquals(1, faultResult.getLimitViolations().size());
         assertEquals(1, faultResult.getFeederResults().size());
     }
