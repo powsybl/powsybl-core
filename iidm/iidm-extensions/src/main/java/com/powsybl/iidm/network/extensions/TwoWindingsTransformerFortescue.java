@@ -37,7 +37,7 @@ public interface TwoWindingsTransformerFortescue extends Extension<TwoWindingsTr
     void setXz(double xz);
 
     /**
-     * Free fluxes to true means that the magnetizing impedance Zm is infinite, i.e. fluxes are free.
+     * Free fluxes set to true means that the magnetizing impedance Zm is infinite, i.e. fluxes are free.
      */
     boolean isFreeFluxes();
 

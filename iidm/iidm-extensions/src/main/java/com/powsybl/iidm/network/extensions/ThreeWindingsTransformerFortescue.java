@@ -39,7 +39,7 @@ public interface ThreeWindingsTransformerFortescue extends Extension<ThreeWindin
         }
 
         /**
-         * Free fluxes to true means that the magnetizing impedance Zm is infinite, i.e. fluxes are free.
+         * Free fluxes set to true means that the magnetizing impedance Zm is infinite, i.e. fluxes are free.
          */
         public boolean isFreeFluxes() {
             return freeFluxes;
