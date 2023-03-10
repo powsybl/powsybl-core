@@ -30,12 +30,12 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
     private static class ParsingContext {
         String id;
         String hvdcId;
-        boolean acEmulationEnabled;
+        Boolean acEmulationEnabled;
         Double activePowerSetpoint;
         HvdcLine.ConvertersMode converterMode;
         Double droop;
         Double p0;
-        Boolean relativeValue = null;
+        Boolean relativeValue;
     }
 
     @Override
