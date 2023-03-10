@@ -113,7 +113,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     }
 
     @Override
-    protected void readElement(String id, ShuntCompensatorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readElement(String id, VoltageLevel parent, ShuntCompensatorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
             String voltageRegulatorOn = context.getReader().getAttributeValue(null, "voltageRegulatorOn");
             double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");

@@ -561,11 +561,7 @@ public abstract class AbstractLineTest {
         double hl2b2 = 0.0145;
 
         // adder
-        TieLineAdder adder = network.newTieLine().setId("testTie")
-                .setName("testNameTie")
-                .setVoltageLevel1("vl1")
-                .setVoltageLevel2("vl2")
-                .newHalf1()
+        DanglingLine dl1 = voltageLevelA.newDanglingLine()
                 .setBus("busA")
                 .setId("hl1")
                 .setEnsureIdUnicity(true)
@@ -575,8 +571,8 @@ public abstract class AbstractLineTest {
                 .setB(hl1b1 + hl1b2)
                 .setG(hl1g1 + hl1g2)
                 .setUcteXnodeCode("ucte")
-                .add()
-                .newHalf2()
+                .add();
+        DanglingLine dl2 = voltageLevelB.newDanglingLine()
                 .setBus("busB")
                 .setId("hl2")
                 .setEnsureIdUnicity(true)
@@ -585,6 +581,10 @@ public abstract class AbstractLineTest {
                 .setB(hl2b1 + hl2b2)
                 .setG(hl2g1 + hl2g2)
                 .add();
+        TieLineAdder adder = network.newTieLine().setId("testTie")
+                .setName("testNameTie")
+                .setHalf1(dl1.getId())
+                .setHalf2(dl2.getId());
         TieLine tieLine = adder.add();
         assertEquals(IdentifiableType.TIE_LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
@@ -631,9 +631,8 @@ public abstract class AbstractLineTest {
         verifyNoMoreInteractions(mockedListener);
 
         // Reuse adder
-        TieLine tieLine2 = adder.setId("testTie2").add();
-        assertNotSame(tieLine.getHalf1(), tieLine2.getHalf1());
-        assertNotSame(tieLine.getHalf2(), tieLine2.getHalf2());
+        ValidationException e = assertThrows(ValidationException.class, () -> adder.setId("testTie2").add());
+        assertTrue(e.getMessage().contains("already has a tie line"));
 
         // Update power flows, voltages and angles
         double p1 = -605.0;
@@ -663,27 +662,20 @@ public abstract class AbstractLineTest {
     @Test
     public void halfLine1NotSet() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("half line 1 is not set");
+        thrown.expectMessage("undefined half");
         // adder
         network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
-                .setVoltageLevel1("vl1")
-                .setVoltageLevel2("vl2")
                 .add();
     }
 
     @Test
     public void halfLine2NotSet() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("half line 2 is not set");
+        thrown.expectMessage("undefined half");
         // adder
-        network.newTieLine()
-                .setId("testTie")
-                .setName("testNameTie")
-                .setVoltageLevel1("vl1")
-                .setVoltageLevel2("vl2")
-                .newHalf1()
+        DanglingLine dl1 = voltageLevelA.newDanglingLine()
                 .setBus("busA")
                 .setId("hl1")
                 .setName(HALF1_NAME)
@@ -692,14 +684,18 @@ public abstract class AbstractLineTest {
                 .setB(80.0)
                 .setG(65.0)
                 .setUcteXnodeCode("ucte")
-                .add()
+                .add();
+        network.newTieLine()
+                .setId("testTie")
+                .setName("testNameTie")
+                .setHalf1(dl1.getId())
                 .add();
     }
 
     @Test
     public void invalidHalfLineCharacteristicsR() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is not set for half line 1");
+        thrown.expectMessage("r is invalid");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
                 6.5, 8.5, "code");
     }
@@ -707,7 +703,7 @@ public abstract class AbstractLineTest {
     @Test
     public void invalidHalfLineCharacteristicsX() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is not set for half line 1");
+        thrown.expectMessage("x is invalid");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
                 6.5, 8.5, "code");
     }
@@ -715,7 +711,7 @@ public abstract class AbstractLineTest {
     @Test
     public void invalidHalfLineCharacteristicsG() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("g is not set for half line 1");
+        thrown.expectMessage("g is invalid");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
                 Double.NaN, 8.5, "code");
     }
@@ -723,7 +719,7 @@ public abstract class AbstractLineTest {
     @Test
     public void invalidHalfLineCharacteristicsB() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("b is not set for half line 1");
+        thrown.expectMessage("b is invalid");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
                 6.5, Double.NaN, "code");
     }
@@ -731,7 +727,7 @@ public abstract class AbstractLineTest {
     @Test
     public void halfLineIdNull() {
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("TieLineAdder.DanglingLine1 id is not set");
+        thrown.expectMessage("Dangling line id is not set");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
                 6.5, 8.5, "code");
     }
@@ -742,14 +738,6 @@ public abstract class AbstractLineTest {
         thrown.expectMessage("Invalid id ''");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
                 6.5, 8.5, "code");
-    }
-
-    @Test
-    public void uctecodeNull() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("ucteXnodeCode is not set");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                6.5, 8.5, null);
     }
 
     @Test
@@ -796,10 +784,7 @@ public abstract class AbstractLineTest {
 
     private void createTieLineWithHalfline2ByDefault(String id, String name, String halfLineId, double r, double x,
                                                      double g, double b, String code) {
-        network.newTieLine()
-                .setId(id)
-                .setName(name)
-                .newHalf1()
+        DanglingLine dl1 = voltageLevelA.newDanglingLine()
                 .setBus("busA")
                 .setId(halfLineId)
                 .setName(HALF1_NAME)
@@ -807,8 +792,8 @@ public abstract class AbstractLineTest {
                 .setX(x)
                 .setB(b)
                 .setG(g)
-                .add()
-                .newHalf2()
+                .add();
+        DanglingLine dl2 = voltageLevelB.newDanglingLine()
                 .setBus("busB")
                 .setId("hl2")
                 .setName("half2_name")
@@ -817,9 +802,13 @@ public abstract class AbstractLineTest {
                 .setB(6.5)
                 .setG(8.5)
                 .setUcteXnodeCode(code)
-                .add()
-                .setVoltageLevel1("vl1")
-                .setVoltageLevel2("vl2")
+                .add();
+        network.newTieLine()
+                .setId(id)
+                .setEnsureIdUnicity(true)
+                .setName(name)
+                .setHalf1(dl1.getId())
+                .setHalf2(dl2.getId())
                 .add();
     }
 }

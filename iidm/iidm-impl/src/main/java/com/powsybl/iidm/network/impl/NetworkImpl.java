@@ -902,6 +902,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         // try to find dangling lines couples
         List<MergedLine> lines = new ArrayList<>();
         Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
+
         for (DanglingLine dl1 : getDanglingLines()) {
             if (dl1.getUcteXnodeCode() != null) {
                 dl1byXnodeCode.computeIfAbsent(dl1.getUcteXnodeCode(), k -> new ArrayList<>()).add(dl1);
@@ -920,13 +921,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         // fix network back reference of the other network objects
         otherNetwork.ref.setRef(ref);
 
-        Multimap<Boundary, MergedLine> mergedLineByBoundary = HashMultimap.create();
-        replaceDanglingLineByLine(lines, mergedLineByBoundary);
-
-        if (!lines.isEmpty()) {
-            LOGGER.info("{} dangling line couples have been replaced by a line: {}", lines.size(),
-                    mergedLineByBoundary.asMap().entrySet().stream().map(e -> e.getKey() + ": " + e.getValue().size()).collect(Collectors.toList()));
-        }
+        replaceDanglingLineByLine(lines);
 
         // update the source format
         if (!sourceFormat.equals(otherNetwork.sourceFormat)) {
@@ -947,152 +942,52 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
             MergedLine l = new MergedLine();
             l.id = buildMergedId(dl1.getId(), dl2.getId());
-            l.aliases = new HashSet<>();
-            l.aliases.addAll(dl1.getAliases());
-            l.aliases.addAll(dl2.getAliases());
-            Terminal t1 = dl1.getTerminal();
-            Terminal t2 = dl2.getTerminal();
-            VoltageLevel vl1 = t1.getVoltageLevel();
-            VoltageLevel vl2 = t2.getVoltageLevel();
-            l.voltageLevel1 = vl1.getId();
-            l.voltageLevel2 = vl2.getId();
-            l.xnode = Optional.ofNullable(dl1.getUcteXnodeCode()).orElseGet(dl2::getUcteXnodeCode);
-            l.half1.id = dl1.getId();
-            l.half1.name = dl1.getOptionalName().orElse(null);
-            l.half1.r = dl1.getR();
-            l.half1.x = dl1.getX();
-            l.half1.g = dl1.getG();
-            l.half1.b = dl1.getB();
-            l.half1.fictitious = dl1.isFictitious();
-            l.half2.id = dl2.getId();
-            l.half2.name = dl2.getOptionalName().orElse(null);
-            l.half2.r = dl2.getR();
-            l.half2.x = dl2.getX();
-            l.half2.g = dl2.getG();
-            l.half2.b = dl2.getB();
-            l.half2.fictitious = dl2.isFictitious();
-            l.limits1 = dl1.getCurrentLimits().orElse(null);
-            l.limits2 = dl2.getCurrentLimits().orElse(null);
-            if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                Bus b1 = t1.getBusBreakerView().getBus();
-                if (b1 != null) {
-                    l.bus1 = b1.getId();
-                }
-                l.connectableBus1 = t1.getBusBreakerView().getConnectableBus().getId();
-            } else {
-                l.node1 = t1.getNodeBreakerView().getNode();
-            }
-            if (t2.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                Bus b2 = t2.getBusBreakerView().getBus();
-                if (b2 != null) {
-                    l.bus2 = b2.getId();
-                }
-                l.connectableBus2 = t2.getBusBreakerView().getConnectableBus().getId();
-            } else {
-                l.node2 = t2.getNodeBreakerView().getNode();
-            }
-            l.p1 = t1.getP();
-            l.q1 = t1.getQ();
-            l.p2 = t2.getP();
-            l.q2 = t2.getQ();
-            l.country1 = vl1.getSubstation().flatMap(Substation::getCountry).orElse(null);
-            l.country2 = vl2.getSubstation().flatMap(Substation::getCountry).orElse(null);
+            l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
+            l.half1Id = dl1.getId();
+            l.half2Id = dl2.getId();
+            l.aliases = new HashMap<>();
             mergeProperties(dl1, dl2, l.properties);
             lines.add(l);
 
-            // remove the 2 dangling lines
-            dl1.remove();
-            dl2.remove();
+            if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
+                ((DanglingLineImpl) dl1).replaceId(l.half1Id + "_1");
+                ((DanglingLineImpl) dl2).replaceId(l.half2Id + "_2");
+                l.half1Id = dl1.getId();
+                l.half2Id = dl2.getId();
+            }
+            mergeIdenticalAliases(dl1, dl2, l.aliases);
         }
     }
 
-    private void replaceDanglingLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
+    private void replaceDanglingLineByLine(List<MergedLine> lines) {
         for (MergedLine mergedLine : lines) {
-            LOGGER.debug("Replacing dangling line couple '{}' (xnode={}, country1={}, country2={}) by a line",
-                    mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
-            TieLineAdderImpl la = newTieLine()
+            LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
+                    mergedLine.id, mergedLine.half1Id, mergedLine.half2Id);
+            TieLineImpl l = newTieLine()
                     .setId(mergedLine.id)
-                    .setName(buildMergedName(mergedLine.half1.id, mergedLine.half2.id, mergedLine.half1.name, mergedLine.half2.name))
-                    .setVoltageLevel1(mergedLine.voltageLevel1)
-                    .setVoltageLevel2(mergedLine.voltageLevel2)
-                    .newHalf1().setId(mergedLine.half1.id)
                     .setEnsureIdUnicity(true)
-                    .setName(mergedLine.half1.name)
-                    .setR(mergedLine.half1.r)
-                    .setX(mergedLine.half1.x)
-                    .setG(mergedLine.half1.g)
-                    .setB(mergedLine.half1.b)
-                    .setFictitious(mergedLine.half1.fictitious)
-                    .setUcteXnodeCode(mergedLine.xnode)
-                    .setBus(mergedLine.bus1)
-                    .setConnectableBus(mergedLine.connectableBus1)
-                    .add()
-                    .newHalf2().setId(mergedLine.half2.id)
-                    .setEnsureIdUnicity(true)
-                    .setName(mergedLine.half2.name)
-                    .setR(mergedLine.half2.r)
-                    .setX(mergedLine.half2.x)
-                    .setG(mergedLine.half2.g)
-                    .setB(mergedLine.half2.b)
-                    .setFictitious(mergedLine.half2.fictitious)
-                    .setUcteXnodeCode(mergedLine.xnode)
-                    .setBus(mergedLine.bus2)
-                    .setConnectableBus(mergedLine.connectableBus2)
+                    .setName(mergedLine.name)
+                    .setHalf1(mergedLine.half1Id)
+                    .setHalf2(mergedLine.half2Id)
                     .add();
-            if (mergedLine.node1 != null) {
-                la.setNode1(mergedLine.node1);
-            }
-            if (mergedLine.node2 != null) {
-                la.setNode2(mergedLine.node2);
-            }
-            TieLineImpl l = la.add();
-            l.getHalf1().getLimitsHolder().setOperationalLimits(LimitType.CURRENT, mergedLine.limits1);
-            l.getHalf2().getLimitsHolder().setOperationalLimits(LimitType.CURRENT, mergedLine.limits2);
-            l.getHalf1().getTerminal().setP(mergedLine.p1).setQ(mergedLine.q1);
-            l.getHalf2().getTerminal().setP(mergedLine.p2).setQ(mergedLine.q2);
             mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-            mergedLine.aliases.forEach(l::addAlias);
-
-            mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
+            mergedLine.aliases.forEach((alias, type) -> {
+                if (type.isEmpty()) {
+                    l.addAlias(alias);
+                } else {
+                    l.addAlias(alias, type);
+                }
+            });
         }
     }
 
     class MergedLine {
         String id;
-        Set<String> aliases;
-        String voltageLevel1;
-        String voltageLevel2;
-        String xnode;
-        String bus1;
-        String bus2;
-        String connectableBus1;
-        String connectableBus2;
-        Integer node1;
-        Integer node2;
+        String name;
+        String half1Id;
+        String half2Id;
+        Map<String, String> aliases;
         Properties properties = new Properties();
-
-        class HalfMergedLine {
-            String id;
-            String name;
-            double r;
-            double x;
-            double g;
-            double b;
-            boolean fictitious;
-        }
-
-        final HalfMergedLine half1 = new HalfMergedLine();
-        final HalfMergedLine half2 = new HalfMergedLine();
-
-        CurrentLimits limits1;
-        CurrentLimits limits2;
-        double p1;
-        double q1;
-        double p2;
-        double q2;
-
-        Country country1;
-        Country country2;
     }
 
     @Override

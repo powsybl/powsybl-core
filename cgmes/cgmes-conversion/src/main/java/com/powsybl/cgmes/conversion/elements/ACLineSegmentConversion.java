@@ -118,33 +118,33 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
     // Before creating the TieLine the initial branches are reoriented if it is necessary,
     // then the setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
     private static TieLine createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
-        TieLineAdder adder = context.network().newTieLine()
-                .setVoltageLevel1(boundaryLine1.getModelIidmVoltageLevelId())
-                .setVoltageLevel2(boundaryLine2.getModelIidmVoltageLevelId());
-        MergedDanglingLineAdder adder1 = adder
-            .newHalf1()
-            .setId(boundaryLine1.getId())
-            .setName(boundaryLine1.getName())
-            .setR(boundaryLine1.getR())
-            .setX(boundaryLine1.getX())
-            .setG(boundaryLine1.getG1() + boundaryLine1.getG2())
-            .setB(boundaryLine1.getB1() + boundaryLine1.getB2())
-            .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
-        MergedDanglingLineAdder adder2 = adder
-            .newHalf2()
-            .setId(boundaryLine2.getId())
-            .setName(boundaryLine2.getName())
-            .setR(boundaryLine2.getR())
-            .setX(boundaryLine2.getX())
-            .setG(boundaryLine2.getG1() + boundaryLine2.getG2())
-            .setB(boundaryLine2.getB1() + boundaryLine2.getB2())
-            .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
-        identify(context, adder, context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(boundaryLine1.getId(), boundaryLine2.getId())),
-                TieLineUtil.buildMergedName(boundaryLine1.getId(), boundaryLine2.getId(), boundaryLine1.getName(), boundaryLine2.getName()));
+        DanglingLineAdder adder1 = context.network().getVoltageLevel(boundaryLine1.getModelIidmVoltageLevelId())
+                .newDanglingLine()
+                .setId(boundaryLine1.getId())
+                .setName(boundaryLine1.getName())
+                .setR(boundaryLine1.getR())
+                .setX(boundaryLine1.getX())
+                .setG(boundaryLine1.getG1() + boundaryLine1.getG2())
+                .setB(boundaryLine1.getB1() + boundaryLine1.getB2())
+                .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
+        DanglingLineAdder adder2 = context.network().getVoltageLevel(boundaryLine2.getModelIidmVoltageLevelId())
+                .newDanglingLine()
+                .setId(boundaryLine2.getId())
+                .setName(boundaryLine2.getName())
+                .setR(boundaryLine2.getR())
+                .setX(boundaryLine2.getX())
+                .setG(boundaryLine2.getG1() + boundaryLine2.getG2())
+                .setB(boundaryLine2.getB1() + boundaryLine2.getB2())
+                .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
         connect(context, adder1, boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(), boundaryLine1.getModelNode());
         connect(context, adder2, boundaryLine2.getModelBus(), boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
-        adder1.add();
-        adder2.add();
+        DanglingLine dl1 = adder1.add();
+        DanglingLine dl2 = adder2.add();
+        TieLineAdder adder = context.network().newTieLine()
+                .setHalf1(dl1.getId())
+                .setHalf2(dl2.getId());
+        identify(context, adder, context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(boundaryLine1.getId(), boundaryLine2.getId())),
+                TieLineUtil.buildMergedName(boundaryLine1.getId(), boundaryLine2.getId(), boundaryLine1.getName(), boundaryLine2.getName()));
         TieLine tieLine = adder.add();
         if (context.boundary().isHvdc(boundaryNode) || context.boundary().lineAtBoundary(boundaryNode) != null) {
             tieLine.newExtension(CgmesLineBoundaryNodeAdder.class)

@@ -10,14 +10,9 @@ package com.powsybl.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface TieLineAdder extends IdentifiableAdder<TieLineAdder> {
+    TieLineAdder setHalf1(String half1Id);
 
-    TieLineAdder setVoltageLevel1(String voltageLevelId1);
-
-    TieLineAdder setVoltageLevel2(String voltageLevelId2);
-
-    MergedDanglingLineAdder newHalf1();
-
-    MergedDanglingLineAdder newHalf2();
+    TieLineAdder setHalf2(String half2Id);
 
     TieLine add();
 

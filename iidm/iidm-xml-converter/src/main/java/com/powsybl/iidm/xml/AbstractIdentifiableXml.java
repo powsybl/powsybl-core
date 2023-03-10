@@ -86,7 +86,13 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
     protected abstract A createAdder(P parent);
 
-    protected abstract T readRootElementAttributes(A adder, NetworkXmlReaderContext context);
+    protected T readRootElementAttributes(A adder, NetworkXmlReaderContext context) {
+        return readRootElementAttributes(adder, null, context);
+    }
+
+    protected T readRootElementAttributes(A adder, P parent, NetworkXmlReaderContext context) {
+        return readRootElementAttributes(adder, context);
+    }
 
     protected void readSubElements(T identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
         if (context.getReader().getLocalName().equals(PropertiesXml.PROPERTY)) {
@@ -99,8 +105,8 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         }
     }
 
-    protected void readElement(String id, A adder, NetworkXmlReaderContext context) throws XMLStreamException {
-        T identifiable = readRootElementAttributes(adder, context);
+    protected void readElement(String id, P parent, A adder, NetworkXmlReaderContext context) throws XMLStreamException {
+        T identifiable = readRootElementAttributes(adder, parent, context);
         if (identifiable != null) {
             readSubElements(identifiable, context);
         }
@@ -116,6 +122,6 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
             adder.setFictitious(fictitious);
         });
-        readElement(id, adder, context);
+        readElement(id, parent, adder, context);
     }
 }

@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.*;
-import java.util.function.Consumer;
 
 import static com.powsybl.iidm.xml.AbstractConnectableXml.*;
 
@@ -42,7 +41,7 @@ class TieLineXml extends AbstractIdentifiableXml<TieLine, TieLineAdder, Network>
 
     @Override
     protected boolean hasSubElements(TieLine tl, NetworkXmlWriterContext context) {
-        return hasValidOperationalLimits(tl.getHalf1(), context) || hasValidOperationalLimits(tl.getHalf2(), context) || context.getVersion().compareTo(IidmXmlVersion.V_1_10) >= 0;
+        return (hasValidOperationalLimits(tl.getHalf1(), context) || hasValidOperationalLimits(tl.getHalf2(), context)) && context.getVersion().compareTo(IidmXmlVersion.V_1_10) < 0;
     }
 
     private static void writeHalf(DanglingLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
@@ -70,21 +69,16 @@ class TieLineXml extends AbstractIdentifiableXml<TieLine, TieLineAdder, Network>
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter()));
     }
 
-    private static void writeDanglingLines(TieLine tl, NetworkXmlWriterContext context) throws XMLStreamException {
-        MergedDanglingLineXml.INSTANCE_1.write(tl.getHalf1(), tl, context);
-        MergedDanglingLineXml.INSTANCE_2.write(tl.getHalf2(), tl, context);
-    }
-
     @Override
     protected void writeRootElementAttributes(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (tl.getUcteXnodeCode() != null) {
-            context.getWriter().writeAttribute("ucteXnodeCode", tl.getUcteXnodeCode());
-        }
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
-            context.getWriter().writeAttribute("voltageLevelId1", context.getAnonymizer().anonymizeString(tl.getHalf1().getTerminal().getVoltageLevel().getId()));
-            context.getWriter().writeAttribute("voltageLevelId2", context.getAnonymizer().anonymizeString(tl.getHalf2().getTerminal().getVoltageLevel().getId()));
+            context.getWriter().writeAttribute("danglingLineId1", context.getAnonymizer().anonymizeString(tl.getHalf1().getId()));
+            context.getWriter().writeAttribute("danglingLineId2", context.getAnonymizer().anonymizeString(tl.getHalf2().getId()));
         });
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
+            if (tl.getUcteXnodeCode() != null) {
+                context.getWriter().writeAttribute("ucteXnodeCode", tl.getUcteXnodeCode());
+            }
             writeNodeOrBus(1, tl.getHalf1().getTerminal(), context);
             writeNodeOrBus(2, tl.getHalf2().getTerminal(), context);
             if (context.getOptions().isWithBranchSV()) {
@@ -98,37 +92,38 @@ class TieLineXml extends AbstractIdentifiableXml<TieLine, TieLineAdder, Network>
 
     @Override
     protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> writeDanglingLines(tl, context));
-        Optional<ActivePowerLimits> activePowerLimits1 = tl.getHalf1().getActivePowerLimits();
-        if (activePowerLimits1.isPresent()) {
-            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, activePowerLimits1.get(), context.getWriter(),
-                    context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<ApparentPowerLimits> apparentPowerLimits1 = tl.getHalf1().getApparentPowerLimits();
-        if (apparentPowerLimits1.isPresent()) {
-            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, apparentPowerLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<CurrentLimits> currentLimits1 = tl.getHalf1().getCurrentLimits();
-        if (currentLimits1.isPresent()) {
-            writeCurrentLimits(1, currentLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-        }
-        Optional<ActivePowerLimits> activePowerLimits2 = tl.getHalf2().getActivePowerLimits();
-        if (activePowerLimits2.isPresent()) {
-            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, activePowerLimits2.get(), context.getWriter(),
-                    context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<ApparentPowerLimits> apparentPowerLimits2 = tl.getHalf2().getApparentPowerLimits();
-        if (apparentPowerLimits2.isPresent()) {
-            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, apparentPowerLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<CurrentLimits> currentLimits2 = tl.getHalf2().getCurrentLimits();
-        if (currentLimits2.isPresent()) {
-            writeCurrentLimits(2, currentLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-        }
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
+            Optional<ActivePowerLimits> activePowerLimits1 = tl.getHalf1().getActivePowerLimits();
+            if (activePowerLimits1.isPresent()) {
+                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, activePowerLimits1.get(), context.getWriter(),
+                        context.getVersion(), context.isValid(), context.getOptions()));
+            }
+            Optional<ApparentPowerLimits> apparentPowerLimits1 = tl.getHalf1().getApparentPowerLimits();
+            if (apparentPowerLimits1.isPresent()) {
+                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, apparentPowerLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+            }
+            Optional<CurrentLimits> currentLimits1 = tl.getHalf1().getCurrentLimits();
+            if (currentLimits1.isPresent()) {
+                writeCurrentLimits(1, currentLimits1.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
+            }
+            Optional<ActivePowerLimits> activePowerLimits2 = tl.getHalf2().getActivePowerLimits();
+            if (activePowerLimits2.isPresent()) {
+                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, activePowerLimits2.get(), context.getWriter(),
+                        context.getVersion(), context.isValid(), context.getOptions()));
+            }
+            Optional<ApparentPowerLimits> apparentPowerLimits2 = tl.getHalf2().getApparentPowerLimits();
+            if (apparentPowerLimits2.isPresent()) {
+                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, apparentPowerLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+            }
+            Optional<CurrentLimits> currentLimits2 = tl.getHalf2().getCurrentLimits();
+            if (currentLimits2.isPresent()) {
+                writeCurrentLimits(2, currentLimits2.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
+            }
+        });
     }
 
     @Override
@@ -137,11 +132,37 @@ class TieLineXml extends AbstractIdentifiableXml<TieLine, TieLineAdder, Network>
     }
 
     @Override
-    protected TieLine readRootElementAttributes(TieLineAdder adder, NetworkXmlReaderContext context) {
-        throw new UnsupportedOperationException(); // should not be called
+    protected TieLine readRootElementAttributes(TieLineAdder adder, Network network, NetworkXmlReaderContext context) {
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> adder.setHalf1(readHalf(network, context, 1)).setHalf2(readHalf(network, context, 2)));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
+            String half1Id = context.getReader().getAttributeValue(null, "danglingLineId1");
+            String half2Id = context.getReader().getAttributeValue(null, "danglingLineId2");
+            adder.setHalf1(half1Id).setHalf2(half2Id);
+        });
+        TieLine tl = adder.add();
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
+            double half1BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
+            double half2BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
+            double half1BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
+            double half2BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
+            checkBoundaryValue(half1BoundaryP, tl.getHalf1().getBoundary().getP(), "xnodeP_1", tl.getId());
+            checkBoundaryValue(half2BoundaryP, tl.getHalf2().getBoundary().getP(), "xnodeP_2", tl.getId());
+            checkBoundaryValue(half1BoundaryQ, tl.getHalf1().getBoundary().getQ(), "xnodeQ_1", tl.getId());
+            checkBoundaryValue(half2BoundaryQ, tl.getHalf2().getBoundary().getQ(), "xnodeQ_2", tl.getId());
+        });
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
+            double p1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p1");
+            double q1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q1");
+            double p2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p2");
+            double q2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q2");
+            tl.getHalf1().getTerminal().setP(p1).setQ(q1);
+            tl.getHalf2().getTerminal().setP(p2).setQ(q2);
+        });
+        return tl;
     }
 
-    private static void readHalf(MergedDanglingLineAdder adder, NetworkXmlReaderContext context, int side) {
+    private static String readHalf(Network network, NetworkXmlReaderContext context, int side) {
+        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId" + side));
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id_" + side));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name_" + side));
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r_" + side);
@@ -151,12 +172,14 @@ class TieLineXml extends AbstractIdentifiableXml<TieLine, TieLineAdder, Network>
         double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2_" + side);
         double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2_" + side);
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
-        adder.setId(id)
+        DanglingLineAdder adder = network.getVoltageLevel(voltageLevelId).newDanglingLine().setId(id)
                 .setName(name)
                 .setR(r)
                 .setX(x)
                 .setG(g1 + g2)
                 .setB(b1 + b2)
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setUcteXnodeCode(ucteXnodeCode);
         readNodeOrBus(adder, String.valueOf(side), context);
 
@@ -164,131 +187,52 @@ class TieLineXml extends AbstractIdentifiableXml<TieLine, TieLineAdder, Network>
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
             adder.setFictitious(fictitious);
         });
-        adder.add();
-    }
-
-    @Override
-    protected void readElement(String id, TieLineAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
-            readHalf(adder.newHalf1(), context, 1);
-            readHalf(adder.newHalf2(), context, 2);
-        });
-
-        String voltageLevelId1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId1"));
-        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId2"));
-        String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
-        final double[] half1BoundaryP = new double[1];
-        final double[] half2BoundaryP = new double[1];
-        final double[] half1BoundaryQ = new double[1];
-        final double[] half2BoundaryQ = new double[1];
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
-            half1BoundaryP[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
-            half2BoundaryP[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
-            half1BoundaryQ[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
-            half2BoundaryQ[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
-        });
-        adder.setVoltageLevel1(voltageLevelId1).setVoltageLevel2(voltageLevelId2);
-        final TieLine[] tl = new TieLine[1];
-        List<Consumer<DanglingLine>> subElementsDl1 = new ArrayList<>();
-        List<Consumer<DanglingLine>> subElementsDl2 = new ArrayList<>();
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
-            double p1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p1");
-            double q1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q1");
-            double p2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p2");
-            double q2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q2");
-            subElementsDl1.add(dl -> dl.getTerminal().setP(p1));
-            subElementsDl1.add(dl -> dl.getTerminal().setQ(q1));
-            subElementsDl2.add(dl -> dl.getTerminal().setP(p2));
-            subElementsDl2.add(dl -> dl.getTerminal().setQ(q2));
-        });
-        Map<String, String> properties = new HashMap<>();
-        Map<String, String> aliases = new HashMap<>();
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
-                case PropertiesXml.PROPERTY:
-                    String name = context.getReader().getAttributeValue(null, "name");
-                    String value = context.getReader().getAttributeValue(null, "value");
-                    properties.put(name, value);
-                    break;
-                case AliasesXml.ALIAS:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                    String aliasType = context.getReader().getAttributeValue(null, "type");
-                    String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
-                    aliases.put(alias, aliasType);
-                    break;
-                case "danglingLine1":
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "danglingLine1", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_10, context);
-                    MergedDanglingLineXml.INSTANCE_1.read(adder.newHalf1().setUcteXnodeCode(ucteXnodeCode), subElementsDl1, context);
-                    break;
-                case "danglingLine2":
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "danglingLine2", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_10, context);
-                    MergedDanglingLineXml.INSTANCE_2.read(adder.newHalf2().setUcteXnodeCode(ucteXnodeCode), subElementsDl2, context);
-                    break;
-                default:
-                    if (tl[0] == null) {
-                        tl[0] = createTieLine(adder, subElementsDl1, subElementsDl2, properties, aliases);
-                    }
-                    readSubElementsInternal(tl[0], context);
-            }
-        });
-        if (tl[0] == null) {
-            tl[0] = createTieLine(adder, subElementsDl1, subElementsDl2, properties, aliases);
-        }
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> context.getEndTasks().add(() -> {
-            checkBoundaryValue(half1BoundaryP[0], tl[0].getHalf1().getBoundary().getP(), "xnodeP_1", tl[0].getId());
-            checkBoundaryValue(half2BoundaryP[0], tl[0].getHalf2().getBoundary().getP(), "xnodeP_2", tl[0].getId());
-            checkBoundaryValue(half1BoundaryQ[0], tl[0].getHalf1().getBoundary().getQ(), "xnodeQ_1", tl[0].getId());
-            checkBoundaryValue(half2BoundaryQ[0], tl[0].getHalf2().getBoundary().getQ(), "xnodeQ_2", tl[0].getId());
-        }));
-    }
-
-    private static TieLine createTieLine(TieLineAdder adder, List<Consumer<DanglingLine>> subElementsDl1, List<Consumer<DanglingLine>> subElementsDl2,
-                                         Map<String, String> properties, Map<String, String> aliases) {
-        TieLine tl = adder.add();
-        subElementsDl1.forEach(consumer -> consumer.accept(tl.getHalf1()));
-        subElementsDl2.forEach(consumer -> consumer.accept(tl.getHalf2()));
-        properties.forEach(tl::setProperty);
-        aliases.forEach(tl::addAlias);
-        return tl;
-    }
-
-    protected void readSubElementsInternal(TieLine tl, NetworkXmlReaderContext context) throws XMLStreamException {
-        switch (context.getReader().getLocalName()) {
-            case ACTIVE_POWER_LIMITS_1:
-                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, tl.getHalf1().newActivePowerLimits(), context.getReader()));
-                break;
-
-            case APPARENT_POWER_LIMITS_1:
-                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(1, tl.getHalf1().newApparentPowerLimits(), context.getReader()));
-                break;
-
-            case "currentLimits1":
-                readCurrentLimits(1, tl.getHalf1().newCurrentLimits(), context.getReader());
-                break;
-
-            case ACTIVE_POWER_LIMITS_2:
-                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(2, tl.getHalf2().newActivePowerLimits(), context.getReader()));
-                break;
-
-            case APPARENT_POWER_LIMITS_2:
-                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(2, tl.getHalf2().newApparentPowerLimits(), context.getReader()));
-                break;
-
-            case "currentLimits2":
-                readCurrentLimits(2, tl.getHalf2().newCurrentLimits(), context.getReader());
-                break;
-            default:
-                super.readSubElements(tl, context);
-        }
+        DanglingLine dl = adder.add();
+        return dl.getId();
     }
 
     @Override
     protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) throws XMLStreamException {
-        throw new UnsupportedOperationException(); // should not be called
+        readUntilEndRootElement(context.getReader(), () -> {
+            switch (context.getReader().getLocalName()) {
+                case ACTIVE_POWER_LIMITS_1:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, tl.getHalf1().newActivePowerLimits(), context.getReader()));
+                    break;
+
+                case APPARENT_POWER_LIMITS_1:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(1, tl.getHalf1().newApparentPowerLimits(), context.getReader()));
+                    break;
+
+                case "currentLimits1":
+                    IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
+                    readCurrentLimits(1, tl.getHalf1().newCurrentLimits(), context.getReader());
+                    break;
+
+                case ACTIVE_POWER_LIMITS_2:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(2, tl.getHalf2().newActivePowerLimits(), context.getReader()));
+                    break;
+
+                case APPARENT_POWER_LIMITS_2:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(2, tl.getHalf2().newApparentPowerLimits(), context.getReader()));
+                    break;
+
+                case "currentLimits2":
+                    IidmXmlUtil.assertMaximumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
+                    readCurrentLimits(2, tl.getHalf2().newCurrentLimits(), context.getReader());
+                    break;
+
+                default:
+                    super.readSubElements(tl, context);
+            }
+        });
     }
 
     private static void checkBoundaryValue(double imported, double calculated, String name, String tlId) {

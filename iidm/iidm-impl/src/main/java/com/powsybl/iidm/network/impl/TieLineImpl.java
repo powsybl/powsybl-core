@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.TieLineUtil;
 
+import java.util.Optional;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -51,13 +53,13 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     private DanglingLineImpl attach(DanglingLineImpl half) {
-        half.setParent(this);
+        half.setTieLine(this);
         return half;
     }
 
     @Override
     public String getUcteXnodeCode() {
-        return half1.getUcteXnodeCode();
+        return Optional.ofNullable(half1.getUcteXnodeCode()).orElseGet(() -> half2.getUcteXnodeCode());
     }
 
     @Override
@@ -131,8 +133,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         network.getListeners().notifyBeforeRemoval(this);
 
         // Remove dangling lines
-        half1.removeFromParent();
-        half2.removeFromParent();
+        half1.removeTieLine();
+        half2.removeTieLine();
 
         // Remove this voltage level from the network
         network.getIndex().remove(this);

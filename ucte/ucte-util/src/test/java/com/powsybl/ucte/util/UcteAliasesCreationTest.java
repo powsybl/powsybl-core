@@ -81,9 +81,8 @@ public class UcteAliasesCreationTest {
         assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         // They are all referencing the same identifiable
-        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
-        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getDanglingLine("BBBBBB11 XXXXXX11 1").getTieLine().orElse(null));
-        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getDanglingLine("FFFFFF11 XXXXXX11 1").getTieLine().orElse(null));
+        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getDanglingLine("BBBBBB11 XXXXXX11 1"));
+        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getDanglingLine("FFFFFF11 XXXXXX11 1"));
     }
 
     @Test

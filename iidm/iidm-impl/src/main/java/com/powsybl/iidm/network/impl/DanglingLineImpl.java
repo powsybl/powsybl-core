@@ -229,8 +229,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
     }
 
-    private final Ref<? extends VariantManagerHolder> network;
-    private TieLineImpl parent = null;
+    private final Ref<NetworkImpl> network;
+    private TieLineImpl tieLine = null;
 
     private double r;
 
@@ -244,7 +244,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final GenerationImpl generation;
 
-    private OperationalLimitsHolderImpl operationalLimitsHolder;
+    private final OperationalLimitsHolderImpl operationalLimitsHolder;
     // attributes depending on the variant
 
     private final TDoubleArrayList p0;
@@ -273,12 +273,20 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.generation = generation != null ? generation.attach(this) : null;
     }
 
+    @Override
+    void replaceId(String newId) {
+        NetworkIndex.checkId(newId);
+        network.get().getIndex().remove(this);
+        id = newId;
+        network.get().getIndex().checkAndAdd(this);
+    }
+
     OperationalLimitsHolderImpl getLimitsHolder() {
         return operationalLimitsHolder;
     }
 
-    void setParent(TieLineImpl parent) {
-        this.parent = parent;
+    void setTieLine(TieLineImpl tieLine) {
+        this.tieLine = tieLine;
     }
 
     @Override
@@ -288,23 +296,19 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public Optional<TieLine> getTieLine() {
-        return Optional.ofNullable(parent);
+        return Optional.ofNullable(tieLine);
     }
 
     @Override
     public void remove() {
-        if (parent != null) { // TODO: should not throw error but only remove tie line
-            throw new UnsupportedOperationException("Parent tie line " + parent.getId() + " should be removed, not the child dangling line");
+        if (tieLine != null) { // TODO: should not throw error but only remove tie line
+            throw new UnsupportedOperationException("Parent tie line " + tieLine.getId() + " should be removed before the child dangling line");
         }
         super.remove();
     }
 
-    void removeFromParent() {
-        NetworkImpl n = getNetwork();
-        n.getListeners().notifyBeforeRemoval(this);
-        n.getIndex().remove(this);
-        n.getListeners().notifyAfterRemoval(id);
-        removed = true;
+    void removeTieLine() {
+        tieLine = null;
     }
 
     @Override
@@ -314,7 +318,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public boolean isMerged() {
-        return parent != null;
+        return tieLine != null;
     }
 
     @Override
@@ -325,9 +329,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public DanglingLineImpl setP0(double p0) {
         NetworkImpl n = getNetwork();
-        if (parent == null) {
-            ValidationUtil.checkP0(this, p0, n.getMinValidationLevel());
-        }
         int variantIndex = n.getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
@@ -344,9 +345,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public DanglingLineImpl setQ0(double q0) {
         NetworkImpl n = getNetwork();
-        if (parent == null) {
-            ValidationUtil.checkP0(this, q0, n.getMinValidationLevel());
-        }
         int variantIndex = n.getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
         String variantId = n.getVariantManager().getVariantId(variantIndex);

@@ -6,18 +6,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.TieLineAdder;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.LinkData;
 import com.powsybl.iidm.network.util.SV;
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
@@ -240,27 +233,29 @@ public class TieLineTest {
 
         Branch.Side boundarySide1 = Branch.Side.ONE;
         Branch.Side boundarySide2 = Branch.Side.TWO;
-        TieLineAdder adder = network.newTieLine()
-                .setId(boundarySide1.name() + " + " + boundarySide2.name())
-                .setName(boundarySide1.name() + " + " + boundarySide2.name())
-                .newHalf1()
-                    .setId(boundarySide1.name())
-                    .setName(boundarySide1.name())
-                    .setR(1.0)
-                    .setX(2.0)
-                    .setBus("S1VL1-BUS")
-                    .setUcteXnodeCode("UcteNode")
-                .add()
-                .newHalf2()
-                    .setId(boundarySide2.name())
-                    .setName(boundarySide2.name())
-                    .setR(1.0)
-                    .setX(2.0)
-                    .setBus("S2VL1-BUS")
-                    .setUcteXnodeCode("UcteNode")
+        DanglingLine dl1 = s1vl1.newDanglingLine()
+                .setId(boundarySide1.name())
+                .setName(boundarySide1.name())
+                .setR(1.0)
+                .setX(2.0)
+                .setBus("S1VL1-BUS")
+                .setUcteXnodeCode("UcteNode")
+                .add();
+        DanglingLine dl2 = s2vl1.newDanglingLine()
+                .setId(boundarySide2.name())
+                .setName(boundarySide2.name())
+                .setR(1.0)
+                .setX(2.0)
+                .setBus("S2VL1-BUS")
+                .setUcteXnodeCode("UcteNode")
                 .add();
 
-        TieLine tieLine = adder.add();
+        TieLine tieLine = network.newTieLine()
+                .setId(boundarySide1.name() + " + " + boundarySide2.name())
+                .setName(boundarySide1.name() + " + " + boundarySide2.name())
+                .setHalf1(dl1.getId())
+                .setHalf2(dl2.getId())
+                .add();
 
         assertEquals(0.0, tieLine.getHalf1().getG(), 0.0);
         assertEquals(0.0, tieLine.getHalf1().getB(), 0.0);
@@ -310,35 +305,34 @@ public class TieLineTest {
         // AcLinesegment 2 must be reoriented if boundary side is at end 2
         // Current model does not allow shunt admittances at both ends, so it does not make sense to reorient the AcLineSegments
 
-        TieLineAdder adder = network.newTieLine()
+        DanglingLine dl1 = s1vl1.newDanglingLine()
+                .setBus("S1VL1-BUS")
+                .setId(boundarySide1.name())
+                .setEnsureIdUnicity(true)
+                .setName(boundarySide1.name())
+                .setR(0.019)
+                .setX(0.059)
+                .setG(0.05)
+                .setB(0.14)
+                .add();
+        DanglingLine dl2 = s2vl1.newDanglingLine()
+                .setBus("S2VL1-BUS")
+                .setId(boundarySide2.name())
+                .setEnsureIdUnicity(true)
+                .setName(boundarySide2.name())
+                .setR(0.038)
+                .setX(0.118)
+                .setG(0.04)
+                .setB(0.13)
+                .setUcteXnodeCode("UcteNode")
+                .add();
+
+        TieLine tieLine = network.newTieLine()
             .setId(boundarySide1.name() + " + " + boundarySide2.name())
             .setName(boundarySide1.name() + " + " + boundarySide2.name())
-            .newHalf1()
-            .setBus("S1VL1-BUS")
-            .setId(boundarySide1.name())
-            .setEnsureIdUnicity(true)
-            .setName(boundarySide1.name())
-            .setR(0.019)
-            .setX(0.059)
-            .setG(0.05)
-            .setB(0.14)
-            .add()
-            .newHalf2()
-            .setBus("S2VL1-BUS")
-            .setId(boundarySide2.name())
-            .setEnsureIdUnicity(true)
-            .setName(boundarySide2.name())
-            .setR(0.038)
-            .setX(0.118)
-            .setG(0.04)
-            .setB(0.13)
-            .setUcteXnodeCode("UcteNode")
+            .setHalf1(dl1.getId())
+            .setHalf2(dl2.getId())
             .add();
-
-        adder.setVoltageLevel1("S1VL1")
-            .setVoltageLevel2("S2VL1");
-
-        TieLine tieLine = adder.add();
         tieLine.getHalf1().getTerminal().getBusView().getBus().setV(caseSv.node1.v);
         tieLine.getHalf1().getTerminal().getBusView().getBus().setAngle(caseSv.node1.a);
         tieLine.getHalf1().getTerminal().setP(getOtherSideP(caseSv.line1, boundarySide1));
@@ -392,33 +386,33 @@ public class TieLineTest {
         // The initial parameters for AcLineSegment 2 are R = 3.1513680000000006, X = 14.928011999999999, G1 = 0.008044414674299755, B1 = -0.03791520949675112, G2 = -0.005046041932060755, B2 = 0.023978278075869598
         // AcLinesegment 2 must be reoriented if boundary side is at end 2
         // Current model does not allow shunt admittances at both ends, so it does not make sense to reorient it
-        TieLineAdder adder = network.newTieLine()
-            .setId(boundarySide1.name() + " + " + boundarySide2.name())
-            .setName(boundarySide1.name() + " + " + boundarySide2.name())
-            .newHalf1()
-            .setBus("S1VL1-BUS")
-            .setId(boundarySide1.name())
-            .setName(boundarySide1.name())
-            .setR(2.1672071999999996)
-            .setX(9.5543748)
-            .setG(0.0)
-            .setB(0.00032976265)
-            .setUcteXnodeCode("UcteNode")
-            .add()
-            .newHalf2()
-            .setBus("S2VL1-BUS")
-            .setId(boundarySide2.name())
-            .setName(boundarySide2.name())
-            .setR(3.1513680000000006)
-            .setX(14.928011999999999)
-            .setG(0.00299837274)
-            .setB(-0.01393693142)
-            .add();
+        DanglingLine dl1 = s1vl1.newDanglingLine()
+                .setBus("S1VL1-BUS")
+                .setId(boundarySide1.name())
+                .setName(boundarySide1.name())
+                .setR(2.1672071999999996)
+                .setX(9.5543748)
+                .setG(0.0)
+                .setB(0.00032976265)
+                .setUcteXnodeCode("UcteNode")
+                .add();
+        DanglingLine dl2 = s2vl1.newDanglingLine()
+                .setBus("S2VL1-BUS")
+                .setId(boundarySide2.name())
+                .setName(boundarySide2.name())
+                .setR(3.1513680000000006)
+                .setX(14.928011999999999)
+                .setG(0.00299837274)
+                .setB(-0.01393693142)
+                .add();
 
-        adder.setVoltageLevel1("S1VL1")
-            .setVoltageLevel2("S2VL1");
+        TieLine tieLine = network.newTieLine()
+                .setId(boundarySide1.name() + " + " + boundarySide2.name())
+                .setName(boundarySide1.name() + " + " + boundarySide2.name())
+                .setHalf1(dl1.getId())
+                .setHalf2(dl2.getId())
+                .add();
 
-        TieLine tieLine = adder.add();
         tieLine.getHalf1().getTerminal().getBusView().getBus().setV(caseSv.node1.v);
         tieLine.getHalf1().getTerminal().getBusView().getBus().setAngle(caseSv.node1.a);
         tieLine.getHalf1().getTerminal().setP(getOtherSideP(caseSv.line1, boundarySide1));

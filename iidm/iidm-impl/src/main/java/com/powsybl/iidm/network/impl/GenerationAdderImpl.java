@@ -7,15 +7,15 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.DanglingLineCharacteristicsAdder;
+import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-class GenerationAdderImpl<H extends DanglingLineCharacteristicsAdder<H>> implements DanglingLineCharacteristicsAdder.GenerationAdder<H> {
+class GenerationAdderImpl implements DanglingLineAdder.GenerationAdder {
 
-    private final GenerationAdderHolder<H> parent;
+    private final DanglingLineAdderImpl parent;
 
     private double minP = Double.NaN;
     private double maxP = Double.NaN;
@@ -24,55 +24,55 @@ class GenerationAdderImpl<H extends DanglingLineCharacteristicsAdder<H>> impleme
     private boolean voltageRegulationOn = false;
     private double targetV = Double.NaN;
 
-    GenerationAdderImpl(GenerationAdderHolder<H> parent) {
+    GenerationAdderImpl(DanglingLineAdderImpl parent) {
         this.parent = parent;
     }
 
     @Override
-    public GenerationAdderImpl<H> setTargetP(double targetP) {
+    public GenerationAdderImpl setTargetP(double targetP) {
         this.targetP = targetP;
         return this;
     }
 
     @Override
-    public GenerationAdderImpl<H> setMaxP(double maxP) {
+    public GenerationAdderImpl setMaxP(double maxP) {
         this.maxP = maxP;
         return this;
     }
 
     @Override
-    public GenerationAdderImpl<H> setMinP(double minP) {
+    public GenerationAdderImpl setMinP(double minP) {
         this.minP = minP;
         return this;
     }
 
     @Override
-    public GenerationAdderImpl<H> setTargetQ(double targetQ) {
+    public GenerationAdderImpl setTargetQ(double targetQ) {
         this.targetQ = targetQ;
         return this;
     }
 
     @Override
-    public GenerationAdderImpl<H> setVoltageRegulationOn(boolean voltageRegulationOn) {
+    public GenerationAdderImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
         this.voltageRegulationOn = voltageRegulationOn;
         return this;
     }
 
     @Override
-    public GenerationAdderImpl<H> setTargetV(double targetV) {
+    public GenerationAdderImpl setTargetV(double targetV) {
         this.targetV = targetV;
         return this;
     }
 
     @Override
-    public H add() {
+    public DanglingLineAdderImpl add() {
         NetworkImpl network = parent.getNetwork();
         ValidationUtil.checkActivePowerLimits(parent, minP, maxP);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(parent, targetP, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(parent, voltageRegulationOn, targetV, targetQ, network.getMinValidationLevel()));
 
         parent.setGenerationAdder(this);
-        return (H) parent;
+        return parent;
     }
 
     DanglingLineImpl.GenerationImpl build() {

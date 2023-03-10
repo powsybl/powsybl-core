@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.ValidationUtil;
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  *
  */
-class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder, GenerationAdderHolder<DanglingLineAdder> {
+class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
 
     private final VoltageLevelExt voltageLevel;
 
@@ -33,7 +33,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private String ucteXnodeCode;
 
-    private GenerationAdderImpl<DanglingLineAdder> generationAdder;
+    private GenerationAdderImpl generationAdder;
 
     DanglingLineAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
@@ -44,8 +44,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         return voltageLevel.getNetwork();
     }
 
-    @Override
-    public void setGenerationAdder(GenerationAdderImpl<DanglingLineAdder> adder) {
+    void setGenerationAdder(GenerationAdderImpl adder) {
         generationAdder = adder;
     }
 
@@ -97,8 +96,8 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
-    public GenerationAdder<DanglingLineAdder> newGeneration() {
-        return new GenerationAdderImpl<>(this);
+    public GenerationAdder newGeneration() {
+        return new GenerationAdderImpl(this);
     }
 
     @Override
@@ -107,8 +106,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
 
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel()));
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);

@@ -1023,33 +1023,10 @@ public class UcteImporter implements Importer {
         double xdp = (sumX == 0.) ? 0.5 : dlAtSideOne.getX() / sumX;
         String xnodeCode = dlAtSideOne.getExtension(Xnode.class).getCode();
 
-        TieLineAdder adder = network.newTieLine()
+        TieLine mergeLine = network.newTieLine()
                 .setId(mergeLineId)
-                .setVoltageLevel1(dlAtSideOne.getTerminal().getVoltageLevel().getId())
-                .setVoltageLevel2(dlAtSideTwo.getTerminal().getVoltageLevel().getId())
-                .newHalf1()
-                .setConnectableBus(getBusId(dlAtSideOne.getTerminal().getBusBreakerView().getConnectableBus()))
-                .setBus(getBusId(dlAtSideOne.getTerminal().getBusBreakerView().getBus()))
-                .setId(dlAtSideOne.getId())
-                .setEnsureIdUnicity(true)
-                .setR(dlAtSideOne.getR())
-                .setX(dlAtSideOne.getX())
-                .setB(dlAtSideOne.getB())
-                .setG(dlAtSideOne.getG())
-                .setFictitious(dlAtSideOne.isFictitious())
-                .setUcteXnodeCode(xnodeCode)
-                .add()
-                .newHalf2()
-                .setConnectableBus(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getConnectableBus()))
-                .setBus(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getBus()))
-                .setId(dlAtSideTwo.getId())
-                .setEnsureIdUnicity(true)
-                .setR(dlAtSideTwo.getR())
-                .setX(dlAtSideTwo.getX())
-                .setB(dlAtSideTwo.getB())
-                .setG(dlAtSideTwo.getG())
-                .setFictitious(dlAtSideTwo.isFictitious())
-                .setUcteXnodeCode(xnodeCode)
+                .setHalf1(dlAtSideOne.getId())
+                .setHalf2(dlAtSideTwo.getId())
                 .add();
 
         Map<String, String> properties = new HashMap<>();
@@ -1064,20 +1041,8 @@ public class UcteImporter implements Importer {
         boolean fict1 = dlAtSideOne.isFictitious();
         String id2 = dlAtSideTwo.getId();
         boolean fict2 = dlAtSideTwo.isFictitious();
-        double permanentLimit1 = dlAtSideOne.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
-        double permanentLimit2 = dlAtSideTwo.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(Double.NaN);
 
-        dlAtSideOne.remove();
-        dlAtSideTwo.remove();
-
-        TieLine mergeLine = adder.add();
         properties.forEach(mergeLine::setProperty);
-        if (!Double.isNaN(permanentLimit1)) {
-            mergeLine.getHalf1().newCurrentLimits().setPermanentLimit(permanentLimit1).add();
-        }
-        if (!Double.isNaN(permanentLimit2)) {
-            mergeLine.getHalf2().newCurrentLimits().setPermanentLimit(permanentLimit2).add();
-        }
 
         mergeLine.newExtension(MergedXnodeAdder.class)
                 .withRdp(rdp).withXdp(xdp)

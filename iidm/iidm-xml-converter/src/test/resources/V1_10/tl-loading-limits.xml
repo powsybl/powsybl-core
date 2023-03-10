@@ -13,6 +13,21 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="NHV1" v="402.1428451538086" angle="0.0"/>
             </iidm:busBreakerTopology>
+            <iidm:danglingLine id="NHV1_NHV2_1.1" r="1.5" x="16.5" g="0.0" b="1.93E-4" ucteXnodeCode="X1" bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266">
+                <iidm:activePowerLimits permanentLimit="350.0">
+                    <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
+                    <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
+                </iidm:activePowerLimits>
+                <iidm:apparentPowerLimits permanentLimit="350.0">
+                    <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
+                    <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
+                </iidm:apparentPowerLimits>
+                <iidm:currentLimits permanentLimit="350.0">
+                    <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
+                    <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
+                </iidm:currentLimits>
+            </iidm:danglingLine>
+            <iidm:danglingLine id="NHV1_NHV2_2.1" r="1.5" x="16.5" g="0.0" b="1.93E-4" ucteXnodeCode="X2" bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.26658461538461536" x="11.104492831516762" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" bus1="NGEN" connectableBus1="NGEN" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1" p1="605.558349609375" q1="225.2825164794922" p2="-604.8909301757812" q2="-197.48046875"/>
     </iidm:substation>
@@ -21,6 +36,21 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="NHV2" v="389.9526763916016" angle="-3.5063576698303223"/>
             </iidm:busBreakerTopology>
+            <iidm:danglingLine id="NHV1_NHV2_1.2" r="1.5" x="16.5" g="0.0" b="1.93E-4" ucteXnodeCode="X1" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906">
+                <iidm:activePowerLimits permanentLimit="350.0">
+                    <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
+                    <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
+                </iidm:activePowerLimits>
+                <iidm:apparentPowerLimits permanentLimit="350.0">
+                    <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
+                    <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
+                </iidm:apparentPowerLimits>
+                <iidm:currentLimits permanentLimit="350.0">
+                    <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
+                    <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
+                </iidm:currentLimits>
+            </iidm:danglingLine>
+            <iidm:danglingLine id="NHV1_NHV2_2.2" r="1.5" x="16.5" g="0.0" b="1.93E-4" ucteXnodeCode="X2" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -37,36 +67,6 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:tieLine id="NHV1_NHV2_1" ucteXnodeCode="X1" voltageLevelId1="VLHV1" voltageLevelId2="VLHV2">
-        <iidm:danglingLine1 id="NHV1_NHV2_1.1" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"/>
-        <iidm:danglingLine2 id="NHV1_NHV2_1.2" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
-        <iidm:activePowerLimits1 permanentLimit="350.0">
-            <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-            <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-        </iidm:activePowerLimits1>
-        <iidm:apparentPowerLimits1 permanentLimit="350.0">
-            <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-            <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-        </iidm:apparentPowerLimits1>
-        <iidm:currentLimits1 permanentLimit="350.0">
-            <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-            <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-        </iidm:currentLimits1>
-        <iidm:activePowerLimits2 permanentLimit="350.0">
-            <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-            <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-        </iidm:activePowerLimits2>
-        <iidm:apparentPowerLimits2 permanentLimit="350.0">
-            <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-            <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-        </iidm:apparentPowerLimits2>
-        <iidm:currentLimits2 permanentLimit="350.0">
-            <iidm:temporaryLimit name="20'" acceptableDuration="1200" value="370.0"/>
-            <iidm:temporaryLimit name="10'" acceptableDuration="600" value="380.0"/>
-        </iidm:currentLimits2>
-    </iidm:tieLine>
-    <iidm:tieLine id="NHV1_NHV2_2" ucteXnodeCode="X2" voltageLevelId1="VLHV1" voltageLevelId2="VLHV2">
-        <iidm:danglingLine1 id="NHV1_NHV2_2.1" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"/>
-        <iidm:danglingLine2 id="NHV1_NHV2_2.2" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
-    </iidm:tieLine>
+    <iidm:tieLine id="NHV1_NHV2_1" danglingLineId1="NHV1_NHV2_1.1" danglingLineId2="NHV1_NHV2_1.2"/>
+    <iidm:tieLine id="NHV1_NHV2_2" danglingLineId1="NHV1_NHV2_2.1" danglingLineId2="NHV1_NHV2_2.2"/>
 </iidm:network>

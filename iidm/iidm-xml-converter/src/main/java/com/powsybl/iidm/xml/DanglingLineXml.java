@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
@@ -83,7 +82,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                 XmlUtil.writeDouble(GENERATION_TARGET_Q, generation.getTargetQ(), context.getWriter());
             });
         }
-        if (dl.getUcteXnodeCode() != null && !dl.isMerged()) {
+        if (dl.getUcteXnodeCode() != null) {
             context.getWriter().writeAttribute("ucteXnodeCode", dl.getUcteXnodeCode());
         }
         Terminal t = terminalGetter.get();
@@ -109,22 +108,20 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
         }
-        if (!dl.isMerged()) {
-            Optional<ActivePowerLimits> activePowerLimits = dl.getActivePowerLimits();
-            if (activePowerLimits.isPresent()) {
-                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(null, activePowerLimits.get(), context.getWriter(),
-                        context.getVersion(), context.isValid(), context.getOptions()));
-            }
-            Optional<ApparentPowerLimits> apparentPowerLimits = dl.getApparentPowerLimits();
-            if (apparentPowerLimits.isPresent()) {
-                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(null, apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-            }
-            Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
-            if (currentLimits.isPresent()) {
-                writeCurrentLimits(null, currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-            }
+        Optional<ActivePowerLimits> activePowerLimits = dl.getActivePowerLimits();
+        if (activePowerLimits.isPresent()) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(null, activePowerLimits.get(), context.getWriter(),
+                    context.getVersion(), context.isValid(), context.getOptions()));
+        }
+        Optional<ApparentPowerLimits> apparentPowerLimits = dl.getApparentPowerLimits();
+        if (apparentPowerLimits.isPresent()) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(null, apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
+        }
+        Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
+        if (currentLimits.isPresent()) {
+            writeCurrentLimits(null, currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
     }
 
@@ -138,7 +135,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         return dl;
     }
 
-    public static void readRootElementAttributesInternal(DanglingLineCharacteristicsAdder<?> adder, NetworkXmlReaderContext context) {
+    public static void readRootElementAttributesInternal(DanglingLineAdder adder, NetworkXmlReaderContext context) {
         double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");
         double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q0");
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");

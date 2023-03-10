@@ -557,19 +557,8 @@
     <xs:complexType name="TieLine">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
-                <xs:sequence>
-                    <xs:element name="danglingLine1" type="iidm:DanglingLine" minOccurs="1" maxOccurs="1"/>
-                    <xs:element name="danglingLine2" type="iidm:DanglingLine" minOccurs="1" maxOccurs="1"/>
-                    <xs:element name="activePowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="apparentPowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="activePowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="apparentPowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
-                </xs:sequence>
-                <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="ucteXnodeCode" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="danglingLineId1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="danglingLineId2" use="required" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

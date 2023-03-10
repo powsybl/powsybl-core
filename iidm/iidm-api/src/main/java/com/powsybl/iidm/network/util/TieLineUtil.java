@@ -88,6 +88,26 @@ public final class TieLineUtil {
         dl2Properties.forEach(prop -> properties.setProperty(prop + "_2", dl2.getProperty(prop)));
     }
 
+    public static void mergeIdenticalAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases) {
+        for (String alias : dl1.getAliases()) {
+            if (dl2.getAliases().contains(alias)) {
+                LOGGER.debug("Alias '{}' is found in dangling lines '{}' and '{}'. It is moved to their new tie line.", alias, dl1.getId(), dl2.getId());
+                String type1 = dl1.getAliasType(alias).orElse("");
+                String type2 = dl2.getAliasType(alias).orElse("");
+                if (type1.equals(type2)) {
+                    aliases.put(alias, type1);
+                } else {
+                    LOGGER.warn("Inconsistencies found for alias '{}' type in dangling lines '{}' and '{}'. Type is lost.", alias, dl1.getId(), dl2.getId());
+                    aliases.put(alias, "");
+                }
+            }
+        }
+        aliases.keySet().forEach(alias -> {
+            dl1.removeAlias(alias);
+            dl2.removeAlias(alias);
+        });
+    }
+
     /**
      * If it exists, find the dangling line in the merging network that should be associated to a candidate dangling line in the network to be merged.
      * Two dangling lines in different IGM should be associated if:

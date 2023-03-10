@@ -405,7 +405,13 @@ public class CgmesExportContext {
                 String terminalId = tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
                 if (terminalId == null && tl.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber)) { // TODO fix when merging is handled properly
                     terminalId = tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber);
-                    tl.removeAlias(terminalId);
+                    if (tl.getAliases().contains(terminalId)) {
+                        tl.removeAlias(terminalId);
+                    }
+                    if (dl.getAliases().contains(terminalId)) {
+                        dl.setProperty(dl.getAliasType(terminalId).orElse(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL), terminalId);
+                        dl.removeAlias(terminalId);
+                    }
                     tl.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber);
                 }
             } else {

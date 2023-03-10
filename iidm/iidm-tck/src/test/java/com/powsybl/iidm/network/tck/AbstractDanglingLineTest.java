@@ -184,20 +184,6 @@ public abstract class AbstractDanglingLineTest {
     }
 
     @Test
-    public void testInvalidP0() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("p0 is invalid");
-        createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code");
-    }
-
-    @Test
-    public void testInvalidQ0() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("q0 is invalid");
-        createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code");
-    }
-
-    @Test
     public void duplicateDanglingLine() {
         createDanglingLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
         assertNotNull(network.getDanglingLine(DUPLICATE));
