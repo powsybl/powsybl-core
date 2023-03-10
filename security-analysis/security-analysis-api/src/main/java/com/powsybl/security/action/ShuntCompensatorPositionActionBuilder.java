@@ -21,7 +21,7 @@ public class ShuntCompensatorPositionActionBuilder {
             throw new IllegalArgumentException("sectionCount in undefined");
         }
         if (sectionCount < 0) {
-            throw new IllegalArgumentException("sectionCount should be position for a shunt compensator");
+            throw new IllegalArgumentException("sectionCount should be positive for a shunt compensator");
         }
         return new ShuntCompensatorPositionAction(id, shuntCompensatorId, sectionCount);
     }
