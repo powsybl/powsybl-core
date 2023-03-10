@@ -69,8 +69,16 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 15.0));
         actions.add(RatioTapChangerRegulationAction.activateRegulationAndChangeTargetV("id20", "transformerId5", 90.0));
         actions.add(RatioTapChangerRegulationAction.deactivateRegulation("id21", "transformerId5", ThreeWindingsTransformer.Side.THREE));
-        actions.add(HvdcAction.activateActivePowerSetpointMode("id22", "hvdc1"));
-        actions.add(HvdcAction.activateAcEmulationMode("id23", "hvdc2"));
+        actions.add(new HvdcActionBuilder()
+                .withId("id22")
+                .withHvdcId("hvdc1")
+                .withAcEmulationEnabled(false)
+                .build());
+        actions.add(new HvdcActionBuilder()
+                .withId("id23")
+                .withHvdcId("hvdc2")
+                .withAcEmulationEnabled(true)
+                .build());
         actions.add(new HvdcActionBuilder()
                 .withId("id24")
                 .withHvdcId("hvdc2")
