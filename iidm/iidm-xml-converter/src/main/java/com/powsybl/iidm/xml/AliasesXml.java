@@ -31,7 +31,7 @@ public final class AliasesXml {
         context.getWriter().writeEndNodes();
     }
 
-    public static void read(Identifiable<?> identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
+    public static void read(Identifiable<?> identifiable, NetworkXmlReaderContext context) {
         if (!context.getReader().getNodeName().equals(ALIAS)) {
             throw new IllegalStateException();
         }

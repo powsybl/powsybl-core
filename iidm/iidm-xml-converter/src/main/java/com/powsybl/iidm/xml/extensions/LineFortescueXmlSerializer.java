@@ -9,14 +9,11 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.LineFortescue;
 import com.powsybl.iidm.network.extensions.LineFortescueAdder;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -25,21 +22,21 @@ import javax.xml.stream.XMLStreamException;
 public class LineFortescueXmlSerializer extends AbstractExtensionXmlSerializer<Line, LineFortescue> {
 
     public LineFortescueXmlSerializer() {
-        super("lineFortescue", "network", LineFortescue.class, false,
+        super("lineFortescue", "network", LineFortescue.class,
                 "lineFortescue_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/line_fortescue/1_0",
                 "lf");
     }
 
     @Override
-    public void write(LineFortescue lineFortescue, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeOptionalDouble("rz", lineFortescue.getRz(), Double.NaN, context.getWriter());
-        XmlUtil.writeOptionalDouble("xz", lineFortescue.getXz(), Double.NaN, context.getWriter());
+    public void write(LineFortescue lineFortescue, XmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("rz", lineFortescue.getRz(), Double.NaN);
+        context.getWriter().writeDoubleAttribute("xz", lineFortescue.getXz(), Double.NaN);
     }
 
     @Override
-    public LineFortescue read(Line line, XmlReaderContext context) throws XMLStreamException {
-        double rz = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "rz");
-        double xz = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xz");
+    public LineFortescue read(Line line, XmlReaderContext context) {
+        double rz = context.getReader().readDoubleAttribute("rz");
+        double xz = context.getReader().readDoubleAttribute("xz");
         return line.newExtension(LineFortescueAdder.class)
                 .withRz(rz)
                 .withXz(xz)

@@ -9,14 +9,11 @@ package com.powsybl.iidm.xml.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
-import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.commons.extensions.XmlReaderContext;
+import com.powsybl.commons.extensions.XmlWriterContext;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.extensions.GeneratorFortescue;
 import com.powsybl.iidm.network.extensions.GeneratorFortescueAdder;
-
-import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -25,31 +22,31 @@ import javax.xml.stream.XMLStreamException;
 public class GeneratorFortescueXmlSerializer extends AbstractExtensionXmlSerializer<Generator, GeneratorFortescue> {
 
     public GeneratorFortescueXmlSerializer() {
-        super("generatorFortescue", "network", GeneratorFortescue.class, false,
+        super("generatorFortescue", "network", GeneratorFortescue.class,
                 "generatorFortescue_V1_0.xsd", "http://www.powsybl.org/schema/iidm/ext/generator_fortescue/1_0",
                 "gf");
     }
 
     @Override
-    public void write(GeneratorFortescue generatorFortescue, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeOptionalDouble("rz", generatorFortescue.getRz(), Double.NaN, context.getWriter());
-        XmlUtil.writeOptionalDouble("xz", generatorFortescue.getXz(), Double.NaN, context.getWriter());
-        XmlUtil.writeOptionalDouble("rn", generatorFortescue.getRn(), Double.NaN, context.getWriter());
-        XmlUtil.writeOptionalDouble("xn", generatorFortescue.getXn(), Double.NaN, context.getWriter());
-        context.getWriter().writeAttribute("grounded", Boolean.toString(generatorFortescue.isGrounded()));
-        XmlUtil.writeOptionalDouble("groundingR", generatorFortescue.getGroundingR(), 0, context.getWriter());
-        XmlUtil.writeOptionalDouble("groundingX", generatorFortescue.getGroundingX(), 0, context.getWriter());
+    public void write(GeneratorFortescue generatorFortescue, XmlWriterContext context) {
+        context.getWriter().writeDoubleAttribute("rz", generatorFortescue.getRz(), Double.NaN);
+        context.getWriter().writeDoubleAttribute("xz", generatorFortescue.getXz(), Double.NaN);
+        context.getWriter().writeDoubleAttribute("rn", generatorFortescue.getRn(), Double.NaN);
+        context.getWriter().writeDoubleAttribute("xn", generatorFortescue.getXn(), Double.NaN);
+        context.getWriter().writeBooleanAttribute("grounded", generatorFortescue.isGrounded());
+        context.getWriter().writeDoubleAttribute("groundingR", generatorFortescue.getGroundingR(), 0);
+        context.getWriter().writeDoubleAttribute("groundingX", generatorFortescue.getGroundingX(), 0);
     }
 
     @Override
-    public GeneratorFortescue read(Generator generator, XmlReaderContext context) throws XMLStreamException {
-        double rz = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "rz");
-        double xz = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xz");
-        double rn = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "rn");
-        double xn = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xn");
-        boolean toGround = XmlUtil.readBoolAttribute(context.getReader(), "grounded");
-        double groundingR = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingR", 0);
-        double groundingX = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "groundingX", 0);
+    public GeneratorFortescue read(Generator generator, XmlReaderContext context) {
+        double rz = context.getReader().readDoubleAttribute("rz");
+        double xz = context.getReader().readDoubleAttribute("xz");
+        double rn = context.getReader().readDoubleAttribute("rn");
+        double xn = context.getReader().readDoubleAttribute("xn");
+        boolean toGround = context.getReader().readBooleanAttribute("grounded");
+        double groundingR = context.getReader().readDoubleAttribute("groundingR", 0);
+        double groundingX = context.getReader().readDoubleAttribute("groundingX", 0);
         return generator.newExtension(GeneratorFortescueAdder.class)
                 .withRz(rz)
                 .withXz(xz)
