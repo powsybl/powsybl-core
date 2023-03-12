@@ -20,6 +20,8 @@ import java.util.Objects;
  */
 public final class LimitViolationUtils {
 
+    public static final String PERMANENT_LIMIT_NAME = "permanent";
+
     private LimitViolationUtils() {
     }
 
@@ -39,7 +41,7 @@ public final class LimitViolationUtils {
             return branch.getLimits(type, side)
                     .filter(l -> !Double.isNaN(l.getPermanentLimit()))
                     .map(limits -> {
-                        String previousLimitName = null;
+                        String previousLimitName = PERMANENT_LIMIT_NAME;
                         double previousLimit = limits.getPermanentLimit();
                         for (LoadingLimits.TemporaryLimit tl : limits.getTemporaryLimits()) { // iterate in ascending order
                             if (i >= previousLimit * limitReduction && i < tl.getValue() * limitReduction) {

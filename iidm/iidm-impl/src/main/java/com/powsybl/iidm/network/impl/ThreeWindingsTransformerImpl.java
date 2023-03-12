@@ -349,7 +349,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
                 return getLeg3().getTerminal();
 
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
@@ -364,7 +364,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         } else if (getLeg3().getTerminal() == terminal) {
             return Side.THREE;
         } else {
-            throw new AssertionError("The terminal is not connected to this three windings transformer");
+            throw new IllegalStateException("The terminal is not connected to this three windings transformer");
         }
     }
 

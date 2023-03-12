@@ -8,7 +8,7 @@
     "high-voltage-absolute-threshold" : 0.0
   },
   "load-flow-parameters" : {
-    "version" : "1.8",
+    "version" : "1.9",
     "voltageInitMode" : "UNIFORM_VALUES",
     "transformerVoltageControlOn" : false,
     "phaseShifterRegulationOn" : false,
@@ -23,6 +23,7 @@
     "dcUseTransformerRatio" : true,
     "countriesToBalance" : [ ],
     "connectedComponentMode" : "MAIN",
-    "hvdcAcEmulation" : true
+    "hvdcAcEmulation" : true,
+    "dcPowerFactor" : 1.0
   }
 }

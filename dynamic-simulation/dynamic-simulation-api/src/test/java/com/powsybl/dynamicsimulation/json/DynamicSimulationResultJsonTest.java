@@ -62,7 +62,7 @@ class DynamicSimulationResultJsonTest extends AbstractConverterTest {
     @Test
     void handleErrorTest() throws IOException {
         try (var is = getClass().getResourceAsStream("/DynamicSimulationResultError.json")) {
-            AssertionError e = assertThrows(AssertionError.class, () -> DynamicSimulationResultDeserializer.read(is));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> DynamicSimulationResultDeserializer.read(is));
             assertEquals("Unexpected field: metrics", e.getMessage());
         }
     }

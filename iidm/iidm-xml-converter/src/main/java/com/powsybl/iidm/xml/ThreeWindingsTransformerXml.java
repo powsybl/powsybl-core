@@ -121,7 +121,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         if (c instanceof Substation) {
             return ((Substation) c).newThreeWindingsTransformer();
         }
-        throw new AssertionError();
+        throw new IllegalStateException();
     }
 
     @Override

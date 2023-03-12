@@ -95,7 +95,7 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
         String line2Name = "";
         if (context instanceof NetworkXmlReaderContext) {
             NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
-            String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(AssertionError::new);
+            String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
             if ("1.1".equals(extensionVersionStr)) {
                 line1Name = context.getReader().readStringAttribute("line1Name");
                 line2Name = context.getReader().readStringAttribute("line2Name");

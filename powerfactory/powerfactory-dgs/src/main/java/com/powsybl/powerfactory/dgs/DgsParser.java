@@ -318,7 +318,7 @@ public class DgsParser {
                 type = DataAttributeType.OBJECT_VECTOR;
                 break;
             default:
-                throw new AssertionError("Unexpected vector attribute type: " + attributeType);
+                throw new IllegalStateException("Unexpected vector attribute type: " + attributeType);
         }
         return type;
     }
@@ -327,7 +327,7 @@ public class DgsParser {
         if (attributeType == DataAttributeType.FLOAT) {
             return DataAttributeType.DOUBLE_MATRIX;
         } else {
-            throw new AssertionError("Unexpected matrix attribute type: " + attributeType);
+            throw new IllegalStateException("Unexpected matrix attribute type: " + attributeType);
         }
     }
 
@@ -356,7 +356,7 @@ public class DgsParser {
                     type = DataAttributeType.OBJECT;
                     break;
                 default:
-                    throw new AssertionError("Unexpected attribute type: " + attributeType);
+                    throw new IllegalStateException("Unexpected attribute type: " + attributeType);
             }
             return type;
         }

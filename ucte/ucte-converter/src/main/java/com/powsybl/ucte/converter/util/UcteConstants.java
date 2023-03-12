@@ -12,7 +12,7 @@ package com.powsybl.ucte.converter.util;
 public final class UcteConstants {
 
     private UcteConstants() {
-        throw new AssertionError("Should not be constructed");
+        throw new IllegalStateException("Should not be constructed");
     }
 
     public static final String CURRENT_LIMIT_PROPERTY_KEY = "currentLimit";

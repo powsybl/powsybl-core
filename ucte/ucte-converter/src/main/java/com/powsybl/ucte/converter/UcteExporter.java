@@ -473,7 +473,7 @@ public class UcteExporter implements Exporter {
         } else if (line instanceof TieLine) {
             convertTieLine(ucteNetwork, (TieLine) line, context);
         } else {
-            throw new AssertionError("Unexpected TieLine type: " + line.getClass());
+            throw new IllegalStateException("Unexpected TieLine type: " + line.getClass());
         }
     }
 

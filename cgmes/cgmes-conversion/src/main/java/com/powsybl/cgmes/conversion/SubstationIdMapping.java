@@ -275,7 +275,7 @@ public class SubstationIdMapping {
         return voltageLevelIds.stream()
                 .sorted()
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("Unexpected: voltageLevelIds list is empty"));
+                .orElseThrow(() -> new IllegalStateException("Unexpected: voltageLevelIds list is empty"));
     }
 
     private String representativeSubstationId(Collection<String> substationIds) {

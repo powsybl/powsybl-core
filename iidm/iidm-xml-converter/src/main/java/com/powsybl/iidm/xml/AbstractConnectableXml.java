@@ -63,7 +63,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 writeBus(index, t.getBusView().getBus(), t.getBusView().getConnectableBus(), context);
                 break;
             default:
-                throw new AssertionError("Unexpected TopologyLevel value: " + topologyLevel);
+                throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
         }
 
         if (index != null) {

@@ -330,7 +330,7 @@ public class AmplNetworkWriter {
                 return false;
 
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
@@ -1198,7 +1198,7 @@ public class AmplNetworkWriter {
             case ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS:
                 return isBusExported(context, busId);
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
@@ -1293,7 +1293,7 @@ public class AmplNetworkWriter {
             case ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS_AND_ALL_LOADS:
                 return isBusExported(context, conBusId);
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 

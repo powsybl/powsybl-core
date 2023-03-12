@@ -132,7 +132,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     break;
 
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         });
         if (!hasTerminalRef[0]) {
@@ -216,7 +216,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     break;
 
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         });
         if (!hasTerminalRef[0]) {

@@ -135,19 +135,19 @@ public final class NetworkXml {
         }
     }
 
-    private static void writeExtensionNamespaces(Network n, ExportOptions options, TreeDataWriter writer) {
+    private static void writeExtensionNamespaces(Network n, TreeDataWriter writer) {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
         // Get the list of the serializers needed to export the current network
-        IidmXmlVersion networkVersion = getNetworkVersion(options);
+        IidmXmlVersion networkVersion = getNetworkVersion(context.getOptions());
         Set<ExtensionXmlSerializer<?, ?>> serializers = n.getIdentifiables().stream().flatMap(identifiable -> identifiable.getExtensions()
                         .stream()
-                        .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(options, e), networkVersion, options))
-                        .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(options, extension)))
+                        .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(context.getOptions(), e), networkVersion, context.getOptions()))
+                        .map(extension -> (ExtensionXmlSerializer<?, ?>) getExtensionXmlSerializer(context.getOptions(), extension)))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         // Export the prefix and namespace of each serializer and ensure that there is no conflict
         for (ExtensionXmlSerializer<?, ?> extensionXmlSerializer : serializers) {
-            String namespaceUri = getNamespaceUri(extensionXmlSerializer, options, networkVersion);
+            String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions(), networkVersion);
             if (extensionUris.contains(namespaceUri)) {
                 throw new PowsyblException("Extension namespace URI collision");
             } else {
@@ -167,7 +167,7 @@ public final class NetworkXml {
         TreeDataWriter writer = context.getWriter();
         ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(), extension);
         if (extensionXmlSerializer == null) {
-            throw new AssertionError("Extension XML Serializer of " + extension.getName() + " should not be null");
+            throw new IllegalStateException("Extension XML Serializer of " + extension.getName() + " should not be null");
         }
         String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions(), context.getVersion());
         writer.writeStartNode(namespaceUri, extension.getName());
@@ -212,20 +212,20 @@ public final class NetworkXml {
                 .orElseGet(extensionXmlSerializer::getNamespaceUri);
     }
 
-    private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) {
+    private static void writeExtensions(Network n, NetworkXmlWriterContext context) {
         context.getWriter().writeStartNodes("extensions");
-        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), options)) {
+        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), context.getOptions())) {
             if (!context.isExportedEquipment(identifiable)) {
                 continue;
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(options, e), context.getVersion(), context.getOptions()))
+                    .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(context.getOptions(), e), context.getVersion(), context.getOptions()))
                     .collect(Collectors.toList());
 
             if (!extensions.isEmpty()) {
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), EXTENSION_ELEMENT_NAME);
                 context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
-                for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
+                for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, context.getOptions())) {
                     writeExtension(extension, context);
                 }
                 context.getWriter().writeEndNode();
@@ -274,24 +274,21 @@ public final class NetworkXml {
     }
 
     private static void writeBaseNetwork(Network n, NetworkXmlWriterContext context) {
-        context.getWriter().writeStringAttribute(ID, n.getId());
+        context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(n.getId()));
         context.getWriter().writeStringAttribute(CASE_DATE, n.getCaseDate().toString());
         context.getWriter().writeIntAttribute(FORECAST_DISTANCE, n.getForecastDistance());
         context.getWriter().writeStringAttribute(SOURCE_FORMAT, n.getSourceFormat());
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> context.getWriter().writeEnumAttribute(MINIMUM_VALIDATION_LEVEL, n.getValidationLevel()));
 
-        // Consider the network has been exported so its extensions will be written also
-        context.addExportedEquipment(n);
-
         AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
         writeVoltageLevels(n, context);
         writeSubstations(n, context);
-        writeTransformers(context.getFilter(), n, context);
-        writeLines(context.getFilter(), n, context);
-        writeHvdcLines(context.getFilter(), n, context);
+        writeTransformers(n, context);
+        writeLines(n, context);
+        writeHvdcLines(n, context);
     }
 
     private static void writeVoltageLevels(Network n, NetworkXmlWriterContext context) {
@@ -314,7 +311,8 @@ public final class NetworkXml {
         context.getWriter().writeEndNodes();
     }
 
-    private static void writeTransformers(BusFilter filter, Network n, NetworkXmlWriterContext context) {
+    private static void writeTransformers(Network n, NetworkXmlWriterContext context) {
+        BusFilter filter = context.getFilter();
         context.getWriter().writeStartNodes("twoWindingsTransformers");
         for (TwoWindingsTransformer twt : IidmXmlUtil.sorted(n.getTwoWindingsTransformers(), context.getOptions())) {
             if (twt.getSubstation().isEmpty() && filter.test(twt)) {
@@ -336,7 +334,8 @@ public final class NetworkXml {
         context.getWriter().writeEndNodes();
     }
 
-    private static void writeLines(BusFilter filter, Network n, NetworkXmlWriterContext context) {
+    private static void writeLines(Network n, NetworkXmlWriterContext context) {
+        BusFilter filter = context.getFilter();
         context.getWriter().writeStartNodes("lines");
         for (Line l : IidmXmlUtil.sorted(n.getLines(), context.getOptions())) {
             if (!filter.test(l)) {
@@ -351,7 +350,8 @@ public final class NetworkXml {
         context.getWriter().writeEndNodes();
     }
 
-    private static void writeHvdcLines(BusFilter filter, Network n, NetworkXmlWriterContext context) {
+    private static void writeHvdcLines(Network n, NetworkXmlWriterContext context) {
+        BusFilter filter = context.getFilter();
         context.getWriter().writeStartNodes("hvdcLines");
         for (HvdcLine l : IidmXmlUtil.sorted(n.getHvdcLines(), context.getOptions())) {
             if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
@@ -381,17 +381,26 @@ public final class NetworkXml {
             writer.writeStartNode(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
             writer.writeNamespace(IIDM_PREFIX, namespaceUri);
             if (!options.withNoExtension()) {
-                writeExtensionNamespaces(n, options, writer);
+                writeExtensionNamespaces(n, writer);
             }
             BusFilter filter = BusFilter.create(n, options);
             Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
             NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
             writeBaseNetwork(n, context);
             // write extensions
-            writeExtensions(n, context, options);
+            writeExtensions(n, context);
             context.getWriter().writeEndNode();
             return context.getAnonymizer();
         }
+    }
+
+    private static NetworkXmlWriterContext createContext(Network n, ExportOptions options, XMLStreamWriter writer) {
+        BusFilter filter = BusFilter.create(n, options);
+        Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
+        IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
+        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        context.addExportedEquipment(n); // consider the network has been exported so its extensions will be written also
+        return context;
     }
 
     public static Anonymizer write(Network n, OutputStream os) {
@@ -474,7 +483,7 @@ public final class NetworkXml {
 
     public static Network read(TreeDataReader reader, ImportOptions config, Anonymizer anonymizer,
                                NetworkFactory networkFactory, IidmXmlVersion version, Set<String> extensionsNamespaceUri) {
-        String id = reader.readStringAttribute(ID);
+        String id = context.getAnonymizer().deanonymizeString(reader.readStringAttribute(ID));
         DateTime date = DateTime.parse(reader.readStringAttribute(CASE_DATE));
         int forecastDistance = reader.readIntAttribute(FORECAST_DISTANCE, 0);
         String sourceFormat = reader.readStringAttribute(SOURCE_FORMAT);
@@ -548,10 +557,10 @@ public final class NetworkXml {
                     readExtensions(identifiable, context, extensionNamesNotFound);
                     break;
 
-                default:
-                    throw new AssertionError();
-            }
-        });
+                    default:
+                        throw new IllegalStateException();
+                }
+            });
 
         checkExtensionsNotFound(context, extensionNamesNotFound);
 
@@ -675,10 +684,10 @@ public final class NetworkXml {
                     break;
 
                 case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
 
                 default:
-                    throw new AssertionError("Unexpected element: " + reader.getNodeName());
+                    throw new IllegalStateException("Unexpected element: " + reader.getNodeName());
             }
         });
     }

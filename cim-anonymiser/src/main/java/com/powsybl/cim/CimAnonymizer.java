@@ -150,7 +150,7 @@ public class CimAnonymizer {
                     return null;
                 }
             } else {
-                throw new AssertionError("Unknown attribute " + attribute.getName());
+                throw new IllegalStateException("Unknown attribute " + attribute.getName());
             }
         }
 

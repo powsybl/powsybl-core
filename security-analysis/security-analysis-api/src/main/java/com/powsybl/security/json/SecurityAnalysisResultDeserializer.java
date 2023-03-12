@@ -94,7 +94,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         SecurityAnalysisResult result = null;

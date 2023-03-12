@@ -93,7 +93,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
         if (c instanceof Substation) {
             return ((Substation) c).newTwoWindingsTransformer();
         }
-        throw new AssertionError();
+        throw new IllegalStateException();
     }
 
     @Override

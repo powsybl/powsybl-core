@@ -36,7 +36,9 @@ public final class PropertiesXml {
     }
 
     public static void read(Identifiable identifiable, NetworkXmlReaderContext context) {
-        assert context.getReader().getNodeName().equals(PROPERTY);
+        if (!context.getReader().getNodeName().equals(PROPERTY)) {
+            throw new IllegalStateException();
+        }
         String name = context.getReader().readStringAttribute(NAME);
         String value = context.getReader().readStringAttribute(VALUE);
         identifiable.setProperty(name, value);
