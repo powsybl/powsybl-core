@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BusbarSectionAdder extends IdentifiableAdder<BusbarSectionAdder> {
+public interface BusbarSectionAdder extends IdentifiableAdder<BusbarSectionAdder, BusbarSection> {
 
     BusbarSectionAdder setNode(int node);
 

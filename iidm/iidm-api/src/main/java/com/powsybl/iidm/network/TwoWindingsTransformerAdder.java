@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTransformerAdder> {
+public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTransformerAdder, TwoWindingsTransformer> {
 
     TwoWindingsTransformerAdder setR(double r);
 

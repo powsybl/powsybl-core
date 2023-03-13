@@ -516,7 +516,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     // Connections
 
-    public void connect(InjectionAdder<?> adder) {
+    public void connect(InjectionAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
             adder.setNode(iidmNode());
         } else {
@@ -524,7 +524,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(InjectionAdder<?> adder, int terminal) {
+    public void connect(InjectionAdder<?, ?> adder, int terminal) {
         if (context.nodeBreaker()) {
             adder.setNode(iidmNode(terminal));
         } else {
@@ -532,7 +532,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(BranchAdder<?> adder) {
+    public void connect(BranchAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel1(iidmVoltageLevelId(1))
@@ -552,13 +552,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(BranchAdder<?> adder,
+    public void connect(BranchAdder<?, ?> adder,
         String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
         String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
         connect(context, adder, iidmVoltageLevelId1, busId1, t1Connected, node1, iidmVoltageLevelId2, busId2, t2Connected, node2);
     }
 
-    public static void connect(Context context, BranchAdder<?> adder,
+    public static void connect(Context context, BranchAdder<?, ?> adder,
         String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
         String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
         if (context.nodeBreaker()) {
@@ -578,11 +578,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(BranchAdder<?> adder, boolean t1Connected, boolean t2Connected) {
+    public void connect(BranchAdder<?, ?> adder, boolean t1Connected, boolean t2Connected) {
         connect(adder, t1Connected, t2Connected, true);
     }
 
-    public void connect(BranchAdder<?> adder, boolean t1Connected, boolean t2Connected, boolean branchIsClosed) {
+    public void connect(BranchAdder<?, ?> adder, boolean t1Connected, boolean t2Connected, boolean branchIsClosed) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel1(iidmVoltageLevelId(1))

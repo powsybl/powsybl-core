@@ -26,7 +26,7 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
 
     class NodeBreakerViewAdapter extends AbstractAdapter<NodeBreakerView> implements NodeBreakerView {
 
-        final class SwitchAdderAdapter extends AbstractIdentifiableAdderAdapter<SwitchAdder> implements SwitchAdder {
+        final class SwitchAdderAdapter extends AbstractIdentifiableAdderAdapter<SwitchAdder, Switch> implements SwitchAdder {
 
             SwitchAdderAdapter(final SwitchAdder delegate, final MergingViewIndex index) {
                 super(delegate, index);

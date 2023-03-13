@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
 
-    private final InjectionAdder<?> injectionAdder;
+    private final InjectionAdder<?, ?> injectionAdder;
     private final String busOrBbsId;
     private final Integer injectionPositionOrder;
     private final String injectionFeederName;
@@ -37,7 +37,7 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
      * @param injectionFeederName    The name of the feeder indicated in the extension {@link ConnectablePosition}.
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
-    CreateFeederBay(InjectionAdder<?> injectionAdder, String busOrBbsId, Integer injectionPositionOrder,
+    CreateFeederBay(InjectionAdder<?, ?> injectionAdder, String busOrBbsId, Integer injectionPositionOrder,
                     String injectionFeederName, ConnectablePosition.Direction injectionDirection) {
         super(0);
         this.injectionAdder = Objects.requireNonNull(injectionAdder);

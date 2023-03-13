@@ -11,8 +11,9 @@ package com.powsybl.iidm.network;
  *
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public interface HvdcConverterStationAdder<T extends HvdcConverterStationAdder> extends InjectionAdder<T> {
+public interface HvdcConverterStationAdder<T extends HvdcConverterStationAdder, H extends HvdcConverterStation<H>> extends InjectionAdder<T, H> {
 
     T setLossFactor(float lossFactor);
 
+    H add();
 }

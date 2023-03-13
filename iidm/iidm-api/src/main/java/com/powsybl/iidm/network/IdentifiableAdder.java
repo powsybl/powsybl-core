@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface IdentifiableAdder<T extends IdentifiableAdder> {
+public interface IdentifiableAdder<T extends IdentifiableAdder, I extends Identifiable> {
 
     T setId(String id);
 
@@ -21,4 +21,6 @@ public interface IdentifiableAdder<T extends IdentifiableAdder> {
     default T setFictitious(boolean fictitious) {
         throw new UnsupportedOperationException();
     }
+
+    I add();
 }

@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface InjectionAdder<T extends InjectionAdder> extends IdentifiableAdder<T> {
+public interface InjectionAdder<T extends InjectionAdder, I extends Injection<I>> extends IdentifiableAdder<T, I> {
 
     T setNode(int node);
 
@@ -18,4 +18,5 @@ public interface InjectionAdder<T extends InjectionAdder> extends IdentifiableAd
 
     T setConnectableBus(String connectableBus);
 
+    I add();
 }

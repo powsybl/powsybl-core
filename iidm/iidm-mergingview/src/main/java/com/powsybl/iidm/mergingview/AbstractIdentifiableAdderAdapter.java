@@ -7,13 +7,14 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.network.util.Identifiables;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-abstract class AbstractIdentifiableAdderAdapter<I extends IdentifiableAdder<I>> extends AbstractAdapter<I> implements IdentifiableAdder<I> {
+abstract class AbstractIdentifiableAdderAdapter<I extends IdentifiableAdder<I, J>, J extends Identifiable<J>> extends AbstractAdapter<I> implements IdentifiableAdder<I, J> {
 
     private String id;
 

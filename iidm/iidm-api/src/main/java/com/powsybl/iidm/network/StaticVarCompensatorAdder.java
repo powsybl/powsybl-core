@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompensatorAdder> {
+public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompensatorAdder, StaticVarCompensator> {
 
     StaticVarCompensatorAdder setBmin(double bMin);
 
