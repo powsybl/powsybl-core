@@ -233,12 +233,7 @@ public final class EquipmentExport {
             }
             Optional<String> substationId = voltageLevel.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s));
             if (substationId.isEmpty() && fictSubstationId == null) { // create a fictitious substation
-                String cgmesRegionId = CgmesExportUtil.getUniqueId();
-                writeGeographicalRegion(cgmesRegionId, "FICTITIOUS_REGION", cimNamespace, writer, context);
-                String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
-                writeSubGeographicalRegion(subGeographicalRegionId, context.getSubRegionName(subGeographicalRegionId), cgmesRegionId, cimNamespace, writer, context);
-                fictSubstationId = CgmesExportUtil.getUniqueId();
-                SubstationEq.write(fictSubstationId, "FICTITIOUS_SUBSTATION", subGeographicalRegionId, cimNamespace, writer, context);
+                fictSubstationId = writeFictitiousSubstationFor("FICTITIOUS", cimNamespace, writer, context);
             }
             VoltageLevelEq.write(context.getNamingStrategy().getCgmesId(voltageLevel), voltageLevel.getNameOrId(), voltageLevel.getLowVoltageLimit(), voltageLevel.getHighVoltageLimit(),
                     substationId.orElse(fictSubstationId), baseVoltage.getId(), cimNamespace, writer, context);
@@ -663,15 +658,19 @@ public final class EquipmentExport {
     }
 
     private static String writeFictitiousSubstationFor(Identifiable<?> identifiable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        return writeFictitiousSubstationFor(identifiable.getId(), cimNamespace, writer, context);
+    }
+
+    private static String writeFictitiousSubstationFor(String prefix, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // New Substation
         // We avoid using the name of the identifiable for the names of fictitious region and subregion
         // Because regions and subregions with the same name are merged
         String geographicalRegionId = CgmesExportUtil.getUniqueId();
-        GeographicalRegionEq.write(geographicalRegionId, identifiable.getId() + "_GR", cimNamespace, writer, context);
+        GeographicalRegionEq.write(geographicalRegionId, prefix + "_GR", cimNamespace, writer, context);
         String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
-        SubGeographicalRegionEq.write(subGeographicalRegionId, identifiable.getId() + "_SGR", geographicalRegionId, cimNamespace, writer, context);
+        SubGeographicalRegionEq.write(subGeographicalRegionId, prefix + "_SGR", geographicalRegionId, cimNamespace, writer, context);
         String substationId = CgmesExportUtil.getUniqueId();
-        SubstationEq.write(substationId, identifiable.getNameOrId() + "_SUBSTATION", subGeographicalRegionId, cimNamespace, writer, context);
+        SubstationEq.write(substationId, prefix + "_SUBSTATION", subGeographicalRegionId, cimNamespace, writer, context);
         return substationId;
     }
 
