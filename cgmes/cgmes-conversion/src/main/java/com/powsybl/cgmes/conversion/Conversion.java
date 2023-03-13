@@ -894,12 +894,12 @@ public class Conversion {
             xfmr3StructuralRatio = alternative;
         }
 
-        public boolean isCreateFictitiousSwitchesForDisconnectedTerminals() {
-            return createFictitiousSwitchesForDisconnectedTerminals;
+        public CgmesImport.FictitiousSwitchesCreationMode getCreateFictitiousSwitchesForDisconnectedTerminalsMode() {
+            return createFictitiousSwitchesForDisconnectedTerminalsMode;
         }
 
-        public Config createFictitiousSwitchesForDisconnectedTerminals(boolean createFictitiousSwitchesForDisconnectedTerminals) {
-            this.createFictitiousSwitchesForDisconnectedTerminals = createFictitiousSwitchesForDisconnectedTerminals;
+        public Config createFictitiousSwitchesForDisconnectedTerminalsMode(CgmesImport.FictitiousSwitchesCreationMode createFictitiousSwitchesForDisconnectedTerminalsMode) {
+            this.createFictitiousSwitchesForDisconnectedTerminalsMode = createFictitiousSwitchesForDisconnectedTerminalsMode;
             return this;
         }
 
@@ -916,7 +916,7 @@ public class Conversion {
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
         private boolean createActivePowerControlExtension = false;
 
-        private boolean createFictitiousSwitchesForDisconnectedTerminals = true;
+        private CgmesImport.FictitiousSwitchesCreationMode createFictitiousSwitchesForDisconnectedTerminalsMode = CgmesImport.FictitiousSwitchesCreationMode.ALWAYS;
 
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;

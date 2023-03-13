@@ -46,6 +46,12 @@ import java.util.stream.Collectors;
 @AutoService(Importer.class)
 public class CgmesImport implements Importer {
 
+    enum FictitiousSwitchesCreationMode {
+        ALWAYS,
+        ALWAYS_EXCEPT_SWITCHES,
+        NEVER;
+    }
+
     public CgmesImport(PlatformConfig platformConfig, List<CgmesImportPostProcessor> postProcessors) {
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
         this.postProcessors = Objects.requireNonNull(postProcessors).stream()
@@ -252,12 +258,12 @@ public class CgmesImport implements Importer {
                                 p,
                                 CREATE_ACTIVE_POWER_CONTROL_EXTENSION_PARAMETER,
                                 defaultValueConfig))
-                .createFictitiousSwitchesForDisconnectedTerminals(
-                        Parameter.readBoolean(
+                .createFictitiousSwitchesForDisconnectedTerminalsMode(FictitiousSwitchesCreationMode.valueOf(
+                        Parameter.readString(
                                 getFormat(),
                                 p,
-                                CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_PARAMETER,
-                                defaultValueConfig));
+                                CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
+                                defaultValueConfig)));
         String namingStrategy = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
         if (idMappingFilePath == null) {
@@ -313,7 +319,7 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
     public static final String CREATE_ACTIVE_POWER_CONTROL_EXTENSION = "iidm.import.cgmes.create-active-power-control-extension";
     public static final String DECODE_ESCAPED_IDENTIFIERS = "iidm.import.cgmes.decode-escaped-identifiers";
-    public static final String CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS = "iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals";
+    public static final String CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE = "iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -382,12 +388,12 @@ public class CgmesImport implements Importer {
             ParameterScope.TECHNICAL)
             .addAdditionalNames("powsyblTripleStore");
     private static final Parameter PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER = new Parameter(
-        PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
-        ParameterType.STRING,
-        "Profile used for initial state values",
-        "SSH",
+            PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
+            ParameterType.STRING,
+            "Profile used for initial state values",
+            "SSH",
             List.of("SSH", "SV"))
-        .addAdditionalNames("iidm.import.cgmes.profile-used-for-initial-state-values");
+            .addAdditionalNames("iidm.import.cgmes.profile-used-for-initial-state-values");
     private static final Parameter STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
@@ -398,11 +404,12 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Create active power control extension during import",
             Boolean.FALSE);
-    private static final Parameter CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_PARAMETER = new Parameter(
-            CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS,
-            ParameterType.BOOLEAN,
-            "Create fictitious switches for disconnected terminals (relevant for node-breaker models only)",
-            Boolean.FALSE);
+    private static final Parameter CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER = new Parameter(
+            CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE,
+            ParameterType.STRING,
+            "Defines in which case fictitious switches for disconnected terminals are created (relevant for node-breaker models only): always, always except for switches or never",
+            FictitiousSwitchesCreationMode.ALWAYS.name(),
+            Arrays.stream(FictitiousSwitchesCreationMode.values()).map(Enum::name).collect(Collectors.toList()));
     private static final Parameter STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
@@ -439,7 +446,7 @@ public class CgmesImport implements Importer {
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
             CREATE_ACTIVE_POWER_CONTROL_EXTENSION_PARAMETER,
             DECODE_ESCAPED_IDENTIFIERS_PARAMETER,
-            CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_PARAMETER);
+            CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter postProcessorsParameter;

@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -92,9 +91,7 @@ class CgmesExportTest {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fs.getPath("/cgmes"));
             network.write("CGMES", null, tmpDir.resolve("tmp"));
-            Properties properties = new Properties();
-            properties.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS, "true");
-            Network n2 = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"), properties);
+            Network n2 = Network.read(new GenericReadOnlyDataSource(tmpDir, "tmp"));
             VoltageLevel c = n2.getVoltageLevel("C");
             assertNull(Networks.getEquivalentTerminal(c, c.getNodeBreakerView().getNode2("TEST_SW")));
             assertNull(n2.getVscConverterStation("C2").getTerminal().getBusView().getBus());
@@ -234,9 +231,7 @@ class CgmesExportTest {
     @Test
     void testDoNotExportFictitiousSwitchesCreatedForDisconnectedTerminals() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerTerminalDisconnected().dataSource();
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS, "true");
-        Network network = Importers.importData("CGMES", ds, properties);
+        Network network = Importers.importData("CGMES", ds, null);
 
         String disconnectedTerminalId = "4dec53ca-3ea6-4bd0-a225-b559c8293e91";
         String fictitiousSwitchId = "4dec53ca-3ea6-4bd0-a225-b559c8293e91_SW_fict";
@@ -263,7 +258,7 @@ class CgmesExportTest {
             assertFalse(cgmes.terminal(disconnectedTerminalId).connected());
 
             // Verify that the fictitious switch is created again when we re-import the exported CGMES data
-            Network networkReimported = Network.read(exportedCgmes, properties);
+            Network networkReimported = Network.read(exportedCgmes, null);
             Switch fictitiousSwitchReimported = networkReimported.getSwitch(fictitiousSwitchId);
             assertNotNull(fictitiousSwitchReimported);
             assertTrue(fictitiousSwitchReimported.isFictitious());

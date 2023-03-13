@@ -41,11 +41,11 @@ public class NodeMapping {
         return iidmNodeForTopologicalNode;
     }
 
-    public int iidmNodeForTerminal(CgmesTerminal t, VoltageLevel vl) {
-        return iidmNodeForTerminal(t, vl, true);
+    public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl) {
+        return iidmNodeForTerminal(t, isSwitchEnd, vl, true);
     }
 
-    public int iidmNodeForTerminal(CgmesTerminal t, VoltageLevel vl, boolean equipmentIsConnected) {
+    public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl, boolean equipmentIsConnected) {
         int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
         // Add internal connection from terminal to connectivity node
         int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
@@ -61,7 +61,7 @@ public class NodeMapping {
 
         boolean connected = t.connected() && equipmentIsConnected;
 
-        if (connected || !context.config().isCreateFictitiousSwitchesForDisconnectedTerminals()) {
+        if (connected || !createFictitiousSwitch(context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode(), isSwitchEnd)) {
             // TODO(Luma): do not add an internal connection if is has already been added?
             vl.getNodeBreakerView().newInternalConnection()
                     .setNode1(iidmNodeForConductingEquipment)
@@ -82,6 +82,19 @@ public class NodeMapping {
         }
 
         return iidmNodeForConductingEquipment;
+    }
+
+    private static boolean createFictitiousSwitch(CgmesImport.FictitiousSwitchesCreationMode mode, boolean isSwitchEnd) {
+        switch (mode) {
+            case ALWAYS:
+                return true;
+            case NEVER:
+                return false;
+            case ALWAYS_EXCEPT_SWITCHES:
+                return !isSwitchEnd;
+            default:
+                throw new IllegalStateException("Unsupported specified mode to create fictitious switches for disconnected terminals: " + mode.name());
+        }
     }
 
     public int iidmNodeForConnectivityNode(String id, VoltageLevel vl) {

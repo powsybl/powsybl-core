@@ -1,7 +1,6 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.ZipFileDataSource;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -81,7 +80,6 @@ class TopologyExportCornerCasesTest extends AbstractConverterTest {
         ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), name);
         new CgmesExport().export(network, params, zip);
         Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS, "true");
         Network networkFromCgmes = Network.read(tmpDir.resolve(name + ".zip"), LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), properties);
         if (checkAllTerminalsConnected) {
             checkAllTerminalsConnected(network, name + "_from_CGMES");
