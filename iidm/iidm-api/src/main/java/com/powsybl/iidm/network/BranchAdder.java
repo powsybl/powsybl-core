@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface BranchAdder<T extends Branch, A extends BranchAdder> extends IdentifiableAdder<T, A> {
+public interface BranchAdder<T extends Branch<? super T>, A extends BranchAdder> extends IdentifiableAdder<T, A> {
 
     A setVoltageLevel1(String voltageLevelId1);
 

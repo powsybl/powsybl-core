@@ -18,7 +18,7 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractConnectableXml<T extends Connectable, A extends IdentifiableAdder<T, A>, P extends Container> extends AbstractIdentifiableXml<T, A, P> {
+public abstract class AbstractConnectableXml<T extends Connectable<? super T>, A extends IdentifiableAdder<T, A>, P extends Container> extends AbstractIdentifiableXml<T, A, P> {
 
     private static final String BUS = "bus";
     private static final String CONNECTABLE_BUS = "connectableBus";
