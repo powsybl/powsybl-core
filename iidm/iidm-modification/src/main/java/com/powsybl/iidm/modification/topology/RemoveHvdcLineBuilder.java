@@ -17,8 +17,8 @@ public class RemoveHvdcLineBuilder {
     private String hvdcLineId = null;
     private List<String> mscIds = null;
 
-    public RemoveHVDCLine build() {
-        return new RemoveHVDCLine(hvdcLineId, mscIds);
+    public RemoveHvdcLine build() {
+        return new RemoveHvdcLine(hvdcLineId, mscIds);
     }
 
     /**

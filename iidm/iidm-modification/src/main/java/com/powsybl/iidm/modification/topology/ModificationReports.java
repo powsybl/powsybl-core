@@ -297,7 +297,7 @@ final class ModificationReports {
                 .build());
     }
 
-       static void notFoundHvdcLineReport(Reporter reporter, String hvdcLineId) {
+    static void notFoundHvdcLineReport(Reporter reporter, String hvdcLineId) {
         reporter.report(Report.builder()
                 .withKey("HvdcNotFound")
                 .withDefaultMessage("HVDC ${hvdcLineId} is not found")

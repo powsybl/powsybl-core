@@ -100,7 +100,7 @@ class RemoveHvdcLineTest extends AbstractConverterTest {
     @Test
     void testRemoveHvdcWithLccConverterStationAndMcs() throws IOException {
         Network network = HvdcTestNetwork.createLcc();
-        NetworkModification modification = new RemoveHvdcLineBuilder().withHvdcLineId("L", List.of("C1_Filter1","C1_Filter2")).build();
+        NetworkModification modification = new RemoveHvdcLineBuilder().withHvdcLineId("L", List.of("C1_Filter1", "C1_Filter2")).build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-remove-HVDC-Line-LCC-MCS.xml");

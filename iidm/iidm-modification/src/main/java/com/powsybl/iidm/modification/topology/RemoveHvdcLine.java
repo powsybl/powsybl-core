@@ -27,13 +27,13 @@ import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 /**
  * @author Anis Touri <anis-1.touri@rte-france.com>
  */
-public class RemoveHVDCLine extends AbstractNetworkModification {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RemoveHVDCLine.class);
+public class RemoveHvdcLine extends AbstractNetworkModification {
+    private static final Logger LOGGER = LoggerFactory.getLogger(RemoveHvdcLine.class);
 
     private final String hvdcLineId;
     private final List<String> mscIds;
 
-    public RemoveHVDCLine(String hvdcLineId, List<String> mscIds) {
+    public RemoveHvdcLine(String hvdcLineId, List<String> mscIds) {
         this.hvdcLineId = Objects.requireNonNull(hvdcLineId);
         this.mscIds = mscIds;
     }
@@ -42,9 +42,7 @@ public class RemoveHVDCLine extends AbstractNetworkModification {
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         AtomicBoolean hvdcLineRemoved = new AtomicBoolean(false);
         AtomicReference<HvdcConverterStation> hvdcConverterStation1Atomic = new AtomicReference<>(null);
-        ;
         AtomicReference<HvdcConverterStation> hvdcConverterStation2Atomic = new AtomicReference<>(null);
-        ;
         network.getHvdcConverterStationStream()
                 .filter(Objects::nonNull)
                 .forEach(hvdcConverterStation -> {
@@ -69,10 +67,7 @@ public class RemoveHVDCLine extends AbstractNetworkModification {
                 throw new PowsyblException("HVDC Line not found: " + hvdcLineId);
             }
         } else {
-            hvdcConverterStation1.remove();
-            hvdcConverterStation2.remove();
-            reportConverterStationRemoved(reporter, hvdcConverterStation1);
-            reportConverterStationRemoved(reporter, hvdcConverterStation2);
+            removeConverterStations(hvdcConverterStation1, hvdcConverterStation2, reporter);
 
             // Remove the MCSs that represent the filters of the LCC
             if (mscIds != null
@@ -81,6 +76,13 @@ public class RemoveHVDCLine extends AbstractNetworkModification {
                 removeMCSs(network, reporter);
             }
         }
+    }
+
+    private void removeConverterStations(HvdcConverterStation hvdcConverterStation1, HvdcConverterStation hvdcConverterStation2, Reporter reporter) {
+        hvdcConverterStation1.remove();
+        hvdcConverterStation2.remove();
+        reportConverterStationRemoved(reporter, hvdcConverterStation1);
+        reportConverterStationRemoved(reporter, hvdcConverterStation2);
     }
 
     private boolean isLccConverterStation(HvdcConverterStation hvdcConverterStation) {
@@ -106,10 +108,9 @@ public class RemoveHVDCLine extends AbstractNetworkModification {
         mscIds.forEach(mscId ->
                 network.getShuntCompensatorStream().filter(shuntCompensator -> shuntCompensator.getId().equals(mscId))
                         .findAny().ifPresent(shuntCompensator -> {
-                                    shuntCompensator.remove();
-                                    removedMcsReport(reporter, shuntCompensator.getId());
-                                }
-                        )
+                            shuntCompensator.remove();
+                            removedMcsReport(reporter, shuntCompensator.getId());
+                        })
         );
     }
 }
