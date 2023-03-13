@@ -1,5 +1,5 @@
 {
-  "version" : "1.0",
+  "version" : "1.1",
   "actions" : [ {
     "type" : "SWITCH",
     "id" : "id1",
@@ -30,27 +30,27 @@
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id5",
     "transformerId" : "transformerId1",
-    "value" : 5,
+    "tapPosition" : 5,
     "relativeValue" : true,
     "side" : "TWO"
   }, {
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id6",
     "transformerId" : "transformerId2",
-    "value" : 12,
+    "tapPosition" : 12,
     "relativeValue" : false
   }, {
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id7",
     "transformerId" : "transformerId3",
-    "value" : -5,
+    "tapPosition" : -5,
     "relativeValue" : true,
     "side" : "ONE"
   }, {
     "type" : "PHASE_TAP_CHANGER_TAP_POSITION",
     "id" : "id8",
     "transformerId" : "transformerId3",
-    "value" : 2,
+    "tapPosition" : 2,
     "relativeValue" : false,
     "side" : "THREE"
   }, {
@@ -87,14 +87,14 @@
     "type" : "RATIO_TAP_CHANGER_TAP_POSITION",
     "id" : "id14",
     "transformerId" : "transformerId4",
-    "value" : 2,
+    "tapPosition" : 2,
     "relativeValue" : false,
     "side" : "THREE"
   }, {
     "type" : "RATIO_TAP_CHANGER_TAP_POSITION",
     "id" : "id15",
     "transformerId" : "transformerId5",
-    "value" : 1,
+    "tapPosition" : 1,
     "relativeValue" : true
   }, {
     "type" : "RATIO_TAP_CHANGER_REGULATION",
@@ -156,13 +156,13 @@
     "p0" : 42.0,
     "relativeValue" : false
   }, {
-      "type": "HVDC",
-      "id": "id25",
-      "hvdcId": "hvdc1",
-      "acEmulationEnabled": false,
-      "activePowerSetpoint": 12.0,
-      "relativeValue": true
-    }, {
+    "type" : "HVDC",
+    "id" : "id25",
+    "hvdcId" : "hvdc1",
+    "acEmulationEnabled" : false,
+    "activePowerSetpoint" : 12.0,
+    "relativeValue" : true
+  }, {
     "type" : "SHUNT_COMPENSATOR_POSITION",
     "id" : "id22",
     "shuntCompensatorId" : "shuntId1",
