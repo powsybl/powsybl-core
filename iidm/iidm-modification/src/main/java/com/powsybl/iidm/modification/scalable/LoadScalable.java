@@ -95,9 +95,10 @@ class LoadScalable extends AbstractInjectionScalable {
         }
     }
 
-    private double scale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
+    @Override
+    public double scale(Network n, double asked, ScalingContext context) {
         Objects.requireNonNull(n);
-        Objects.requireNonNull(scalingConvention);
+        Objects.requireNonNull(context);
 
         Load l = n.getLoad(id);
 
@@ -108,7 +109,7 @@ class LoadScalable extends AbstractInjectionScalable {
         }
 
         Terminal t = l.getTerminal();
-        if (!t.isConnected()) {
+        if (!t.isConnected() && context.isReconnect()) {
             t.connect();
             LOGGER.info("Connecting {}", l.getId());
         }
@@ -125,7 +126,7 @@ class LoadScalable extends AbstractInjectionScalable {
         double availableDown = oldP0 - minValue;
         double availableUp = maxValue - oldP0;
 
-        if (scalingConvention == LOAD) {
+        if (context.getScalingConvention() == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             l.setP0(oldP0 + done);
         } else {
@@ -136,7 +137,7 @@ class LoadScalable extends AbstractInjectionScalable {
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
                 l.getId(), oldP0, l.getP0());
 
-        if (constantPowerFactor) {
+        if (context.isConstantPowerFactor()) {
             l.setQ0(l.getP0() * oldQ0 / oldP0);
             LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
                     l.getId(), oldQ0, l.getQ0());
@@ -145,24 +146,4 @@ class LoadScalable extends AbstractInjectionScalable {
         return done;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely
-     * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
-     */
-    @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
-        return scale(n, asked, scalingConvention, false);
-    }
-
-    @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
-        return scale(n, asked, scalingConvention, true);
-    }
-
-    @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
-    }
 }

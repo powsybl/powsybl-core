@@ -134,43 +134,10 @@ public interface Scalable {
      * @param asked value asked to adjust the scalable active power
      * @return the actual value of the scalable active power adjustment
      */
-    double scale(Network n, double asked);
+    double scale(Network n, double asked, ScalingContext context);
 
-    /**
-     * Scale the given network.
-     * The actual scaling value may be different to the one asked, if
-     * the Scalable limit is reached.
-     *
-     * @param n network
-     * @param asked value asked to adjust the scalable active power
-     * @param scalingConvention power convention used for scaling
-     * @return the actual value of the scalable active power adjustment
-     * @see ScalingConvention
-     */
-    double scale(Network n, double asked, ScalingConvention scalingConvention);
-
-    /**
-     * Scale the given network using Generator convention by default.
-     * If the object is a load, scaling is done with constant power factor.
-     * @param n network
-     * @param asked value asked to adjust the scalable active power and reactive power if load
-     * @return the actual value of the scalable active power adjustment
-     */
-    default double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scale(n, asked);
-    }
-
-    /**
-     * Scale the given network.
-     * The actual scaling value may be different to the one asked, if
-     * the Scalable limit is reached. If the Scalable is a load, the power factor is kept constant.
-     * @param n network
-     * @param asked value asked to adjust the scalable active power and reactive power if load
-     * @param scalingConvention power convention used for scaling
-     * @return the actual value of the scalable active power adjustment
-     */
-    default double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
-        return scale(n, asked, scalingConvention);
+    default double scale(Network n, double asked) {
+        return scale(n, asked, ScalingContext.getDefault());
     }
 
     /**

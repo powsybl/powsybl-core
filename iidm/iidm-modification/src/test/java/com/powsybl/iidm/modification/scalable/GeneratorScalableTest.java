@@ -6,15 +6,18 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
+import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.GENERATOR;
+import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.LOAD;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,8 +33,6 @@ class GeneratorScalableTest {
     private Scalable g4;
     private Scalable g5;
     private Scalable unknownGeneratorScalable;
-
-    private ScalingConvention convention;
 
     @BeforeEach
     void setUp() {
@@ -173,22 +174,20 @@ class GeneratorScalableTest {
     @Test
     void testGeneratorScaleGeneratorConvention() {
         //test with ScalingConvention.GENERATOR (by default)
-        convention = GENERATOR;
-
-        assertEquals(0, unknownGeneratorScalable.scale(network, 30, convention), 1e-3);
+        assertEquals(0, unknownGeneratorScalable.scale(network, 30), 1e-3);
 
         Generator generator1 = network.getGenerator("g1");
 
         //test GeneratorScalable without min and max values defined
         g1.reset(network);
         assertEquals(0, generator1.getTargetP(), 1e-3);
-        assertEquals(50, g1.scale(network, 50, convention), 1e-3);
+        assertEquals(50, g1.scale(network, 50), 1e-3);
         assertEquals(50, generator1.getTargetP(), 1e-3);
         assertEquals(100, g1.maximumValue(network), 1e-3);
         assertEquals(0, g1.minimumValue(network), 1e-3);
-        assertEquals(50, g1.scale(network, 60, convention), 1e-3);
+        assertEquals(50, g1.scale(network, 60), 1e-3);
         assertEquals(100, generator1.getTargetP(), 1e-3);
-        assertEquals(-100, g1.scale(network, -120, convention), 1e-3);
+        assertEquals(-100, g1.scale(network, -120), 1e-3);
         assertEquals(0, generator1.getTargetP(), 1e-3);
 
         //test GeneratorScalable with min and max values defined
@@ -196,53 +195,52 @@ class GeneratorScalableTest {
         Generator generator2 = network.getGenerator("g2");
         g2.reset(network);
         assertEquals(0, generator2.getTargetP(), 1e-3);
-        assertEquals(50, g2.scale(network, 50, convention), 1e-3);
+        assertEquals(50, g2.scale(network, 50), 1e-3);
         assertEquals(50, generator2.getTargetP(), 1e-3);
         assertEquals(100, g2.maximumValue(network), 1e-3);
         assertEquals(0, g2.minimumValue(network), 1e-3);
-        assertEquals(50, g2.scale(network, 60, convention), 1e-3);
+        assertEquals(50, g2.scale(network, 60), 1e-3);
         assertEquals(100, generator2.getTargetP(), 1e-3);
-        assertEquals(-100, g2.scale(network, -120, convention), 1e-3);
+        assertEquals(-100, g2.scale(network, -120), 1e-3);
         assertEquals(0, generator2.getTargetP(), 1e-3);
 
         //Case 2 : GeneratorScalable.maxValue < generator.getMaxP()
         g4.reset(network);
         assertEquals(0, generator2.getTargetP(), 1e-3);
         assertEquals(80, g4.maximumValue(network), 1e-3);
-        assertEquals(80, g4.scale(network, 100, convention), 1e-3);
+        assertEquals(80, g4.scale(network, 100), 1e-3);
         assertEquals(80, generator2.getTargetP(), 1e-3);
 
         //Case 3 : GeneratorScalable.minValue > generator.getMinP()
         assertEquals(80, generator2.getTargetP(), 1e-3);
         assertEquals(20, g5.minimumValue(network), 1e-3);
-        assertEquals(-60, g5.scale(network, -80, convention), 1e-3);
+        assertEquals(-60, g5.scale(network, -80), 1e-3);
         assertEquals(20, generator2.getTargetP(), 1e-3);
 
         g5.reset(network);
         //Case 4 : generator.getTargetP() not in interval, skipped
         assertEquals(0, generator2.getTargetP(), 1e-3);
-        assertEquals(0, g5.scale(network, 50, convention), 1e-3);
+        assertEquals(0, g5.scale(network, 50), 1e-3);
     }
 
     @Test
     void testGeneratorScaleLoadConvention() {
         //test with ScalingConvention.LOAD
-        convention = LOAD;
-
-        assertEquals(0, unknownGeneratorScalable.scale(network, 30, convention), 1e-3);
+        ScalingContext context = new ScalingContext(LOAD);
+        assertEquals(0, unknownGeneratorScalable.scale(network, 30, context), 1e-3);
 
         Generator generator1 = network.getGenerator("g1");
 
         //test GeneratorScalable without min and max values defined
         g1.reset(network);
         assertEquals(0, generator1.getTargetP(), 1e-3);
-        assertEquals(-50, g1.scale(network, -50, convention), 1e-3);
+        assertEquals(-50, g1.scale(network, -50, context), 1e-3);
         assertEquals(50, generator1.getTargetP(), 1e-3);
         assertEquals(100, g1.maximumValue(network), 1e-3);
         assertEquals(0, g1.minimumValue(network), 1e-3);
-        assertEquals(-50, g1.scale(network, -60, convention), 1e-3);
+        assertEquals(-50, g1.scale(network, -60, context), 1e-3);
         assertEquals(100, generator1.getTargetP(), 1e-3);
-        assertEquals(100, g1.scale(network, 120, convention), 1e-3);
+        assertEquals(100, g1.scale(network, 120, context), 1e-3);
         assertEquals(0, generator1.getTargetP(), 1e-3);
 
         //test GeneratorScalable with min and max values defined
@@ -250,32 +248,43 @@ class GeneratorScalableTest {
         Generator generator2 = network.getGenerator("g2");
         g2.reset(network);
         assertEquals(0, generator2.getTargetP(), 1e-3);
-        assertEquals(-50, g2.scale(network, -50, convention), 1e-3);
+        assertEquals(-50, g2.scale(network, -50, context), 1e-3);
         assertEquals(50, generator2.getTargetP(), 1e-3);
         assertEquals(100, g2.maximumValue(network), 1e-3);
         assertEquals(0, g2.minimumValue(network), 1e-3);
-        assertEquals(-50, g2.scale(network, -60, convention), 1e-3);
+        assertEquals(-50, g2.scale(network, -60, context), 1e-3);
         assertEquals(100, generator2.getTargetP(), 1e-3);
-        assertEquals(100, g2.scale(network, 120, convention), 1e-3);
+        assertEquals(100, g2.scale(network, 120, context), 1e-3);
         assertEquals(0, generator2.getTargetP(), 1e-3);
 
         //Case 2 : GeneratorScalable.maxValue < generator.getMaxP()
         g4.reset(network);
         assertEquals(0, generator2.getTargetP(), 1e-3);
         assertEquals(80, g4.maximumValue(network), 1e-3);
-        assertEquals(-80, g4.scale(network, -100, convention), 1e-3);
+        assertEquals(-80, g4.scale(network, -100, context), 1e-3);
         assertEquals(80, generator2.getTargetP(), 1e-3);
 
         //Case 3 : GeneratorScalable.minValue > generator.getMinP()
         assertEquals(80, generator2.getTargetP(), 1e-3);
         assertEquals(20, g5.minimumValue(network), 1e-3);
-        assertEquals(60, g5.scale(network, 80, convention), 1e-3);
+        assertEquals(60, g5.scale(network, 80, context), 1e-3);
         assertEquals(20, generator2.getTargetP(), 1e-3);
 
         g5.reset(network);
         //Case 4 : generator.getTargetP() not in interval, skipped
         assertEquals(0, generator2.getTargetP(), 1e-3);
-        assertEquals(0, g5.scale(network, 50, convention), 1e-3);
+        assertEquals(0, g5.scale(network, 50, context), 1e-3);
     }
 
+    @Test
+    void testReconnect() {
+        Generator generator = network.getGenerator("g1");
+        generator.getTerminal().disconnect();
+        assertFalse(generator.getTerminal().isConnected());
+        assertEquals(0.0, generator.getTargetP(), 1e-3);
+
+        assertEquals(20.0, g1.scale(network, 20.0, new ScalingContext(true, false)), 1e-3);
+        assertEquals(20.0, generator.getTargetP(), 1e-3);
+        assertTrue(generator.getTerminal().isConnected());
+    }
 }

@@ -106,9 +106,9 @@ class GeneratorScalable extends AbstractInjectionScalable {
      * If scalingConvention is LOAD, the generator active power decreases for positive "asked" and increases inversely
      */
     @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
+    public double scale(Network n, double asked, ScalingContext context) {
         Objects.requireNonNull(n);
-        Objects.requireNonNull(scalingConvention);
+        Objects.requireNonNull(context);
 
         Generator g = n.getGenerator(id);
         double done = 0;
@@ -118,7 +118,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
         }
 
         Terminal t = g.getTerminal();
-        if (!t.isConnected()) {
+        if (!t.isConnected() && context.isReconnect()) {
             new ConnectGenerator(g.getId()).apply(n);
             LOGGER.info("Connecting {}", g.getId());
         }
@@ -136,7 +136,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
         double availableUp = maximumTargetP - oldTargetP;
         double availableDown = oldTargetP - minimumTargetP;
 
-        if (scalingConvention == GENERATOR) {
+        if (context.getScalingConvention() == GENERATOR) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             g.setTargetP(oldTargetP + done);
         } else {
