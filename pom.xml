@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>9</version>
+        <version>10</version>
         <relativePath/>
     </parent>
 
@@ -137,9 +137,6 @@
         <zstdjni.version>1.5.2-5</zstdjni.version>
 
         <powsyblmathnative.version>1.2.1</powsyblmathnative.version>
-
-        <!-- FIXME to remove when updating to parent v9 -->
-        <maven.jacoco.version>0.8.8</maven.jacoco.version>
     </properties>
 
     <profiles>
