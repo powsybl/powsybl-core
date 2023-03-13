@@ -81,7 +81,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonShortCircuitParameters.getExtensionSerializers(), parameters);
                     break;
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         JsonShortCircuitParameters.getExtensionSerializers().addExtensions(parameters, extensions);

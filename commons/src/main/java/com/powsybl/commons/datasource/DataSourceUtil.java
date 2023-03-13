@@ -57,7 +57,7 @@ public interface DataSourceUtil {
                 case ZSTD:
                     return new ZstdFileDataSource(directory, basename, observer);
                 default:
-                    throw new AssertionError("Unexpected CompressionFormat value: " + compressionExtension);
+                    throw new IllegalStateException("Unexpected CompressionFormat value: " + compressionExtension);
             }
         }
     }

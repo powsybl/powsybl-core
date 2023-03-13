@@ -52,7 +52,7 @@ public class ListOfContingencyListsDeserializer extends StdDeserializer<ListOfCo
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new ListOfContingencyLists(name, contingencyLists);

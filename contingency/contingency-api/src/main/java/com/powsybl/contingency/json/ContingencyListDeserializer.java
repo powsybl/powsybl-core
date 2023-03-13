@@ -50,7 +50,7 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
                         ListOfContingencyListsDeserializer listOfContingencyListsDeserializer = new ListOfContingencyListsDeserializer();
                         return listOfContingencyListsDeserializer.deserialize(parser, deserializationContext);
                     default:
-                        throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                        throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
                 }
             }
             parser.nextToken();

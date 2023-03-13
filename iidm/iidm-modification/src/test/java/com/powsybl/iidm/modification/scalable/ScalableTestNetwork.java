@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.*;
  */
 final class ScalableTestNetwork {
     private ScalableTestNetwork() {
-        throw new AssertionError("No default constructor in utility class");
+        throw new IllegalStateException("No default constructor in utility class");
     }
 
     static Network createNetwork() {

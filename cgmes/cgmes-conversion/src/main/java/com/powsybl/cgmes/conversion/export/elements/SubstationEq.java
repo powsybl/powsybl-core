@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
@@ -16,9 +17,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class SubstationEq {
 
-    public static void write(String id, String substationName, String subGeographicalRegionId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("Substation", id, substationName, cimNamespace, writer);
-        CgmesExportUtil.writeReference("Substation.Region", subGeographicalRegionId, cimNamespace, writer);
+    public static void write(String id, String substationName, String subGeographicalRegionId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("Substation", id, substationName, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("Substation.Region", subGeographicalRegionId, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 

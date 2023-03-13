@@ -40,7 +40,7 @@ class BashCommandTest {
 
         BashOption option1 = options.get(0);
         assertEquals("--file", option1.getName());
-        assertEquals("FILE", option1.getArgName().orElseThrow(AssertionError::new));
+        assertEquals("FILE", option1.getArgName().orElseThrow(IllegalStateException::new));
         assertTrue(option1.hasArg());
         assertNull(option1.getType());
         assertNull(option1.getPossibleValues());

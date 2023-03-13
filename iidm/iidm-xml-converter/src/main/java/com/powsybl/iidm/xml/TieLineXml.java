@@ -34,7 +34,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected boolean hasSubElements(TieLine tl) {
-        throw new AssertionError("Should not be called");
+        throw new IllegalStateException("Should not be called");
     }
 
     @Override

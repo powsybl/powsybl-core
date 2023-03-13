@@ -65,7 +65,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             case TWTS3W:
                 return getTwt3wColumns();
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + validationType);
+                throw new IllegalStateException("Unexpected ValidationType value: " + validationType);
         }
     }
 

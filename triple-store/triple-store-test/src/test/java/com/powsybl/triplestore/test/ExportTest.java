@@ -68,7 +68,7 @@ class ExportTest {
     }
 
     private PropertyBag createBaseVoltageProperties() {
-        PropertyBag baseVoltageProperties = new PropertyBag(Arrays.asList("IdentifiedObject.name", "nominalVoltage"));
+        PropertyBag baseVoltageProperties = new PropertyBag(Arrays.asList("IdentifiedObject.name", "nominalVoltage"), true);
         baseVoltageProperties.setClassPropertyNames(Arrays.asList("IdentifiedObject.name"));
         baseVoltageProperties.put("IdentifiedObject.name", bvName);
         baseVoltageProperties.put("nominalVoltage", Double.toString(nominalVoltage));
@@ -76,7 +76,7 @@ class ExportTest {
     }
 
     private PropertyBag createVoltageLevelProperties(String baseVoltageId, String vlName, String substationId) {
-        PropertyBag voltageLevelProperties = new PropertyBag(Arrays.asList("IdentifiedObject.name", "Substation", "BaseVoltage"));
+        PropertyBag voltageLevelProperties = new PropertyBag(Arrays.asList("IdentifiedObject.name", "Substation", "BaseVoltage"), true);
         voltageLevelProperties.setResourceNames(Arrays.asList("Substation", "BaseVoltage"));
         voltageLevelProperties.setClassPropertyNames(Arrays.asList("IdentifiedObject.name"));
         voltageLevelProperties.put("IdentifiedObject.name", vlName);

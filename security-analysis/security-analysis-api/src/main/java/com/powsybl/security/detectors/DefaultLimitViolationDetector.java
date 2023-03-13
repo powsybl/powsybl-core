@@ -93,7 +93,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
                     value,
                     side));
         } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
-            checkPermanentLimit(branch, side, value, consumer, type);
+            checkPermanentLimit(branch, side, limitReduction, value, consumer, type);
         }
     }
 }

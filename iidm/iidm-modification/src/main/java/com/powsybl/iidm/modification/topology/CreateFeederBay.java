@@ -81,7 +81,7 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
         } else if (injectionAdder instanceof VscConverterStationAdder) {
             return ((VscConverterStationAdder) injectionAdder).add();
         } else {
-            throw new AssertionError("Given InjectionAdder not supported: " + injectionAdder.getClass().getName());
+            throw new IllegalStateException("Given InjectionAdder not supported: " + injectionAdder.getClass().getName());
         }
     }
 

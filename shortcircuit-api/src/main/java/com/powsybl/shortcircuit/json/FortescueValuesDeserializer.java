@@ -60,7 +60,7 @@ class FortescueValuesDeserializer extends StdDeserializer<FortescueValue> {
                     inversePhase = parser.readValueAs(Double.class);
                     break;
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new FortescueValue(directMagnitude, zeroMagnitude, inverseMagnitude, directPhase, zeroPhase, inversePhase);
