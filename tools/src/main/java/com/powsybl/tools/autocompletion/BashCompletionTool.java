@@ -75,7 +75,7 @@ public class BashCompletionTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions options = new ToolOptions(line, context);
-        Path outputPath = options.getPath(OUTPUT_FILE).orElseThrow(AssertionError::new);
+        Path outputPath = options.getPath(OUTPUT_FILE).orElseThrow(IllegalStateException::new);
 
         List<Tool> tools = new ServiceLoaderCache<>(Tool.class).getServices();
         generateCompletionScript(tools, outputPath);

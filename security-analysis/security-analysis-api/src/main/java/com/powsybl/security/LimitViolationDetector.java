@@ -242,19 +242,20 @@ public interface LimitViolationDetector {
      * Generic implementation for permanent limit checks
      * @param branch
      * @param side
+     * @param limitReduction
      * @param value
      * @param consumer
      * @param type
      */
-    default void checkPermanentLimit(Branch<?> branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        if (LimitViolationUtils.checkPermanentLimit(branch, side, 1.0f, value, type)) {
+    default void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
             consumer.accept(new LimitViolation(branch.getId(),
                     ((Branch<?>) branch).getOptionalName().orElse(null),
                     toLimitViolationType(type),
-                    null,
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
                     Integer.MAX_VALUE,
                     branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new),
-                    1.0f,
+                    limitReduction,
                     value,
                     side));
         }

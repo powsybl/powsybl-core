@@ -87,12 +87,12 @@ class Cgmes3ConversionTest {
         assertEquals(1312.0, ln.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         assertEquals(1, (int) ln.getCurrentLimits1().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl1 = ln.getCurrentLimits1().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(AssertionError::new);
+        TemporaryLimit lntl1 = ln.getCurrentLimits1().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, lntl1.getValue(), 0.0);
         assertEquals(10, lntl1.getAcceptableDuration());
 
         assertEquals(1, (int) ln.getCurrentLimits2().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl2 = ln.getCurrentLimits2().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(AssertionError::new);
+        TemporaryLimit lntl2 = ln.getCurrentLimits2().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, lntl2.getValue(), 0.0);
         assertEquals(10, lntl2.getAcceptableDuration());
 
@@ -101,12 +101,12 @@ class Cgmes3ConversionTest {
         assertEquals(1226.0, tln.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         assertEquals(1, (int) tln.getCurrentLimits1().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit tlntl1 = tln.getCurrentLimits1().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(AssertionError::new);
+        TemporaryLimit tlntl1 = tln.getCurrentLimits1().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, tlntl1.getValue(), 0.0);
         assertEquals(10, tlntl1.getAcceptableDuration());
 
         assertEquals(1, (int) tln.getCurrentLimits2().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit tlntl2 = ln.getCurrentLimits2().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(AssertionError::new);
+        TemporaryLimit tlntl2 = ln.getCurrentLimits2().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, tlntl2.getValue(), 0.0);
         assertEquals(10, tlntl2.getAcceptableDuration());
     }
@@ -219,12 +219,12 @@ class Cgmes3ConversionTest {
         assertEquals(1000.0, ln.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         assertEquals(1, (int) ln.getCurrentLimits1().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl1 = ln.getCurrentLimits1().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(AssertionError::new);
+        TemporaryLimit lntl1 = ln.getCurrentLimits1().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, lntl1.getValue(), 0.0);
         assertEquals(900, lntl1.getAcceptableDuration());
 
         assertEquals(1, (int) ln.getCurrentLimits2().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl2 = ln.getCurrentLimits2().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(AssertionError::new);
+        TemporaryLimit lntl2 = ln.getCurrentLimits2().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, lntl2.getValue(), 0.0);
         assertEquals(900, lntl2.getAcceptableDuration());
     }
@@ -277,12 +277,12 @@ class Cgmes3ConversionTest {
         assertEquals(2970.0, ln.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         assertEquals(1, (int) ln.getCurrentLimits1().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl1 = ln.getCurrentLimits1().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(AssertionError::new);
+        TemporaryLimit lntl1 = ln.getCurrentLimits1().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, lntl1.getValue(), 0.0);
         assertEquals(600, lntl1.getAcceptableDuration());
 
         assertEquals(1, (int) ln.getCurrentLimits2().map(l -> l.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit lntl2 = ln.getCurrentLimits2().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(AssertionError::new);
+        TemporaryLimit lntl2 = ln.getCurrentLimits2().flatMap(l -> l.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, lntl2.getValue(), 0.0);
         assertEquals(600, lntl2.getAcceptableDuration());
     }

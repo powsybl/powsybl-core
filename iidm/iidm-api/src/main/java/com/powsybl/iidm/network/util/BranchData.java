@@ -431,7 +431,7 @@ public class BranchData {
             case TWO:
                 return computedP2;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new IllegalStateException("Unexpected side: " + side);
         }
     }
 
@@ -443,7 +443,7 @@ public class BranchData {
             case TWO:
                 return computedQ2;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new IllegalStateException("Unexpected side: " + side);
         }
     }
 

@@ -347,7 +347,7 @@ class SecurityAnalysisExecutionHandlersTest {
         assertEquals("c2", result.getPostContingencyResults().get(1).getContingency().getId());
 
         byte[] logBytes = report.getLogBytes()
-                .orElseThrow(AssertionError::new);
+                .orElseThrow(IllegalStateException::new);
         Set<String> foundNames = getFileNamesFromZip(logBytes);
         assertEquals(expectedLogs, foundNames);
     }
@@ -395,7 +395,7 @@ class SecurityAnalysisExecutionHandlersTest {
         assertTrue(report.getLogBytes().isPresent());
 
         byte[] logBytes = report.getLogBytes()
-                .orElseThrow(AssertionError::new);
+                .orElseThrow(IllegalStateException::new);
         Set<String> foundNames = getFileNamesFromZip(logBytes);
         assertEquals(expectedLogs, foundNames);
     }

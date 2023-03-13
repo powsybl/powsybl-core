@@ -631,4 +631,10 @@ public final class JsonUtil {
             jsonGenerator.writeNumberField(field, optional.getAsDouble());
         }
     }
+
+    public static void writeOptionalBoolean(JsonGenerator jsonGenerator, String field, Optional<Boolean> optional) throws IOException {
+        if (optional.isPresent()) {
+            jsonGenerator.writeBooleanField(field, optional.get());
+        }
+    }
 }

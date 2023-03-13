@@ -324,7 +324,7 @@ public class TimeSeriesTable {
             } else if (timeSeries instanceof StringTimeSeries) {
                 stringTimeSeries.add((StringTimeSeries) timeSeries);
             } else {
-                throw new AssertionError("Unsupported time series type " + timeSeries.getClass());
+                throw new IllegalStateException("Unsupported time series type " + timeSeries.getClass());
             }
         }
 
@@ -605,7 +605,7 @@ public class TimeSeriesTable {
                     cache.stringCache[cachedPoint * stringTimeSeriesNames.size() + timeSeriesNum] = stringBuffer.getString(timeSeriesOffset + point + cachedPoint);
                 }
             } else {
-                throw new AssertionError("Unexpected data type " + metadata.getDataType());
+                throw new IllegalStateException("Unexpected data type " + metadata.getDataType());
             }
         }
     }
@@ -640,7 +640,7 @@ public class TimeSeriesTable {
                     String value = cache.stringCache[cachedPoint * stringTimeSeriesNames.size() + timeSeriesNum];
                     writeString(writer, value);
                 } else {
-                    throw new AssertionError("Unexpected data type " + metadata.getDataType());
+                    throw new IllegalStateException("Unexpected data type " + metadata.getDataType());
                 }
             }
             writer.write(System.lineSeparator());
@@ -661,7 +661,7 @@ public class TimeSeriesTable {
                 writer.write(Long.toString(time));
                 break;
             default:
-                throw new AssertionError("Unknown time format " + timeSeriesCsvConfig.timeFormat());
+                throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
         }
     }
 
