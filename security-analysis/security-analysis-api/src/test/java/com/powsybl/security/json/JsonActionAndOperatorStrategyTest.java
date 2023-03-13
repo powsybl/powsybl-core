@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
 import static org.junit.jupiter.api.Assertions.*;
 import static com.powsybl.security.LimitViolationType.*;
 
@@ -68,6 +69,32 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 15.0));
         actions.add(RatioTapChangerRegulationAction.activateRegulationAndChangeTargetV("id20", "transformerId5", 90.0));
         actions.add(RatioTapChangerRegulationAction.deactivateRegulation("id21", "transformerId5", ThreeWindingsTransformer.Side.THREE));
+        actions.add(new HvdcActionBuilder()
+                .withId("id22")
+                .withHvdcId("hvdc1")
+                .withAcEmulationEnabled(false)
+                .build());
+        actions.add(new HvdcActionBuilder()
+                .withId("id23")
+                .withHvdcId("hvdc2")
+                .withAcEmulationEnabled(true)
+                .build());
+        actions.add(new HvdcActionBuilder()
+                .withId("id24")
+                .withHvdcId("hvdc2")
+                .withAcEmulationEnabled(true)
+                .withDroop(121.0)
+                .withP0(42.0)
+                .withConverterMode(SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+                .withRelativeValue(false)
+                .build());
+        actions.add(new HvdcActionBuilder()
+                .withId("id25")
+                .withHvdcId("hvdc1")
+                .withAcEmulationEnabled(false)
+                .withActivePowerSetpoint(12.0)
+                .withRelativeValue(true)
+                .build());
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

@@ -25,7 +25,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
-    private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuraction1, acceptableDuraction2) -> acceptableDuraction2 - acceptableDuraction1;
+    private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
     protected final OperationalLimitsOwner owner;
 
