@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.LccConverterStationAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class LccConverterStationAdderAdapter extends AbstractHvdcConverterStationAdderAdapter<LccConverterStationAdder, LccConverterStation> implements LccConverterStationAdder {
+public class LccConverterStationAdderAdapter extends AbstractHvdcConverterStationAdderAdapter<LccConverterStation, LccConverterStationAdder> implements LccConverterStationAdder {
 
     LccConverterStationAdderAdapter(LccConverterStationAdder delegate, MergingViewIndex index) {
         super(delegate, index);

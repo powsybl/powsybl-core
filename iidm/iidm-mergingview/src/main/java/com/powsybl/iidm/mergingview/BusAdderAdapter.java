@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.BusAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class BusAdderAdapter extends AbstractIdentifiableAdderAdapter<BusAdder, Bus> implements BusAdder {
+public class BusAdderAdapter extends AbstractIdentifiableAdderAdapter<Bus, BusAdder> implements BusAdder {
 
     BusAdderAdapter(final BusAdder delegate, final MergingViewIndex index) {
         super(delegate, index);

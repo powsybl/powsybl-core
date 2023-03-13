@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.HvdcConverterStationAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-abstract class AbstractHvdcConverterStationAdderAdapter<I extends HvdcConverterStationAdder<I, J>, J extends HvdcConverterStation<J>> extends AbstractInjectionAdderAdapter<I, J> implements HvdcConverterStationAdder<I, J> {
+abstract class AbstractHvdcConverterStationAdderAdapter<T extends HvdcConverterStation, I extends HvdcConverterStationAdder<T, I>> extends AbstractInjectionAdderAdapter<T, I> implements HvdcConverterStationAdder<T, I> {
 
     protected AbstractHvdcConverterStationAdderAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);

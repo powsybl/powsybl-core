@@ -24,7 +24,7 @@ package com.powsybl.iidm.network;
  * @see Battery
  * @see VoltageLevel
  */
-public interface BatteryAdder extends InjectionAdder<BatteryAdder, Battery> {
+public interface BatteryAdder extends InjectionAdder<Battery, BatteryAdder> {
 
     /**
      * @deprecated Use {@link #setTargetP(double)} instead.

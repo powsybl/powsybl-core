@@ -12,7 +12,7 @@ package com.powsybl.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public interface HvdcLineAdder extends IdentifiableAdder<HvdcLineAdder, HvdcLine> {
+public interface HvdcLineAdder extends IdentifiableAdder<HvdcLine, HvdcLineAdder> {
 
     HvdcLineAdder setR(double r);
 

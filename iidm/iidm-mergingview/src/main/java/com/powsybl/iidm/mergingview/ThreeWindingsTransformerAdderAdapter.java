@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class ThreeWindingsTransformerAdderAdapter extends AbstractIdentifiableAdderAdapter<ThreeWindingsTransformerAdder, ThreeWindingsTransformer> implements ThreeWindingsTransformerAdder {
+public class ThreeWindingsTransformerAdderAdapter extends AbstractIdentifiableAdderAdapter<ThreeWindingsTransformer, ThreeWindingsTransformerAdder> implements ThreeWindingsTransformerAdder {
 
     private class LegAdderAdapter extends AbstractAdapter<ThreeWindingsTransformerAdder.LegAdder> implements ThreeWindingsTransformerAdder.LegAdder {
 

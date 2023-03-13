@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<DanglingLineAdder, DanglingLine> implements DanglingLineAdder {
+public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<DanglingLine, DanglingLineAdder> implements DanglingLineAdder {
 
     class GenerationAdderAdapter implements GenerationAdder {
 

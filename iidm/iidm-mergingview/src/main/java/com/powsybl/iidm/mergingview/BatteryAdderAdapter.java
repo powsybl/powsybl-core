@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.BatteryAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class BatteryAdderAdapter extends AbstractInjectionAdderAdapter<BatteryAdder, Battery> implements BatteryAdder {
+public class BatteryAdderAdapter extends AbstractInjectionAdderAdapter<Battery, BatteryAdder> implements BatteryAdder {
 
     BatteryAdderAdapter(final BatteryAdder delegate, final MergingViewIndex index) {
         super(delegate, index);

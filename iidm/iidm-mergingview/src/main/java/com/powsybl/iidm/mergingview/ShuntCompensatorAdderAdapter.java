@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class ShuntCompensatorAdderAdapter extends AbstractInjectionAdderAdapter<ShuntCompensatorAdder, ShuntCompensator> implements ShuntCompensatorAdder {
+public class ShuntCompensatorAdderAdapter extends AbstractInjectionAdderAdapter<ShuntCompensator, ShuntCompensatorAdder> implements ShuntCompensatorAdder {
 
     ShuntCompensatorAdderAdapter(final ShuntCompensatorAdder delegate, final MergingViewIndex index) {
         super(delegate, index);

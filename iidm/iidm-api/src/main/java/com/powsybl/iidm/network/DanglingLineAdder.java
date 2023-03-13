@@ -25,7 +25,7 @@ package com.powsybl.iidm.network;
  * @see DanglingLine
  * @see VoltageLevel
  */
-public interface DanglingLineAdder extends InjectionAdder<DanglingLineAdder, DanglingLine> {
+public interface DanglingLineAdder extends InjectionAdder<DanglingLine, DanglingLineAdder> {
 
     interface GenerationAdder {
 

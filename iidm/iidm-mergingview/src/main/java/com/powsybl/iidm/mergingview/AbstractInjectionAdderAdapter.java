@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.InjectionAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-abstract class AbstractInjectionAdderAdapter<I extends InjectionAdder<I, J>, J extends Injection<J>> extends AbstractIdentifiableAdderAdapter<I, J> implements InjectionAdder<I, J> {
+abstract class AbstractInjectionAdderAdapter<T extends Injection, I extends InjectionAdder<T, I>> extends AbstractIdentifiableAdderAdapter<T, I> implements InjectionAdder<T, I> {
 
     protected AbstractInjectionAdderAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);

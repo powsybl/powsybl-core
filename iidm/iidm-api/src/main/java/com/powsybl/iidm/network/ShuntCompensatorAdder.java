@@ -24,7 +24,7 @@ package com.powsybl.iidm.network;
  * @see ShuntCompensator
  * @see VoltageLevel
  */
-public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAdder, ShuntCompensator> {
+public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, ShuntCompensatorAdder> {
 
     ShuntCompensatorLinearModelAdder newLinearModel();
 

@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TieLineAdder extends BranchAdder<TieLineAdder, TieLine> {
+public interface TieLineAdder extends BranchAdder<TieLine, TieLineAdder> {
 
     interface HalfLineAdder {
 

@@ -12,7 +12,7 @@ package com.powsybl.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscConverterStationAdder, VscConverterStation> {
+public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscConverterStation, VscConverterStationAdder> {
 
     VscConverterStationAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
 

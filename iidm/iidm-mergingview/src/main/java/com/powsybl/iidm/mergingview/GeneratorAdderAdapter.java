@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Terminal;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class GeneratorAdderAdapter extends AbstractInjectionAdderAdapter<GeneratorAdder, Generator> implements GeneratorAdder {
+public class GeneratorAdderAdapter extends AbstractInjectionAdderAdapter<Generator, GeneratorAdder> implements GeneratorAdder {
 
     GeneratorAdderAdapter(final GeneratorAdder delegate, final MergingViewIndex index) {
         super(delegate, index);

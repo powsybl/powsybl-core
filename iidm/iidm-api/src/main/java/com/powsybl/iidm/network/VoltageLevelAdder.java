@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface VoltageLevelAdder extends IdentifiableAdder<VoltageLevelAdder, VoltageLevel> {
+public interface VoltageLevelAdder extends IdentifiableAdder<VoltageLevel, VoltageLevelAdder> {
 
     VoltageLevelAdder setNominalV(double nominalV);
 

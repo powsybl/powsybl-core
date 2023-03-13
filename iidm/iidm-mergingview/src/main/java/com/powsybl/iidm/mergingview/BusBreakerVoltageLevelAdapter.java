@@ -24,7 +24,7 @@ class BusBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
 
     class BusBreakerViewAdapter extends AbstractAdapter<BusBreakerView> implements BusBreakerViewExt {
 
-        final class SwitchAdderAdapter extends AbstractIdentifiableAdderAdapter<SwitchAdder, Switch> implements SwitchAdder {
+        final class SwitchAdderAdapter extends AbstractIdentifiableAdderAdapter<Switch, SwitchAdder> implements SwitchAdder {
 
             SwitchAdderAdapter(final SwitchAdder delegate, final MergingViewIndex index) {
                 super(delegate, index);
