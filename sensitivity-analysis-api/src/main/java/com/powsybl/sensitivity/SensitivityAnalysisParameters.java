@@ -6,7 +6,6 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
@@ -29,16 +28,9 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
     static final double FLOW_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
     static final double ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
 
-    @JsonProperty("flow-sensitivity-value-threshold")
     private double flowSensitivityValueThreshold = FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
-
-    @JsonProperty("voltage-sensitivity-value-threshold")
     private double voltageSensitivityValueThreshold = VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
-
-    @JsonProperty("flow-voltage-sensitivity-value-threshold")
     private double flowVoltageSensitivityValueThreshold = FLOW_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
-
-    @JsonProperty("angle-flow-sensitivity-value-threshold")
     private double angleFlowSensitivityValueThreshold = ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
