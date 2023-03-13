@@ -219,7 +219,7 @@ public final class CgmesExportUtil {
                     case TWO:
                         return 2;
                     default:
-                        throw new AssertionError("Incorrect branch side " + ((Branch<?>) c).getSide(t));
+                        throw new IllegalStateException("Incorrect branch side " + ((Branch<?>) c).getSide(t));
                 }
             } else if (c instanceof ThreeWindingsTransformer) {
                 switch (((ThreeWindingsTransformer) c).getSide(t)) {
@@ -230,7 +230,7 @@ public final class CgmesExportUtil {
                     case THREE:
                         return 3;
                     default:
-                        throw new AssertionError("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
+                        throw new IllegalStateException("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
                 }
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());

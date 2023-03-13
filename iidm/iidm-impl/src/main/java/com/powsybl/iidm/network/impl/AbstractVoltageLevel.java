@@ -154,7 +154,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
                     || ((ThreeWindingsTransformer) connectable).getLeg3().getTerminal().getVoltageLevel() == this
                     ? connectable : null;
         } else {
-            throw new AssertionError();
+            throw new IllegalStateException();
         }
     }
 
@@ -430,7 +430,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             } else if (branch.getTerminal2() == otherTerminal) {
                 nextTerminals.add((TerminalExt) branch.getTerminal1());
             } else {
-                throw new AssertionError();
+                throw new IllegalStateException();
             }
         } else if (otherConnectable instanceof ThreeWindingsTransformer) {
             ThreeWindingsTransformer ttc = (ThreeWindingsTransformer) otherConnectable;
@@ -444,7 +444,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
                 nextTerminals.add((TerminalExt) ttc.getLeg1().getTerminal());
                 nextTerminals.add((TerminalExt) ttc.getLeg2().getTerminal());
             } else {
-                throw new AssertionError();
+                throw new IllegalStateException();
             }
         }
     }

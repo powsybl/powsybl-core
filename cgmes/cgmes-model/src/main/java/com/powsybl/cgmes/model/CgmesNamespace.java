@@ -135,12 +135,12 @@ public final class CgmesNamespace {
 
         @Override
         public String getProfileUri(String profile) {
-            throw new AssertionError("Unsupported CIM version 14");
+            throw new IllegalStateException("Unsupported CIM version 14");
         }
 
         @Override
         public String getProfile(String profileUri) {
-            throw new AssertionError("Unsupported CIM version 14");
+            throw new IllegalStateException("Unsupported CIM version 14");
         }
 
         @Override

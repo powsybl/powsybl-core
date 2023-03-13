@@ -166,7 +166,7 @@ public final class TopologyModificationUtils {
             int node = terminal.getNodeBreakerView().getNode();
             nodeSetter.accept(node, adder);
         } else {
-            throw new AssertionError();
+            throw new IllegalStateException();
         }
     }
 
@@ -503,7 +503,7 @@ public final class TopologyModificationUtils {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reporter, connectable);
             if (throwException) {
-                throw new AssertionError("Given connectable not supported: " + connectable.getClass().getName());
+                throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
             }
             return Collections.emptyList();
         }
@@ -526,7 +526,7 @@ public final class TopologyModificationUtils {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reporter, connectable);
             if (throwException) {
-                throw new AssertionError("Given connectable not supported: " + connectable.getClass().getName());
+                throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
             }
         }
         return Collections.emptyList();

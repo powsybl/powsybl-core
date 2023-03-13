@@ -163,7 +163,7 @@ public final class GeneratorsValidation {
             case PROPORTIONAL_TO_GENERATION_HEADROOM:
                 return Math.max(Math.max(0, minP), Math.min(maxP, targetP + (maxP - targetP) * guesser.getKHeadroom()));
             default:
-                throw new AssertionError("Unhandled Balance Type: " + guesser.getBalanceType());
+                throw new IllegalStateException("Unhandled Balance Type: " + guesser.getBalanceType());
         }
     }
 

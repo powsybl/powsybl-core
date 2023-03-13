@@ -129,7 +129,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
                     break;
 
                 default:
-                    throw new AssertionError("Unknown contingency element type " + element.getType());
+                    throw new IllegalStateException("Unknown contingency element type " + element.getType());
             }
         }
         if (!valid) {

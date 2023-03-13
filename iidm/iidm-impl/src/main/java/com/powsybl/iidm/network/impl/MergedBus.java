@@ -191,7 +191,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
                 return cc;
             }
         }
-        throw new AssertionError("Should not happen");
+        throw new IllegalStateException("Should not happen");
     }
 
     @Override
@@ -211,7 +211,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
                 return sc;
             }
         }
-        throw new AssertionError("Should not happen");
+        throw new IllegalStateException("Should not happen");
     }
 
     @Override

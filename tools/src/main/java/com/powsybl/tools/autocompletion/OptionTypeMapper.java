@@ -128,7 +128,7 @@ public class OptionTypeMapper {
                     });
                     break;
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
         if (option.getType() == null) {
