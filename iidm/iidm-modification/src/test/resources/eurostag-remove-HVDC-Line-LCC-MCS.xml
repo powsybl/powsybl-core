@@ -6,14 +6,6 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="C1_Filter1" name="Filter 1" connectableBus="B1" bus="B1" sectionCount="1"
-                        voltageRegulatorOn="false" q="25.0">
-                <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
-            </iidm:shunt>
-            <iidm:shunt id="C1_Filter2" name="Filter 2" connectableBus="B1" sectionCount="0" voltageRegulatorOn="false"
-                        q="25.0">
-                <iidm:shuntLinearModel bPerSection="2.0E-5" maximumSectionCount="1"/>
-            </iidm:shunt>
         </iidm:voltageLevel>
     </iidm:substation>
 

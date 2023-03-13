@@ -88,21 +88,30 @@ class RemoveHvdcLineTest extends AbstractConverterTest {
         assertNull(network.getVscConverterStation("C2"));
     }
 
- /* @Test
-    void testRemoveLccConverterStation() throws IOException {
-        Network network = createNbNetwork();
-        NetworkModification modification = new RemoveHvdcLineBuilder().withLccConverterStationId("C1").build();
+    @Test
+    void testRemoveHvdcWithLccConverterStation() throws IOException {
+        Network network = HvdcTestNetwork.createLcc();
+        NetworkModification modification = new RemoveHvdcLineBuilder().withHvdcLineId("L", null).build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-remove-HVDC-Line-LCC.xml");
     }
 
     @Test
-    void testRemoveVLRoundTriBB() throws IOException {
-        Network network = createBbNetwork();
-        NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("VLGEN").build();
+    void testRemoveHvdcWithLccConverterStationAndMcs() throws IOException {
+        Network network = HvdcTestNetwork.createLcc();
+        NetworkModification modification = new RemoveHvdcLineBuilder().withHvdcLineId("L", List.of("C1_Filter1","C1_Filter2")).build();
         modification.apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-remove-voltage-level-bb.xml");
-    }*/
+                "/eurostag-remove-HVDC-Line-LCC-MCS.xml");
+    }
+
+    @Test
+    void testRemoveHvdcWithVscConverterStation() throws IOException {
+        Network network = HvdcTestNetwork.createVsc();
+        NetworkModification modification = new RemoveHvdcLineBuilder().withHvdcLineId("L", null).build();
+        modification.apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/eurostag-remove-HVDC-Line-VSC.xml");
+    }
 }
