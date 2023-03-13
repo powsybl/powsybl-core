@@ -14,19 +14,27 @@ import java.util.List;
  */
 
 public class RemoveHvdcLineBuilder {
-    private String hvdcLineId = null;
-    private List<String> mscIds = null;
+    private String hvdcLineId;
+    private List<String> shuntCompensatorIds;
 
     public RemoveHvdcLine build() {
-        return new RemoveHvdcLine(hvdcLineId, mscIds);
+        return new RemoveHvdcLine(hvdcLineId, shuntCompensatorIds);
     }
 
     /**
-     * @param hvdcLineId the non-null ID of the lcc Ccnverter station
+     * @param hvdcLineId the non-null ID of the HVDC line
      */
-    public RemoveHvdcLineBuilder withHvdcLineId(String hvdcLineId, List<String> mscIds) {
+    public RemoveHvdcLineBuilder withHvdcLineId(String hvdcLineId) {
         this.hvdcLineId = hvdcLineId;
-        this.mscIds = mscIds;
+
+        return this;
+    }
+
+    /**
+     * @param shuntCompensatorIds the IDs of the shunt compensator
+     */
+    public RemoveHvdcLineBuilder withShuntCompensatorIds(List<String> shuntCompensatorIds) {
+        this.shuntCompensatorIds = shuntCompensatorIds;
         return this;
     }
 }

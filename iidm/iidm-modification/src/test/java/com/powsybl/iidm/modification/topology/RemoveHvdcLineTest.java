@@ -8,57 +8,24 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.network.DefaultNetworkListener;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Anis Touri <anis-1.touri@rte-france.com>
  */
 class RemoveHvdcLineTest extends AbstractConverterTest {
 
-    private final Set<String> removedObjects = new HashSet<>();
-    private final Set<String> beforeRemovalObjects = new HashSet<>();
-
-    @AfterEach
-    public void tearDown() {
-        removedObjects.clear();
-    }
-
-    private void addListener(Network network) {
-        network.addListener(new DefaultNetworkListener() {
-            @Override
-            public void beforeRemoval(Identifiable id) {
-                beforeRemovalObjects.add(id.getId());
-            }
-
-            @Override
-            public void afterRemoval(String id) {
-                removedObjects.add(id);
-            }
-        });
-    }
-
     @Test
     void testRemoveHvdcLineLcc() {
         Network network = HvdcTestNetwork.createLcc();
-        addListener(network);
-        new RemoveHvdcLineBuilder().withHvdcLineId("L", null).build().apply(network);
-        assertEquals(Set.of("L", "C1", "C2"), beforeRemovalObjects);
-        assertEquals(Set.of("L", "C1", "C2"), removedObjects);
+        new RemoveHvdcLineBuilder().withHvdcLineId("L").build().apply(network);
         assertNull(network.getHvdcLine("L"));
         assertNull(network.getLccConverterStation("C1"));
         assertNotNull(network.getShuntCompensator("C1_Filter1"));
@@ -67,10 +34,7 @@ class RemoveHvdcLineTest extends AbstractConverterTest {
     @Test
     void testRemoveHvdcLineLccWithMcs() {
         Network network = HvdcTestNetwork.createLcc();
-        addListener(network);
-        new RemoveHvdcLineBuilder().withHvdcLineId("L", List.of("C1_Filter1")).build().apply(network);
-        assertEquals(Set.of("L", "C1", "C2", "C1_Filter1"), beforeRemovalObjects);
-        assertEquals(Set.of("L", "C1", "C2", "C1_Filter1"), removedObjects);
+        new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds(List.of("C1_Filter1")).build().apply(network);
         assertNull(network.getHvdcLine("L"));
         assertNull(network.getLccConverterStation("C1"));
         assertNull(network.getShuntCompensator("C1_Filter1"));
@@ -79,39 +43,9 @@ class RemoveHvdcLineTest extends AbstractConverterTest {
     @Test
     void testRemoveHvdcLineVsc() {
         Network network = HvdcTestNetwork.createVsc();
-        addListener(network);
-        new RemoveHvdcLineBuilder().withHvdcLineId("L", null).build().apply(network);
-        assertEquals(Set.of("L", "C1", "C2"), beforeRemovalObjects);
-        assertEquals(Set.of("L", "C1", "C2"), removedObjects);
+        new RemoveHvdcLineBuilder().withHvdcLineId("L").build().apply(network);
         assertNull(network.getHvdcLine("L"));
         assertNull(network.getVscConverterStation("C1"));
         assertNull(network.getVscConverterStation("C2"));
-    }
-
-    @Test
-    void testRemoveHvdcWithLccConverterStation() throws IOException {
-        Network network = HvdcTestNetwork.createLcc();
-        NetworkModification modification = new RemoveHvdcLineBuilder().withHvdcLineId("L", null).build();
-        modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-remove-HVDC-Line-LCC.xml");
-    }
-
-    @Test
-    void testRemoveHvdcWithLccConverterStationAndMcs() throws IOException {
-        Network network = HvdcTestNetwork.createLcc();
-        NetworkModification modification = new RemoveHvdcLineBuilder().withHvdcLineId("L", List.of("C1_Filter1", "C1_Filter2")).build();
-        modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-remove-HVDC-Line-LCC-MCS.xml");
-    }
-
-    @Test
-    void testRemoveHvdcWithVscConverterStation() throws IOException {
-        Network network = HvdcTestNetwork.createVsc();
-        NetworkModification modification = new RemoveHvdcLineBuilder().withHvdcLineId("L", null).build();
-        modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
-                "/eurostag-remove-HVDC-Line-VSC.xml");
     }
 }

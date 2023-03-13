@@ -14,13 +14,12 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 
@@ -31,71 +30,68 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveHvdcLine.class);
 
     private final String hvdcLineId;
-    private final List<String> mscIds;
+    private final List<String> shuntCompensatorsIds;
 
-    public RemoveHvdcLine(String hvdcLineId, List<String> mscIds) {
+    public RemoveHvdcLine(String hvdcLineId, List<String> shuntCompensatorsIds) {
         this.hvdcLineId = Objects.requireNonNull(hvdcLineId);
-        this.mscIds = mscIds;
+        this.shuntCompensatorsIds = shuntCompensatorsIds != null ? shuntCompensatorsIds : List.of();
     }
 
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
-        AtomicBoolean hvdcLineRemoved = new AtomicBoolean(false);
-        AtomicReference<HvdcConverterStation<? extends HvdcConverterStation>> hvdcConverterStation1Atomic = new AtomicReference<>(null);
-        AtomicReference<HvdcConverterStation<? extends HvdcConverterStation>> hvdcConverterStation2Atomic = new AtomicReference<>(null);
-        network.getHvdcConverterStationStream()
-                .filter(Objects::nonNull)
-                .forEach(hvdcConverterStation -> {
-                    HvdcLine hvdcLine = hvdcConverterStation.getHvdcLine();
-                    if (hvdcLine != null && hvdcLine.getId().equals(hvdcLineId)) {
-                        hvdcConverterStation1Atomic.set(hvdcLine.getConverterStation1());
-                        hvdcConverterStation2Atomic.set(hvdcLine.getConverterStation2());
-                        hvdcLine.remove();
-                        hvdcLineRemoved.set(true);
-                        removedHvdcLineReport(reporter, hvdcLineId);
-
-                    }
-                });
-
-        HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation1 = hvdcConverterStation1Atomic.get();
-        HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation2 = hvdcConverterStation2Atomic.get();
-
-        if (!hvdcLineRemoved.get()) {
+        HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
+        if (hvdcLine != null && hvdcLineId.equals(hvdcLine.getId())) {
+            HvdcConverterStation<?> hvdcConverterStation1 = hvdcLine.getConverterStation1();
+            HvdcConverterStation<?> hvdcConverterStation2 = hvdcLine.getConverterStation2();
+            hvdcLine.remove();
+            removedHvdcLineReport(reporter, hvdcLineId);
+            removeConverterStations(hvdcConverterStation1, hvdcConverterStation2, reporter);
+            // Remove the MCSs that represent the filters of the LCC
+            removeShuntCompensators(network, hvdcConverterStation1, hvdcConverterStation2, reporter);
+        } else {
             LOGGER.error("HVDC Line {} not found", hvdcLineId);
             notFoundHvdcLineReport(reporter, hvdcLineId);
             if (throwException) {
                 throw new PowsyblException("HVDC Line not found: " + hvdcLineId);
             }
-        } else {
-            removeConverterStations(hvdcConverterStation1, hvdcConverterStation2, reporter);
-
-            // Remove the MCSs that represent the filters of the LCC
-            if (mscIds != null
-                    && (isLccConverterStation(hvdcConverterStation1)
-                    || isLccConverterStation(hvdcConverterStation2))) {
-                removeMCSs(network, reporter);
-            }
         }
     }
 
-    private void removeConverterStations(HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation1, HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation2, Reporter reporter) {
+    private void removeShuntCompensators(Network network,
+                                         HvdcConverterStation<?> hvdcConverterStation1,
+                                         HvdcConverterStation<?> hvdcConverterStation2,
+                                         Reporter reporter) {
+        if (!shuntCompensatorsIds.isEmpty()
+                && (isLccConverterStation(hvdcConverterStation1)
+                || isLccConverterStation(hvdcConverterStation2))) {
+            shuntCompensatorsIds.forEach(shuntCompensatorId -> {
+                ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
+                if (shuntCompensator != null) {
+                    shuntCompensator.remove();
+                    removedShuntCompensatorReport(reporter, shuntCompensator.getId());
+                }
+            });
+        }
+    }
+
+    private void removeConverterStations(HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Reporter reporter) {
         hvdcConverterStation1.remove();
         hvdcConverterStation2.remove();
         reportConverterStationRemoved(reporter, hvdcConverterStation1);
         reportConverterStationRemoved(reporter, hvdcConverterStation2);
     }
 
-    private boolean isLccConverterStation(HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation) {
+    private boolean isLccConverterStation(HvdcConverterStation<?> hvdcConverterStation) {
         Objects.requireNonNull(hvdcConverterStation);
         return hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.LCC;
     }
 
-    private boolean isVscConverterStation(HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation) {
+    private boolean isVscConverterStation(HvdcConverterStation<?> hvdcConverterStation) {
         Objects.requireNonNull(hvdcConverterStation);
         return hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.VSC;
     }
 
-    private void reportConverterStationRemoved(Reporter reporter, HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation) {
+    private void reportConverterStationRemoved(Reporter reporter, HvdcConverterStation<?> hvdcConverterStation) {
         if (isLccConverterStation(hvdcConverterStation)) {
             removedLccConverterStationReport(reporter, hvdcConverterStation.getId());
         }
@@ -104,13 +100,4 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         }
     }
 
-    private void removeMCSs(Network network, Reporter reporter) {
-        mscIds.forEach(mscId ->
-                network.getShuntCompensatorStream().filter(shuntCompensator -> shuntCompensator.getId().equals(mscId))
-                        .findAny().ifPresent(shuntCompensator -> {
-                            shuntCompensator.remove();
-                            removedMcsReport(reporter, shuntCompensator.getId());
-                        })
-        );
-    }
 }

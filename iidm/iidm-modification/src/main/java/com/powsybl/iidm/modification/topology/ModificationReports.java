@@ -352,11 +352,11 @@ final class ModificationReports {
                 .build());
     }
 
-    static void removedMcsReport(Reporter reporter, String mcsId) {
+    static void removedShuntCompensatorReport(Reporter reporter, String shuntCompensatorId) {
         reporter.report(Report.builder()
-                .withKey("removeMCS")
-                .withDefaultMessage("MCS ${mcsId} has been removed")
-                .withValue(CONNECTABLE_ID, mcsId)
+                .withKey("removeShuntCompensator")
+                .withDefaultMessage("ShuntCompensator ${shuntCompensatorId} has been removed")
+                .withValue(CONNECTABLE_ID, shuntCompensatorId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
