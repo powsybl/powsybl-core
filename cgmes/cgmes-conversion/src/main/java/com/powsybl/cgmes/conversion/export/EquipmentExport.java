@@ -223,6 +223,7 @@ public final class EquipmentExport {
     }
 
     private static void writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
+        String fictSubstationId = null;
         for (VoltageLevel voltageLevel : network.getVoltageLevels()) {
             double nominalV = voltageLevel.getNominalV();
             BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(nominalV);
@@ -230,8 +231,17 @@ public final class EquipmentExport {
                 BaseVoltageEq.write(baseVoltage.getId(), nominalV, cimNamespace, writer, context);
                 exportedBaseVoltagesByNominalV.add(nominalV);
             }
+            Optional<String> substationId = voltageLevel.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s));
+            if (substationId.isEmpty() && fictSubstationId == null) { // create a fictitious substation
+                String cgmesRegionId = CgmesExportUtil.getUniqueId();
+                writeGeographicalRegion(cgmesRegionId, "FICTITIOUS_REGION", cimNamespace, writer, context);
+                String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
+                writeSubGeographicalRegion(subGeographicalRegionId, context.getSubRegionName(subGeographicalRegionId), cgmesRegionId, cimNamespace, writer, context);
+                fictSubstationId = CgmesExportUtil.getUniqueId();
+                SubstationEq.write(fictSubstationId, "FICTITIOUS_SUBSTATION", subGeographicalRegionId, cimNamespace, writer, context);
+            }
             VoltageLevelEq.write(context.getNamingStrategy().getCgmesId(voltageLevel), voltageLevel.getNameOrId(), voltageLevel.getLowVoltageLimit(), voltageLevel.getHighVoltageLimit(),
-                    context.getNamingStrategy().getCgmesId(voltageLevel.getNullableSubstation()), baseVoltage.getId(), cimNamespace, writer, context);
+                    substationId.orElse(fictSubstationId), baseVoltage.getId(), cimNamespace, writer, context);
         }
     }
 
