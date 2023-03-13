@@ -7,7 +7,6 @@
 package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
