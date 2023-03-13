@@ -41,8 +41,8 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         AtomicBoolean hvdcLineRemoved = new AtomicBoolean(false);
-        AtomicReference<HvdcConverterStation> hvdcConverterStation1Atomic = new AtomicReference<>(null);
-        AtomicReference<HvdcConverterStation> hvdcConverterStation2Atomic = new AtomicReference<>(null);
+        AtomicReference<HvdcConverterStation<? extends HvdcConverterStation>> hvdcConverterStation1Atomic = new AtomicReference<>(null);
+        AtomicReference<HvdcConverterStation<? extends HvdcConverterStation>> hvdcConverterStation2Atomic = new AtomicReference<>(null);
         network.getHvdcConverterStationStream()
                 .filter(Objects::nonNull)
                 .forEach(hvdcConverterStation -> {
@@ -57,8 +57,8 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
                     }
                 });
 
-        HvdcConverterStation hvdcConverterStation1 = hvdcConverterStation1Atomic.get();
-        HvdcConverterStation hvdcConverterStation2 = hvdcConverterStation2Atomic.get();
+        HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation1 = hvdcConverterStation1Atomic.get();
+        HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation2 = hvdcConverterStation2Atomic.get();
 
         if (!hvdcLineRemoved.get()) {
             LOGGER.error("HVDC Line {} not found", hvdcLineId);
@@ -78,24 +78,24 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         }
     }
 
-    private void removeConverterStations(HvdcConverterStation hvdcConverterStation1, HvdcConverterStation hvdcConverterStation2, Reporter reporter) {
+    private void removeConverterStations(HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation1, HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation2, Reporter reporter) {
         hvdcConverterStation1.remove();
         hvdcConverterStation2.remove();
         reportConverterStationRemoved(reporter, hvdcConverterStation1);
         reportConverterStationRemoved(reporter, hvdcConverterStation2);
     }
 
-    private boolean isLccConverterStation(HvdcConverterStation hvdcConverterStation) {
+    private boolean isLccConverterStation(HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation) {
         Objects.requireNonNull(hvdcConverterStation);
         return hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.LCC;
     }
 
-    private boolean isVscConverterStation(HvdcConverterStation hvdcConverterStation) {
+    private boolean isVscConverterStation(HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation) {
         Objects.requireNonNull(hvdcConverterStation);
         return hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.VSC;
     }
 
-    private void reportConverterStationRemoved(Reporter reporter, HvdcConverterStation hvdcConverterStation) {
+    private void reportConverterStationRemoved(Reporter reporter, HvdcConverterStation<? extends HvdcConverterStation> hvdcConverterStation) {
         if (isLccConverterStation(hvdcConverterStation)) {
             removedLccConverterStationReport(reporter, hvdcConverterStation.getId());
         }
