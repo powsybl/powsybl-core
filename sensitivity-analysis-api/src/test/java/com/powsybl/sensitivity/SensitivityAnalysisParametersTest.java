@@ -228,6 +228,26 @@ class SensitivityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
+    void updateThresholdParameters() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+
+        assertEquals(0.0, parameters.getFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.0, parameters.getAngleFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.0, parameters.getFlowVoltageSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.0, parameters.getVoltageSensitivityValueThreshold(), 1e-3);
+
+        parameters.setFlowSensitivityValueThreshold(0.1)
+                .setAngleFlowSensitivityValueThreshold(0.2)
+                .setFlowVoltageSensitivityValueThreshold(0.3)
+                .setVoltageSensitivityValueThreshold(0.4);
+
+        assertEquals(0.1, parameters.getFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.2, parameters.getAngleFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.3, parameters.getFlowVoltageSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.4, parameters.getVoltageSensitivityValueThreshold(), 1e-3);
+    }
+
+    @Test
     void readJsonVersion10() {
         SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
                 .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0.json"));
