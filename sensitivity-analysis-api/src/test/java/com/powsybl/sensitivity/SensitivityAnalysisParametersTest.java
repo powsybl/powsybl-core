@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
@@ -224,5 +225,19 @@ class SensitivityAnalysisParametersTest extends AbstractConverterTest {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityContingencyStatus.class, objectMapper), "/contingencyStatusRef.json");
+    }
+
+    @Test
+    void readJsonVersion10() {
+        SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0.json"));
+        assertEquals(0.0, parameters.getFlowSensitivityValueThreshold(), 0.0001);
+    }
+
+    @Test
+    void readJsonVersion10Invalid() {
+        assertThrows(PowsyblException.class, () -> JsonSensitivityAnalysisParameters
+                        .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0Invalid.json")),
+                "SensitivityAnalysisParameters. flow-sensitivity-value-threshold is not valid for version 1.0. Version should be >= 1.1");
     }
 }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.sensitivity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
@@ -21,7 +22,24 @@ import java.util.Objects;
  */
 public class SensitivityAnalysisParameters extends AbstractExtendable<SensitivityAnalysisParameters> {
 
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "1.1";
+
+    static final double FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+    static final double VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+    static final double FLOW_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+    static final double ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+
+    @JsonProperty("flow-sensitivity-value-threshold")
+    private double flowSensitivityValueThreshold = FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
+
+    @JsonProperty("voltage-sensitivity-value-threshold")
+    private double voltageSensitivityValueThreshold = VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
+
+    @JsonProperty("flow-voltage-sensitivity-value-threshold")
+    private double flowVoltageSensitivityValueThreshold = FLOW_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
+
+    @JsonProperty("angle-flow-sensitivity-value-threshold")
+    private double angleFlowSensitivityValueThreshold = ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
 
@@ -40,6 +58,13 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
 
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.readExtensions(platformConfig);
+
+        platformConfig.getOptionalModuleConfig("sensitivity-analysis-default-parameters")
+                .ifPresent(config -> parameters
+                        .setFlowSensitivityValueThreshold(config.getDoubleProperty("flow-sensitivity-value-threshold", FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE))
+                        .setVoltageSensitivityValueThreshold(config.getDoubleProperty("voltage-sensitivity-value-threshold", VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE))
+                        .setFlowVoltageSensitivityValueThreshold(config.getDoubleProperty("flow-voltage-sensitivity-value-threshold", FLOW_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE))
+                        .setAngleFlowSensitivityValueThreshold(config.getDoubleProperty("angle-flow-sensitivity-value-threshold", ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE)));
 
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
 
@@ -60,5 +85,41 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
     public SensitivityAnalysisParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
         this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
         return this;
+    }
+
+    public SensitivityAnalysisParameters setFlowSensitivityValueThreshold(double threshold) {
+        flowSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    public double getFlowSensitivityValueThreshold() {
+        return flowSensitivityValueThreshold;
+    }
+
+    public SensitivityAnalysisParameters setVoltageSensitivityValueThreshold(double threshold) {
+        voltageSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    public double getVoltageSensitivityValueThreshold() {
+        return voltageSensitivityValueThreshold;
+    }
+
+    public SensitivityAnalysisParameters setFlowVoltageSensitivityValueThreshold(double threshold) {
+        flowVoltageSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    public double getFlowVoltageSensitivityValueThreshold() {
+        return flowVoltageSensitivityValueThreshold;
+    }
+
+    public SensitivityAnalysisParameters setAngleFlowSensitivityValueThreshold(double threshold) {
+        angleFlowSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    public double getAngleFlowSensitivityValueThreshold() {
+        return angleFlowSensitivityValueThreshold;
     }
 }

@@ -1,5 +1,5 @@
 {
-  "version" : "1.1",
+  "version" : "1.0",
   "load-flow-parameters" : {
     "version" : "1.9",
     "voltageInitMode" : "UNIFORM_VALUES",
@@ -18,9 +18,5 @@
     "connectedComponentMode" : "MAIN",
     "hvdcAcEmulation" : true,
     "dcPowerFactor" : 1.0
-  },
-  "flow-sensitivity-value-threshold" : 0.0,
-  "voltage-sensitivity-value-threshold" : 0.0,
-  "flow-voltage-sensitivity-value-threshold" : 0.0,
-  "angle-flow-sensitivity-value-threshold" : 0.0
+  }
 }

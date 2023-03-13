@@ -26,6 +26,8 @@ import java.util.List;
  */
 public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<SensitivityAnalysisParameters> {
 
+    private static final String CONTEXT_NAME = "SensitivityAnalysisParameters";
+
     SensitivityAnalysisParametersDeserializer() {
         super(SensitivityAnalysisParameters.class);
     }
@@ -39,16 +41,45 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
     public SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SensitivityAnalysisParameters parameters) throws IOException {
 
         List<Extension<SensitivityAnalysisParameters>> extensions = Collections.emptyList();
+        String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
 
                 case "version":
                     parser.nextToken();
+                    version = parser.getValueAsString();
                     break;
 
                 case "load-flow-parameters":
                     parser.nextToken();
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
+                    break;
+
+                case "flow-sensitivity-value-threshold":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.getCurrentName(), version, "1.1");
+                    parser.nextToken();
+                    parameters.setFlowSensitivityValueThreshold(parser.readValueAs(Double.class));
+                    break;
+
+                case "voltage-sensitivity-value-threshold":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.getCurrentName(), version, "1.1");
+
+                    parser.nextToken();
+                    parameters.setVoltageSensitivityValueThreshold(parser.readValueAs(Double.class));
+                    break;
+
+                case "flow-voltage-sensitivity-value-threshold":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.getCurrentName(), version, "1.1");
+
+                    parser.nextToken();
+                    parameters.setFlowVoltageSensitivityValueThreshold(parser.readValueAs(Double.class));
+                    break;
+
+                case "angle-flow-sensitivity-value-threshold":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.getCurrentName(), version, "1.1");
+
+                    parser.nextToken();
+                    parameters.setAngleFlowSensitivityValueThreshold(parser.readValueAs(Double.class));
                     break;
 
                 case "extensions":
