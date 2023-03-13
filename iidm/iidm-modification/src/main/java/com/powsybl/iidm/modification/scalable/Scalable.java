@@ -106,7 +106,7 @@ public interface Scalable {
 
     /**
      * Scans all the expected injections of the scalable.
-     * If the injection can be found in given network, it is added to the injections list.
+     * If the injection can be found in given network, it is added the the injections list.
      * Otherwise, its identifier is added to the "notFound" list.
      *
      * @param network network
@@ -118,7 +118,7 @@ public interface Scalable {
 
     /**
      * Scans all the expected injections of the scalable.
-     * If the injection can be found in given network, it is added to the injections list.
+     * If the injection can be found in given network, it is added the the injections list.
      *
      * @param network network
      * @return network injections used in the scalable
@@ -126,47 +126,19 @@ public interface Scalable {
     List<Injection> filterInjections(Network network);
 
     /**
-     * Scale the given network using Generator convention by default and not reconnecting disconnected terminals.
-     * The actual scaling value may be different to the one asked if
-     * the Scalable limit is reached.
-     *
-     * @param n network
-     * @param asked value asked to adjust the scalable active power
-     * @return the actual value of the scalable active power adjustment
-     */
-    default double scale(Network n, double asked) {
-        return scale(n, asked, false);
-    }
-
-    /**
      * Scale the given network using Generator convention by default.
-     * The actual scaling value may be different to the one asked if
+     * The actual scaling value may be different to the one asked, if
      * the Scalable limit is reached.
      *
      * @param n network
      * @param asked value asked to adjust the scalable active power
-     * @param reconnect boolean indicating whether the terminal of the scalable should be reconnected if it is disconnected
      * @return the actual value of the scalable active power adjustment
      */
-    double scale(Network n, double asked, boolean reconnect);
+    double scale(Network n, double asked);
 
     /**
      * Scale the given network.
-     * The actual scaling value may be different to the one asked if
-     * the Scalable limit is reached.
-     *
-     * @param n network
-     * @param asked value asked to adjust the scalable active power
-     * @param scalingConvention power convention used for scaling
-     * @param reconnect boolean indicating whether the terminal of the scalable should be reconnected if it is disconnected
-     * @return the actual value of the scalable active power adjustment
-     * @see ScalingConvention
-     */
-    double scale(Network n, double asked, ScalingConvention scalingConvention, boolean reconnect);
-
-    /**
-     * Scale the given network. By default, the terminal of the scalable will not be reconnected if it is disconnected.
-     * The actual scaling value may be different to the one asked if
+     * The actual scaling value may be different to the one asked, if
      * the Scalable limit is reached.
      *
      * @param n network
@@ -175,42 +147,30 @@ public interface Scalable {
      * @return the actual value of the scalable active power adjustment
      * @see ScalingConvention
      */
-    default double scale(Network n, double asked, ScalingConvention scalingConvention) {
-        return scale(n, asked, scalingConvention, false);
-    }
+    double scale(Network n, double asked, ScalingConvention scalingConvention);
 
     /**
      * Scale the given network using Generator convention by default.
      * If the object is a load, scaling is done with constant power factor.
      * @param n network
      * @param asked value asked to adjust the scalable active power and reactive power if load
-     * @param reconnect boolean indicating whether the terminal of the scalable should be reconnected if it is disconnected
      * @return the actual value of the scalable active power adjustment
      */
-    default double scaleWithConstantPowerFactor(Network n, double asked, boolean reconnect) {
-        return scale(n, asked, reconnect);
-    }
-
     default double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scale(n, asked, false);
+        return scale(n, asked);
     }
 
     /**
      * Scale the given network.
-     * The actual scaling value may be different to the one asked if
+     * The actual scaling value may be different to the one asked, if
      * the Scalable limit is reached. If the Scalable is a load, the power factor is kept constant.
      * @param n network
      * @param asked value asked to adjust the scalable active power and reactive power if load
      * @param scalingConvention power convention used for scaling
-     * @param reconnect boolean indicating whether the terminal of the scalable should be reconnected if it is disconnected
      * @return the actual value of the scalable active power adjustment
      */
-    default double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention, boolean reconnect) {
-        return scale(n, asked, scalingConvention, reconnect);
-    }
-
     default double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
-        return scaleWithConstantPowerFactor(n, asked, scalingConvention, false);
+        return scale(n, asked, scalingConvention);
     }
 
     /**

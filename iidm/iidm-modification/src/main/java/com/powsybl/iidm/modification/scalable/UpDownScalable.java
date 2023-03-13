@@ -60,7 +60,7 @@ class UpDownScalable extends AbstractScalable {
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention, boolean reconnect) {
-        return asked > 0 ? upScalable.scale(n, asked, scalingConvention, reconnect) : downScalable.scale(n, asked, scalingConvention, reconnect);
+    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
+        return asked > 0 ? upScalable.scale(n, asked, scalingConvention) : downScalable.scale(n, asked, scalingConvention);
     }
 }

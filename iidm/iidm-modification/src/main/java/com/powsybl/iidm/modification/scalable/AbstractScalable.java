@@ -86,8 +86,8 @@ abstract class AbstractScalable implements Scalable {
     }
 
     @Override
-    public double scale(Network n, double asked, boolean reconnect) {
-        return scale(n, asked, ScalingConvention.GENERATOR, reconnect);
+    public double scale(Network n, double asked) {
+        return scale(n, asked, ScalingConvention.GENERATOR);
     }
 
 }

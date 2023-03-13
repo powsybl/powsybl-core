@@ -185,44 +185,4 @@ class LoadScalableTest {
         assertEquals(60, load.getP0(), 1e-3);
         assertEquals(7.5, load.getQ0(), 1e-3);
     }
-
-    @Test
-    public void testReconnectLoad() {
-        // test with ScalingConvention.GENERATOR
-        convention = GENERATOR;
-        Load load = network.getLoad("l1");
-        load.getTerminal().disconnect();
-        assertFalse(load.getTerminal().isConnected());
-
-        ls1.scale(network, 20, convention, true);
-        assertTrue(load.getTerminal().isConnected());
-        assertEquals(80.0, load.getP0(), 1e-3);
-
-        // test with ScalingConvention.LOAD
-        convention = LOAD;
-        load.getTerminal().disconnect();
-        assertFalse(load.getTerminal().isConnected());
-        ls1.scale(network, 20, convention, true);
-        assertTrue(load.getTerminal().isConnected());
-        assertEquals(100.0, load.getP0(), 1e-3);
-
-        // test with constant power factor
-        load.getTerminal().disconnect();
-        assertFalse(load.getTerminal().isConnected());
-        load.setQ0(10.0);
-        load.setP0(80.0);
-        assertEquals(10.0, load.getQ0(), 1e-3);
-        assertEquals(80.0, load.getP0(), 1e-3);
-        ls1.scaleWithConstantPowerFactor(network, 20, true);
-        assertTrue(load.getTerminal().isConnected());
-        assertEquals(60.0, load.getP0(), 1e-3);
-        assertEquals(7.5, load.getQ0(), 1e-3);
-
-        // reconnect to false
-        load.getTerminal().disconnect();
-        assertFalse(load.getTerminal().isConnected());
-        ls1.scale(network, 20);
-        assertFalse(load.getTerminal().isConnected());
-        assertEquals(40.0, load.getP0(), 1e-3);
-    }
 }

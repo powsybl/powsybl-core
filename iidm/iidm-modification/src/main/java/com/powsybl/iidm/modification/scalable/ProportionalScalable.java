@@ -122,17 +122,17 @@ class ProportionalScalable extends AbstractCompoundScalable {
         });
     }
 
-    private double iterativeScale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor, boolean reconnect) {
+    private double iterativeScale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
         double done = 0;
         while (Math.abs(asked - done) > EPSILON && notSaturated()) {
             checkIterationPercentages();
-            done += scaleIteration(n, asked - done, scalingConvention, constantPowerFactor, reconnect);
+            done += scaleIteration(n, asked - done, scalingConvention, constantPowerFactor);
             updateIterationPercentages();
         }
         return done;
     }
 
-    private double scaleIteration(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor, boolean reconnect) {
+    private double scaleIteration(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
         double done = 0;
         for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             Scalable s = scalablePercentage.getScalable();
@@ -140,9 +140,9 @@ class ProportionalScalable extends AbstractCompoundScalable {
             double askedOnScalable = iterationPercentage / 100 * asked;
             double doneOnScalable = 0;
             if (constantPowerFactor) {
-                doneOnScalable = s.scaleWithConstantPowerFactor(n, askedOnScalable, scalingConvention, reconnect);
+                doneOnScalable = s.scaleWithConstantPowerFactor(n, askedOnScalable, scalingConvention);
             } else {
-                doneOnScalable = s.scale(n, askedOnScalable, scalingConvention, reconnect);
+                doneOnScalable = s.scale(n, askedOnScalable, scalingConvention);
             }
             if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
                 scalablePercentage.setIterationPercentage(0);
@@ -153,36 +153,31 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked, boolean reconnect) {
-        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR, reconnect);
-    }
-
-    @Override
     public double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR, false);
+        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
     }
 
     @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention, boolean reconnect) {
+    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
         reinitIterationPercentage();
         if (iterative) {
-            return iterativeScale(n, asked, scalingConvention, true, reconnect);
+            return iterativeScale(n, asked, scalingConvention, true);
         } else {
-            return scaleIteration(n, asked, scalingConvention, true, reconnect);
+            return scaleIteration(n, asked, scalingConvention, true);
         }
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention, boolean reconnect) {
+    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
         reinitIterationPercentage();
         if (iterative) {
-            return iterativeScale(n, asked, scalingConvention, false, reconnect);
+            return iterativeScale(n, asked, scalingConvention, false);
         } else {
-            return scaleIteration(n, asked, scalingConvention, false, reconnect);
+            return scaleIteration(n, asked, scalingConvention, false);
         }
     }
 

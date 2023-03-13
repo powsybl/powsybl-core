@@ -72,13 +72,8 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
     }
 
     @Override
-    public double scale(Network n, double asked, boolean reconnect) {
-        return scale(n, asked, ScalingConvention.GENERATOR, reconnect);
-    }
-
-    @Override
     public double scale(Network n, double asked) {
-        return scale(n, asked, false);
+        return scale(n, asked, ScalingConvention.GENERATOR);
     }
 
     @Override
