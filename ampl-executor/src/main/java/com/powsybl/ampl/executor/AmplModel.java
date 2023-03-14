@@ -49,7 +49,7 @@ public interface AmplModel {
 
     String getOutputFilePrefix();
 
-    AbstractAmplNetworkUpdaterFactory getNetworkApplierFactory();
+    AmplNetworkUpdaterFactory getNetworkApplierFactory();
 
     /**
      * @return network variant to export for the Ampl solve

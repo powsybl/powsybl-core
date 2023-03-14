@@ -6,8 +6,7 @@
  */
 package com.powsybl.ampl.executor;
 
-import com.powsybl.ampl.converter.AbstractAmplNetworkUpdaterFactory;
-import com.powsybl.ampl.converter.AmplNetworkUpdater;
+import com.powsybl.ampl.converter.AmplNetworkUpdaterFactory;
 import com.powsybl.ampl.converter.AmplReadableElement;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -37,12 +36,8 @@ public class DummyAmplModel extends AbstractAmplModel {
     }
 
     @Override
-    public AbstractAmplNetworkUpdaterFactory getNetworkApplierFactory() {
-        return new AbstractAmplNetworkUpdaterFactory() {
-            protected AmplNetworkUpdater of() {
-                return new DummyAmplNetworkUpdater();
-            }
-        };
+    public AmplNetworkUpdaterFactory getNetworkApplierFactory() {
+        return (mapper, network) -> new DummyAmplNetworkUpdater();
     }
 
     @Override
