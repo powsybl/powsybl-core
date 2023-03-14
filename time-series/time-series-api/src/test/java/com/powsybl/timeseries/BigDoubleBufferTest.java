@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.function.IntConsumer;
+import com.powsybl.timeseries.BigDoubleBuffer.IntIntBiConsumer;
+import com.powsybl.timeseries.BigDoubleBuffer.IntIntToDoubleBiFunction;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -28,21 +28,13 @@ class BigDoubleBufferTest {
     private int allocatorCount;
 
     private ByteBuffer testDoubleAllocator(int capacity) {
-        allocatorCount++;
-        ByteBuffer mockbyte = Mockito.mock(ByteBuffer.class);
-        DoubleBuffer mockdouble = Mockito.mock(DoubleBuffer.class);
-        when(mockbyte.asDoubleBuffer()).thenReturn(mockdouble);
-        Map<Integer, Double> map = new HashMap<>();
-        when(mockdouble.put(anyInt(), anyDouble())).thenAnswer(invocation -> {
-            Object[] args = invocation.getArguments();
-            DoubleBuffer mock = (DoubleBuffer) invocation.getMock();
-            map.put((int) args[0], (double) args[1]);
-            return mock;
-        });
-        when(mockdouble.get(anyInt())).thenAnswer(invocation -> {
-            return map.get(invocation.getArguments()[0]);
-        });
-        return mockbyte;
+        try {
+            ByteBuffer bytebuffer = ByteBuffer.allocate(capacity);
+            allocatorCount++;
+            return bytebuffer;
+        } catch (Exception e) {
+            throw new RuntimeException("error in allocator test", e);
+        }
     }
 
     @BeforeEach
@@ -50,69 +42,83 @@ class BigDoubleBufferTest {
         allocatorCount = 0;
     }
 
-    private void bufferTester(long size) {
+    @Test
+    void testSimple() {
+        long size = 10L;
         BigDoubleBuffer buffer = new BigDoubleBuffer(this::testDoubleAllocator, size);
+        assertEquals(1, allocatorCount);
         //Simple writes at the begining
         for (int i = 0; i < 10; i++) {
             buffer.put(i, i);
         }
-        //writes around first buffer change
-        if (size > BUFFER_SIZE_DOUBLES + 10) {
-            for (int i = BUFFER_SIZE_DOUBLES - 10; i < BUFFER_SIZE_DOUBLES + 10; i++) {
-                buffer.put(i, i);
-            }
-        }
-        //writes at the end
-        for (long i = size - 10; i < size; i++) {
-            buffer.put(i, i);
-        }
 
         for (int i = 0; i < 10; i++) {
             assertEquals(i, buffer.get(i), 0);
         }
-        if (size > BUFFER_SIZE_DOUBLES + 10) {
-            for (int i = BUFFER_SIZE_DOUBLES - 10; i < BUFFER_SIZE_DOUBLES + 10; i++) {
-                assertEquals(i, buffer.get(i), 0);
-            }
-        }
-        for (long i = size - 10; i < size; i++) {
-            assertEquals(i, buffer.get(i), 0);
-        }
     }
 
     @Test
-    void testSimple() {
-        bufferTester(10);
-        assertEquals(1, allocatorCount);
+    void testWithIndices() {
+        IntIntToDoubleBiFunction indicesBiFunction = Mockito.mock(IntIntToDoubleBiFunction.class);
+        BigDoubleBuffer.withIndices(10, indicesBiFunction);
+        verify(indicesBiFunction).applyAsDouble(0, 10);
+        verifyNoMoreInteractions(indicesBiFunction);
+
+        //writes around first buffer change
+        BigDoubleBuffer.withIndices(BUFFER_SIZE_DOUBLES - 1, indicesBiFunction);
+        verify(indicesBiFunction).applyAsDouble(0, BUFFER_SIZE_DOUBLES - 1);
+        verifyNoMoreInteractions(indicesBiFunction);
+        BigDoubleBuffer.withIndices(BUFFER_SIZE_DOUBLES, indicesBiFunction);
+        verify(indicesBiFunction).applyAsDouble(1, 0);
+        verifyNoMoreInteractions(indicesBiFunction);
+
+        //writes around random buffer change
+        BigDoubleBuffer.withIndices(7 * BUFFER_SIZE_DOUBLES - 1, indicesBiFunction);
+        verify(indicesBiFunction).applyAsDouble(6, BUFFER_SIZE_DOUBLES - 1);
+        verifyNoMoreInteractions(indicesBiFunction);
+        BigDoubleBuffer.withIndices(7 * BUFFER_SIZE_DOUBLES, indicesBiFunction);
+        verify(indicesBiFunction).applyAsDouble(7, 0);
+        verifyNoMoreInteractions(indicesBiFunction);
+    }
+
+    void indicesTester(long size, int bufferCount) {
+        IntConsumer bufferContainerInitializer = Mockito.mock(IntConsumer.class);
+        IntIntBiConsumer bufferInitializer = Mockito.mock(IntIntBiConsumer.class);
+        BigDoubleBuffer.withSizes(size,
+                bufferContainerInitializer,
+                bufferInitializer
+        );
+        verify(bufferContainerInitializer).accept(bufferCount);
+        verifyNoMoreInteractions(bufferContainerInitializer);
+        for (int i = 0; i < bufferCount - 1; i++) {
+            verify(bufferInitializer).accept(i, BUFFER_SIZE_DOUBLES * Double.BYTES);
+        }
+        verify(bufferInitializer).accept(bufferCount - 1, (int) (size - (bufferCount - 1) * BUFFER_SIZE_DOUBLES) * Double.BYTES);
+        verifyNoMoreInteractions(bufferInitializer);
     }
 
     @Test
     void testMultipleBuffers() {
-        bufferTester(200000000);
-        assertEquals(2, allocatorCount);
+        indicesTester(200000000, 2);
     }
 
     @Test
     void testHuge() {
-        bufferTester(10000000000L);
-        assertEquals(75, allocatorCount);
+        indicesTester(10000000000L, 75);
     }
 
     @Test
     void testSizeBufferMinus1() {
-        bufferTester(BUFFER_SIZE_DOUBLES - 1);
-        assertEquals(1, allocatorCount);
+        indicesTester(BUFFER_SIZE_DOUBLES - 1, 1);
     }
 
     @Test
     void testSizeBufferExact() {
-        bufferTester(BUFFER_SIZE_DOUBLES);
-        assertEquals(1, allocatorCount);
+        indicesTester(BUFFER_SIZE_DOUBLES, 1);
     }
 
     @Test
     void testSizeBufferPlus1() {
-        bufferTester(BUFFER_SIZE_DOUBLES + 1);
-        assertEquals(2, allocatorCount);
+        indicesTester(BUFFER_SIZE_DOUBLES + 1, 2);
     }
 }
