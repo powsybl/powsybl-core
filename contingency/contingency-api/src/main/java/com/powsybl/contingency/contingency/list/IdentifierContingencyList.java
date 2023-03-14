@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
-import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -23,18 +22,17 @@ import java.util.stream.Collectors;
  */
 public class IdentifierContingencyList implements ContingencyList {
 
+    private static final String VERSION = "1.1";
     private final String name;
-    private final IdentifiableType identifiableType;
     private final List<NetworkElementIdentifier> networkElementIdentifiers;
 
-    public IdentifierContingencyList(String name, String identifiableType, List<NetworkElementIdentifier> networkElementIdentifiers) {
-        this(name, IdentifiableType.valueOf(identifiableType), networkElementIdentifiers);
+    public IdentifierContingencyList(String name, List<NetworkElementIdentifier> networkElementIdentifiers) {
+        this.name = Objects.requireNonNull(name);
+        this.networkElementIdentifiers = ImmutableList.copyOf(networkElementIdentifiers);
     }
 
-    public IdentifierContingencyList(String name, IdentifiableType identifiableType, List<NetworkElementIdentifier> networkElementIdentifiers) {
-        this.name = Objects.requireNonNull(name);
-        this.identifiableType = Objects.requireNonNull(identifiableType);
-        this.networkElementIdentifiers = ImmutableList.copyOf(networkElementIdentifiers);
+    public static String getVersion() {
+        return VERSION;
     }
 
     @Override
@@ -45,10 +43,6 @@ public class IdentifierContingencyList implements ContingencyList {
     @Override
     public String getType() {
         return "identifier";
-    }
-
-    public IdentifiableType getIdentifiableType() {
-        return identifiableType;
     }
 
     public List<NetworkElementIdentifier> getIdentifiants() {
