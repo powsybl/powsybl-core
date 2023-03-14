@@ -19,7 +19,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-abstract class AbstractSimpleIdentifiableXml<T extends Identifiable, A extends IdentifiableAdder<A>, P extends Identifiable> extends AbstractIdentifiableXml<T, A, P> {
+abstract class AbstractSimpleIdentifiableXml<T extends Identifiable<? super T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> extends AbstractIdentifiableXml<T, A, P> {
 
     protected abstract T readRootElementAttributes(A adder, NetworkXmlReaderContext context);
 

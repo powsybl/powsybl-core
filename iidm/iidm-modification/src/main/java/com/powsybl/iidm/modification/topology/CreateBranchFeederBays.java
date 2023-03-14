@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays {
 
-    private final BranchAdder<?> branchAdder;
+    private final BranchAdder<?, ?> branchAdder;
     private final String busOrBbsId1;
     private final String busOrBbsId2;
     private final Integer positionOrder1;
@@ -33,7 +33,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     private final ConnectablePosition.Direction direction1;
     private final ConnectablePosition.Direction direction2;
 
-    CreateBranchFeederBays(BranchAdder<?> branchAdder, String busOrBbsId1, String busOrBbsId2, Integer positionOrder1, Integer positionOrder2,
+    CreateBranchFeederBays(BranchAdder<?, ?> branchAdder, String busOrBbsId1, String busOrBbsId2, Integer positionOrder1, Integer positionOrder2,
                            String feederName1, String feederName2, ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2) {
         super(1, 2);
         this.branchAdder = Objects.requireNonNull(branchAdder);
@@ -82,13 +82,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
 
     @Override
     protected Connectable<?> add() {
-        if (branchAdder instanceof LineAdder) {
-            return ((LineAdder) branchAdder).add();
-        } else if (branchAdder instanceof TwoWindingsTransformerAdder) {
-            return ((TwoWindingsTransformerAdder) branchAdder).add();
-        } else {
-            throw new IllegalStateException("Given BranchAdder not supported: " + branchAdder.getClass().getName());
-        }
+        return branchAdder.add();
     }
 
     @Override

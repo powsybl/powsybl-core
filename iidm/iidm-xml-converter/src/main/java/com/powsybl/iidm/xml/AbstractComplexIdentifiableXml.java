@@ -22,11 +22,9 @@ import java.util.function.Consumer;
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-abstract class AbstractComplexIdentifiableXml<T extends Identifiable, A extends IdentifiableAdder<A>, P extends Identifiable> extends AbstractIdentifiableXml<T, A, P> {
+abstract class AbstractComplexIdentifiableXml<T extends Identifiable<T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> extends AbstractIdentifiableXml<T, A, P> {
 
     protected abstract void readRootElementAttributes(A adder, List<Consumer<T>> toApply, NetworkXmlReaderContext context);
-
-    protected abstract T add(A adder); // TODO: to change when IIDM adders API is changed (add() is added in API)
 
     protected void readSubElements(String id, List<Consumer<T>> toApply, NetworkXmlReaderContext context) throws XMLStreamException {
         if (context.getReader().getLocalName().equals(PropertiesXml.PROPERTY)) {
@@ -48,7 +46,7 @@ abstract class AbstractComplexIdentifiableXml<T extends Identifiable, A extends 
         String id = readIdentifierAttributes(adder, context);
         readRootElementAttributes(adder, toApply, context);
         readSubElements(id, adder, toApply, context);
-        T identifiable = add(adder);
+        T identifiable = adder.add();
         toApply.forEach(consumer -> consumer.accept(identifiable));
     }
 }
