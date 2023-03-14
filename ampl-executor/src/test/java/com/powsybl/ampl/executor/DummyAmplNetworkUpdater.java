@@ -14,63 +14,66 @@ import com.powsybl.iidm.network.*;
  */
 public class DummyAmplNetworkUpdater implements AmplNetworkUpdater {
     @Override
-    public void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP, double targetQ,
-                                double p, double q) {
+    public void updateNetworkGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP,
+                                        double targetQ, double p, double q) {
         // do nothing with the results
     }
 
     @Override
-    public void applyBattery(Battery b, int busNum, double targetP, double targetQ, double p, double q) {
+    public void updateNetworkBattery(Battery b, int busNum, double targetP, double targetQ, double p, double q) {
         // do nothing with the results
     }
 
     @Override
-    public void applyShunt(ShuntCompensator sc, int busNum, double q, double b, int sections) {
+    public void updateNetworkShunt(ShuntCompensator sc, int busNum, double q, double b, int sections) {
         // do nothing with the results
     }
 
     @Override
-    public void applySvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
+    public void updateNetworkSvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
         // do nothing with the results
     }
 
     @Override
-    public void applyVsc(VscConverterStation vsc, int busNum, boolean vregul, double targetV, double targetQ, double p, double q) {
+    public void updateNetworkVsc(VscConverterStation vsc, int busNum, boolean vregul, double targetV, double targetQ,
+                                 double p, double q) {
         // do nothing with the results
     }
 
     @Override
-    public void applyLoad(Load l, Network network, String id, int busNum, double p, double q, double p0, double q0) {
+    public void updateNetworkLoad(Load l, Network network, String id, int busNum, double p, double q, double p0,
+                                  double q0) {
         // do nothing with the results
     }
 
     @Override
-    public void applyRatioTapChanger(Network network, String id, int tap) {
+    public void updateNetworkRatioTapChanger(Network network, String id, int tap) {
         // do nothing with the results
     }
 
     @Override
-    public void applyPhaseTapChanger(Network network, String id, int tap) {
+    public void updateNetworkPhaseTapChanger(Network network, String id, int tap) {
         // do nothing with the results
     }
 
     @Override
-    public void applyBus(Bus bus, double v, double theta) {
+    public void updateNetworkBus(Bus bus, double v, double theta) {
         // do nothing with the results
     }
 
     @Override
-    public void applyBranch(Branch br, Network network, String id, int busNum, int busNum2, double p1, double p2, double q1, double q2) {
+    public void updateNetworkBranch(Branch br, Network network, String id, int busNum, int busNum2, double p1,
+                                    double p2, double q1, double q2) {
         // do nothing with the results
     }
 
     @Override
-    public void applyHvdcLine(HvdcLine hl, String converterMode, double targetP) {
+    public void updateNetworkHvdcLine(HvdcLine hl, String converterMode, double targetP) {
         // do nothing with the results
     }
 
     @Override
-    public void applyLcc(LccConverterStation lcc, int busNum, double p, double q) {
+    public void updateNetworkLcc(LccConverterStation lcc, int busNum, double p, double q) {
         // do nothing with the results
     }
 

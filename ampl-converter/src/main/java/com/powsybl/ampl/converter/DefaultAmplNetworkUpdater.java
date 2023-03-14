@@ -27,8 +27,8 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         this.networkMapper = networkMapper;
     }
 
-    public void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP, double targetQ,
-                                double p, double q) {
+    public void updateNetworkGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP,
+                                        double targetQ, double p, double q) {
         g.setVoltageRegulatorOn(vregul);
 
         g.setTargetP(targetP);
@@ -42,8 +42,8 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         busConnection(t, busNum, networkMapper);
     }
 
-    public void applyVsc(VscConverterStation vsc, int busNum, boolean vregul, double targetV, double targetQ, double p,
-                         double q) {
+    public void updateNetworkVsc(VscConverterStation vsc, int busNum, boolean vregul, double targetV, double targetQ,
+                                 double p, double q) {
         Terminal t = vsc.getTerminal();
         t.setP(p).setQ(q);
 
@@ -55,7 +55,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         busConnection(t, busNum, networkMapper);
     }
 
-    public void applyBattery(Battery b, int busNum, double targetP, double targetQ, double p, double q) {
+    public void updateNetworkBattery(Battery b, int busNum, double targetP, double targetQ, double p, double q) {
         b.setTargetP(targetP);
         b.setTargetQ(targetQ);
 
@@ -64,7 +64,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         busConnection(t, busNum, networkMapper);
     }
 
-    public void applySvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
+    public void updateNetworkSvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
         if (vregul) {
             svc.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
         } else {
@@ -83,7 +83,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         busConnection(t, busNum, networkMapper);
     }
 
-    public void applyShunt(ShuntCompensator sc, int busNum, double q, double b, int sections) {
+    public void updateNetworkShunt(ShuntCompensator sc, int busNum, double q, double b, int sections) {
         if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             // TODO improve non linear shunt section count update.
         } else {
@@ -92,7 +92,8 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         sc.getTerminal().setQ(q);
     }
 
-    public void applyLoad(Load l, Network network, String id, int busNum, double p, double q, double p0, double q0) {
+    public void updateNetworkLoad(Load l, Network network, String id, int busNum, double p, double q, double p0,
+                                  double q0) {
         if (l != null) {
             l.setP0(p0).setQ0(q0);
             l.getTerminal().setP(p).setQ(q);
@@ -110,8 +111,9 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
     }
 
     @Override
-    public void applyRatioTapChanger(Network network, String id, int tap) {
-        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+    public void updateNetworkRatioTapChanger(Network network, String id, int tap) {
+        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(
+                AmplConstants.LEG3_SUFFIX)) {
             ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
             RatioTapChanger rtc = getThreeWindingsTransformerLeg(twt, id).getRatioTapChanger();
             rtc.setTapPosition(rtc.getLowTapPosition() + tap - 1);
@@ -125,8 +127,9 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
         }
     }
 
-    public void applyPhaseTapChanger(Network network, String id, int tap) {
-        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+    public void updateNetworkPhaseTapChanger(Network network, String id, int tap) {
+        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(
+                AmplConstants.LEG3_SUFFIX)) {
             ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
             PhaseTapChanger ptc = getThreeWindingsTransformerLeg(twt, id).getPhaseTapChanger();
             ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1);
@@ -141,13 +144,14 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
     }
 
     @Override
-    public void applyBus(Bus bus, double v, double theta) {
+    public void updateNetworkBus(Bus bus, double v, double theta) {
         bus.setAngle(Math.toDegrees(theta));
         bus.setV(v * bus.getVoltageLevel().getNominalV());
     }
 
     @Override
-    public void applyBranch(Branch br, Network network, String id, int busNum, int busNum2, double p1, double p2, double q1, double q2) {
+    public void updateNetworkBranch(Branch br, Network network, String id, int busNum, int busNum2, double p1,
+                                    double p2, double q1, double q2) {
         if (br != null) {
             br.getTerminal1().setP(p1).setQ(q1);
             br.getTerminal2().setP(p2).setQ(q2);
@@ -165,13 +169,13 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
     }
 
     @Override
-    public void applyHvdcLine(HvdcLine hl, String converterMode, double targetP) {
+    public void updateNetworkHvdcLine(HvdcLine hl, String converterMode, double targetP) {
         hl.setConvertersMode(HvdcLine.ConvertersMode.valueOf(converterMode));
         hl.setActivePowerSetpoint(targetP);
     }
 
     @Override
-    public void applyLcc(LccConverterStation lcc, int busNum, double p, double q) {
+    public void updateNetworkLcc(LccConverterStation lcc, int busNum, double p, double q) {
         lcc.getTerminal().setP(p).setQ(q);
         busConnection(lcc.getTerminal(), busNum, networkMapper);
     }

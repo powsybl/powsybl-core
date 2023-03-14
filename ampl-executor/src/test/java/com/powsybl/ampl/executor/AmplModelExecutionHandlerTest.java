@@ -45,29 +45,30 @@ public class AmplModelExecutionHandlerTest {
 
     @Test
     public void test() throws Exception {
-        FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
-        Files.createDirectory(fs.getPath("/workingDir"));
-        // Test data
-        Network network = EurostagTutorialExample1Factory.create();
-        DummyAmplModel model = new DummyAmplModel();
-        AmplConfig cfg = getAmplConfig();
-        // Test config
-        String variantId = network.getVariantManager().getWorkingVariantId();
-        try (ComputationManager manager = new LocalComputationManager(
-                new LocalComputationConfig(fs.getPath("/workingDir")),
-                new MockAmplLocalExecutor(List.of("output_generators.txt", "output_indic.txt")),
-                ForkJoinPool.commonPool())) {
-            ExecutionEnvironment env = ExecutionEnvironment.createDefault().setWorkingDirPrefix("ampl_").setDebug(true);
-            // Test execution
-            AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
-                    new EmptyAmplParameters());
-            CompletableFuture<AmplResults> result = manager.execute(env, handler);
-            AmplResults amplState = result.join();
-            // Test assert
-            assertTrue(amplState.isSuccess(), "AmplResult must be OK.");
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Files.createDirectory(fs.getPath("/workingDir"));
+            // Test data
+            Network network = EurostagTutorialExample1Factory.create();
+            DummyAmplModel model = new DummyAmplModel();
+            AmplConfig cfg = getAmplConfig();
+            // Test config
+            String variantId = network.getVariantManager().getWorkingVariantId();
+            try (ComputationManager manager = new LocalComputationManager(
+                    new LocalComputationConfig(fs.getPath("/workingDir")),
+                    new MockAmplLocalExecutor(List.of("output_generators.txt", "output_indic.txt")),
+                    ForkJoinPool.commonPool())) {
+                ExecutionEnvironment env = ExecutionEnvironment.createDefault()
+                                                               .setWorkingDirPrefix("ampl_")
+                                                               .setDebug(true);
+                // Test execution
+                AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
+                        new EmptyAmplParameters());
+                CompletableFuture<AmplResults> result = manager.execute(env, handler);
+                AmplResults amplState = result.join();
+                // Test assert
+                assertTrue(amplState.isSuccess(), "AmplResult must be OK.");
+            }
         }
-        // Test cleaning
-        fs.close();
     }
 
     @Test

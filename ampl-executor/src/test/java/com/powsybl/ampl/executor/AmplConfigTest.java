@@ -22,12 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AmplConfigTest {
     @Test
     public void test() throws Exception {
-        FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
-        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
-        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("ampl");
-        moduleConfig.setStringProperty("homeDir", "/home/test/ampl");
-        AmplConfig cfg = AmplConfig.load(platformConfig);
-        assertEquals("/home/test/ampl", cfg.getAmplHome(), "Error parsing Ampl Home");
-        fs.close();
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
+            MapModuleConfig moduleConfig = platformConfig.createModuleConfig("ampl");
+            moduleConfig.setStringProperty("homeDir", "/home/test/ampl");
+            AmplConfig cfg = AmplConfig.load(platformConfig);
+            assertEquals("/home/test/ampl", cfg.getAmplHome(), "Error parsing Ampl Home");
+        }
     }
 }

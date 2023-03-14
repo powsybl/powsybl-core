@@ -141,7 +141,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid generator id '" + id + "'");
         }
 
-        networkUpdater.applyGenerators(g, busNum, vregul, targetV, targetP, targetQ, p, q);
+        networkUpdater.updateNetworkGenerators(g, busNum, vregul, targetV, targetP, targetQ, p, q);
 
         return null;
     }
@@ -165,7 +165,7 @@ public class AmplNetworkReader {
         if (b == null) {
             throw new AmplException("Invalid battery id '" + id + "'");
         }
-        networkUpdater.applyBattery(b, busNum, targetP, targetQ, p, q);
+        networkUpdater.updateNetworkBattery(b, busNum, targetP, targetQ, p, q);
 
         return null;
     }
@@ -185,7 +185,7 @@ public class AmplNetworkReader {
         double q0 = readDouble(tokens[6]);
         String id = mapper.getId(AmplSubset.LOAD, num);
         Load l = network.getLoad(id);
-        networkUpdater.applyLoad(l, network, id, busNum, p, q, p0, q0);
+        networkUpdater.updateNetworkLoad(l, network, id, busNum, p, q, p0, q0);
 
         return null;
     }
@@ -200,7 +200,7 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[1]);
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.RATIO_TAP_CHANGER, num);
-        networkUpdater.applyRatioTapChanger(network, id, tap);
+        networkUpdater.updateNetworkRatioTapChanger(network, id, tap);
 
         return null;
     }
@@ -215,7 +215,7 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[1]);
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.PHASE_TAP_CHANGER, num);
-        networkUpdater.applyPhaseTapChanger(network, id, tap);
+        networkUpdater.updateNetworkPhaseTapChanger(network, id, tap);
 
         return null;
     }
@@ -239,7 +239,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
 
-        networkUpdater.applyShunt(sc, busNum, q, b, sections);
+        networkUpdater.updateNetworkShunt(sc, busNum, q, b, sections);
 
         return null;
     }
@@ -261,7 +261,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid bus id '" + id + "'");
         }
 
-        networkUpdater.applyBus(bus, v, theta);
+        networkUpdater.updateNetworkBus(bus, v, theta);
 
         return null;
     }
@@ -284,7 +284,7 @@ public class AmplNetworkReader {
         String id = mapper.getId(AmplSubset.BRANCH, num);
 
         Branch br = network.getBranch(id);
-        networkUpdater.applyBranch(br, network, id, busNum, busNum2, p1, p2, q1, q2);
+        networkUpdater.updateNetworkBranch(br, network, id, busNum, busNum2, p1, p2, q1, q2);
 
         return null;
     }
@@ -305,7 +305,7 @@ public class AmplNetworkReader {
         if (hl == null) {
             throw new AmplException("Invalid HvdcLine id '" + id + "'");
         }
-        networkUpdater.applyHvdcLine(hl, converterMode, targetP);
+        networkUpdater.updateNetworkHvdcLine(hl, converterMode, targetP);
 
         return null;
     }
@@ -329,7 +329,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid StaticVarCompensator id '" + id + "'");
         }
 
-        networkUpdater.applySvc(svc, busNum, vregul, targetV, q);
+        networkUpdater.updateNetworkSvc(svc, busNum, vregul, targetV, q);
 
         return null;
     }
@@ -352,7 +352,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid bus id '" + id + "'");
         }
 
-        networkUpdater.applyLcc(lcc, busNum, p, q);
+        networkUpdater.updateNetworkLcc(lcc, busNum, p, q);
 
         return null;
     }
@@ -374,7 +374,7 @@ public class AmplNetworkReader {
 
         String id = mapper.getId(AmplSubset.VSC_CONVERTER_STATION, num);
         VscConverterStation vsc = network.getVscConverterStation(id);
-        networkUpdater.applyVsc(vsc, busNum, vregul, targetV, targetQ, p, q);
+        networkUpdater.updateNetworkVsc(vsc, busNum, vregul, targetV, targetQ, p, q);
 
         return null;
     }
