@@ -411,7 +411,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             return this;
         }
 
-        interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
+        interface SwitchAdder extends IdentifiableAdder<Switch, SwitchAdder> {
 
             SwitchAdder setNode1(int node1);
 
@@ -425,6 +425,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
             SwitchAdder setRetained(boolean retained);
 
+            @Override
             Switch add();
         }
 
@@ -685,7 +686,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     interface BusBreakerView {
 
-        interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
+        interface SwitchAdder extends IdentifiableAdder<Switch, SwitchAdder> {
 
             SwitchAdder setBus1(String bus1);
 
@@ -693,6 +694,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
             SwitchAdder setOpen(boolean open);
 
+            @Override
             Switch add();
 
         }

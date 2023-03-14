@@ -24,7 +24,7 @@ package com.powsybl.iidm.network;
  * @see Substation
  * @see Network
  */
-public interface SubstationAdder extends IdentifiableAdder<SubstationAdder> {
+public interface SubstationAdder extends IdentifiableAdder<Substation, SubstationAdder> {
 
     SubstationAdder setCountry(Country country);
 
@@ -32,5 +32,6 @@ public interface SubstationAdder extends IdentifiableAdder<SubstationAdder> {
 
     SubstationAdder setGeographicalTags(String... tags);
 
+    @Override
     Substation add();
 }
