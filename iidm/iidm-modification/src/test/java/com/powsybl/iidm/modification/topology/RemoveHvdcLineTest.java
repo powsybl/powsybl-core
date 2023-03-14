@@ -9,6 +9,9 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.Test;
 
@@ -32,13 +35,34 @@ class RemoveHvdcLineTest extends AbstractConverterTest {
     }
 
     @Test
-    void testRemoveHvdcLineLccWithMcs() {
+    void testRemoveHvdcLineLccWithShuntCompensator() {
         Network network = HvdcTestNetwork.createLcc();
-        new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds(List.of("C1_Filter1", "C1_Filter2")).build().apply(network);
+        Substation s1 = network.getSubstation("S1");
+        VoltageLevel vl3 = s1.newVoltageLevel()
+                .setId("VL3")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl3.getBusBreakerView().newBus()
+                .setId("B5")
+                .add();
+        vl3.newShuntCompensator()
+                .setId("C5_Filter5")
+                .setName("Filter 5")
+                .setConnectableBus("B5")
+                .setBus("B5")
+                .setSectionCount(1)
+                .newLinearModel()
+                .setBPerSection(1e-5)
+                .setMaximumSectionCount(1)
+                .add()
+                .add();
+        new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds(List.of("C1_Filter1", "C1_Filter2", "C5_Filter5")).build().apply(network);
         assertNull(network.getHvdcLine("L"));
         assertNull(network.getLccConverterStation("C1"));
         assertNull(network.getShuntCompensator("C1_Filter1"));
         assertNull(network.getShuntCompensator("C1_Filter2"));
+        assertNotNull(network.getShuntCompensator("C5_Filter5"));
     }
 
     @Test

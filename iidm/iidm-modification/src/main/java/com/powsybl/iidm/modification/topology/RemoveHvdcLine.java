@@ -74,11 +74,9 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             shuntCompensatorsIds.forEach(shuntCompensatorId -> {
                 // check whether the shunt compensator is connected to the same voltage level as the LCC
                 boolean isSameVoltageLevel = network.getVoltageLevelStream()
-                        .filter(voltageLevel -> voltageLevel.getConnectableStream(ShuntCompensator.class)
-                                .anyMatch(shuntCompensator ->
-                                        shuntCompensatorId.equals(shuntCompensator.getId()) && lccVoltageLevel.contains(voltageLevel)
-                                )
-                        ).findFirst().isPresent();
+                        .filter(voltageLevel -> lccVoltageLevel.contains(voltageLevel))
+                        .flatMap(voltageLevel -> voltageLevel.getConnectableStream(ShuntCompensator.class))
+                        .anyMatch(shuntCompensator -> shuntCompensator.getId().equals(shuntCompensatorId));
 
                 if (isSameVoltageLevel) {
                     ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
