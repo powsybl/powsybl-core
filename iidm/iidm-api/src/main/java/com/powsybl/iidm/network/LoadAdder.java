@@ -24,7 +24,7 @@ package com.powsybl.iidm.network;
  * @see Load
  * @see VoltageLevel
  */
-public interface LoadAdder extends InjectionAdder<LoadAdder> {
+public interface LoadAdder extends InjectionAdder<Load, LoadAdder> {
 
     LoadAdder setLoadType(LoadType loadType);
 
@@ -32,6 +32,7 @@ public interface LoadAdder extends InjectionAdder<LoadAdder> {
 
     LoadAdder setQ0(double q0);
 
+    @Override
     Load add();
 
 }

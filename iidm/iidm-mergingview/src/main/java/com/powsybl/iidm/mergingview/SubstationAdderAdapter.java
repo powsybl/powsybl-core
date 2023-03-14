@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-class SubstationAdderAdapter extends AbstractIdentifiableAdderAdapter<SubstationAdder> implements SubstationAdder {
+class SubstationAdderAdapter extends AbstractIdentifiableAdderAdapter<Substation, SubstationAdder> implements SubstationAdder {
 
     SubstationAdderAdapter(final SubstationAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
