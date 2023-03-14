@@ -54,7 +54,7 @@ public class ScalingParameters {
     }
 
     /**
-     * @return default scaling context: generator convention, not reconnecting terminals and not scaling at constant
+     * @return default scaling parameters: generator convention, not reconnecting terminals and not scaling at constant
      * power factor.
      */
     public static ScalingParameters getDefault() {

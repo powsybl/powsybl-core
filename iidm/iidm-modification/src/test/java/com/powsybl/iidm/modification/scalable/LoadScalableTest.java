@@ -129,60 +129,60 @@ class LoadScalableTest {
 
         //test with ScalingConvention.LOAD
         convention = LOAD;
-        ScalingParameters context = new ScalingParameters(convention);
+        ScalingParameters parameters = new ScalingParameters(convention);
 
         //test with default maxValue = Double.MAX_VALUE and minValue = 0
         Load load = network.getLoad("l1");
         assertEquals(100, load.getP0(), 1e-3);
-        assertEquals(20, l1.scale(network, 20, context), 1e-3);
+        assertEquals(20, l1.scale(network, 20, parameters), 1e-3);
         assertEquals(120, load.getP0(), 1e-3);
-        assertEquals(-40, l1.scale(network, -40, context), 1e-3);
+        assertEquals(-40, l1.scale(network, -40, parameters), 1e-3);
         assertEquals(80, load.getP0(), 1e-3);
 
         //test minValue = 0
-        assertEquals(-80, l1.scale(network, -140, context), 1e-3);
+        assertEquals(-80, l1.scale(network, -140, parameters), 1e-3);
         assertEquals(0, load.getP0(), 1e-3);
 
         //test with a maximum value
         l2.reset(network);
         assertEquals(0, load.getP0(), 1e-3);
-        assertEquals(0, l2.scale(network, -40, context), 1e-3);
+        assertEquals(0, l2.scale(network, -40, parameters), 1e-3);
         assertEquals(0, load.getP0(), 1e-3);
-        assertEquals(110, l2.scale(network, 120, context), 1e-3);
+        assertEquals(110, l2.scale(network, 120, parameters), 1e-3);
         assertEquals(110, load.getP0(), 1e-3);
-        assertEquals(-80, l2.scale(network, -80, context), 1e-3);
+        assertEquals(-80, l2.scale(network, -80, parameters), 1e-3);
         assertEquals(30, load.getP0(), 1e-3);
 
         //test with minValue = 20
-        assertEquals(-10, l3.scale(network, -30, context), 1e-3);
+        assertEquals(-10, l3.scale(network, -30, parameters), 1e-3);
         assertEquals(20, load.getP0(), 1e-3);
 
         l3.reset(network);
         //test with p0 outside interval
         assertEquals(0, load.getP0(), 1e-3);
-        assertEquals(0, l3.scale(network, -40, context), 1e-3);
+        assertEquals(0, l3.scale(network, -40, parameters), 1e-3);
 
         //test LoadScalable with negative minValue
         l4.reset(network);
         assertEquals(0, load.getP0(), 1e-3);
-        assertEquals(-10, l4.scale(network, -20, context), 1e-3);
+        assertEquals(-10, l4.scale(network, -20, parameters), 1e-3);
         assertEquals(-10, load.getP0(), 1e-3);
     }
 
     @Test
     void testConstantPowerFactor() {
         //test with ScalingConvention.GENERATOR
-        ScalingParameters context = new ScalingParameters(false, true);
+        ScalingParameters parameters = new ScalingParameters(false, true);
 
         //test with default maxValue = Double.MAX_VALUE and minValue = 0
         Load load = network.getLoad("l1");
 
-        ls1.scale(network, 20, context);
+        ls1.scale(network, 20, parameters);
         assertEquals(0.0, load.getQ0(), 1e-3);
 
         load.setQ0(10.0);
         assertEquals(10.0, load.getQ0(), 1e-3);
-        ls1.scale(network, 20, context);
+        ls1.scale(network, 20, parameters);
         assertEquals(60, load.getP0(), 1e-3);
         assertEquals(7.5, load.getQ0(), 1e-3);
     }

@@ -122,24 +122,24 @@ class ProportionalScalable extends AbstractCompoundScalable {
         });
     }
 
-    private double iterativeScale(Network n, double asked, ScalingParameters context) {
+    private double iterativeScale(Network n, double asked, ScalingParameters parameters) {
         double done = 0;
         while (Math.abs(asked - done) > EPSILON && notSaturated()) {
             checkIterationPercentages();
-            done += scaleIteration(n, asked - done, context);
+            done += scaleIteration(n, asked - done, parameters);
             updateIterationPercentages();
         }
         return done;
     }
 
-    private double scaleIteration(Network n, double asked, ScalingParameters context) {
+    private double scaleIteration(Network n, double asked, ScalingParameters parameters) {
         double done = 0;
         for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             Scalable s = scalablePercentage.getScalable();
             double iterationPercentage = scalablePercentage.getIterationPercentage();
             double askedOnScalable = iterationPercentage / 100 * asked;
             double doneOnScalable = 0;
-            doneOnScalable = s.scale(n, askedOnScalable, context);
+            doneOnScalable = s.scale(n, askedOnScalable, parameters);
             if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
                 scalablePercentage.setIterationPercentage(0);
             }
@@ -149,14 +149,14 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingParameters context) {
+    public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
-        Objects.requireNonNull(context);
+        Objects.requireNonNull(parameters);
         reinitIterationPercentage();
         if (iterative) {
-            return iterativeScale(n, asked, context);
+            return iterativeScale(n, asked, parameters);
         } else {
-            return scaleIteration(n, asked, context);
+            return scaleIteration(n, asked, parameters);
         }
     }
 

@@ -77,5 +77,4 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
             scalable.filterInjections(n, injections, notFoundInjections);
         }
     }
-
 }

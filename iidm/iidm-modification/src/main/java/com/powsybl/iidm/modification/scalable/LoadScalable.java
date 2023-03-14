@@ -96,9 +96,9 @@ class LoadScalable extends AbstractInjectionScalable {
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingParameters context) {
+    public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
-        Objects.requireNonNull(context);
+        Objects.requireNonNull(parameters);
 
         Load l = n.getLoad(id);
 
@@ -109,7 +109,7 @@ class LoadScalable extends AbstractInjectionScalable {
         }
 
         Terminal t = l.getTerminal();
-        if (!t.isConnected() && context.isReconnect()) {
+        if (!t.isConnected() && parameters.isReconnect()) {
             t.connect();
             LOGGER.info("Connecting {}", l.getId());
         }
@@ -126,7 +126,7 @@ class LoadScalable extends AbstractInjectionScalable {
         double availableDown = oldP0 - minValue;
         double availableUp = maxValue - oldP0;
 
-        if (context.getScalingConvention() == LOAD) {
+        if (parameters.getScalingConvention() == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             l.setP0(oldP0 + done);
         } else {
@@ -137,7 +137,7 @@ class LoadScalable extends AbstractInjectionScalable {
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
                 l.getId(), oldP0, l.getP0());
 
-        if (context.isConstantPowerFactor()) {
+        if (parameters.isConstantPowerFactor()) {
             l.setQ0(l.getP0() * oldQ0 / oldP0);
             LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
                     l.getId(), oldQ0, l.getQ0());

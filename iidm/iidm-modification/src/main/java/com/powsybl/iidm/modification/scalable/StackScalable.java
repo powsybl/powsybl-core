@@ -35,14 +35,14 @@ class StackScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingParameters context) {
+    public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
 
         double done = 0;
         double remaining = asked;
         for (Scalable scalable : scalables) {
             if (Math.abs(remaining) > EPSILON) {
-                double v = scalable.scale(n, remaining, context);
+                double v = scalable.scale(n, remaining, parameters);
                 done += v;
                 remaining -= v;
             }

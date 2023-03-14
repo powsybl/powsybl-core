@@ -109,9 +109,9 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
      * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
      */
     @Override
-    public double scale(Network n, double asked, ScalingParameters context) {
+    public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
-        Objects.requireNonNull(context);
+        Objects.requireNonNull(parameters);
 
         DanglingLine dl = n.getDanglingLine(id);
 
@@ -122,7 +122,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         }
 
         Terminal t = dl.getTerminal();
-        if (!t.isConnected() && context.isReconnect()) {
+        if (!t.isConnected() && parameters.isReconnect()) {
             t.connect();
             LOGGER.info("Connecting {}", dl.getId());
         }
@@ -138,7 +138,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         double availableDown = oldP0 - minValue;
         double availableUp = maxValue - oldP0;
 
-        if (context.getScalingConvention() == LOAD) {
+        if (parameters.getScalingConvention() == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             dl.setP0(oldP0 + done);
         } else {
