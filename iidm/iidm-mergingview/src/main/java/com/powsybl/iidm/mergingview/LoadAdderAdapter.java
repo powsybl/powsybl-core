@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.LoadType;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class LoadAdderAdapter extends AbstractInjectionAdderAdapter<LoadAdder> implements LoadAdder {
+public class LoadAdderAdapter extends AbstractInjectionAdderAdapter<Load, LoadAdder> implements LoadAdder {
 
     LoadAdderAdapter(final LoadAdder delegate, final MergingViewIndex index) {
         super(delegate, index);

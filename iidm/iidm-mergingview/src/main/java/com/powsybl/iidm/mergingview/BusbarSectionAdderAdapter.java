@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class BusbarSectionAdderAdapter extends AbstractIdentifiableAdderAdapter<BusbarSectionAdder> implements BusbarSectionAdder {
+public class BusbarSectionAdderAdapter extends AbstractIdentifiableAdderAdapter<BusbarSection, BusbarSectionAdder> implements BusbarSectionAdder {
 
     BusbarSectionAdderAdapter(final BusbarSectionAdder delegate, final MergingViewIndex index) {
         super(delegate, index);

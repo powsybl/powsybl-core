@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.VscConverterStationAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class VscConverterStationAdderAdapter extends AbstractHvdcConverterStationAdderAdapter<VscConverterStationAdder> implements VscConverterStationAdder {
+public class VscConverterStationAdderAdapter extends AbstractHvdcConverterStationAdderAdapter<VscConverterStation, VscConverterStationAdder> implements VscConverterStationAdder {
 
     VscConverterStationAdderAdapter(final VscConverterStationAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
