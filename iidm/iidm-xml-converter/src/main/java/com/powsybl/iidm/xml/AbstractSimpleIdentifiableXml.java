@@ -15,6 +15,8 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 
 /**
+ * Abstract class for equipment that can and/or must be entirely created before reading their sub-elements.
+ *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 abstract class AbstractSimpleIdentifiableXml<T extends Identifiable, A extends IdentifiableAdder<A>, P extends Identifiable> extends AbstractIdentifiableXml<T, A, P> {
