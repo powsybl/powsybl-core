@@ -144,11 +144,6 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
     }
 
     @Override
-    protected ShuntCompensator add(ShuntCompensatorAdder adder) {
-        return adder.add();
-    }
-
-    @Override
     protected void readSubElements(String id, ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
