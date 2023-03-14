@@ -45,11 +45,11 @@ import java.util.zip.ZipOutputStream;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 @AutoService(CgmesImportPreProcessor.class)
-public class DefineMissingContainersPreProcessor implements CgmesImportPreProcessor {
+public class CreateMissingContainersPreProcessor implements CgmesImportPreProcessor {
 
-    public static final String NAME = "DefineMissingContainers";
+    public static final String NAME = "CreateMissingContainers";
     public static final String FIXES_FOLDER_NAME = "iidm.import.cgmes.fixes-for-missing-containers-folder";
-    private static final Logger LOG = LoggerFactory.getLogger(DefineMissingContainersPreProcessor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CreateMissingContainersPreProcessor.class);
     private static final Parameter FIXES_FOLDER_NAME_PARAMETER = new Parameter(FIXES_FOLDER_NAME,
             ParameterType.STRING,
             "Folder where zip files containing fixes will be created: one zip for each imported network missing data",
@@ -57,11 +57,11 @@ public class DefineMissingContainersPreProcessor implements CgmesImportPreProces
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
-    public DefineMissingContainersPreProcessor(PlatformConfig platformConfig) {
+    public CreateMissingContainersPreProcessor(PlatformConfig platformConfig) {
         defaultValueConfig = new ParameterDefaultValueConfig(Objects.requireNonNull(platformConfig));
     }
 
-    public DefineMissingContainersPreProcessor() {
+    public CreateMissingContainersPreProcessor() {
         this(PlatformConfig.defaultConfig());
     }
 

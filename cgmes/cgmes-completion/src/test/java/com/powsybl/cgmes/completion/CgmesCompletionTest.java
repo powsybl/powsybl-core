@@ -27,7 +27,7 @@ class CgmesCompletionTest {
     @Test
     void miniGridNodeBreakerMissingVoltageLevel() {
         Properties importParams = new Properties();
-        importParams.put(CgmesImport.PRE_PROCESSORS, "DefineMissingContainers");
+        importParams.put(CgmesImport.PRE_PROCESSORS, "CreateMissingContainers");
 
         // The only way to pass the output folder where we want the fixes to be written is to use a config file
         // Its contents should be:

@@ -29,8 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-// FIXME(Luma) rename to CgmesImportProcessorsTest (we will test both pre- and post- processors)
-class CgmesImportPostProcessorTest {
+class CgmesImportPreAndPostProcessorsTest {
 
     class FakeCgmesImportPostProcessor implements CgmesImportPostProcessor {
 
