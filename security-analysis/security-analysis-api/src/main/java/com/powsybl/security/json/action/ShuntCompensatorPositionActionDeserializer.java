@@ -7,7 +7,6 @@
  */
 package com.powsybl.security.json.action;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -34,7 +33,7 @@ public class ShuntCompensatorPositionActionDeserializer extends StdDeserializer<
     }
 
     @Override
-    public ShuntCompensatorPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JacksonException {
+    public ShuntCompensatorPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
