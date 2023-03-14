@@ -18,7 +18,7 @@ import java.util.Objects;
  * @see AmplNetworkReader
  * @see AmplNetworkUpdater
  */
-public class DefaultAmplNetworkUpdater implements AmplNetworkUpdater {
+public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
 
     private final StringToIntMapper<AmplSubset> networkMapper;
 

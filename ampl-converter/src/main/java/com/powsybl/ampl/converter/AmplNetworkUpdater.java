@@ -6,23 +6,18 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 
 /**
  * Interface to modify a network after an Ampl solve.<br>
  * {@link AmplNetworkReader} does the Ampl output parsing,
  * and {@link AmplNetworkUpdater} modifies the {@link Network}.<br>
- * Also provides some utility functions for implementations :
- * <ul>
- *     <li>{@link AmplNetworkUpdater#busConnection}</li>
- *     <li>{@link AmplNetworkUpdater#getThreeWindingsTransformerLeg}</li>
- *     <li>{@link AmplNetworkUpdater#getThreeWindingsTransformer}</li>
- * </ul>
+ * <p>
  * Default implementation in {@link DefaultAmplNetworkUpdater}.
  *
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  * @see AmplNetworkReader
+ * @see AbstractAmplNetworkUpdater
  * @see DefaultAmplNetworkUpdater
  */
 public interface AmplNetworkUpdater {
@@ -53,45 +48,5 @@ public interface AmplNetworkUpdater {
     void applyHvdcLine(HvdcLine hl, String converterMode, double targetP);
 
     void applyLcc(LccConverterStation lcc, int busNum, double p, double q);
-
-    default void busConnection(Terminal t, int busNum, StringToIntMapper<AmplSubset> mapper) {
-        if (busNum == -1) {
-            t.disconnect();
-        } else {
-            String busId = mapper.getId(AmplSubset.BUS, busNum);
-            Bus connectable = AmplUtil.getConnectableBus(t);
-            if (connectable != null && connectable.getId().equals(busId)) {
-                t.connect();
-            }
-        }
-    }
-
-    default ThreeWindingsTransformer.Leg getThreeWindingsTransformerLeg(ThreeWindingsTransformer twt, String legId) {
-        if (legId.endsWith(AmplConstants.LEG1_SUFFIX)) {
-            return twt.getLeg1();
-        } else if (legId.endsWith(AmplConstants.LEG2_SUFFIX)) {
-            return twt.getLeg2();
-        } else if (legId.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            return twt.getLeg3();
-        }
-
-        throw new IllegalArgumentException("Unexpected suffix: " + legId.substring(legId.length() - 5));
-    }
-
-    /**
-     * Return a 3 windings transformer from one its leg ID
-     *
-     * @param legId   The ID of a 3WT leg
-     * @param network The IIDM network to update
-     * @return A three windings transformer or null if not found
-     */
-    default ThreeWindingsTransformer getThreeWindingsTransformer(Network network, String legId) {
-        String twtId = legId.substring(0, legId.length() - 5);
-        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(twtId);
-        if (twt == null) {
-            throw new AmplException("Unable to find transformer '" + twtId + "'");
-        }
-        return twt;
-    }
 
 }
