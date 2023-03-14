@@ -82,13 +82,7 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
 
     @Override
     protected Connectable<?> add() {
-        if (branchAdder instanceof LineAdder) {
-            return ((LineAdder) branchAdder).add();
-        } else if (branchAdder instanceof TwoWindingsTransformerAdder) {
-            return ((TwoWindingsTransformerAdder) branchAdder).add();
-        } else {
-            throw new IllegalStateException("Given BranchAdder not supported: " + branchAdder.getClass().getName());
-        }
+        return branchAdder.add();
     }
 
     @Override
