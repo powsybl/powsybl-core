@@ -18,7 +18,10 @@ import javax.xml.stream.XMLStreamWriter;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractConnectableXml<T extends Connectable, A extends IdentifiableAdder<A>, P extends Container> extends AbstractIdentifiableXml<T, A, P> {
+public final class ConnectableXmlUtil {
+
+    private ConnectableXmlUtil() {
+    }
 
     private static final String BUS = "bus";
     private static final String CONNECTABLE_BUS = "connectableBus";
@@ -39,21 +42,21 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         return index != null ? index.toString() : "";
     }
 
-    protected static boolean hasValidOperationalLimits(Branch<?> branch, NetworkXmlWriterContext context) {
+    public static boolean hasValidOperationalLimits(Branch<?> branch, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0) {
             return !branch.getOperationalLimits1().isEmpty() || !branch.getOperationalLimits2().isEmpty();
         }
         return branch.getCurrentLimits1().isPresent() || branch.getCurrentLimits2().isPresent();
     }
 
-    protected static boolean hasValidOperationalLimits(FlowsLimitsHolder limitsHolder, NetworkXmlWriterContext context) {
+    public static boolean hasValidOperationalLimits(FlowsLimitsHolder limitsHolder, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0) {
             return !limitsHolder.getOperationalLimits().isEmpty();
         }
         return limitsHolder.getCurrentLimits().isPresent();
     }
 
-    protected static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
+    public static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
         switch (topologyLevel) {
             case NODE_BREAKER:
@@ -88,7 +91,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         }
     }
 
-    protected static void readNodeOrBus(InjectionAdder adder, NetworkXmlReaderContext context) {
+    public static void readNodeOrBus(InjectionAdder adder, NetworkXmlReaderContext context) {
         String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS));
         String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS));
         Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE);
@@ -103,7 +106,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         }
     }
 
-    protected static void readNodeOrBus(BranchAdder adder, NetworkXmlReaderContext context) {
+    public static void readNodeOrBus(BranchAdder adder, NetworkXmlReaderContext context) {
         String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
         String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus1"));
         Integer node1 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node1");
@@ -134,7 +137,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         adder.setVoltageLevel2(voltageLevelId2);
     }
 
-    protected static void readNodeOrBus(int index, LegAdder adder, NetworkXmlReaderContext context) {
+    public static void readNodeOrBus(int index, LegAdder adder, NetworkXmlReaderContext context) {
         String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + index));
         String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS + index));
         Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE + index);
@@ -151,12 +154,12 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         adder.setVoltageLevel(voltageLevelId);
     }
 
-    protected static void writePQ(Integer index, Terminal t, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writePQ(Integer index, Terminal t, XMLStreamWriter writer) throws XMLStreamException {
         XmlUtil.writeOptionalDouble("p" + indexToString(index), t.getP(), Double.NaN, writer);
         XmlUtil.writeOptionalDouble("q" + indexToString(index), t.getQ(), Double.NaN, writer);
     }
 
-    protected static void readPQ(Integer index, Terminal t, XMLStreamReader reader) {
+    public static void readPQ(Integer index, Terminal t, XMLStreamReader reader) {
         double p = XmlUtil.readOptionalDoubleAttribute(reader, "p" + indexToString(index));
         double q = XmlUtil.readOptionalDoubleAttribute(reader, "q" + indexToString(index));
         t.setP(p)
@@ -268,7 +271,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
      * @deprecated Use {@link TerminalRefXml#writeTerminalRef(Terminal, NetworkXmlWriterContext, String)} instead.
      */
     @Deprecated
-    protected static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
         TerminalRefXml.writeTerminalRef(t, context, elementName);
     }
 
@@ -276,7 +279,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
      * @deprecated Use {@link TerminalRefXml#readTerminalRef(Network, String, String)} instead.
      */
     @Deprecated
-    protected static Terminal readTerminalRef(Network network, String id, String side) {
+    public static Terminal readTerminalRef(Network network, String id, String side) {
         return TerminalRefXml.readTerminalRef(network, id, side);
     }
 }
