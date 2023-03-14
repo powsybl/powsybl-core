@@ -26,8 +26,6 @@ abstract class AbstractComplexIdentifiableXml<T extends Identifiable<T>, A exten
 
     protected abstract void readRootElementAttributes(A adder, List<Consumer<T>> toApply, NetworkXmlReaderContext context);
 
-    protected abstract T add(A adder); // TODO: to change when IIDM adders API is changed (add() is added in API)
-
     protected void readSubElements(String id, List<Consumer<T>> toApply, NetworkXmlReaderContext context) throws XMLStreamException {
         if (context.getReader().getLocalName().equals(PropertiesXml.PROPERTY)) {
             PropertiesXml.read(toApply, context);
@@ -48,7 +46,7 @@ abstract class AbstractComplexIdentifiableXml<T extends Identifiable<T>, A exten
         String id = readIdentifierAttributes(adder, context);
         readRootElementAttributes(adder, toApply, context);
         readSubElements(id, adder, toApply, context);
-        T identifiable = add(adder);
+        T identifiable = adder.add();
         toApply.forEach(consumer -> consumer.accept(identifiable));
     }
 }
