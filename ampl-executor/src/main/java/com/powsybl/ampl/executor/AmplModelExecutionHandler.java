@@ -90,8 +90,8 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
     }
 
     private void exportNetworkAsAmpl(Path workingDir) {
-        DataSource networkExportPath = new FileDataSource(workingDir, this.model.getNetworkDataPrefix());
-        new AmplExporter().export(network, null, networkExportPath);
+        DataSource networkExportDataSource = new FileDataSource(workingDir, this.model.getNetworkDataPrefix());
+        new AmplExporter().export(network, null, networkExportDataSource);
     }
 
     private void doAfterSuccess(Path workingDir, AmplNetworkReader reader) throws IOException {
