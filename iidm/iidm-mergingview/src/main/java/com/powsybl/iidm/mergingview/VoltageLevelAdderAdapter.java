@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.VoltageLevelAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-class VoltageLevelAdderAdapter extends AbstractIdentifiableAdderAdapter<VoltageLevelAdder> implements VoltageLevelAdder {
+class VoltageLevelAdderAdapter extends AbstractIdentifiableAdderAdapter<VoltageLevel, VoltageLevelAdder> implements VoltageLevelAdder {
 
     VoltageLevelAdderAdapter(final VoltageLevelAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
