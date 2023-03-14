@@ -15,5 +15,6 @@ public interface HvdcConverterStationAdder<T extends HvdcConverterStation<T>, A 
 
     A setLossFactor(float lossFactor);
 
+    @Override
     T add();
 }

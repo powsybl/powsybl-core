@@ -16,5 +16,6 @@ public interface LccConverterStationAdder extends HvdcConverterStationAdder<LccC
 
     LccConverterStationAdder setPowerFactor(float powerFactor);
 
+    @Override
     LccConverterStation add();
 }

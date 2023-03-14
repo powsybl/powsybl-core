@@ -24,5 +24,6 @@ public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscC
         return this;
     }
 
+    @Override
     VscConverterStation add();
 }

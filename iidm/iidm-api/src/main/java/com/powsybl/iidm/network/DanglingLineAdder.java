@@ -62,6 +62,7 @@ public interface DanglingLineAdder extends InjectionAdder<DanglingLine, Dangling
         throw new UnsupportedOperationException();
     }
 
+    @Override
     DanglingLine add();
 
 }

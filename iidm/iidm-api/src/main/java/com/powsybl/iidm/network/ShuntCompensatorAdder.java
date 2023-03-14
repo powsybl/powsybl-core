@@ -48,6 +48,7 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensator, 
         throw new UnsupportedOperationException();
     }
 
+    @Override
     ShuntCompensator add();
 
 }

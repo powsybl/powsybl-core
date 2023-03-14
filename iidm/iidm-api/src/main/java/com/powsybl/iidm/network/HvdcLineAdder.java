@@ -28,5 +28,6 @@ public interface HvdcLineAdder extends IdentifiableAdder<HvdcLine, HvdcLineAdder
 
     HvdcLineAdder setConverterStationId2(String converterStationId2);
 
+    @Override
     HvdcLine add();
 }

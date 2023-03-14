@@ -37,6 +37,7 @@ public interface LineAdder extends BranchAdder<Line, LineAdder> {
 
     LineAdder setB2(double b2);
 
+    @Override
     Line add();
 
 }

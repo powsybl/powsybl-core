@@ -22,5 +22,6 @@ public interface VoltageLevelAdder extends IdentifiableAdder<VoltageLevel, Volta
 
     VoltageLevelAdder setTopologyKind(TopologyKind topologyKind);
 
+    @Override
     VoltageLevel add();
 }

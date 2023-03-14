@@ -18,5 +18,6 @@ public interface InjectionAdder<T extends Injection<? super T>, A extends Inject
 
     A setConnectableBus(String connectableBus);
 
+    @Override
     T add();
 }

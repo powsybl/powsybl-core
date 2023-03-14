@@ -32,5 +32,6 @@ public interface SubstationAdder extends IdentifiableAdder<Substation, Substatio
 
     SubstationAdder setGeographicalTags(String... tags);
 
+    @Override
     Substation add();
 }

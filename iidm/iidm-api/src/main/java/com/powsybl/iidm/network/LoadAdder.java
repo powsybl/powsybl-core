@@ -32,6 +32,7 @@ public interface LoadAdder extends InjectionAdder<Load, LoadAdder> {
 
     LoadAdder setQ0(double q0);
 
+    @Override
     Load add();
 
 }

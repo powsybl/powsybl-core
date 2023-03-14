@@ -12,6 +12,7 @@ package com.powsybl.iidm.network;
  */
 public interface BusAdder extends IdentifiableAdder<Bus, BusAdder> {
 
+    @Override
     Bus add();
 
 }

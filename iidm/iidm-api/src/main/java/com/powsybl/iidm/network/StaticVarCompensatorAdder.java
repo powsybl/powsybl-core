@@ -45,5 +45,6 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    @Override
     StaticVarCompensator add();
 }

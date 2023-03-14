@@ -28,5 +28,6 @@ public interface BranchAdder<T extends Branch<? super T>, A extends BranchAdder>
 
     A setConnectableBus2(String connectableBus2);
 
+    @Override
     T add();
 }

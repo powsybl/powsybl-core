@@ -28,6 +28,7 @@ public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTran
         throw new UnsupportedOperationException();
     }
 
+    @Override
     TwoWindingsTransformer add();
 
 }

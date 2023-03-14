@@ -14,5 +14,6 @@ public interface BusbarSectionAdder extends IdentifiableAdder<BusbarSection, Bus
 
     BusbarSectionAdder setNode(int node);
 
+    @Override
     BusbarSection add();
 }

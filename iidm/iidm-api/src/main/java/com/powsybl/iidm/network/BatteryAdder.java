@@ -77,5 +77,6 @@ public interface BatteryAdder extends InjectionAdder<Battery, BatteryAdder> {
      *      - minP <= p0 <= maxP
      * @return {@link Battery}
      */
+    @Override
     Battery add();
 }

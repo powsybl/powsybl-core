@@ -61,5 +61,6 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
      *      - ratedS is set and ratedS > 0
      * @return {@link Generator}
      */
+    @Override
     Generator add();
 }

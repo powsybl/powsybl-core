@@ -56,6 +56,7 @@ public interface TieLineAdder extends BranchAdder<TieLine, TieLineAdder> {
 
     TieLineAdder.HalfLineAdder newHalfLine2();
 
+    @Override
     TieLine add();
 
 }
