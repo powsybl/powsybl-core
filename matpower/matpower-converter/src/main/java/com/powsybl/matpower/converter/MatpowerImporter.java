@@ -360,16 +360,16 @@ public class MatpowerImporter implements Importer {
                 branch = newTwt;
                 LOGGER.trace("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
             } else {
-                double vnom1 = voltageLevel1.getNominalV();
-                double vnom2 = voltageLevel2.getNominalV();
-                double sbase = context.getBaseMva();
-                double r = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(mBranch.getR(), vnom1, vnom2, sbase);
-                double x = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(mBranch.getX(), vnom1, vnom2, sbase);
+                double nominalV1 = voltageLevel1.getNominalV();
+                double nominalV2 = voltageLevel2.getNominalV();
+                double sBase = context.getBaseMva();
+                double r = impedanceToEngineeringUnitsForLine(mBranch.getR(), nominalV1, nominalV2, sBase);
+                double x = impedanceToEngineeringUnitsForLine(mBranch.getX(), nominalV1, nominalV2, sBase);
                 Complex ytr = impedanceToAdmittance(r, x);
-                double g1 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getReal(), 0.0, vnom1, vnom2, sbase);
-                double b1 = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getImaginary(), mBranch.getB() * 0.5, vnom1, vnom2, sbase);
-                double g2 = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getReal(), 0.0, vnom1, vnom2, sbase);
-                double b2 = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(ytr.getImaginary(), mBranch.getB() * 0.5, vnom1, vnom2, sbase);
+                double g1 = admittanceEndToEngineeringUnitsForLine(ytr.getReal(), 0.0, nominalV1, nominalV2, sBase);
+                double b1 = admittanceEndToEngineeringUnitsForLine(ytr.getImaginary(), mBranch.getB() * 0.5, nominalV1, nominalV2, sBase);
+                double g2 = admittanceEndToEngineeringUnitsForLine(ytr.getReal(), 0.0, nominalV2, nominalV1, sBase);
+                double b2 = admittanceEndToEngineeringUnitsForLine(ytr.getImaginary(), mBranch.getB() * 0.5, nominalV2, nominalV1, sBase);
 
                 branch = network.newLine()
                         .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
@@ -405,16 +405,17 @@ public class MatpowerImporter implements Importer {
         return r == 0.0 && x == 0.0 ? new Complex(0.0, 0.0) : new Complex(r, x).reciprocal();
     }
 
-    private static double impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double impedance, double vnom1, double vnom2, double sbase) {
-        return impedance * vnom1 * vnom2 / sbase;
+    private static double impedanceToEngineeringUnitsForLine(double impedance, double nominalVoltageAtEnd,
+                                                             double nominalVoltageAtOtherEnd, double sBase) {
+        // this method handles also line with different nominal voltage at ends
+        return impedance * nominalVoltageAtEnd * nominalVoltageAtOtherEnd / sBase;
     }
 
-    private static double admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
-        return shuntAdmittance * sbase / (vnom1 * vnom1) - (1 - vnom2 / vnom1) * admittanceTransmissionEu;
-    }
-
-    static double admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
-        return shuntAdmittance * sbase / (vnom2 * vnom2) - (1 - vnom1 / vnom2) * admittanceTransmissionEu;
+    private static double admittanceEndToEngineeringUnitsForLine(double transmissionAdmittance, double shuntAdmittanceAtEnd,
+                                                                 double nominalVoltageAtEnd, double nominalVoltageAtOtherEnd, double sBase) {
+        // this method handles also line with different nominal voltage at ends
+        // note that ytr is already in engineering units
+        return shuntAdmittanceAtEnd * sBase / (nominalVoltageAtEnd * nominalVoltageAtEnd) - (1 - nominalVoltageAtOtherEnd / nominalVoltageAtEnd) * transmissionAdmittance;
     }
 
     @Override
