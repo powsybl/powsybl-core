@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Identifiable;
@@ -17,7 +16,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractIdentifiableXml<T extends Identifiable<? super T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> {
@@ -80,34 +78,11 @@ abstract class AbstractIdentifiableXml<T extends Identifiable<? super T>, A exte
         context.addExportedEquipment(identifiable);
     }
 
-    protected void readUntilEndRootElement(XMLStreamReader reader, XmlUtil.XmlEventHandler eventHandler) throws XMLStreamException {
-        XmlUtil.readUntilEndElement(getRootElementName(), reader, eventHandler);
-    }
-
     protected abstract A createAdder(P parent);
 
-    protected abstract T readRootElementAttributes(A adder, NetworkXmlReaderContext context);
+    public abstract void read(P parent, NetworkXmlReaderContext context) throws XMLStreamException;
 
-    protected void readSubElements(T identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
-        if (context.getReader().getLocalName().equals(PropertiesXml.PROPERTY)) {
-            PropertiesXml.read(identifiable, context);
-        } else if (context.getReader().getLocalName().equals(AliasesXml.ALIAS)) {
-            IidmXmlUtil.assertMinimumVersion(getRootElementName(), AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-            AliasesXml.read(identifiable, context);
-        } else {
-            throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + identifiable.getId() + ">");
-        }
-    }
-
-    protected void readElement(String id, A adder, NetworkXmlReaderContext context) throws XMLStreamException {
-        T identifiable = readRootElementAttributes(adder, context);
-        if (identifiable != null) {
-            readSubElements(identifiable, context);
-        }
-    }
-
-    public final void read(P parent, NetworkXmlReaderContext context) throws XMLStreamException {
-        A adder = createAdder(parent);
+    protected String readIdentifierAttributes(A adder, NetworkXmlReaderContext context) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name"));
         adder.setId(id)
@@ -116,6 +91,10 @@ abstract class AbstractIdentifiableXml<T extends Identifiable<? super T>, A exte
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
             adder.setFictitious(fictitious);
         });
-        readElement(id, adder, context);
+        return id;
+    }
+
+    protected void readUntilEndRootElement(XMLStreamReader reader, XmlUtil.XmlEventHandler eventHandler) throws XMLStreamException {
+        XmlUtil.readUntilEndElement(getRootElementName(), reader, eventHandler);
     }
 }

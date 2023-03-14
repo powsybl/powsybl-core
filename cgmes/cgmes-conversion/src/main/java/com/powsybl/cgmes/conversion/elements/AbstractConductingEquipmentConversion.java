@@ -365,7 +365,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
         VoltageLevel vl = terminals[n - 1].voltageLevel;
         CgmesTerminal t = terminals[n - 1].t;
-        return context.nodeMapping().iidmNodeForTerminal(t, vl, equipmentIsConnected);
+        return context.nodeMapping().iidmNodeForTerminal(t, type.equals("Switch"), vl, equipmentIsConnected);
     }
 
     String busId() {
