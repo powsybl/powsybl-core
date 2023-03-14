@@ -179,9 +179,9 @@ public class DefineMissingContainersPreProcessor implements CgmesImportPreProces
     private static RegionContainers writeRegionContainers(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
 
-        // TODO(Luma) An alternative would be to make public the mehod writeFictitiousSubstationFor()
+        // TODO(Luma) An alternative would be to make public the method writeFictitiousSubstationFor()
         // from EquipmentExport and use it here.
-        // But then a different subregion/region would be created for each voltage level
+        // We could group all missing voltage levels in the same (fictitious) substation
         RegionContainers regionContainers = new RegionContainers();
         regionContainers.subGeographicalRegionId = CgmesExportUtil.getUniqueId();
         String subGeographicalRegionName = "SGR fix for missing data";
