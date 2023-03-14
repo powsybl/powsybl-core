@@ -9,6 +9,9 @@ package com.powsybl.ampl.executor;
 import java.util.Collection;
 import java.util.Collections;
 
+/**
+ * @author Nicolas Pierre <nicolas.pierre@artelys.com>
+ */
 public class EmptyAmplParameters implements AmplParameters {
 
     @Override
