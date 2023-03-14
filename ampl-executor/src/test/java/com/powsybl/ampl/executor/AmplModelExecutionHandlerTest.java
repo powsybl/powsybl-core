@@ -41,10 +41,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  */
-public class AmplModelExecutionHandlerTest {
+class AmplModelExecutionHandlerTest {
 
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Files.createDirectory(fs.getPath("/workingDir"));
             // Test data
@@ -72,7 +72,7 @@ public class AmplModelExecutionHandlerTest {
     }
 
     @Test
-    public void testUtilities() {
+    void testUtilities() {
         String amplBinPath = AmplModelExecutionHandler.getAmplBinPath(getAmplConfig());
         Assertions.assertEquals("/home/test/ampl" + File.separator + "ampl", amplBinPath,
                 "Ampl binary is wrongly named ");

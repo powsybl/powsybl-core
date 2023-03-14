@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  */
-public class AmplConfigTest {
+class AmplConfigTest {
     @Test
-    public void test() throws Exception {
+    void test() throws Exception {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
             MapModuleConfig moduleConfig = platformConfig.createModuleConfig("ampl");
