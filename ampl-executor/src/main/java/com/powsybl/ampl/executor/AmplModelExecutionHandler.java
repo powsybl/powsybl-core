@@ -17,7 +17,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -90,16 +89,9 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         }
     }
 
-    private void exportNetworkAsAmpl(Path workingDir) throws IOException {
+    private void exportNetworkAsAmpl(Path workingDir) {
         DataSource networkExportPath = new FileDataSource(workingDir, this.model.getNetworkDataPrefix());
-        // AmplExporter throws UncheckedIOException
-        // but we are in a context where IOException are handled
-        // thus we rethrow a simple IOException
-        try {
-            new AmplExporter().export(network, null, networkExportPath);
-        } catch (UncheckedIOException rethrow) {
-            throw new IOException(rethrow);
-        }
+        new AmplExporter().export(network, null, networkExportPath);
     }
 
     private void doAfterSuccess(Path workingDir, AmplNetworkReader reader) throws IOException {

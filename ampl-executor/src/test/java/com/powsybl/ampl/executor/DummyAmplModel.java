@@ -6,15 +6,14 @@
  */
 package com.powsybl.ampl.executor;
 
-import com.powsybl.ampl.converter.AbstractNetworkApplierFactory;
+import com.powsybl.ampl.converter.AbstractAmplNetworkUpdaterFactory;
+import com.powsybl.ampl.converter.AmplNetworkUpdater;
 import com.powsybl.ampl.converter.AmplReadableElement;
-import com.powsybl.ampl.converter.NetworkApplier;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -24,12 +23,12 @@ public class DummyAmplModel extends AbstractAmplModel {
 
     @Override
     public List<Pair<String, InputStream>> getModelAsStream() {
-        return new LinkedList<>();
+        return Collections.emptyList();
     }
 
     @Override
     public List<String> getAmplRunFiles() {
-        return new LinkedList<>();
+        return Collections.emptyList();
     }
 
     @Override
@@ -38,10 +37,10 @@ public class DummyAmplModel extends AbstractAmplModel {
     }
 
     @Override
-    public AbstractNetworkApplierFactory getNetworkApplierFactory() {
-        return new AbstractNetworkApplierFactory() {
-            protected NetworkApplier of() {
-                return new DummyNetworkApplier();
+    public AbstractAmplNetworkUpdaterFactory getNetworkApplierFactory() {
+        return new AbstractAmplNetworkUpdaterFactory() {
+            protected AmplNetworkUpdater of() {
+                return new DummyAmplNetworkUpdater();
             }
         };
     }

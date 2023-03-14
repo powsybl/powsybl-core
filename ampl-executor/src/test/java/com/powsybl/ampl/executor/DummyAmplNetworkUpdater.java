@@ -6,15 +6,16 @@
  */
 package com.powsybl.ampl.executor;
 
-import com.powsybl.ampl.converter.NetworkApplier;
+import com.powsybl.ampl.converter.AmplNetworkUpdater;
 import com.powsybl.iidm.network.*;
 
 /**
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  */
-public class DummyNetworkApplier implements NetworkApplier {
+public class DummyAmplNetworkUpdater implements AmplNetworkUpdater {
     @Override
-    public void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP, double targetQ, double p, double q) {
+    public void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP, double targetQ,
+                                double p, double q) {
         // do nothing with the results
     }
 

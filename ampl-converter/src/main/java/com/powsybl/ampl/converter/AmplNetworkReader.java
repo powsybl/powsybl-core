@@ -43,17 +43,17 @@ public class AmplNetworkReader {
     private final StringToIntMapper<AmplSubset> mapper;
     private final Map<String, Bus> buses;
 
-    private final NetworkApplier applier;
+    private final AmplNetworkUpdater networkUpdater;
 
     private final OutputFileFormat format;
 
     public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex,
-                             StringToIntMapper<AmplSubset> mapper, AbstractNetworkApplierFactory applierFactory,
+                             StringToIntMapper<AmplSubset> mapper, AbstractAmplNetworkUpdaterFactory networkUpdater,
                              OutputFileFormat format) {
         this.dataSource = dataSource;
         this.network = network;
         this.mapper = mapper;
-        this.applier = applierFactory.of(mapper, network);
+        this.networkUpdater = networkUpdater.of(mapper, network);
         this.buses = network.getBusView()
                             .getBusStream()
                             .collect(Collectors.toMap(Identifiable::getId, Function.identity()));
@@ -62,13 +62,13 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex,
-                             StringToIntMapper<AmplSubset> mapper, AbstractNetworkApplierFactory applierFactory) {
-        this(dataSource, network, variantIndex, mapper, applierFactory, OutputFileFormat.getDefault());
+                             StringToIntMapper<AmplSubset> mapper, AbstractAmplNetworkUpdaterFactory networkUpdater) {
+        this(dataSource, network, variantIndex, mapper, networkUpdater, OutputFileFormat.getDefault());
     }
 
     public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex,
             StringToIntMapper<AmplSubset> mapper) {
-        this(dataSource, network, variantIndex, mapper, NetworkApplier.getDefaultApplierFactory());
+        this(dataSource, network, variantIndex, mapper, new DefaultAmplNetworkUpdaterFactory());
     }
 
     public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, StringToIntMapper<AmplSubset> mapper) {
@@ -141,7 +141,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid generator id '" + id + "'");
         }
 
-        this.applier.applyGenerators(g, busNum, vregul, targetV, targetP, targetQ, p, q);
+        this.networkUpdater.applyGenerators(g, busNum, vregul, targetV, targetP, targetQ, p, q);
 
         return null;
     }
@@ -165,7 +165,7 @@ public class AmplNetworkReader {
         if (b == null) {
             throw new AmplException("Invalid battery id '" + id + "'");
         }
-        this.applier.applyBattery(b, busNum, targetP, targetQ, p, q);
+        this.networkUpdater.applyBattery(b, busNum, targetP, targetQ, p, q);
 
         return null;
     }
@@ -185,7 +185,7 @@ public class AmplNetworkReader {
         double q0 = readDouble(tokens[6]);
         String id = mapper.getId(AmplSubset.LOAD, num);
         Load l = network.getLoad(id);
-        this.applier.applyLoad(l, network, id, busNum, p, q, p0, q0);
+        this.networkUpdater.applyLoad(l, network, id, busNum, p, q, p0, q0);
 
         return null;
     }
@@ -200,7 +200,7 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[1]);
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.RATIO_TAP_CHANGER, num);
-        this.applier.applyRatioTapChanger(network, id, tap);
+        this.networkUpdater.applyRatioTapChanger(network, id, tap);
 
         return null;
     }
@@ -215,7 +215,7 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[1]);
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.PHASE_TAP_CHANGER, num);
-        this.applier.applyPhaseTapChanger(network, id, tap);
+        this.networkUpdater.applyPhaseTapChanger(network, id, tap);
 
         return null;
     }
@@ -239,7 +239,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
 
-        this.applier.applyShunt(sc, busNum, q, b, sections);
+        this.networkUpdater.applyShunt(sc, busNum, q, b, sections);
 
         return null;
     }
@@ -261,7 +261,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid bus id '" + id + "'");
         }
 
-        this.applier.applyBus(bus, v, theta);
+        this.networkUpdater.applyBus(bus, v, theta);
 
         return null;
     }
@@ -284,7 +284,7 @@ public class AmplNetworkReader {
         String id = mapper.getId(AmplSubset.BRANCH, num);
 
         Branch br = network.getBranch(id);
-        this.applier.applyBranch(br, network, id, busNum, busNum2, p1, p2, q1, q2);
+        this.networkUpdater.applyBranch(br, network, id, busNum, busNum2, p1, p2, q1, q2);
 
         return null;
     }
@@ -305,7 +305,7 @@ public class AmplNetworkReader {
         if (hl == null) {
             throw new AmplException("Invalid HvdcLine id '" + id + "'");
         }
-        this.applier.applyHvdcLine(hl, converterMode, targetP);
+        this.networkUpdater.applyHvdcLine(hl, converterMode, targetP);
 
         return null;
     }
@@ -329,7 +329,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid StaticVarCompensator id '" + id + "'");
         }
 
-        this.applier.applySvc(svc, busNum, vregul, targetV, q);
+        this.networkUpdater.applySvc(svc, busNum, vregul, targetV, q);
 
         return null;
     }
@@ -352,7 +352,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid bus id '" + id + "'");
         }
 
-        this.applier.applyLcc(lcc, busNum, p, q);
+        this.networkUpdater.applyLcc(lcc, busNum, p, q);
 
         return null;
     }
@@ -374,7 +374,7 @@ public class AmplNetworkReader {
 
         String id = mapper.getId(AmplSubset.VSC_CONVERTER_STATION, num);
         VscConverterStation vsc = network.getVscConverterStation(id);
-        this.applier.applyVsc(vsc, busNum, vregul, targetV, targetQ, p, q);
+        this.networkUpdater.applyVsc(vsc, busNum, vregul, targetV, targetQ, p, q);
 
         return null;
     }

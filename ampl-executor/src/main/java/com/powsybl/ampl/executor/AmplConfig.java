@@ -23,11 +23,11 @@ public class AmplConfig {
         this.amplHome = amplHome;
     }
 
-    public static AmplConfig getConfig() {
-        return getConfig(PlatformConfig.defaultConfig());
+    public static AmplConfig load() {
+        return load(PlatformConfig.defaultConfig());
     }
 
-    public static AmplConfig getConfig(PlatformConfig platformConfig) {
+    public static AmplConfig load(PlatformConfig platformConfig) {
         Optional<ModuleConfig> amplModuleConfigOpt = platformConfig.getOptionalModuleConfig(AMPL_CONFIG_NAME);
         if (amplModuleConfigOpt.isEmpty()) {
             throw new ConfigurationException("Module " + AMPL_CONFIG_NAME + " is missing in the configuration file");

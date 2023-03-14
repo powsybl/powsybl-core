@@ -8,7 +8,7 @@ package com.powsybl.ampl.executor;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.ampl.converter.AbstractNetworkApplierFactory;
+import com.powsybl.ampl.converter.AbstractAmplNetworkUpdaterFactory;
 import com.powsybl.ampl.converter.AmplReadableElement;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
@@ -30,12 +30,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
@@ -52,19 +53,21 @@ public class AmplModelExecutionHandlerTest {
         AmplConfig cfg = getAmplConfig();
         // Test config
         String variantId = network.getVariantManager().getWorkingVariantId();
-        ComputationManager manager = new LocalComputationManager(new LocalComputationConfig(fs.getPath("/workingDir")),
+        try (ComputationManager manager = new LocalComputationManager(
+                new LocalComputationConfig(fs.getPath("/workingDir")),
                 new MockAmplLocalExecutor(List.of("output_generators.txt", "output_indic.txt")),
-                ForkJoinPool.commonPool());
-        ExecutionEnvironment env = ExecutionEnvironment.createDefault().setWorkingDirPrefix("ampl_").setDebug(true);
-        // Test execution
-        AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
-                new EmptyAmplParameters());
-        CompletableFuture<AmplResults> result = manager.execute(env, handler);
-        AmplResults amplState = result.join();
-        // Test assert
-        Assertions.assertTrue(amplState.isSuccess(), "AmplResult must be OK.");
+                ForkJoinPool.commonPool())) {
+            ExecutionEnvironment env = ExecutionEnvironment.createDefault().setWorkingDirPrefix("ampl_").setDebug(true);
+            // Test execution
+            AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
+                    new EmptyAmplParameters());
+            CompletableFuture<AmplResults> result = manager.execute(env, handler);
+            AmplResults amplState = result.join();
+            // Test assert
+            assertTrue(amplState.isSuccess(), "AmplResult must be OK.");
+        }
         // Test cleaning
-        manager.close();
+        fs.close();
     }
 
     @Test
@@ -81,7 +84,7 @@ public class AmplModelExecutionHandlerTest {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("ampl");
         moduleConfig.setStringProperty("homeDir", "/home/test/ampl");
-        return AmplConfig.getConfig(platformConfig);
+        return AmplConfig.load(platformConfig);
     }
 
     /**
@@ -127,7 +130,7 @@ public class AmplModelExecutionHandlerTest {
 
         @Override
         public List<String> getAmplRunFiles() {
-            return Arrays.asList("testampl.run", "foo.run", "bar.run");
+            return List.of("testampl.run", "foo.run", "bar.run");
         }
 
         @Override
@@ -136,7 +139,7 @@ public class AmplModelExecutionHandlerTest {
         }
 
         @Override
-        public AbstractNetworkApplierFactory getNetworkApplierFactory() {
+        public AbstractAmplNetworkUpdaterFactory getNetworkApplierFactory() {
             throw new IllegalStateException("Should not be called to create ampl command");
         }
 

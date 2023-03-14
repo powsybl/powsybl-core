@@ -10,22 +10,24 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  */
 public class AmplConfigTest {
     @Test
-    public void test() {
+    public void test() throws Exception {
         FileSystem fs = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("ampl");
         moduleConfig.setStringProperty("homeDir", "/home/test/ampl");
-        AmplConfig cfg = AmplConfig.getConfig(platformConfig);
-        Assertions.assertEquals("/home/test/ampl", cfg.getAmplHome(), "Error parsing Ampl Home");
+        AmplConfig cfg = AmplConfig.load(platformConfig);
+        assertEquals("/home/test/ampl", cfg.getAmplHome(), "Error parsing Ampl Home");
+        fs.close();
     }
 }

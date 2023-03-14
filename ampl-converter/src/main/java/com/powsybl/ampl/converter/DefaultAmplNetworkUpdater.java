@@ -9,25 +9,26 @@ package com.powsybl.ampl.converter;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 
+import java.util.Objects;
+
 /**
  * This class implements the default behavior of applying changes to the network. <br>
  *
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  * @see AmplNetworkReader
- * @see NetworkApplier
+ * @see AmplNetworkUpdater
  */
-public class DefaultNetworkApplier implements NetworkApplier {
+public class DefaultAmplNetworkUpdater implements AmplNetworkUpdater {
 
     private final StringToIntMapper<AmplSubset> networkMapper;
-    private final Network network;
 
-    public DefaultNetworkApplier(StringToIntMapper<AmplSubset> networkMapper, Network network) {
+    public DefaultAmplNetworkUpdater(StringToIntMapper<AmplSubset> networkMapper) {
+        Objects.requireNonNull(networkMapper);
         this.networkMapper = networkMapper;
-        this.network = network;
     }
 
-    public void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP,
-                                double targetQ, double p, double q) {
+    public void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP, double targetQ,
+                                double p, double q) {
         g.setVoltageRegulatorOn(vregul);
 
         g.setTargetP(targetP);
@@ -38,7 +39,7 @@ public class DefaultNetworkApplier implements NetworkApplier {
 
         double nominalV = g.getRegulatingTerminal().getVoltageLevel().getNominalV();
         g.setTargetV(targetV * nominalV);
-        NetworkApplier.busConnection(t, busNum, networkMapper);
+        busConnection(t, busNum, networkMapper);
     }
 
     public void applyVsc(VscConverterStation vsc, int busNum, boolean vregul, double targetV, double targetQ, double p,
@@ -51,7 +52,7 @@ public class DefaultNetworkApplier implements NetworkApplier {
 
         double nominalV = vsc.getRegulatingTerminal().getVoltageLevel().getNominalV();
         vsc.setVoltageSetpoint(targetV * nominalV);
-        NetworkApplier.busConnection(t, busNum, networkMapper);
+        busConnection(t, busNum, networkMapper);
     }
 
     public void applyBattery(Battery b, int busNum, double targetP, double targetQ, double p, double q) {
@@ -60,7 +61,7 @@ public class DefaultNetworkApplier implements NetworkApplier {
 
         Terminal t = b.getTerminal();
         t.setP(p).setQ(q);
-        NetworkApplier.busConnection(t, busNum, networkMapper);
+        busConnection(t, busNum, networkMapper);
     }
 
     public void applySvc(StaticVarCompensator svc, int busNum, boolean vregul, double targetV, double q) {
@@ -79,7 +80,7 @@ public class DefaultNetworkApplier implements NetworkApplier {
         t.setQ(q);
         double nominalV = svc.getRegulatingTerminal().getVoltageLevel().getNominalV();
         svc.setVoltageSetpoint(targetV * nominalV);
-        NetworkApplier.busConnection(t, busNum, networkMapper);
+        busConnection(t, busNum, networkMapper);
     }
 
     public void applyShunt(ShuntCompensator sc, int busNum, double q, double b, int sections) {
@@ -95,13 +96,13 @@ public class DefaultNetworkApplier implements NetworkApplier {
         if (l != null) {
             l.setP0(p0).setQ0(q0);
             l.getTerminal().setP(p).setQ(q);
-            NetworkApplier.busConnection(l.getTerminal(), busNum, networkMapper);
+            busConnection(l.getTerminal(), busNum, networkMapper);
         } else {
             DanglingLine dl = network.getDanglingLine(id);
             if (dl != null) {
                 dl.setP0(p0).setQ0(q0);
                 dl.getTerminal().setP(p).setQ(q);
-                NetworkApplier.busConnection(dl.getTerminal(), busNum, networkMapper);
+                busConnection(dl.getTerminal(), busNum, networkMapper);
             } else {
                 throw new AmplException("Invalid load id '" + id + "'");
             }
@@ -111,8 +112,8 @@ public class DefaultNetworkApplier implements NetworkApplier {
     @Override
     public void applyRatioTapChanger(Network network, String id, int tap) {
         if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt = NetworkApplier.getThreeWindingsTransformer(network, id);
-            RatioTapChanger rtc = NetworkApplier.getThreeWindingsTransformerLeg(twt, id).getRatioTapChanger();
+            ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
+            RatioTapChanger rtc = getThreeWindingsTransformerLeg(twt, id).getRatioTapChanger();
             rtc.setTapPosition(rtc.getLowTapPosition() + tap - 1);
         } else {
             TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
@@ -126,8 +127,8 @@ public class DefaultNetworkApplier implements NetworkApplier {
 
     public void applyPhaseTapChanger(Network network, String id, int tap) {
         if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt = NetworkApplier.getThreeWindingsTransformer(network, id);
-            PhaseTapChanger ptc = NetworkApplier.getThreeWindingsTransformerLeg(twt, id).getPhaseTapChanger();
+            ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
+            PhaseTapChanger ptc = getThreeWindingsTransformerLeg(twt, id).getPhaseTapChanger();
             ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1);
         } else {
             TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
@@ -150,13 +151,13 @@ public class DefaultNetworkApplier implements NetworkApplier {
         if (br != null) {
             br.getTerminal1().setP(p1).setQ(q1);
             br.getTerminal2().setP(p2).setQ(q2);
-            NetworkApplier.busConnection(br.getTerminal1(), busNum, networkMapper);
-            NetworkApplier.busConnection(br.getTerminal2(), busNum2, networkMapper);
+            busConnection(br.getTerminal1(), busNum, networkMapper);
+            busConnection(br.getTerminal2(), busNum2, networkMapper);
         } else if (!readThreeWindingsTransformerBranch(network, id, p1, q1, busNum, networkMapper)) {
             DanglingLine dl = network.getDanglingLine(id);
             if (dl != null) {
                 dl.getTerminal().setP(p1).setQ(q1);
-                NetworkApplier.busConnection(dl.getTerminal(), busNum, networkMapper);
+                busConnection(dl.getTerminal(), busNum, networkMapper);
             } else {
                 throw new AmplException("Invalid branch id '" + id + "'");
             }
@@ -172,17 +173,17 @@ public class DefaultNetworkApplier implements NetworkApplier {
     @Override
     public void applyLcc(LccConverterStation lcc, int busNum, double p, double q) {
         lcc.getTerminal().setP(p).setQ(q);
-        NetworkApplier.busConnection(lcc.getTerminal(), busNum, networkMapper);
+        busConnection(lcc.getTerminal(), busNum, networkMapper);
     }
 
     private boolean readThreeWindingsTransformerBranch(Network network, String id, double p, double q, int busNum,
                                                        StringToIntMapper<AmplSubset> mapper) {
         if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(
                 AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt = NetworkApplier.getThreeWindingsTransformer(network, id);
-            Terminal terminal = NetworkApplier.getThreeWindingsTransformerLeg(twt, id).getTerminal();
+            ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
+            Terminal terminal = getThreeWindingsTransformerLeg(twt, id).getTerminal();
             terminal.setP(p).setQ(q);
-            NetworkApplier.busConnection(terminal, busNum, mapper);
+            busConnection(terminal, busNum, mapper);
             return true;
         }
         return false;

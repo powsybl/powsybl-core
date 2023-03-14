@@ -11,24 +11,24 @@ import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.NotImplementedException;
 
 /**
- * Factory pattern to create {@link NetworkApplier}.
+ * Factory pattern to create {@link AmplNetworkUpdater}.
  * <p>
- * Used by {@link AmplNetworkReader} to create the {@link NetworkApplier} and pass some data.
+ * Used by {@link AmplNetworkReader} to create the {@link AmplNetworkUpdater} and pass some data.
  *
  * @apiNote One must override exactly one method to define a child class extending NetworkApplierFactory.
  * <p>
  * One must always call the public of function (calling protected ones will break some implementations).
  */
-public abstract class AbstractNetworkApplierFactory {
-    protected NetworkApplier of() {
+public abstract class AbstractAmplNetworkUpdaterFactory {
+    protected AmplNetworkUpdater of() {
         throw new NotImplementedException("At least one of the methods of NetworkApplierFactory must be redefined");
     }
 
-    protected NetworkApplier of(StringToIntMapper<AmplSubset> mapper) {
+    protected AmplNetworkUpdater of(StringToIntMapper<AmplSubset> mapper) {
         return of();
     }
 
-    public NetworkApplier of(StringToIntMapper<AmplSubset> mapper, Network network) {
+    public AmplNetworkUpdater of(StringToIntMapper<AmplSubset> mapper, Network network) {
         return of(mapper);
     }
 

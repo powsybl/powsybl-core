@@ -12,29 +12,20 @@ import com.powsybl.iidm.network.*;
 /**
  * Interface to modify a network after an Ampl solve.<br>
  * {@link AmplNetworkReader} does the Ampl output parsing,
- * and {@link NetworkApplier} modifies the {@link Network}.<br>
+ * and {@link AmplNetworkUpdater} modifies the {@link Network}.<br>
  * Also provides some utility functions for implementations :
  * <ul>
- *     <li>{@link NetworkApplier#busConnection}</li>
- *     <li>{@link NetworkApplier#getThreeWindingsTransformerLeg}</li>
- *     <li>{@link NetworkApplier#getThreeWindingsTransformer}</li>
+ *     <li>{@link AmplNetworkUpdater#busConnection}</li>
+ *     <li>{@link AmplNetworkUpdater#getThreeWindingsTransformerLeg}</li>
+ *     <li>{@link AmplNetworkUpdater#getThreeWindingsTransformer}</li>
  * </ul>
- * Default implementation in {@link DefaultNetworkApplier}.
+ * Default implementation in {@link DefaultAmplNetworkUpdater}.
  *
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  * @see AmplNetworkReader
- * @see DefaultNetworkApplier
+ * @see DefaultAmplNetworkUpdater
  */
-public interface NetworkApplier {
-
-    static AbstractNetworkApplierFactory getDefaultApplierFactory() {
-        return new AbstractNetworkApplierFactory() {
-            @Override
-            public NetworkApplier of(StringToIntMapper<AmplSubset> mapper, Network network) {
-                return new DefaultNetworkApplier(mapper, network);
-            }
-        };
-    }
+public interface AmplNetworkUpdater {
 
     void applyGenerators(Generator g, int busNum, boolean vregul, double targetV, double targetP, double targetQ,
                          double p, double q);
@@ -63,7 +54,7 @@ public interface NetworkApplier {
 
     void applyLcc(LccConverterStation lcc, int busNum, double p, double q);
 
-    static void busConnection(Terminal t, int busNum, StringToIntMapper<AmplSubset> mapper) {
+    default void busConnection(Terminal t, int busNum, StringToIntMapper<AmplSubset> mapper) {
         if (busNum == -1) {
             t.disconnect();
         } else {
@@ -75,7 +66,7 @@ public interface NetworkApplier {
         }
     }
 
-    static ThreeWindingsTransformer.Leg getThreeWindingsTransformerLeg(ThreeWindingsTransformer twt, String legId) {
+    default ThreeWindingsTransformer.Leg getThreeWindingsTransformerLeg(ThreeWindingsTransformer twt, String legId) {
         if (legId.endsWith(AmplConstants.LEG1_SUFFIX)) {
             return twt.getLeg1();
         } else if (legId.endsWith(AmplConstants.LEG2_SUFFIX)) {
@@ -94,7 +85,7 @@ public interface NetworkApplier {
      * @param network The IIDM network to update
      * @return A three windings transformer or null if not found
      */
-    static ThreeWindingsTransformer getThreeWindingsTransformer(Network network, String legId) {
+    default ThreeWindingsTransformer getThreeWindingsTransformer(Network network, String legId) {
         String twtId = legId.substring(0, legId.length() - 5);
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(twtId);
         if (twt == null) {

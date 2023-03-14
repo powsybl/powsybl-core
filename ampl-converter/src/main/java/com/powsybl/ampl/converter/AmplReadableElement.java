@@ -26,9 +26,9 @@ public enum AmplReadableElement {
     SHUNT(AmplNetworkReader::readShunts),
     STATIC_VAR_COMPENSATOR(AmplNetworkReader::readStaticVarcompensator),
     VSC_CONVERTER_STATION(AmplNetworkReader::readVscConverterStations);
-    private final ReadElementInterface readElementConsumer;
+    private final AmplElementReader readElementConsumer;
 
-    AmplReadableElement(ReadElementInterface readElementConsumer) {
+    AmplReadableElement(AmplElementReader readElementConsumer) {
         this.readElementConsumer = readElementConsumer;
     }
 
@@ -36,8 +36,4 @@ public enum AmplReadableElement {
         this.readElementConsumer.read(reader);
     }
 
-    @FunctionalInterface
-    private interface ReadElementInterface {
-        void read(AmplNetworkReader reader) throws IOException;
-    }
 }
