@@ -20,8 +20,8 @@ public final class AmplModelRunner {
     private AmplModelRunner() {
     }
 
-    public static AmplResults run(Network network, String variantId, IAmplModel model, ComputationManager manager,
-                                  IAmplParameters parameters) {
+    public static AmplResults run(Network network, String variantId, AmplModel model, ComputationManager manager,
+                                  AmplParameters parameters) {
         ExecutionEnvironment env = new ExecutionEnvironment(Collections.emptyMap(), "ampl_", true);
         AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId,
                 AmplConfig.getConfig(), parameters);

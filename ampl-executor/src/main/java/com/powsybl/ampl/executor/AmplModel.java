@@ -21,20 +21,20 @@ import java.util.List;
  * <p>
  * Some customization is available through :
  * <ul>
- * <li>{@link IAmplModel#getOutputFilePrefix}: prefix for the files written by
+ * <li>{@link AmplModel#getOutputFilePrefix}: prefix for the files written by
  * the Ampl execution</li>
- * <li>{@link IAmplModel#getNetworkApplierFactory()}: specific applier Factory to select what is
+ * <li>{@link AmplModel#getNetworkApplierFactory()}: specific applier Factory to select what is
  * modified on the network</li>
- * <li>{@link IAmplModel#getVariant}: Ampl variants</li>
- * <li>{@link IAmplModel#getOutputFormat}: some information about the format of
+ * <li>{@link AmplModel#getVariant}: Ampl variants</li>
+ * <li>{@link AmplModel#getOutputFormat}: some information about the format of
  * the output files</li>
- * <li>{@link IAmplModel#getNetworkDataPrefix}: the prefix used to every network
+ * <li>{@link AmplModel#getNetworkDataPrefix}: the prefix used to every network
  * input files</li>
  * </ul>
  *
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  */
-public interface IAmplModel {
+public interface AmplModel {
 
     /**
      * @return each pair contains the name, and the InputStream of every ampl file of

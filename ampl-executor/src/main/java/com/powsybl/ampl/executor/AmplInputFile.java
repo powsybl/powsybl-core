@@ -9,29 +9,25 @@ package com.powsybl.ampl.executor;
 import com.powsybl.ampl.converter.AmplSubset;
 import com.powsybl.commons.util.StringToIntMapper;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import java.io.InputStream;
 
 /**
- * An additional file to read as output of an Ampl run.
+ * An additional file provided to an Ampl run.
+ * Useful when you need more information for your ampl model.
  *
  * @author Nicolas PIERRE <nicolas.pierre@artelys.com>
  */
-public interface IAmplOutputFile {
+public interface AmplInputFile {
     /**
-     * Name of the file to read
+     * Name of the file to add
      */
     String getFileName();
 
     /**
-     * Consummer of the output file.
-     * Will be called if the Ampl solve is successful.
-     * <p>
-     * No check is done on the presence of the file.
+     * InputStream to write in the file. Called before the ampl solve.
      *
-     * @param outputPath        Path representing the outputfile
      * @param networkAmplMapper Mapper to convert {@link com.powsybl.iidm.network.Network} IDs to Ampl IDs
      *                          and vice versa
      */
-    void read(Path outputPath, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException;
+    InputStream getParameterFileAsStream(StringToIntMapper<AmplSubset> networkAmplMapper);
 }
