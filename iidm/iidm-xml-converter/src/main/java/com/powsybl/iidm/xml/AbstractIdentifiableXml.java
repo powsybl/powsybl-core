@@ -13,9 +13,9 @@ import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractIdentifiableXml<T extends Identifiable, A extends IdentifiableAdder<A>, P extends Identifiable> {
@@ -76,5 +76,25 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         }
 
         context.addExportedEquipment(identifiable);
+    }
+
+    protected abstract A createAdder(P parent);
+
+    public abstract void read(P parent, NetworkXmlReaderContext context) throws XMLStreamException;
+
+    protected String readIdentifierAttributes(A adder, NetworkXmlReaderContext context) {
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+        String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name"));
+        adder.setId(id)
+                .setName(name);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
+            boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious", false);
+            adder.setFictitious(fictitious);
+        });
+        return id;
+    }
+
+    protected void readUntilEndRootElement(XMLStreamReader reader, XmlUtil.XmlEventHandler eventHandler) throws XMLStreamException {
+        XmlUtil.readUntilEndElement(getRootElementName(), reader, eventHandler);
     }
 }

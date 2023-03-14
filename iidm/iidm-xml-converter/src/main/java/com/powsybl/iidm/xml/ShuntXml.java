@@ -84,6 +84,11 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
         }
     }
 
+    @Override
+    protected ShuntCompensatorAdder createAdder(VoltageLevel parent) {
+        return parent.newShuntCompensator();
+    }
+
     private static void writeModel(ShuntCompensator sc, NetworkXmlWriterContext context) throws XMLStreamException {
         if (sc.getModelType() == ShuntCompensatorModelType.LINEAR) {
             context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_LINEAR_MODEL);
@@ -139,6 +144,11 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
     }
 
     @Override
+    protected ShuntCompensator add(ShuntCompensatorAdder adder) {
+        return adder.add();
+    }
+
+    @Override
     protected void readSubElements(String id, ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
@@ -176,7 +186,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                     modelAdder.add();
                     break;
                 default:
-                    super.readSubElements(id, adder, toApply, context);
+                    super.readSubElements(id, toApply, context);
             }
         });
     }

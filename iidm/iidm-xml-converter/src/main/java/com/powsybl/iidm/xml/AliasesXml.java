@@ -38,23 +38,21 @@ public final class AliasesXml {
     }
 
     public static <T extends Identifiable> void read(T identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
-        if (!context.getReader().getLocalName().equals(ALIAS)) {
-            throw new IllegalStateException();
-        }
-        String[] aliasType = new String[1];
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().getAttributeValue(null, "type"));
-        String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
-        identifiable.addAlias(alias, aliasType[0]);
+        read(context).accept(identifiable);
     }
 
     public static <T extends Identifiable> void read(List<Consumer<T>> toApply, NetworkXmlReaderContext context) throws XMLStreamException {
+        toApply.add(read(context));
+    }
+
+    private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) throws XMLStreamException {
         if (!context.getReader().getLocalName().equals(ALIAS)) {
             throw new IllegalStateException();
         }
         String[] aliasType = new String[1];
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().getAttributeValue(null, "type"));
         String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
-        toApply.add(identifiable -> identifiable.addAlias(alias, aliasType[0]));
+        return identifiable -> identifiable.addAlias(alias, aliasType[0]);
     }
 
     private AliasesXml() {

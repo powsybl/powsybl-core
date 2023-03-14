@@ -288,7 +288,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                     break;
 
                 case ShuntXml.ROOT_ELEMENT_NAME:
-                    ShuntXml.INSTANCE.read(vl::newShuntCompensator, ShuntCompensatorAdder::add, context);
+                    ShuntXml.INSTANCE.read(vl, context);
                     break;
 
                 case DanglingLineXml.ROOT_ELEMENT_NAME:

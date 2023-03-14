@@ -37,19 +37,20 @@ public final class PropertiesXml {
     }
 
     public static void read(Identifiable identifiable, NetworkXmlReaderContext context) {
+        read(context).accept(identifiable);
+    }
+
+    public static <T extends Identifiable> void read(List<Consumer<T>> toApply, NetworkXmlReaderContext context) {
+        toApply.add(read(context));
+    }
+
+    private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) {
         if (!context.getReader().getLocalName().equals(PROPERTY)) {
             throw new IllegalStateException();
         }
         String name = context.getReader().getAttributeValue(null, NAME);
         String value = context.getReader().getAttributeValue(null, VALUE);
-        identifiable.setProperty(name, value);
-    }
-
-    public static <T extends Identifiable> void read(List<Consumer<T>> toApply, NetworkXmlReaderContext context) {
-        assert context.getReader().getLocalName().equals(PROPERTY);
-        String name = context.getReader().getAttributeValue(null, NAME);
-        String value = context.getReader().getAttributeValue(null, VALUE);
-        toApply.add(identifiable -> identifiable.setProperty(name, value));
+        return identifiable -> identifiable.setProperty(name, value);
     }
 
     private PropertiesXml() {
