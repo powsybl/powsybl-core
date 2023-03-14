@@ -904,6 +904,15 @@ public class Conversion {
             xfmr3StructuralRatio = alternative;
         }
 
+        public CgmesImport.FictitiousSwitchesCreationMode getCreateFictitiousSwitchesForDisconnectedTerminalsMode() {
+            return createFictitiousSwitchesForDisconnectedTerminalsMode;
+        }
+
+        public Config createFictitiousSwitchesForDisconnectedTerminalsMode(CgmesImport.FictitiousSwitchesCreationMode createFictitiousSwitchesForDisconnectedTerminalsMode) {
+            this.createFictitiousSwitchesForDisconnectedTerminalsMode = createFictitiousSwitchesForDisconnectedTerminalsMode;
+            return this;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -916,6 +925,8 @@ public class Conversion {
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
         private boolean createActivePowerControlExtension = false;
+
+        private CgmesImport.FictitiousSwitchesCreationMode createFictitiousSwitchesForDisconnectedTerminalsMode = CgmesImport.FictitiousSwitchesCreationMode.ALWAYS;
 
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;
