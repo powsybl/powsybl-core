@@ -120,7 +120,7 @@ class CgmesImportPostProcessorTest {
     }
 
     @Test
-    public void testListPre() {
+    void testListPre() {
         CgmesImport cgmesImport = new CgmesImport(Arrays.asList(new FakeCgmesImportPreProcessor("foo"),
                 new FakeCgmesImportPreProcessor("bar"),
                 new FakeCgmesImportPreProcessor("baz")), Collections.emptyList());
