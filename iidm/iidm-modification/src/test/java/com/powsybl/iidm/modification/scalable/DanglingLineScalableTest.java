@@ -85,7 +85,7 @@ class DanglingLineScalableTest {
     void testDanglingLineScaleLoadConvention() {
         //test with ScalingConvention.LOAD
         convention = LOAD;
-        ScalingContext context = new ScalingContext(convention);
+        ScalingParameters context = new ScalingParameters(convention);
 
         //test with default maxValue = Double.MAX_VALUE and minValue = Double.MIN_VALUE
         DanglingLine danglingLine = network.getDanglingLine("dl2");
@@ -152,7 +152,7 @@ class DanglingLineScalableTest {
         // Load convention
         convention = LOAD;
         assertEquals(50, danglingLine.getP0(), 1e-3);
-        assertEquals(20, dl2.scale(network, 20, new ScalingContext(convention, true, false)), 1e-3);
+        assertEquals(20, dl2.scale(network, 20, new ScalingParameters(convention, true, false)), 1e-3);
         assertEquals(70, danglingLine.getP0(), 1e-3);
         assertTrue(danglingLine.getTerminal().isConnected());
 
@@ -160,7 +160,7 @@ class DanglingLineScalableTest {
         danglingLine.getTerminal().disconnect();
         assertFalse(danglingLine.getTerminal().isConnected());
         convention = GENERATOR;
-        assertEquals(20, dl2.scale(network, 20, new ScalingContext(true, false)), 1e-3);
+        assertEquals(20, dl2.scale(network, 20, new ScalingParameters(true, false)), 1e-3);
         assertEquals(50.0, danglingLine.getP0(), 1e-3);
         assertTrue(danglingLine.getTerminal().isConnected());
     }

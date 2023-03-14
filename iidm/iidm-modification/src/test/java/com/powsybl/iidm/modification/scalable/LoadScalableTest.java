@@ -129,7 +129,7 @@ class LoadScalableTest {
 
         //test with ScalingConvention.LOAD
         convention = LOAD;
-        ScalingContext context = new ScalingContext(convention);
+        ScalingParameters context = new ScalingParameters(convention);
 
         //test with default maxValue = Double.MAX_VALUE and minValue = 0
         Load load = network.getLoad("l1");
@@ -172,7 +172,7 @@ class LoadScalableTest {
     @Test
     void testConstantPowerFactor() {
         //test with ScalingConvention.GENERATOR
-        ScalingContext context = new ScalingContext(false, true);
+        ScalingParameters context = new ScalingParameters(false, true);
 
         //test with default maxValue = Double.MAX_VALUE and minValue = 0
         Load load = network.getLoad("l1");
@@ -194,7 +194,7 @@ class LoadScalableTest {
         load.getTerminal().disconnect();
         assertFalse(load.getTerminal().isConnected());
 
-        ls1.scale(network, 20, new ScalingContext(true, false));
+        ls1.scale(network, 20, new ScalingParameters(true, false));
         assertTrue(load.getTerminal().isConnected());
         assertEquals(80.0, load.getP0(), 1e-3);
 
@@ -202,7 +202,7 @@ class LoadScalableTest {
         convention = LOAD;
         load.getTerminal().disconnect();
         assertFalse(load.getTerminal().isConnected());
-        ls1.scale(network, 20, new ScalingContext(convention, true, false));
+        ls1.scale(network, 20, new ScalingParameters(convention, true, false));
         assertTrue(load.getTerminal().isConnected());
         assertEquals(100.0, load.getP0(), 1e-3);
 
@@ -213,7 +213,7 @@ class LoadScalableTest {
         load.setP0(80.0);
         assertEquals(10.0, load.getQ0(), 1e-3);
         assertEquals(80.0, load.getP0(), 1e-3);
-        ls1.scale(network, 20, new ScalingContext(true, true));
+        ls1.scale(network, 20, new ScalingParameters(true, true));
         assertTrue(load.getTerminal().isConnected());
         assertEquals(60.0, load.getP0(), 1e-3);
         assertEquals(7.5, load.getQ0(), 1e-3);
@@ -221,7 +221,7 @@ class LoadScalableTest {
         // reconnect to false
         load.getTerminal().disconnect();
         assertFalse(load.getTerminal().isConnected());
-        ls1.scale(network, 20, new ScalingContext(false, true));
+        ls1.scale(network, 20, new ScalingParameters(false, true));
         assertFalse(load.getTerminal().isConnected());
         assertEquals(40.0, load.getP0(), 1e-3);
     }

@@ -35,7 +35,7 @@ class StackScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingContext context) {
+    public double scale(Network n, double asked, ScalingParameters context) {
         Objects.requireNonNull(n);
 
         double done = 0;

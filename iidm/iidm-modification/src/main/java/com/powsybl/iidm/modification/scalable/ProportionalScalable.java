@@ -122,7 +122,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
         });
     }
 
-    private double iterativeScale(Network n, double asked, ScalingContext context) {
+    private double iterativeScale(Network n, double asked, ScalingParameters context) {
         double done = 0;
         while (Math.abs(asked - done) > EPSILON && notSaturated()) {
             checkIterationPercentages();
@@ -132,7 +132,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
         return done;
     }
 
-    private double scaleIteration(Network n, double asked, ScalingContext context) {
+    private double scaleIteration(Network n, double asked, ScalingParameters context) {
         double done = 0;
         for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             Scalable s = scalablePercentage.getScalable();
@@ -149,7 +149,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingContext context) {
+    public double scale(Network n, double asked, ScalingParameters context) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(context);
         reinitIterationPercentage();

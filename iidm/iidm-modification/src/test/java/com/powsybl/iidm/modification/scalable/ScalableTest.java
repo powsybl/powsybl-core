@@ -254,7 +254,7 @@ class ScalableTest {
         convention = LOAD;
         reset();
 
-        ScalingContext context = new ScalingContext(LOAD);
+        ScalingParameters context = new ScalingParameters(LOAD);
         double done = Scalable.proportional(Arrays.asList(70.f, 30.f), Arrays.asList(g1, l1)).scale(network, 100.0, context);
         assertEquals(30.0, done, 0.0);
         assertEquals(0, network.getGenerator("g1").getTargetP(), 1e-5);
@@ -288,7 +288,7 @@ class ScalableTest {
     @Test
     void testConstantPowerFactorScaling() {
         reset();
-        ScalingContext context = new ScalingContext(false, true);
+        ScalingParameters context = new ScalingParameters(false, true);
         network.getLoad("l1").setQ0(10);
         network.getLoad("l1").setP0(100);
         double done = Scalable.proportional(Arrays.asList(50.f, 50.f), Arrays.asList(g1, l1)).scale(network, 100.0, context);
@@ -301,7 +301,7 @@ class ScalableTest {
     @Test
     void testConstantPowerFactorScalingWithLoadConvention() {
         reset();
-        ScalingContext context = new ScalingContext(LOAD, false, true);
+        ScalingParameters context = new ScalingParameters(LOAD, false, true);
         network.getLoad("l1").setQ0(10);
         network.getLoad("l1").setP0(100);
         network.getGenerator("g1").setTargetP(70);
@@ -361,7 +361,7 @@ class ScalableTest {
         convention = LOAD;
         Scalable scalable = Scalable.stack(g1, g2);
 
-        ScalingContext context = new ScalingContext(LOAD);
+        ScalingParameters context = new ScalingParameters(LOAD);
         double done = scalable.scale(network, -150.0, context);
         assertEquals(-150.0, done, 0.0);
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 0.0);
@@ -609,12 +609,12 @@ class ScalableTest {
     @Test
     void testContext() {
         // Default
-        ScalingContext context = ScalingContext.getDefault();
+        ScalingParameters context = ScalingParameters.getDefault();
         assertFalse(context.isConstantPowerFactor());
         assertFalse(context.isReconnect());
         assertEquals(GENERATOR, context.getScalingConvention());
 
-        ScalingContext context1 = new ScalingContext(LOAD, true, false);
+        ScalingParameters context1 = new ScalingParameters(LOAD, true, false);
         assertEquals(LOAD, context1.getScalingConvention());
         assertTrue(context1.isReconnect());
         assertFalse(context1.isConstantPowerFactor());

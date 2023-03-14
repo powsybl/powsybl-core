@@ -10,7 +10,7 @@ package com.powsybl.iidm.modification.scalable;
 /**
  * @author Coline Piloquet <coline.piloquet@rte-france.fr>
  */
-public class ScalingContext {
+public class ScalingParameters {
 
     private final Scalable.ScalingConvention scalingConvention;
 
@@ -18,17 +18,17 @@ public class ScalingContext {
 
     private final boolean constantPowerFactor;
 
-    public ScalingContext(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor) {
+    public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor) {
         this.scalingConvention = scalingConvention;
         this.reconnect = reconnect;
         this.constantPowerFactor = constantPowerFactor;
     }
 
-    public ScalingContext(Scalable.ScalingConvention scalingConvention) {
+    public ScalingParameters(Scalable.ScalingConvention scalingConvention) {
         this(scalingConvention, false, false);
     }
 
-    public ScalingContext(boolean reconnect, boolean constantPowerFactor) {
+    public ScalingParameters(boolean reconnect, boolean constantPowerFactor) {
         this(Scalable.ScalingConvention.GENERATOR, reconnect, constantPowerFactor);
     }
 
@@ -57,7 +57,7 @@ public class ScalingContext {
      * @return default scaling context: generator convention, not reconnecting terminals and not scaling at constant
      * power factor.
      */
-    public static ScalingContext getDefault() {
-        return new ScalingContext(Scalable.ScalingConvention.GENERATOR, false, false);
+    public static ScalingParameters getDefault() {
+        return new ScalingParameters(Scalable.ScalingConvention.GENERATOR, false, false);
     }
 }

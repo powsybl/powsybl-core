@@ -109,7 +109,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
      * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
      */
     @Override
-    public double scale(Network n, double asked, ScalingContext context) {
+    public double scale(Network n, double asked, ScalingParameters context) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(context);
 

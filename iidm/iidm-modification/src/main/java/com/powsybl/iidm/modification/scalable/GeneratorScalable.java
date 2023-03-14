@@ -106,7 +106,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
      * If scalingConvention is LOAD, the generator active power decreases for positive "asked" and increases inversely
      */
     @Override
-    public double scale(Network n, double asked, ScalingContext context) {
+    public double scale(Network n, double asked, ScalingParameters context) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(context);
 

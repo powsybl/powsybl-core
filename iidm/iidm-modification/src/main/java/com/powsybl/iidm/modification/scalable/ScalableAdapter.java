@@ -58,7 +58,7 @@ class ScalableAdapter extends AbstractScalable {
     }
 
     @Override
-    public double scale(Network n, double asked, ScalingContext context) {
+    public double scale(Network n, double asked, ScalingParameters context) {
         return getScalable(n).scale(n, asked, context);
     }
 }

@@ -134,10 +134,10 @@ public interface Scalable {
      * @param asked value asked to adjust the scalable active power
      * @return the actual value of the scalable active power adjustment
      */
-    double scale(Network n, double asked, ScalingContext context);
+    double scale(Network n, double asked, ScalingParameters context);
 
     default double scale(Network n, double asked) {
-        return scale(n, asked, ScalingContext.getDefault());
+        return scale(n, asked, ScalingParameters.getDefault());
     }
 
     /**

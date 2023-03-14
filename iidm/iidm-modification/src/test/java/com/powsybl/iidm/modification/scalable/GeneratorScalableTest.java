@@ -225,7 +225,7 @@ class GeneratorScalableTest {
     @Test
     void testGeneratorScaleLoadConvention() {
         //test with ScalingConvention.LOAD
-        ScalingContext context = new ScalingContext(LOAD);
+        ScalingParameters context = new ScalingParameters(LOAD);
         assertEquals(0, unknownGeneratorScalable.scale(network, 30, context), 1e-3);
 
         Generator generator1 = network.getGenerator("g1");
@@ -282,7 +282,7 @@ class GeneratorScalableTest {
         assertFalse(generator.getTerminal().isConnected());
         assertEquals(0.0, generator.getTargetP(), 1e-3);
 
-        assertEquals(20.0, g1.scale(network, 20.0, new ScalingContext(true, false)), 1e-3);
+        assertEquals(20.0, g1.scale(network, 20.0, new ScalingParameters(true, false)), 1e-3);
         assertEquals(20.0, generator.getTargetP(), 1e-3);
         assertTrue(generator.getTerminal().isConnected());
     }
