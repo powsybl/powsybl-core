@@ -6,12 +6,13 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStationAdder;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-abstract class AbstractHvdcConverterStationAdderAdapter<I extends HvdcConverterStationAdder<I>> extends AbstractInjectionAdderAdapter<I> implements HvdcConverterStationAdder<I> {
+abstract class AbstractHvdcConverterStationAdderAdapter<T extends HvdcConverterStation<T>, I extends HvdcConverterStationAdder<T, I>> extends AbstractInjectionAdderAdapter<T, I> implements HvdcConverterStationAdder<T, I> {
 
     protected AbstractHvdcConverterStationAdderAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);

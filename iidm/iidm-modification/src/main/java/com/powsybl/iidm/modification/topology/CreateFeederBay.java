@@ -23,7 +23,7 @@ import java.util.Optional;
  */
 public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
 
-    private final InjectionAdder<?> injectionAdder;
+    private final InjectionAdder<?, ?> injectionAdder;
     private final String busOrBbsId;
     private final Integer injectionPositionOrder;
     private final String injectionFeederName;
@@ -37,7 +37,7 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
      * @param injectionFeederName    The name of the feeder indicated in the extension {@link ConnectablePosition}.
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
-    CreateFeederBay(InjectionAdder<?> injectionAdder, String busOrBbsId, Integer injectionPositionOrder,
+    CreateFeederBay(InjectionAdder<?, ?> injectionAdder, String busOrBbsId, Integer injectionPositionOrder,
                     String injectionFeederName, ConnectablePosition.Direction injectionDirection) {
         super(0);
         this.injectionAdder = Objects.requireNonNull(injectionAdder);
@@ -62,27 +62,8 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
         injectionAdder.setNode(node);
     }
 
-    @Override
     protected Connectable<?> add() {
-        if (injectionAdder instanceof LoadAdder) {
-            return ((LoadAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof BatteryAdder) {
-            return ((BatteryAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof DanglingLineAdder) {
-            return ((DanglingLineAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof GeneratorAdder) {
-            return ((GeneratorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof ShuntCompensatorAdder) {
-            return ((ShuntCompensatorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof StaticVarCompensatorAdder) {
-            return ((StaticVarCompensatorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof LccConverterStationAdder) {
-            return ((LccConverterStationAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof VscConverterStationAdder) {
-            return ((VscConverterStationAdder) injectionAdder).add();
-        } else {
-            throw new IllegalStateException("Given InjectionAdder not supported: " + injectionAdder.getClass().getName());
-        }
+        return injectionAdder.add();
     }
 
     @Override

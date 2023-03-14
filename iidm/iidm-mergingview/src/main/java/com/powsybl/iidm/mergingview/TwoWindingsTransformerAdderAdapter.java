@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class TwoWindingsTransformerAdderAdapter extends AbstractIdentifiableAdderAdapter<TwoWindingsTransformerAdder> implements TwoWindingsTransformerAdder {
+public class TwoWindingsTransformerAdderAdapter extends AbstractIdentifiableAdderAdapter<TwoWindingsTransformer, TwoWindingsTransformerAdder> implements TwoWindingsTransformerAdder {
 
     TwoWindingsTransformerAdderAdapter(final TwoWindingsTransformerAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
