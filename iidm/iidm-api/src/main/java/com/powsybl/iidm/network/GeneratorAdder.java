@@ -24,7 +24,7 @@ package com.powsybl.iidm.network;
  * @see Generator
  * @see VoltageLevel
  */
-public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
+public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder> {
 
     GeneratorAdder setEnergySource(EnergySource energySource);
 
@@ -61,5 +61,6 @@ public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
      *      - ratedS is set and ratedS > 0
      * @return {@link Generator}
      */
+    @Override
     Generator add();
 }

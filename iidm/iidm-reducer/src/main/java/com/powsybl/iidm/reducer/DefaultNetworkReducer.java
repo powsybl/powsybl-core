@@ -266,7 +266,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
     }
 
-    private static void fillNodeOrBus(InjectionAdder<?> adder, Terminal terminal) {
+    private static void fillNodeOrBus(InjectionAdder<?, ?> adder, Terminal terminal) {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             adder.setNode(terminal.getNodeBreakerView().getNode());
         } else {

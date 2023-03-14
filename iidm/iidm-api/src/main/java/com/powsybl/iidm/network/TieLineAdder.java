@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TieLineAdder extends BranchAdder<TieLineAdder> {
+public interface TieLineAdder extends BranchAdder<TieLine, TieLineAdder> {
 
     interface HalfLineAdder {
 
@@ -56,6 +56,7 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
     TieLineAdder.HalfLineAdder newHalfLine2();
 
+    @Override
     TieLine add();
 
 }
