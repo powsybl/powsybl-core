@@ -19,5 +19,5 @@
     "hvdcAcEmulation" : true,
     "dcPowerFactor" : 1.0
   },
-  "flow-sensitivity-value-threshold" : 0.0
+  "flow-flow-sensitivity-value-threshold" : 0.0
 }

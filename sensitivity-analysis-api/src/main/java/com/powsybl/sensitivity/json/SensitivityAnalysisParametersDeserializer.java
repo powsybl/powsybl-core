@@ -55,17 +55,17 @@ public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<S
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
                     break;
 
-                case "flow-sensitivity-value-threshold":
+                case "flow-flow-sensitivity-value-threshold":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
-                    parameters.setFlowSensitivityValueThreshold(parser.readValueAs(Double.class));
+                    parameters.setFlowFlowSensitivityValueThreshold(parser.readValueAs(Double.class));
                     break;
 
-                case "voltage-sensitivity-value-threshold":
+                case "voltage-voltage-sensitivity-value-threshold":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, parser.getCurrentName(), version, "1.1");
 
                     parser.nextToken();
-                    parameters.setVoltageSensitivityValueThreshold(parser.readValueAs(Double.class));
+                    parameters.setVoltageVoltageSensitivityValueThreshold(parser.readValueAs(Double.class));
                     break;
 
                 case "flow-voltage-sensitivity-value-threshold":
