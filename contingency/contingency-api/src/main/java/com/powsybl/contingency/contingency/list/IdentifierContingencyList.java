@@ -22,12 +22,17 @@ import java.util.stream.Collectors;
  */
 public class IdentifierContingencyList implements ContingencyList {
 
+    private static final String VERSION = "1.1";
     private final String name;
     private final List<NetworkElementIdentifier> networkElementIdentifiers;
 
     public IdentifierContingencyList(String name, List<NetworkElementIdentifier> networkElementIdentifiers) {
         this.name = Objects.requireNonNull(name);
         this.networkElementIdentifiers = ImmutableList.copyOf(networkElementIdentifiers);
+    }
+
+    public static String getVersion() {
+        return VERSION;
     }
 
     @Override

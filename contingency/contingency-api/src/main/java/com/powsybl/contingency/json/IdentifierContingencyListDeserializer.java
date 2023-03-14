@@ -23,6 +23,8 @@ import java.util.List;
  */
 public class IdentifierContingencyListDeserializer extends StdDeserializer<IdentifierContingencyList> {
 
+    private static final String CONTEXT_NAME = "identifierContingencyList";
+
     public IdentifierContingencyListDeserializer() {
         super(IdentifierContingencyList.class);
     }
@@ -30,11 +32,17 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
     @Override
     public IdentifierContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String name = null;
+        String version = null;
         List<NetworkElementIdentifier> networkElementIdentifiers = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
+                    version = parser.nextTextValue();
+                    break;
+
+                case "identifiableType":
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifiableType", version, "1.0");
                     parser.nextToken();
                     break;
 
