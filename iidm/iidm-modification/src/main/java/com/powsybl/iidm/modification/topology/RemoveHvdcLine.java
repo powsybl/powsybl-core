@@ -11,15 +11,13 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 
@@ -34,20 +32,20 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
 
     public RemoveHvdcLine(String hvdcLineId, List<String> shuntCompensatorsIds) {
         this.hvdcLineId = Objects.requireNonNull(hvdcLineId);
-        this.shuntCompensatorsIds = shuntCompensatorsIds != null ? shuntCompensatorsIds : List.of();
+        this.shuntCompensatorsIds = Objects.requireNonNull(shuntCompensatorsIds);
     }
 
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
-        if (hvdcLine != null && hvdcLineId.equals(hvdcLine.getId())) {
+        if (hvdcLine != null) {
             HvdcConverterStation<?> hvdcConverterStation1 = hvdcLine.getConverterStation1();
             HvdcConverterStation<?> hvdcConverterStation2 = hvdcLine.getConverterStation2();
             hvdcLine.remove();
             removedHvdcLineReport(reporter, hvdcLineId);
-            removeConverterStations(hvdcConverterStation1, hvdcConverterStation2, reporter);
-            // Remove the MCSs that represent the filters of the LCC
+            // Remove the Shunt compensators that represent the filters of the LCC
             removeShuntCompensators(network, hvdcConverterStation1, hvdcConverterStation2, reporter);
+            removeConverterStations(hvdcConverterStation1, hvdcConverterStation2, reporter);
         } else {
             LOGGER.error("HVDC Line {} not found", hvdcLineId);
             notFoundHvdcLineReport(reporter, hvdcLineId);
@@ -64,9 +62,26 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         if (!shuntCompensatorsIds.isEmpty()
                 && (isLccConverterStation(hvdcConverterStation1)
                 || isLccConverterStation(hvdcConverterStation2))) {
+
+            // Get Lcc voltage levels
+            List<VoltageLevel> lccVoltageLevel = network.getVoltageLevelStream()
+                    .filter(voltageLevel -> voltageLevel.getLccConverterStationStream()
+                            .anyMatch(lccConverterStation -> lccConverterStation.getId().equals(hvdcConverterStation1.getId())
+                                    || lccConverterStation.getId().equals(hvdcConverterStation2.getId())))
+                    .collect(Collectors.toList());
+
+            // removing shunt compensators
             shuntCompensatorsIds.forEach(shuntCompensatorId -> {
-                ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
-                if (shuntCompensator != null) {
+                // check whether the shunt compensator is connected to the same voltage level as the LCC
+                boolean isSameVoltageLevel = network.getVoltageLevelStream()
+                        .filter(voltageLevel -> voltageLevel.getConnectableStream(ShuntCompensator.class)
+                                .anyMatch(shuntCompensator ->
+                                        shuntCompensatorId.equals(shuntCompensator.getId()) && lccVoltageLevel.contains(voltageLevel)
+                                )
+                        ).findFirst().isPresent();
+
+                if (isSameVoltageLevel) {
+                    ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
                     shuntCompensator.remove();
                     removedShuntCompensatorReport(reporter, shuntCompensator.getId());
                 }

@@ -34,10 +34,11 @@ class RemoveHvdcLineTest extends AbstractConverterTest {
     @Test
     void testRemoveHvdcLineLccWithMcs() {
         Network network = HvdcTestNetwork.createLcc();
-        new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds(List.of("C1_Filter1")).build().apply(network);
+        new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds(List.of("C1_Filter1", "C1_Filter2")).build().apply(network);
         assertNull(network.getHvdcLine("L"));
         assertNull(network.getLccConverterStation("C1"));
         assertNull(network.getShuntCompensator("C1_Filter1"));
+        assertNull(network.getShuntCompensator("C1_Filter2"));
     }
 
     @Test
