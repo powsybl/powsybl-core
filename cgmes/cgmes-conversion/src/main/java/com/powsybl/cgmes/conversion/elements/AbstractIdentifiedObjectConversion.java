@@ -55,19 +55,19 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
 
     // Identification
 
-    public void identify(IdentifiableAdder<?> adder) {
+    public void identify(IdentifiableAdder<?, ?> adder) {
         identify(adder, iidmId(), iidmName());
     }
 
-    public void identify(IdentifiableAdder<?> adder, String duplicatedTag) {
+    public void identify(IdentifiableAdder<?, ?> adder, String duplicatedTag) {
         identify(adder, iidmId() + duplicatedTag, iidmName() + duplicatedTag);
     }
 
-    public void identify(IdentifiableAdder<?> adder, String id, String name) {
+    public void identify(IdentifiableAdder<?, ?> adder, String id, String name) {
         identify(context, adder, id, name);
     }
 
-    public static void identify(Context context, IdentifiableAdder<?> adder, String id, String name) {
+    public static void identify(Context context, IdentifiableAdder<?, ?> adder, String id, String name) {
         adder
                 .setId(id)
                 .setName(name)

@@ -12,13 +12,16 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.function.Consumer;
+
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.readNodeOrBus;
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.writeNodeOrBus;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensatorAdder, VoltageLevel> {
+class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCompensatorAdder, VoltageLevel> {
 
     static final ShuntXml INSTANCE = new ShuntXml();
 
@@ -81,6 +84,11 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         }
     }
 
+    @Override
+    protected ShuntCompensatorAdder createAdder(VoltageLevel parent) {
+        return parent.newShuntCompensator();
+    }
+
     private static void writeModel(ShuntCompensator sc, NetworkXmlWriterContext context) throws XMLStreamException {
         if (sc.getModelType() == ShuntCompensatorModelType.LINEAR) {
             context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_LINEAR_MODEL);
@@ -103,17 +111,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     }
 
     @Override
-    protected ShuntCompensatorAdder createAdder(VoltageLevel vl) {
-        return vl.newShuntCompensator();
-    }
-
-    @Override
-    protected ShuntCompensator readRootElementAttributes(ShuntCompensatorAdder adder, NetworkXmlReaderContext context) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected void readElement(String id, ShuntCompensatorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readRootElementAttributes(ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkXmlReaderContext context) {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
             String voltageRegulatorOn = context.getReader().getAttributeValue(null, "voltageRegulatorOn");
             double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
@@ -142,26 +140,17 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         readNodeOrBus(adder, context);
         double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
         double q = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");
-        String[] regId = new String[1];
-        String[] regSide = new String[1];
-        Map<String, String> properties = new HashMap<>();
-        Map<String, String> aliases = new HashMap<>();
+        toApply.add(sc -> sc.getTerminal().setP(p).setQ(q));
+    }
+
+    @Override
+    protected void readSubElements(String id, ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case REGULATING_TERMINAL:
-                    regId[0] = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
-                    regSide[0] = context.getReader().getAttributeValue(null, "side");
-                    break;
-                case PropertiesXml.PROPERTY:
-                    String name = context.getReader().getAttributeValue(null, "name");
-                    String value = context.getReader().getAttributeValue(null, "value");
-                    properties.put(name, value);
-                    break;
-                case AliasesXml.ALIAS:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                    String aliasType = context.getReader().getAttributeValue(null, "type");
-                    String alias = context.getAnonymizer().deanonymizeString(context.getReader().getElementText());
-                    aliases.put(alias, aliasType);
+                    String regId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+                    String regSide = context.getReader().getAttributeValue(null, "side");
+                    toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getNetwork(), regId, regSide))));
                     break;
                 case SHUNT_LINEAR_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
@@ -192,15 +181,8 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     modelAdder.add();
                     break;
                 default:
-                    throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + id + ">");
+                    super.readSubElements(id, toApply, context);
             }
         });
-        ShuntCompensator sc = adder.add();
-        if (regId[0] != null) {
-            context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getNetwork(), regId[0], regSide[0])));
-        }
-        properties.forEach(sc::setProperty);
-        aliases.forEach(sc::addAlias);
-        sc.getTerminal().setP(p).setQ(q);
     }
 }
