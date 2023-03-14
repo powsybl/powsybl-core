@@ -93,7 +93,7 @@ abstract class AbstractFaultResult extends AbstractExtendable<FaultResult> imple
         for (FeederResult feederResult : feederResults) {
             if (feederResult.getConnectableId().equals(feederId)) {
                 if (feederResult instanceof FortescueFeederResult) {
-                    return ((FortescueFeederResult) feederResult).getCurrent().getDirectMagnitude();
+                    return ((FortescueFeederResult) feederResult).getCurrent().getPositiveMagnitude();
                 } else {
                     return ((MagnitudeFaultResult) feederResult).getCurrent();
                 }
