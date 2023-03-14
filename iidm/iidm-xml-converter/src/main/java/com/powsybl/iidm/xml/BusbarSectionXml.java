@@ -19,7 +19,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSectionAdder, VoltageLevel> {
+class BusbarSectionXml extends AbstractSimpleIdentifiableXml<BusbarSection, BusbarSectionAdder, VoltageLevel> {
 
     static final BusbarSectionXml INSTANCE = new BusbarSectionXml();
 
