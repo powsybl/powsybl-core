@@ -46,17 +46,8 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             Set<ShuntCompensator> shunts = null;
             if (isLccConverterStation(hvdcConverterStation1)) { // in real-life cases, both converter stations are of the same type
                 shunts = shuntCompensatorIds.stream()
-                        .map(id -> {
-                            ShuntCompensator sc = network.getShuntCompensator(id);
-                            if (sc == null) {
-                                notFoundShuntReport(reporter, id);
-                                LOGGER.error("Shunt {} not found", id);
-                                if (throwException) {
-                                    throw new PowsyblException("Shunt " + id + " not found");
-                                }
-                            }
-                            return sc;
-                        }).filter(Objects::nonNull).collect(Collectors.toSet());
+                        .map(id -> getShuntCompensator(id, network, throwException, reporter))
+                        .filter(Objects::nonNull).collect(Collectors.toSet());
             } else if (!shuntCompensatorIds.isEmpty()) { // VSC converter stations and defined shunts
                 String shuntIds = String.join(",", shuntCompensatorIds);
                 LOGGER.warn("Shunts {} are ignored since converter stations {} and {} are VSC", shuntIds, hvdcConverterStation1.getId(), hvdcConverterStation2.getId());
@@ -76,24 +67,38 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         }
     }
 
-    private static void removeShuntCompensators(HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Set<ShuntCompensator> shunts, Reporter reporter) {
-        if (shunts != null) {
-            // Get the voltage levels of both lcc converter stations
-            VoltageLevel vl1 = hvdcConverterStation1.getTerminal().getVoltageLevel();
-            VoltageLevel vl2 = hvdcConverterStation2.getTerminal().getVoltageLevel();
+    private static ShuntCompensator getShuntCompensator(String id, Network network, boolean throwException, Reporter reporter) {
+        ShuntCompensator sc = network.getShuntCompensator(id);
+        if (sc == null) {
+            notFoundShuntReport(reporter, id);
+            LOGGER.error("Shunt {} not found", id);
+            if (throwException) {
+                throw new PowsyblException("Shunt " + id + " not found");
+            }
+        }
+        return sc;
+    }
 
-            // removing shunt compensators
-            shunts.forEach(shuntCompensator -> {
-                VoltageLevel shuntVl = shuntCompensator.getTerminal().getVoltageLevel();
-                // check whether the shunt compensator is connected to the same voltage level as the lcc
-                if (vl1 == shuntVl || vl2 == shuntVl) {
-                    shuntCompensator.remove();
-                    removedShuntCompensatorReport(reporter, shuntCompensator.getId());
-                } else {
-                    LOGGER.warn("Shunt compensator {} has been ignored because it is not in the same voltage levels as the Lcc ({} or {})", shuntCompensator.getId(), vl1.getId(), vl2.getId());
-                    ignoredShuntInAnotherVoltageLevel(reporter, shuntCompensator.getId(), vl1.getId(), vl2.getId());
-                }
-            });
+    private static void removeShuntCompensators(HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Set<ShuntCompensator> shunts, Reporter reporter) {
+        if (shunts == null) {
+            return;
+        }
+
+        // Get the voltage levels of both lcc converter stations
+        VoltageLevel vl1 = hvdcConverterStation1.getTerminal().getVoltageLevel();
+        VoltageLevel vl2 = hvdcConverterStation2.getTerminal().getVoltageLevel();
+
+        // removing shunt compensators
+        for (ShuntCompensator shuntCompensator : shunts) {
+            VoltageLevel shuntVl = shuntCompensator.getTerminal().getVoltageLevel();
+            // check whether the shunt compensator is connected to the same voltage level as the lcc
+            if (vl1 == shuntVl || vl2 == shuntVl) {
+                shuntCompensator.remove();
+                removedShuntCompensatorReport(reporter, shuntCompensator.getId());
+            } else {
+                LOGGER.warn("Shunt compensator {} has been ignored because it is not in the same voltage levels as the Lcc ({} or {})", shuntCompensator.getId(), vl1.getId(), vl2.getId());
+                ignoredShuntInAnotherVoltageLevel(reporter, shuntCompensator.getId(), vl1.getId(), vl2.getId());
+            }
         }
     }
 
