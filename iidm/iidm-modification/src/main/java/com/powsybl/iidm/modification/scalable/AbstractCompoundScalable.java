@@ -72,15 +72,9 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
     }
 
     @Override
-    public double scale(Network n, double asked) {
-        return scale(n, asked, ScalingConvention.GENERATOR);
-    }
-
-    @Override
     public void filterInjections(Network n, List<Injection> injections, List<String> notFoundInjections) {
         for (Scalable scalable : getScalables()) {
             scalable.filterInjections(n, injections, notFoundInjections);
         }
     }
-
 }
