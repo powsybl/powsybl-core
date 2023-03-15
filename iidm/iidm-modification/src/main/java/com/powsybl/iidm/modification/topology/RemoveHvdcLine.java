@@ -56,7 +56,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
                                 }
                             }
                             return sc;
-                        }).collect(Collectors.toSet());
+                        }).filter(Objects::nonNull).collect(Collectors.toSet());
             } else if (!shuntCompensatorIds.isEmpty()) { // VSC converter stations and defined shunts
                 String shuntIds = String.join(",", shuntCompensatorIds);
                 LOGGER.warn("Shunts {} are ignored since converter stations {} and {} are VSC", shuntIds, hvdcConverterStation1.getId(), hvdcConverterStation2.getId());
