@@ -351,7 +351,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("removeVoltageLevel")
                 .withDefaultMessage("Voltage level ${voltageLevelId}, its equipments and the branches it is connected to have been removed")
-                .withValue(CONNECTABLE_ID, voltageLevelId)
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -360,7 +360,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("removeHvdcLine")
                 .withDefaultMessage("Hvdc line ${hvdcLineId} has been removed")
-                .withValue(CONNECTABLE_ID, hvdcLineId)
+                .withValue(HVDC_LINE_ID, hvdcLineId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -369,7 +369,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("removeVscConverterStation")
                 .withDefaultMessage("Vsc converter station ${vscConverterStationId} has been removed")
-                .withValue(CONNECTABLE_ID, vscConverterStationId)
+                .withValue("vscConverterStationId", vscConverterStationId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -378,7 +378,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("removeLccConverterStation")
                 .withDefaultMessage("Lcc converter station ${lccConverterStationId} has been removed")
-                .withValue(CONNECTABLE_ID, lccConverterStationId)
+                .withValue("lccConverterStationId", lccConverterStationId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -387,7 +387,7 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("removeShuntCompensator")
                 .withDefaultMessage("Shunt compensator ${shuntCompensatorId} has been removed")
-                .withValue(CONNECTABLE_ID, shuntCompensatorId)
+                .withValue("shuntCompensatorId", shuntCompensatorId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
