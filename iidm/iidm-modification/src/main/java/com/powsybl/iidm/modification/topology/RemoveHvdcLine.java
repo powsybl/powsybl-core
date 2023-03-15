@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 
@@ -55,30 +54,19 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         }
     }
 
-    private void removeShuntCompensators(Network network,
-                                         HvdcConverterStation<?> hvdcConverterStation1,
-                                         HvdcConverterStation<?> hvdcConverterStation2,
-                                         Reporter reporter) {
+    private void removeShuntCompensators(Network network, HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Reporter reporter) {
         if (!shuntCompensatorsIds.isEmpty()
                 && (isLccConverterStation(hvdcConverterStation1)
                 || isLccConverterStation(hvdcConverterStation2))) {
 
             // Get Lcc voltage levels
-            List<VoltageLevel> lccVoltageLevel = network.getVoltageLevelStream()
-                    .filter(voltageLevel -> voltageLevel.getLccConverterStationStream()
-                            .anyMatch(lccConverterStation -> lccConverterStation.getId().equals(hvdcConverterStation1.getId())
-                                    || lccConverterStation.getId().equals(hvdcConverterStation2.getId())))
-                    .collect(Collectors.toList());
+            VoltageLevel vl1 = hvdcConverterStation1.getTerminal().getVoltageLevel();
+            VoltageLevel vl2 = hvdcConverterStation2.getTerminal().getVoltageLevel();
 
             // removing shunt compensators
             shuntCompensatorsIds.forEach(shuntCompensatorId -> {
-                // check whether the shunt compensator is connected to the same voltage level as the LCC
-                boolean isSameVoltageLevel = network.getVoltageLevelStream()
-                        .filter(voltageLevel -> lccVoltageLevel.contains(voltageLevel))
-                        .flatMap(voltageLevel -> voltageLevel.getConnectableStream(ShuntCompensator.class))
-                        .anyMatch(shuntCompensator -> shuntCompensator.getId().equals(shuntCompensatorId));
-
-                if (isSameVoltageLevel) {
+                VoltageLevel shuntCompensatorVL = network.getShuntCompensator(shuntCompensatorId).getTerminal().getVoltageLevel();
+                if (shuntCompensatorVL == vl1 || shuntCompensatorVL == vl2) {
                     ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
                     shuntCompensator.remove();
                     removedShuntCompensatorReport(reporter, shuntCompensator.getId());
