@@ -11,15 +11,14 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 
@@ -44,51 +43,61 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         if (hvdcLine != null) {
             HvdcConverterStation<?> hvdcConverterStation1 = hvdcLine.getConverterStation1();
             HvdcConverterStation<?> hvdcConverterStation2 = hvdcLine.getConverterStation2();
+            Set<ShuntCompensator> shunts = null;
+            if (isLccConverterStation(hvdcConverterStation1)) { // in real-life cases, both converter stations are of the same type
+                shunts = shuntCompensatorIds.stream()
+                        .map(id -> {
+                            ShuntCompensator sc = network.getShuntCompensator(id);
+                            if (sc == null) {
+                                notFoundShuntReport(reporter, id);
+                                LOGGER.error("Shunt {} not found", id);
+                                if (throwException) {
+                                    throw new PowsyblException("Shunt " + id + " not found");
+                                }
+                            }
+                            return sc;
+                        }).collect(Collectors.toSet());
+            } else if (!shuntCompensatorIds.isEmpty()) { // VSC converter stations and defined shunts
+                String shuntIds = String.join(",", shuntCompensatorIds);
+                LOGGER.warn("Shunts {} are ignored since converter stations {} and {} are VSC", shuntIds, hvdcConverterStation1.getId(), hvdcConverterStation2.getId());
+                ignoredVscShunts(reporter, shuntIds, hvdcConverterStation1.getId(), hvdcConverterStation2.getId());
+            }
             hvdcLine.remove();
             removedHvdcLineReport(reporter, hvdcLineId);
             // Remove the Shunt compensators that represent the filters of the LCC
-            removeShuntCompensators(network, hvdcConverterStation1, hvdcConverterStation2, reporter);
+            removeShuntCompensators(hvdcConverterStation1, hvdcConverterStation2, shunts, reporter);
             removeConverterStations(hvdcConverterStation1, hvdcConverterStation2, reporter);
-            LOGGER.info("Hvdc Line {} and Hvdc converter stations {}, {} have been removed", hvdcLineId, hvdcConverterStation1.getId(), hvdcConverterStation2.getId());
         } else {
             LOGGER.error("Hvdc Line {} not found", hvdcLineId);
             notFoundHvdcLineReport(reporter, hvdcLineId);
             if (throwException) {
-                throw new PowsyblException("Hvdc Line {} not found: " + hvdcLineId);
+                throw new PowsyblException("Hvdc Line " + hvdcLineId + " not found");
             }
         }
     }
 
-    private void removeShuntCompensators(Network network, HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Reporter reporter) {
-        if (!shuntCompensatorIds.isEmpty()) {
-            if (isLccConverterStation(hvdcConverterStation1)) {
-                // Get the voltage levels of both lcc converter stations
-                String vl1Id = hvdcConverterStation1.getTerminal().getVoltageLevel().getId();
-                String vl2Id = hvdcConverterStation2.getTerminal().getVoltageLevel().getId();
+    private static void removeShuntCompensators(HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Set<ShuntCompensator> shunts, Reporter reporter) {
+        if (shunts != null) {
+            // Get the voltage levels of both lcc converter stations
+            VoltageLevel vl1 = hvdcConverterStation1.getTerminal().getVoltageLevel();
+            VoltageLevel vl2 = hvdcConverterStation2.getTerminal().getVoltageLevel();
 
-                // removing shunt compensators
-                shuntCompensatorIds.forEach(shuntCompensatorId -> {
-                    ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
-                    if (shuntCompensator != null) {
-                        String shuntCompensatorVoltageLevelId = shuntCompensator.getTerminal().getVoltageLevel().getId();
-                        // check whether the shunt compensator is connected to the same voltage level as the lcc
-                        if (shuntCompensatorVoltageLevelId.equals(vl1Id) || shuntCompensatorVoltageLevelId.equals(vl2Id)) {
-                            shuntCompensator.remove();
-                            removedShuntCompensatorReport(reporter, shuntCompensator.getId());
-                        } else {
-                            LOGGER.info("The shunt compensators has not been removed because it is not at the same voltage level as the Lcc");
-                        }
-                    }
-                });
-            } else {
-                LOGGER.info("The shunt compensators are not removed since we are in VSC");
-            }
-
+            // removing shunt compensators
+            shunts.forEach(shuntCompensator -> {
+                VoltageLevel shuntVl = shuntCompensator.getTerminal().getVoltageLevel();
+                // check whether the shunt compensator is connected to the same voltage level as the lcc
+                if (vl1 == shuntVl || vl2 == shuntVl) {
+                    shuntCompensator.remove();
+                    removedShuntCompensatorReport(reporter, shuntCompensator.getId());
+                } else {
+                    LOGGER.warn("Shunt compensator {} has been ignored because it is not in the same voltage levels as the Lcc ({} or {})", shuntCompensator.getId(), vl1.getId(), vl2.getId());
+                    ignoredShuntInAnotherVoltageLevel(reporter, shuntCompensator.getId(), vl1.getId(), vl2.getId());
+                }
+            });
         }
-
     }
 
-    private void removeConverterStations(HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Reporter reporter) {
+    private static void removeConverterStations(HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Reporter reporter) {
         hvdcConverterStation1.remove();
         hvdcConverterStation2.remove();
         reportConverterStationRemoved(reporter, hvdcConverterStation1);
@@ -103,7 +112,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         return hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.VSC;
     }
 
-    private void reportConverterStationRemoved(Reporter reporter, HvdcConverterStation<?> hvdcConverterStation) {
+    private static void reportConverterStationRemoved(Reporter reporter, HvdcConverterStation<?> hvdcConverterStation) {
         if (isLccConverterStation(hvdcConverterStation)) {
             removedLccConverterStationReport(reporter, hvdcConverterStation.getId());
         }

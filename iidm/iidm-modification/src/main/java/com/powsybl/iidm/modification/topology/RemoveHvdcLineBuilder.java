@@ -7,10 +7,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Anis Touri <anis-1.touri@rte-france.com>
@@ -20,7 +17,7 @@ public class RemoveHvdcLineBuilder {
 
     private String hvdcLineId;
 
-    private List<String> shuntCompensatorIds = Collections.emptyList();
+    private final List<String> shuntCompensatorIds = new ArrayList<>();
 
     public RemoveHvdcLine build() {
         Objects.requireNonNull(hvdcLineId);
@@ -43,13 +40,13 @@ public class RemoveHvdcLineBuilder {
      */
     public RemoveHvdcLineBuilder withShuntCompensatorIds(List<String> shuntCompensatorIds) {
         this.shuntCompensatorIds.clear();
-        this.shuntCompensatorIds = Objects.requireNonNull(shuntCompensatorIds);
+        this.shuntCompensatorIds.addAll(Objects.requireNonNull(shuntCompensatorIds));
         return this;
     }
 
     public RemoveHvdcLineBuilder withShuntCompensatorIds(String... shuntCompensatorIds) {
         this.shuntCompensatorIds.clear();
-        this.shuntCompensatorIds = Arrays.asList(shuntCompensatorIds);
+        this.shuntCompensatorIds.addAll(Arrays.asList(shuntCompensatorIds));
         return this;
     }
 }

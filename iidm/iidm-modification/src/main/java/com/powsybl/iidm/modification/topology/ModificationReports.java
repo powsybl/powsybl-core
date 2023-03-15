@@ -157,6 +157,28 @@ final class ModificationReports {
     }
 
     // WARN
+    static void ignoredVscShunts(Reporter reporter, String shuntsIds, String converterStationId1, String converterStationId2) {
+        reporter.report(Report.builder()
+                .withKey("ignoredVscShunts")
+                .withDefaultMessage("Shunts ${shuntsIds} are ignored since converter stations ${converterStationId1} and ${converterStationId2} are VSC")
+                .withValue("shuntsIds", shuntsIds)
+                .withValue("converterStationId1", converterStationId1)
+                .withValue("converterStationId2", converterStationId2)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
+    static void ignoredShuntInAnotherVoltageLevel(Reporter reporter, String shuntId, String voltageLevelId1, String voltageLevelId2) {
+        reporter.report(Report.builder()
+                .withKey("ignoredShuntInAnotherVoltageLevel")
+                .withDefaultMessage("Shunt compensator ${shuntId} has been ignored because it is not in the same voltage levels as the Lcc (${voltageLevelId1} or ${voltageLevelId2})")
+                .withValue("shuntId", shuntId)
+                .withValue(VOLTAGE_LEVEL_ID + 1, voltageLevelId1)
+                .withValue(VOLTAGE_LEVEL_ID + 2, voltageLevelId2)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
     static void ignoredPositionOrder(Reporter reporter, int positionOrder, VoltageLevel voltageLevel) {
         reporter.report(Report.builder()
                 .withKey("ignoredPositionOrder")
@@ -207,7 +229,7 @@ final class ModificationReports {
     static void notFoundIdentifiableReport(Reporter reporter, String identifiableId) {
         reporter.report(Report.builder()
                 .withKey("notFoundIdentifiable")
-                .withDefaultMessage("Identifiable ${busbarSectionId} not found")
+                .withDefaultMessage("Identifiable ${identifiableId} not found")
                 .withValue(IDENTIFIABLE_ID, identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
@@ -218,6 +240,15 @@ final class ModificationReports {
                 .withKey("notFoundBusbarSection")
                 .withDefaultMessage("Busbar section ${busbarSectionId} not found")
                 .withValue("busbarSectionId", bbsId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void notFoundShuntReport(Reporter reporter, String shuntId) {
+        reporter.report(Report.builder()
+                .withKey("notFoundShunt")
+                .withDefaultMessage("Shunt ${shuntId} not found")
+                .withValue("shuntId", shuntId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
