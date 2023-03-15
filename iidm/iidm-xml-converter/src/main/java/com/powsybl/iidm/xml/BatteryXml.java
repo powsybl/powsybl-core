@@ -14,10 +14,12 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
-class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLevel> {
+class BatteryXml extends AbstractSimpleIdentifiableXml<Battery, BatteryAdder, VoltageLevel> {
 
     static final BatteryXml INSTANCE = new BatteryXml();
 
