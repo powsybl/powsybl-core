@@ -254,7 +254,7 @@ class ScalableTest {
         convention = LOAD;
         reset();
 
-        ScalingParameters parameters = new ScalingParameters(LOAD);
+        ScalingParameters parameters = new ScalingParameters().setScalingConvention(convention);
         double done = Scalable.proportional(Arrays.asList(70.f, 30.f), Arrays.asList(g1, l1)).scale(network, 100.0, parameters);
         assertEquals(30.0, done, 0.0);
         assertEquals(0, network.getGenerator("g1").getTargetP(), 1e-5);
@@ -288,7 +288,7 @@ class ScalableTest {
     @Test
     void testConstantPowerFactorScaling() {
         reset();
-        ScalingParameters parameters = new ScalingParameters(false, true);
+        ScalingParameters parameters = new ScalingParameters().setConstantPowerFactor(true);
         network.getLoad("l1").setQ0(10);
         network.getLoad("l1").setP0(100);
         double done = Scalable.proportional(Arrays.asList(50.f, 50.f), Arrays.asList(g1, l1)).scale(network, 100.0, parameters);
@@ -301,7 +301,7 @@ class ScalableTest {
     @Test
     void testConstantPowerFactorScalingWithLoadConvention() {
         reset();
-        ScalingParameters parameters = new ScalingParameters(LOAD, false, true);
+        ScalingParameters parameters = new ScalingParameters().setScalingConvention(LOAD).setConstantPowerFactor(true);
         network.getLoad("l1").setQ0(10);
         network.getLoad("l1").setP0(100);
         network.getGenerator("g1").setTargetP(70);
@@ -361,7 +361,7 @@ class ScalableTest {
         convention = LOAD;
         Scalable scalable = Scalable.stack(g1, g2);
 
-        ScalingParameters parameters = new ScalingParameters(LOAD);
+        ScalingParameters parameters = new ScalingParameters().setScalingConvention(convention);
         double done = scalable.scale(network, -150.0, parameters);
         assertEquals(-150.0, done, 0.0);
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 0.0);
@@ -532,8 +532,10 @@ class ScalableTest {
         assertEquals(70.0, done, 0.0);
         assertEquals(70.0, network.getGenerator("g1").getTargetP(), 1e-5);
 
+        ScalingParameters parameters = new ScalingParameters().setIterative(true);
+
         reset();
-        done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, s, unknownGenerator), true).scale(network, 100.0);
+        done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, s, unknownGenerator)).scale(network, 100.0, parameters);
         assertEquals(100.0, done, 0.0);
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-5);
 
@@ -545,7 +547,7 @@ class ScalableTest {
         assertEquals(80.0, network.getGenerator("g3").getTargetP(), 1e-5);
 
         reset();
-        done = Scalable.proportional(Arrays.asList(2.5f, 7.5f, 90.f), Arrays.asList(g1, g2, g3), true).scale(network, 100.0);
+        done = Scalable.proportional(Arrays.asList(2.5f, 7.5f, 90.f), Arrays.asList(g1, g2, g3)).scale(network, 100.0, parameters);
         assertEquals(100.0, done, 0.0);
         assertEquals(5, network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(15.0, network.getGenerator("g2").getTargetP(), 1e-5);
@@ -557,7 +559,7 @@ class ScalableTest {
         assertEquals(70.0, network.getGenerator("g3").getTargetP(), 1e-5);
 
         reset();
-        done = Scalable.proportional(Arrays.asList(70.f, 10.f, 20.f), Arrays.asList(g3, s, unknownGenerator), true).scale(network, 100.0);
+        done = Scalable.proportional(Arrays.asList(70.f, 10.f, 20.f), Arrays.asList(g3, s, unknownGenerator)).scale(network, 100.0, parameters);
         assertEquals(80.0, done, 0.0);
         assertEquals(80.0, network.getGenerator("g3").getTargetP(), 1e-5);
     }
@@ -575,14 +577,16 @@ class ScalableTest {
 
     @Test
     void testProportionalScaleIterativeThreeSteps() {
-        double done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3), false).scale(network, 270.0);
+        double done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3)).scale(network, 270.0);
         assertEquals(181.0, done, 0.0);
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-3);
         assertEquals(54, network.getGenerator("g2").getTargetP(), 1e-3);
         assertEquals(27, network.getGenerator("g3").getTargetP(), 1e-3);
 
+        ScalingParameters parameters = new ScalingParameters().setIterative(true);
+
         reset();
-        done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3), true).scale(network, 270.0);
+        done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3)).scale(network, 270.0, parameters);
         assertEquals(270.0, done, 0.0);
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-3);
         assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-3);
@@ -591,15 +595,16 @@ class ScalableTest {
 
     @Test
     void testScalableReuse() {
-        Scalable scalable = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3), true);
-        double done = scalable.scale(network, 270.0);
+        Scalable scalable = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3));
+        ScalingParameters parameters = new ScalingParameters().setIterative(true);
+        double done = scalable.scale(network, 270.0, parameters);
         assertEquals(270.0, done, 0.0);
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-3);
         assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-3);
         assertEquals(70.0, network.getGenerator("g3").getTargetP(), 1e-3);
 
         reset();
-        done = scalable.scale(network, 270.0);
+        done = scalable.scale(network, 270.0, parameters);
         assertEquals(270.0, done, 0.0);
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-3);
         assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-3);
@@ -609,12 +614,12 @@ class ScalableTest {
     @Test
     void testParameters() {
         // Default
-        ScalingParameters parameters = ScalingParameters.getDefault();
+        ScalingParameters parameters = new ScalingParameters();
         assertFalse(parameters.isConstantPowerFactor());
         assertFalse(parameters.isReconnect());
         assertEquals(GENERATOR, parameters.getScalingConvention());
 
-        ScalingParameters parameters1 = new ScalingParameters(LOAD, true, false);
+        ScalingParameters parameters1 = new ScalingParameters().setScalingConvention(LOAD).setReconnect(true);
         assertEquals(LOAD, parameters1.getScalingConvention());
         assertTrue(parameters1.isReconnect());
         assertFalse(parameters1.isConstantPowerFactor());

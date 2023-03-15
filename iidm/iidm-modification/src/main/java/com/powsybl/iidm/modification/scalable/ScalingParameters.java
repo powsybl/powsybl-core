@@ -12,31 +12,35 @@ package com.powsybl.iidm.modification.scalable;
  */
 public class ScalingParameters {
 
-    private final Scalable.ScalingConvention scalingConvention;
+    private Scalable.ScalingConvention scalingConvention = Scalable.ScalingConvention.GENERATOR;
 
-    private final boolean reconnect;
+    private boolean reconnect;
 
-    private final boolean constantPowerFactor;
+    private boolean constantPowerFactor;
 
-    public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor) {
+    private boolean iterative;
+
+    public ScalingParameters() {
+    }
+
+    public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,
+                             boolean iterative) {
         this.scalingConvention = scalingConvention;
         this.reconnect = reconnect;
         this.constantPowerFactor = constantPowerFactor;
-    }
-
-    public ScalingParameters(Scalable.ScalingConvention scalingConvention) {
-        this(scalingConvention, false, false);
-    }
-
-    public ScalingParameters(boolean reconnect, boolean constantPowerFactor) {
-        this(Scalable.ScalingConvention.GENERATOR, reconnect, constantPowerFactor);
+        this.iterative = iterative;
     }
 
     /**
-     * @return the scaling convention for the scaling.
+     * @return the scaling convention for the scaling, {@link Scalable.ScalingConvention} GENERATOR by default.
      */
     public Scalable.ScalingConvention getScalingConvention() {
         return scalingConvention;
+    }
+
+    public ScalingParameters setScalingConvention(Scalable.ScalingConvention scalingConvention) {
+        this.scalingConvention = scalingConvention;
+        return this;
     }
 
     /**
@@ -46,18 +50,34 @@ public class ScalingParameters {
         return reconnect;
     }
 
+    public ScalingParameters setReconnect(boolean reconnect) {
+        this.reconnect = reconnect;
+        return this;
+    }
+
     /**
-     * @return a boolean indicating if the scaling should be done with constant power factor.
+     * @return a boolean indicating if the scaling should be done with a constant power factor.
      */
     public boolean isConstantPowerFactor() {
         return constantPowerFactor;
     }
 
+    public ScalingParameters setConstantPowerFactor(boolean constantPowerFactor) {
+        this.constantPowerFactor = constantPowerFactor;
+        return this;
+    }
+
     /**
-     * @return default scaling parameters: generator convention, not reconnecting terminals and not scaling at constant
-     * power factor.
+     * Scale may be iterative or not for {@link ProportionalScalable}. If the iterative mode is activated, the residues
+     * due to scalable saturation is divided between the other scalable composing the {@link ProportionalScalable}.
+     * @return the iterative boolean, false by default.
      */
-    public static ScalingParameters getDefault() {
-        return new ScalingParameters(Scalable.ScalingConvention.GENERATOR, false, false);
+    public boolean isIterative() {
+        return iterative;
+    }
+
+    public ScalingParameters setIterative(boolean iterative) {
+        this.iterative = iterative;
+        return this;
     }
 }

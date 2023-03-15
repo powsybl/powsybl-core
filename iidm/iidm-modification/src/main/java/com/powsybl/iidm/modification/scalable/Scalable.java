@@ -137,7 +137,7 @@ public interface Scalable {
     double scale(Network n, double asked, ScalingParameters parameters);
 
     default double scale(Network n, double asked) {
-        return scale(n, asked, ScalingParameters.getDefault());
+        return scale(n, asked, new ScalingParameters());
     }
 
     /**
@@ -216,10 +216,6 @@ public interface Scalable {
 
     static ProportionalScalable proportional(List<Float> percentages, List<Scalable> scalables) {
         return new ProportionalScalable(percentages, scalables);
-    }
-
-    static ProportionalScalable proportional(List<Float> percentages, List<Scalable> scalables, boolean iterative) {
-        return new ProportionalScalable(percentages, scalables, iterative);
     }
 
     static ProportionalScalable proportional(float percentage, Scalable scalable) {

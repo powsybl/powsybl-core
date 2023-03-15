@@ -16,9 +16,6 @@ import java.util.stream.Collectors;
 
 /**
  * Scalable that divides scale proportionally between multiple scalable.
- * Scale may be iterative or not.
- * If the iterative mode is activated, the residues due to scalable saturation is divided between the
- * other scalable composing the ProportionalScalable.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -64,19 +61,12 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     private final List<ScalablePercentage> scalablePercentageList;
 
-    private final boolean iterative;
-
     ProportionalScalable(List<Float> percentages, List<Scalable> scalables) {
-        this(percentages, scalables, false);
-    }
-
-    ProportionalScalable(List<Float> percentages, List<Scalable> scalables, boolean iterative) {
         checkPercentages(percentages, scalables);
         this.scalablePercentageList = new ArrayList<>();
         for (int i = 0; i < scalables.size(); i++) {
             this.scalablePercentageList.add(new ScalablePercentage(scalables.get(i), percentages.get(i)));
         }
-        this.iterative = iterative;
     }
 
     Collection<Scalable> getScalables() {
@@ -153,7 +143,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(parameters);
         reinitIterationPercentage();
-        if (iterative) {
+        if (parameters.isIterative()) {
             return iterativeScale(n, asked, parameters);
         } else {
             return scaleIteration(n, asked, parameters);
