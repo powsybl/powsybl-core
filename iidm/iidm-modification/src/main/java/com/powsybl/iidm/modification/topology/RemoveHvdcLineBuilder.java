@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +17,9 @@ import java.util.Objects;
  */
 
 public class RemoveHvdcLineBuilder {
+
     private String hvdcLineId;
+
     private List<String> shuntCompensatorIds = Collections.emptyList();
 
     public RemoveHvdcLine build() {
@@ -25,7 +28,7 @@ public class RemoveHvdcLineBuilder {
     }
 
     /**
-     * @param hvdcLineId the non-null ID of the HVDC line
+     * @param hvdcLineId the non-null ID of the Hvdc line
      */
     public RemoveHvdcLineBuilder withHvdcLineId(String hvdcLineId) {
         this.hvdcLineId = hvdcLineId;
@@ -33,11 +36,20 @@ public class RemoveHvdcLineBuilder {
     }
 
     /**
-     * @param shuntCompensatorIds the IDs of the shunt compensator
+     * If we remove an hvdc line with lcc converter stations, each converter stations can be associated, in the same
+     * voltage level to a series of shunt compensators (also called filters).
+     *
+     * @param shuntCompensatorIds IDs of the shunt compensators that must be deleted.
      */
     public RemoveHvdcLineBuilder withShuntCompensatorIds(List<String> shuntCompensatorIds) {
-        Objects.requireNonNull(shuntCompensatorIds);
-        this.shuntCompensatorIds = shuntCompensatorIds;
+        this.shuntCompensatorIds.clear();
+        this.shuntCompensatorIds = Objects.requireNonNull(shuntCompensatorIds);
+        return this;
+    }
+
+    public RemoveHvdcLineBuilder withShuntCompensatorIds(String... shuntCompensatorIds) {
+        this.shuntCompensatorIds.clear();
+        this.shuntCompensatorIds = Arrays.asList(shuntCompensatorIds);
         return this;
     }
 }

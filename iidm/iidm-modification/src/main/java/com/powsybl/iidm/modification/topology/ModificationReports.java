@@ -22,7 +22,7 @@ final class ModificationReports {
     private static final String CONNECTABLE_ID = "connectableId";
     private static final String IDENTIFIABLE_ID = "identifiableId";
     private static final String IDENTIFIABLE_TYPE = "identifiableType";
-    private static final String HVDC_LINE_ID = "HVDCLineId";
+    private static final String HVDC_LINE_ID = "hvdcLineId";
 
     // INFO
     static void createdConnectable(Reporter reporter, Connectable<?> connectable) {
@@ -300,7 +300,7 @@ final class ModificationReports {
     static void notFoundHvdcLineReport(Reporter reporter, String hvdcLineId) {
         reporter.report(Report.builder()
                 .withKey("HvdcNotFound")
-                .withDefaultMessage("HVDC ${hvdcLineId} is not found")
+                .withDefaultMessage("Hvdc line ${hvdcLineId} is not found")
                 .withValue(HVDC_LINE_ID, hvdcLineId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
@@ -328,7 +328,7 @@ final class ModificationReports {
     static void removedHvdcLineReport(Reporter reporter, String hvdcLineId) {
         reporter.report(Report.builder()
                 .withKey("removeHvdcLine")
-                .withDefaultMessage("Hvdc ${hvdcLineId} has been removed")
+                .withDefaultMessage("Hvdc line ${hvdcLineId} has been removed")
                 .withValue(CONNECTABLE_ID, hvdcLineId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
@@ -337,7 +337,7 @@ final class ModificationReports {
     static void removedVscConverterStationReport(Reporter reporter, String vscConverterStationId) {
         reporter.report(Report.builder()
                 .withKey("removeVscConverterStation")
-                .withDefaultMessage("VSC converter station ${vscConverterStationId} has been removed")
+                .withDefaultMessage("Vsc converter station ${vscConverterStationId} has been removed")
                 .withValue(CONNECTABLE_ID, vscConverterStationId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
@@ -346,7 +346,7 @@ final class ModificationReports {
     static void removedLccConverterStationReport(Reporter reporter, String lccConverterStationId) {
         reporter.report(Report.builder()
                 .withKey("removeLccConverterStation")
-                .withDefaultMessage("LCC converter station ${lccConverterStationId} has been removed")
+                .withDefaultMessage("Lcc converter station ${lccConverterStationId} has been removed")
                 .withValue(CONNECTABLE_ID, lccConverterStationId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
@@ -355,7 +355,7 @@ final class ModificationReports {
     static void removedShuntCompensatorReport(Reporter reporter, String shuntCompensatorId) {
         reporter.report(Report.builder()
                 .withKey("removeShuntCompensator")
-                .withDefaultMessage("ShuntCompensator ${shuntCompensatorId} has been removed")
+                .withDefaultMessage("Shunt compensator ${shuntCompensatorId} has been removed")
                 .withValue(CONNECTABLE_ID, shuntCompensatorId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
