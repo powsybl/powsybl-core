@@ -127,11 +127,12 @@ public interface Scalable {
 
     /**
      * Scale the given network using Generator convention by default.
-     * The actual scaling value may be different to the one asked, if
+     * The actual scaling value may be different to the one asked if
      * the Scalable limit is reached.
      *
      * @param n network
      * @param asked value asked to adjust the scalable active power
+     * @param parameters specific parameters used to scale
      * @return the actual value of the scalable active power adjustment
      */
     double scale(Network n, double asked, ScalingParameters parameters);
