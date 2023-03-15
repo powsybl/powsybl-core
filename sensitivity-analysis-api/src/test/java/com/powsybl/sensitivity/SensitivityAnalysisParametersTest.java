@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
@@ -224,5 +225,39 @@ class SensitivityAnalysisParametersTest extends AbstractConverterTest {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityAnalysisResult.SensitivityContingencyStatus.class, objectMapper), "/contingencyStatusRef.json");
+    }
+
+    @Test
+    void updateThresholdParameters() {
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+
+        assertEquals(0.0, parameters.getFlowFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.0, parameters.getAngleFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.0, parameters.getFlowVoltageSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.0, parameters.getVoltageVoltageSensitivityValueThreshold(), 1e-3);
+
+        parameters.setFlowFlowSensitivityValueThreshold(0.1)
+                .setAngleFlowSensitivityValueThreshold(0.2)
+                .setFlowVoltageSensitivityValueThreshold(0.3)
+                .setVoltageVoltageSensitivityValueThreshold(0.4);
+
+        assertEquals(0.1, parameters.getFlowFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.2, parameters.getAngleFlowSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.3, parameters.getFlowVoltageSensitivityValueThreshold(), 1e-3);
+        assertEquals(0.4, parameters.getVoltageVoltageSensitivityValueThreshold(), 1e-3);
+    }
+
+    @Test
+    void readJsonVersion10() {
+        SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0.json"));
+        assertEquals(0.0, parameters.getFlowFlowSensitivityValueThreshold(), 0.0001);
+    }
+
+    @Test
+    void readJsonVersion10Invalid() {
+        assertThrows(PowsyblException.class, () -> JsonSensitivityAnalysisParameters
+                        .read(getClass().getResourceAsStream("/SensitivityAnalysisParametersV1.0Invalid.json")),
+                "SensitivityAnalysisParameters. flow-flow-sensitivity-value-threshold is not valid for version 1.0. Version should be >= 1.1");
     }
 }

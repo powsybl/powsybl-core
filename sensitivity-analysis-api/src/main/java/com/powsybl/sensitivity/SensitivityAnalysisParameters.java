@@ -21,7 +21,17 @@ import java.util.Objects;
  */
 public class SensitivityAnalysisParameters extends AbstractExtendable<SensitivityAnalysisParameters> {
 
-    public static final String VERSION = "1.0";
+    public static final String VERSION = "1.1";
+
+    static final double FLOW_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+    static final double VOLTAGE_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+    static final double FLOW_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+    static final double ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE = 0.0;
+
+    private double flowFlowSensitivityValueThreshold = FLOW_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
+    private double voltageVoltageSensitivityValueThreshold = VOLTAGE_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
+    private double flowVoltageSensitivityValueThreshold = FLOW_VOLTAGE_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
+    private double angleFlowSensitivityValueThreshold = ANGLE_FLOW_SENSITIVITY_VALUE_THRESHOLD_DEFAULT_VALUE;
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
 
@@ -40,7 +50,6 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
 
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.readExtensions(platformConfig);
-
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
 
         return parameters;
@@ -60,5 +69,67 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
     public SensitivityAnalysisParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
         this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
         return this;
+    }
+
+    public SensitivityAnalysisParameters setFlowFlowSensitivityValueThreshold(double threshold) {
+        flowFlowSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    /**
+     * FlowFlowSensitivityValueThreshold is the threshold under which sensitivity values having
+     * variable type among INJECTION_ACTIVE_POWER, INJECTION_REACTIVE_POWER and HVDC_LINE_ACTIVE_POWER
+     * and function type among BRANCH_ACTIVE_POWER_1/2/3, BRANCH_REACTIVE_POWER_1/2/3 and BRANCH_CURRENT_1/2/3
+     * will be filtered from the analysis results.
+     * @return The threshold
+     */
+    public double getFlowFlowSensitivityValueThreshold() {
+        return flowFlowSensitivityValueThreshold;
+    }
+
+    public SensitivityAnalysisParameters setVoltageVoltageSensitivityValueThreshold(double threshold) {
+        voltageVoltageSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    /**
+     * VoltageVoltageSensitivityValueThreshold is the threshold under which sensitivity values having
+     * variable type BUS_TARGET_VOLTAGE and function type BUS_VOLTAGE will be filtered from the analysis results.
+     * @return The threshold
+     */
+    public double getVoltageVoltageSensitivityValueThreshold() {
+        return voltageVoltageSensitivityValueThreshold;
+    }
+
+    public SensitivityAnalysisParameters setFlowVoltageSensitivityValueThreshold(double threshold) {
+        flowVoltageSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    /**
+     * FlowVoltageSensitivityValueThreshold is the threshold under which sensitivity values having
+     * variable type among INJECTION_REACTIVE_POWER and BUS_TARGET_VOLTAGE
+     * and function type among BUS_VOLTAGE, BRANCH_REACTIVE_POWER_1/2/3 and BRANCH_CURRENT_1/2/3
+     * will be filtered from the analysis results.
+     * @return The threshold
+     */
+    public double getFlowVoltageSensitivityValueThreshold() {
+        return flowVoltageSensitivityValueThreshold;
+    }
+
+    public SensitivityAnalysisParameters setAngleFlowSensitivityValueThreshold(double threshold) {
+        angleFlowSensitivityValueThreshold = threshold;
+        return this;
+    }
+
+    /**
+     *  AngleFlowSensitivityValueThreshold is the threshold under which sensitivity values having
+     *  variable type among TRANSFORMER_PHASE and TRANSFORMER_PHASE_1/2/3
+     *  and function type among BRANCH_ACTIVE_POWER_1/2/3, BRANCH_REACTIVE_POWER_1/2/3 and BRANCH_CURRENT_1/2/3
+     *  will be filtered from the analysis results.
+     * @return The threshold
+     */
+    public double getAngleFlowSensitivityValueThreshold() {
+        return angleFlowSensitivityValueThreshold;
     }
 }
