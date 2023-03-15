@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             if (isLccConverterStation(hvdcConverterStation1)) { // in real-life cases, both converter stations are of the same type
                 shunts = shuntCompensatorIds.stream()
                         .map(id -> getShuntCompensator(id, network, throwException, reporter))
-                        .filter(Objects::nonNull).collect(Collectors.toSet());
+                        .filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
             } else if (!shuntCompensatorIds.isEmpty()) { // VSC converter stations and defined shunts
                 String shuntIds = String.join(",", shuntCompensatorIds);
                 LOGGER.warn("Shunts {} are ignored since converter stations {} and {} are VSC", shuntIds, hvdcConverterStation1.getId(), hvdcConverterStation2.getId());
