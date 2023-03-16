@@ -422,6 +422,29 @@ class CgmesExportTest {
         }
     }
 
+    @Test
+    void testLineContainersNotInBoundaries() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource();
+        Network network = Network.read(CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource());
+
+        String exportFolder = "/test-line-containers-not-in-boundaries";
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            // Export to CGMES and add boundary EQ for reimport
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            String baseName = "testLineContainersNotInBoundaries";
+            ReadOnlyDataSource exportedCgmes = exportAndAddBoundaries(network, tmpDir, baseName, ds);
+
+            // Check that the exported CGMES model contains a fictitious substation
+            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, TripleStoreFactory.defaultImplementation());
+            assertTrue(cgmes.isNodeBreaker());
+            assertTrue(cgmes.substations().stream().anyMatch(sub -> sub.getLocal("name").contains("FICTITIOUS")));
+
+            // Verify that we re-import the exported CGMES data without problems
+            Network networkReimported = Network.read(exportedCgmes, null);
+            assertNotNull(networkReimported);
+        }
+    }
+
     private static void checkDanglingLineParams(DanglingLine expected, DanglingLine actual) {
         assertEquals(expected.getR(), actual.getR(), EPSILON);
         assertEquals(expected.getX(), actual.getX(), EPSILON);
