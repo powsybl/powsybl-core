@@ -709,20 +709,22 @@ public abstract class AbstractLineTest {
 
     @Test
     public void halfLineIdNull() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
                 6.5, 8.5, "code"));
         assertTrue(e.getMessage().contains("Dangling line id is not set"));
     }
 
     @Test
     public void halfLineIdEmpty() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
                 6.5, 8.5, "code"));
         assertTrue(e.getMessage().contains("Invalid id ''"));
     }
 
     @Test
     public void duplicate() {
+        createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
+                6.5, 8.5, DUPLICATE);
         assertThrows(PowsyblException.class, () -> createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
                 6.5, 8.5, DUPLICATE));
     }
