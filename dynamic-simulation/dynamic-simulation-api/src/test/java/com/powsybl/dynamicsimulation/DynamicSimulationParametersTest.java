@@ -6,19 +6,12 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import com.google.auto.service.AutoService;
 import com.google.common.jimfs.Configuration;
@@ -28,25 +21,24 @@ import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class DynamicSimulationParametersTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+class DynamicSimulationParametersTest {
 
     private InMemoryPlatformConfig platformConfig;
     private FileSystem fileSystem;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
@@ -57,7 +49,7 @@ public class DynamicSimulationParametersTest {
     }
 
     @Test
-    public void testNoConfig() {
+    void testNoConfig() {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         DynamicSimulationParameters.load(parameters, platformConfig);
         checkValues(parameters, DynamicSimulationParameters.DEFAULT_START_TIME,
@@ -65,43 +57,39 @@ public class DynamicSimulationParametersTest {
     }
 
     @Test
-    public void testConstructorStartTimeAsssertion() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Start time should be zero or positive");
-        new DynamicSimulationParameters(-1, 0);
+    void testConstructorStartTimeAsssertion() {
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> new DynamicSimulationParameters(-1, 0));
+        assertTrue(e.getMessage().contains("Start time should be zero or positive"));
     }
 
     @Test
-    public void testConstructorStopTimeAsssertion() {
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Stop time should be greater than start time");
-        new DynamicSimulationParameters(0, 0);
+    void testConstructorStopTimeAsssertion() {
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> new DynamicSimulationParameters(0, 0));
+        assertTrue(e.getMessage().contains("Stop time should be greater than start time"));
     }
 
     @Test
-    public void testStartTimeAsssertion() {
+    void testStartTimeAsssertion() {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Start time should be zero or positive");
-        parameters.setStartTime(-1);
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> parameters.setStartTime(-1));
+        assertTrue(e.getMessage().contains("Start time should be zero or positive"));
     }
 
     @Test
-    public void testStopTimeAsssertion() {
+    void testStopTimeAsssertion() {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
-        exception.expect(AssertionError.class);
-        exception.expectMessage("Stop time should be greater than start time");
-        parameters.setStopTime(0);
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> parameters.setStopTime(0));
+        assertTrue(e.getMessage().contains("Stop time should be greater than start time"));
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters(0, 1000);
         assertEquals("{startTime=0, stopTime=1000}", parameters.toString());
     }
 
     @Test
-    public void checkConfig() {
+    void checkConfig() {
         int startTime = 1;
         int stopTime = 100;
 
@@ -114,7 +102,7 @@ public class DynamicSimulationParametersTest {
     }
 
     @Test
-    public void checkSetters() {
+    void checkSetters() {
         int startTime = 1;
         int stopTime = 100;
 
@@ -127,7 +115,7 @@ public class DynamicSimulationParametersTest {
     }
 
     @Test
-    public void checkClone() {
+    void checkClone() {
         int startTime = 1;
         int stopTime = 100;
         DynamicSimulationParameters parameters = new DynamicSimulationParameters(startTime, stopTime);
@@ -136,7 +124,7 @@ public class DynamicSimulationParametersTest {
     }
 
     @Test
-    public void testExtensions() {
+    void testExtensions() {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
@@ -148,7 +136,7 @@ public class DynamicSimulationParametersTest {
     }
 
     @Test
-    public void testNoExtensions() {
+    void testNoExtensions() {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
 
         assertEquals(0, parameters.getExtensions().size());
@@ -158,7 +146,7 @@ public class DynamicSimulationParametersTest {
     }
 
     @Test
-    public void testExtensionFromConfig() {
+    void testExtensionFromConfig() {
         DynamicSimulationParameters parameters = DynamicSimulationParameters.load(platformConfig);
 
         assertEquals(1, parameters.getExtensions().size());

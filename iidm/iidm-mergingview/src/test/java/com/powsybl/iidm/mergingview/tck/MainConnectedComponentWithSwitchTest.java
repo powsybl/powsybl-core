@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractMainConnectedComponentWithSwitchTest
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class MainConnectedComponentWithSwitchTest extends AbstractMainConnectedComponentWithSwitchTest { }
+class MainConnectedComponentWithSwitchTest extends AbstractMainConnectedComponentWithSwitchTest { }

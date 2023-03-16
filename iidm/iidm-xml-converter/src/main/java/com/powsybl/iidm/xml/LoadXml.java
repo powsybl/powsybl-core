@@ -14,11 +14,13 @@ import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
+class LoadXml extends AbstractSimpleIdentifiableXml<Load, LoadAdder, VoltageLevel> {
 
     static final LoadXml INSTANCE = new LoadXml();
 
@@ -49,7 +51,7 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     }
 
     @Override
-    protected Load readRootElementAttributes(LoadAdder adder, NetworkXmlReaderContext context) {
+    protected Load readRootElementAttributes(LoadAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         String loadTypeStr = context.getReader().getAttributeValue(null, "loadType");
         LoadType loadType = loadTypeStr == null ? LoadType.UNDEFINED : LoadType.valueOf(loadTypeStr);
         double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");

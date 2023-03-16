@@ -12,14 +12,12 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.SV;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractLineTest {
@@ -34,14 +32,11 @@ public abstract class AbstractLineTest {
 
     private static final String DUPLICATE = "duplicate";
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private Network network;
     private VoltageLevel voltageLevelA;
     private VoltageLevel voltageLevelB;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NoEquipmentNetworkFactory.create();
         voltageLevelA = network.getVoltageLevel("vl1");
@@ -400,51 +395,44 @@ public abstract class AbstractLineTest {
 
     @Test
     public void invalidR() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, Double.NaN, 2.0, 3.0, 3.5, 4.0, 4.5);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, Double.NaN, 2.0, 3.0, 3.5, 4.0, 4.5));
+        assertTrue(e.getMessage().contains("r is invalid"));
     }
 
     @Test
     public void invalidX() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, Double.NaN, 3.0, 3.5, 4.0, 4.5);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, 1.0, Double.NaN, 3.0, 3.5, 4.0, 4.5));
+        assertTrue(e.getMessage().contains("x is invalid"));
     }
 
     @Test
     public void invalidG1() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("g1 is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, Double.NaN, 3.5, 4.0, 4.5);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, Double.NaN, 3.5, 4.0, 4.5));
+        assertTrue(e.getMessage().contains("g1 is invalid"));
     }
 
     @Test
     public void invalidG2() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("g2 is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, Double.NaN, 4.0, 4.5);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, Double.NaN, 4.0, 4.5));
+        assertTrue(e.getMessage().contains("g2 is invalid"));
     }
 
     @Test
     public void invalidB1() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("b1 is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, 3.5, Double.NaN, 4.5);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, 3.5, Double.NaN, 4.5));
+        assertTrue(e.getMessage().contains("b1 is invalid"));
     }
 
     @Test
     public void invalidB2() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("b2 is invalid");
-        createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, 3.5, 4.0, Double.NaN);
+        ValidationException e = assertThrows(ValidationException.class, () -> createLineBetweenVoltageAB(INVALID, INVALID, 1.0, 2.0, 3.0, 3.5, 4.0, Double.NaN));
+        assertTrue(e.getMessage().contains("b2 is invalid"));
     }
 
     @Test
     public void duplicateAcLine() {
         createLineBetweenVoltageAB(DUPLICATE, DUPLICATE, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
-        thrown.expect(PowsyblException.class);
-        createLineBetweenVoltageAB(DUPLICATE, DUPLICATE, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
+        assertThrows(PowsyblException.class, () -> createLineBetweenVoltageAB(DUPLICATE, DUPLICATE, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5));
     }
 
     @Test
@@ -661,19 +649,16 @@ public abstract class AbstractLineTest {
 
     @Test
     public void halfLine1NotSet() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("undefined half");
         // adder
-        network.newTieLine()
+        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("undefined half"));
     }
 
     @Test
     public void halfLine2NotSet() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("undefined half");
         // adder
         DanglingLine dl1 = voltageLevelA.newDanglingLine()
                 .setBus("busA")
@@ -685,68 +670,61 @@ public abstract class AbstractLineTest {
                 .setG(65.0)
                 .setUcteXnodeCode("ucte")
                 .add();
-        network.newTieLine()
+        // adder
+        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
                 .setHalf1(dl1.getId())
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("undefined half"));
     }
 
     @Test
     public void invalidHalfLineCharacteristicsR() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is invalid");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
-                6.5, 8.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
+                6.5, 8.5, "code"));
+        assertTrue(e.getMessage().contains("r is invalid"));
     }
 
     @Test
     public void invalidHalfLineCharacteristicsX() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is invalid");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
-                6.5, 8.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
+                6.5, 8.5, "code"));
+        assertTrue(e.getMessage().contains("x is invalid"));
     }
 
     @Test
     public void invalidHalfLineCharacteristicsG() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("g is invalid");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                Double.NaN, 8.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
+                Double.NaN, 8.5, "code"));
+        assertTrue(e.getMessage().contains("g is invalid"));
     }
 
     @Test
     public void invalidHalfLineCharacteristicsB() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("b is invalid");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-                6.5, Double.NaN, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
+                6.5, Double.NaN, "code"));
+        assertTrue(e.getMessage().contains("b is invalid"));
     }
 
     @Test
     public void halfLineIdNull() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Dangling line id is not set");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
-                6.5, 8.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
+                6.5, 8.5, "code"));
+        assertTrue(e.getMessage().contains("Dangling line id is not set"));
     }
 
     @Test
     public void halfLineIdEmpty() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Invalid id ''");
-        createTieLineWithHalfline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
-                6.5, 8.5, "code");
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
+                6.5, 8.5, "code"));
+        assertTrue(e.getMessage().contains("Invalid id ''"));
     }
 
     @Test
     public void duplicate() {
-        createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
-                6.5, 8.5, DUPLICATE);
-        thrown.expect(PowsyblException.class);
-        createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
-                6.5, 8.5, DUPLICATE);
+        assertThrows(PowsyblException.class, () -> createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
+                6.5, 8.5, DUPLICATE));
     }
 
     @Test

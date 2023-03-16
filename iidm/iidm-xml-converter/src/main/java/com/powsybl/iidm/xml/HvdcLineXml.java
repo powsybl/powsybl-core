@@ -17,7 +17,7 @@ import javax.xml.stream.XMLStreamException;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Network> {
+class HvdcLineXml extends AbstractSimpleIdentifiableXml<HvdcLine, HvdcLineAdder, Network> {
 
     static final HvdcLineXml INSTANCE = new HvdcLineXml();
 
@@ -50,7 +50,7 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
     }
 
     @Override
-    protected HvdcLine readRootElementAttributes(HvdcLineAdder adder, NetworkXmlReaderContext context) {
+    protected HvdcLine readRootElementAttributes(HvdcLineAdder adder, Network network, NetworkXmlReaderContext context) {
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
         double nominalV = XmlUtil.readDoubleAttribute(context.getReader(), "nominalV");
         HvdcLine.ConvertersMode convertersMode = XmlUtil.readOptionalEnum(context.getReader(), "convertersMode", HvdcLine.ConvertersMode.class);

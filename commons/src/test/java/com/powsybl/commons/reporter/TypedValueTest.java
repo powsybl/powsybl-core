@@ -6,18 +6,18 @@
  */
 package com.powsybl.commons.reporter;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Luma Zamarreño <zamarrenolm@aia.es>
  */
-public class TypedValueTest {
+class TypedValueTest {
 
     @Test
-    public void testSeverity() {
+    void testSeverity() {
         // Check that all predefined Severity constraints have the proper type
         assertEquals(TypedValue.SEVERITY, TypedValue.TRACE_SEVERITY.getType());
         assertEquals(TypedValue.SEVERITY, TypedValue.DEBUG_SEVERITY.getType());

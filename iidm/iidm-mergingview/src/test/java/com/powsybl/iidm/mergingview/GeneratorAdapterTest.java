@@ -8,25 +8,25 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class GeneratorAdapterTest {
+class GeneratorAdapterTest {
     private MergingView mergingView;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("GeneratorAdapterTest", "iidm");
         mergingView.merge(FictitiousSwitchFactory.create());
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         double delta = 0.0;
         String id = "GENTEST";
         String name = "generator";

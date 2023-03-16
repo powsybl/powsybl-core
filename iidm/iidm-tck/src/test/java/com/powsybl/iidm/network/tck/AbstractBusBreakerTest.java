@@ -9,11 +9,11 @@ package com.powsybl.iidm.network.tck;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Objects;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractBusBreakerTest {
 
@@ -182,7 +182,7 @@ public abstract class AbstractBusBreakerTest {
         assertEquals(2.0, bus.getFictitiousQ0(), 0.0);
         Bus busViewBus = bus.getConnectedTerminalStream()
                 .map(t -> t.getBusView().getBus())
-                .filter(Objects::nonNull).findFirst().orElseThrow(AssertionError::new);
+                .filter(Objects::nonNull).findFirst().orElseThrow(IllegalStateException::new);
         assertEquals(1.0, busViewBus.getFictitiousP0(), 0.0);
         assertEquals(2.0, busViewBus.getFictitiousQ0(), 0.0);
         busViewBus.setFictitiousP0(3.0).setFictitiousQ0(4.0);
@@ -254,9 +254,9 @@ public abstract class AbstractBusBreakerTest {
         Network network = createTestNetwork();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VoltageLevel.NodeBreakerView nodeBreakerView = vl1.getNodeBreakerView();
-        assertThrows("Not supported in a bus breaker topology", PowsyblException.class, () -> nodeBreakerView.getSwitchStream(0));
-        assertThrows("Not supported in a bus breaker topology", PowsyblException.class, () -> nodeBreakerView.getSwitches(1));
-        assertThrows("Not supported in a bus breaker topology", PowsyblException.class, () -> nodeBreakerView.getNodeInternalConnectedToStream(2));
-        assertThrows("Not supported in a bus breaker topology", PowsyblException.class, () -> nodeBreakerView.getNodesInternalConnectedTo(3));
+        assertThrows(PowsyblException.class, () -> nodeBreakerView.getSwitchStream(0), "Not supported in a bus breaker topology");
+        assertThrows(PowsyblException.class, () -> nodeBreakerView.getSwitches(1), "Not supported in a bus breaker topology");
+        assertThrows(PowsyblException.class, () -> nodeBreakerView.getNodeInternalConnectedToStream(2), "Not supported in a bus breaker topology");
+        assertThrows(PowsyblException.class, () -> nodeBreakerView.getNodesInternalConnectedTo(3), "Not supported in a bus breaker topology");
     }
 }

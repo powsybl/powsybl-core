@@ -14,10 +14,12 @@ import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, VoltageLevel> {
+class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdder, VoltageLevel> {
 
     static final GeneratorXml INSTANCE = new GeneratorXml();
 
@@ -61,7 +63,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     }
 
     @Override
-    protected Generator readRootElementAttributes(GeneratorAdder adder, NetworkXmlReaderContext context) {
+    protected Generator readRootElementAttributes(GeneratorAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         String energySourceStr = context.getReader().getAttributeValue(null, "energySource");
         EnergySource energySource = energySourceStr != null ? EnergySource.valueOf(energySourceStr) : null;
         double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "minP");

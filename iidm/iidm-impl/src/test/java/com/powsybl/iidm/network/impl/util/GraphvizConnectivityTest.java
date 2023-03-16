@@ -11,7 +11,7 @@ import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.GraphvizConnectivity;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -22,10 +22,10 @@ import java.util.Random;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GraphvizConnectivityTest extends AbstractConverterTest {
+class GraphvizConnectivityTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException, NoSuchAlgorithmException {
+    void test() throws IOException, NoSuchAlgorithmException {
         Network network = EurostagTutorialExample1Factory.create();
         try (StringWriter writer = new StringWriter()) {
             new GraphvizConnectivity(network, new Random(0)).write(writer);
@@ -35,7 +35,7 @@ public class GraphvizConnectivityTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testCountryCluster() throws IOException {
+    void testCountryCluster() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         try (StringWriter writer = new StringWriter()) {
             new GraphvizConnectivity(network, new Random(0)).setCountryCluster(true).write(writer);

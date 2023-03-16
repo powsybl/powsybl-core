@@ -6,17 +6,17 @@
  */
 package com.powsybl.loadflow;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadFlowProviderTest {
+class LoadFlowProviderTest {
 
     @Test
-    public void findAllProvidersTest() {
+    void findAllProvidersTest() {
         assertEquals(1, LoadFlowProvider.findAll().size());
     }
 }

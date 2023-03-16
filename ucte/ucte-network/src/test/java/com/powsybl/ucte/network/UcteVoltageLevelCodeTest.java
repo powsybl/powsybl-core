@@ -6,17 +6,17 @@
  */
 package com.powsybl.ucte.network;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class UcteVoltageLevelCodeTest {
+class UcteVoltageLevelCodeTest {
 
     @Test
-    public void test() {
+    void test() {
         assertEquals(10, UcteVoltageLevelCode.values().length);
         assertEquals(750, UcteVoltageLevelCode.VL_750.getVoltageLevel());
         assertEquals(380, UcteVoltageLevelCode.VL_380.getVoltageLevel());

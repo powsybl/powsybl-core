@@ -24,7 +24,7 @@ public final class UcteAliasesCreation {
     private static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
 
     private UcteAliasesCreation() {
-        throw new AssertionError("Utility class should not be instantiated");
+        throw new IllegalStateException("Utility class should not be instantiated");
     }
 
     public static void createAliases(Network network) {

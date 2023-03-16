@@ -87,7 +87,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     }
                     break;
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
         return p;
@@ -120,7 +120,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     }
                     break;
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
         return q;
@@ -333,7 +333,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     break;
 
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
     }

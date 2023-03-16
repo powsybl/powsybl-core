@@ -31,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
 public final class SensitivityAnalysis {
 
     private SensitivityAnalysis() {
-        throw new AssertionError("Utility class should not been instantiated");
+        throw new IllegalStateException("Utility class should not been instantiated");
     }
 
     /**

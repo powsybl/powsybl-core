@@ -6,17 +6,17 @@
  */
 package com.powsybl.iidm.xml.test;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MetrixTutorialSixBusesFactoryTest {
+class MetrixTutorialSixBusesFactoryTest {
 
     @Test
-    public void test() {
+    void test() {
         var network = MetrixTutorialSixBusesFactory.create();
         assertNotNull(network);
         assertEquals("MetrixTutorialSixBuses", network.getId());

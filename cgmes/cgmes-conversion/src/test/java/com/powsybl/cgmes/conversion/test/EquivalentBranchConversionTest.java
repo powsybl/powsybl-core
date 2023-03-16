@@ -9,13 +9,13 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -28,10 +28,10 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class EquivalentBranchConversionTest {
+class EquivalentBranchConversionTest {
 
     @Test
-    public void microGridBaseCaseBEEquivalentBranchWithDifferentNominalsTest() throws IOException {
+    void microGridBaseCaseBEEquivalentBranchWithDifferentNominalsTest() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranchWithDifferentNominals(), config);
 
@@ -61,7 +61,7 @@ public class EquivalentBranchConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBEEquivalentBranchWithZeroImpedanceTest() throws IOException {
+    void microGridBaseCaseBEEquivalentBranchWithZeroImpedanceTest() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranchWithZeroImpedanceInsideVoltageLevel(), config);
 

@@ -8,9 +8,9 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -67,7 +67,7 @@ public abstract class AbstractApparentPowerLimitsTest {
         testLimits1((ApparentPowerLimits) l.getLimits(LimitType.APPARENT_POWER, Branch.Side.ONE).orElse(null));
 
         // limits2
-        ApparentPowerLimits apparentPowerLimits2 = l.getApparentPowerLimits2().orElseThrow(AssertionError::new);
+        ApparentPowerLimits apparentPowerLimits2 = l.getApparentPowerLimits2().orElseThrow(IllegalStateException::new);
         testLimits2(apparentPowerLimits2);
         testLimits2((ApparentPowerLimits) l.getLimits(LimitType.APPARENT_POWER, Branch.Side.TWO).orElse(null));
 

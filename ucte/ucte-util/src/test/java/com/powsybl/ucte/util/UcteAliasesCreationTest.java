@@ -13,14 +13,14 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.ucte.converter.UcteImporter;
 import org.apache.commons.io.FilenameUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class UcteAliasesCreationTest {
+class UcteAliasesCreationTest {
 
     private static Network loadNetworkFromResourceFile(String filePath) {
         ReadOnlyDataSource dataSource = new ResourceDataSource(FilenameUtils.getBaseName(filePath), new ResourceSet(FilenameUtils.getPath(filePath), FilenameUtils.getName(filePath)));
@@ -28,7 +28,7 @@ public class UcteAliasesCreationTest {
     }
 
     @Test
-    public void checkAliasesCreationWhenImportingMergedFile() {
+    void checkAliasesCreationWhenImportingMergedFile() {
         Network network = loadNetworkFromResourceFile("/uxTestGridForMerging.uct");
 
         // Merged dangling lines are there but merged
@@ -58,7 +58,7 @@ public class UcteAliasesCreationTest {
     }
 
     @Test
-    public void checkAliasesCreationBeforeIidmMerging() {
+    void checkAliasesCreationBeforeIidmMerging() {
         Network networkFR = loadNetworkFromResourceFile("/frTestGridForMerging.uct");
         Network networkBE = loadNetworkFromResourceFile("/beTestGridForMerging.uct");
 
@@ -86,7 +86,7 @@ public class UcteAliasesCreationTest {
     }
 
     @Test
-    public void checkAliasesCreationAfterIidmMerging() {
+    void checkAliasesCreationAfterIidmMerging() {
         Network networkFR = loadNetworkFromResourceFile("/frTestGridForMerging.uct");
         Network networkBE = loadNetworkFromResourceFile("/beTestGridForMerging.uct");
         Network merge = Network.create("merge", "UCT");
@@ -119,7 +119,7 @@ public class UcteAliasesCreationTest {
     }
 
     @Test
-    public void checkThatItDoesNotCreateDuplicatedAliasesNorThrow() {
+    void checkThatItDoesNotCreateDuplicatedAliasesNorThrow() {
         Network network = loadNetworkFromResourceFile("/aliasesDuplicationTest.uct");
         UcteAliasesCreation.createAliases(network);
 

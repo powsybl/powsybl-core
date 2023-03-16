@@ -9,12 +9,10 @@ package com.powsybl.iidm.network.tck;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractVoltageLevelTest {
 
@@ -22,13 +20,10 @@ public abstract class AbstractVoltageLevelTest {
 
     private static final String INVALID = "invalid";
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     private Network network;
     private Substation substation;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = Network.create("test", "test");
         substation = network.newSubstation()
@@ -114,37 +109,32 @@ public abstract class AbstractVoltageLevelTest {
 
     @Test
     public void invalidNominalV() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("nominal voltage is invalid");
-        createVoltageLevel(INVALID, INVALID, -100.0, 1.0, 2.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createVoltageLevel(INVALID, INVALID, -100.0, 1.0, 2.0));
+        assertTrue(e.getMessage().contains("nominal voltage is invalid"));
     }
 
     @Test
     public void invalidLowVoltageLimit() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("low voltage limit is < 0");
-        createVoltageLevel(INVALID, INVALID, 100.0, -1.0, 2.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createVoltageLevel(INVALID, INVALID, 100.0, -1.0, 2.0));
+        assertTrue(e.getMessage().contains("low voltage limit is < 0"));
     }
 
     @Test
     public void invalidHighVoltageLimit() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("high voltage limit is < 0");
-        createVoltageLevel(INVALID, INVALID, 100.0, 1.0, -2.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createVoltageLevel(INVALID, INVALID, 100.0, 1.0, -2.0));
+        assertTrue(e.getMessage().contains("high voltage limit is < 0"));
     }
 
     @Test
     public void inconsistentVoltageLimitRange() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("Inconsistent voltage limit range");
-        createVoltageLevel(INVALID, INVALID, 100.0, 2.0, 1.0);
+        ValidationException e = assertThrows(ValidationException.class, () -> createVoltageLevel(INVALID, INVALID, 100.0, 2.0, 1.0));
+        assertTrue(e.getMessage().contains("Inconsistent voltage limit range"));
     }
 
     @Test
     public void duplicateVoltageLevel() {
         createVoltageLevel(DUPLICATE, DUPLICATE, 100.0, 2.0, 10.0);
-        thrown.expect(PowsyblException.class);
-        createVoltageLevel(DUPLICATE, DUPLICATE, 100.0, 2.0, 10.0);
+        assertThrows(PowsyblException.class, () -> createVoltageLevel(DUPLICATE, DUPLICATE, 100.0, 2.0, 10.0));
     }
 
     private void createVoltageLevel(String id, String name, double v, double low, double high) {

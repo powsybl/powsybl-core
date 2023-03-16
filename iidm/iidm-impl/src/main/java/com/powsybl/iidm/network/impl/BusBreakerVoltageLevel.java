@@ -129,7 +129,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         if (v != null) {
             ConfiguredBus bus = graph.getVertexObject(v);
             if (!bus.getId().equals(busId)) {
-                throw new AssertionError("Invalid bus id (expected: " + busId + ", actual: " + bus.getId() + ")");
+                throw new IllegalStateException("Invalid bus id (expected: " + busId + ", actual: " + bus.getId() + ")");
             }
             return bus;
         }
@@ -152,7 +152,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         if (e != null) {
             SwitchImpl aSwitch = graph.getEdgeObject(e);
             if (!aSwitch.getId().equals(switchId)) {
-                throw new AssertionError("Invalid switch id (expected: " + switchId + ", actual: " + aSwitch.getId() + ")");
+                throw new IllegalStateException("Invalid switch id (expected: " + switchId + ", actual: " + aSwitch.getId() + ")");
             }
             return aSwitch;
         }
@@ -214,7 +214,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
                     case BUSBAR_SECTION: // must not happend in a bus/breaker topology
                     default:
-                        throw new AssertionError();
+                        throw new IllegalStateException();
                 }
             }
             return Networks.isBusValid(feederCount);
@@ -902,7 +902,9 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public boolean connect(TerminalExt terminal) {
-        assert terminal instanceof BusTerminal;
+        if (!(terminal instanceof BusTerminal)) {
+            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
+        }
 
         // already connected?
         if (terminal.isConnected()) {
@@ -919,8 +921,9 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public boolean disconnect(TerminalExt terminal) {
-        assert terminal instanceof BusTerminal;
-
+        if (!(terminal instanceof BusTerminal)) {
+            throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
+        }
         // already disconnected?
         if (!terminal.isConnected()) {
             return false;
@@ -932,6 +935,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         invalidateCache();
 
         return true;
+
     }
 
     void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser) {

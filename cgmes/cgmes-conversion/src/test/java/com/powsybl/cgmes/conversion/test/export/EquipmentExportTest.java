@@ -27,7 +27,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.stream.XMLStreamException;
@@ -40,15 +40,15 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class EquipmentExportTest extends AbstractConverterTest {
+class EquipmentExportTest extends AbstractConverterTest {
 
     @Test
-    public void smallGridHvdc() throws IOException, XMLStreamException {
+    void smallGridHvdc() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource();
@@ -58,7 +58,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void smallNodeBreaker() throws IOException, XMLStreamException {
+    void smallNodeBreaker() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallNodeBreaker().dataSource();
@@ -68,7 +68,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void smallBusBranch() throws IOException, XMLStreamException {
+    void smallBusBranch() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallBusBranch().dataSource();
@@ -78,7 +78,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void smallGridHvdcWithCapabilityCurve() throws IOException, XMLStreamException {
+    void smallGridHvdcWithCapabilityCurve() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve().dataSource();
@@ -88,7 +88,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void miniNodeBreaker() throws IOException, XMLStreamException {
+    void miniNodeBreaker() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniNodeBreaker().dataSource();
@@ -98,7 +98,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void miniBusBranch() throws IOException, XMLStreamException {
+    void miniBusBranch() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniBusBranch().dataSource();
@@ -108,7 +108,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void microGridWithTieFlowMappedToEquivalentInjection() throws IOException, XMLStreamException {
+    void microGridWithTieFlowMappedToEquivalentInjection() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection().dataSource();
@@ -118,7 +118,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void microGridBaseCaseAssembledSwitchAtBoundary() throws XMLStreamException, IOException {
+    void microGridBaseCaseAssembledSwitchAtBoundary() throws XMLStreamException, IOException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
@@ -150,7 +150,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void microGrid() throws IOException, XMLStreamException {
+    void microGrid() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridType4BE().dataSource();
@@ -160,7 +160,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void microGridCreateEquivalentInjectionAliases() throws IOException, XMLStreamException {
+    void microGridCreateEquivalentInjectionAliases() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
@@ -175,7 +175,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void nordic32() throws IOException, XMLStreamException {
+    void nordic32() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         exportToCgmesEQ(network);
@@ -187,7 +187,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void bPerSectionTest() throws IOException, XMLStreamException {
+    void bPerSectionTest() throws IOException, XMLStreamException {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridType4BE().dataSource();
 
         Properties properties = new Properties();
@@ -204,7 +204,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void threeWindingsTransformerTest() throws IOException, XMLStreamException {
+    void threeWindingsTransformerTest() throws IOException, XMLStreamException {
         Network network = createThreeWindingTransformerNetwork();
         String t3id = "threeWindingsTransformer1";
 
@@ -246,7 +246,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testLoadGroups() throws XMLStreamException, IOException {
+    void testLoadGroups() throws XMLStreamException, IOException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource();

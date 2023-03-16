@@ -10,8 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,7 +39,7 @@ public abstract class AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVarian
         });
         executorService.shutdown();
         executorService.awaitTermination(10, TimeUnit.SECONDS);
-        Assert.assertFalse(exceptionThrown[0]);
+        assertFalse(exceptionThrown[0]);
     }
 
 }

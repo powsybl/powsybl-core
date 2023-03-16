@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.iidm.network.HvdcConverterStation;
 
@@ -17,17 +18,18 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class HvdcConverterStationEq {
 
-    public static void write(String id, String converterName, HvdcConverterStation.HvdcType converterType, double ratedUdc, String dcEquipmentContainerId, String pccTerminal, String capabilityCurveId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName(converterClassName(converterType), id, converterName, cimNamespace, writer);
+    public static void write(String id, String converterName, HvdcConverterStation.HvdcType converterType, double ratedUdc, String dcEquipmentContainerId, String pccTerminal,
+                             String capabilityCurveId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName(converterClassName(converterType), id, converterName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ACDCConverter.ratedUdc");
         writer.writeCharacters(CgmesExportUtil.format(ratedUdc));
         writer.writeEndElement();
-        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", dcEquipmentContainerId, cimNamespace, writer);
+        CgmesExportUtil.writeReference("Equipment.EquipmentContainer", dcEquipmentContainerId, cimNamespace, writer, context);
         if (pccTerminal != null) {
-            CgmesExportUtil.writeReference("ACDCConverter.PccTerminal", pccTerminal, cimNamespace, writer);
+            CgmesExportUtil.writeReference("ACDCConverter.PccTerminal", pccTerminal, cimNamespace, writer, context);
         }
         if (capabilityCurveId != null) {
-            CgmesExportUtil.writeReference("VsConverter.CapabilityCurve", capabilityCurveId, cimNamespace, writer);
+            CgmesExportUtil.writeReference("VsConverter.CapabilityCurve", capabilityCurveId, cimNamespace, writer, context);
         }
         writer.writeEndElement();
     }

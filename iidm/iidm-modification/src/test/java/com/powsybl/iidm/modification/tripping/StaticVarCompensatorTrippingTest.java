@@ -9,26 +9,25 @@ package com.powsybl.iidm.modification.tripping;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class StaticVarCompensatorTrippingTest extends AbstractTrippingTest {
+class StaticVarCompensatorTrippingTest extends AbstractTrippingTest {
 
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = SvcTestCaseFactory.create();
     }
 
     @Test
-    public void generatorTrippingTest() {
+    void generatorTrippingTest() {
         assertTrue(network.getStaticVarCompensator("SVC2").getTerminal().isConnected());
 
         StaticVarCompensatorTripping tripping = new StaticVarCompensatorTripping("SVC2");
@@ -37,10 +36,10 @@ public class StaticVarCompensatorTrippingTest extends AbstractTrippingTest {
         assertFalse(network.getStaticVarCompensator("SVC2").getTerminal().isConnected());
     }
 
-    @Test(expected = PowsyblException.class)
-    public void unknownShuntCompensatorTest() {
+    @Test
+    void unknownShuntCompensatorTest() {
         StaticVarCompensatorTripping tripping = new StaticVarCompensatorTripping("SVC");
-        tripping.apply(network);
+        assertThrows(PowsyblException.class, () -> tripping.apply(network));
     }
 
 }

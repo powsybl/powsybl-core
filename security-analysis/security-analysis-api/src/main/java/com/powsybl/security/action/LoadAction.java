@@ -7,7 +7,7 @@
 package com.powsybl.security.action;
 
 import java.util.Objects;
-import java.util.Optional;
+import java.util.OptionalDouble;
 
 /**
  * An action to:
@@ -55,12 +55,11 @@ public class LoadAction extends AbstractAction {
         return relativeValue;
     }
 
-    public Optional<Double> getActivePowerValue() {
-        return Optional.ofNullable(activePowerValue);
+    public OptionalDouble getActivePowerValue() {
+        return activePowerValue == null ? OptionalDouble.empty() : OptionalDouble.of(activePowerValue);
     }
 
-    public Optional<Double> getReactivePowerValue() {
-        return Optional.ofNullable(reactivePowerValue);
+    public OptionalDouble getReactivePowerValue() {
+        return reactivePowerValue == null ? OptionalDouble.empty() : OptionalDouble.of(reactivePowerValue);
     }
-
 }

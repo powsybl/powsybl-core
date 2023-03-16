@@ -22,7 +22,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevelAdder, Container<? extends Identifiable<?>>> {
+class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, VoltageLevelAdder, Container<? extends Identifiable<?>>> {
 
     static final VoltageLevelXml INSTANCE = new VoltageLevelXml();
 
@@ -71,7 +71,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                 break;
 
             default:
-                throw new AssertionError("Unexpected TopologyLevel value: " + topologyLevel);
+                throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
         }
 
         writeGenerators(vl, context);
@@ -246,11 +246,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         if (c instanceof Substation) {
             return ((Substation) c).newVoltageLevel();
         }
-        throw new AssertionError();
+        throw new IllegalStateException();
     }
 
     @Override
-    protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, NetworkXmlReaderContext context) {
+    protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, Container<? extends Identifiable<?>> c, NetworkXmlReaderContext context) {
         double nominalV = XmlUtil.readDoubleAttribute(context.getReader(), "nominalV");
         double lowVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "lowVoltageLimit");
         double highVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "highVoltageLimit");
@@ -338,7 +338,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected element: " + context.getReader().getLocalName());
+                    throw new IllegalStateException("Unexpected element: " + context.getReader().getLocalName());
             }
         });
     }
@@ -388,7 +388,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected element: " + context.getReader().getLocalName());
+                    throw new IllegalStateException("Unexpected element: " + context.getReader().getLocalName());
             }
         });
     }

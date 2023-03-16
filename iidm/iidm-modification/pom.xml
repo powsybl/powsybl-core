@@ -13,7 +13,7 @@
     <parent>
         <artifactId>powsybl-iidm</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>5.2.0-SNAPSHOT</version>
+        <version>5.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-iidm-modification</artifactId>
@@ -52,8 +52,8 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

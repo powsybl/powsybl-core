@@ -14,8 +14,8 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
 import com.powsybl.scripting.test.AbstractGroovyScriptTest;
 import groovy.lang.Binding;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
@@ -24,13 +24,13 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
+class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest {
 
     private Network fooNetwork;
     private ComputationManager computationManager;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         // create variant manager
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(variantManager.getWorkingVariantId())
@@ -69,7 +69,7 @@ public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest 
     }
 
     @Test
-    public void test() {
+    void test() {
         doTest();
     }
 }

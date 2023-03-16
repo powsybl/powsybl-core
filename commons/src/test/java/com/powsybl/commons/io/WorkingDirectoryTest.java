@@ -2,34 +2,34 @@ package com.powsybl.commons.io;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class WorkingDirectoryTest {
+class WorkingDirectoryTest {
 
     private FileSystem fileSystem;
 
     private Path path;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         path = fileSystem.getPath("/tmp");
         Files.createDirectories(path);
     }
 
     @Test
-    public void testDebug() throws IOException {
+    void testDebug() throws IOException {
         Path workingDirPath;
         try (WorkingDirectory dir = new WorkingDirectory(path, "test-", true)) {
             workingDirPath = dir.toPath();
@@ -41,7 +41,7 @@ public class WorkingDirectoryTest {
     }
 
     @Test
-    public void testDirDeletion() throws IOException {
+    void testDirDeletion() throws IOException {
         Path workingDirPath;
         try (WorkingDirectory dir = new WorkingDirectory(path, "test-", false)) {
             workingDirPath = dir.toPath();
@@ -53,7 +53,7 @@ public class WorkingDirectoryTest {
     }
 
     @Test
-    public void closeShouldBeIdemPotent() throws IOException {
+    void closeShouldBeIdemPotent() throws IOException {
         Path workingDirPath;
         try (WorkingDirectory dir = new WorkingDirectory(path, "test-", false)) {
             workingDirPath = dir.toPath();

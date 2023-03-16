@@ -925,6 +925,6 @@ public final class MergingView implements Network, MultiVariantObject {
 
     @Override
     public ValidationLevel getValidationLevel() {
-        return index.getNetworkStream().map(Network::getValidationLevel).min(ValidationLevel::compareTo).orElseThrow(AssertionError::new);
+        return index.getNetworkStream().map(Network::getValidationLevel).min(ValidationLevel::compareTo).orElseThrow(IllegalStateException::new);
     }
 }

@@ -6,17 +6,17 @@
  */
 package com.powsybl.contingency;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ContingencyContextTest {
+class ContingencyContextTest {
 
     @Test
-    public void test() {
+    void test() {
         ContingencyContext context = new ContingencyContext("c1", ContingencyContextType.SPECIFIC);
         assertEquals("ContingencyContext(contingencyId='c1', contextType=SPECIFIC)", context.toString());
     }

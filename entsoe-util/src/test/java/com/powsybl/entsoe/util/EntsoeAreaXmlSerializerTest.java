@@ -12,17 +12,17 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class EntsoeAreaXmlSerializerTest extends AbstractConverterTest {
+class EntsoeAreaXmlSerializerTest extends AbstractConverterTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
@@ -35,7 +35,7 @@ public class EntsoeAreaXmlSerializerTest extends AbstractConverterTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = createTestNetwork();
 
         // extends substation

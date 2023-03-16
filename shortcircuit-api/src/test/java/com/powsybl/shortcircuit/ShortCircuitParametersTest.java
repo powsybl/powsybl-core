@@ -21,25 +21,25 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class ShortCircuitParametersTest extends AbstractConverterTest {
+class ShortCircuitParametersTest extends AbstractConverterTest {
 
     private static final String DUMMY_EXTENSION_NAME = "dummy-extension";
 
     static class DummyExtension extends AbstractExtension<ShortCircuitParameters> {
-        public double parameterDouble;
-        public boolean parameterBoolean;
-        public String parameterString;
+        double parameterDouble;
+        boolean parameterBoolean;
+        String parameterString;
 
         DummyExtension() {
             super();
@@ -51,27 +51,27 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
             this.parameterString = another.parameterString;
         }
 
-        public boolean isParameterBoolean() {
+        boolean isParameterBoolean() {
             return parameterBoolean;
         }
 
-        public double getParameterDouble() {
+        double getParameterDouble() {
             return parameterDouble;
         }
 
-        public String getParameterString() {
+        String getParameterString() {
             return parameterString;
         }
 
-        public void setParameterBoolean(boolean parameterBoolean) {
+        void setParameterBoolean(boolean parameterBoolean) {
             this.parameterBoolean = parameterBoolean;
         }
 
-        public void setParameterString(String parameterString) {
+        void setParameterString(String parameterString) {
             this.parameterString = parameterString;
         }
 
-        public void setParameterDouble(double parameterDouble) {
+        void setParameterDouble(double parameterDouble) {
             this.parameterDouble = parameterDouble;
         }
 
@@ -132,7 +132,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExtensions() {
+    void testExtensions() {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
@@ -144,7 +144,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testNoExtensions() {
+    void testNoExtensions() {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
 
         assertEquals(0, parameters.getExtensions().size());
@@ -154,7 +154,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExtensionFromConfig() {
+    void testExtensionFromConfig() {
         ShortCircuitParameters parameters = ShortCircuitParameters.load();
 
         assertEquals(1, parameters.getExtensions().size());
@@ -163,13 +163,13 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testStudyType() {
+    void testStudyType() {
         ShortCircuitParameters parameters = ShortCircuitParameters.load();
         assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
     }
 
     @Test
-    public void testWithFeederResult() {
+    void testWithFeederResult() {
         ShortCircuitParameters parameters = ShortCircuitParameters.load();
         assertTrue(parameters.isWithFeederResult());
 
@@ -178,7 +178,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testConfigLoader() throws IOException {
+    void testConfigLoader() throws IOException {
         Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
         Path cfgFile = cfgDir.resolve("config.yml");
 
@@ -218,7 +218,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTrip() throws IOException {
+    void roundTrip() throws IOException {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
         parameters.setWithVoltageResult(false);
         parameters.setWithLimitViolations(false);
@@ -227,7 +227,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeExtension() throws IOException {
+    void writeExtension() throws IOException {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, JsonShortCircuitParameters::write,
@@ -235,7 +235,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readVersion10() {
+    void readVersion10() {
         ShortCircuitParameters parameters = JsonShortCircuitParameters
                 .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion10.json"));
         assertNotNull(parameters);
@@ -247,7 +247,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readVersion11() {
+    void readVersion11() {
         ShortCircuitParameters parameters = JsonShortCircuitParameters
                 .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion11.json"));
         assertNotNull(parameters);
@@ -259,7 +259,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readExtension() {
+    void readExtension() {
         ShortCircuitParameters parameters = JsonShortCircuitParameters.read(getClass().getResourceAsStream("/ShortCircuitParametersExtensionUpdate.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
@@ -267,7 +267,7 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void updateExtensions() {
+    void updateExtensions() {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
         DummyExtension extension = new DummyExtension();
         extension.setParameterBoolean(false);
@@ -283,9 +283,9 @@ public class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readError() throws IOException {
+    void readError() throws IOException {
         try (var is = getClass().getResourceAsStream("/ShortCircuitParametersInvalid.json")) {
-            AssertionError e = assertThrows(AssertionError.class, () -> JsonShortCircuitParameters.read(is));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonShortCircuitParameters.read(is));
             assertEquals("Unexpected field: unexpected", e.getMessage());
         }
     }

@@ -13,9 +13,9 @@ import com.powsybl.computation.SimpleCommand;
 import com.powsybl.security.LimitViolationType;
 import org.apache.commons.lang3.SystemUtils;
 import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,29 +23,29 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class SecurityAnalysisCommandOptionsTest {
+class SecurityAnalysisCommandOptionsTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityAnalysisCommandOptionsTest.class);
 
     private FileSystem fileSystem;
 
-    @Before
-    public void createFileSystem() {
+    @BeforeEach
+    void createFileSystem() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    @After
-    public void closeFileSystem() throws IOException {
+    @AfterEach
+    void closeFileSystem() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void test() {
+    void test() {
         SecurityAnalysisCommandOptions options = new SecurityAnalysisCommandOptions();
 
         Assertions.assertThatNullPointerException().isThrownBy(options::toCommand);
@@ -104,7 +104,7 @@ public class SecurityAnalysisCommandOptionsTest {
     }
 
     @Test
-    public void testIndexed() {
+    void testIndexed() {
         SecurityAnalysisCommandOptions options = new SecurityAnalysisCommandOptions()
                     .caseFile(fileSystem.getPath("test.xiidm"))
                     .taskBasedOnIndex(24)
@@ -124,7 +124,7 @@ public class SecurityAnalysisCommandOptionsTest {
     }
 
     @Test
-    public void testStrategies() {
+    void testStrategies() {
         SecurityAnalysisCommandOptions options = new SecurityAnalysisCommandOptions()
                 .caseFile(fileSystem.getPath("test.xiidm"))
                 .parametersFile(fileSystem.getPath("params.json"))

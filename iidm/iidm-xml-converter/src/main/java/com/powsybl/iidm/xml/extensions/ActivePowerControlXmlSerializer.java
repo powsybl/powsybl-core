@@ -78,7 +78,7 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
         double droop = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "droop");
         double participationFactor = Double.NaN;
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
-        String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(AssertionError::new);
+        String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
         if ("1.1".compareTo(extVersionStr) <= 0) {
             participationFactor = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "participationFactor", 0.0);
         }

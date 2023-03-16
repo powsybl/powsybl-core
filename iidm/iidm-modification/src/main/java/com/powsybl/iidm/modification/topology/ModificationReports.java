@@ -20,6 +20,9 @@ final class ModificationReports {
     private static final String LINE_ID = "lineId";
     private static final String BBS_ID = "bbsId";
     private static final String CONNECTABLE_ID = "connectableId";
+    private static final String IDENTIFIABLE_ID = "identifiableId";
+    private static final String IDENTIFIABLE_TYPE = "identifiableType";
+    private static final String HVDC_LINE_ID = "hvdcLineId";
 
     // INFO
     static void createdConnectable(Reporter reporter, Connectable<?> connectable) {
@@ -82,14 +85,22 @@ final class ModificationReports {
                 .build());
     }
 
-    static void newCouplingDeviceAddedReport(Reporter reporter, String voltageLevelId, String bbsId1, String bbsId2, int nbOpenDisconnectors) {
+    static void newCouplingDeviceAddedReport(Reporter reporter, String voltageLevelId, String busOrBbsId1, String busOrBbsId2) {
         reporter.report(Report.builder()
                 .withKey("newCouplingDeviceAdded")
-                .withDefaultMessage("New coupling device was created on voltage level ${voltageLevelId}. It connects busbar sections ${bbsId1} and ${bbsId2} with closed disconnectors" +
-                        "and ${nbOpenDisconnectors} were created on parallel busbar sections.")
+                .withDefaultMessage("New coupling device was created on voltage level ${voltageLevelId}. It connects ${busOrBbsId1} and ${busOrBbsId2} with closed disconnectors")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
-                .withValue("bbsId1", bbsId1)
-                .withValue("bbsId2", bbsId2)
+                .withValue("busOrBbsId1", busOrBbsId1)
+                .withValue("busOrBbsId2", busOrBbsId2)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    static void openDisconnectorsAddedReport(Reporter reporter, String voltageLevelId, int nbOpenDisconnectors) {
+        reporter.report(Report.builder()
+                .withKey("openDisconnectorsAdded")
+                .withDefaultMessage("${nbOpenDisconnectors} open disconnectors created on parallel busbar sections in voltage level ${voltageLevelId}")
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
                 .withValue("nbOpenDisconnectors", nbOpenDisconnectors)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
@@ -146,6 +157,28 @@ final class ModificationReports {
     }
 
     // WARN
+    static void ignoredVscShunts(Reporter reporter, String shuntsIds, String converterStationId1, String converterStationId2) {
+        reporter.report(Report.builder()
+                .withKey("ignoredVscShunts")
+                .withDefaultMessage("Shunts ${shuntsIds} are ignored since converter stations ${converterStationId1} and ${converterStationId2} are VSC")
+                .withValue("shuntsIds", shuntsIds)
+                .withValue("converterStationId1", converterStationId1)
+                .withValue("converterStationId2", converterStationId2)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
+    static void ignoredShuntInAnotherVoltageLevel(Reporter reporter, String shuntId, String voltageLevelId1, String voltageLevelId2) {
+        reporter.report(Report.builder()
+                .withKey("ignoredShuntInAnotherVoltageLevel")
+                .withDefaultMessage("Shunt compensator ${shuntId} has been ignored because it is not in the same voltage levels as the Lcc (${voltageLevelId1} or ${voltageLevelId2})")
+                .withValue("shuntId", shuntId)
+                .withValue(VOLTAGE_LEVEL_ID + 1, voltageLevelId1)
+                .withValue(VOLTAGE_LEVEL_ID + 2, voltageLevelId2)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
     static void ignoredPositionOrder(Reporter reporter, int positionOrder, VoltageLevel voltageLevel) {
         reporter.report(Report.builder()
                 .withKey("ignoredPositionOrder")
@@ -196,8 +229,8 @@ final class ModificationReports {
     static void notFoundIdentifiableReport(Reporter reporter, String identifiableId) {
         reporter.report(Report.builder()
                 .withKey("notFoundIdentifiable")
-                .withDefaultMessage("Identifiable ${busbarSectionId} not found")
-                .withValue("identifiableId", identifiableId)
+                .withDefaultMessage("Identifiable ${identifiableId} not found")
+                .withValue(IDENTIFIABLE_ID, identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -211,12 +244,21 @@ final class ModificationReports {
                 .build());
     }
 
+    static void notFoundShuntReport(Reporter reporter, String shuntId) {
+        reporter.report(Report.builder()
+                .withKey("notFoundShunt")
+                .withDefaultMessage("Shunt ${shuntId} not found")
+                .withValue("shuntId", shuntId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void networkMismatchReport(Reporter reporter, String injectionId, IdentifiableType identifiableType) {
         reporter.report(Report.builder()
                 .withKey("networkMismatch")
                 .withDefaultMessage("Network given in parameters and in injectionAdder are different. Injection '${injectionId}' of type {identifiableType} was added then removed")
                 .withValue("injectionId", injectionId)
-                .withValue("identifiableType", identifiableType.toString())
+                .withValue(IDENTIFIABLE_TYPE, identifiableType.toString())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -286,11 +328,66 @@ final class ModificationReports {
                 .build());
     }
 
+    static void notFoundHvdcLineReport(Reporter reporter, String hvdcLineId) {
+        reporter.report(Report.builder()
+                .withKey("HvdcNotFound")
+                .withDefaultMessage("Hvdc line ${hvdcLineId} is not found")
+                .withValue(HVDC_LINE_ID, hvdcLineId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void notFoundBusOrBusbarSectionVoltageLevelReport(Reporter reporter, String busOrBusbarSectionId1, String busOrBusbarSectionId2) {
+        reporter.report(Report.builder()
+                .withKey("busOrBusbarSectionVoltageLevelNotFound")
+                .withDefaultMessage("Voltage level associated to ${busOrBusbarSectionId1} or ${busOrBusbarSectionId2} not found.")
+                .withValue("busOrBusbarSectionId1", busOrBusbarSectionId1)
+                .withValue("busOrBusbarSectionId2", busOrBusbarSectionId2)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void removedVoltageLevelReport(Reporter reporter, String voltageLevelId) {
         reporter.report(Report.builder()
                 .withKey("removeVoltageLevel")
                 .withDefaultMessage("Voltage level ${voltageLevelId}, its equipments and the branches it is connected to have been removed")
-                .withValue(CONNECTABLE_ID, voltageLevelId)
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removedHvdcLineReport(Reporter reporter, String hvdcLineId) {
+        reporter.report(Report.builder()
+                .withKey("removeHvdcLine")
+                .withDefaultMessage("Hvdc line ${hvdcLineId} has been removed")
+                .withValue(HVDC_LINE_ID, hvdcLineId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removedVscConverterStationReport(Reporter reporter, String vscConverterStationId) {
+        reporter.report(Report.builder()
+                .withKey("removeVscConverterStation")
+                .withDefaultMessage("Vsc converter station ${vscConverterStationId} has been removed")
+                .withValue("vscConverterStationId", vscConverterStationId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removedLccConverterStationReport(Reporter reporter, String lccConverterStationId) {
+        reporter.report(Report.builder()
+                .withKey("removeLccConverterStation")
+                .withDefaultMessage("Lcc converter station ${lccConverterStationId} has been removed")
+                .withValue("lccConverterStationId", lccConverterStationId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removedShuntCompensatorReport(Reporter reporter, String shuntCompensatorId) {
+        reporter.report(Report.builder()
+                .withKey("removeShuntCompensator")
+                .withDefaultMessage("Shunt compensator ${shuntCompensatorId} has been removed")
+                .withValue("shuntCompensatorId", shuntCompensatorId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -326,21 +423,21 @@ final class ModificationReports {
                 .build());
     }
 
-    static void noCouplingDeviceOnSameBusbarSection(Reporter reporter, String busbarSectionId) {
+    static void noCouplingDeviceOnSameBusOrBusbarSection(Reporter reporter, String busbarSectionId) {
         reporter.report(Report.builder()
-                .withKey("noCouplingDeviceOnSameBusbarSection")
-                .withDefaultMessage("No coupling device can be created on a same busbar section (${bbsId}).")
-                .withValue(BBS_ID, busbarSectionId)
+                .withKey("noCouplingDeviceOnSameBusOrBusbarSection")
+                .withDefaultMessage("No coupling device can be created on a same bus or busbar section (${busOrBbsId}).")
+                .withValue("busOrBbsId", busbarSectionId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
 
-    static void busbarsInDifferentVoltageLevels(Reporter reporter, String busbarSectionId1, String busbarSectionId2) {
+    static void unexpectedDifferentVoltageLevels(Reporter reporter, String busbarSectionId1, String busbarSectionId2) {
         reporter.report(Report.builder()
-                .withKey("busbarsInDifferentVoltageLevels")
-                .withDefaultMessage("Busbar sections ${busbarSectionId1} and ${busbarSectionId2} are in two different voltage levels.")
-                .withValue("busbarSectionId1", busbarSectionId1)
-                .withValue("busbarSectionId2", busbarSectionId2)
+                .withKey("unexpectedDifferentVoltageLevels")
+                .withDefaultMessage("${busOrBbsId1} and ${busOrBbsId2} are in two different voltage levels.")
+                .withValue("busOrBbsId1", busbarSectionId1)
+                .withValue("busOrBbsId2", busbarSectionId2)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -360,8 +457,8 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("unsupportedIdentifiableType")
                 .withDefaultMessage("Unsupported type ${identifiableType} for identifiable ${identifiableId}")
-                .withValue("identifiableType", type.name())
-                .withValue("identifiableId", identifiableId)
+                .withValue(IDENTIFIABLE_TYPE, type.name())
+                .withValue(IDENTIFIABLE_ID, identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -371,6 +468,16 @@ final class ModificationReports {
                 .withKey("unexpectedNullPositionOrder")
                 .withDefaultMessage("Position order is null for attachment in node-breaker voltage level ${voltageLevelId}")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void unexpectedIdentifiableType(Reporter reporter, Identifiable<?> identifiable) {
+        reporter.report(Report.builder()
+                .withKey("unexpectedIdentifiableType")
+                .withDefaultMessage("Unexpected type of identifiable ${identifiableId}: ${identifiableType}")
+                .withValue(IDENTIFIABLE_ID, identifiable.getId())
+                .withValue(IDENTIFIABLE_TYPE, identifiable.getType().name())
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }

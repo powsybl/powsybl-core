@@ -101,7 +101,7 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
         double plannedActivePowerSetpoint;
         double startUpCost;
         NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
-        String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(AssertionError::new);
+        String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
         switch (extensionVersionStr) {
             case ITESLA_1_0:
             case V_1_0:

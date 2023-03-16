@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
@@ -16,10 +17,10 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class DCTerminalEq {
 
-    public static void write(String element, String id, String dcConductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartId(element, id, true, cimNamespace, writer);
-        CgmesExportUtil.writeReference(element + ".DCConductingEquipment", dcConductingEquipmentId, cimNamespace, writer);
-        CgmesExportUtil.writeReference("DCBaseTerminal.DCNode", dcNodeId, cimNamespace, writer);
+    public static void write(String element, String id, String dcConductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartId(element, id, true, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference(element + ".DCConductingEquipment", dcConductingEquipmentId, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("DCBaseTerminal.DCNode", dcNodeId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ACDCTerminal.sequenceNumber");
         writer.writeCharacters(CgmesExportUtil.format(sequenceNumber));
         writer.writeEndElement();

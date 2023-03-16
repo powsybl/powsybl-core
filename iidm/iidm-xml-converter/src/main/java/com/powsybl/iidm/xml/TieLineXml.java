@@ -16,12 +16,12 @@ import org.slf4j.LoggerFactory;
 import javax.xml.stream.XMLStreamException;
 import java.util.*;
 
-import static com.powsybl.iidm.xml.AbstractConnectableXml.*;
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TieLineXml extends AbstractIdentifiableXml<TieLine, TieLineAdder, Network> {
+class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Network> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TieLineXml.class);
 
@@ -36,7 +36,7 @@ class TieLineXml extends AbstractIdentifiableXml<TieLine, TieLineAdder, Network>
 
     @Override
     protected boolean hasSubElements(TieLine tl) {
-        throw new AssertionError("Should not be called");
+        throw new IllegalStateException("Should not be called");
     }
 
     @Override

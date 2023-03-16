@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractReactiveCapabilityCurveTest;
 
-public class ReactiveCapabilityCurveTest extends AbstractReactiveCapabilityCurveTest { }
+class ReactiveCapabilityCurveTest extends AbstractReactiveCapabilityCurveTest { }

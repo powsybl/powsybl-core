@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractHvdcLineTest;
 
-public class HvdcLineTest extends AbstractHvdcLineTest { }
+class HvdcLineTest extends AbstractHvdcLineTest { }

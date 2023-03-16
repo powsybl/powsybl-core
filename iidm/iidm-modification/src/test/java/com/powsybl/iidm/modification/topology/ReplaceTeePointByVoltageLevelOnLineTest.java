@@ -12,17 +12,17 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
+class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
 
     private static LineAdder createLineAdder(Line line, Network network) {
         return network.newLine()
@@ -36,7 +36,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTe
     }
 
     @Test
-    public void replaceTeePointByVoltageLevelOnLineNbTest() throws IOException {
+    void replaceTeePointByVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
@@ -110,7 +110,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTe
     }
 
     @Test
-    public void replaceTeePointByVoltageLevelOnLineNbBbTest() throws IOException {
+    void replaceTeePointByVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
@@ -130,7 +130,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTe
     }
 
     @Test
-    public void replaceTeePointByVoltageLevelOnLineBbTest() throws IOException {
+    void replaceTeePointByVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
@@ -159,7 +159,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTe
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         ReplaceTeePointByVoltageLevelOnLine modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withTeePointLine1("NHV1_NHV2_1")
                 .withTeePointLine2("NHV1_NHV2_2")

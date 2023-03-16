@@ -12,17 +12,17 @@ import com.powsybl.iidm.network.extensions.BranchStatus;
 import com.powsybl.iidm.network.impl.extensions.BranchStatusImpl;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Nicolas Noir <nicolas.noir at rte-france.com>
  */
-public class BranchStatusXmlTest extends AbstractConverterTest {
+class BranchStatusXmlTest extends AbstractConverterTest {
 
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
@@ -62,7 +62,7 @@ public class BranchStatusXmlTest extends AbstractConverterTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = createTestNetwork();
 
         // extend line

@@ -10,8 +10,8 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -21,12 +21,12 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class XMLImporterTest extends AbstractConverterTest {
+class XMLImporterTest extends AbstractConverterTest {
 
     private XMLImporter importer;
 
@@ -65,7 +65,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
         // create test files
@@ -84,6 +84,8 @@ public class XMLImporterTest extends AbstractConverterTest {
         writeNetwork("/test6.xiidm", CURRENT_IIDM_XML_VERSION, false);
         writeNetwork("/testDummy.xiidm", "http://wwww.dummy.foo/", false);
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath("/test6_mapping.csv"), StandardCharsets.UTF_8)) {
+            writer.write("ZZ;test");
+            writer.newLine();
             writer.write("X1;P1");
             writer.newLine();
         }
@@ -93,7 +95,7 @@ public class XMLImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void backwardCompatibilityTest() throws IOException {
+    void backwardCompatibilityTest() throws IOException {
         // create network and datasource
         writeNetwork("/v_1_0.xiidm", IidmXmlVersion.V_1_0, false);
         DataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "v_1_0");
@@ -107,24 +109,24 @@ public class XMLImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void getFormat() {
+    void getFormat() {
         assertEquals("XIIDM", importer.getFormat());
     }
 
     @Test
-    public void getParameters() {
+    void getParameters() {
         assertEquals(2, importer.getParameters().size());
         assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
         assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
     }
 
     @Test
-    public void getComment() {
+    void getComment() {
         assertEquals("IIDM XML v " + CURRENT_IIDM_XML_VERSION.toString(".") + " importer", importer.getComment());
     }
 
     @Test
-    public void exists() {
+    void exists() {
         assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test0")));
         assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test1")));
         assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test2")));
@@ -134,7 +136,7 @@ public class XMLImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void copy() throws Exception {
+    void copy() throws Exception {
         importer.copy(new FileDataSource(fileSystem.getPath("/"), "test0"), new FileDataSource(fileSystem.getPath("/"), "test0_copy"));
         assertTrue(Files.exists(fileSystem.getPath("/test0_copy.xiidm")));
         assertEquals(Files.readAllLines(fileSystem.getPath("/test0.xiidm"), StandardCharsets.UTF_8),
@@ -151,7 +153,7 @@ public class XMLImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void importData() {
+    void importData() {
         // should be ok
         assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test0"), NetworkFactory.findDefault(), null));
 

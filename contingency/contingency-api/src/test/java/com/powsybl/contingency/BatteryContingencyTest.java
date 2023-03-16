@@ -12,16 +12,16 @@ import com.powsybl.iidm.modification.tripping.BatteryTripping;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class BatteryContingencyTest {
+class BatteryContingencyTest {
     @Test
-    public void test() {
+    void test() {
         var batContingency = new BatteryContingency("bat");
         assertEquals("bat", batContingency.getId());
         assertEquals(ContingencyElementType.BATTERY, batContingency.getType());
@@ -36,7 +36,7 @@ public class BatteryContingencyTest {
     }
 
     @Test
-    public void testContingencyElement() {
+    void testContingencyElement() {
         Network network = BatteryNetworkFactory.create();
         Battery battery = network.getBattery("BAT");
         assertNotNull(battery);

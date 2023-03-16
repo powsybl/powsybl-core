@@ -12,5 +12,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractSlackTerminalTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class SlackTerminalTest extends AbstractSlackTerminalTest {
+class SlackTerminalTest extends AbstractSlackTerminalTest {
 }

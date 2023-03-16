@@ -6,14 +6,14 @@
  */
 package com.powsybl.math.casting;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Double2FloatTest {
+class Double2FloatTest {
 
     @Test
-    public void testCasting() {
+    void testCasting() {
         double nan = Double.NaN;
         assertTrue(Float.isNaN(Double2Float.safeCasting(nan)));
 

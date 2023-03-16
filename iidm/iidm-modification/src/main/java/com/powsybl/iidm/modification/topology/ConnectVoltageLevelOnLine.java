@@ -87,7 +87,7 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
             adder1.setNode2(firstAvailableNode);
             adder2.setNode1(firstAvailableNode + 3);
         } else {
-            throw new AssertionError();
+            throw new IllegalStateException();
         }
 
         // Remove the existing line

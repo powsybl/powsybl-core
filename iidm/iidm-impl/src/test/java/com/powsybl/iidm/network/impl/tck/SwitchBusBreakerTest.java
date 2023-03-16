@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractSwitchBusBreakerTest;
 
-public class SwitchBusBreakerTest extends AbstractSwitchBusBreakerTest { }
+class SwitchBusBreakerTest extends AbstractSwitchBusBreakerTest { }

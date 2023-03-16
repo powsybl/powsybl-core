@@ -16,25 +16,25 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
-public class RemoveVoltageLevelTest extends AbstractConverterTest {
+class RemoveVoltageLevelTest extends AbstractConverterTest {
 
     private final Set<String> removedObjects = new HashSet<>();
     private final Set<String> beforeRemovalObjects = new HashSet<>();
 
-    @After
+    @AfterEach
     public void tearDown() {
         removedObjects.clear();
     }
@@ -54,7 +54,7 @@ public class RemoveVoltageLevelTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testRemoveVoltageLevel() {
+    void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         addListener(network);
 
@@ -82,7 +82,7 @@ public class RemoveVoltageLevelTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testRemoveVLRoundTripNB() throws IOException {
+    void testRemoveVLRoundTripNB() throws IOException {
         Network network = createNbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("C").build();
         modification.apply(network);
@@ -91,7 +91,7 @@ public class RemoveVoltageLevelTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testRemoveVLRoundTriBB() throws IOException {
+    void testRemoveVLRoundTriBB() throws IOException {
         Network network = createBbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("VLGEN").build();
         modification.apply(network);

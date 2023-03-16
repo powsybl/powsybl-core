@@ -13,8 +13,8 @@ import com.powsybl.math.matrix.MatrixFactory;
 import org.apache.commons.math3.util.Pair;
 
 /**
- * The aim of this class is to store the magnitude and angle of current or voltage on the three phases, and the
- * the magnitude and angle of current or voltage for the Fortescue direct, zero and inverse components.
+ * The aim of this class is to store the magnitude and angle of current or voltage on the three phases, and
+ * the magnitude and angle of current or voltage for the Fortescue positive, zero and negative components.
  *
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
@@ -23,94 +23,94 @@ public class FortescueValue {
 
     public class ThreePhaseValue {
         // Value on the three phases.
-        private final double magnitude1;
-        private final double magnitude2;
-        private final double magnitude3;
-        private final double angle1;
-        private final double angle2;
-        private final double angle3;
+        private final double magnitudeA;
+        private final double magnitudeB;
+        private final double magnitudeC;
+        private final double angleA;
+        private final double angleB;
+        private final double angleC;
 
-        public ThreePhaseValue(double magnitude1, double magnitude2, double magnitude3, double angle1, double angle2, double angle3) {
-            this.magnitude1 = magnitude1;
-            this.magnitude2 = magnitude2;
-            this.magnitude3 = magnitude3;
-            this.angle1 = angle1;
-            this.angle2 = angle2;
-            this.angle3 = angle3;
+        public ThreePhaseValue(double magnitudeA, double magnitudeB, double magnitudeC, double angleA, double angleB, double angleC) {
+            this.magnitudeA = magnitudeA;
+            this.magnitudeB = magnitudeB;
+            this.magnitudeC = magnitudeC;
+            this.angleA = angleA;
+            this.angleB = angleB;
+            this.angleC = angleC;
         }
 
-        public double getMagnitude1() {
-            return magnitude1;
+        public double getMagnitudeA() {
+            return magnitudeA;
         }
 
-        public double getMagnitude2() {
-            return magnitude2;
+        public double getMagnitudeB() {
+            return magnitudeB;
         }
 
-        public double getMagnitude3() {
-            return magnitude3;
+        public double getMagnitudeC() {
+            return magnitudeC;
         }
 
-        public double getAngle1() {
-            return angle1;
+        public double getAngleA() {
+            return angleA;
         }
 
-        public double getAngle2() {
-            return angle2;
+        public double getAngleB() {
+            return angleB;
         }
 
-        public double getAngle3() {
-            return angle3;
+        public double getAngleC() {
+            return angleC;
         }
 
     }
 
-    private final double directMagnitude;
+    private final double positiveMagnitude;
     private final double zeroMagnitude;
-    private final double inverseMagnitude;
-    private final double directAngle;
+    private final double negativeMagnitude;
+    private final double positiveAngle;
     private final double zeroAngle;
-    private final double inverseAngle;
+    private final double negativeAngle;
 
-    public FortescueValue(double directMagnitude, double zeroMagnitude, double inverseMagnitude, double directAngle, double zeroAngle, double inverseAngle) {
-        this.directMagnitude = directMagnitude;
-        this.directAngle = directAngle;
+    public FortescueValue(double positiveMagnitude, double zeroMagnitude, double negativeMagnitude, double positiveAngle, double zeroAngle, double negativeAngle) {
+        this.positiveMagnitude = positiveMagnitude;
+        this.positiveAngle = positiveAngle;
         this.zeroMagnitude = zeroMagnitude;
-        this.inverseMagnitude = inverseMagnitude;
+        this.negativeMagnitude = negativeMagnitude;
         this.zeroAngle = zeroAngle;
-        this.inverseAngle = inverseAngle;
+        this.negativeAngle = negativeAngle;
     }
 
-    public FortescueValue(double directMagnitude, double directAngle) {
-        this(directMagnitude, Double.NaN, Double.NaN, directAngle, Double.NaN, Double.NaN);
+    public FortescueValue(double positiveMagnitude, double positiveAngle) {
+        this(positiveMagnitude, Double.NaN, Double.NaN, positiveAngle, Double.NaN, Double.NaN);
     }
 
-    public FortescueValue(double directMagnitude) {
-        this(directMagnitude, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+    public FortescueValue(double positiveMagnitude) {
+        this(positiveMagnitude, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
     }
 
-    public double getDirectMagnitude() {
-        return directMagnitude;
+    public double getPositiveMagnitude() {
+        return positiveMagnitude;
     }
 
     public double getZeroMagnitude() {
         return zeroMagnitude;
     }
 
-    public double getInverseMagnitude() {
-        return inverseMagnitude;
+    public double getNegativeMagnitude() {
+        return negativeMagnitude;
     }
 
-    public double getDirectAngle() {
-        return directAngle;
+    public double getPositiveAngle() {
+        return positiveAngle;
     }
 
     public double getZeroAngle() {
         return zeroAngle;
     }
 
-    public double getInverseAngle() {
-        return inverseAngle;
+    public double getNegativeAngle() {
+        return negativeAngle;
     }
 
     public Pair<Double, Double> getCartesianFromPolar(double magnitude, double angle) {
@@ -132,9 +132,9 @@ public class FortescueValue {
         // [G3]   [ 1  a  a²]   [Gi]
         MatrixFactory matrixFactory = new DenseMatrixFactory();
 
-        Pair<Double, Double> directComponent = getCartesianFromPolar(directMagnitude, directAngle);
+        Pair<Double, Double> directComponent = getCartesianFromPolar(positiveMagnitude, positiveAngle);
         Pair<Double, Double> homopolarComponent = getCartesianFromPolar(zeroMagnitude, zeroAngle);
-        Pair<Double, Double> inversComponent = getCartesianFromPolar(inverseMagnitude, inverseAngle);
+        Pair<Double, Double> inversComponent = getCartesianFromPolar(negativeMagnitude, negativeAngle);
 
         Matrix mGfortescue = matrixFactory.create(6, 1, 6);
         mGfortescue.add(0, 0, homopolarComponent.getKey());

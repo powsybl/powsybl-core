@@ -55,7 +55,7 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<TieLine> impleme
             case TWO:
                 return half2;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new IllegalStateException("Unexpected side: " + side);
         }
     }
 

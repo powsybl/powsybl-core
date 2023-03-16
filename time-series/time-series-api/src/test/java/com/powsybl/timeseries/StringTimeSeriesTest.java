@@ -10,9 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Iterators;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
@@ -22,18 +20,15 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringTimeSeriesTest {
-
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+class StringTimeSeriesTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"),
                                                                      Duration.ofMinutes(15));
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.STRING, Collections.emptyMap(), index);
@@ -91,7 +86,7 @@ public class StringTimeSeriesTest {
     }
 
     @Test
-    public void testCreate() {
+    void testCreate() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 2, 1);
         StringTimeSeries ts1 = TimeSeries.createString("ts1", index, "a", "b", "c");
         assertEquals("ts1", ts1.getMetadata().getName());
@@ -100,9 +95,8 @@ public class StringTimeSeriesTest {
     }
 
     @Test
-    public void testCreateError() {
-        exception.expect(IllegalArgumentException.class);
-        exception.expectMessage("Bad number of values 2, expected 3");
-        TimeSeries.createString("ts1", new RegularTimeSeriesIndex(0, 2, 1), "a", "b");
+    void testCreateError() {
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createString("ts1", new RegularTimeSeriesIndex(0, 2, 1), "a", "b"));
+        assertTrue(e.getMessage().contains("Bad number of values 2, expected 3"));
     }
 }

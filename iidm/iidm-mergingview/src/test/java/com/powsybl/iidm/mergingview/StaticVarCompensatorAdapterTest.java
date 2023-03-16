@@ -9,24 +9,24 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class StaticVarCompensatorAdapterTest {
+class StaticVarCompensatorAdapterTest {
     private MergingView mergingView;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("StaticVarCompensatorAdapterTest", "iidm");
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         Network networkRef = SvcTestCaseFactory.createWithRemoteRegulatingTerminal();
         mergingView.merge(networkRef);
 

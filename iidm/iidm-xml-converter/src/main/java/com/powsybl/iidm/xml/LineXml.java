@@ -13,11 +13,13 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 import java.util.Optional;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
+class LineXml extends AbstractSimpleIdentifiableXml<Line, LineAdder, Network> {
 
     static final LineXml INSTANCE = new LineXml();
 
@@ -30,7 +32,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected boolean hasSubElements(Line l) {
-        throw new AssertionError("Should not be called");
+        throw new IllegalStateException("Should not be called");
     }
 
     @Override
@@ -94,7 +96,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected Line readRootElementAttributes(LineAdder adder, NetworkXmlReaderContext context) {
+    protected Line readRootElementAttributes(LineAdder adder, Network network, NetworkXmlReaderContext context) {
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
         double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
         double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");

@@ -8,29 +8,25 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.*;
 
 public abstract class AbstractTapChangerTest {
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private Network network;
     private Substation substation;
     private TwoWindingsTransformer twt;
     private Terminal terminal;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         network = NoEquipmentNetworkFactory.create();
         substation = network.getSubstation("sub");
@@ -90,8 +86,8 @@ public abstract class AbstractTapChangerTest {
         assertEquals(10.0, phaseTapChanger.getRegulationValue(), 0.0);
 
         // setter getter
-        assertEquals(0, phaseTapChanger.getNeutralPosition().orElseThrow(AssertionError::new));
-        PhaseTapChangerStep neutralStep = phaseTapChanger.getNeutralStep().orElseThrow(AssertionError::new);
+        assertEquals(0, phaseTapChanger.getNeutralPosition().orElseThrow(IllegalStateException::new));
+        PhaseTapChangerStep neutralStep = phaseTapChanger.getNeutralStep().orElseThrow(IllegalStateException::new);
         assertEquals(1.0, neutralStep.getR(), 0.0);
         assertEquals(2.0, neutralStep.getX(), 0.0);
         assertEquals(3.0, neutralStep.getG(), 0.0);
@@ -112,10 +108,17 @@ public abstract class AbstractTapChangerTest {
         Terminal terminal2 = twt.getTerminal2();
         phaseTapChanger.setRegulationTerminal(terminal2);
         assertSame(terminal2, phaseTapChanger.getRegulationTerminal());
+        Terminal loadTerminal = twt.getTerminal1().getVoltageLevel().newLoad().setId("L").setP0(1.0).setQ0(1.0).setBus("busA").add().getTerminal();
+        phaseTapChanger.setRegulationTerminal(loadTerminal).setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER).setRegulating(true);
+        assertSame(loadTerminal, phaseTapChanger.getRegulationTerminal());
+        network.getLoad("L").remove();
+        assertNull(phaseTapChanger.getRegulationTerminal());
+        assertFalse(phaseTapChanger.isRegulating());
+        phaseTapChanger.setRegulationTerminal(terminal).setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
         int lowTapPosition = 2;
         phaseTapChanger.setLowTapPosition(lowTapPosition);
         assertEquals(lowTapPosition, phaseTapChanger.getLowTapPosition());
-        assertEquals(2, phaseTapChanger.getNeutralPosition().orElseThrow(AssertionError::new));
+        assertEquals(2, phaseTapChanger.getNeutralPosition().orElseThrow(IllegalStateException::new));
 
         try {
             phaseTapChanger.setTapPosition(5);
@@ -197,50 +200,44 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void invalidTapPositionPhase() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("incorrect tap position");
-        createPhaseTapChangerWith2Steps(3, 0, false,
-                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal);
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(3, 0, false,
+                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal));
+        assertTrue(e.getMessage().contains("incorrect tap position"));
     }
 
     @Test
     public void invalidNullModePhase() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("phase regulation mode is not set");
-        createPhaseTapChangerWith2Steps(1, 0, true,
-                null, 1.0, 1.0, terminal);
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true,
+                null, 1.0, 1.0, terminal));
+        assertTrue(e.getMessage().contains("phase regulation mode is not set"));
     }
 
     @Test
     public void invalidRegulatingValuePhase() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("phase regulation is on and threshold/setpoint value is not set");
-        createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, Double.NaN, 1.0, terminal);
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true,
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, Double.NaN, 1.0, terminal));
+        assertTrue(e.getMessage().contains("phase regulation is on and threshold/setpoint value is not set"));
     }
 
     @Test
     public void invalidNullRegulatingTerminalPhase() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("phase regulation is on and regulated terminal is not set");
-        createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, null);
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true,
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, null));
+        assertTrue(e.getMessage().contains("phase regulation is on and regulated terminal is not set"));
     }
 
     @Test
     public void invalidModePhase() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("phase regulation cannot be on if mode is FIXED");
-        createPhaseTapChangerWith2Steps(1, 0, true,
-                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal);
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, true,
+                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, 1.0, terminal));
+        assertTrue(e.getMessage().contains("phase regulation cannot be on if mode is FIXED"));
     }
 
     @Test
     public void invalidTargetDeadbandPtc() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("2 windings transformer 'twt': Unexpected value for target deadband of phase tap changer: -1.0");
-        createPhaseTapChangerWith2Steps(1, 0, false,
-                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, -1.0, terminal);
+        ValidationException e = assertThrows(ValidationException.class, () -> createPhaseTapChangerWith2Steps(1, 0, false,
+                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, -1.0, terminal));
+        assertTrue(e.getMessage().contains("2 windings transformer 'twt': Unexpected value for target deadband of phase tap changer: -1.0"));
     }
 
     @Test
@@ -372,16 +369,15 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void invalidPhaseTapChangerWithoutSteps() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("phase tap changer shall have at least one step");
-        twt.newPhaseTapChanger()
+        ValidationException e = assertThrows(ValidationException.class, () -> twt.newPhaseTapChanger()
                 .setTapPosition(1)
                 .setLowTapPosition(0)
                 .setRegulating(true)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                 .setRegulationValue(10.0)
                 .setRegulationTerminal(terminal)
-            .add();
+            .add());
+        assertTrue(e.getMessage().contains("phase tap changer shall have at least one step"));
     }
 
     @Test
@@ -427,8 +423,8 @@ public abstract class AbstractTapChangerTest {
         assertEquals(3, ratioTapChanger.getStepCount());
 
         // setter getter
-        assertEquals(1, ratioTapChanger.getNeutralPosition().orElseThrow(AssertionError::new));
-        RatioTapChangerStep neutralStep = ratioTapChanger.getNeutralStep().orElseThrow(AssertionError::new);
+        assertEquals(1, ratioTapChanger.getNeutralPosition().orElseThrow(IllegalStateException::new));
+        RatioTapChangerStep neutralStep = ratioTapChanger.getNeutralStep().orElseThrow(IllegalStateException::new);
         assertEquals(39.78474, neutralStep.getR(), 0.0);
         assertEquals(39.784726, neutralStep.getX(), 0.0);
         assertEquals(0.0, neutralStep.getG(), 0.0);
@@ -508,30 +504,27 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void invalidRatioTapChangerWithoutSteps() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("ratio tap changer should have at least one step");
-        twt.newRatioTapChanger()
+        ValidationException e = assertThrows(ValidationException.class, () -> twt.newRatioTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(1)
                 .setLoadTapChangingCapabilities(false)
                 .setRegulating(true)
                 .setTargetV(220.0)
                 .setRegulationTerminal(twt.getTerminal1())
-            .add();
+            .add());
+        assertTrue(e.getMessage().contains("ratio tap changer should have at least one step"));
     }
 
     @Test
     public void invalidTapPosition() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("incorrect tap position");
-        createRatioTapChangerWith3Steps(0, 4, true, false, 10.0, 1.0, terminal);
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 4, true, false, 10.0, 1.0, terminal));
+        assertTrue(e.getMessage().contains("incorrect tap position"));
     }
 
     @Test
     public void undefinedTargetV() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("a target voltage has to be set for a regulating ratio tap changer");
-        createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal);
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal));
+        assertTrue(e.getMessage().contains("a target voltage has to be set for a regulating ratio tap changer"));
     }
 
     @Test
@@ -546,23 +539,20 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void negativeTargetV() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("bad target voltage");
-        createRatioTapChangerWith3Steps(0, 1, true, true, -10.0, 1.0, terminal);
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, -10.0, 1.0, terminal));
+        assertTrue(e.getMessage().contains("bad target voltage"));
     }
 
     @Test
     public void invalidTargetDeadbandRtc() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("2 windings transformer 'twt': Unexpected value for target deadband of ratio tap changer: -1.0");
-        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, -1.0, terminal);
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, -1.0, terminal));
+        assertTrue(e.getMessage().contains("2 windings transformer 'twt': Unexpected value for target deadband of ratio tap changer: -1.0"));
     }
 
     @Test
     public void nullRegulatingTerminal() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("a regulation terminal has to be set for a regulating ratio tap changer");
-        createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, null);
+        ValidationException e = assertThrows(ValidationException.class, () -> createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, null));
+        assertTrue(e.getMessage().contains("a regulation terminal has to be set for a regulating ratio tap changer"));
     }
 
     @Test

@@ -82,7 +82,7 @@ public class CgmesGLExporter {
     }
 
     private void addModel(ExportContext context) {
-        PropertyBag modelProperties = new PropertyBag(Arrays.asList(MODEL_SCENARIO_TIME, MODEL_CREATED, MODEL_DESCRIPTION, MODEL_VERSION, MODEL_PROFILE, MODEL_DEPENDENT_ON));
+        PropertyBag modelProperties = new PropertyBag(Arrays.asList(MODEL_SCENARIO_TIME, MODEL_CREATED, MODEL_DESCRIPTION, MODEL_VERSION, MODEL_PROFILE, MODEL_DEPENDENT_ON), true);
         modelProperties.setResourceNames(Collections.singletonList(MODEL_DEPENDENT_ON));
         modelProperties.setClassPropertyNames(Arrays.asList(MODEL_SCENARIO_TIME, MODEL_CREATED, MODEL_DESCRIPTION, MODEL_VERSION, MODEL_PROFILE, MODEL_DEPENDENT_ON));
         modelProperties.put(MODEL_SCENARIO_TIME, network.getCaseDate().toString());
@@ -95,7 +95,7 @@ public class CgmesGLExporter {
     }
 
     private void addCoordinateSystem(ExportContext context) {
-        PropertyBag coordinateSystemProperties = new PropertyBag(Arrays.asList(IDENTIFIED_OBJECT_NAME, "crsUrn"));
+        PropertyBag coordinateSystemProperties = new PropertyBag(Arrays.asList(IDENTIFIED_OBJECT_NAME, "crsUrn"), true);
         coordinateSystemProperties.setClassPropertyNames(Collections.singletonList(IDENTIFIED_OBJECT_NAME));
         coordinateSystemProperties.put(IDENTIFIED_OBJECT_NAME, CgmesGLUtils.COORDINATE_SYSTEM_NAME);
         coordinateSystemProperties.put("crsUrn", CgmesGLUtils.COORDINATE_SYSTEM_URN);

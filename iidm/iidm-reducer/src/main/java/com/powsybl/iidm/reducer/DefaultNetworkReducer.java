@@ -239,13 +239,14 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceHvdcLineByGenerator(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal) {
+        double maxP = hvdcLine.getMaxP();
         GeneratorAdder genAdder = vl.newGenerator()
                 .setId(hvdcLine.getId())
                 .setName(hvdcLine.getOptionalName().orElse(null))
                 .setEnergySource(EnergySource.OTHER)
                 .setVoltageRegulatorOn(false)
-                .setMaxP(checkP(terminal))
-                .setMinP(0)
+                .setMaxP(maxP)
+                .setMinP(-maxP)
                 .setTargetP(checkP(terminal))
                 .setTargetQ(checkQ(terminal));
         fillNodeOrBus(genAdder, terminal);
@@ -265,7 +266,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
     }
 
-    private static void fillNodeOrBus(InjectionAdder<?> adder, Terminal terminal) {
+    private static void fillNodeOrBus(InjectionAdder<?, ?> adder, Terminal terminal) {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             adder.setNode(terminal.getNodeBreakerView().getNode());
         } else {

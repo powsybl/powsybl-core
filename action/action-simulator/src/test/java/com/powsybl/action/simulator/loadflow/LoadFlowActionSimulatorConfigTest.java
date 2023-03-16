@@ -10,21 +10,21 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class LoadFlowActionSimulatorConfigTest {
+class LoadFlowActionSimulatorConfigTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
             MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-action-simulator");
@@ -35,9 +35,9 @@ public class LoadFlowActionSimulatorConfigTest {
 
             LoadFlowActionSimulatorConfig config = LoadFlowActionSimulatorConfig.load(platformConfig);
 
-            assertEquals("LoadFlowMock", config.getLoadFlowName().orElseThrow(AssertionError::new));
+            assertEquals("LoadFlowMock", config.getLoadFlowName().orElseThrow(IllegalStateException::new));
             config.setLoadFlowName("AnotherLoadFlowMock");
-            assertEquals("AnotherLoadFlowMock", config.getLoadFlowName().orElseThrow(AssertionError::new));
+            assertEquals("AnotherLoadFlowMock", config.getLoadFlowName().orElseThrow(IllegalStateException::new));
 
             assertEquals(15, config.getMaxIterations());
             config.setMaxIterations(10);

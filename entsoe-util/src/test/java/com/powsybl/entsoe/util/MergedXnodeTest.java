@@ -8,14 +8,14 @@ package com.powsybl.entsoe.util;
 
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MergedXnodeTest {
+class MergedXnodeTest {
     private static Network createTestNetwork() {
         Network network = Network.create("test", "test");
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
@@ -76,7 +76,7 @@ public class MergedXnodeTest {
     }
 
     @Test
-    public void testCreate() {
+    void testCreate() {
         Network network = createTestNetwork();
 
         // extends line
@@ -102,7 +102,7 @@ public class MergedXnodeTest {
     }
 
     @Test
-    public void testControls() {
+    void testControls() {
         Network network = createTestNetwork();
         MergedXnode xnode = network.getLine("L").getExtension(MergedXnode.class);
 
@@ -174,7 +174,7 @@ public class MergedXnodeTest {
     }
 
     @Test
-    public void testSetters() {
+    void testSetters() {
         Network network = createTestNetwork();
         MergedXnode xnode = network.getLine("L").getExtension(MergedXnode.class);
 
@@ -210,7 +210,7 @@ public class MergedXnodeTest {
     }
 
     @Test
-    public void testDefaultValues() {
+    void testDefaultValues() {
         Network network = createTestNetwork();
         Line line = network.getLine("L");
 
@@ -247,7 +247,7 @@ public class MergedXnodeTest {
     }
 
     @Test
-    public void testDefaultImplAdder() {
+    void testDefaultImplAdder() {
         MergedXnodeAdder mergedXnodeAdder = new MergedXnodeAdder() {
             @Override
             public MergedXnode add() {
@@ -301,7 +301,7 @@ public class MergedXnodeTest {
     }
 
     @Test
-    public <T extends Identifiable<T>> void testDefaultImpl() {
+    <T extends Identifiable<T>> void testDefaultImpl() {
         MergedXnode<T> mergedXnode = new MergedXnode<T>() {
             @Override
             public T getExtendable() {

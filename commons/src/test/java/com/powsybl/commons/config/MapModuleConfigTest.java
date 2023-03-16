@@ -11,9 +11,9 @@ import com.google.common.jimfs.Jimfs;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -24,27 +24,27 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class MapModuleConfigTest {
+class MapModuleConfigTest {
 
     protected FileSystem fileSystem;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void emptyTest() {
+    void emptyTest() {
         // sonar issue
     }
 
