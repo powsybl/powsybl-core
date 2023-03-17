@@ -23,7 +23,7 @@ public class FortescueShortCircuitBusResults extends AbstractShortCircuitBusResu
     }
 
     /**
-     * Returns the voltage on the three phases after the fault.
+     * Returns the voltage on the three phases after the fault [in kV].
      */
     public FortescueValue getVoltage() {
         return voltage;
