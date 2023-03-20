@@ -22,6 +22,7 @@ final class ModificationReports {
     private static final String CONNECTABLE_ID = "connectableId";
     private static final String IDENTIFIABLE_ID = "identifiableId";
     private static final String IDENTIFIABLE_TYPE = "identifiableType";
+    private static final String HVDC_LINE_ID = "hvdcLineId";
 
     // INFO
     static void createdConnectable(Reporter reporter, Connectable<?> connectable) {
@@ -156,6 +157,28 @@ final class ModificationReports {
     }
 
     // WARN
+    static void ignoredVscShunts(Reporter reporter, String shuntsIds, String converterStationId1, String converterStationId2) {
+        reporter.report(Report.builder()
+                .withKey("ignoredVscShunts")
+                .withDefaultMessage("Shunts ${shuntsIds} are ignored since converter stations ${converterStationId1} and ${converterStationId2} are VSC")
+                .withValue("shuntsIds", shuntsIds)
+                .withValue("converterStationId1", converterStationId1)
+                .withValue("converterStationId2", converterStationId2)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
+    static void ignoredShuntInAnotherVoltageLevel(Reporter reporter, String shuntId, String voltageLevelId1, String voltageLevelId2) {
+        reporter.report(Report.builder()
+                .withKey("ignoredShuntInAnotherVoltageLevel")
+                .withDefaultMessage("Shunt compensator ${shuntId} has been ignored because it is not in the same voltage levels as the Lcc (${voltageLevelId1} or ${voltageLevelId2})")
+                .withValue("shuntId", shuntId)
+                .withValue(VOLTAGE_LEVEL_ID + 1, voltageLevelId1)
+                .withValue(VOLTAGE_LEVEL_ID + 2, voltageLevelId2)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
     static void ignoredPositionOrder(Reporter reporter, int positionOrder, VoltageLevel voltageLevel) {
         reporter.report(Report.builder()
                 .withKey("ignoredPositionOrder")
@@ -206,7 +229,7 @@ final class ModificationReports {
     static void notFoundIdentifiableReport(Reporter reporter, String identifiableId) {
         reporter.report(Report.builder()
                 .withKey("notFoundIdentifiable")
-                .withDefaultMessage("Identifiable ${busbarSectionId} not found")
+                .withDefaultMessage("Identifiable ${identifiableId} not found")
                 .withValue(IDENTIFIABLE_ID, identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
@@ -217,6 +240,15 @@ final class ModificationReports {
                 .withKey("notFoundBusbarSection")
                 .withDefaultMessage("Busbar section ${busbarSectionId} not found")
                 .withValue("busbarSectionId", bbsId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void notFoundShuntReport(Reporter reporter, String shuntId) {
+        reporter.report(Report.builder()
+                .withKey("notFoundShunt")
+                .withDefaultMessage("Shunt ${shuntId} not found")
+                .withValue("shuntId", shuntId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -296,6 +328,15 @@ final class ModificationReports {
                 .build());
     }
 
+    static void notFoundHvdcLineReport(Reporter reporter, String hvdcLineId) {
+        reporter.report(Report.builder()
+                .withKey("HvdcNotFound")
+                .withDefaultMessage("Hvdc line ${hvdcLineId} is not found")
+                .withValue(HVDC_LINE_ID, hvdcLineId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     static void notFoundBusOrBusbarSectionVoltageLevelReport(Reporter reporter, String busOrBusbarSectionId1, String busOrBusbarSectionId2) {
         reporter.report(Report.builder()
                 .withKey("busOrBusbarSectionVoltageLevelNotFound")
@@ -310,7 +351,43 @@ final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("removeVoltageLevel")
                 .withDefaultMessage("Voltage level ${voltageLevelId}, its equipments and the branches it is connected to have been removed")
-                .withValue(CONNECTABLE_ID, voltageLevelId)
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removedHvdcLineReport(Reporter reporter, String hvdcLineId) {
+        reporter.report(Report.builder()
+                .withKey("removeHvdcLine")
+                .withDefaultMessage("Hvdc line ${hvdcLineId} has been removed")
+                .withValue(HVDC_LINE_ID, hvdcLineId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removedVscConverterStationReport(Reporter reporter, String vscConverterStationId) {
+        reporter.report(Report.builder()
+                .withKey("removeVscConverterStation")
+                .withDefaultMessage("Vsc converter station ${vscConverterStationId} has been removed")
+                .withValue("vscConverterStationId", vscConverterStationId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removedLccConverterStationReport(Reporter reporter, String lccConverterStationId) {
+        reporter.report(Report.builder()
+                .withKey("removeLccConverterStation")
+                .withDefaultMessage("Lcc converter station ${lccConverterStationId} has been removed")
+                .withValue("lccConverterStationId", lccConverterStationId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void removedShuntCompensatorReport(Reporter reporter, String shuntCompensatorId) {
+        reporter.report(Report.builder()
+                .withKey("removeShuntCompensator")
+                .withDefaultMessage("Shunt compensator ${shuntCompensatorId} has been removed")
+                .withValue("shuntCompensatorId", shuntCompensatorId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
