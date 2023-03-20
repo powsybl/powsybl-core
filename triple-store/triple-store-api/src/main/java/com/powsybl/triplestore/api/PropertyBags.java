@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -27,6 +29,19 @@ public class PropertyBags extends ArrayList<PropertyBag> {
 
     public PropertyBags(Collection<PropertyBag> ps) {
         super(ps);
+    }
+
+    public PropertyBags distinct(String property, Consumer<Supplier<String>> ignoredLog) {
+        PropertyBags distinct = new PropertyBags();
+        forEach(bag -> {
+            if (distinct.stream().noneMatch(b -> b.getId(property).equals(bag.getId(property)))) {
+                distinct.add(bag);
+            } else {
+                ignoredLog.accept(() -> String.format("PropertyBag with property %s of value %s already exists. PropertyBag %s is ignored.",
+                        property, bag.getId(property), bag.tabulate()));
+            }
+        });
+        return distinct;
     }
 
     public List<String> pluck(String property) {
