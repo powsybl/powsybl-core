@@ -369,7 +369,7 @@ class CgmesExportTest {
         // For this test we chose the Conformity MicroGrid BaseCase
         ResourceSet boundaries = Cgmes3Catalog.microGridBaseCaseBoundaries();
         String boundaryCN = "b675a570-cb6e-11e1-bcee-406c8f32ef58";
-        expected.addAlias(boundaryCN, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY);
+        expected.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, boundaryCN);
         // We inform the identifier of the boundaries we depend on
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.BOUNDARY_EQ_ID, "urn:uuid:536f9bf1-3f8f-a546-87e3-7af2272f29b7");
@@ -419,6 +419,29 @@ class CgmesExportTest {
             // at that node there should be only the equipment corresponding to the equivalent injection
             checkDanglingLineEquivalentInjection(expected, actual);
             checkFictitiousContainerAtBoundary(expected, actual);
+        }
+    }
+
+    @Test
+    void testLineContainersNotInBoundaries() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource();
+        Network network = Network.read(CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource());
+
+        String exportFolder = "/test-line-containers-not-in-boundaries";
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            // Export to CGMES and add boundary EQ for reimport
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            String baseName = "testLineContainersNotInBoundaries";
+            ReadOnlyDataSource exportedCgmes = exportAndAddBoundaries(network, tmpDir, baseName, ds);
+
+            // Check that the exported CGMES model contains a fictitious substation
+            CgmesModel cgmes = CgmesModelFactory.create(exportedCgmes, TripleStoreFactory.defaultImplementation());
+            assertTrue(cgmes.isNodeBreaker());
+            assertTrue(cgmes.substations().stream().anyMatch(sub -> sub.getLocal("name").contains("FICTITIOUS")));
+
+            // Verify that we re-import the exported CGMES data without problems
+            Network networkReimported = Network.read(exportedCgmes, null);
+            assertNotNull(networkReimported);
         }
     }
 

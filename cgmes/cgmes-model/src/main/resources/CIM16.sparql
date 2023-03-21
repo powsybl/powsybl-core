@@ -120,19 +120,37 @@ SELECT *
 }}
 
 # query: substations
-SELECT ?Substation ?name ?SubRegion ?subRegionName ?Region ?regionName
-{ GRAPH ?graph {
+SELECT *
+WHERE {
     ?Substation
         a cim:Substation ;
-        cim:IdentifiedObject.name ?name ;
-        cim:Substation.Region ?SubRegion .
-} GRAPH ?graph2 {
-    ?SubRegion
-        cim:SubGeographicalRegion.Region ?Region ;
-        cim:IdentifiedObject.name ?subRegionName .
-} GRAPH ?graph3 {
-    ?Region cim:IdentifiedObject.name ?regionName .
-}}
+        cim:IdentifiedObject.name ?name .
+    # Optional is required to keep the ?Substation variable already bounded in the sub-queries ...
+    OPTIONAL {
+        {
+            SELECT ?SubRegion
+            WHERE {
+                ?Substation cim:Substation.Region ?SubRegion .
+                ?SubRegion a cim:SubGeographicalRegion .
+            }
+            LIMIT 1
+        }
+        ?SubRegion cim:IdentifiedObject.name ?subRegionName .
+        OPTIONAL {
+            {
+                SELECT ?Region
+                WHERE {
+                    ?SubRegion cim:SubGeographicalRegion.Region ?Region .
+                    ?Region a cim:GeographicalRegion .
+                }
+                LIMIT 1
+            }
+            ?Region cim:IdentifiedObject.name ?regionName .
+        }
+    }
+    # ... But we do not want results where the regions are missing
+    FILTER (bound(?SubRegion) && bound(?Region))
+}
 
 # query: voltageLevels
 SELECT *
