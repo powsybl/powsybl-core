@@ -52,14 +52,14 @@ public class MagnitudeFaultResult extends AbstractFaultResult {
     }
 
     /**
-     * The three-phase current magnitude.
+     * The three-phase current magnitude [in kA].
      */
     public double getCurrent() {
         return current;
     }
 
     /**
-     * The three-phase voltage magnitude.
+     * The three-phase voltage magnitude [in kV].
      */
     public double getVoltage() {
         return voltage;
