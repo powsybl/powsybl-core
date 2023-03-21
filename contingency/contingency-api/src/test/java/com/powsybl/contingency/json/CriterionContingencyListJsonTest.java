@@ -75,6 +75,22 @@ class CriterionContingencyListJsonTest extends AbstractConverterTest {
                 countriesCriterion, nominalVoltageCriterion, Collections.singletonList(propertyCriterion), regexCriterion);
     }
 
+    private static InjectionCriterionContingencyList createInjectionCriterionContingencyListNoCountry() {
+        SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.emptyList());
+        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
+                .VoltageInterval(200.0, 230.0, true, true));
+        return new InjectionCriterionContingencyList("list2", IdentifiableType.GENERATOR,
+                countriesCriterion, nominalVoltageCriterion, Collections.emptyList(), null);
+    }
+
+    private static InjectionCriterionContingencyList createInjectionCriterionContingencyListNoMatch() {
+        SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.CI));
+        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
+                .VoltageInterval(200.0, 230.0, true, true));
+        return new InjectionCriterionContingencyList("list2", IdentifiableType.GENERATOR,
+                countriesCriterion, nominalVoltageCriterion, Collections.emptyList(), null);
+    }
+
     private static TwoWindingsTransformerCriterionContingencyList createTwoWindingsTransformerCriterionContingencyList() {
         SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
         TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(
@@ -122,6 +138,20 @@ class CriterionContingencyListJsonTest extends AbstractConverterTest {
         roundTripTest(createInjectionCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readInjectionCriterionContingencyList,
                 "/injectionCriterionContingencyList.json");
+    }
+
+    @Test
+    void createInjectionCriterionContingencyListNoCountryTest() throws IOException {
+        roundTripTest(createInjectionCriterionContingencyListNoCountry(), CriterionContingencyListJsonTest::write,
+                CriterionContingencyListJsonTest::readInjectionCriterionContingencyList,
+                "/injectionCriterionContingencyListNoCountry.json");
+    }
+
+    @Test
+    void createInjectionCriterionContingencyListNoMatchTest() throws IOException {
+        roundTripTest(createInjectionCriterionContingencyListNoMatch(), CriterionContingencyListJsonTest::write,
+                CriterionContingencyListJsonTest::readInjectionCriterionContingencyList,
+                "/injectionCriterionContingencyListNoMatch.json");
     }
 
     @Test

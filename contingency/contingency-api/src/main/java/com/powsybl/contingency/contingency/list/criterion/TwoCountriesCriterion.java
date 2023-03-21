@@ -50,7 +50,7 @@ public class TwoCountriesCriterion implements Criterion {
         }
         Country countrySide1 = substation1.getCountry().orElse(null);
         Country countrySide2 = substation2.getCountry().orElse(null);
-        if (countrySide1 == null || countrySide2 == null) {
+        if (countrySide1 == null && !countries1.isEmpty() || countrySide2 == null && !countries2.isEmpty()) {
             return false;
         }
         return (countries1.isEmpty() && countries2.isEmpty()) ||
