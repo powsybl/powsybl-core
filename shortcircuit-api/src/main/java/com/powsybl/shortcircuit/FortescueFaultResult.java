@@ -46,14 +46,14 @@ public final class FortescueFaultResult extends AbstractFaultResult {
     }
 
     /**
-     * The results on three phases for current.
+     * The results on three phases for current [in kA]
      */
     public FortescueValue getCurrent() {
         return current;
     }
 
     /**
-     * The results on three phases for voltage.
+     * The results on three phases for voltage [in kV].
      */
     public FortescueValue getVoltage() {
         return voltage;

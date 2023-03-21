@@ -20,7 +20,7 @@ public class FortescueFeederResult extends AbstractFeederResult {
     }
 
     /**
-     * The current on the three phases.
+     * The current on the three phases [in kA].
      */
     public FortescueValue getCurrent() {
         return current;
