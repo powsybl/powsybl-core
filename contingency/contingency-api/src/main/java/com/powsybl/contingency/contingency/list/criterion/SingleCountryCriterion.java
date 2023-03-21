@@ -58,10 +58,10 @@ public class SingleCountryCriterion implements Criterion {
             return false;
         }
         Country injectionCountry = substation.getCountry().orElse(null);
-        if (injectionCountry == null) {
+        if (injectionCountry == null && !countries.isEmpty()) {
             return false;
         }
-        return countries.contains(injectionCountry);
+        return countries.isEmpty() || countries.contains(injectionCountry);
     }
 
     private boolean filterInjection(VoltageLevel voltageLevel) {
@@ -70,9 +70,9 @@ public class SingleCountryCriterion implements Criterion {
             return false;
         }
         Country injectionCountry = substation.getCountry().orElse(null);
-        if (injectionCountry == null) {
+        if (injectionCountry == null && !countries.isEmpty()) {
             return false;
         }
-        return countries.contains(injectionCountry);
+        return countries.isEmpty() || countries.contains(injectionCountry);
     }
 }
