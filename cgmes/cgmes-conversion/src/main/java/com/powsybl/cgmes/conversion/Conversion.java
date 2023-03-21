@@ -157,7 +157,7 @@ public class Conversion {
         cgmes.computedTerminals().forEach(t -> context.terminalMapping().buildTopologicalNodeCgmesTerminalsMapping(t));
         cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
 
-        convert(cgmes.substations().distinct("Substation", message -> context.ignored("PropertyBag", message)), s -> new SubstationConversion(s, context));
+        convert(cgmes.substations(), s -> new SubstationConversion(s, context));
         convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));
         PropertyBags nodes = context.nodeBreaker()
                 ? cgmes.connectivityNodes()
