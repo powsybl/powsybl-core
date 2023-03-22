@@ -15,8 +15,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,10 +28,10 @@ class NetworkElementIdentifierContingencyListTest {
     void testSimpleIdentifier() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
-        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier("LINE_S2S3"));
-        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier("LINE_S3S4"));
-        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier("LINE_S4S1"));
-        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier("test"));
+        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier(Collections.singleton("LINE_S2S3"), "LINE_S2S3"));
+        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier(Collections.singleton("LINE_S3S4"), "LINE_S3S4"));
+        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier(Collections.singleton("LINE_S4S1"), "LINE_S4S1"));
+        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier(Collections.singleton("test"), "test"));
         IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(2, contingencies.size());
@@ -41,14 +40,35 @@ class NetworkElementIdentifierContingencyListTest {
     }
 
     @Test
+    void testSimpleIdentifierWithSeveralElements() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
+        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier(new HashSet<>(Arrays.asList("LINE_S2S3", "LINE_S3S4")), "2-same-elements-contingency"));
+        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier(new HashSet<>(Arrays.asList("LINE_S2S3", "GH1", "HVDC1", "LD4")), "4-different-elements-contingency"));
+        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier(new HashSet<>(Arrays.asList("LINE_S3S4", "Unknown")), "test-one-unexpected-element"));
+        networkElementIdentifierList.add(new IdBasedNetworkElementIdentifier(Collections.singleton("test"), "test"));
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(3, contingencies.size());
+        assertEquals(new Contingency("2-same-elements-contingency", new LineContingency("LINE_S3S4"),
+                new LineContingency("LINE_S2S3")), contingencies.get(0));
+        assertEquals(new Contingency("4-different-elements-contingency",
+                new GeneratorContingency("GH1"),
+                new LineContingency("LINE_S2S3"),
+                new HvdcLineContingency("HVDC1"),
+                new LoadContingency("LD4")), contingencies.get(1));
+        assertEquals(new Contingency("test-one-unexpected-element", new LineContingency("LINE_S3S4")), contingencies.get(2));
+    }
+
+    @Test
     void testUcteIdentifier() {
         Network network = EurostagTutorialExample1Factory.create();
         List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
-        networkElementIdentifierList.add(new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '1'));
+        networkElementIdentifierList.add(new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '1', "contingencyId"));
         IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
-        assertEquals(new Contingency("NHV1_NHV2_1", new LineContingency("NHV1_NHV2_1")), contingencies.get(0));
+        assertEquals(new Contingency("contingencyId", new LineContingency("NHV1_NHV2_1")), contingencies.get(0));
     }
 
     @Test
@@ -56,14 +76,14 @@ class NetworkElementIdentifierContingencyListTest {
         Network network = EurostagTutorialExample1Factory.create();
         List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
         List<NetworkElementIdentifier> networkElementIdentifierListElements = new ArrayList<>();
-        networkElementIdentifierListElements.add(new IdBasedNetworkElementIdentifier("test"));
-        networkElementIdentifierListElements.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2"));
-        networkElementIdentifierListElements.add(new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '2'));
-        networkElementIdentifierListElements.add(new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '1'));
-        networkElementIdentifierList.add(new NetworkElementIdentifierList(networkElementIdentifierListElements));
+        networkElementIdentifierListElements.add(new IdBasedNetworkElementIdentifier(Collections.singleton("test"), "test"));
+        networkElementIdentifierListElements.add(new IdBasedNetworkElementIdentifier(Collections.singleton("NHV1_NHV2"), "NHV1_NHV2"));
+        networkElementIdentifierListElements.add(new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '2', "contingencyId"));
+        networkElementIdentifierListElements.add(new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '1', "contingencyId"));
+        networkElementIdentifierList.add(new NetworkElementIdentifierList(networkElementIdentifierListElements, "contingency"));
         IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
-        assertEquals(new Contingency("NHV1_NHV2_2", new LineContingency("NHV1_NHV2_2")), contingencies.get(0));
+        assertEquals(new Contingency("contingency", Arrays.asList(new LineContingency("NHV1_NHV2_2"), new LineContingency("NHV1_NHV2_1"))), contingencies.get(0));
     }
 }

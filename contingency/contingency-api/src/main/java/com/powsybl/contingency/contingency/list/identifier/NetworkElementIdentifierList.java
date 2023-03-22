@@ -6,34 +6,33 @@
  */
 package com.powsybl.contingency.contingency.list.identifier;
 
+import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class NetworkElementIdentifierList implements NetworkElementIdentifier {
     private final List<NetworkElementIdentifier> networkElementIdentifiers;
+    private final String contingencyId;
 
-    public List<NetworkElementIdentifier> getIdentifiers() {
+    public List<NetworkElementIdentifier> getNetworkElementIdentifiers() {
         return networkElementIdentifiers;
     }
 
-    public NetworkElementIdentifierList(List<NetworkElementIdentifier> networkElementIdentifiers) {
-        this.networkElementIdentifiers = Objects.requireNonNull(networkElementIdentifiers);
+    public NetworkElementIdentifierList(List<NetworkElementIdentifier> networkElementIdentifiers, String contingencyId) {
+        this.networkElementIdentifiers = ImmutableList.copyOf(networkElementIdentifiers);
+        this.contingencyId = Objects.requireNonNull(contingencyId);
     }
 
     @Override
-    public Optional<Identifiable> filterIdentifiable(Network network) {
-        return networkElementIdentifiers.stream()
-                .map(identifiant -> identifiant.filterIdentifiable(network))
-                .filter(Optional::isPresent)
-                .findFirst()
-                .orElse(null);
+    public Set<Identifiable<?>> filterIdentifiable(Network network) {
+        Set<Identifiable<?>> linkedHashSet = new LinkedHashSet<>();
+        networkElementIdentifiers.forEach(identifiant -> linkedHashSet.addAll(identifiant.filterIdentifiable(network)));
+        return linkedHashSet;
     }
 
     @Override
@@ -41,4 +40,8 @@ public class NetworkElementIdentifierList implements NetworkElementIdentifier {
         return IdentifierType.LIST;
     }
 
+    @Override
+    public String getContingencyName() {
+        return contingencyId;
+    }
 }

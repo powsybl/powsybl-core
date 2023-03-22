@@ -6,34 +6,45 @@
  */
 package com.powsybl.contingency.contingency.list.identifier;
 
+import com.google.common.collect.ImmutableSet;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class IdBasedNetworkElementIdentifier implements NetworkElementIdentifier {
 
-    private final String identifier;
+    private final Set<String> identifiers;
+    private final String contingencyId;
 
-    public IdBasedNetworkElementIdentifier(String identifier) {
-        this.identifier = Objects.requireNonNull(identifier);
+    public IdBasedNetworkElementIdentifier(Set<String> identifiers, String contingencyId) {
+        this.identifiers = ImmutableSet.copyOf(identifiers);
+        this.contingencyId = Objects.requireNonNull(contingencyId);
     }
 
     @Override
-    public Optional<Identifiable> filterIdentifiable(Network network) {
-        return Optional.ofNullable(network.getIdentifiable(identifier));
+    public Set<Identifiable<?>> filterIdentifiable(Network network) {
+        return identifiers.stream()
+                .map(network::getIdentifiable)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public Set<String> getIdentifiers() {
+        return ImmutableSet.copyOf(identifiers);
     }
 
     @Override
     public IdentifierType getType() {
         return IdentifierType.ID_BASED;
+    }
+
+    @Override
+    public String getContingencyName() {
+        return contingencyId;
     }
 }

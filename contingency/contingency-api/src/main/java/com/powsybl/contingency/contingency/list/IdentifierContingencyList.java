@@ -11,10 +11,10 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.Network;
+import org.jgrapht.alg.util.Pair;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class IdentifierContingencyList implements ContingencyList {
 
-    private static final String VERSION = "1.1";
+    private static final String VERSION = "1.2";
     private final String name;
     private final List<NetworkElementIdentifier> networkElementIdentifiers;
 
@@ -52,10 +52,12 @@ public class IdentifierContingencyList implements ContingencyList {
     @Override
     public List<Contingency> getContingencies(Network network) {
         return networkElementIdentifiers.stream()
-                .map(identifiant -> identifiant.filterIdentifiable(network))
-                .filter(Optional::isPresent)
-                .map(identifiable -> new Contingency(identifiable.get().getId(),
-                        ContingencyElement.of(identifiable.get())))
+                .map(identifiant -> Pair.of(identifiant.getContingencyName(), identifiant.filterIdentifiable(network)))
+                .filter(identifiant -> !identifiant.getSecond().isEmpty())
+                .map(identifiant -> new Contingency(identifiant.getFirst(), identifiant.getSecond()
+                        .stream()
+                        .map(ContingencyElement::of)
+                        .collect(Collectors.toList())))
                 .filter(contingency -> contingency.isValid(network))
                 .collect(Collectors.toList());
     }

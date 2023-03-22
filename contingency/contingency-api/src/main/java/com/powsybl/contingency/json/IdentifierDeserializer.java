@@ -17,12 +17,16 @@ import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderN
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdentifier> {
+    private static final String CONTEXT_NAME = "Identifier";
+    private static final String CONTINGENCY_NAME = "contingencyName";
 
     public IdentifierDeserializer() {
         super(NetworkElementIdentifier.class);
@@ -31,9 +35,11 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
     @Override
     public NetworkElementIdentifier deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         NetworkElementIdentifier.IdentifierType type = null;
-        String identifier = null;
+        Set<String> identifiers = null;
         String voltageLevelId1 = null;
         String voltageLevelId2 = null;
+        String contingencyName = CONTINGENCY_NAME;
+        String version = (String) deserializationContext.getAttribute("version");
         List<NetworkElementIdentifier> networkElementIdentifierList = Collections.emptyList();
         char order = 0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -42,7 +48,20 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                     type = NetworkElementIdentifier.IdentifierType.valueOf(parser.nextTextValue());
                     break;
                 case "identifier":
-                    identifier = parser.nextTextValue();
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifier", version, "1.1");
+                    String contingencyElement = parser.nextTextValue();
+                    identifiers = Collections.singleton(contingencyElement);
+                    contingencyName = contingencyElement;
+                    break;
+                case "identifiers":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "identifiers", version, "1.2");
+                    parser.nextToken();
+                    identifiers = new HashSet<>(JsonUtil.readList(deserializationContext,
+                            parser, String.class));
+                    break;
+                case CONTINGENCY_NAME:
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, CONTINGENCY_NAME, version, "1.2");
+                    contingencyName = parser.nextTextValue();
                     break;
                 case "identifierList":
                     parser.nextToken();
@@ -72,11 +91,11 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         }
         switch (type) {
             case ID_BASED:
-                return new IdBasedNetworkElementIdentifier(identifier);
+                return new IdBasedNetworkElementIdentifier(identifiers, contingencyName);
             case LIST:
-                return new NetworkElementIdentifierList(networkElementIdentifierList);
+                return new NetworkElementIdentifierList(networkElementIdentifierList, contingencyName);
             case VOLTAGE_LEVELS_AND_ORDER:
-                return new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order);
+                return new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyName);
             default:
                 throw new IllegalArgumentException("type " + type + " does not exist");
         }

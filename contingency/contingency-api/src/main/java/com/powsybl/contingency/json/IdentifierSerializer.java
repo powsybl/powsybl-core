@@ -28,13 +28,16 @@ public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier
     public void serialize(NetworkElementIdentifier networkElementIdentifier, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", networkElementIdentifier.getType().toString());
+        jsonGenerator.writeStringField("contingencyName", networkElementIdentifier.getContingencyName());
         switch (networkElementIdentifier.getType()) {
             case ID_BASED:
-                jsonGenerator.writeStringField("identifier", ((IdBasedNetworkElementIdentifier) networkElementIdentifier).getIdentifier());
+                serializerProvider.defaultSerializeField("identifiers",
+                        ((IdBasedNetworkElementIdentifier) networkElementIdentifier).getIdentifiers(),
+                        jsonGenerator);
                 break;
             case LIST:
                 serializerProvider.defaultSerializeField("identifierList",
-                        ((NetworkElementIdentifierList) networkElementIdentifier).getIdentifiers(),
+                        ((NetworkElementIdentifierList) networkElementIdentifier).getNetworkElementIdentifiers(),
                         jsonGenerator);
                 break;
             case VOLTAGE_LEVELS_AND_ORDER:
