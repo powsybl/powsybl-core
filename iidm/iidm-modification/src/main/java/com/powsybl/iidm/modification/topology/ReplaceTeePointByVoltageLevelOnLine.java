@@ -113,6 +113,13 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         return newLine2Name;
     }
 
+    // voltageLevel.getNodeBreakerView().getBusbarSection(bbsOrBusId) is currently returning any busbarSection from the network
+    // even if this busbarSection is not included in the voltageLevel
+    // this method returns null if the busbarSectionId does not belong to the voltageLevel
+    private BusbarSection getBusBarSectionFromVoltageLevel(VoltageLevel voltageLevel, String busBarSectionId) {
+        return voltageLevel.getNodeBreakerView().getBusbarSectionStream().filter(bbs -> busBarSectionId.equals(bbs.getId())).findFirst().orElse(null);
+    }
+
     @Override
     public void apply(Network network, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
@@ -176,7 +183,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
         TopologyKind topologyKind = tappedVoltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
-            Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
+            Bus bus = tappedVoltageLevel.getBusBreakerView().getBus(bbsOrBusId);
             if (bus == null) {
                 notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, tappedVoltageLevel.getId());
                 if (throwException) {
@@ -199,7 +206,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             newLine2Adder.setBus1(bus2.getId());
             newLine2Adder.setConnectableBus1(bus2.getId());
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
-            BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
+            BusbarSection bbs = getBusBarSectionFromVoltageLevel(tappedVoltageLevel, bbsOrBusId);
             if (bbs == null) {
                 notFoundBusbarSectionInVoltageLevelReport(reporter, bbsOrBusId, tappedVoltageLevel.getId());
                 if (throwException) {
