@@ -1,0 +1,21 @@
+{
+  "version" : "1.0",
+  "type" : "identifier",
+  "name" : "list1",
+  "identifiableType" : "type",
+  "identifiers" : [ {
+    "type" : "ID_BASED",
+    "identifier" : "identifier"
+  }, {
+    "type" : "VOLTAGE_LEVELS_AND_ORDER",
+    "voltageLevelId1" : "vl1",
+    "voltageLevelId2" : "vl2",
+    "order" : "1"
+  }, {
+    "type" : "LIST",
+    "identifierList" : [ {
+      "type" : "ID_BASED",
+      "identifier" : "identifier1"
+    } ]
+  } ]
+}

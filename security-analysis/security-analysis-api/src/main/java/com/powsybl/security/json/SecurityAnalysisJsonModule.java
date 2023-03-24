@@ -107,6 +107,12 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         registerActionType(GeneratorAction.class, GeneratorAction.NAME, new GeneratorActionSerializer(), new GeneratorActionDeserializer());
         registerActionType(LoadAction.class, LoadAction.NAME, new LoadActionSerializer(), new LoadActionDeserializer());
         registerActionType(HvdcAction.class, HvdcAction.NAME, new HvdcActionSerializer(), new HvdcActionDeserializer());
+        registerActionType(GeneratorAction.class, GeneratorAction.NAME,
+                new GeneratorActionSerializer(), new GeneratorActionDeserializer());
+        registerActionType(LoadAction.class, LoadAction.NAME,
+                new LoadActionSerializer(), new LoadActionDeserializer());
+        registerActionType(ShuntCompensatorPositionAction.class, ShuntCompensatorPositionAction.NAME,
+                new ShuntCompensatorPositionActionSerializer(), new ShuntCompensatorPositionActionDeserializer());
     }
 
     private <T> void registerActionType(Class<T> actionClass, String typeName, JsonSerializer<T> serializer, JsonDeserializer<T> deserializer) {

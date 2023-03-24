@@ -257,6 +257,23 @@ class Cgmes3ConversionTest {
     }
 
     @Test
+    void svedalaWithDifferentFictitiousSwitchesCreationModes() throws IOException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE, "NEVER");
+        ConversionTester t = new ConversionTester(importParams, null,
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig());
+        t.testConversion(null, Cgmes3Catalog.svedala());
+
+        importParams = new Properties();
+        importParams.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE, "ALWAYS_EXCEPT_SWITCHES");
+        t = new ConversionTester(importParams, null,
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig());
+        t.testConversion(null, Cgmes3Catalog.svedala());
+    }
+
+    @Test
     void svedalaConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");

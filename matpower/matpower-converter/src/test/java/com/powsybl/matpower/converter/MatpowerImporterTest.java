@@ -35,6 +35,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static org.junit.jupiter.api.Assertions.*;
@@ -115,6 +116,16 @@ class MatpowerImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    void testCase30ConsideringBaseVoltage() throws IOException {
+        MatpowerModel model = MatpowerModelFactory.create30();
+        model.setCaseName("ieee30-considering-base-voltage");
+
+        Properties properties = new Properties();
+        properties.put("matpower.import.ignore-base-voltage", false);
+        testCase(model, properties);
+    }
+
+    @Test
     void testCase57() throws IOException {
         testCase(MatpowerModelFactory.create57());
     }
@@ -140,11 +151,15 @@ class MatpowerImporterTest extends AbstractConverterTest {
     }
 
     private void testCase(MatpowerModel model) throws IOException {
+        testCase(model, null);
+    }
+
+    private void testCase(MatpowerModel model, Properties properties) throws IOException {
         String caseId = model.getCaseName();
         Path matFile = tmpDir.resolve(caseId + ".mat");
         MatpowerWriter.write(model, matFile);
 
-        Network network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
+        Network network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
         testNetwork(network, caseId);
     }
 

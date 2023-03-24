@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.extensions.ConnectablePosition;
  */
 public class CreateFeederBayBuilder {
 
-    private InjectionAdder<?> injectionAdder = null;
+    private InjectionAdder<?, ?> injectionAdder = null;
     private String busOrBusbarSection = null;
     private Integer injectionPositionOrder = null;
     private String injectionFeederName = null;
@@ -24,7 +24,7 @@ public class CreateFeederBayBuilder {
         return new CreateFeederBay(injectionAdder, busOrBusbarSection, injectionPositionOrder, injectionFeederName, injectionDirection);
     }
 
-    public CreateFeederBayBuilder withInjectionAdder(InjectionAdder<?> injectionAdder) {
+    public CreateFeederBayBuilder withInjectionAdder(InjectionAdder<?, ?> injectionAdder) {
         this.injectionAdder = injectionAdder;
         return this;
     }

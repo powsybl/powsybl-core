@@ -14,10 +14,12 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCompensator, StaticVarCompensatorAdder, VoltageLevel> {
+public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<StaticVarCompensator, StaticVarCompensatorAdder, VoltageLevel> {
 
     static final StaticVarCompensatorXml INSTANCE = new StaticVarCompensatorXml();
 
