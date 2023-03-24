@@ -19,6 +19,7 @@ public interface AmplParameters {
 
     /**
      * Collection of output files to read after an Ampl solve.
+     * All the files will be read, even if some throws IOExceptions while parsing
      */
     Collection<AmplOutputFile> getOutputParameters();
 }

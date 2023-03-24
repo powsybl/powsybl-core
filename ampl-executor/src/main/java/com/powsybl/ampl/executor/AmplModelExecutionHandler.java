@@ -21,6 +21,7 @@ import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -94,22 +95,52 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         new AmplExporter().export(network, null, networkExportDataSource);
     }
 
-    private void doAfterSuccess(Path workingDir, AmplNetworkReader reader) throws IOException {
-        readNetworkElements(reader);
-        readCustomFiles(workingDir);
+    /**
+     * This function will do all the output file readings,
+     * including ones injected by {@link AmplParameters#getOutputParameters}.
+     * If a file throws a {@link IOException}, we catch it, then skip to the next file.
+     * At the end we throw a {@link AmplException} with all the {@link IOException} thrown supressed.
+     */
+    private void doAfterSuccess(Path workingDir, AmplNetworkReader reader) {
+        List<IOException> readingExceptions = new ArrayList<>();
+        readingExceptions.addAll(readNetworkElements(reader));
+        readingExceptions.addAll(readCustomFiles(workingDir));
+        if (!readingExceptions.isEmpty()) {
+            AmplException outputReadingException = new AmplException("Error while reading Ampl output files");
+            readingExceptions.forEach(outputReadingException::addSuppressed);
+            throw outputReadingException;
+        }
     }
 
-    private void readCustomFiles(Path workingDir) throws IOException {
+    /**
+     * @implNote {@link AmplModelExecutionHandler#doAfterSuccess}
+     */
+    private List<IOException> readCustomFiles(Path workingDir) {
+        List<IOException> readingExceptions = new ArrayList<>();
         for (AmplOutputFile amplOutputFile : parameters.getOutputParameters()) {
             Path outputPath = workingDir.resolve(amplOutputFile.getFileName());
-            amplOutputFile.read(outputPath, this.mapper);
+            try {
+                amplOutputFile.read(outputPath, this.mapper);
+            } catch (IOException e) {
+                readingExceptions.add(e);
+            }
         }
+        return readingExceptions;
     }
 
-    private void readNetworkElements(AmplNetworkReader reader) throws IOException {
+    /**
+     * @implNote {@link AmplModelExecutionHandler#doAfterSuccess}
+     */
+    private List<IOException> readNetworkElements(AmplNetworkReader reader) {
+        List<IOException> readingExceptions = new ArrayList<>();
         for (AmplReadableElement element : this.model.getAmplReadableElement()) {
-            element.readElement(reader);
+            try {
+                element.readElement(reader);
+            } catch (IOException e) {
+                readingExceptions.add(e);
+            }
         }
+        return readingExceptions;
     }
 
     protected static CommandExecution createAmplRunCommand(AmplConfig config, AmplModel model) {
