@@ -23,7 +23,7 @@ public class MagnitudeShortCircuitBusResults extends AbstractShortCircuitBusResu
     }
 
     /**
-     * Returns the three phase voltage magnitude after the fault (in kV).
+     * Returns the three phased voltage magnitude after the fault (in kV).
      */
     public double getVoltage() {
         return voltage;
