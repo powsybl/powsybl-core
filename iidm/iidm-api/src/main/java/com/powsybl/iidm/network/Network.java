@@ -1209,7 +1209,7 @@ public interface Network extends Container<Network> {
             case LOAD:
                 return (Stream<I>) getLoadStream();
             case BATTERY:
-                return (Stream<I>) getBatteries();
+                return (Stream<I>) getBatteryStream();
             case GENERATOR:
                 return (Stream<I>) getGeneratorStream();
             case HVDC_LINE:
