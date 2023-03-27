@@ -97,6 +97,15 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError6.apply(network, true, Reporter.NO_OP)).getMessage().contains("Unable to find the tee point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34"));
 
+        NetworkModification modificationWithError7 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
+                .withTeePointLine1("CJ_1")
+                .withTeePointLine2("CJ_2")
+                .withTeePointLineToRemove("testLine")
+                .withBbsOrBusId("bbs3")
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError7.apply(network, true, Reporter.NO_OP)).getMessage().contains("Busbar section bbs3 is not found in voltage level VLTEST"));
+
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withTeePointLine1("CJ_1")
                 .withTeePointLine2("CJ_2")
