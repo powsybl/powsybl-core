@@ -28,7 +28,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.Properties;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -61,9 +60,7 @@ class TopologyExportTest extends AbstractConverterTest {
 
     private void test(ReadOnlyDataSource dataSource, boolean importSsh) throws IOException, XMLStreamException {
         // Import original
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
 
         // Export TP
         Path exportedTp = tmpDir.resolve("exportedTp.xml");
@@ -87,7 +84,7 @@ class TopologyExportTest extends AbstractConverterTest {
 
         // Import with new TP
         Network actual = Network.read(repackaged,
-                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), null);
 
         prepareNetworkForComparison(expected);
         prepareNetworkForComparison(actual);
