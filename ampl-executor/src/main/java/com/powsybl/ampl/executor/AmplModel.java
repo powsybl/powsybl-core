@@ -12,6 +12,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface to represent an Ampl model to run on a network.
@@ -65,4 +66,13 @@ public interface AmplModel {
      * it implies that the Ampl model outputs these files with the correct format
      */
     Collection<AmplReadableElement> getAmplReadableElement();
+
+    /**
+     * From the metrics read, tells if the model has converged or not.
+     *
+     * @param metrics output written by the ampl model
+     * @return <code>true</code> if the metrics indicates that the ampl converged.
+     * @see AmplParameters#getOutputParameters
+     */
+    boolean checkModelConvergence(Map<String, String> metrics);
 }

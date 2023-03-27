@@ -20,6 +20,9 @@ public interface AmplParameters {
     /**
      * Collection of output files to read after an Ampl solve.
      * All the files will be read, even if some throws IOExceptions while parsing
+     *
+     * @param hasConverged boolean indicating if the model has converged.
+     * @see AmplModel#checkModelConvergence
      */
-    Collection<AmplOutputFile> getOutputParameters();
+    Collection<AmplOutputFile> getOutputParameters(boolean hasConverged);
 }
