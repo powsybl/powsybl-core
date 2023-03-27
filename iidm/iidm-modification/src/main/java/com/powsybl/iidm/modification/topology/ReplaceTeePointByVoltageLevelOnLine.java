@@ -118,7 +118,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     // this method returns null if the busbarSectionId does not belong to the voltageLevel
     private BusbarSection getBusBarSectionFromVoltageLevel(Network network, VoltageLevel voltageLevel, String busBarSectionId) {
         BusbarSection bbs = network.getBusbarSection(busBarSectionId);
-        if (bbs == null || !voltageLevel.equals(bbs.getTerminal().getVoltageLevel())) {
+        if (bbs == null || bbs.getTerminal().getVoltageLevel() != voltageLevel) {
             return null;
         }
 
