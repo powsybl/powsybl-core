@@ -18,16 +18,30 @@ import java.util.List;
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class TwoWindingsTransformerCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
+    private final SingleCountryCriterion singleCountryCriterion;
+    private final TwoNominalVoltageCriterion twoNominalVoltageCriterion;
 
     public TwoWindingsTransformerCriterionContingencyList(String name,
                                                           SingleCountryCriterion singleCountryCriterion,
                                                           TwoNominalVoltageCriterion twoNominalVoltageCriterion,
                                                           List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
-        super(name, IdentifiableType.TWO_WINDINGS_TRANSFORMER, singleCountryCriterion, twoNominalVoltageCriterion, propertyCriteria, regexCriterion);
+        super(name, IdentifiableType.TWO_WINDINGS_TRANSFORMER, propertyCriteria, regexCriterion);
+        this.singleCountryCriterion = singleCountryCriterion;
+        this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;
     }
 
     @Override
     public String getType() {
         return "twoWindingsTransformerCriterion";
+    }
+
+    @Override
+    public SingleCountryCriterion getCountryCriterion() {
+        return singleCountryCriterion;
+    }
+
+    @Override
+    public TwoNominalVoltageCriterion getNominalVoltageCriterion() {
+        return twoNominalVoltageCriterion;
     }
 }

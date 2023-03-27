@@ -19,14 +19,29 @@ import java.util.List;
  */
 public class HvdcLineCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
 
+    private final TwoCountriesCriterion twoCountriesCriterion;
+    private final TwoNominalVoltageCriterion twoNominalVoltageCriterion;
+
     public HvdcLineCriterionContingencyList(String name, TwoCountriesCriterion twoCountriesCriterion,
                                             TwoNominalVoltageCriterion twoNominalVoltageCriterion,
                                             List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
-        super(name, IdentifiableType.HVDC_LINE, twoCountriesCriterion, twoNominalVoltageCriterion, propertyCriteria, regexCriterion);
+        super(name, IdentifiableType.HVDC_LINE, propertyCriteria, regexCriterion);
+        this.twoCountriesCriterion = twoCountriesCriterion;
+        this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;
     }
 
     @Override
     public String getType() {
         return "hvdcCriterion";
+    }
+
+    @Override
+    public TwoCountriesCriterion getCountryCriterion() {
+        return twoCountriesCriterion;
+    }
+
+    @Override
+    public TwoNominalVoltageCriterion getNominalVoltageCriterion() {
+        return twoNominalVoltageCriterion;
     }
 }

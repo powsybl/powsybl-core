@@ -19,15 +19,30 @@ import java.util.List;
  */
 public class ThreeWindingsTransformerCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
 
+    private final SingleCountryCriterion singleCountryCriterion;
+    private final ThreeNominalVoltageCriterion threeNominalVoltageCriterion;
+
     public ThreeWindingsTransformerCriterionContingencyList(String name,
                                                             SingleCountryCriterion singleCountryCriterion,
                                                             ThreeNominalVoltageCriterion threeNominalVoltageCriterion,
                                                             List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
-        super(name, IdentifiableType.THREE_WINDINGS_TRANSFORMER, singleCountryCriterion, threeNominalVoltageCriterion, propertyCriteria, regexCriterion);
+        super(name, IdentifiableType.THREE_WINDINGS_TRANSFORMER, propertyCriteria, regexCriterion);
+        this.singleCountryCriterion = singleCountryCriterion;
+        this.threeNominalVoltageCriterion = threeNominalVoltageCriterion;
     }
 
     @Override
     public String getType() {
         return "threeWindingsTransformerCriterion";
+    }
+
+    @Override
+    public SingleCountryCriterion getCountryCriterion() {
+        return singleCountryCriterion;
+    }
+
+    @Override
+    public ThreeNominalVoltageCriterion getNominalVoltageCriterion() {
+        return threeNominalVoltageCriterion;
     }
 }

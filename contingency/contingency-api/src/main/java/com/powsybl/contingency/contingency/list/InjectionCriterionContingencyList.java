@@ -19,6 +19,9 @@ import java.util.List;
  */
 public class InjectionCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
 
+    private final SingleCountryCriterion singleCountryCriterion;
+    private final SingleNominalVoltageCriterion singleNominalVoltageCriterion;
+
     public InjectionCriterionContingencyList(String name, String identifiableType,
                                              SingleCountryCriterion singleCountryCriterion,
                                              SingleNominalVoltageCriterion singleNominalVoltageCriterion, List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
@@ -28,11 +31,23 @@ public class InjectionCriterionContingencyList extends AbstractEquipmentCriterio
     public InjectionCriterionContingencyList(String name, IdentifiableType identifiableType,
                                              SingleCountryCriterion singleCountryCriterion,
                                              SingleNominalVoltageCriterion singleNominalVoltageCriterion, List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
-        super(name, identifiableType, singleCountryCriterion, singleNominalVoltageCriterion, propertyCriteria, regexCriterion);
+        super(name, identifiableType, propertyCriteria, regexCriterion);
+        this.singleCountryCriterion = singleCountryCriterion;
+        this.singleNominalVoltageCriterion = singleNominalVoltageCriterion;
     }
 
     @Override
     public String getType() {
         return "injectionCriterion";
+    }
+
+    @Override
+    public SingleCountryCriterion getCountryCriterion() {
+        return singleCountryCriterion;
+    }
+
+    @Override
+    public SingleNominalVoltageCriterion getNominalVoltageCriterion() {
+        return singleNominalVoltageCriterion;
     }
 }

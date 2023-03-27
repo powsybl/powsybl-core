@@ -9,7 +9,9 @@ package com.powsybl.contingency.contingency.list;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.contingency.list.criterion.*;
+import com.powsybl.contingency.contingency.list.criterion.Criterion;
+import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
+import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 
@@ -25,16 +27,10 @@ public abstract class AbstractEquipmentCriterionContingencyList implements Conti
     private final IdentifiableType identifiableType;
     private final List<PropertyCriterion> propertyCriteria;
     private final RegexCriterion regexCriterion;
-    private final Criterion countryCriterion;
-    private final Criterion nominalVoltageCriterion;
 
-    protected AbstractEquipmentCriterionContingencyList(String name, IdentifiableType identifiableType,
-                                                        Criterion countryCriterion, Criterion nominalVoltageCriterion,
-                                                        List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
+    protected AbstractEquipmentCriterionContingencyList(String name, IdentifiableType identifiableType, List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
         this.name = Objects.requireNonNull(name);
         this.identifiableType = identifiableType;
-        this.countryCriterion = countryCriterion;
-        this.nominalVoltageCriterion = nominalVoltageCriterion;
         this.propertyCriteria = ImmutableList.copyOf(Objects.requireNonNull(propertyCriteria));
         this.regexCriterion = regexCriterion;
     }
@@ -47,8 +43,8 @@ public abstract class AbstractEquipmentCriterionContingencyList implements Conti
     @Override
     public List<Contingency> getContingencies(Network network) {
         return network.getIdentifiableStream(getIdentifiableType())
-                .filter(identifiable -> countryCriterion == null || countryCriterion.filter(identifiable, getIdentifiableType()))
-                .filter(identifiable -> nominalVoltageCriterion == null || nominalVoltageCriterion.filter(identifiable, getIdentifiableType()))
+                .filter(identifiable -> getCountryCriterion() == null || getCountryCriterion().filter(identifiable, getIdentifiableType()))
+                .filter(identifiable -> getNominalVoltageCriterion() == null || getNominalVoltageCriterion().filter(identifiable, getIdentifiableType()))
                 .filter(identifiable -> getPropertyCriteria().stream().allMatch(propertyCriterion -> propertyCriterion.filter(identifiable, getIdentifiableType())))
                 .filter(identifiable -> getRegexCriterion() == null || getRegexCriterion().filter(identifiable, getIdentifiableType()))
                 .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
@@ -67,11 +63,7 @@ public abstract class AbstractEquipmentCriterionContingencyList implements Conti
         return regexCriterion;
     }
 
-    public Criterion getCountryCriterion() {
-        return countryCriterion;
-    }
+    public abstract Criterion getCountryCriterion();
 
-    public Criterion getNominalVoltageCriterion() {
-        return nominalVoltageCriterion;
-    }
+    public abstract Criterion getNominalVoltageCriterion();
 }

@@ -18,16 +18,30 @@ import java.util.List;
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class LineCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
+    private final TwoCountriesCriterion twoCountriesCriterion;
+    private final SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
     public LineCriterionContingencyList(String name,
                                         TwoCountriesCriterion twoCountriesCriterion,
                                         SingleNominalVoltageCriterion singleNominalVoltageCriterion,
                                         List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
-        super(name, IdentifiableType.LINE, twoCountriesCriterion, singleNominalVoltageCriterion, propertyCriteria, regexCriterion);
+        super(name, IdentifiableType.LINE, propertyCriteria, regexCriterion);
+        this.twoCountriesCriterion = twoCountriesCriterion;
+        this.singleNominalVoltageCriterion = singleNominalVoltageCriterion;
     }
 
     @Override
     public String getType() {
         return "lineCriterion";
+    }
+
+    @Override
+    public TwoCountriesCriterion getCountryCriterion() {
+        return twoCountriesCriterion;
+    }
+
+    @Override
+    public SingleNominalVoltageCriterion getNominalVoltageCriterion() {
+        return singleNominalVoltageCriterion;
     }
 }
