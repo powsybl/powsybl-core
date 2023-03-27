@@ -8,7 +8,6 @@ package com.powsybl.ampl.executor;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.ampl.converter.AmplException;
 import com.powsybl.ampl.converter.AmplNetworkUpdaterFactory;
 import com.powsybl.ampl.converter.AmplReadableElement;
 import com.powsybl.ampl.executor.output_test.OutputTestAmplParameters;
@@ -36,9 +35,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ForkJoinPool;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -58,7 +57,8 @@ class AmplModelExecutionHandlerTest {
             String variantId = network.getVariantManager().getWorkingVariantId();
             try (ComputationManager manager = new LocalComputationManager(
                     new LocalComputationConfig(fs.getPath("/workingDir")),
-                    new MockAmplLocalExecutor(List.of("output_generators.txt")), ForkJoinPool.commonPool())) {
+                    new MockAmplLocalExecutor(List.of("output_generators.txt", "output_indic.txt")),
+                    ForkJoinPool.commonPool())) {
                 ExecutionEnvironment env = ExecutionEnvironment.createDefault()
                                                                .setWorkingDirPrefix("ampl_")
                                                                .setDebug(true);
@@ -74,7 +74,7 @@ class AmplModelExecutionHandlerTest {
     }
 
     @Test
-    void testCrashingOutputFile() throws Exception {
+    void testConvergingModel() throws Exception {
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             Files.createDirectory(fs.getPath("/workingDir"));
             // Test data
@@ -85,7 +85,8 @@ class AmplModelExecutionHandlerTest {
             String variantId = network.getVariantManager().getWorkingVariantId();
             try (ComputationManager manager = new LocalComputationManager(
                     new LocalComputationConfig(fs.getPath("/workingDir")),
-                    new MockAmplLocalExecutor(List.of("output_generators.txt")), ForkJoinPool.commonPool())) {
+                    new MockAmplLocalExecutor(List.of("output_generators.txt", "output_indic.txt")),
+                    ForkJoinPool.commonPool())) {
                 ExecutionEnvironment env = ExecutionEnvironment.createDefault()
                                                                .setWorkingDirPrefix("ampl_")
                                                                .setDebug(true);
@@ -94,16 +95,9 @@ class AmplModelExecutionHandlerTest {
                 AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
                         parameters);
                 CompletableFuture<AmplResults> result = manager.execute(env, handler);
-                // Reading output should crash
-                CompletionException completionException = Assertions.assertThrows(CompletionException.class,
-                        result::join,
-                        "A output reader must crash. OutputTestAmplParameters.FailingOutputFile was not called to read its file");
-                Throwable cause = completionException.getCause();
-                Assertions.assertEquals(AmplException.class, cause.getClass(), "The cause must be an AmplException");
-                Assertions.assertEquals(1, cause.getSuppressed().length,
-                        "AmplOutput read function throwing IOExceptions must be added to the supressed exceptions.");
-                Assertions.assertTrue(parameters.isDummyReadingDone(),
-                        "The reading of all files must be done even if some throws IOException.");
+                // Test assert
+                assertThrows(RuntimeException.class, result::join,
+                        "Ampl model converged, we are reading converging files. Reading FailingOutputFile must throw");
             }
         }
     }
@@ -184,6 +178,11 @@ class AmplModelExecutionHandlerTest {
         @Override
         public Collection<AmplReadableElement> getAmplReadableElement() {
             throw new IllegalStateException("Should not be called to create ampl command");
+        }
+
+        @Override
+        public boolean checkModelConvergence(Map<String, String> metrics) {
+            return true;
         }
     }
 

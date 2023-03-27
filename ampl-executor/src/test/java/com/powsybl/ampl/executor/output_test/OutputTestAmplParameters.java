@@ -12,8 +12,6 @@ import java.util.List;
 
 public class OutputTestAmplParameters extends EmptyAmplParameters {
 
-    private DummyOutputFile dummyOutputFile = new DummyOutputFile();
-
     private static class FailingOutputFile implements AmplOutputFile {
         @Override
         public String getFileName() {
@@ -22,34 +20,15 @@ public class OutputTestAmplParameters extends EmptyAmplParameters {
 
         @Override
         public void read(Path outputPath, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException {
-            throw new IOException("Failed to read file");
-        }
-    }
-
-    private static class DummyOutputFile implements AmplOutputFile {
-        private boolean readingDone = false;
-
-        @Override
-        public String getFileName() {
-            return "";
-        }
-
-        @Override
-        public void read(Path outputPath, StringToIntMapper<AmplSubset> networkAmplMapper) {
-            readingDone = true;
-        }
-
-        public boolean isReadingDone() {
-            return readingDone;
+            throw new RuntimeException("Failed to read file");
         }
     }
 
     @Override
-    public Collection<AmplOutputFile> getOutputParameters() {
-        return List.of(new FailingOutputFile(), dummyOutputFile);
-    }
-
-    public boolean isDummyReadingDone() {
-        return dummyOutputFile.isReadingDone();
+    public Collection<AmplOutputFile> getOutputParameters(boolean hasConverged) {
+        if (hasConverged) {
+            return List.of(new FailingOutputFile());
+        }
+        return List.of();
     }
 }
