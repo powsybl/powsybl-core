@@ -1,0 +1,8 @@
+{
+  "version" : "1.0",
+  "error" : "error",
+  "scalingConvention" : "LOAD",
+  "constantPowerFactor" : false,
+  "reconnect" : true,
+  "iterative" : false
+}

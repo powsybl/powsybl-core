@@ -768,15 +768,6 @@ public class Conversion {
             return this;
         }
 
-        public boolean createCgmesExportMapping() {
-            return createCgmesExportMapping;
-        }
-
-        public Config setCreateCgmesExportMapping(boolean createCgmesExportMapping) {
-            this.createCgmesExportMapping = createCgmesExportMapping;
-            return this;
-        }
-
         public boolean convertSvInjections() {
             return convertSvInjections;
         }
@@ -930,8 +921,6 @@ public class Conversion {
 
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;
-
-        private boolean createCgmesExportMapping = false;
 
         private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
