@@ -108,10 +108,10 @@ public class SensitivityAnalysisParameters extends AbstractExtendable<Sensitivit
     }
 
     /**
-     * FlowVoltageSensitivityValueThreshold is the threshold under which sensitivity values having
-     * variable type among INJECTION_REACTIVE_POWER and BUS_TARGET_VOLTAGE
-     * and function type among BRANCH_REACTIVE_POWER_1/2/3 and BRANCH_CURRENT_1/2/3
-     * will be filtered from the analysis results.
+     * FlowVoltageSensitivityValueThreshold is the threshold under which sensitivity values
+     * having variable type among INJECTION_REACTIVE_POWER and function type among BUS_VOLTAGE
+     * or variable type among BUS_TARGET_VOLTAGE and function type among
+     * BRANCH_REACTIVE_POWER_1/2/3 and BRANCH_CURRENT_1/2/3  will be filtered from the analysis results.
      * @return The threshold
      */
     public double getFlowVoltageSensitivityValueThreshold() {
