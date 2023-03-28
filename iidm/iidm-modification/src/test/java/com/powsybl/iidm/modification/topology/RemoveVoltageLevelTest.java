@@ -59,8 +59,8 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL1").build().apply(network);
-        assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1", "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR"), beforeRemovalObjects);
-        assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1", "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR"), removedObjects);
+        assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1", "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "S1VL2_BBS1_TWT_DISCONNECTOR", "S1VL2_BBS2_TWT_DISCONNECTOR", "S1VL2_TWT_BREAKER"), beforeRemovalObjects);
+        assertEquals(Set.of("TWT", "S1VL1_BBS", "S1VL1_BBS_TWT_DISCONNECTOR", "S1VL1", "S1VL1_LD1_BREAKER", "LD1", "S1VL1_TWT_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "S1VL2_BBS1_TWT_DISCONNECTOR", "S1VL2_BBS2_TWT_DISCONNECTOR", "S1VL2_TWT_BREAKER"), removedObjects);
         assertNull(network.getVoltageLevel("S1VL1"));
         assertNull(network.getTwoWindingsTransformer("TWT"));
 
@@ -86,7 +86,7 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
         Network network = createNbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("C").build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-remove-voltage-level-nb.xml");
     }
 
