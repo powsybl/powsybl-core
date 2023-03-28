@@ -113,18 +113,6 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         return newLine2Name;
     }
 
-    // voltageLevel.getNodeBreakerView().getBusbarSection(bbsOrBusId) is currently returning any busbarSection from the network
-    // even if this busbarSection is not included in the voltageLevel
-    // this method returns null if the busbarSectionId does not belong to the voltageLevel
-    private BusbarSection getBusBarSectionFromVoltageLevel(Network network, VoltageLevel voltageLevel, String busBarSectionId) {
-        BusbarSection bbs = network.getBusbarSection(busBarSectionId);
-        if (bbs == null || bbs.getTerminal().getVoltageLevel() != voltageLevel) {
-            return null;
-        }
-
-        return bbs;
-    }
-
     @Override
     public void apply(Network network, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
@@ -211,7 +199,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             newLine2Adder.setBus1(bus2.getId());
             newLine2Adder.setConnectableBus1(bus2.getId());
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
-            BusbarSection bbs = getBusBarSectionFromVoltageLevel(network, tappedVoltageLevel, bbsOrBusId);
+            BusbarSection bbs = tappedVoltageLevel.getNodeBreakerView().getBusbarSection(bbsOrBusId);
             if (bbs == null) {
                 notFoundBusbarSectionInVoltageLevelReport(reporter, bbsOrBusId, tappedVoltageLevel.getId());
                 if (throwException) {
