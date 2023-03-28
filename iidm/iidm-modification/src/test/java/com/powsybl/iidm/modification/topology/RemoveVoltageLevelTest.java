@@ -86,7 +86,7 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
         Network network = createNbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("C").build();
         modification.apply(network);
-        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-remove-voltage-level-nb.xml");
     }
 
