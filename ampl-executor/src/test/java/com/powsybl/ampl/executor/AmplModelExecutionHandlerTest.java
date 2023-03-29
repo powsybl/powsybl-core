@@ -103,6 +103,27 @@ class AmplModelExecutionHandlerTest {
     }
 
     @Test
+    void testInputParametersWriting() throws Exception {
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Files.createDirectory(fs.getPath("/workingDir"));
+            // Test data
+            Network network = EurostagTutorialExample1Factory.create();
+            DummyAmplModel model = new DummyAmplModel();
+            AmplConfig cfg = getAmplConfig();
+            // Test config
+            String variantId = network.getVariantManager().getWorkingVariantId();
+            AmplParameters parameters = new SimpleAmplParameters();
+            AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
+                    parameters);
+            // Test execution
+            handler.before(fs.getPath("/workingDir"));
+            // Test assert
+            assertEquals("some_content", Files.readString(fs.getPath("/workingDir/simple_input.txt")),
+                    "Custom file input is not written.");
+        }
+    }
+
+    @Test
     void testUtilities() {
         String amplBinPath = AmplModelExecutionHandler.getAmplBinPath(getAmplConfig());
         Assertions.assertEquals("/home/test/ampl" + File.separator + "ampl", amplBinPath,

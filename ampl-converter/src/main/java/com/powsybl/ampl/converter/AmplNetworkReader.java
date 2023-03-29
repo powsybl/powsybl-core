@@ -391,7 +391,7 @@ public class AmplNetworkReader {
                     continue;
                 }
                 List<String> tokens = parseExceptIfBetweenQuotes(trimedLine);
-                if (tokens.size() != 0 && tokens.size() != 1 && tokens.size() != 2) {
+                if (!tokens.isEmpty() && tokens.size() != 1 && tokens.size() != 2) {
                     LOGGER.error("Wrong number of columns {} , expected 0, 1 or 2: '{}'", tokens.size(), trimedLine);
                 }
                 if (tokens.size() > 0) { // allow empty lines
