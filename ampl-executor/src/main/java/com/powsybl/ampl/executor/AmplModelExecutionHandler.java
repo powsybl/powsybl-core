@@ -104,8 +104,9 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
     /**
      * This function will do all the output file readings,
      * including ones injected by {@link AmplParameters#getOutputParameters}.
-     * If a file throws a {@link IOException}, we catch it, then skip to the next file.
-     * At the end we throw a {@link AmplException} with all the {@link IOException} thrown supressed.
+     * If an exception happens during a read, we won't process next files.
+     *
+     * @param hasModelConverged if <code>true</code>, network files are read
      */
     private void postProcess(Path workingDir, AmplNetworkReader reader, boolean hasModelConverged) {
         if (hasModelConverged) {
