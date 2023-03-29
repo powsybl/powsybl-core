@@ -106,18 +106,21 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
      * If a file throws a {@link IOException}, we catch it, then skip to the next file.
      * At the end we throw a {@link AmplException} with all the {@link IOException} thrown supressed.
      */
-    private void postProcess(Path workingDir, AmplNetworkReader reader) {
+    private void postProcess(Path workingDir, AmplNetworkReader reader, boolean hasModelConverged) {
+        if (hasModelConverged) {
+            readNetworkElements(reader);
+        }
+        readCustomFiles(workingDir, hasModelConverged);
+    }
+
+    private Map<String, String> readIndicators(AmplNetworkReader reader) {
         Map<String, String> metrics = new HashMap<>();
         try {
             reader.readMetrics(metrics);
         } catch (IOException e) {
             throw new PowsyblException("Failed to parse ampl metrics.", e);
         }
-        boolean hasModelConverged = model.checkModelConvergence(metrics);
-        if (hasModelConverged) {
-            readNetworkElements(reader);
-        }
-        readCustomFiles(workingDir, hasModelConverged);
+        return metrics;
     }
 
     private void readCustomFiles(Path workingDir, boolean hasModelConverged) {
@@ -168,8 +171,10 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         DataSource networkAmplResults = new FileDataSource(workingDir, this.model.getOutputFilePrefix());
         AmplNetworkReader reader = new AmplNetworkReader(networkAmplResults, this.network, this.model.getVariant(),
                 mapper, this.model.getNetworkApplierFactory(), this.model.getOutputFormat());
-        postProcess(workingDir, reader);
-        return AmplResults.ok();
+        Map<String, String> indicators = readIndicators(reader);
+        boolean hasModelConverged = model.checkModelConvergence(indicators);
+        postProcess(workingDir, reader, hasModelConverged);
+        return new AmplResults(hasModelConverged, indicators);
     }
 
 }

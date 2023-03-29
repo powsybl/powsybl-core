@@ -37,8 +37,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
@@ -69,6 +68,7 @@ class AmplModelExecutionHandlerTest {
                 AmplResults amplState = result.join();
                 // Test assert
                 assertTrue(amplState.isSuccess(), "AmplResult must be OK.");
+                assertEquals("OK", amplState.getIndicators().get("STATUS"), "AmplResult must contain indicators.");
             }
         }
     }
