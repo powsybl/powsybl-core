@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -130,6 +131,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
                 amplOutputFile.read(outputPath, this.mapper);
             } catch (IOException e) {
                 LOGGER.error("Failed to read custom output file : " + outputPath.toAbsolutePath(), e);
+                throw new UncheckedIOException(e);
             }
         }
     }
@@ -140,6 +142,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
                 element.readElement(reader);
             } catch (IOException e) {
                 LOGGER.error("Failed to read network element output : " + element.name(), e);
+                throw new UncheckedIOException(e);
             }
         }
     }
