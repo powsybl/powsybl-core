@@ -33,7 +33,7 @@ public class AmplNetworkReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AmplNetworkReader.class);
 
-    private static final Pattern PATTERN = Pattern.compile("([^']\\S*|'.+?')\\s*");
+    private static final Pattern PATTERN = Pattern.compile("([^'\\\"]\\S*|'.+?'|\\\".+?\\\")\\s*");
 
     private final ReadOnlyDataSource dataSource;
 
@@ -394,7 +394,7 @@ public class AmplNetworkReader {
                 if (!tokens.isEmpty() && tokens.size() != 1 && tokens.size() != 2) {
                     LOGGER.error("Wrong number of columns {} , expected 0, 1 or 2: '{}'", tokens.size(), trimedLine);
                 }
-                if (tokens.size() > 0) { // allow empty lines
+                if (!tokens.isEmpty()) { // allow empty lines
                     String name = tokens.get(0);
                     if (name.length() > 0) {
                         String value = "";
