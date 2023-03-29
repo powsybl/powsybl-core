@@ -169,14 +169,14 @@ public class CgmesExport implements Exporter {
     }
 
     public static final String BASE_NAME = "iidm.export.cgmes.base-name";
+    public static final String BOUNDARY_EQ_ID = "iidm.export.cgmes.boundary-EQ-identifier";
+    public static final String BOUNDARY_TP_ID = "iidm.export.cgmes.boundary-TP-identifier";
     public static final String CIM_VERSION = "iidm.export.cgmes.cim-version";
     private static final String ENCODE_IDS = "iidm.export.cgmes.encode-ids";
     public static final String EXPORT_BOUNDARY_POWER_FLOWS = "iidm.export.cgmes.export-boundary-power-flows";
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
-    public static final String BOUNDARY_EQ_ID = "iidm.export.cgmes.boundary-EQ-identifier";
-    public static final String BOUNDARY_TP_ID = "iidm.export.cgmes.boundary-TP-identifier";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,

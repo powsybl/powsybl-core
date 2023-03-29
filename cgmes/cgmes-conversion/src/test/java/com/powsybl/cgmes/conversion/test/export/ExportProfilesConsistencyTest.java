@@ -52,7 +52,7 @@ class ExportProfilesConsistencyTest extends AbstractConverterTest {
 
     private Network importNetwork(ReadOnlyDataSource dataSource) {
         Properties params = new Properties();
-        params.put(CgmesImport.ID_MAPPING_FILE_NAMING_STRATEGY, NamingStrategyFactory.CGMES);
+        params.put(CgmesImport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
         return Importers.importData("CGMES", dataSource, params);
     }
 
