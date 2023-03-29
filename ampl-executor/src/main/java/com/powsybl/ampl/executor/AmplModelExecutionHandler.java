@@ -14,6 +14,7 @@ import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -46,7 +47,7 @@ import java.util.Map;
  */
 public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResults> {
 
-    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AmplModelExecutionHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AmplModelExecutionHandler.class);
 
     private static final String AMPL_BINARY = "ampl";
     private static final String COMMAND_ID = "AMPL_runner";
