@@ -10,15 +10,19 @@ import com.powsybl.ampl.converter.AmplSubset;
 import com.powsybl.commons.util.StringToIntMapper;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  */
 public class SimpleAmplParameters implements AmplParameters {
+
+    private boolean readingDone = false;
 
     @Override
     public Collection<AmplInputFile> getInputParameters() {
@@ -37,6 +41,23 @@ public class SimpleAmplParameters implements AmplParameters {
 
     @Override
     public Collection<AmplOutputFile> getOutputParameters(boolean hasConverged) {
-        return Collections.emptyList();
+        if (hasConverged) {
+            return List.of(new AmplOutputFile() {
+                @Override
+                public String getFileName() {
+                    return "simple_output.txt";
+                }
+
+                @Override
+                public void read(Path outputPath, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException {
+                    readingDone = Files.readString(outputPath).equals("test");
+                }
+            });
+        }
+        return List.of();
+    }
+
+    public boolean isReadingDone() {
+        return readingDone;
     }
 }

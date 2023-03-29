@@ -23,7 +23,8 @@ public class DummyAmplModel extends AbstractAmplModel {
 
     @Override
     public List<Pair<String, InputStream>> getModelAsStream() {
-        return Collections.emptyList();
+        return List.of(
+                Pair.of("sample_model.run", this.getClass().getClassLoader().getResourceAsStream("sample_model.run")));
     }
 
     @Override

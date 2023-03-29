@@ -10,7 +10,6 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.ampl.converter.AmplNetworkUpdaterFactory;
 import com.powsybl.ampl.converter.AmplReadableElement;
-import com.powsybl.ampl.executor.output_test.OutputTestAmplParameters;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.computation.ComputationManager;
@@ -37,7 +36,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
@@ -84,20 +84,21 @@ class AmplModelExecutionHandlerTest {
             // Test config
             String variantId = network.getVariantManager().getWorkingVariantId();
             try (ComputationManager manager = new LocalComputationManager(
-                    new LocalComputationConfig(fs.getPath("/workingDir")),
-                    new MockAmplLocalExecutor(List.of("output_generators.txt", "output_indic.txt")),
+                    new LocalComputationConfig(fs.getPath("/workingDir")), new MockAmplLocalExecutor(
+                    List.of("output_generators.txt", "output_indic.txt", "simple_output.txt")),
                     ForkJoinPool.commonPool())) {
                 ExecutionEnvironment env = ExecutionEnvironment.createDefault()
                                                                .setWorkingDirPrefix("ampl_")
                                                                .setDebug(true);
                 // Test execution
-                OutputTestAmplParameters parameters = new OutputTestAmplParameters();
+                SimpleAmplParameters parameters = new SimpleAmplParameters();
                 AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
                         parameters);
                 CompletableFuture<AmplResults> result = manager.execute(env, handler);
+                AmplResults amplState = result.join();
                 // Test assert
-                assertThrows(RuntimeException.class, result::join,
-                        "Ampl model converged, we are reading converging files. Reading FailingOutputFile must throw");
+                assertTrue(amplState.isSuccess(), "AmplResult must be OK.");
+                assertTrue(parameters.isReadingDone(), "Did not read custom result file.");
             }
         }
     }
