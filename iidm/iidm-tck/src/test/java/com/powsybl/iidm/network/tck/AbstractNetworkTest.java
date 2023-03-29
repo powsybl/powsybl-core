@@ -109,6 +109,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(5, Iterables.size(topology1.getSwitches()));
         assertEquals(5, topology1.getSwitchCount());
 
+        VoltageLevel voltageLevel2 = substation1.newVoltageLevel().setId("VL2").setNominalV(320).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        assertNull(voltageLevel2.getNodeBreakerView().getBusbarSection(VOLTAGE_LEVEL1_BUSBAR_SECTION1));
+
         assertEquals(Arrays.asList(network.getSwitch("generator1Disconnector1"), network.getSwitch("generator1Breaker1")),
             topology1.getSwitches(6));
         assertEquals(Arrays.asList(network.getSwitch("load1Disconnector1"), network.getSwitch("load1Breaker1")),
