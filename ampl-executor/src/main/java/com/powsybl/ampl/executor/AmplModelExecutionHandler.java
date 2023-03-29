@@ -174,7 +174,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         super.after(workingDir.toAbsolutePath(), report);
         DataSource networkAmplResults = new FileDataSource(workingDir, this.model.getOutputFilePrefix());
         AmplNetworkReader reader = new AmplNetworkReader(networkAmplResults, this.network, this.model.getVariant(),
-                mapper, this.model.getNetworkApplierFactory(), this.model.getOutputFormat());
+                mapper, this.model.getNetworkUpdaterFactory(), this.model.getOutputFormat());
         Map<String, String> indicators = readIndicators(reader);
         boolean hasModelConverged = model.checkModelConvergence(indicators);
         postProcess(workingDir, reader, hasModelConverged);

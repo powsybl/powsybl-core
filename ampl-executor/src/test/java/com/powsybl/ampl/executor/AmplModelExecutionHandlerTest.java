@@ -193,7 +193,7 @@ class AmplModelExecutionHandlerTest {
         }
 
         @Override
-        public AmplNetworkUpdaterFactory getNetworkApplierFactory() {
+        public AmplNetworkUpdaterFactory getNetworkUpdaterFactory() {
             throw new IllegalStateException("Should not be called to create ampl command");
         }
 

@@ -24,7 +24,7 @@ import java.util.Map;
  * <ul>
  * <li>{@link AmplModel#getOutputFilePrefix}: prefix for the files written by
  * the Ampl execution</li>
- * <li>{@link AmplModel#getNetworkApplierFactory()}: specific applier Factory to select what is
+ * <li>{@link AmplModel#getNetworkUpdaterFactory()}: specific applier Factory to select what is
  * modified on the network</li>
  * <li>{@link AmplModel#getVariant}: Ampl variants</li>
  * <li>{@link AmplModel#getOutputFormat}: some information about the format of
@@ -50,7 +50,7 @@ public interface AmplModel {
 
     String getOutputFilePrefix();
 
-    AmplNetworkUpdaterFactory getNetworkApplierFactory();
+    AmplNetworkUpdaterFactory getNetworkUpdaterFactory();
 
     /**
      * @return network variant to export for the Ampl solve
