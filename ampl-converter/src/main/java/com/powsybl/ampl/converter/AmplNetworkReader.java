@@ -79,7 +79,7 @@ public class AmplNetworkReader {
         return new AmplException("Wrong number of columns " + actual + ", expected " + expected);
     }
 
-    private static List<String> parseExceptIfBetweenQuotes(String str) {
+    protected static List<String> parseExceptIfBetweenQuotes(String str) {
         List<String> tokens = new ArrayList<>();
         Matcher m = PATTERN.matcher(str);
         while (m.find()) {
