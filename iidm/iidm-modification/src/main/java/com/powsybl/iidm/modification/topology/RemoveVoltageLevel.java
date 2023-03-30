@@ -46,12 +46,17 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
 
         voltageLevel.getConnectables(HvdcConverterStation.class).forEach(hcs -> {
             if (hcs.getHvdcLine() != null) {
-                hcs.getHvdcLine().remove();
+                new RemoveHvdcLineBuilder().withHvdcLineId(hcs.getHvdcLine().getId()).build().apply(network, throwException, computationManager, reporter);
             }
-            hcs.remove();
         });
 
-        voltageLevel.getConnectables().forEach(Connectable::remove);
+        voltageLevel.getConnectables().forEach(connectable -> {
+            if (connectable instanceof Injection) {
+                connectable.remove();
+            } else {
+                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, reporter);
+            }
+        });
 
         voltageLevel.remove();
         removedVoltageLevelReport(reporter, voltageLevelId);
