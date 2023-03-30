@@ -9,10 +9,11 @@ package com.powsybl.cgmes.conversion;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.GridModelReferenceResources;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.triplestore.api.TripleStore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CgmesImportPostProcessorTest {
+class CgmesImportPreAndPostProcessorsTest {
 
     class FakeCgmesImportPostProcessor implements CgmesImportPostProcessor {
 
@@ -49,9 +50,30 @@ class CgmesImportPostProcessorTest {
         }
     }
 
+    class FakeCgmesImportPreProcessor implements CgmesImportPreProcessor {
+
+        private final String name;
+
+        FakeCgmesImportPreProcessor(String name) {
+            this.name = Objects.requireNonNull(name);
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public void process(CgmesModel cgmes) {
+            activatedPreProcessorNames.add(getName());
+        }
+    }
+
     private FileSystem fileSystem;
 
     private GridModelReferenceResources modelResources;
+
+    private final List<String> activatedPreProcessorNames = new ArrayList<>();
 
     private final List<String> activatedPostProcessorNames = new ArrayList<>();
 
@@ -69,7 +91,7 @@ class CgmesImportPostProcessorTest {
 
     @Test
     void testParameters() {
-        CgmesImport cgmesImport = new CgmesImport(List.of(new FakeCgmesImportPostProcessor("foo")));
+        CgmesImport cgmesImport = new CgmesImport(Collections.emptyList(), List.of(new FakeCgmesImportPostProcessor("foo")));
         Parameter parameter = cgmesImport.getParameters().stream()
                 .filter(p -> p.getName().equals("iidm.import.cgmes.post-processors"))
                 .findFirst()
@@ -79,7 +101,7 @@ class CgmesImportPostProcessorTest {
 
     @Test
     void testEmpty() {
-        CgmesImport cgmesImport = new CgmesImport(Collections.singletonList(new FakeCgmesImportPostProcessor("foo")));
+        CgmesImport cgmesImport = new CgmesImport(Collections.emptyList(), Collections.singletonList(new FakeCgmesImportPostProcessor("foo")));
         Properties properties = new Properties();
         cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), properties);
         assertTrue(activatedPostProcessorNames.isEmpty());
@@ -87,12 +109,23 @@ class CgmesImportPostProcessorTest {
 
     @Test
     void testList() {
-        CgmesImport cgmesImport = new CgmesImport(Arrays.asList(new FakeCgmesImportPostProcessor("foo"),
+        CgmesImport cgmesImport = new CgmesImport(Collections.emptyList(), Arrays.asList(new FakeCgmesImportPostProcessor("foo"),
                                                                                 new FakeCgmesImportPostProcessor("bar"),
                                                                                 new FakeCgmesImportPostProcessor("baz")));
         Properties properties = new Properties();
         properties.put(CgmesImport.POST_PROCESSORS, Arrays.asList("foo", "baz"));
         cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), properties);
         assertEquals(Arrays.asList("foo", "baz"), activatedPostProcessorNames);
+    }
+
+    @Test
+    void testListPre() {
+        CgmesImport cgmesImport = new CgmesImport(Arrays.asList(new FakeCgmesImportPreProcessor("foo"),
+                new FakeCgmesImportPreProcessor("bar"),
+                new FakeCgmesImportPreProcessor("baz")), Collections.emptyList());
+        Properties properties = new Properties();
+        properties.put(CgmesImport.PRE_PROCESSORS, Arrays.asList("foo", "baz"));
+        cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), properties);
+        assertEquals(Arrays.asList("foo", "baz"), activatedPreProcessorNames);
     }
 }
