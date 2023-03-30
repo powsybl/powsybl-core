@@ -7,22 +7,28 @@
 package com.powsybl.ampl.executor;
 
 import com.powsybl.ampl.converter.*;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This executionHandler will run an ampl model on a network.
@@ -40,6 +46,8 @@ import java.util.List;
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
  */
 public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResults> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AmplModelExecutionHandler.class);
 
     private static final String AMPL_BINARY = "ampl";
     private static final String COMMAND_ID = "AMPL_runner";
@@ -94,21 +102,50 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         new AmplExporter().export(network, null, networkExportDataSource);
     }
 
-    private void doAfterSuccess(Path workingDir, AmplNetworkReader reader) throws IOException {
-        readNetworkElements(reader);
-        readCustomFiles(workingDir);
+    /**
+     * This function will do all the output file readings,
+     * including ones injected by {@link AmplParameters#getOutputParameters}.
+     * If an exception happens during a read, we won't process next files.
+     *
+     * @param hasModelConverged if <code>true</code>, network files are read
+     */
+    private void postProcess(Path workingDir, AmplNetworkReader reader, boolean hasModelConverged) {
+        if (hasModelConverged) {
+            readNetworkElements(reader);
+        }
+        readCustomFiles(workingDir, hasModelConverged);
     }
 
-    private void readCustomFiles(Path workingDir) throws IOException {
-        for (AmplOutputFile amplOutputFile : parameters.getOutputParameters()) {
+    private Map<String, String> readIndicators(AmplNetworkReader reader) {
+        Map<String, String> metrics = new HashMap<>();
+        try {
+            reader.readMetrics(metrics);
+        } catch (IOException e) {
+            throw new PowsyblException("Failed to parse ampl metrics.", e);
+        }
+        return metrics;
+    }
+
+    private void readCustomFiles(Path workingDir, boolean hasModelConverged) {
+        for (AmplOutputFile amplOutputFile : parameters.getOutputParameters(hasModelConverged)) {
             Path outputPath = workingDir.resolve(amplOutputFile.getFileName());
-            amplOutputFile.read(outputPath, this.mapper);
+            try {
+                amplOutputFile.read(outputPath, this.mapper);
+            } catch (IOException e) {
+                LOGGER.error("Failed to read custom output file : " + outputPath.toAbsolutePath(), e);
+                throw new UncheckedIOException(e);
+            }
         }
     }
 
-    private void readNetworkElements(AmplNetworkReader reader) throws IOException {
+    private void readNetworkElements(AmplNetworkReader reader) {
         for (AmplReadableElement element : this.model.getAmplReadableElement()) {
-            element.readElement(reader);
+            try {
+                element.readElement(reader);
+            } catch (IOException e) {
+                LOGGER.error("Failed to read network element output : " + element.name(), e);
+                throw new UncheckedIOException(e);
+            }
         }
     }
 
@@ -138,9 +175,11 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         super.after(workingDir.toAbsolutePath(), report);
         DataSource networkAmplResults = new FileDataSource(workingDir, this.model.getOutputFilePrefix());
         AmplNetworkReader reader = new AmplNetworkReader(networkAmplResults, this.network, this.model.getVariant(),
-                mapper, this.model.getNetworkApplierFactory(), this.model.getOutputFormat());
-        doAfterSuccess(workingDir, reader);
-        return AmplResults.ok();
+                mapper, this.model.getNetworkUpdaterFactory(), this.model.getOutputFormat());
+        Map<String, String> indicators = readIndicators(reader);
+        boolean hasModelConverged = model.checkModelConvergence(indicators);
+        postProcess(workingDir, reader, hasModelConverged);
+        return new AmplResults(hasModelConverged, indicators);
     }
 
 }
