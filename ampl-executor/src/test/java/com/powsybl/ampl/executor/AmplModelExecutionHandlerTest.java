@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ForkJoinPool;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -67,7 +68,59 @@ class AmplModelExecutionHandlerTest {
                 AmplResults amplState = result.join();
                 // Test assert
                 assertTrue(amplState.isSuccess(), "AmplResult must be OK.");
+                assertEquals("OK", amplState.getIndicators().get("STATUS"), "AmplResult must contain indicators.");
             }
+        }
+    }
+
+    @Test
+    void testConvergingModel() throws Exception {
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Files.createDirectory(fs.getPath("/workingDir"));
+            // Test data
+            Network network = EurostagTutorialExample1Factory.create();
+            DummyAmplModel model = new DummyAmplModel();
+            AmplConfig cfg = getAmplConfig();
+            // Test config
+            String variantId = network.getVariantManager().getWorkingVariantId();
+            try (ComputationManager manager = new LocalComputationManager(
+                    new LocalComputationConfig(fs.getPath("/workingDir")), new MockAmplLocalExecutor(
+                    List.of("output_generators.txt", "output_indic.txt", "simple_output.txt")),
+                    ForkJoinPool.commonPool())) {
+                ExecutionEnvironment env = ExecutionEnvironment.createDefault()
+                                                               .setWorkingDirPrefix("ampl_")
+                                                               .setDebug(true);
+                // Test execution
+                SimpleAmplParameters parameters = new SimpleAmplParameters();
+                AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
+                        parameters);
+                CompletableFuture<AmplResults> result = manager.execute(env, handler);
+                AmplResults amplState = result.join();
+                // Test assert
+                assertTrue(amplState.isSuccess(), "AmplResult must be OK.");
+                assertTrue(parameters.isReadingDone(), "Did not read custom result file.");
+            }
+        }
+    }
+
+    @Test
+    void testInputParametersWriting() throws Exception {
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Files.createDirectory(fs.getPath("/workingDir"));
+            // Test data
+            Network network = EurostagTutorialExample1Factory.create();
+            DummyAmplModel model = new DummyAmplModel();
+            AmplConfig cfg = getAmplConfig();
+            // Test config
+            String variantId = network.getVariantManager().getWorkingVariantId();
+            AmplParameters parameters = new SimpleAmplParameters();
+            AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
+                    parameters);
+            // Test execution
+            handler.before(fs.getPath("/workingDir"));
+            // Test assert
+            assertEquals("some_content", Files.readString(fs.getPath("/workingDir/simple_input.txt")),
+                    "Custom file input is not written.");
         }
     }
 
@@ -140,13 +193,18 @@ class AmplModelExecutionHandlerTest {
         }
 
         @Override
-        public AmplNetworkUpdaterFactory getNetworkApplierFactory() {
+        public AmplNetworkUpdaterFactory getNetworkUpdaterFactory() {
             throw new IllegalStateException("Should not be called to create ampl command");
         }
 
         @Override
         public Collection<AmplReadableElement> getAmplReadableElement() {
             throw new IllegalStateException("Should not be called to create ampl command");
+        }
+
+        @Override
+        public boolean checkModelConvergence(Map<String, String> metrics) {
+            return true;
         }
     }
 

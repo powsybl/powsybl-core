@@ -57,8 +57,8 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             hvdcLine.remove();
             removedHvdcLineReport(reporter, hvdcLineId);
             // Remove the Shunt compensators that represent the filters of the LCC
-            removeShuntCompensators(hvdcConverterStation1, hvdcConverterStation2, shunts, reporter);
-            removeConverterStations(hvdcConverterStation1, hvdcConverterStation2, reporter);
+            removeShuntCompensators(network, hvdcConverterStation1, hvdcConverterStation2, shunts, throwException, computationManager, reporter);
+            removeConverterStations(network, hvdcConverterStation1, hvdcConverterStation2, throwException, computationManager, reporter);
         } else {
             LOGGER.error("Hvdc Line {} not found", hvdcLineId);
             notFoundHvdcLineReport(reporter, hvdcLineId);
@@ -80,7 +80,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         return sc;
     }
 
-    private static void removeShuntCompensators(HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Set<ShuntCompensator> shunts, Reporter reporter) {
+    private static void removeShuntCompensators(Network network, HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Set<ShuntCompensator> shunts, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         if (shunts == null) {
             return;
         }
@@ -94,7 +94,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             VoltageLevel shuntVl = shuntCompensator.getTerminal().getVoltageLevel();
             // check whether the shunt compensator is connected to the same voltage level as the lcc
             if (vl1 == shuntVl || vl2 == shuntVl) {
-                shuntCompensator.remove();
+                new RemoveFeederBay(shuntCompensator.getId()).apply(network, throwException, computationManager, reporter);
                 removedShuntCompensatorReport(reporter, shuntCompensator.getId());
             } else {
                 LOGGER.warn("Shunt compensator {} has been ignored because it is not in the same voltage levels as the Lcc ({} or {})", shuntCompensator.getId(), vl1.getId(), vl2.getId());
@@ -103,9 +103,9 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         }
     }
 
-    private static void removeConverterStations(HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, Reporter reporter) {
-        hvdcConverterStation1.remove();
-        hvdcConverterStation2.remove();
+    private static void removeConverterStations(Network network, HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+        new RemoveFeederBay(hvdcConverterStation1.getId()).apply(network, throwException, computationManager, reporter);
+        new RemoveFeederBay(hvdcConverterStation2.getId()).apply(network, throwException, computationManager, reporter);
         reportConverterStationRemoved(reporter, hvdcConverterStation1);
         reportConverterStationRemoved(reporter, hvdcConverterStation2);
     }
