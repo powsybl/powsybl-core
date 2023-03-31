@@ -226,12 +226,6 @@ public class CgmesImport implements Importer {
                                 p,
                                 CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
                                 defaultValueConfig))
-                .setCreateCgmesExportMapping(
-                        Parameter.readBoolean(
-                                getFormat(),
-                                p,
-                                CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
-                                defaultValueConfig))
                 .setEnsureIdAliasUnicity(
                         Parameter.readBoolean(
                                 getFormat(),
@@ -274,7 +268,7 @@ public class CgmesImport implements Importer {
                                 p,
                                 CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
                                 defaultValueConfig)));
-        String namingStrategy = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER, defaultValueConfig);
+        String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
         if (idMappingFilePath == null) {
             config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv"));
@@ -330,12 +324,14 @@ public class CgmesImport implements Importer {
     public static final String CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE = "iidm.import.cgmes.change-sign-for-shunt-reactive-power-flow-initial-state";
     public static final String CONVERT_BOUNDARY = "iidm.import.cgmes.convert-boundary";
     public static final String CONVERT_SV_INJECTIONS = "iidm.import.cgmes.convert-sv-injections";
+    public static final String CREATE_ACTIVE_POWER_CONTROL_EXTENSION = "iidm.import.cgmes.create-active-power-control-extension";
     public static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
-    public static final String CREATE_CGMES_EXPORT_MAPPING = "iidm.import.cgmes.create-cgmes-export-mapping";
+    public static final String CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE = "iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode";
+    public static final String DECODE_ESCAPED_IDENTIFIERS = "iidm.import.cgmes.decode-escaped-identifiers";
     public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
     public static final String ID_MAPPING_FILE_PATH = "iidm.import.cgmes.id-mapping-file-path";
-    public static final String ID_MAPPING_FILE_NAMING_STRATEGY = "iidm.import.cgmes.id-mapping-file-naming-strategy";
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
+    public static final String NAMING_STRATEGY = "iidm.import.cgmes.naming-strategy";
     public static final String PRE_PROCESSORS = "iidm.import.cgmes.pre-processors";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
@@ -343,9 +339,6 @@ public class CgmesImport implements Importer {
     public static final String SOURCE_FOR_IIDM_ID = "iidm.import.cgmes.source-for-iidm-id";
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
-    public static final String CREATE_ACTIVE_POWER_CONTROL_EXTENSION = "iidm.import.cgmes.create-active-power-control-extension";
-    public static final String DECODE_ESCAPED_IDENTIFIERS = "iidm.import.cgmes.decode-escaped-identifiers";
-    public static final String CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE = "iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
@@ -378,11 +371,6 @@ public class CgmesImport implements Importer {
             "Create busbar section for every connectivity node",
             Boolean.FALSE)
             .addAdditionalNames("createBusbarSectionForEveryConnectivityNode");
-    private static final Parameter CREATE_CGMES_EXPORT_MAPPING_PARAMETER = new Parameter(
-            CREATE_CGMES_EXPORT_MAPPING,
-            ParameterType.BOOLEAN,
-            "Create CGMES context for export",
-            Boolean.FALSE);
     private static final Parameter ENSURE_ID_ALIAS_UNICITY_PARAMETER = new Parameter(
             ENSURE_ID_ALIAS_UNICITY,
             ParameterType.BOOLEAN,
@@ -395,11 +383,12 @@ public class CgmesImport implements Importer {
             null,
             null,
             ParameterScope.TECHNICAL);
-    private static final Parameter ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER = new Parameter(
-            ID_MAPPING_FILE_NAMING_STRATEGY,
+    private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(
+            NAMING_STRATEGY,
             ParameterType.STRING,
             "Configure what type of naming strategy you want to use for the provided ID mapping file",
-            NamingStrategyFactory.IDENTITY);
+            NamingStrategyFactory.IDENTITY)
+            .addAdditionalNames("iidm.import.cgmes.id-mapping-file-naming-strategy");
     private static final Parameter IMPORT_CONTROL_AREAS_PARAMETER = new Parameter(
             IMPORT_CONTROL_AREAS,
             ParameterType.BOOLEAN,
@@ -460,10 +449,9 @@ public class CgmesImport implements Importer {
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
-            CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
             ENSURE_ID_ALIAS_UNICITY_PARAMETER,
             ID_MAPPING_FILE_PATH_PARAMETER,
-            ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER,
+            NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
             PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,

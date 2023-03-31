@@ -7,18 +7,29 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
+import com.powsybl.commons.config.PlatformConfig;
+
+import java.util.Objects;
+
 /**
  * @author Coline Piloquet <coline.piloquet@rte-france.fr>
  */
 public class ScalingParameters {
 
-    private Scalable.ScalingConvention scalingConvention = Scalable.ScalingConvention.GENERATOR;
+    public static final String VERSION = "1.0";
 
-    private boolean reconnect;
+    public static final Scalable.ScalingConvention DEFAULT_SCALING_CONVENTION = Scalable.ScalingConvention.GENERATOR;
+    public static final boolean DEFAULT_CONSTANT_POWER_FACTOR = false;
+    public static final boolean DEFAULT_RECONNECT = false;
+    public static final boolean DEFAULT_ITERATIVE = false;
 
-    private boolean constantPowerFactor;
+    private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
 
-    private boolean iterative;
+    private boolean reconnect = DEFAULT_RECONNECT;
+
+    private boolean constantPowerFactor = DEFAULT_CONSTANT_POWER_FACTOR;
+
+    private boolean iterative = DEFAULT_ITERATIVE;
 
     public ScalingParameters() {
     }
@@ -79,5 +90,21 @@ public class ScalingParameters {
     public ScalingParameters setIterative(boolean iterative) {
         this.iterative = iterative;
         return this;
+    }
+
+    public static ScalingParameters load() {
+        return load(PlatformConfig.defaultConfig());
+    }
+
+    public static ScalingParameters load(PlatformConfig platformConfig) {
+        Objects.requireNonNull(platformConfig);
+        ScalingParameters scalingParameters = new ScalingParameters();
+        platformConfig.getOptionalModuleConfig("scaling-default-parameters").ifPresent(config -> {
+            scalingParameters.setScalingConvention(config.getEnumProperty("scalingConvention", Scalable.ScalingConvention.class, DEFAULT_SCALING_CONVENTION));
+            scalingParameters.setConstantPowerFactor(config.getBooleanProperty("constantPowerFactor", DEFAULT_CONSTANT_POWER_FACTOR));
+            scalingParameters.setReconnect(config.getBooleanProperty("reconnect", DEFAULT_RECONNECT));
+            scalingParameters.setIterative(config.getBooleanProperty("iterative", DEFAULT_ITERATIVE));
+        });
+        return scalingParameters;
     }
 }
