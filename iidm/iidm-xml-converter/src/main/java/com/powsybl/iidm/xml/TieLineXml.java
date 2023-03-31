@@ -13,11 +13,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> {
+class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Network> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TieLineXml.class);
 

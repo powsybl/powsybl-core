@@ -162,5 +162,10 @@
     "acEmulationEnabled" : false,
     "activePowerSetpoint" : 12.0,
     "relativeValue" : true
+  }, {
+    "type" : "SHUNT_COMPENSATOR_POSITION",
+    "id" : "id22",
+    "shuntCompensatorId" : "shuntId1",
+    "sectionCount" : 5
   } ]
 }

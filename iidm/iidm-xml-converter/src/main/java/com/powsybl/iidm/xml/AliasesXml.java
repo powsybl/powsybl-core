@@ -31,14 +31,22 @@ public final class AliasesXml {
         context.getWriter().writeEndNodes();
     }
 
-    public static void read(Identifiable<?> identifiable, NetworkXmlReaderContext context) {
+    public static <T extends Identifiable> void read(T identifiable, NetworkXmlReaderContext context) {
+        read(context).accept(identifiable);
+    }
+
+    public static <T extends Identifiable> void read(List<Consumer<T>> toApply, NetworkXmlReaderContext context) {
+        toApply.add(read(context));
+    }
+
+    private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) {
         if (!context.getReader().getNodeName().equals(ALIAS)) {
             throw new IllegalStateException();
         }
         String[] aliasType = new String[1];
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().readStringAttribute("type"));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().readStringAttribute(null, "type"));
         String alias = context.getAnonymizer().deanonymizeString(context.getReader().readContent());
-        identifiable.addAlias(alias, aliasType[0]);
+        return identifiable -> identifiable.addAlias(alias, aliasType[0]);
     }
 
     private AliasesXml() {

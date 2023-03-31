@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Terminal;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class StaticVarCompensatorAdderAdapter extends AbstractInjectionAdderAdapter<StaticVarCompensatorAdder> implements StaticVarCompensatorAdder {
+public class StaticVarCompensatorAdderAdapter extends AbstractInjectionAdderAdapter<StaticVarCompensator, StaticVarCompensatorAdder> implements StaticVarCompensatorAdder {
 
     StaticVarCompensatorAdderAdapter(StaticVarCompensatorAdder delegate, MergingViewIndex index) {
         super(delegate, index);

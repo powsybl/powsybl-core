@@ -911,7 +911,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public BusbarSection getBusbarSection(String id) {
-            return getNetwork().getIndex().get(id, BusbarSection.class);
+            BusbarSection bbs = getNetwork().getIndex().get(id, BusbarSection.class);
+            if (bbs != null && bbs.getTerminal().getVoltageLevel() != NodeBreakerVoltageLevel.this) {
+                return null;
+            }
+            return bbs;
         }
 
         private com.powsybl.math.graph.Traverser adapt(TopologyTraverser t) {

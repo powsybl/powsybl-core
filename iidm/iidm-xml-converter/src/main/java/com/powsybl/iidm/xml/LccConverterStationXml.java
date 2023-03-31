@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.VoltageLevel;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class LccConverterStationXml extends AbstractConnectableXml<LccConverterStation, LccConverterStationAdder, VoltageLevel> {
+public class LccConverterStationXml extends AbstractSimpleIdentifiableXml<LccConverterStation, LccConverterStationAdder, VoltageLevel> {
 
     static final LccConverterStationXml INSTANCE = new LccConverterStationXml();
 

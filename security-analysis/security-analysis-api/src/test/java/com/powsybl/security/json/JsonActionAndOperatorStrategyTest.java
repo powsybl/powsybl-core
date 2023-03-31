@@ -95,6 +95,7 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 .withActivePowerSetpoint(12.0)
                 .withRelativeValue(true)
                 .build());
+        actions.add(new ShuntCompensatorPositionActionBuilder().withId("id22").withShuntCompensatorId("shuntId1").withSectionCount(5).build());
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

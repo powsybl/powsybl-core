@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, VoltageLevel> {
+class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdder, VoltageLevel> {
 
     static final GeneratorXml INSTANCE = new GeneratorXml();
 

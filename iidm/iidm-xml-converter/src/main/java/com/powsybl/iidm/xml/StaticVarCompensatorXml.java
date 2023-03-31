@@ -14,7 +14,7 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCompensator, StaticVarCompensatorAdder, VoltageLevel> {
+public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<StaticVarCompensator, StaticVarCompensatorAdder, VoltageLevel> {
 
     static final StaticVarCompensatorXml INSTANCE = new StaticVarCompensatorXml();
 

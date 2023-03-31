@@ -11,6 +11,9 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
@@ -36,12 +39,20 @@ public final class PropertiesXml {
     }
 
     public static void read(Identifiable identifiable, NetworkXmlReaderContext context) {
+        read(context).accept(identifiable);
+    }
+
+    public static <T extends Identifiable> void read(List<Consumer<T>> toApply, NetworkXmlReaderContext context) {
+        toApply.add(read(context));
+    }
+
+    private static <T extends Identifiable> Consumer<T> read(NetworkXmlReaderContext context) {
         if (!context.getReader().getNodeName().equals(PROPERTY)) {
             throw new IllegalStateException();
         }
         String name = context.getReader().readStringAttribute(NAME);
         String value = context.getReader().readStringAttribute(VALUE);
-        identifiable.setProperty(name, value);
+        return identifiable -> identifiable.setProperty(name, value);
     }
 
     private PropertiesXml() {

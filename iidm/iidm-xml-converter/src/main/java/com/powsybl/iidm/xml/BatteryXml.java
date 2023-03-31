@@ -14,7 +14,7 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
-class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLevel> {
+class BatteryXml extends AbstractSimpleIdentifiableXml<Battery, BatteryAdder, VoltageLevel> {
 
     static final BatteryXml INSTANCE = new BatteryXml();
 
