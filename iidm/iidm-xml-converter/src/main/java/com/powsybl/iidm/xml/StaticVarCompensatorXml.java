@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

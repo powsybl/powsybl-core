@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

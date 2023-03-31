@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -59,8 +58,8 @@ abstract class AbstractIdentifiableXml<T extends Identifiable<? super T>, A exte
     public abstract void read(P parent, NetworkXmlReaderContext context);
 
     protected String readIdentifierAttributes(A adder, NetworkXmlReaderContext context) {
-        String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(null, "id"));
-        String name = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(null, "name"));
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
+        String name = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("name"));
         adder.setId(id)
                 .setName(name);
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
@@ -68,9 +67,5 @@ abstract class AbstractIdentifiableXml<T extends Identifiable<? super T>, A exte
             adder.setFictitious(fictitious);
         });
         return id;
-    }
-
-    protected void readUntilEndRootElement(XMLStreamReader reader, XmlUtil.XmlEventHandler eventHandler) throws XMLStreamException {
-        XmlUtil.readUntilEndElement(getRootElementName(), reader, eventHandler);
     }
 }

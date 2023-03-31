@@ -9,6 +9,9 @@ package com.powsybl.iidm.xml;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
+import java.util.List;
+import java.util.function.Consumer;
+
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
@@ -44,7 +47,7 @@ public final class AliasesXml {
             throw new IllegalStateException();
         }
         String[] aliasType = new String[1];
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().readStringAttribute(null, "type"));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_4, context, () -> aliasType[0] = context.getReader().readStringAttribute("type"));
         String alias = context.getAnonymizer().deanonymizeString(context.getReader().readContent());
         return identifiable -> identifiable.addAlias(alias, aliasType[0]);
     }

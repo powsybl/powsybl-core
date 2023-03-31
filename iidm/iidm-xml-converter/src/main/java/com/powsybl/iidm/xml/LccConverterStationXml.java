@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>

@@ -10,8 +10,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.function.Consumer;
+
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.readNodeOrBus;
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.writeNodeOrBus;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -133,9 +136,9 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
     }
 
     @Override
-    protected void readSubElements(String id, ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkXmlReaderContext context) throws XMLStreamException {
-        readUntilEndRootElement(context.getReader(), () -> {
-            switch (context.getReader().getLocalName()) {
+    protected void readSubElements(String id, ShuntCompensatorAdder adder, List<Consumer<ShuntCompensator>> toApply, NetworkXmlReaderContext context) {
+        context.getReader().readUntilEndNode(getRootElementName(), () -> {
+            switch (context.getReader().getNodeName()) {
                 case REGULATING_TERMINAL:
                     String regId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("id"));
                     String regSide = context.getReader().readStringAttribute("side");

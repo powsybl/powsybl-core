@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
