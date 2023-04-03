@@ -3,6 +3,7 @@
   "version" : "1.0",
   "name" : "list2",
   "identifiableType" : "GENERATOR",
+  "countryCriterion" : null,
   "nominalVoltageCriterion" : {
     "type" : "SINGLE_NOMINAL_VOLTAGE",
     "voltageInterval" : {

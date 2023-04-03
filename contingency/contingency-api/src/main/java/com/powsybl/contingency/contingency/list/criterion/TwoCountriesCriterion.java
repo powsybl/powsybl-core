@@ -9,6 +9,7 @@ package com.powsybl.contingency.contingency.list.criterion;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -18,6 +19,10 @@ public class TwoCountriesCriterion implements Criterion {
 
     private final List<Country> countries1;
     private final List<Country> countries2;
+
+    public TwoCountriesCriterion(List<Country> countries) {
+        this(countries, Collections.emptyList());
+    }
 
     public TwoCountriesCriterion(List<Country> countries1, List<Country> countries2) {
         this.countries1 = ImmutableList.copyOf(countries1);
