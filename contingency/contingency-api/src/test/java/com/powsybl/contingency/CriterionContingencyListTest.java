@@ -55,8 +55,7 @@ class CriterionContingencyListTest {
     @Test
     void testCountries() {
         // lines in France
-        TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR),
-                Collections.emptyList());
+        TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR));
         LineCriterionContingencyList contingencyList = new LineCriterionContingencyList("list1", countriesCriterion,
                 null, Collections.emptyList(), null);
         List<Contingency> contingencies = contingencyList.getContingencies(fourSubstationNetwork);
@@ -84,6 +83,18 @@ class CriterionContingencyListTest {
         // All generators
         generatorContingencyList = new InjectionCriterionContingencyList("list1", "GENERATOR",
                 null, null, Collections.emptyList(), null);
+        contingencies = generatorContingencyList.getContingencies(fourSubstationNetwork);
+        assertEquals(5, contingencies.size());
+        assertEquals(new Contingency("GH1", new GeneratorContingency("GH1")), contingencies.get(0));
+        assertEquals(new Contingency("GH2", new GeneratorContingency("GH2")), contingencies.get(1));
+        assertEquals(new Contingency("GH3", new GeneratorContingency("GH3")), contingencies.get(2));
+        assertEquals(new Contingency("GTH1", new GeneratorContingency("GTH1")), contingencies.get(3));
+        assertEquals(new Contingency("GTH2", new GeneratorContingency("GTH2")), contingencies.get(4));
+
+        countryCriterion = new SingleCountryCriterion(Collections.emptyList());
+        // All generators
+        generatorContingencyList = new InjectionCriterionContingencyList("list1", "GENERATOR",
+                countryCriterion, null, Collections.emptyList(), null);
         contingencies = generatorContingencyList.getContingencies(fourSubstationNetwork);
         assertEquals(5, contingencies.size());
         assertEquals(new Contingency("GH1", new GeneratorContingency("GH1")), contingencies.get(0));

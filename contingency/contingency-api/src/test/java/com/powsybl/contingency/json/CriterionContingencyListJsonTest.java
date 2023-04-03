@@ -76,19 +76,24 @@ class CriterionContingencyListJsonTest extends AbstractConverterTest {
     }
 
     private static InjectionCriterionContingencyList createInjectionCriterionContingencyListNoCountry() {
-        SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.emptyList());
+        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
+                .VoltageInterval(200.0, 230.0, true, true));
+        return new InjectionCriterionContingencyList("list2", IdentifiableType.GENERATOR,
+                null, nominalVoltageCriterion, Collections.emptyList(), null);
+    }
+
+    private static InjectionCriterionContingencyList createInjectionCriterionContingencyListNoCountryMatch() {
+        SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.CI));
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(200.0, 230.0, true, true));
         return new InjectionCriterionContingencyList("list2", IdentifiableType.GENERATOR,
                 countriesCriterion, nominalVoltageCriterion, Collections.emptyList(), null);
     }
 
-    private static InjectionCriterionContingencyList createInjectionCriterionContingencyListNoMatch() {
-        SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.CI));
-        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true));
-        return new InjectionCriterionContingencyList("list2", IdentifiableType.GENERATOR,
-                countriesCriterion, nominalVoltageCriterion, Collections.emptyList(), null);
+    private static InjectionCriterionContingencyList createInjectionCriterionContingencyListEmptyCountryList() {
+        SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.emptyList());
+        return new InjectionCriterionContingencyList("list2", IdentifiableType.LINE,
+                countriesCriterion, null, Collections.emptyList(), null);
     }
 
     private static TwoWindingsTransformerCriterionContingencyList createTwoWindingsTransformerCriterionContingencyList() {
@@ -148,10 +153,17 @@ class CriterionContingencyListJsonTest extends AbstractConverterTest {
     }
 
     @Test
-    void createInjectionCriterionContingencyListNoMatchTest() throws IOException {
-        roundTripTest(createInjectionCriterionContingencyListNoMatch(), CriterionContingencyListJsonTest::write,
+    void createInjectionCriterionContingencyListNoCountryMatchTest() throws IOException {
+        roundTripTest(createInjectionCriterionContingencyListNoCountryMatch(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readInjectionCriterionContingencyList,
-                "/injectionCriterionContingencyListNoMatch.json");
+                "/injectionCriterionContingencyListNoCountryMatch.json");
+    }
+
+    @Test
+    void createInjectionCriterionContingencyListEmptyCountryListTest() throws IOException {
+        roundTripTest(createInjectionCriterionContingencyListEmptyCountryList(), CriterionContingencyListJsonTest::write,
+                CriterionContingencyListJsonTest::readInjectionCriterionContingencyList,
+                "/injectionCriterionContingencyListEmptyCountryList.json");
     }
 
     @Test
