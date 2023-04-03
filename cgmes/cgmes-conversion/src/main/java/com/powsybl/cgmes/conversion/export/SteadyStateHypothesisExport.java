@@ -243,6 +243,25 @@ public final class SteadyStateHypothesisExport {
 
             addRegulatingControlView(g, regulatingControlViews, context);
         }
+        for (Battery b : network.getBatteries()) {
+            CgmesExportUtil.writeStartAbout("SynchronousMachine", context.getNamingStrategy().getCgmesId(b), cimNamespace, writer, context);
+            writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
+            writer.writeCharacters("false"); // TODO handle battery regulation
+            writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, "RotatingMachine.p");
+            writer.writeCharacters(CgmesExportUtil.format(-b.getTargetP()));
+            writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, "RotatingMachine.q");
+            writer.writeCharacters(CgmesExportUtil.format(-b.getTargetQ()));
+            writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
+            // reference priority is used for angle reference selection (slack)
+            writer.writeCharacters(isInSlackBus(b) ? "1" : "0");
+            writer.writeEndElement();
+            writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode.generator"); // FIXME when is a battery motor and when is it generator?
+            writer.writeEndElement();
+        }
     }
 
     private static void addRegulatingControlView(Generator g, Map<String, List<RegulatingControlView>> regulatingControlViews, CgmesExportContext context) {
@@ -295,7 +314,7 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static boolean isInSlackBus(Generator g) {
+    private static boolean isInSlackBus(Injection<?> g) {
         VoltageLevel vl = g.getTerminal().getVoltageLevel();
         SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
         if (slackTerminal != null) {
