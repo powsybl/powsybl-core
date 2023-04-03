@@ -45,6 +45,11 @@ Here is how to configure itools package Maven plugin in your project
                         <param>host1</param>
                         <param>host2</param>
                     </mpiHosts>
+                    <copyToRoot>
+                        <files>
+                            <file>...</file>
+                        </files>
+                    </copyToRoot>
                     <copyToBin>
                         <files>
                             <file>...</file>
@@ -69,5 +74,5 @@ Here is how to configure itools package Maven plugin in your project
 - packageName is optional, project final name is used as default value.
 - archiveName is optional, packageName is used as default value.
 - javaXmx, mpiTasks and mpiHosts are used to generate itools.conf, are all optional and default values are respectively 8G, 2 and localhost.
-- additional binaries, libraries and configurations file can be added to the package using optional copyToBin, copyToLib and copyToEtc tags.
+- additional binaries, libraries and configurations file can be added to the package using optional copyToRoot, copyToBin, copyToLib and copyToEtc tags.
 - all of the jars with compile and runtime scope will be included in the package

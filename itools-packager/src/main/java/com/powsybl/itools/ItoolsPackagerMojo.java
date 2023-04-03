@@ -8,6 +8,7 @@ package com.powsybl.itools;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -72,6 +73,9 @@ public class ItoolsPackagerMojo extends AbstractMojo {
     @Parameter
     private CopyTo copyToEtc;
 
+    @Parameter
+    private CopyTo copyToRoot;
+
     private static void zip(Path dir, Path baseDir, Path zipFilePath) throws IOException {
         try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(Files.newOutputStream(zipFilePath))) {
             Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
@@ -106,7 +110,11 @@ public class ItoolsPackagerMojo extends AbstractMojo {
                 if (Files.exists(path)) {
                     getLog().info("Copy file " + path + " to " + destDir);
                     try {
-                        Files.copy(path, destDir.resolve(path.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
+                        if (file.isDirectory()) {
+                            FileUtils.copyDirectory(file, destDir.resolve(path.getFileName().toString()).toFile());
+                        } else {
+                            Files.copy(path, destDir.resolve(path.getFileName().toString()), StandardCopyOption.REPLACE_EXISTING);
+                        }
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
@@ -143,6 +151,9 @@ public class ItoolsPackagerMojo extends AbstractMojo {
                 getLog().info("Add jar " + jar + " to package");
                 Files.copy(jar, javaDir.resolve(jar.getFileName()), StandardCopyOption.REPLACE_EXISTING);
             }
+
+            // copy files to root
+            copyFiles(copyToRoot, packageDir);
 
             // create bin directory and add scripts
             Path binDir = packageDir.resolve("bin");
