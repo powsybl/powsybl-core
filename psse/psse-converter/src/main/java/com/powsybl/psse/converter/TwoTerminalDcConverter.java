@@ -70,7 +70,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         switch (psseTwoTerminalDc.getMdc()) {
             case 1:
                 // The desired real power demand
-                return Math.abs(psseTwoTerminalDc.getSetvl());
+                return psseTwoTerminalDc.getSetvl();
             case 2:
                 // It is the current in amps (should divide by 1000 to convert to MW)
                 return psseTwoTerminalDc.getSetvl() * psseTwoTerminalDc.getVschd() / 1000.0;

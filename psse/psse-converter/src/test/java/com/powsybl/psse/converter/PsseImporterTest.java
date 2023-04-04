@@ -158,11 +158,6 @@ class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    void twoTerminalDcWithNegativeSetvl() throws IOException {
-        importTest("twoTerminalDc_with_negative_setvl", "twoTerminalDc_with_negative_setvl.raw", false);
-    }
-
-    @Test
     void parallelTwoTerminalDcBetweenSameAcBuses() throws IOException {
         importTest("parallelTwoTerminalDcBetweenSameAcBuses", "parallelTwoTerminalDcBetweenSameAcBuses.raw", false);
     }
