@@ -34,10 +34,15 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     private static final Logger LOG = LoggerFactory.getLogger(RecordGroupIOLegacyText.class);
 
     protected final AbstractRecordGroup<T> recordGroup;
+    private boolean qRecordFound;
 
     protected RecordGroupIOLegacyText(AbstractRecordGroup<T> recordGroup) {
         Objects.requireNonNull(recordGroup);
         this.recordGroup = recordGroup;
+    }
+
+    protected boolean isqRecordFound() {
+        return qRecordFound;
     }
 
     @Override
@@ -80,21 +85,22 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         writer.flush();
     }
 
+    // skip lines until a 0 is found.
+    // this method supports null lines to avoid verifying if the Q record has been found
     public static void skip(RecordGroupIdentification recordGroup, BufferedReader reader) throws IOException {
         LOG.debug("read and ignore record group {}", recordGroup);
         int number = -1;
+        String line = null;
         do {
-            String line = reader.readLine();
-            if (line == null) {
-                throw new PsseException("Unexpected end of file");
-            }
-            try (Scanner scanner = new Scanner(line)) {
-                if (scanner.hasNextInt()) {
-                    number = scanner.nextInt();
+            line = reader.readLine();
+            if (line != null) {
+                try (Scanner scanner = new Scanner(line)) {
+                    if (scanner.hasNextInt()) {
+                        number = scanner.nextInt();
+                    }
                 }
             }
-        }
-        while (number != 0);
+        } while (line != null && number != 0);
     }
 
     public static void writeEmpty(RecordGroupIdentification recordGroup, OutputStream outputStream) {
@@ -136,17 +142,23 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         }
     }
 
-    protected static List<String> readRecords(BufferedReader reader) throws IOException {
+    protected List<String> readRecords(BufferedReader reader) throws IOException {
         List<String> records = new ArrayList<>();
-        String line = readRecordLine(reader);
-        while (!endOfBlock(line)) {
-            records.add(line);
-            line = readRecordLine(reader);
+        if (!isqRecordFound()) {
+            String line = readRecordLine(reader);
+            while (!endOfBlock(line)) {
+                records.add(line);
+                line = readRecordLine(reader);
+            }
         }
         return records;
     }
 
-    protected static boolean endOfBlock(String line) {
+    protected boolean endOfBlock(String line) {
+        if (line.trim().equals("Q")) {
+            qRecordFound = true;
+            return true;
+        }
         return line.trim().equals("0");
     }
 

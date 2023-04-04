@@ -56,12 +56,14 @@ class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<P
         public List<PsseVoltageSourceConverterDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
             List<String> mainRecords = new ArrayList<>();
             List<String> converterRecords = new ArrayList<>();
-            String line = readRecordLine(reader);
-            while (!endOfBlock(line)) {
-                mainRecords.add(line);
-                converterRecords.add(readRecordLine(reader));
-                converterRecords.add(readRecordLine(reader));
-                line = readRecordLine(reader);
+            if (!isqRecordFound()) {
+                String line = readRecordLine(reader);
+                while (!endOfBlock(line)) {
+                    mainRecords.add(line);
+                    converterRecords.add(readRecordLine(reader));
+                    converterRecords.add(readRecordLine(reader));
+                    line = readRecordLine(reader);
+                }
             }
 
             List<PsseVoltageSourceConverterDcTransmissionLine> voltageSourceConverterDcList = super.recordGroup.readFromStrings(mainRecords, context);
