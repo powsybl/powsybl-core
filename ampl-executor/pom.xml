@@ -19,7 +19,7 @@ this
     </parent>
 
     <artifactId>powsybl-ampl-executor</artifactId>
-    <name>ampl-executor</name>
+    <name>AMPL model executor</name>
     <description>AMPL model executor interface</description>
 
     <build>
