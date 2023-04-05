@@ -41,7 +41,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         this.recordGroup = recordGroup;
     }
 
-    protected boolean isqRecordFound() {
+    protected boolean isQRecordFound() {
         return qRecordFound;
     }
 
@@ -90,7 +90,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     public static void skip(RecordGroupIdentification recordGroup, BufferedReader reader) throws IOException {
         LOG.debug("read and ignore record group {}", recordGroup);
         int number = -1;
-        String line = null;
+        String line;
         do {
             line = reader.readLine();
             if (line != null) {
@@ -144,7 +144,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
 
     protected List<String> readRecords(BufferedReader reader) throws IOException {
         List<String> records = new ArrayList<>();
-        if (!isqRecordFound()) {
+        if (!isQRecordFound()) {
             String line = readRecordLine(reader);
             while (!endOfBlock(line)) {
                 records.add(line);
@@ -169,7 +169,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         if (line == null) {
             throw new PsseException("PSSE. Unexpected end of file");
         }
-        StringBuffer newLine = new StringBuffer();
+        StringBuilder newLine = new StringBuilder();
         Matcher m = FileFormat.LEGACY_TEXT_QUOTED_OR_WHITESPACE.matcher(removeComment(line));
         while (m.find()) {
             // If current group is quoted, keep it as it is
