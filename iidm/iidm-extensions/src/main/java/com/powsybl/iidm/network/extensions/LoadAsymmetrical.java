@@ -7,44 +7,42 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
 
 /**
  * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface LineFortescue extends Extension<Line> {
+public interface LoadAsymmetrical extends Extension<Load> {
 
-    String NAME = "lineFortescue";
+    String NAME = "loadAsymmetrical";
 
     @Override
     default String getName() {
         return NAME;
     }
 
-    /**
-     * The zero sequence resistance of the line.
-     */
-    double getRz();
+    double getDeltaPa();
 
-    void setRz(double rz);
+    LoadAsymmetrical setDeltaPa(double deltaPa);
 
-    /**
-     * The zero sequence reactance of the line.
-     */
-    double getXz();
+    double getDeltaPb();
 
-    void setXz(double xz);
+    LoadAsymmetrical setDeltaPb(double deltaPb);
 
-    boolean isOpenPhaseA();
+    double getDeltaPc();
 
-    void setOpenPhaseA(boolean openPhaseA);
+    LoadAsymmetrical setDeltaPc(double deltaPc);
 
-    boolean isOpenPhaseB();
+    double getDeltaQa();
 
-    void setOpenPhaseB(boolean openPhaseB);
+    LoadAsymmetrical setDeltaQa(double deltaQa);
 
-    boolean isOpenPhaseC();
+    double getDeltaQb();
 
-    void setOpenPhaseC(boolean openPhaseC);
+    LoadAsymmetrical setDeltaQb(double deltaQb);
+
+    double getDeltaQc();
+
+    LoadAsymmetrical setDeltaQc(double deltaQc);
 }

@@ -10,15 +10,16 @@
 -->
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           targetNamespace="http://www.powsybl.org/schema/iidm/ext/line_fortescue/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/load_asymmetrical/1_0"
            elementFormDefault="qualified">
-    <xs:element name="lineFortescue">
+    <xs:element name="loadAsymmetrical">
         <xs:complexType>
-            <xs:attribute name="rz" type="xs:double"/>
-            <xs:attribute name="xz" type="xs:double"/>
-            <xs:attribute name="openPhaseA" type="xs:boolean"/>
-            <xs:attribute name="openPhaseB" type="xs:boolean"/>
-            <xs:attribute name="openPhaseC" type="xs:boolean"/>
+            <xs:attribute name="deltaPa" type="xs:double"/>
+            <xs:attribute name="deltaQa" type="xs:double"/>
+            <xs:attribute name="deltaPb" type="xs:double"/>
+            <xs:attribute name="deltaQb" type="xs:double"/>
+            <xs:attribute name="deltaPc" type="xs:double"/>
+            <xs:attribute name="deltaQc" type="xs:double"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

@@ -7,21 +7,23 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
 
 /**
  * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface LineFortescueAdder extends ExtensionAdder<Line, LineFortescue> {
+public interface LoadAsymmetricalAdder extends ExtensionAdder<Load, LoadAsymmetrical> {
 
-    LineFortescueAdder withRz(double rz);
+    LoadAsymmetricalAdder withDeltaPa(double deltaPa);
 
-    LineFortescueAdder withXz(double xz);
+    LoadAsymmetricalAdder withDeltaQa(double deltaQa);
 
-    LineFortescueAdder withOpenPhaseA(boolean openPhaseA);
+    LoadAsymmetricalAdder withDeltaPb(double deltaPb);
 
-    LineFortescueAdder withOpenPhaseB(boolean openPhaseB);
+    LoadAsymmetricalAdder withDeltaQb(double deltaQb);
 
-    LineFortescueAdder withOpenPhaseC(boolean openPhaseC);
+    LoadAsymmetricalAdder withDeltaPc(double deltaPc);
+
+    LoadAsymmetricalAdder withDeltaQc(double deltaQc);
 }
