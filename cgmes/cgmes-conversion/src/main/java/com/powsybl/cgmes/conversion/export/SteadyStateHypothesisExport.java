@@ -653,10 +653,16 @@ public final class SteadyStateHypothesisExport {
     private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Multiple generators may share the same generation unit,
         // we will choose the participation factor from the last generator that references the generating unit
-        // We only consider generators that have participation factors
+        // We only consider generators and batteries that have participation factors
         Map<String, GeneratingUnit> generatingUnits = new HashMap<>();
         for (Generator g : network.getGenerators()) {
-            GeneratingUnit gu = generatingUnitForGenerator(g, context);
+            GeneratingUnit gu = generatingUnitForGeneratorAndBatteries(g, context);
+            if (gu != null) {
+                generatingUnits.put(gu.id, gu);
+            }
+        }
+        for (Battery b : network.getBatteries()) {
+            GeneratingUnit gu = generatingUnitForGeneratorAndBatteries(b, context);
             if (gu != null) {
                 generatingUnits.put(gu.id, gu);
             }
@@ -666,16 +672,16 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static GeneratingUnit generatingUnitForGenerator(Generator g, CgmesExportContext context) {
-        if (g.hasProperty(GENERATING_UNIT_PROPERTY) && ((g.getExtension(ActivePowerControl.class) != null) || g.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"))) {
+    private static GeneratingUnit generatingUnitForGeneratorAndBatteries(Injection<?> i, CgmesExportContext context) {
+        if (i.hasProperty(GENERATING_UNIT_PROPERTY) && ((i.getExtension(ActivePowerControl.class) != null) || i.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"))) {
             GeneratingUnit gu = new GeneratingUnit();
-            gu.id = context.getNamingStrategy().getCgmesIdFromProperty(g, GENERATING_UNIT_PROPERTY);
-            if (g.getExtension(ActivePowerControl.class) != null) {
-                gu.participationFactor = g.getExtension(ActivePowerControl.class).getParticipationFactor();
+            gu.id = context.getNamingStrategy().getCgmesIdFromProperty(i, GENERATING_UNIT_PROPERTY);
+            if (i.getExtension(ActivePowerControl.class) != null) {
+                gu.participationFactor = i.getExtension(ActivePowerControl.class).getParticipationFactor();
             } else {
-                gu.participationFactor = Double.valueOf(g.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"));
+                gu.participationFactor = Double.valueOf(i.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"));
             }
-            gu.className = generatingUnitClassname(g);
+            gu.className = generatingUnitClassname(i);
             return gu;
         }
         return null;
@@ -689,21 +695,27 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    private static String generatingUnitClassname(Generator g) {
-        EnergySource energySource = g.getEnergySource();
-        if (energySource == EnergySource.HYDRO) {
-            return "HydroGeneratingUnit";
-        } else if (energySource == EnergySource.NUCLEAR) {
-            return "NuclearGeneratingUnit";
-        } else if (energySource == EnergySource.SOLAR) {
-            return "SolarGeneratingUnit";
-        } else if (energySource == EnergySource.THERMAL) {
-            return "ThermalGeneratingUnit";
-        } else if (energySource == EnergySource.WIND) {
-            return "WindGeneratingUnit";
-        } else {
-            return "GeneratingUnit";
+    private static String generatingUnitClassname(Injection<?> i) {
+        if (i instanceof Generator) {
+            EnergySource energySource = ((Generator) i).getEnergySource();
+            if (energySource == EnergySource.HYDRO) {
+                return "HydroGeneratingUnit";
+            } else if (energySource == EnergySource.NUCLEAR) {
+                return "NuclearGeneratingUnit";
+            } else if (energySource == EnergySource.SOLAR) {
+                return "SolarGeneratingUnit";
+            } else if (energySource == EnergySource.THERMAL) {
+                return "ThermalGeneratingUnit";
+            } else if (energySource == EnergySource.WIND) {
+                return "WindGeneratingUnit";
+            } else {
+                return "GeneratingUnit";
+            }
         }
+        if (i instanceof Battery) {
+            return "HydroGeneratingUnit"; // TODO export battery differently in CGMES 3.0
+        }
+        throw new PowsyblException("Unexpected class for " + i.getId() + " using generating units: " + i.getClass());
     }
 
     private enum RegulatingControlType {
