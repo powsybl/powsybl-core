@@ -202,6 +202,66 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
     }
 
     @Test
+    void getUnusedOrderPositionBeforeWithPositionPreviously() {
+        LineAdder lineAdder = nbNetwork.newLine()
+                .setId("lineTest")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0);
+
+        NetworkModification modification = new CreateBranchFeederBaysBuilder()
+                .withBranchAdder(lineAdder)
+                .withBusOrBusbarSectionId1("bbs1")
+                .withPositionOrder1(111)
+                .withDirection1(TOP)
+                .withBusOrBusbarSectionId2("bbs5")
+                .withDirection2(BOTTOM)
+                .withPositionOrder2(1100)
+                .build();
+        modification.apply(nbNetwork);
+
+        ConnectablePosition<Line> newLine = nbNetwork.getLine("lineTest").getExtension(ConnectablePosition.class);
+        assertEquals(TOP, newLine.getFeeder1().getDirection());
+        assertEquals(Optional.of(111), newLine.getFeeder1().getOrder());
+
+        Optional<Range<Integer>> unusedOrderPositionsBefore = getUnusedOrderPositionsBefore(nbNetwork.getBusbarSection("bbs1"));
+        assertTrue(unusedOrderPositionsBefore.isPresent());
+    }
+
+    @Test
+    void getUnusedOrderPositionAfterWithPositionPreviously() {
+        LineAdder lineAdder = nbNetwork.newLine()
+                .setId("lineTest")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0);
+
+        NetworkModification modification = new CreateBranchFeederBaysBuilder()
+                .withBranchAdder(lineAdder)
+                .withBusOrBusbarSectionId1("bbs1")
+                .withPositionOrder1(111)
+                .withDirection1(TOP)
+                .withBusOrBusbarSectionId2("bbs5")
+                .withDirection2(BOTTOM)
+                .withPositionOrder2(1100)
+                .build();
+        modification.apply(nbNetwork);
+
+        ConnectablePosition<Line> newLine = nbNetwork.getLine("lineTest").getExtension(ConnectablePosition.class);
+        assertEquals(TOP, newLine.getFeeder1().getDirection());
+        assertEquals(Optional.of(111), newLine.getFeeder1().getOrder());
+
+        Optional<Range<Integer>> unusedOrderPositionsAfter = getUnusedOrderPositionsAfter(nbNetwork.getBusbarSection("bbs1"));
+        assertTrue(unusedOrderPositionsAfter.isPresent());
+    }
+
+    @Test
     void testException() {
         LineAdder lineAdder = nbNetwork.newLine()
                 .setId("lineTest")
