@@ -282,10 +282,11 @@ class CriterionContingencyListTest {
         assertEquals(new Contingency("TWT", new TwoWindingsTransformerContingency("TWT")), contingencies.get(0));
 
         // 400 kV lines
-        singleNominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(380.0, 400.0, true, true));
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion1 = new TwoNominalVoltageCriterion(
+                new SingleNominalVoltageCriterion.VoltageInterval(380.0, 420.0,
+                        true, true), null);
         LineCriterionContingencyList lineContingencyList = new LineCriterionContingencyList("list1", null,
-                singleNominalVoltageCriterion, Collections.emptyList(), null);
+                twoNominalVoltageCriterion1, Collections.emptyList(), null);
         contingencies = lineContingencyList.getContingencies(fourSubstationNetwork);
         assertEquals(2, contingencies.size());
         assertEquals(new Contingency("LINE_S2S3", new LineContingency("LINE_S2S3")), contingencies.get(0));

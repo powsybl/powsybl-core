@@ -6,8 +6,5 @@
   "countryCriterion" : {
     "type" : "SINGLE_COUNTRY",
     "countries" : [ ]
-  },
-  "nominalVoltageCriterion" : null,
-  "propertyCriteria" : [ ],
-  "regexCriterion" : null
+  }
 }

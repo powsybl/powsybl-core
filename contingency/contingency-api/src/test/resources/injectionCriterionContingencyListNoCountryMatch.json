@@ -15,7 +15,5 @@
       "lowClosed" : true,
       "highClosed" : true
     }
-  },
-  "propertyCriteria" : [ ],
-  "regexCriterion" : null
+  }
 }

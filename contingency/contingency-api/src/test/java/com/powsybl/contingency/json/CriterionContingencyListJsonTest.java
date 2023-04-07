@@ -45,12 +45,12 @@ class CriterionContingencyListJsonTest extends AbstractConverterTest {
     private static LineCriterionContingencyList createLineCriterionContingencyList() {
         TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR),
                 Collections.singletonList(Country.BE));
-        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true));
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion.VoltageInterval(200.0, 230.0,
+                true, true), null);
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"),
                 PropertyCriterion.EquipmentToCheck.VOLTAGE_LEVEL, PropertyCriterion.SideToCheck.BOTH);
         RegexCriterion regexCriterion = new RegexCriterion("regex");
-        return new LineCriterionContingencyList("list2", countriesCriterion, nominalVoltageCriterion, Collections.singletonList(propertyCriterion), regexCriterion);
+        return new LineCriterionContingencyList("list2", countriesCriterion, twoNominalVoltageCriterion, Collections.singletonList(propertyCriterion), regexCriterion);
     }
 
     private static TieLineCriterionContingencyList createTieLineCriterionContingencyList() {
