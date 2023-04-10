@@ -93,12 +93,10 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
         if (sc.getModelType() == ShuntCompensatorModelType.LINEAR) {
             context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_LINEAR_MODEL);
             double bPerSection = sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection();
-            if (bPerSection != 0) {
-                XmlUtil.writeDouble(B_PER_SECTION, bPerSection, context.getWriter());
-            } else {
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context,
-                        () -> XmlUtil.writeDouble(B_PER_SECTION, bPerSection, context.getWriter()));
+            if (bPerSection == 0 && context.getVersion().compareTo(IidmXmlVersion.V_1_4) <= 0) {
+                bPerSection = Double.MIN_NORMAL;
             }
+            XmlUtil.writeDouble(B_PER_SECTION, bPerSection, context.getWriter());
             XmlUtil.writeDouble("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection(), context.getWriter());
             context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
