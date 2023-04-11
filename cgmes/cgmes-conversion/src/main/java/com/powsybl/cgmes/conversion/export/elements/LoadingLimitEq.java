@@ -32,7 +32,7 @@ public final class LoadingLimitEq {
         writer.writeEndElement();
     }
 
-    private static String loadingLimitClassName(Class<? extends LoadingLimits> loadingLimitClass) {
+    public static String loadingLimitClassName(Class<? extends LoadingLimits> loadingLimitClass) {
         if (CurrentLimits.class.equals(loadingLimitClass)) {
             return "CurrentLimit";
         } else if (ActivePowerLimits.class.equals(loadingLimitClass)) {
