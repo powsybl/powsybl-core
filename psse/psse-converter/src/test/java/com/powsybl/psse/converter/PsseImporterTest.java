@@ -193,8 +193,8 @@ class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
-    void importTest14BusesDuplicatedIDs() throws IOException {
-        importTest("IEEE_14_buses_duplicated_ids", "IEEE_14_buses_duplicated_ids.raw", false);
+    void importTest14BusesDuplicateIds() throws IOException {
+        importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
     }
 
     @Test

@@ -22,34 +22,34 @@ import org.slf4j.LoggerFactory;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class PsseFixDuplicatedIDs {
+public class PsseFixDuplicateIds {
 
-    public PsseFixDuplicatedIDs(PssePowerFlowModel model) {
+    public PsseFixDuplicateIds(PssePowerFlowModel model) {
         this.model = Objects.requireNonNull(model);
         warnings = new ArrayList<>();
     }
 
     public void fix() {
-        fixDuplicatedIDs(model);
+        fixDuplicateIds(model);
         if (!warnings.isEmpty()) {
             writeWarnings();
         }
     }
 
     private void writeWarnings() {
-        LOGGER.warn("PSS/E Fix duplicated IDs ...");
+        LOGGER.warn("PSS/E Fix duplicate Ids ...");
         warnings.forEach(LOGGER::warn);
-        LOGGER.warn("PSS/E Fix duplicated IDs end.");
+        LOGGER.warn("PSS/E Fix duplicate Ids end.");
     }
 
-    private void fixDuplicatedIDs(PssePowerFlowModel model) {
+    private void fixDuplicateIds(PssePowerFlowModel model) {
 
-        // fix duplicated IDs only for non transformers branchs and transformers at the moment
-        fixDuplicatedIDsNonTransformerBranches(model.getNonTransformerBranches());
-        fixDuplicatedIDsTransformers(model.getTransformers());
+        // fix duplicate Ids only for non transformers branchs and transformers at the moment
+        fixDuplicateIdsNonTransformerBranches(model.getNonTransformerBranches());
+        fixDuplicateIdsTransformers(model.getTransformers());
     }
 
-    private void fixDuplicatedIDsNonTransformerBranches(List<PsseNonTransformerBranch> nonTransformerBranches) {
+    private void fixDuplicateIdsNonTransformerBranches(List<PsseNonTransformerBranch> nonTransformerBranches) {
         Map<String, List<IDs>> busesNonTransformerBranches = new HashMap<>();
 
         for (int i = 0; i < nonTransformerBranches.size(); i++) {
@@ -57,8 +57,8 @@ public class PsseFixDuplicatedIDs {
             addBusesMap(busesNonTransformerBranches, i, nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt());
         }
 
-        Map<String, List<IDs>> duplicatedBusesLinks = getDuplicates(busesNonTransformerBranches);
-        duplicatedBusesLinks.forEach((key, value) -> {
+        Map<String, List<IDs>> duplicateBusesLinks = getDuplicates(busesNonTransformerBranches);
+        duplicateBusesLinks.forEach((key, value) -> {
             List<IDs> fixedIDs = obtainFixedIDs(value);
             for (int i = 0; i < fixedIDs.size(); i++) {
 
@@ -73,7 +73,7 @@ public class PsseFixDuplicatedIDs {
         });
     }
 
-    private void fixDuplicatedIDsTransformers(List<PsseTransformer> transformers) {
+    private void fixDuplicateIdsTransformers(List<PsseTransformer> transformers) {
         Map<String, List<IDs>> busesTransformers = new HashMap<>();
 
         for (int i = 0; i < transformers.size(); i++) {
@@ -81,8 +81,8 @@ public class PsseFixDuplicatedIDs {
             addBusesMap(busesTransformers, i, transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt());
         }
 
-        Map<String, List<IDs>> duplicatedBusesLinks = getDuplicates(busesTransformers);
-        duplicatedBusesLinks.forEach((key, value) -> {
+        Map<String, List<IDs>> duplicateBusesLinks = getDuplicates(busesTransformers);
+        duplicateBusesLinks.forEach((key, value) -> {
             List<IDs> fixedIDs = obtainFixedIDs(value);
             for (int i = 0; i < fixedIDs.size(); i++) {
 
@@ -136,15 +136,15 @@ public class PsseFixDuplicatedIDs {
     }
 
     private static Map<String, List<IDs>> getDuplicates(Map<String, List<IDs>> busesMap) {
-        Map<String, List<IDs>> duplicatedBusMap = new HashMap<>();
+        Map<String, List<IDs>> duplicateBusMap = new HashMap<>();
 
         busesMap.forEach((key, value) -> value.stream().collect(Collectors.groupingBy(s -> s.id))
             .entrySet()
             .stream()
             .filter(e -> e.getValue().size() > 1)
-            .forEach(e -> duplicatedBusMap.put(key, e.getValue())));
+            .forEach(e -> duplicateBusMap.put(key, e.getValue())));
 
-        return duplicatedBusMap;
+        return duplicateBusMap;
     }
 
     private static String obtainFixedId(String id, String firstCharacterString, List<IDs> fixedIDs) {
@@ -187,5 +187,5 @@ public class PsseFixDuplicatedIDs {
 
     private final PssePowerFlowModel model;
     private final List<String> warnings;
-    private static final Logger LOGGER = LoggerFactory.getLogger(PsseFixDuplicatedIDs.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PsseFixDuplicateIds.class);
 }
