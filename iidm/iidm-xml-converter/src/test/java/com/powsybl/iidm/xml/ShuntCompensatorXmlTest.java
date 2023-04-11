@@ -9,6 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
 import org.junit.jupiter.api.Test;
 
@@ -84,6 +85,23 @@ class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
     void unsupportedWriteTest() {
         Network network = ShuntTestCaseFactory.create();
         testForAllPreviousVersions(IidmXmlVersion.V_1_2, v -> write(network, v.toString(".")));
+    }
+
+    @Test
+    void nullBPerSection() {
+        Network network = ShuntTestCaseFactory.create(0.0);
+        Path path = tmpDir.resolve("shunt.xml");
+
+        NetworkXml.write(network, new ExportOptions().setVersion(IidmXmlVersion.V_1_4.toString(".")), path);
+        Network n = NetworkXml.read(path);
+        ShuntCompensator sc = n.getShuntCompensator("SHUNT");
+        assertEquals(Double.MIN_VALUE, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
+
+        network.getShuntCompensator("SHUNT").setVoltageRegulatorOn(false).setTargetV(Double.NaN).setTargetDeadband(Double.NaN).setRegulatingTerminal(null);
+        NetworkXml.write(network, new ExportOptions().setVersion(IidmXmlVersion.V_1_1.toString(".")), path);
+        Network n2 = NetworkXml.read(path);
+        ShuntCompensator sc2 = n2.getShuntCompensator("SHUNT");
+        assertEquals(Double.MIN_VALUE, sc2.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
     }
 
     private void write(Network network, String version) {
