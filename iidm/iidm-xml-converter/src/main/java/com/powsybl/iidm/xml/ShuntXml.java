@@ -10,6 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.List;
@@ -22,6 +24,8 @@ import static com.powsybl.iidm.xml.ConnectableXmlUtil.writeNodeOrBus;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCompensatorAdder, VoltageLevel> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShuntXml.class);
 
     static final ShuntXml INSTANCE = new ShuntXml();
 
@@ -56,6 +60,13 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
             ShuntCompensatorModel model = sc.getModel();
             double bPerSection = model instanceof ShuntCompensatorLinearModel ? ((ShuntCompensatorLinearModel) model).getBPerSection() : sc.getB();
+            if (bPerSection == 0) {
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("bPerSection of {} is 0. It is set as {} since XIIDM version < 1.5 ({})", sc.getId(),
+                            Double.MIN_VALUE, context.getVersion().toString("."));
+                }
+                bPerSection = Double.MIN_VALUE;
+            }
             XmlUtil.writeDouble(B_PER_SECTION, bPerSection, context.getWriter());
             int maximumSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getMaximumSectionCount() : 1;
             context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(maximumSectionCount));
@@ -94,7 +105,11 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
             context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_LINEAR_MODEL);
             double bPerSection = sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection();
             if (bPerSection == 0 && context.getVersion().compareTo(IidmXmlVersion.V_1_4) <= 0) {
-                bPerSection = Double.MIN_NORMAL;
+                if (LOGGER.isWarnEnabled()) {
+                    LOGGER.warn("bPerSection of {} is 0. It is set as {} since XIIDM version < 1.5 ({})", sc.getId(),
+                            Double.MIN_VALUE, context.getVersion().toString("."));
+                }
+                bPerSection = Double.MIN_VALUE;
             }
             XmlUtil.writeDouble(B_PER_SECTION, bPerSection, context.getWriter());
             XmlUtil.writeDouble("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection(), context.getWriter());
