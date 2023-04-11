@@ -16,6 +16,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.commons.configuration2.INIConfiguration;
 import org.apache.commons.configuration2.SubnodeConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.joda.time.DateTime;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -248,11 +249,47 @@ public final class EuropeanLvTestFeederFactory {
     private static void createLoads(Network network) {
         for (Load load : parseCsv("/europeanLvTestFeeder/Loads.csv", Load.class)) {
             var vl = network.getVoltageLevel(getVoltageLevelId(load.bus));
-            vl.newLoad()
+            double p0 = load.kW / 1000;
+            double q0 = p0 * load.pf;
+            var l = vl.newLoad()
                     .setId("Load-" + load.bus)
                     .setBus(getBusId(load.bus))
-                    .setP0(load.kW / 1000)
-                    .setQ0(load.kW  / 1000 * load.pf)
+                    .setP0(p0)
+                    .setQ0(q0)
+                    .add();
+            double deltaPa = 0;
+            double deltaQa = 0;
+            double deltaPb = 0;
+            double deltaQb = 0;
+            double deltaPc = 0;
+            double deltaQc = 0;
+            switch (load.phases) {
+                case 'A':
+                    deltaPb = -p0;
+                    deltaQb = -q0;
+                    deltaPc = -p0;
+                    deltaQc = -q0;
+                    break;
+                case 'B':
+                    deltaPa = -p0;
+                    deltaQa = -q0;
+                    deltaPc = -p0;
+                    deltaQc = -q0;
+                    break;
+                case 'C':
+                    deltaPa = -p0;
+                    deltaQa = -q0;
+                    deltaPb = -p0;
+                    deltaQb = -q0;
+                    break;
+            }
+            l.newExtension(LoadAsymmetricalAdder.class)
+                    .withDeltaPa(deltaPa)
+                    .withDeltaQa(deltaQa)
+                    .withDeltaPb(deltaPb)
+                    .withDeltaQb(deltaQb)
+                    .withDeltaPc(deltaPc)
+                    .withDeltaQc(deltaQc)
                     .add();
         }
     }
@@ -263,6 +300,7 @@ public final class EuropeanLvTestFeederFactory {
 
     public static Network create(NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork("EuropeanLvTestFeeder", "csv");
+        network.setCaseDate(DateTime.parse("2023-04-11T23:59:00.000+01:00"));
         createSource(network);
         createBuses(network);
         createLines(network);
