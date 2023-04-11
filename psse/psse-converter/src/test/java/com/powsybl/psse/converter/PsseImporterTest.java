@@ -193,6 +193,11 @@ class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    void importTest14BusesDuplicatedIDs() throws IOException {
+        importTest("IEEE_14_buses_duplicated_ids", "IEEE_14_buses_duplicated_ids.raw", false);
+    }
+
+    @Test
     void testRates() throws IOException {
         Context context = new Context();
         ReadOnlyDataSource ds = new ResourceDataSource("ThreeMIB_T3W_modified", new ResourceSet("/", "ThreeMIB_T3W_modified.raw"));

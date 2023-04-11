@@ -137,6 +137,7 @@ public class PsseImporter implements Importer {
             PssePowerFlowModel pssePowerFlowModel = PowerFlowDataFactory.create(ext, version).read(dataSource, ext, context);
             pssePowerFlowModel.getCaseIdentification().validate();
 
+            new PsseFixDuplicatedIDs(pssePowerFlowModel).fix();
             PsseValidation psseValidation = new PsseValidation(pssePowerFlowModel, context.getVersion());
             if (!psseValidation.isValidCase()) {
                 throw new PsseException("The PSS/E file is not a valid case");
