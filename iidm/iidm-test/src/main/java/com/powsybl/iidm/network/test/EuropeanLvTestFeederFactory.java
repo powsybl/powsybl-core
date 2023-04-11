@@ -8,10 +8,7 @@ package com.powsybl.iidm.network.test;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.Coordinate;
-import com.powsybl.iidm.network.extensions.GeneratorFortescueAdder;
-import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
-import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
+import com.powsybl.iidm.network.extensions.*;
 import com.univocity.parsers.annotations.Parsed;
 import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.csv.CsvParser;
@@ -25,7 +22,9 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -89,13 +88,97 @@ public final class EuropeanLvTestFeederFactory {
 
     public static class BusCoord {
         @Parsed(field = "Busname")
-        String busName;
+        int busName;
 
         @Parsed
         double x;
 
         @Parsed
         double y;
+    }
+
+    public static class Line {
+        @Parsed(field = "Name")
+        String name;
+
+        @Parsed(field = "Bus1")
+        int bus1;
+
+        @Parsed(field = "Bus2")
+        int bus2;
+
+        @Parsed(field = "Phases")
+        String phases;
+
+        @Parsed(field = "Length")
+        double length;
+
+        @Parsed(field = "Units")
+        String units;
+
+        @Parsed(field = "LineCode")
+        String code;
+    }
+
+    public static class LineCode {
+        @Parsed(field = "Name")
+        String name;
+
+        @Parsed
+        int nphases;
+
+        @Parsed(field = "R1")
+        double r1;
+
+        @Parsed(field = "X1")
+        double x1;
+
+        @Parsed(field = "R0")
+        double r0;
+
+        @Parsed(field = "X0")
+        double x0;
+
+        @Parsed(field = "C1")
+        double c1;
+
+        @Parsed(field = "C0")
+        double c0;
+
+        @Parsed(field = "Units")
+        String units;
+    }
+
+    public static class Load {
+        @Parsed(field = "Name")
+        String name;
+
+        @Parsed
+        int numPhases;
+
+        @Parsed(field = "Bus")
+        int bus;
+
+        @Parsed
+        char phases;
+
+        @Parsed
+        double kV;
+
+        @Parsed(field = "Model")
+        int model;
+
+        @Parsed(field = "Connection")
+        String connection;
+
+        @Parsed
+        double kW;
+
+        @Parsed(field = "PF")
+        double pf;
+
+        @Parsed(field = "Yearly")
+        String yearly;
     }
 
     private static <T> List<T> parseCsv(String resourceName, Class<T> clazz) {
@@ -112,21 +195,64 @@ public final class EuropeanLvTestFeederFactory {
         }
     }
 
+    private static String getBusId(int busName) {
+        return "Bus-" + busName;
+    }
+
+    private static String getVoltageLevelId(int busName) {
+        return "VoltageLevel-" + busName;
+    }
+
     private static void createBuses(Network network) {
         for (BusCoord busCoord : parseCsv("/europeanLvTestFeeder/Buscoords.csv", BusCoord.class)) {
             Substation s = network.newSubstation()
-                    .setId("Substation" + busCoord.busName)
+                    .setId("Substation-" + busCoord.busName)
                     .add();
             s.newExtension(SubstationPositionAdder.class)
-                    .withCoordinate(new Coordinate(busCoord.y, busCoord.x))
+                    .withCoordinate(new Coordinate(busCoord.y, busCoord.x)) // FIXME how to unproject ?
                     .add();
             VoltageLevel vl = s.newVoltageLevel()
-                    .setId("VoltageLevel" + busCoord.busName)
+                    .setId(getVoltageLevelId(busCoord.busName))
                     .setTopologyKind(TopologyKind.BUS_BREAKER)
                     .setNominalV(1)
                     .add();
             vl.getBusBreakerView().newBus()
-                    .setId("Bus" + busCoord.busName)
+                    .setId(getBusId(busCoord.busName))
+                    .add();
+        }
+    }
+
+    private static void createLines(Network network) {
+        Map<String, LineCode> lineCodes = new HashMap<>();
+        for (LineCode lineCode : parseCsv("/europeanLvTestFeeder/LineCodes.csv", LineCode.class)) {
+            lineCodes.put(lineCode.name, lineCode);
+        }
+        for (Line line : parseCsv("/europeanLvTestFeeder/Lines.csv", Line.class)) {
+            LineCode lineCode = lineCodes.get(line.code);
+            var l = network.newLine()
+                    .setId("Line-" + line.bus1 + "-" + line.bus2)
+                    .setVoltageLevel1(getVoltageLevelId(line.bus1))
+                    .setBus1(getBusId(line.bus1))
+                    .setVoltageLevel2(getVoltageLevelId(line.bus2))
+                    .setBus2(getBusId(line.bus2))
+                    .setR(lineCode.r1 * line.length)
+                    .setX(lineCode.x1 * line.length)
+                    .add();
+            l.newExtension(LineFortescueAdder.class)
+                    .withRz(lineCode.r0 * line.length)
+                    .withXz(lineCode.x0 * line.length)
+                    .add();
+        }
+    }
+
+    private static void createLoads(Network network) {
+        for (Load load : parseCsv("/europeanLvTestFeeder/Loads.csv", Load.class)) {
+            var vl = network.getVoltageLevel(getVoltageLevelId(load.bus));
+            vl.newLoad()
+                    .setId("Load-" + load.bus)
+                    .setBus(getBusId(load.bus))
+                    .setP0(load.kW / 1000)
+                    .setQ0(load.kW  / 1000 * load.pf)
                     .add();
         }
     }
@@ -139,6 +265,8 @@ public final class EuropeanLvTestFeederFactory {
         Network network = networkFactory.createNetwork("EuropeanLvTestFeeder", "csv");
         createSource(network);
         createBuses(network);
+        createLines(network);
+        createLoads(network);
         return network;
     }
 }
