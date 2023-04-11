@@ -131,7 +131,7 @@ public class PsseFixDuplicateIds {
             return iD;
         }
         String firstCharacterString = iD.id.isEmpty() ? "0" : iD.id.substring(0, 1);
-        String newId = obtainFixedId(iD.id, firstCharacterString, fixedIDs);
+        String newId = buildFixedId(iD.id, firstCharacterString, fixedIDs);
         return new IDs(iD.psseIndex, newId);
     }
 
@@ -147,7 +147,7 @@ public class PsseFixDuplicateIds {
         return duplicateBusMap;
     }
 
-    private static String obtainFixedId(String id, String firstCharacterString, List<IDs> fixedIDs) {
+    private static String buildFixedId(String id, String firstCharacterString, List<IDs> fixedIDs) {
         for (char c = '0'; c <= '9'; c++) {
             String secondCharacterString = String.valueOf(c);
             if (isUsed(secondCharacterString, fixedIDs)) {
