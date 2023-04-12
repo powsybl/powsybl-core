@@ -36,7 +36,7 @@ public final class EuropeanLvTestFeederFactory {
     private EuropeanLvTestFeederFactory() {
     }
 
-    private static void createSource(Network network) {
+    private static void createSource(Transformer transformer, Network network) {
         INIConfiguration iniConfiguration = new INIConfiguration();
         try (Reader reader = new InputStreamReader(Objects.requireNonNull(EuropeanLvTestFeederFactory.class.getResourceAsStream("/europeanLvTestFeeder/Source.csv")), StandardCharsets.UTF_8)) {
             iniConfiguration.read(reader);
@@ -51,7 +51,7 @@ public final class EuropeanLvTestFeederFactory {
         double isc3 = Integer.parseInt(source.getString("ISC3").replace(" A", ""));
         double isc1 = Integer.parseInt(source.getString("ISC1").replace(" A", ""));
         Substation sourceSubstation = network.newSubstation()
-                .setId("SourceSubstation")
+                .setId(getSubstationId(transformer.bus2)) // so that transformer has both sides in same substation
                 .add();
         VoltageLevel sourceVoltageLevel = sourceSubstation.newVoltageLevel()
                 .setId("SourceVoltageLevel")
@@ -182,6 +182,41 @@ public final class EuropeanLvTestFeederFactory {
         String yearly;
     }
 
+    public static class Transformer {
+        @Parsed(field = "Name")
+        String name;
+
+        @Parsed
+        int phases;
+
+        @Parsed
+        String bus1;
+
+        @Parsed
+        int bus2;
+
+        @Parsed(field = "kV_pri")
+        double kvPri;
+
+        @Parsed(field = "kV_sec")
+        double kvSec;
+
+        @Parsed(field = "MVA")
+        double mva;
+
+        @Parsed(field = "Conn_pri")
+        String connPri;
+
+        @Parsed(field = "Conn_sec")
+        String connSec;
+
+        @Parsed(field = "%XHL")
+        double xhl;
+
+        @Parsed(field = "% resistance")
+        double resistance;
+    }
+
     private static <T> List<T> parseCsv(String resourceName, Class<T> clazz) {
         try (Reader inputReader = new InputStreamReader(Objects.requireNonNull(EuropeanLvTestFeederFactory.class.getResourceAsStream(resourceName)), StandardCharsets.UTF_8)) {
             BeanListProcessor<T> rowProcessor = new BeanListProcessor<>(clazz);
@@ -204,11 +239,19 @@ public final class EuropeanLvTestFeederFactory {
         return "VoltageLevel-" + busName;
     }
 
+    private static String getSubstationId(int busName) {
+        return "Substation-" + busName;
+    }
+
     private static void createBuses(Network network) {
         for (BusCoord busCoord : parseCsv("/europeanLvTestFeeder/Buscoords.csv", BusCoord.class)) {
-            Substation s = network.newSubstation()
-                    .setId("Substation-" + busCoord.busName)
-                    .add();
+            String substationId = getSubstationId(busCoord.busName);
+            Substation s = network.getSubstation(substationId);
+            if (s == null) {
+                s = network.newSubstation()
+                        .setId(substationId)
+                        .add();
+            }
             s.newExtension(SubstationPositionAdder.class)
                     .withCoordinate(new Coordinate(busCoord.y, busCoord.x)) // FIXME how to unproject ?
                     .add();
@@ -294,6 +337,44 @@ public final class EuropeanLvTestFeederFactory {
         }
     }
 
+    private static WindingConnectionType getConnectionType(String conn) {
+        switch (conn) {
+            case "Delta":
+                return WindingConnectionType.DELTA;
+            case "Wye":
+                return WindingConnectionType.Y;
+            default:
+                throw new PowsyblException("Connection type not supported: " + conn);
+        }
+    }
+
+    private static void createTransformer(Transformer transformer, Network network) {
+        String busId1 = transformer.bus1; // source
+        String busId2 = getBusId(transformer.bus2);
+        Bus bus1 = network.getBusBreakerView().getBus(busId1);
+        Bus bus2 = network.getBusBreakerView().getBus(busId2);
+        Substation s = bus1.getVoltageLevel().getSubstation().orElseThrow();
+        double zb = transformer.kvPri * transformer.kvPri / 1; // FIXME SB ?
+        double r = transformer.resistance / transformer.mva * zb;
+        double x = transformer.xhl / transformer.mva * zb;
+        var twt = s.newTwoWindingsTransformer()
+                .setId("Transformer-" + transformer.bus1 + "-" + transformer.bus2)
+                .setBus1(busId1)
+                .setVoltageLevel1(bus1.getVoltageLevel().getId())
+                .setBus2(busId2)
+                .setVoltageLevel2(bus2.getVoltageLevel().getId())
+                .setRatedU1(transformer.kvPri)
+                .setRatedU2(transformer.kvSec)
+                .setRatedS(transformer.mva)
+                .setR(r)
+                .setX(x)
+                .add();
+        twt.newExtension(TwoWindingsTransformerFortescueAdder.class)
+                .withConnectionType1(getConnectionType(transformer.connPri))
+                .withConnectionType2(getConnectionType(transformer.connSec))
+                .add();
+    }
+
     public static Network create() {
         return create(NetworkFactory.findDefault());
     }
@@ -301,10 +382,12 @@ public final class EuropeanLvTestFeederFactory {
     public static Network create(NetworkFactory networkFactory) {
         Network network = networkFactory.createNetwork("EuropeanLvTestFeeder", "csv");
         network.setCaseDate(DateTime.parse("2023-04-11T23:59:00.000+01:00"));
-        createSource(network);
+        Transformer transformer = parseCsv("/europeanLvTestFeeder/Transformer.csv", Transformer.class).get(0);
+        createSource(transformer, network);
         createBuses(network);
         createLines(network);
         createLoads(network);
+        createTransformer(transformer, network);
         return network;
     }
 }
