@@ -622,7 +622,7 @@ class PsseRawDataTest extends AbstractConverterTest {
         PssePowerFlowModel rawXData35 = new PowerFlowRawxData35().read(ieee24Rawx35(), "rawx", context);
         assertNotNull(rawXData35);
 
-        String[] expectedSwitchedShuntDataReadFields = new String[] {"i", "id", "modsw", "adjm", "stat", "vswhi", "vswlo", "swreg", "nreg", "rmpct", "rmidnt", "binit", "s1", "n1", "b1"};
+        String[] expectedSwitchedShuntDataReadFields = new String[] {"ibus", "shntid", "modsw", "adjm", "stat", "vswhi", "vswlo", "swreg", "nreg", "rmpct", "rmidnt", "binit", "s1", "n1", "b1"};
         String[] actualSwitchedShuntDataReadFields = context.getFieldNames(SWITCHED_SHUNT);
         assertArrayEquals(expectedSwitchedShuntDataReadFields, actualSwitchedShuntDataReadFields);
     }
