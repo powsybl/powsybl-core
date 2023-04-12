@@ -176,7 +176,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
         TopologyKind topologyKind = tappedVoltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
-            Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
+            Bus bus = tappedVoltageLevel.getBusBreakerView().getBus(bbsOrBusId);
             if (bus == null) {
                 notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, tappedVoltageLevel.getId());
                 if (throwException) {
@@ -199,7 +199,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             newLine2Adder.setBus1(bus2.getId());
             newLine2Adder.setConnectableBus1(bus2.getId());
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
-            BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
+            BusbarSection bbs = tappedVoltageLevel.getNodeBreakerView().getBusbarSection(bbsOrBusId);
             if (bbs == null) {
                 notFoundBusbarSectionInVoltageLevelReport(reporter, bbsOrBusId, tappedVoltageLevel.getId());
                 if (throwException) {

@@ -99,7 +99,7 @@ class CgmesMappingTest extends AbstractConverterTest {
 
         // By default, the identity naming strategy is configured, we have to set a specific one if we have a mapping file
         Properties reimportParams1 = new Properties(reimportParams);
-        reimportParams1.put(CgmesImport.ID_MAPPING_FILE_NAMING_STRATEGY, namingStrategy);
+        reimportParams1.put(CgmesImport.NAMING_STRATEGY, namingStrategy);
 
         Network networkActual = Importers.importData("CGMES", exportedCgmes, reimportParams1);
         Collection<Diff> diffs = compareNetworksUsingConnectedEquipment(network, networkActual, tmpDir.resolve("exportedCgmes" + baseName));

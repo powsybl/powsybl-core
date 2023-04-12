@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
@@ -22,7 +23,8 @@ public class DummyAmplModel extends AbstractAmplModel {
 
     @Override
     public List<Pair<String, InputStream>> getModelAsStream() {
-        return Collections.emptyList();
+        return List.of(
+                Pair.of("sample_model.run", this.getClass().getClassLoader().getResourceAsStream("sample_model.run")));
     }
 
     @Override
@@ -36,7 +38,7 @@ public class DummyAmplModel extends AbstractAmplModel {
     }
 
     @Override
-    public AmplNetworkUpdaterFactory getNetworkApplierFactory() {
+    public AmplNetworkUpdaterFactory getNetworkUpdaterFactory() {
         return (mapper, network) -> new DummyAmplNetworkUpdater();
     }
 
@@ -48,6 +50,11 @@ public class DummyAmplModel extends AbstractAmplModel {
     @Override
     public Collection<AmplReadableElement> getAmplReadableElement() {
         return Collections.singleton(AmplReadableElement.GENERATOR);
+    }
+
+    @Override
+    public boolean checkModelConvergence(Map<String, String> metrics) {
+        return metrics.get("STATUS").equals("OK");
     }
 
 }

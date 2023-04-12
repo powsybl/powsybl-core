@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_10" id="fictitious" caseDate="2021-08-27T14:44:56.567+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:voltageLevel id="VLTEST" nominalV="380.0" topologyKind="NODE_BREAKER">
-        <iidm:nodeBreakerTopology/>
+        <iidm:nodeBreakerTopology></iidm:nodeBreakerTopology>
     </iidm:voltageLevel>
     <iidm:substation id="A" country="FR">
         <iidm:voltageLevel id="N" nominalV="225.0" lowVoltageLimit="220.0" highVoltageLimit="245.00002" topologyKind="NODE_BREAKER">
@@ -13,7 +14,6 @@
                 <iidm:switch id="X" name="Y" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="11"/>
                 <iidm:switch id="Z" name="AA" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="13"/>
                 <iidm:switch id="AB" name="AC" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="15"/>
-                <iidm:switch id="AD" name="AE" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="8"/>
                 <iidm:switch id="AF" name="AG" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="2"/>
                 <iidm:switch id="AH" name="AI" kind="DISCONNECTOR" retained="false" open="false" node1="7" node2="0"/>
                 <iidm:switch id="AJ" name="AK" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="6"/>
@@ -23,22 +23,17 @@
                 <iidm:switch id="AR" name="AS" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="11"/>
                 <iidm:switch id="AT" name="AU" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="13"/>
                 <iidm:switch id="AV" name="AW" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="15"/>
-                <iidm:switch id="AX" name="AY" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="8"/>
                 <iidm:switch id="AZ" name="BA" fictitious="true" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="2"/>
                 <iidm:switch id="BB" name="BC" fictitious="true" kind="BREAKER" retained="true" open="true" node1="2" node2="3"/>
                 <iidm:switch id="BD" name="BE" kind="BREAKER" retained="true" open="false" node1="3" node2="4"/>
-                <iidm:switch id="BF" name="BG" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="5"/>
-                <iidm:switch id="BH" name="BI" kind="DISCONNECTOR" retained="false" open="true" node1="9" node2="3"/>
                 <iidm:switch id="BJ" name="BK" kind="BREAKER" retained="true" open="false" node1="6" node2="7"/>
-                <iidm:switch id="BL" name="BM" kind="BREAKER" retained="true" open="false" node1="8" node2="9"/>
-                <iidm:switch id="BN" name="BO" kind="DISCONNECTOR" retained="false" open="false" node1="9" node2="10"/>
                 <iidm:switch id="BP" name="BQ" kind="BREAKER" retained="true" open="true" node1="11" node2="12"/>
                 <iidm:switch id="BR" name="BS" kind="BREAKER" retained="true" open="true" node1="13" node2="14"/>
                 <iidm:switch id="BT" name="BU" kind="BREAKER" retained="true" open="false" node1="15" node2="16"/>
                 <iidm:switch id="BV" name="BW" kind="BREAKER" retained="true" open="false" node1="17" node2="18"/>
                 <iidm:switch id="BX" name="BY" kind="BREAKER" retained="true" open="false" node1="19" node2="20"/>
                 <iidm:switch id="BZ" name="CA" kind="BREAKER" retained="true" open="false" node1="21" node2="22"/>
-                <iidm:bus v="236.44736" angle="15.250391" nodes="0,1,6,7,8,9,10,15,16,17,18,19,20,21,22"/>
+                <iidm:bus v="236.44736" angle="15.250391" nodes="0,1,6,7,15,16,17,18,19,20,21,22"/>
             </iidm:nodeBreakerTopology>
             <iidm:generator id="CB" energySource="HYDRO" minP="0.0" maxP="70.0" voltageRegulatorOn="false" targetP="0.0" targetV="0.0" targetQ="0.0" node="12">
                 <iidm:reactiveCapabilityCurve>

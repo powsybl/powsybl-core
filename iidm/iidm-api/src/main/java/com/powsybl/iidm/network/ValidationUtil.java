@@ -373,17 +373,6 @@ public final class ValidationUtil {
         }
     }
 
-    /**
-     * @deprecated Use {@link #checkBPerSection(Validable, double)} instead.
-     */
-    @Deprecated(since = "4.2.0")
-    public static void checkLinearBPerSection(Validable validable, double bPerSection) {
-        checkBPerSection(validable, bPerSection);
-        if (bPerSection == 0) {
-            throw new ValidationException(validable, "susceptance per section is equal to zero");
-        }
-    }
-
     public static void checkBPerSection(Validable validable, double sectionB) {
         if (Double.isNaN(sectionB)) {
             throw new ValidationException(validable, "section susceptance is invalid");
