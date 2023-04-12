@@ -354,9 +354,10 @@ public final class EuropeanLvTestFeederFactory {
         Bus bus1 = network.getBusBreakerView().getBus(busId1);
         Bus bus2 = network.getBusBreakerView().getBus(busId2);
         Substation s = bus1.getVoltageLevel().getSubstation().orElseThrow();
-        double zb = transformer.kvPri * transformer.kvPri / 1; // FIXME SB ?
-        double r = transformer.resistance / transformer.mva * zb;
-        double x = transformer.xhl / transformer.mva * zb;
+        double sb = 1; // 1 mva
+        double zb = transformer.kvPri * transformer.kvPri / sb;
+        double r = transformer.resistance / 100 / transformer.mva * zb;
+        double x = transformer.xhl / 100 / transformer.mva * zb;
         var twt = s.newTwoWindingsTransformer()
                 .setId("Transformer-" + transformer.bus1 + "-" + transformer.bus2)
                 .setBus1(busId1)

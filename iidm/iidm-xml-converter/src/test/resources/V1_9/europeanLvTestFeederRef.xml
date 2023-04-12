@@ -14,7 +14,7 @@
                 <iidm:bus id="Bus-1"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="Transformer-SourceBus-1" r="60.5" x="605.0" g="0.0" b="0.0" ratedU1="11.0" ratedU2="0.416" ratedS="0.8" bus1="SourceBus" connectableBus1="SourceBus" voltageLevelId1="SourceVoltageLevel" bus2="Bus-1" connectableBus2="Bus-1" voltageLevelId2="VoltageLevel-1"/>
+        <iidm:twoWindingsTransformer id="Transformer-SourceBus-1" r="0.605" x="6.05" g="0.0" b="0.0" ratedU1="11.0" ratedU2="0.416" ratedS="0.8" bus1="SourceBus" connectableBus1="SourceBus" voltageLevelId1="SourceVoltageLevel" bus2="Bus-1" connectableBus2="Bus-1" voltageLevelId2="VoltageLevel-1"/>
     </iidm:substation>
     <iidm:substation id="Substation-10">
         <iidm:voltageLevel id="VoltageLevel-10" nominalV="1.0" topologyKind="BUS_BREAKER">
