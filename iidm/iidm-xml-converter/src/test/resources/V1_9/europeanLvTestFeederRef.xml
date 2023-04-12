@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_9" xmlns:lf="http://www.powsybl.org/schema/iidm/ext/line_fortescue/1_0" xmlns:sp="http://www.powsybl.org/schema/iidm/ext/substation_position/1_0" xmlns:las="http://www.powsybl.org/schema/iidm/ext/load_asymmetrical/1_0" xmlns:gf="http://www.powsybl.org/schema/iidm/ext/generator_fortescue/1_0" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="EuropeanLvTestFeeder" caseDate="2023-04-11T23:59:00.000+01:00" forecastDistance="0" sourceFormat="csv" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:substation id="SourceSubstation">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_9" xmlns:lf="http://www.powsybl.org/schema/iidm/ext/line_fortescue/1_0" xmlns:sp="http://www.powsybl.org/schema/iidm/ext/substation_position/1_0" xmlns:las="http://www.powsybl.org/schema/iidm/ext/load_asymmetrical/1_0" xmlns:gf="http://www.powsybl.org/schema/iidm/ext/generator_fortescue/1_0" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" xmlns:t2f="http://www.powsybl.org/schema/iidm/ext/two_windings_transformer_fortescue/1_0" id="EuropeanLvTestFeeder" caseDate="2023-04-11T23:59:00.000+01:00" forecastDistance="0" sourceFormat="csv" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="Substation-1">
         <iidm:voltageLevel id="SourceVoltageLevel" nominalV="11.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="SourceBus"/>
@@ -9,13 +9,12 @@
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
         </iidm:voltageLevel>
-    </iidm:substation>
-    <iidm:substation id="Substation-1">
         <iidm:voltageLevel id="VoltageLevel-1" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="Bus-1"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="Transformer-SourceBus-1" r="60.5" x="605.0" g="0.0" b="0.0" ratedU1="11.0" ratedU2="0.416" ratedS="0.8" bus1="SourceBus" connectableBus1="SourceBus" voltageLevelId1="SourceVoltageLevel" bus2="Bus-1" connectableBus2="Bus-1" voltageLevelId2="VoltageLevel-1"/>
     </iidm:substation>
     <iidm:substation id="Substation-2">
         <iidm:voltageLevel id="VoltageLevel-2" nominalV="1.0" topologyKind="BUS_BREAKER">
@@ -7470,11 +7469,11 @@
     <iidm:extension id="Line-869-875">
         <lf:lineFortescue rz="1.8971999999999998" xz="0.10919999999999999"/>
     </iidm:extension>
-    <iidm:extension id="Line-869-876">
-        <lf:lineFortescue rz="1.8971999999999998" xz="0.10919999999999999"/>
-    </iidm:extension>
     <iidm:extension id="Load-785">
         <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+    </iidm:extension>
+    <iidm:extension id="Line-869-876">
+        <lf:lineFortescue rz="1.8971999999999998" xz="0.10919999999999999"/>
     </iidm:extension>
     <iidm:extension id="Line-760-768">
         <lf:lineFortescue rz="0.443628" xz="0.03253272"/>
@@ -8551,11 +8550,11 @@
     <iidm:extension id="Load-899">
         <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
-    <iidm:extension id="Line-210-219">
-        <lf:lineFortescue rz="2.6684355" xz="0.06654285"/>
-    </iidm:extension>
     <iidm:extension id="Load-898">
         <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+    </iidm:extension>
+    <iidm:extension id="Line-210-219">
+        <lf:lineFortescue rz="2.6684355" xz="0.06654285"/>
     </iidm:extension>
     <iidm:extension id="Line-902-903">
         <lf:lineFortescue rz="0.22478399999999998" xz="0.016484159999999998"/>
@@ -13040,11 +13039,11 @@
     <iidm:extension id="Line-803-812">
         <lf:lineFortescue rz="0.102528" xz="0.00751872"/>
     </iidm:extension>
-    <iidm:extension id="Line-183-191">
-        <lf:lineFortescue rz="0.7385169" xz="0.1759476"/>
-    </iidm:extension>
     <iidm:extension id="Load-539">
         <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+    </iidm:extension>
+    <iidm:extension id="Line-183-191">
+        <lf:lineFortescue rz="0.7385169" xz="0.1759476"/>
     </iidm:extension>
     <iidm:extension id="SourceVoltageLevel">
         <slt:slackTerminal id="SourceGenerator"/>
@@ -14026,11 +14025,11 @@
             <sp:coordinate longitude="390901.469" latitude="392850.053"/>
         </sp:substationPosition>
     </iidm:extension>
-    <iidm:extension id="Line-277-284">
-        <lf:lineFortescue rz="0.150936" xz="0.01106864"/>
-    </iidm:extension>
     <iidm:extension id="Load-688">
         <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+    </iidm:extension>
+    <iidm:extension id="Line-277-284">
+        <lf:lineFortescue rz="0.150936" xz="0.01106864"/>
     </iidm:extension>
     <iidm:extension id="Substation-50">
         <sp:substationPosition>
@@ -14201,6 +14200,9 @@
     <iidm:extension id="Line-554-563">
         <lf:lineFortescue rz="4.1646" xz="0.30540399999999995"/>
     </iidm:extension>
+    <iidm:extension id="Transformer-SourceBus-1">
+        <t2f:twoWindingsTransformerFortescue freeFluxes="true" connectionType1="DELTA" connectionType2="Y"/>
+    </iidm:extension>
     <iidm:extension id="Line-647-652">
         <lf:lineFortescue rz="0.22478399999999998" xz="0.016484159999999998"/>
     </iidm:extension>
@@ -14213,11 +14215,11 @@
     <iidm:extension id="Line-567-573">
         <lf:lineFortescue rz="0.22486562999999998" xz="0.01294293"/>
     </iidm:extension>
-    <iidm:extension id="Line-535-544">
-        <lf:lineFortescue rz="1.098504" xz="0.08055696"/>
-    </iidm:extension>
     <iidm:extension id="Load-755">
         <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+    </iidm:extension>
+    <iidm:extension id="Line-535-544">
+        <lf:lineFortescue rz="1.098504" xz="0.08055696"/>
     </iidm:extension>
     <iidm:extension id="Line-567-574">
         <lf:lineFortescue rz="0.22486562999999998" xz="0.01294293"/>

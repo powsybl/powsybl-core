@@ -20,7 +20,7 @@ class EuropeanLvTestFeederFactoryXmlTest extends AbstractXmlConverterTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripXmlTest(EuropeanLvTestFeederFactory.create(),
+        roundTripTest(EuropeanLvTestFeederFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 getVersionedNetworkPath("europeanLvTestFeederRef.xml", CURRENT_IIDM_XML_VERSION));
