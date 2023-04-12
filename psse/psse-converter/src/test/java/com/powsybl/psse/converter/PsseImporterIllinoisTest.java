@@ -51,7 +51,7 @@ class PsseImporterIllinoisTest extends AbstractConverterTest {
 
     @Test
     void testLiteratureBasedIeee57() {
-        testInvalid("/illinois/literature-based", "IEEE 57 bus.RAW");
+        testValid("/illinois/literature-based", "IEEE 57 bus.RAW");
     }
 
     @Test
@@ -66,7 +66,7 @@ class PsseImporterIllinoisTest extends AbstractConverterTest {
 
     @Test
     void testLiteratureBasedIeee118() {
-        testInvalid("/illinois/literature-based", "IEEE 118 Bus.RAW");
+        testValid("/illinois/literature-based", "IEEE 118 Bus.RAW");
     }
 
     @Test
@@ -112,10 +112,6 @@ class PsseImporterIllinoisTest extends AbstractConverterTest {
     private static Network load(String resourcePath, String sample) {
         String baseName = sample.substring(0, sample.lastIndexOf('.'));
         return Network.read(new ResourceDataSource(baseName, new ResourceSet(resourcePath, sample)));
-    }
-
-    private static void testInvalid(String resourcePath, String sample) {
-        testInvalid(resourcePath, sample, "The PSS/E file is not a valid case");
     }
 
     private static void testInvalid(String resourcePath, String sample, String message) {
