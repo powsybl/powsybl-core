@@ -6,10 +6,10 @@
  */
 package com.powsybl.psse.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -21,7 +21,6 @@ import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
 import org.joda.time.DateTime;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -32,6 +31,7 @@ import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author JB Heyberger <jean-baptiste.heyberger at rte-france.com>
@@ -83,13 +83,14 @@ class PsseImporterTest extends AbstractConverterTest {
         assertFalse(importer.exists(dsCaseInvalidx));
     }
 
-    private void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
+    private Network importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
         Properties properties = new Properties();
         properties.put("psse.import.ignore-base-voltage", ignoreBaseVoltage);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource(basename, new ResourceSet("/", filename));
         Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), properties);
         testNetwork(network);
+        return network;
     }
 
     @Test
@@ -194,7 +195,37 @@ class PsseImporterTest extends AbstractConverterTest {
 
     @Test
     void importTest14BusesDuplicateIds() throws IOException {
-        importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
+        Network n = importTest("IEEE_14_buses_duplicate_ids", "IEEE_14_buses_duplicate_ids.raw", false);
+        assertNotNull(n.getLoad("B2-L1 "));
+        assertNotNull(n.getLoad("B2-L10"));
+        assertNotNull(n.getGenerator("B1-G1 "));
+        assertNotNull(n.getGenerator("B1-G10"));
+        assertNotNull(n.getShuntCompensator("B9-SH 1"));
+        assertNotNull(n.getShuntCompensator("B9-SH 0"));
+        assertNotNull(n.getLine("L-13-14-1 "));
+        assertNotNull(n.getLine("L-14-13-10"));
+        assertNotNull(n.getLine("L-13-14-11"));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
+        assertNotNull(n.getTwoWindingsTransformer("T-7-4-10"));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-7-11"));
+    }
+
+    @Test
+    void importTest14BusesDuplicateIdsV35() throws IOException {
+        Network n = importTest("IEEE_14_buses_duplicate_ids_rev35", "IEEE_14_buses_duplicate_ids_rev35.raw", false);
+        assertNotNull(n.getLoad("B2-L1 "));
+        assertNotNull(n.getLoad("B2-L10"));
+        assertNotNull(n.getGenerator("B1-G1 "));
+        assertNotNull(n.getGenerator("B1-G10"));
+        assertNotNull(n.getShuntCompensator("B9-SH 1"));
+        assertNotNull(n.getShuntCompensator("B9-SH 0"));
+        assertNotNull(n.getShuntCompensator("B1-SwSH1"));
+        assertNotNull(n.getShuntCompensator("B1-SwSH10"));
+        assertNotNull(n.getLine("L-1-2-1 "));
+        assertNotNull(n.getLine("L-1-2-10"));
+        assertNotNull(n.getLine("L-2-1-11"));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-7-1 "));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-7-10"));
     }
 
     @Test

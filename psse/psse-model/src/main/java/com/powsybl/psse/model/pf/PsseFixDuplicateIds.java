@@ -7,16 +7,12 @@
  */
 package com.powsybl.psse.model.pf;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import com.powsybl.psse.model.PsseVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.function.Function;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -24,168 +20,155 @@ import org.slf4j.LoggerFactory;
  */
 public class PsseFixDuplicateIds {
 
-    public PsseFixDuplicateIds(PssePowerFlowModel model) {
+    private static final Logger LOGGER = LoggerFactory.getLogger(PsseFixDuplicateIds.class);
+    private final PssePowerFlowModel model;
+    private final PsseVersion version;
+
+    public PsseFixDuplicateIds(PssePowerFlowModel model, PsseVersion version) {
         this.model = Objects.requireNonNull(model);
-        warnings = new ArrayList<>();
+        this.version = Objects.requireNonNull(version);
     }
 
     public void fix() {
-        fixDuplicateIds(model);
-        if (!warnings.isEmpty()) {
-            writeWarnings();
+        fixDuplicatedIds(model.getLoads(), l -> l.getI() + "-" + l.getId(), this::loadFixer);
+        fixDuplicatedIds(model.getGenerators(), g -> g.getI() + "-" + g.getId(), this::generatorFixer);
+        fixDuplicatedIds(model.getFixedShunts(), sh -> sh.getI() + "-" + sh.getId(), this::fixedShuntFixer);
+        // For branches and transformers, we build the complete id using the sorted nodes plus the circuit id
+        fixDuplicatedIds(model.getNonTransformerBranches(), b -> sortedBuses(b.getI(), b.getJ()) + b.getCkt(), this::nonTransformerBranchFixer);
+        fixDuplicatedIds(model.getTransformers(), b -> sortedBuses(b.getI(), b.getJ(), b.getK()) + b.getCkt(), this::transformerFixer);
+        if (version.getMajorNumber() >= 35) {
+            fixDuplicatedIds(model.getSwitchedShunts(), sh -> sh.getI() + "-" + sh.getId(), this::switchedShuntFixer);
         }
     }
 
-    private void writeWarnings() {
-        LOGGER.warn("PSS/E Fix duplicate Ids ...");
-        warnings.forEach(LOGGER::warn);
-        LOGGER.warn("PSS/E Fix duplicate Ids end.");
+    private String sortedBuses(int... buses) {
+        Arrays.sort(buses);
+        return Arrays.toString(buses);
     }
 
-    private void fixDuplicateIds(PssePowerFlowModel model) {
-
-        // fix duplicate Ids only for non transformers branchs and transformers at the moment
-        fixDuplicateIdsNonTransformerBranches(model.getNonTransformerBranches());
-        fixDuplicateIdsTransformers(model.getTransformers());
-    }
-
-    private void fixDuplicateIdsNonTransformerBranches(List<PsseNonTransformerBranch> nonTransformerBranches) {
-        Map<String, List<IDs>> busesNonTransformerBranches = new HashMap<>();
-
-        for (int i = 0; i < nonTransformerBranches.size(); i++) {
-            PsseNonTransformerBranch nonTransformerBranch = nonTransformerBranches.get(i);
-            addBusesMap(busesNonTransformerBranches, i, nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt());
-        }
-
-        Map<String, List<IDs>> duplicateBusesLinks = getDuplicates(busesNonTransformerBranches);
-        duplicateBusesLinks.forEach((key, value) -> {
-            List<IDs> fixedIDs = obtainFixedIDs(value);
-            for (int i = 0; i < fixedIDs.size(); i++) {
-
-                // fix the psse record and add warning
-                PsseNonTransformerBranch nonTransformerBranch = nonTransformerBranches.get(fixedIDs.get(i).psseIndex);
-                nonTransformerBranch.setCkt(fixedIDs.get(i).id);
-
-                warnings.add(String.format("NonTransformerBranch: I %s J %d CKT %s fixed to ---> I %d J %d CKT %s",
-                    nonTransformerBranch.getI(), nonTransformerBranch.getJ(), value.get(i).id,
-                    nonTransformerBranch.getI(), nonTransformerBranch.getJ(), fixedIDs.get(i).id));
+    private <T> void fixDuplicatedIds(List<T> psseObjects, Function<T, String> idBuilder, IdFixer<T> idFixer) {
+        Set<String> foundIds = new HashSet<>();
+        Map<String, List<T>> duplicated = new HashMap<>();
+        psseObjects.forEach(psseObject -> {
+            String id = idBuilder.apply(psseObject);
+            if (foundIds.contains(id)) {
+                duplicated.computeIfAbsent(id, key -> new ArrayList<>()).add(psseObject);
             }
+            foundIds.add(id);
+        });
+        duplicated.forEach((id, duplicatedIdObjects) -> {
+            final Set<String> usedIds = new HashSet<>();
+            usedIds.add(id);
+            duplicatedIdObjects.forEach(psseObject -> {
+                String fixedId = idFixer.fix(psseObject, usedIds);
+                usedIds.add(fixedId);
+            });
         });
     }
 
-    private void fixDuplicateIdsTransformers(List<PsseTransformer> transformers) {
-        Map<String, List<IDs>> busesTransformers = new HashMap<>();
-
-        for (int i = 0; i < transformers.size(); i++) {
-            PsseTransformer transformer = transformers.get(i);
-            addBusesMap(busesTransformers, i, transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt());
-        }
-
-        Map<String, List<IDs>> duplicateBusesLinks = getDuplicates(busesTransformers);
-        duplicateBusesLinks.forEach((key, value) -> {
-            List<IDs> fixedIDs = obtainFixedIDs(value);
-            for (int i = 0; i < fixedIDs.size(); i++) {
-
-                // fix the psse record and add warning
-                PsseTransformer transformer = transformers.get(fixedIDs.get(i).psseIndex);
-                transformer.setCkt(fixedIDs.get(i).id);
-
-                warnings.add(String.format("Transformer: I %s J %d K %d CKT %s fixed to ---> I %d J %d K %d CKT %s",
-                    transformer.getI(), transformer.getJ(), transformer.getK(), value.get(i).id,
-                    transformer.getI(), transformer.getJ(), transformer.getK(), fixedIDs.get(i).id));
-            }
-        });
-    }
-
-    private static void addBusesMap(Map<String, List<IDs>> busesMap, int psseIndex, int busI, int busJ, String ckt) {
-        String busString;
-        if (busI < busJ) {
-            busString = String.format("%06d-%06d", busI, busJ);
-        } else {
-            busString = String.format("%06d-%06d", busJ, busI);
-        }
-
-        busesMap.computeIfAbsent(busString, k -> new ArrayList<>()).add(new IDs(psseIndex, ckt));
-    }
-
-    private static void addBusesMap(Map<String, List<IDs>> busesMap, int psseIndex, int busI, int busJ, int busK, String ckt) {
-        String busString;
-        List<Integer> buses = new ArrayList<>();
-        buses.add(busI);
-        buses.add(busJ);
-        buses.add(busK);
-        Collections.sort(buses);
-        busString = String.format("%06d-%06d-%06d", buses.get(0), buses.get(1), buses.get(2));
-
-        busesMap.computeIfAbsent(busString, k -> new ArrayList<>()).add(new IDs(psseIndex, ckt));
-    }
-
-    private static List<IDs> obtainFixedIDs(List<IDs> iDs) {
-        List<IDs> fixedIDs = new ArrayList<>();
-        iDs.forEach(iD -> fixedIDs.add(obtainFixedID(iD, fixedIDs)));
-        return fixedIDs;
-    }
-
-    private static IDs obtainFixedID(IDs iD, List<IDs> fixedIDs) {
-        if (fixedIDs.isEmpty()) {
-            return iD;
-        }
-        String firstCharacterString = iD.id.isEmpty() ? "0" : iD.id.substring(0, 1);
-        String newId = buildFixedId(iD.id, firstCharacterString, fixedIDs);
-        return new IDs(iD.psseIndex, newId);
-    }
-
-    private static Map<String, List<IDs>> getDuplicates(Map<String, List<IDs>> busesMap) {
-        Map<String, List<IDs>> duplicateBusMap = new HashMap<>();
-
-        busesMap.forEach((key, value) -> value.stream().collect(Collectors.groupingBy(s -> s.id))
-            .entrySet()
-            .stream()
-            .filter(e -> e.getValue().size() > 1)
-            .forEach(e -> duplicateBusMap.put(key, e.getValue())));
-
-        return duplicateBusMap;
-    }
-
-    private static String buildFixedId(String id, String firstCharacterString, List<IDs> fixedIDs) {
-        for (char c = '0'; c <= '9'; c++) {
-            String secondCharacterString = String.valueOf(c);
-            if (isUsed(secondCharacterString, fixedIDs)) {
+    private String buildFixedId2(String id, Set<String> usedIds) {
+        // The id is only two characters long, and we try to preserve the first character
+        // We avoid setting a 0 as first character because PSSE may interpret them as not valid
+        String first = id.isEmpty() ? "1" : id.substring(0, 1);
+        for (char second = '0'; second <= '9'; second++) {
+            String candidate = first + second;
+            if (usedIds.contains(candidate)) {
                 continue;
             }
-            return firstCharacterString + secondCharacterString;
+            return candidate;
         }
-        // only lowercase are considered. It is enough
-        for (char c = 'a'; c <= 'z'; c++) {
-            String secondCharacterString = String.valueOf(c);
-            if (isUsed(secondCharacterString, fixedIDs)) {
+        // try with an uppercase letter, if all digits have been used
+        for (char second = 'A'; second <= 'Z'; second++) {
+            String candidate = first + second;
+            if (usedIds.contains(candidate)) {
                 continue;
             }
-            return firstCharacterString + secondCharacterString;
+            return candidate;
         }
+        // we run out of candidates, return the same id
         return id;
     }
 
-    private static boolean isUsed(String secondCharacterString, List<IDs> fixedIDs) {
-        for (IDs iD : fixedIDs) {
-            if (iD.id.length() > 1 && iD.id.substring(1, 2).equals(secondCharacterString)) {
-                return true;
+    private String loadFixer(PsseLoad load, Set<String> usedIds) {
+        String id = load.getId();
+        String fixedId = buildFixedId2(id, usedIds);
+        load.setId(fixedId);
+        warn("Load", load.getI(), id, fixedId);
+        return fixedId;
+    }
+
+    private String generatorFixer(PsseGenerator generator, Set<String> usedIds) {
+        String id = generator.getId();
+        String fixedId = buildFixedId2(id, usedIds);
+        generator.setId(fixedId);
+        warn("Generator", generator.getI(), id, fixedId);
+        return fixedId;
+    }
+
+    private String fixedShuntFixer(PsseFixedShunt fixedShunt, Set<String> usedIds) {
+        String id = fixedShunt.getId();
+        String fixedId = buildFixedId2(id, usedIds);
+        fixedShunt.setId(fixedId);
+        warn("FixedShunt", fixedShunt.getI(), id, fixedId);
+        return fixedId;
+    }
+
+    private String switchedShuntFixer(PsseSwitchedShunt switchedShunt, Set<String> usedIds) {
+        String id = switchedShunt.getId();
+        String fixedId = buildFixedId2(id, usedIds);
+        switchedShunt.setId(fixedId);
+        warn("SwitchedShunt", switchedShunt.getI(), id, fixedId);
+        return fixedId;
+    }
+
+    private String nonTransformerBranchFixer(PsseNonTransformerBranch branch, Set<String> usedIds) {
+        String id = branch.getCkt();
+        String fixedId = buildFixedId2(id, usedIds);
+        branch.setCkt(fixedId);
+        warn(branch, id, fixedId);
+        return fixedId;
+    }
+
+    private String transformerFixer(PsseTransformer transformer, Set<String> usedIds) {
+        String id = transformer.getCkt();
+        String fixedId = buildFixedId2(id, usedIds);
+        transformer.setCkt(fixedId);
+        warn(transformer, id, fixedId);
+        return fixedId;
+    }
+
+    private void warn(String type, int i, String id, String fixedId) {
+        if (LOGGER.isWarnEnabled()) {
+            if (id.equals(fixedId)) {
+                LOGGER.warn("Unable to fix {} Id: I {} ID '{}'", type, i, id);
+            } else {
+                LOGGER.warn("{} Id fixed: I {} ID '{}'. Fixed ID '{}'", type, i, id, fixedId);
             }
         }
-        return false;
     }
 
-    private static final class IDs {
-        private final int psseIndex;
-        private final String id;
-
-        IDs(int psseIndex, String id) {
-            this.psseIndex = psseIndex;
-            this.id = id;
+    private void warn(PsseNonTransformerBranch branch, String id, String fixedId) {
+        if (LOGGER.isWarnEnabled()) {
+            if (id.equals(fixedId)) {
+                LOGGER.warn("Unable to fix NonTransformerBranch Id: I {} J {} CKT '{}'", branch.getI(), branch.getJ(), id);
+            } else {
+                LOGGER.warn("NonTransformerBranch Id fixed: I {} J {} CKT '{}'. Fixed CKT '{}'", branch.getI(), branch.getJ(), id, fixedId);
+            }
         }
     }
 
-    private final PssePowerFlowModel model;
-    private final List<String> warnings;
-    private static final Logger LOGGER = LoggerFactory.getLogger(PsseFixDuplicateIds.class);
+    private void warn(PsseTransformer transformer, String id, String fixedId) {
+        if (LOGGER.isWarnEnabled()) {
+            if (id.equals(fixedId)) {
+                LOGGER.warn("Unable to fix Transformer Id: I {} J {} K {} CKT '{}'", transformer.getI(), transformer.getJ(), transformer.getK(), id);
+            } else {
+                LOGGER.warn("Transformer Id fixed: I {} J {} K {} CKT '{}'. Fixed CKT '{}'", transformer.getI(), transformer.getJ(), transformer.getK(), id, fixedId);
+            }
+        }
+    }
+
+    @FunctionalInterface
+    public interface IdFixer<T> {
+        String fix(T t, Set<String> usedIds);
+    }
 }
