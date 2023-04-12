@@ -234,6 +234,20 @@ class AmplNetworkReaderTest {
         testBatteries(network, reader);
     }
 
+    @Test
+    void testMatchingQuote() {
+        Map<String, Integer> expectedTokens = Map.ofEntries(Map.entry("key some_value_without_spaces", 2),
+                Map.entry("key \"value with spaces in doubles quotes\"", 2),
+                Map.entry("key 'value with spaces in single quotes'", 2));
+        for (Map.Entry<String, Integer> entry : expectedTokens.entrySet()) {
+            String str = entry.getKey();
+            Integer expectedNbTokens = entry.getValue();
+            assertEquals(expectedNbTokens, AmplNetworkReader.parseExceptIfBetweenQuotes(str).size(),
+                    "The number of tokens parsed is wrong");
+        }
+
+    }
+
     private void testGenerators(Network network, AmplNetworkReader reader) throws IOException {
         Generator generator = network.getGenerator("GEN");
         VoltageLevel voltageLevel = generator.getTerminal().getVoltageLevel();

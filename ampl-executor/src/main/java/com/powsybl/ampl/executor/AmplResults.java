@@ -6,6 +6,9 @@
  */
 package com.powsybl.ampl.executor;
 
+import java.util.Map;
+import java.util.Objects;
+
 /**
  * Basic class for Ampl solve information.
  *
@@ -13,18 +16,20 @@ package com.powsybl.ampl.executor;
  */
 public class AmplResults {
 
-    public static AmplResults ok() {
-        return new AmplResults(true);
-    }
-
     private final boolean success;
+    private final Map<String, String> indicators;
 
-    public AmplResults(boolean success) {
+    public AmplResults(boolean success, Map<String, String> indicators) {
+        Objects.requireNonNull(indicators);
         this.success = success;
+        this.indicators = indicators;
     }
 
     public boolean isSuccess() {
         return success;
     }
 
+    public Map<String, String> getIndicators() {
+        return indicators;
+    }
 }

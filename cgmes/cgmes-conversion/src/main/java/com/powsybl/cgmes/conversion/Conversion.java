@@ -110,16 +110,21 @@ public class Conversion {
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config) {
-        this(cgmes, config, Collections.emptyList());
+        this(cgmes, config, Collections.emptyList(), Collections.emptyList());
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
-        this(cgmes, config, postProcessors, NetworkFactory.findDefault());
+        this(cgmes, config, Collections.emptyList(), postProcessors, NetworkFactory.findDefault());
     }
 
-    public Conversion(CgmesModel cgmes, Config config, List<CgmesImportPostProcessor> activatedPostProcessors, NetworkFactory networkFactory) {
+    public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPreProcessor> preProcessors, List<CgmesImportPostProcessor> postProcessors) {
+        this(cgmes, config, preProcessors, postProcessors, NetworkFactory.findDefault());
+    }
+
+    public Conversion(CgmesModel cgmes, Config config, List<CgmesImportPreProcessor> activatedPreProcessors, List<CgmesImportPostProcessor> activatedPostProcessors, NetworkFactory networkFactory) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
+        this.preProcessors = Objects.requireNonNull(activatedPreProcessors);
         this.postProcessors = Objects.requireNonNull(activatedPostProcessors);
         this.networkFactory = Objects.requireNonNull(networkFactory);
     }
@@ -134,6 +139,11 @@ public class Conversion {
 
     public Network convert(Reporter reporter) {
         Objects.requireNonNull(reporter);
+
+        // apply pre-processors before starting the conversion
+        for (CgmesImportPreProcessor preProcessor : preProcessors) {
+            preProcessor.process(cgmes);
+        }
 
         if (LOG.isTraceEnabled() && cgmes.baseVoltages() != null) {
             LOG.trace("{}{}{}", "BaseVoltages", System.lineSeparator(), cgmes.baseVoltages().tabulate());
@@ -758,15 +768,6 @@ public class Conversion {
             return this;
         }
 
-        public boolean createCgmesExportMapping() {
-            return createCgmesExportMapping;
-        }
-
-        public Config setCreateCgmesExportMapping(boolean createCgmesExportMapping) {
-            this.createCgmesExportMapping = createCgmesExportMapping;
-            return this;
-        }
-
         public boolean convertSvInjections() {
             return convertSvInjections;
         }
@@ -921,8 +922,6 @@ public class Conversion {
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;
 
-        private boolean createCgmesExportMapping = false;
-
         private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
         // Default interpretation.
@@ -939,6 +938,7 @@ public class Conversion {
     private final CgmesModel cgmes;
     private final Config config;
     private final List<CgmesImportPostProcessor> postProcessors;
+    private final List<CgmesImportPreProcessor> preProcessors;
     private final NetworkFactory networkFactory;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
