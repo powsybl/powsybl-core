@@ -77,7 +77,7 @@ class PsseImporterIllinoisTest extends AbstractConverterTest {
 
     @Test
     void testLiteratureBasedTwoArea() {
-        testValid("/illinois/literature-based", "two_area_case.raw");
+        testValid("/illinois/literature-based", "two_area_case.RAW");
     }
 
     @Test
@@ -87,7 +87,7 @@ class PsseImporterIllinoisTest extends AbstractConverterTest {
 
     @Test
     void testSyntheticUiuc150() {
-        testValid("/illinois/synthetic", "uiuc-150bus.raw");
+        testValid("/illinois/synthetic", "uiuc-150bus.RAW");
     }
 
     @Test
