@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.tck.extensions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.iidm.network.extensions.FourSubstationsNodeBreakerWithExtensionsFactory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerWithExtensionsFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
