@@ -114,7 +114,7 @@ class TieFlowConversionTest {
             t.getConnectable().getId(), t.getConnectable().getType()));
         if (!ok) {
             LOG.info("Terminal to find connectableId {} identifiableType {}", connectableId, identifiableType);
-            cgmesControlArea.getBoundaries().forEach(t -> LOG.info("Terminal inside cgmesControlArea connectableId {} identifiableType {}",
+            cgmesControlArea.getTerminals().forEach(t -> LOG.info("Terminal inside cgmesControlArea connectableId {} identifiableType {}",
                     t.getConnectable().getId(), t.getConnectable().getType()));
         }
         return ok;
@@ -122,11 +122,11 @@ class TieFlowConversionTest {
 
     private static boolean containsBoundary(CgmesControlArea cgmesControlArea, String connectableId, IdentifiableType identifiableType) {
         boolean ok = cgmesControlArea.getBoundaries().stream().anyMatch(b -> isConnectableOk(connectableId, identifiableType,
-            b.getConnectable().getId(), b.getConnectable().getType()));
+            b.getDanglingLine().getId(), b.getDanglingLine().getType()));
         if (!ok) {
             LOG.info("Boundary to find connectableId {} identifiableType {}", connectableId, identifiableType);
-            cgmesControlArea.getBoundaries().forEach(b -> LOG.info("Boundary inside cgmesControlArea connectableId {} identifiableType {}",
-                    b.getConnectable().getId(), b.getConnectable().getType()));
+            cgmesControlArea.getBoundaries().forEach(b -> LOG.info("Boundary inside cgmesControlArea danglingLineId {}}",
+                    b.getDanglingLine().getId()));
         }
         return ok;
     }

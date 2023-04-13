@@ -66,12 +66,6 @@ public class DanglingLineBoundaryImpl implements Boundary {
         return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideQ(parent, true);
     }
 
-    // return a valid equipment of the network (DanglingLines inside a TieLine are not in the model)
-    @Override
-    public Connectable getConnectable() {
-        return parent;
-    }
-
     @Override
     public DanglingLine getDanglingLine() {
         return parent;

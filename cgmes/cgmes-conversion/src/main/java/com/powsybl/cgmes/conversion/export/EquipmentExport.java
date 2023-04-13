@@ -912,9 +912,9 @@ public final class EquipmentExport {
     }
 
     private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context) {
-        Connectable<?> c = boundary.getConnectable();
-        if (c instanceof DanglingLine && !((DanglingLine) c).isMerged()) {
-            return context.getNamingStrategy().getCgmesIdFromAlias(c, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
+        DanglingLine dl = boundary.getDanglingLine();
+        if (!dl.isMerged()) {
+            return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         } else {
             // This means the boundary corresponds to a TieLine.
             // Because the network should not be a merging view,
@@ -931,7 +931,7 @@ public final class EquipmentExport {
             // Also, the boundary node should not be exported but referenced,
             // as it should be defined in the boundary, not in the instance EQ file.
 
-            LOG.error("Unsupported tie flow at TieLine boundary {}", c.getId());
+            LOG.error("Unsupported tie flow at TieLine boundary {}", dl.getId());
             return null;
         }
     }
