@@ -300,6 +300,17 @@ public final class EuropeanLvTestFeederFactory {
         }
     }
 
+    private static LoadConnectionType getConnectionType(Load load) {
+        LoadConnectionType connectionType;
+        switch (load.connection) {
+            case "wye":
+                return LoadConnectionType.Y;
+
+            default:
+                throw new PowsyblException("Unknown load connection: " + load.connection);
+        }
+    }
+
     private static void createLoads(Network network) {
         for (Load load : parseCsv("/europeanLvTestFeeder/Loads.csv", Load.class)) {
             var vl = network.getVoltageLevel(getVoltageLevelId(load.bus));
@@ -340,6 +351,7 @@ public final class EuropeanLvTestFeederFactory {
                     throw new PowsyblException("Unknown phase: " + load.phases);
             }
             l.newExtension(LoadAsymmetricalAdder.class)
+                    .withConnectionType(getConnectionType(load))
                     .withDeltaPa(deltaPa)
                     .withDeltaQa(deltaQa)
                     .withDeltaPb(deltaPb)
