@@ -10,10 +10,18 @@
 -->
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:las="http://www.powsybl.org/schema/iidm/ext/load_asymmetrical/1_0"
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/load_asymmetrical/1_0"
            elementFormDefault="qualified">
+    <xs:simpleType name="LoadConnectionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Y"/>
+            <xs:enumeration value="DELTA"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:element name="loadAsymmetrical">
         <xs:complexType>
+            <xs:attribute name="connectionType" use="required" type="las:LoadConnectionType"/>
             <xs:attribute name="deltaPa" type="xs:double"/>
             <xs:attribute name="deltaQa" type="xs:double"/>
             <xs:attribute name="deltaPb" type="xs:double"/>

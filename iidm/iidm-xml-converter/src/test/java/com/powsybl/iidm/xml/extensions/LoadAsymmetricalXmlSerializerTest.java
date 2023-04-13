@@ -10,6 +10,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.LoadAsymmetrical;
 import com.powsybl.iidm.network.extensions.LoadAsymmetricalAdder;
+import com.powsybl.iidm.network.extensions.LoadConnectionType;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
@@ -17,8 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -32,6 +32,7 @@ class LoadAsymmetricalXmlSerializerTest extends AbstractConverterTest {
         var load = network.getLoad("LOAD");
         assertNotNull(load);
         LoadAsymmetrical asym = load.newExtension(LoadAsymmetricalAdder.class)
+                .withConnectionType(LoadConnectionType.DELTA)
                 .withDeltaPa(-1)
                 .withDeltaQa(1)
                 .withDeltaPc(-2)
@@ -47,6 +48,7 @@ class LoadAsymmetricalXmlSerializerTest extends AbstractConverterTest {
         LoadAsymmetrical asym2 = load2.getExtension(LoadAsymmetrical.class);
         assertNotNull(asym2);
 
+        assertSame(LoadConnectionType.DELTA, asym2.getConnectionType());
         assertEquals(asym.getDeltaPa(), asym2.getDeltaPa(), 0);
         assertEquals(asym.getDeltaQa(), asym2.getDeltaQa(), 0);
         assertEquals(asym.getDeltaPb(), asym2.getDeltaPb(), 0);
