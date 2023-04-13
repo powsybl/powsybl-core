@@ -25,23 +25,31 @@ public final class ShuntTestCaseFactory {
         return create(NetworkFactory.findDefault());
     }
 
+    public static Network create(double bPerSection) {
+        return create(NetworkFactory.findDefault(), bPerSection);
+    }
+
     public static Network create(NetworkFactory networkFactory) {
+        return create(networkFactory, 1e-5);
+    }
+
+    public static Network create(NetworkFactory networkFactory, double bPerSection) {
         Network network = createBase(networkFactory);
 
         network.getVoltageLevel("VL1")
                 .newShuntCompensator()
-                    .setId(SHUNT)
-                    .setBus("B1")
-                    .setConnectableBus("B1")
-                    .setSectionCount(1)
-                    .setVoltageRegulatorOn(true)
-                    .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
-                    .setTargetV(200)
-                    .setTargetDeadband(5.0)
-                    .newLinearModel()
-                        .setMaximumSectionCount(1)
-                        .setBPerSection(1e-5)
-                    .add()
+                .setId(SHUNT)
+                .setBus("B1")
+                .setConnectableBus("B1")
+                .setSectionCount(1)
+                .setVoltageRegulatorOn(true)
+                .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
+                .setTargetV(200)
+                .setTargetDeadband(5.0)
+                .newLinearModel()
+                .setMaximumSectionCount(1)
+                .setBPerSection(bPerSection)
+                .add()
                 .add()
                 .addAlias("Alias");
 
