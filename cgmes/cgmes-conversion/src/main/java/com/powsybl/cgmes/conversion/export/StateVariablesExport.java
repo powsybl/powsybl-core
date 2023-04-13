@@ -145,9 +145,8 @@ public final class StateVariablesExport {
 
     private static void writeVoltagesForTopologicalNodes(Network network, CgmesExportContext context, XMLStreamWriter writer) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
-        for (Bus b : network.getBusBreakerView().getBuses()) {
-            String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
-            writeVoltage(topologicalNodeId, b.getV(), b.getAngle(), cimNamespace, writer, context);
+        for (Map.Entry<String, Bus> e : context.getTopologicalNodes(network).entrySet()) {
+            writeVoltage(e.getKey(), e.getValue() != null ? e.getValue().getV() : 0.0, e.getValue() != null ? e.getValue().getAngle() : 0.0, cimNamespace, writer, context);
         }
     }
 
