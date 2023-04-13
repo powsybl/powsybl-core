@@ -56,9 +56,9 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                 TerminalRefXml.writeTerminalRef(terminal, networkContext, getNamespaceUri(), "terminal");
             }
             for (Boundary boundary : controlArea.getBoundaries()) {
-                if (boundary.getConnectable() != null) { // TODO: delete this later, only for compatibility
+                if (boundary.getDanglingLine() != null) { // TODO: delete this later, only for compatibility
                     writer.writeEmptyElement(getNamespaceUri(), "boundary");
-                    writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getConnectable().getId()));
+                    writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getDanglingLine().getId()));
 
                  // TODO use TieLine Id and DanglingLine Id for reference instead of TieLine Id and Side
                     Branch.Side side = getSide(boundary);
@@ -73,12 +73,12 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
 
     private static Branch.Side getSide(Boundary boundary) {
         // a TieLine with two dangingLines inside
-        if (boundary.getConnectable() instanceof TieLine) {
-            TieLine tl = (TieLine) boundary.getConnectable();
-            return tl.getHalf1() == boundary.getDanglingLine() ? Branch.Side.ONE : Branch.Side.TWO;
-        }
-        // A danglingLine
-        return null;
+        return boundary.getDanglingLine().getTieLine().map(tl -> {
+            if (tl.getHalf1() == boundary.getDanglingLine()) {
+                return Branch.Side.ONE;
+            }
+            return Branch.Side.TWO;
+        }).orElse(null);
     }
 
     @Override

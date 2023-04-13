@@ -87,7 +87,6 @@ public abstract class AbstractLineTest {
         assertSame(busA, acLine.getTerminal(Branch.Side.ONE).getBusBreakerView().getConnectableBus());
         assertSame(busB, acLine.getTerminal(Branch.Side.TWO).getBusBreakerView().getConnectableBus());
 
-        assertFalse(acLine.isTieLine());
         assertEquals(IdentifiableType.LINE, acLine.getType());
 
         // setter getter
@@ -109,7 +108,6 @@ public abstract class AbstractLineTest {
         assertEquals(b1, acLine.getB1(), 0.0);
         acLine.setB2(b2);
         assertEquals(b2, acLine.getB2(), 0.0);
-        assertFalse(acLine.isTieLine());
 
         CurrentLimits currentLimits1 = acLine.newCurrentLimits1()
                 .setPermanentLimit(100)

@@ -7,7 +7,6 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.VoltageLevel;
 
@@ -38,11 +37,6 @@ class BoundaryAdapter extends AbstractAdapter<Boundary> implements Boundary {
     @Override
     public double getQ() {
         return getDelegate().getQ();
-    }
-
-    @Override
-    public Connectable getConnectable() {
-        return getIndex().getConnectable(getDelegate().getConnectable());
     }
 
     @Override

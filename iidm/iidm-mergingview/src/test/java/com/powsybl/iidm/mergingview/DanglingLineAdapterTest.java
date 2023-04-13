@@ -260,7 +260,7 @@ class DanglingLineAdapterTest {
         assertSame(mergedLine.getHalf(Branch.Side.TWO), dl2Bis);
 
         // Boundary
-        assertSame(dl1, dl1.getBoundary().getConnectable());
+        assertSame(dl1, dl1.getBoundary().getDanglingLine());
         assertSame(mergedLine.getHalf1().getTerminal().getVoltageLevel(), dl1.getBoundary().getNetworkSideVoltageLevel());
         assertSame(mergedLine.getHalf2().getTerminal().getVoltageLevel(), mergingView.getVoltageLevel(dl2.getBoundary().getNetworkSideVoltageLevel().getId()));
 

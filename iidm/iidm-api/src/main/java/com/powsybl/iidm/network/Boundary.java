@@ -32,13 +32,6 @@ public interface Boundary {
     double getQ();
 
     /**
-     * Get the equipment the boundary is associated to.
-     */
-    default Connectable getConnectable() {
-        return null;
-    }
-
-    /**
      * Get the danglingLine the boundary is associated to.
      */
     DanglingLine getDanglingLine();
