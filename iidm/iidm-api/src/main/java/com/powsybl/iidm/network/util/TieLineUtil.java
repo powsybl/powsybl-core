@@ -132,7 +132,7 @@ public final class TieLineUtil {
             // mapping by ucte xnode code
             if (candidateDanglingLine.getUcteXnodeCode() != null) { // if X-node code null: no associated dangling line
                 if (candidateDanglingLine.getNetwork().getDanglingLineStream()
-                        .filter(d -> d.getTieLine().isEmpty())
+                        .filter(d -> !d.isMerged())
                         .filter(d -> d != candidateDanglingLine)
                         .filter(d -> candidateDanglingLine.getUcteXnodeCode().equals(d.getUcteXnodeCode()))
                         .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same X-node code in the network to be merged
