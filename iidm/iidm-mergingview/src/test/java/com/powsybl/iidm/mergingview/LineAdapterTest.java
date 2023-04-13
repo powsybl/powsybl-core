@@ -42,7 +42,6 @@ class LineAdapterTest {
         assertEquals(lineRef.getId(), lineAdapted.getId());
         assertEquals(lineRef.getOptionalName().orElse(null), lineAdapted.getOptionalName().orElse(null));
         assertEquals(lineRef.getNameOrId(), lineAdapted.getNameOrId());
-        assertEquals(lineRef.isTieLine(), lineAdapted.isTieLine());
         assertTrue(lineAdapted.getTerminal1() instanceof TerminalAdapter);
         assertTrue(lineAdapted.getTerminal2() instanceof TerminalAdapter);
         assertSame(lineAdapted.getTerminal1(), lineAdapted.getTerminal(Branch.Side.ONE));
