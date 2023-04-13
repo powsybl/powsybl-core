@@ -8,9 +8,7 @@ package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.LinkedHashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A network reducer predicate that allow reduction based on a center voltage level and all other voltage level neighbors
@@ -26,67 +24,92 @@ public class SubNetworkPredicate implements NetworkPredicate {
         delegate = init(vl, maxDepth);
     }
 
-    private static IdentifierNetworkPredicate init(VoltageLevel vl, int maxDepth) {
-        Objects.requireNonNull(vl);
+    static class Node {
+        private final VoltageLevel vl;
+        private final int depth;
+
+        Node(VoltageLevel vl, int depth) {
+            this.vl = vl;
+            this.depth = depth;
+        }
+    }
+
+    private static IdentifierNetworkPredicate init(VoltageLevel rootVl, int maxDepth) {
+        Objects.requireNonNull(rootVl);
         if (maxDepth < 0) {
             throw new IllegalArgumentException("Invalid max depth value: " + maxDepth);
         }
         Set<String> voltageLevelIds = new LinkedHashSet<>();
-        traverse(vl, 0, maxDepth, voltageLevelIds);
-        return new IdentifierNetworkPredicate(voltageLevelIds);
-    }
+        Queue<Node> queue = new ArrayDeque<>();
+        queue.add(new Node(rootVl, 0));
 
-    private static void traverse(VoltageLevel vl, int depth, int maxDepth, Set<String> voltageLevelIds) {
-        if (voltageLevelIds.contains(vl.getId()) || depth > maxDepth) {
-            return;
+        while (!queue.isEmpty()) {
+            Node node = queue.poll();
+            VoltageLevel vl = node.vl;
+            int depth = node.depth;
+            voltageLevelIds.add(vl.getId());
+
+            if (depth < maxDepth) {
+                vl.visitEquipments(new DefaultTopologyVisitor() {
+                    private void visitBranch(Branch branch, Branch.Side side) {
+                        VoltageLevel nextVl;
+                        switch (side) {
+                            case ONE:
+                                nextVl = branch.getTerminal2().getVoltageLevel();
+                                break;
+                            case TWO:
+                                nextVl = branch.getTerminal1().getVoltageLevel();
+                                break;
+                            default:
+                                throw new IllegalStateException("Unknown side: " + side);
+                        }
+                        if (!voltageLevelIds.contains(nextVl.getId())) {
+                            queue.add(new Node(nextVl, depth + 1));
+                        }
+                    }
+
+                    @Override
+                    public void visitLine(Line line, Branch.Side side) {
+                        visitBranch(line, side);
+                    }
+
+                    @Override
+                    public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
+                        visitBranch(transformer, side);
+                    }
+
+                    @Override
+                    public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
+                        VoltageLevel nextVl1;
+                        VoltageLevel nextVl2;
+                        switch (side) {
+                            case ONE:
+                                nextVl1 = transformer.getLeg2().getTerminal().getVoltageLevel();
+                                nextVl2 = transformer.getLeg3().getTerminal().getVoltageLevel();
+                                break;
+                            case TWO:
+                                nextVl1 = transformer.getLeg1().getTerminal().getVoltageLevel();
+                                nextVl2 = transformer.getLeg3().getTerminal().getVoltageLevel();
+                                break;
+                            case THREE:
+                                nextVl1 = transformer.getLeg1().getTerminal().getVoltageLevel();
+                                nextVl2 = transformer.getLeg2().getTerminal().getVoltageLevel();
+                                break;
+                            default:
+                                throw new IllegalStateException("Unknown side: " + side);
+                        }
+                        if (!voltageLevelIds.contains(nextVl1.getId())) {
+                            queue.add(new Node(nextVl1, depth + 1));
+                        }
+                        if (!voltageLevelIds.contains(nextVl2.getId())) {
+                            queue.add(new Node(nextVl2, depth + 1));
+                        }
+                    }
+                });
+            }
         }
 
-        voltageLevelIds.add(vl.getId());
-
-        vl.visitEquipments(new DefaultTopologyVisitor() {
-            private void visitBranch(Branch branch, Branch.Side side) {
-                switch (side) {
-                    case ONE:
-                        traverse(branch.getTerminal2().getVoltageLevel(), depth + 1, maxDepth, voltageLevelIds);
-                        break;
-                    case TWO:
-                        traverse(branch.getTerminal1().getVoltageLevel(), depth + 1, maxDepth, voltageLevelIds);
-                        break;
-                    default:
-                        throw new IllegalStateException("Unknown side: " + side);
-                }
-            }
-
-            @Override
-            public void visitLine(Line line, Branch.Side side) {
-                visitBranch(line, side);
-            }
-
-            @Override
-            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, Branch.Side side) {
-                visitBranch(transformer, side);
-            }
-
-            @Override
-            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side) {
-                switch (side) {
-                    case ONE:
-                        traverse(transformer.getLeg2().getTerminal().getVoltageLevel(), depth + 1, maxDepth, voltageLevelIds);
-                        traverse(transformer.getLeg3().getTerminal().getVoltageLevel(), depth + 1, maxDepth, voltageLevelIds);
-                        break;
-                    case TWO:
-                        traverse(transformer.getLeg1().getTerminal().getVoltageLevel(), depth + 1, maxDepth, voltageLevelIds);
-                        traverse(transformer.getLeg3().getTerminal().getVoltageLevel(), depth + 1, maxDepth, voltageLevelIds);
-                        break;
-                    case THREE:
-                        traverse(transformer.getLeg1().getTerminal().getVoltageLevel(), depth + 1, maxDepth, voltageLevelIds);
-                        traverse(transformer.getLeg2().getTerminal().getVoltageLevel(), depth + 1, maxDepth, voltageLevelIds);
-                        break;
-                    default:
-                        throw new IllegalStateException("Unknown side: " + side);
-                }
-            }
-        });
+        return new IdentifierNetworkPredicate(voltageLevelIds);
     }
 
     @Override

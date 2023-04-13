@@ -15,7 +15,7 @@ import java.util.*;
  */
 public class IdentifierNetworkPredicate implements NetworkPredicate {
 
-    private final Set<String> ids = new HashSet<>();
+    private final Set<String> ids = new LinkedHashSet<>();
 
     public static IdentifierNetworkPredicate of(String... ids) {
         Objects.requireNonNull(ids);
