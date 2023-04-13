@@ -10027,169 +10027,169 @@
         <lf:lineFortescue rz="2.947502" xz="0.3963882"/>
     </iidm:extension>
     <iidm:extension id="Load-178">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-208">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-225">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-248">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-249">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-264">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-276">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-289">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-314">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-320">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-327">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-337">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-34">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-342">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-349">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-387">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-388">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-406">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-458">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-47">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-502">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-522">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-539">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-556">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-562">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-563">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-611">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-614">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-619">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-629">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-639">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-676">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-682">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-688">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-70">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-701">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-702">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-73">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-74">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-755">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-778">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-780">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-785">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-813">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-817">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-83">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-835">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPb="-0.001" deltaQb="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-860">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-861">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-886">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-896">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-898">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-899">
-        <las:loadAsymmetrical deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPa="-0.001" deltaQa="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-900">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="Load-906">
-        <las:loadAsymmetrical deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
+        <las:loadAsymmetrical connectionType="Y" deltaPb="-0.001" deltaQb="-9.5E-4" deltaPc="-0.001" deltaQc="-9.5E-4"/>
     </iidm:extension>
     <iidm:extension id="SourceGenerator">
         <gf:generatorFortescue rz="2.2117672100424902E-4" xz="0.0022117672100424902" rn="0.13270603260254946" xn="1.3270603260254945" grounded="false"/>
@@ -10209,7 +10209,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-100">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3533234752469326" latitude="45.804755085459625"/>
+            <sp:coordinate longitude="-0.3533234752469326" latitude="45.80475508545961"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-101">
@@ -10369,7 +10369,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-13">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3533387899861055" latitude="45.804751576693995"/>
+            <sp:coordinate longitude="-0.3533387899861056" latitude="45.80475157669399"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-130">
@@ -10389,22 +10389,22 @@
     </iidm:extension>
     <iidm:extension id="Substation-133">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35259727027514953" latitude="45.80447801746652"/>
+            <sp:coordinate longitude="-0.3525972702751496" latitude="45.80447801746651"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-134">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3528150485541348" latitude="45.80430723480401"/>
+            <sp:coordinate longitude="-0.3528150485541348" latitude="45.804307234804014"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-135">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35327285264276564" latitude="45.804355288392046"/>
+            <sp:coordinate longitude="-0.35327285264276564" latitude="45.80435528839204"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-136">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35270971215035374" latitude="45.8044763561194"/>
+            <sp:coordinate longitude="-0.3527097121503538" latitude="45.80447635611939"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-137">
@@ -10579,7 +10579,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-168">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3528488369783877" latitude="45.80426787516722"/>
+            <sp:coordinate longitude="-0.35284883697838765" latitude="45.80426787516723"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-169">
@@ -10599,7 +10599,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-171">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35252450151304116" latitude="45.804619388489584"/>
+            <sp:coordinate longitude="-0.35252450151304116" latitude="45.80461938848957"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-172">
@@ -10629,12 +10629,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-177">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35285245706951024" latitude="45.80425916247692"/>
+            <sp:coordinate longitude="-0.3528524570695103" latitude="45.80425916247691"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-178">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3528086635384285" latitude="45.80464663882675"/>
+            <sp:coordinate longitude="-0.3528086635384285" latitude="45.80464663882676"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-179">
@@ -10654,7 +10654,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-181">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3526679730414605" latitude="45.80441717065494"/>
+            <sp:coordinate longitude="-0.3526679730414605" latitude="45.80441717065495"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-182">
@@ -10684,7 +10684,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-187">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35247558757645897" latitude="45.80465915672704"/>
+            <sp:coordinate longitude="-0.352475587576459" latitude="45.80465915672705"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-188">
@@ -10714,17 +10714,17 @@
     </iidm:extension>
     <iidm:extension id="Substation-192">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3523384284322894" latitude="45.804675690998934"/>
+            <sp:coordinate longitude="-0.35233842843228935" latitude="45.80467569099894"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-193">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.352333151250821" latitude="45.804614520207174"/>
+            <sp:coordinate longitude="-0.352333151250821" latitude="45.80461452020717"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-194">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35246382468377907" latitude="45.804492784221644"/>
+            <sp:coordinate longitude="-0.3524638246837791" latitude="45.80449278422163"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-195">
@@ -10734,12 +10734,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-196">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35240570925470943" latitude="45.804715629097515"/>
+            <sp:coordinate longitude="-0.3524057092547094" latitude="45.8047156290975"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-197">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3526616036131086" latitude="45.80470654046391"/>
+            <sp:coordinate longitude="-0.35266160361310855" latitude="45.804706540463904"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-198">
@@ -10754,7 +10754,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-2">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3533126237172011" latitude="45.80485683201788"/>
+            <sp:coordinate longitude="-0.3533126237172011" latitude="45.80485683201789"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-20">
@@ -10774,7 +10774,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-202">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3523364131092765" latitude="45.80467524212164"/>
+            <sp:coordinate longitude="-0.35233641310927644" latitude="45.80467524212163"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-203">
@@ -10784,7 +10784,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-204">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.352463074248038" latitude="45.80448939079624"/>
+            <sp:coordinate longitude="-0.352463074248038" latitude="45.80448939079622"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-205">
@@ -10824,7 +10824,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-211">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35259800921856055" latitude="45.80437625915748"/>
+            <sp:coordinate longitude="-0.3525980092185605" latitude="45.80437625915747"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-212">
@@ -10834,7 +10834,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-213">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.352330546710475" latitude="45.80460917140544"/>
+            <sp:coordinate longitude="-0.3523305467104749" latitude="45.80460917140546"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-214">
@@ -10854,7 +10854,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-217">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35235578841497883" latitude="45.80475670713312"/>
+            <sp:coordinate longitude="-0.3523557884149788" latitude="45.80475670713312"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-218">
@@ -10884,7 +10884,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-222">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3523294514349581" latitude="45.80460390509412"/>
+            <sp:coordinate longitude="-0.3523294514349581" latitude="45.80460390509411"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-223">
@@ -10909,22 +10909,22 @@
     </iidm:extension>
     <iidm:extension id="Substation-227">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3526317030495439" latitude="45.8047054781528"/>
+            <sp:coordinate longitude="-0.3526317030495439" latitude="45.804705478152805"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-228">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35257997763024" latitude="45.8043648557813"/>
+            <sp:coordinate longitude="-0.35257997763024" latitude="45.804364855781294"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-229">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35232980748493586" latitude="45.80467678792384"/>
+            <sp:coordinate longitude="-0.35232980748493586" latitude="45.804676787923846"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-23">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35324459235520833" latitude="45.80473478773791"/>
+            <sp:coordinate longitude="-0.35324459235520833" latitude="45.804734787737914"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-230">
@@ -10934,7 +10934,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-231">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35245675963285883" latitude="45.804481193159816"/>
+            <sp:coordinate longitude="-0.35245675963285883" latitude="45.80448119315982"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-232">
@@ -10949,12 +10949,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-234">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3523350283603348" latitude="45.80477392854004"/>
+            <sp:coordinate longitude="-0.3523350283603348" latitude="45.804773928540044"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-235">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35263242114607074" latitude="45.80470680257245"/>
+            <sp:coordinate longitude="-0.35263242114607074" latitude="45.80470680257246"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-236">
@@ -10979,7 +10979,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-24">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35329862168109893" latitude="45.80474776168256"/>
+            <sp:coordinate longitude="-0.35329862168109893" latitude="45.80474776168257"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-240">
@@ -10999,7 +10999,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-243">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3525783445448405" latitude="45.80436432618006"/>
+            <sp:coordinate longitude="-0.3525783445448405" latitude="45.80436432618004"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-244">
@@ -11044,7 +11044,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-251">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3525774465171318" latitude="45.80436438270248"/>
+            <sp:coordinate longitude="-0.3525774465171318" latitude="45.804364382702474"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-252">
@@ -11069,7 +11069,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-256">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35281613988332694" latitude="45.804187695610544"/>
+            <sp:coordinate longitude="-0.35281613988332694" latitude="45.80418769561054"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-257">
@@ -11099,7 +11099,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-261">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3524280558466115" latitude="45.804463059554635"/>
+            <sp:coordinate longitude="-0.3524280558466115" latitude="45.80446305955465"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-262">
@@ -11124,7 +11124,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-266">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3523266157247457" latitude="45.804683655030985"/>
+            <sp:coordinate longitude="-0.3523266157247457" latitude="45.80468365503097"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-267">
@@ -11204,12 +11204,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-280">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35274387724199874" latitude="45.80413393234026"/>
+            <sp:coordinate longitude="-0.3527438772419988" latitude="45.80413393234025"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-281">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35256810419297924" latitude="45.80437096745883"/>
+            <sp:coordinate longitude="-0.35256810419297924" latitude="45.80437096745885"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-282">
@@ -11254,12 +11254,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-29">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3532992930784275" latitude="45.80474863722179"/>
+            <sp:coordinate longitude="-0.3532992930784275" latitude="45.804748637221806"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-290">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35234113638179326" latitude="45.80469371686527"/>
+            <sp:coordinate longitude="-0.3523411363817932" latitude="45.80469371686527"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-291">
@@ -11319,7 +11319,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-300">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3524200638894252" latitude="45.80446412411282"/>
+            <sp:coordinate longitude="-0.35242006388942526" latitude="45.80446412411283"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-301">
@@ -11394,7 +11394,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-314">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3523765327315095" latitude="45.804485537541126"/>
+            <sp:coordinate longitude="-0.3523765327315095" latitude="45.80448553754113"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-315">
@@ -11434,7 +11434,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-321">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3522848442436383" latitude="45.804583291287265"/>
+            <sp:coordinate longitude="-0.3522848442436383" latitude="45.80458329128725"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-322">
@@ -11474,7 +11474,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-329">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3527036952124703" latitude="45.80420360237779"/>
+            <sp:coordinate longitude="-0.35270369521247025" latitude="45.80420360237779"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-33">
@@ -11569,12 +11569,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-346">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3525036708568019" latitude="45.803948367615014"/>
+            <sp:coordinate longitude="-0.3525036708568019" latitude="45.80394836761501"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-347">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35280467378744457" latitude="45.80409542214024"/>
+            <sp:coordinate longitude="-0.35280467378744457" latitude="45.80409542214025"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-348">
@@ -11589,7 +11589,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-35">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35321130501304393" latitude="45.80478459272596"/>
+            <sp:coordinate longitude="-0.35321130501304393" latitude="45.80478459272595"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-350">
@@ -11629,7 +11629,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-357">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3524866335499958" latitude="45.80393951518052"/>
+            <sp:coordinate longitude="-0.3524866335499959" latitude="45.80393951518051"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-358">
@@ -11639,7 +11639,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-359">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35272138105540657" latitude="45.804264876481916"/>
+            <sp:coordinate longitude="-0.3527213810554066" latitude="45.80426487648191"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-36">
@@ -11659,12 +11659,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-362">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3524801698080788" latitude="45.803936936259404"/>
+            <sp:coordinate longitude="-0.3524801698080788" latitude="45.8039369362594"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-363">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3528041774646086" latitude="45.80409333674471"/>
+            <sp:coordinate longitude="-0.3528041774646086" latitude="45.8040933367447"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-364">
@@ -11864,7 +11864,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-4">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35331540022945096" latitude="45.80485649856968"/>
+            <sp:coordinate longitude="-0.35331540022945096" latitude="45.80485649856966"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-40">
@@ -11944,7 +11944,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-413">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3523805287659394" latitude="45.803946529818504"/>
+            <sp:coordinate longitude="-0.3523805287659394" latitude="45.80394652981849"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-414">
@@ -11959,7 +11959,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-416">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35270555833996076" latitude="45.804006961047996"/>
+            <sp:coordinate longitude="-0.35270555833996076" latitude="45.80400696104799"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-417">
@@ -11969,7 +11969,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-418">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3529076751077342" latitude="45.80416047819343"/>
+            <sp:coordinate longitude="-0.3529076751077342" latitude="45.804160478193424"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-419">
@@ -11994,12 +11994,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-422">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3527059975194724" latitude="45.804006447070925"/>
+            <sp:coordinate longitude="-0.3527059975194724" latitude="45.80400644707092"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-423">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35299019125181896" latitude="45.804099685056244"/>
+            <sp:coordinate longitude="-0.35299019125181896" latitude="45.80409968505626"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-424">
@@ -12029,12 +12029,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-429">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.352706324634068" latitude="45.80400573767999"/>
+            <sp:coordinate longitude="-0.352706324634068" latitude="45.80400573767997"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-43">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3530411887324656" latitude="45.80460445472377"/>
+            <sp:coordinate longitude="-0.35304118873246554" latitude="45.80460445472379"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-430">
@@ -12144,7 +12144,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-45">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.353212005821084" latitude="45.80478609751534"/>
+            <sp:coordinate longitude="-0.353212005821084" latitude="45.80478609751533"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-450">
@@ -12154,7 +12154,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-451">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3529827450063692" latitude="45.80408792275834"/>
+            <sp:coordinate longitude="-0.3529827450063692" latitude="45.80408792275832"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-452">
@@ -12174,7 +12174,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-455">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35282532356697904" latitude="45.804002063542505"/>
+            <sp:coordinate longitude="-0.35282532356697904" latitude="45.80400206354252"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-456">
@@ -12204,12 +12204,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-460">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35209141841225683" latitude="45.8041291646821"/>
+            <sp:coordinate longitude="-0.3520914184122569" latitude="45.804129164682095"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-461">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35209141841225683" latitude="45.8041291646821"/>
+            <sp:coordinate longitude="-0.3520914184122569" latitude="45.804129164682095"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-462">
@@ -12229,7 +12229,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-465">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3527054638945968" latitude="45.8040030126941"/>
+            <sp:coordinate longitude="-0.3527054638945968" latitude="45.80400301269411"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-466">
@@ -12239,12 +12239,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-467">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3520354266780636" latitude="45.80416615187064"/>
+            <sp:coordinate longitude="-0.3520354266780636" latitude="45.804166151870625"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-468">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3520354266780636" latitude="45.80416615187064"/>
+            <sp:coordinate longitude="-0.3520354266780636" latitude="45.804166151870625"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-469">
@@ -12264,7 +12264,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-471">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3528378596194301" latitude="45.80399554073644"/>
+            <sp:coordinate longitude="-0.3528378596194301" latitude="45.803995540736445"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-472">
@@ -12294,7 +12294,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-477">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3521834651574036" latitude="45.8041241813929"/>
+            <sp:coordinate longitude="-0.3521834651574036" latitude="45.80412418139289"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-478">
@@ -12304,7 +12304,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-479">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35260138757794" latitude="45.80392154906716"/>
+            <sp:coordinate longitude="-0.35260138757794" latitude="45.803921549067155"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-48">
@@ -12314,12 +12314,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-480">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35270425454357757" latitude="45.80400246440965"/>
+            <sp:coordinate longitude="-0.3527042545435775" latitude="45.80400246440965"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-481">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35302820882423946" latitude="45.80415136943788"/>
+            <sp:coordinate longitude="-0.35302820882423946" latitude="45.80415136943789"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-482">
@@ -12339,12 +12339,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-485">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3521857298725216" latitude="45.80412501152496"/>
+            <sp:coordinate longitude="-0.3521857298725216" latitude="45.80412501152497"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-486">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3528422109238543" latitude="45.80399201268768"/>
+            <sp:coordinate longitude="-0.3528422109238543" latitude="45.80399201268767"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-487">
@@ -12389,7 +12389,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-494">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3521893525442965" latitude="45.804125990599246"/>
+            <sp:coordinate longitude="-0.3521893525442965" latitude="45.80412599059925"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-495">
@@ -12399,7 +12399,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-496">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3526064047201728" latitude="45.80391795181396"/>
+            <sp:coordinate longitude="-0.3526064047201728" latitude="45.803917951813965"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-497">
@@ -12454,12 +12454,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-505">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35269200902313996" latitude="45.80386762598647"/>
+            <sp:coordinate longitude="-0.3526920090231399" latitude="45.80386762598646"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-506">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35269993294343055" latitude="45.80400167230676"/>
+            <sp:coordinate longitude="-0.35269993294343055" latitude="45.804001672306754"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-507">
@@ -12469,12 +12469,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-508">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3518594649293946" latitude="45.8042747220857"/>
+            <sp:coordinate longitude="-0.3518594649293946" latitude="45.804274722085694"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-509">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3518594649293946" latitude="45.8042747220857"/>
+            <sp:coordinate longitude="-0.3518594649293946" latitude="45.804274722085694"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-51">
@@ -12549,7 +12549,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-522">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35279908117313835" latitude="45.80389095120881"/>
+            <sp:coordinate longitude="-0.35279908117313835" latitude="45.8038909512088"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-523">
@@ -12634,7 +12634,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-538">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3528569820476966" latitude="45.80399752429576"/>
+            <sp:coordinate longitude="-0.3528569820476966" latitude="45.803997524295745"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-539">
@@ -12674,7 +12674,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-545">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35212440915668974" latitude="45.804248698839096"/>
+            <sp:coordinate longitude="-0.3521244091566897" latitude="45.80424869883909"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-546">
@@ -12739,7 +12739,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-557">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35271433166800453" latitude="45.803853014450354"/>
+            <sp:coordinate longitude="-0.35271433166800453" latitude="45.80385301445034"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-558">
@@ -12844,7 +12844,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-576">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3519636132452082" latitude="45.80434479210476"/>
+            <sp:coordinate longitude="-0.35196361324520825" latitude="45.80434479210475"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-577">
@@ -12884,7 +12884,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-583">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3519650734441359" latitude="45.80434465074891"/>
+            <sp:coordinate longitude="-0.3519650734441359" latitude="45.8043446507489"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-584">
@@ -13039,7 +13039,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-610">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.351780185962328" latitude="45.80441613341517"/>
+            <sp:coordinate longitude="-0.351780185962328" latitude="45.80441613341515"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-611">
@@ -13084,7 +13084,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-619">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35169490367401846" latitude="45.804492115981404"/>
+            <sp:coordinate longitude="-0.35169490367401846" latitude="45.8044921159814"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-62">
@@ -13099,7 +13099,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-621">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35178434052543495" latitude="45.80442188775423"/>
+            <sp:coordinate longitude="-0.35178434052543495" latitude="45.80442188775424"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-622">
@@ -13109,7 +13109,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-623">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35276413709994847" latitude="45.803818849999864"/>
+            <sp:coordinate longitude="-0.35276413709994847" latitude="45.80381884999986"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-624">
@@ -13139,7 +13139,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-629">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3522217094441125" latitude="45.80420111171433"/>
+            <sp:coordinate longitude="-0.3522217094441126" latitude="45.804201111714335"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-63">
@@ -13159,7 +13159,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-632">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3525810420994202" latitude="45.803744430012735"/>
+            <sp:coordinate longitude="-0.3525810420994202" latitude="45.80374443001274"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-633">
@@ -13169,7 +13169,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-634">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3517206339362404" latitude="45.80434524217753"/>
+            <sp:coordinate longitude="-0.3517206339362404" latitude="45.80434524217755"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-635">
@@ -13204,7 +13204,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-640">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35172082430144863" latitude="45.80434463490235"/>
+            <sp:coordinate longitude="-0.35172082430144863" latitude="45.804344634902364"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-641">
@@ -13229,7 +13229,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-645">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35172068006948387" latitude="45.80434402627398"/>
+            <sp:coordinate longitude="-0.35172068006948387" latitude="45.80434402627399"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-646">
@@ -13239,7 +13239,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-647">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35277757471743515" latitude="45.80381950570255"/>
+            <sp:coordinate longitude="-0.35277757471743515" latitude="45.803819505702535"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-648">
@@ -13289,7 +13289,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-656">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35181136921445283" latitude="45.8044438303223"/>
+            <sp:coordinate longitude="-0.35181136921445283" latitude="45.804443830322306"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-657">
@@ -13314,7 +13314,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-660">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35257105266759486" latitude="45.80374212066365"/>
+            <sp:coordinate longitude="-0.35257105266759486" latitude="45.80374212066366"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-661">
@@ -13329,7 +13329,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-663">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35179683183952715" latitude="45.804449381870604"/>
+            <sp:coordinate longitude="-0.35179683183952715" latitude="45.8044493818706"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-664">
@@ -13354,7 +13354,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-668">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35181375021233047" latitude="45.80444356893932"/>
+            <sp:coordinate longitude="-0.3518137502123304" latitude="45.80444356893932"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-669">
@@ -13364,7 +13364,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-67">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35293783821854113" latitude="45.804552320172625"/>
+            <sp:coordinate longitude="-0.35293783821854113" latitude="45.80455232017262"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-670">
@@ -13414,7 +13414,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-679">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35256138354381417" latitude="45.80373813019837"/>
+            <sp:coordinate longitude="-0.35256138354381417" latitude="45.803738130198376"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-68">
@@ -13439,7 +13439,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-683">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3527928911915549" latitude="45.803818516650715"/>
+            <sp:coordinate longitude="-0.3527928911915548" latitude="45.80381851665071"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-684">
@@ -13489,17 +13489,17 @@
     </iidm:extension>
     <iidm:extension id="Substation-692">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3527964909891054" latitude="45.80381735449305"/>
+            <sp:coordinate longitude="-0.3527964909891054" latitude="45.80381735449304"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-693">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3525572915363175" latitude="45.803732338457884"/>
+            <sp:coordinate longitude="-0.3525572915363175" latitude="45.80373233845788"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-694">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35241204103049345" latitude="45.803744180429085"/>
+            <sp:coordinate longitude="-0.35241204103049345" latitude="45.80374418042908"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-695">
@@ -13509,7 +13509,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-696">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3522927529582736" latitude="45.80380471575768"/>
+            <sp:coordinate longitude="-0.35229275295827356" latitude="45.80380471575767"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-697">
@@ -13534,7 +13534,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-70">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3531902248215279" latitude="45.80482689250697"/>
+            <sp:coordinate longitude="-0.3531902248215279" latitude="45.804826892506966"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-700">
@@ -13579,7 +13579,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-708">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3523336653580905" latitude="45.803893589596065"/>
+            <sp:coordinate longitude="-0.3523336653580906" latitude="45.803893589596065"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-709">
@@ -13604,7 +13604,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-712">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3522037213626211" latitude="45.80397914230916"/>
+            <sp:coordinate longitude="-0.3522037213626211" latitude="45.80397914230917"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-713">
@@ -13659,12 +13659,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-722">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35256969239494285" latitude="45.80365188387429"/>
+            <sp:coordinate longitude="-0.35256969239494285" latitude="45.80365188387428"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-723">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35241658597352465" latitude="45.80373928913718"/>
+            <sp:coordinate longitude="-0.3524165859735247" latitude="45.80373928913718"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-724">
@@ -13749,7 +13749,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-739">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35203258501713813" latitude="45.80395082843991"/>
+            <sp:coordinate longitude="-0.35203258501713813" latitude="45.8039508284399"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-74">
@@ -13764,12 +13764,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-741">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3523348683222218" latitude="45.8038890446587"/>
+            <sp:coordinate longitude="-0.3523348683222218" latitude="45.803889044658696"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-742">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3528174946160015" latitude="45.803802602109364"/>
+            <sp:coordinate longitude="-0.3528174946160015" latitude="45.80380260210935"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-743">
@@ -13814,7 +13814,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-750">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3528173255083091" latitude="45.8038020120483"/>
+            <sp:coordinate longitude="-0.3528173255083091" latitude="45.803802012048315"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-751">
@@ -13834,7 +13834,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-754">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3519148794280059" latitude="45.80408932054757"/>
+            <sp:coordinate longitude="-0.3519148794280059" latitude="45.804089320547575"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-755">
@@ -13984,7 +13984,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-781">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35186816610961297" latitude="45.804056111281504"/>
+            <sp:coordinate longitude="-0.35186816610961297" latitude="45.8040561112815"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-782">
@@ -14009,7 +14009,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-786">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35255304275548605" latitude="45.80361277731184"/>
+            <sp:coordinate longitude="-0.3525530427554861" latitude="45.80361277731185"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-787">
@@ -14064,7 +14064,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-796">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35202251373040433" latitude="45.80395172451911"/>
+            <sp:coordinate longitude="-0.35202251373040433" latitude="45.80395172451912"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-797">
@@ -14089,7 +14089,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-80">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3529343882420906" latitude="45.80455310995369"/>
+            <sp:coordinate longitude="-0.3529343882420906" latitude="45.80455310995368"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-800">
@@ -14124,7 +14124,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-806">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3523446703551218" latitude="45.80388789373864"/>
+            <sp:coordinate longitude="-0.3523446703551218" latitude="45.80388789373863"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-807">
@@ -14139,7 +14139,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-809">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3517780138771677" latitude="45.804246797039895"/>
+            <sp:coordinate longitude="-0.3517780138771677" latitude="45.80424679703989"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-81">
@@ -14209,12 +14209,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-821">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35186083919007144" latitude="45.80405708861464"/>
+            <sp:coordinate longitude="-0.35186083919007144" latitude="45.804057088614634"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-822">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3522268881361302" latitude="45.80388263068689"/>
+            <sp:coordinate longitude="-0.3522268881361302" latitude="45.803882630686886"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-823">
@@ -14224,7 +14224,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-824">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35253681705304707" latitude="45.8036116543792"/>
+            <sp:coordinate longitude="-0.352536817053047" latitude="45.803611654379196"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-825">
@@ -14249,7 +14249,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-829">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35222501439408804" latitude="45.80388108070776"/>
+            <sp:coordinate longitude="-0.35222501439408804" latitude="45.803881080707754"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-83">
@@ -14299,7 +14299,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-838">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3517684271209276" latitude="45.80424401947755"/>
+            <sp:coordinate longitude="-0.3517684271209276" latitude="45.804244019477565"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-839">
@@ -14399,7 +14399,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-856">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3515646422353705" latitude="45.80425690995035"/>
+            <sp:coordinate longitude="-0.35156464223537054" latitude="45.80425690995035"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-857">
@@ -14424,7 +14424,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-860">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35249044381546507" latitude="45.80361904057687"/>
+            <sp:coordinate longitude="-0.35249044381546507" latitude="45.80361904057686"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-861">
@@ -14434,7 +14434,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-862">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3517409252635012" latitude="45.80421332279686"/>
+            <sp:coordinate longitude="-0.3517409252635012" latitude="45.80421332279687"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-863">
@@ -14494,12 +14494,12 @@
     </iidm:extension>
     <iidm:extension id="Substation-873">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3515443517037129" latitude="45.804234327427096"/>
+            <sp:coordinate longitude="-0.3515443517037129" latitude="45.8042343274271"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-874">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35155694921871417" latitude="45.804231870854494"/>
+            <sp:coordinate longitude="-0.35155694921871417" latitude="45.80423187085449"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-875">
@@ -14519,7 +14519,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-878">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.35170888887389534" latitude="45.80417507167425"/>
+            <sp:coordinate longitude="-0.35170888887389534" latitude="45.80417507167426"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-879">
@@ -14689,7 +14689,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-92">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3527905664800112" latitude="45.804463412228685"/>
+            <sp:coordinate longitude="-0.3527905664800113" latitude="45.80446341222868"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-93">
@@ -14704,7 +14704,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-95">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3527841683609248" latitude="45.804461137785616"/>
+            <sp:coordinate longitude="-0.3527841683609248" latitude="45.80446113778561"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-96">
@@ -14714,7 +14714,7 @@
     </iidm:extension>
     <iidm:extension id="Substation-97">
         <sp:substationPosition>
-            <sp:coordinate longitude="-0.3533224906788971" latitude="45.804754667025215"/>
+            <sp:coordinate longitude="-0.3533224906788971" latitude="45.80475466702522"/>
         </sp:substationPosition>
     </iidm:extension>
     <iidm:extension id="Substation-98">
