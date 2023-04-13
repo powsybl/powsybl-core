@@ -8,9 +8,12 @@ package com.powsybl.cgmes.conversion.export.elements;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -39,6 +42,8 @@ public final class SynchronousMachineEq {
             writer.writeCharacters(CgmesExportUtil.format(ratedS));
             writer.writeEndElement();
         }
+        writer.writeEmptyElement(cimNamespace, "SynchronousMachine.type");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "SynchronousMachineKind.generator")); // all generators are considered generators
         writer.writeEndElement();
     }
 
