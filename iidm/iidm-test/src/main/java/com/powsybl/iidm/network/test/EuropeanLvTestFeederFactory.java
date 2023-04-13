@@ -30,6 +30,9 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * European Low Voltage Test Feeder.
+ * <p><a href="https://cmte.ieee.org/pes-testfeeders/resources/">PES test feeders</a></p>
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class EuropeanLvTestFeederFactory {
