@@ -95,12 +95,12 @@ public final class TopologyExport {
             } else {
                 int node1 = vl.getNodeBreakerView().getNode1(sw.getId());
                 Bus bus1 = getBusForBusBreakerViewBus(vl, node1);
-                tn1 = bus1 == null ? findOrCreateTopologicalNode(vl, node1) : context.getNamingStrategy().getCgmesId(bus1);
+                tn1 = bus1 == null ? findOrCreateTopologicalNode(vl, node1, context) : context.getNamingStrategy().getCgmesId(bus1);
                 tname1 = bus1 == null ? tn1 : bus1.getNameOrId();
 
                 int node2 = vl.getNodeBreakerView().getNode2(sw.getId());
                 Bus bus2 = getBusForBusBreakerViewBus(vl, node2);
-                tn2 = bus2 == null ? findOrCreateTopologicalNode(vl, node2) : context.getNamingStrategy().getCgmesId(bus2);
+                tn2 = bus2 == null ? findOrCreateTopologicalNode(vl, node2, context) : context.getNamingStrategy().getCgmesId(bus2);
                 tname2 = bus2 == null ? tn2 : bus2.getNameOrId();
             }
             writeTopologicalNode(tn1, tname1, vl, addedTopologicalNodes, cimNamespace, writer, context);
@@ -114,10 +114,7 @@ public final class TopologyExport {
         }
     }
 
-    private static String findOrCreateTopologicalNode(VoltageLevel vl, int node) {
-        if (vl.getTopologyKind() != TopologyKind.NODE_BREAKER) {
-            throw new IllegalArgumentException("The voltage level " + vl.getId() + " is not described in Node/Breaker topology");
-        }
+    private static String findOrCreateTopologicalNode(VoltageLevel vl, int node, CgmesExportContext context) {
         Set<Integer> nodeSet = new HashSet<>();
         nodeSet.add(node);
 
@@ -133,15 +130,14 @@ public final class TopologyExport {
 
         Optional<Bus> selectedBus = nodeSet.stream().map(n -> getBusForBusBreakerViewBus(vl, n)).filter(Objects::nonNull).findFirst();
         if (selectedBus.isPresent()) {
-            return selectedBus.get().getId();
+            return context.getNamingStrategy().getCgmesId(selectedBus.get());
         }
 
-        Optional<Integer> selectedNode = nodeSet.stream().sorted().findFirst();
-        if (selectedNode.isEmpty()) {
-            throw new PowsyblException("nodeSet never can be empty");
-        }
-
-        return vl.getId() + "_" + selectedNode.get();
+        return context.getNamingStrategy().getCgmesId(nodeSet.stream()
+                .sorted()
+                .findFirst()
+                .map(selectedNode -> "DISCONNECTED_" + vl.getId() + "_" + selectedNode)
+                .orElseThrow(() -> new PowsyblException("nodeSet is never empty")));
     }
 
     private static void writeTopologicalNode(String tn, String tname, VoltageLevel voltageLevel, Set<String> addedTopologicalNodes,
