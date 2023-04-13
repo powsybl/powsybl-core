@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 class CgmesConformity3ConversionTest {
+
     @Test
     void microGridBaseCaseBEMergedWithNL() {
         Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
@@ -101,7 +102,7 @@ class CgmesConformity3ConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBEMergingViewNL() {
+    void microGridBaseCaseBEMergingViewNL() {
         Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
         assertNotEquals("unknown", be.getId());
         int nSubBE = be.getSubstationCount();

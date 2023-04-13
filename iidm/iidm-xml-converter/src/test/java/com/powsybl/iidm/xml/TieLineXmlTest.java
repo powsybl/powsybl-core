@@ -22,12 +22,12 @@ class TieLineXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testV10() throws IOException {
+    void testV10() throws IOException {
         roundTripVersionedXmlTest("tieline.xml", IidmXmlVersion.V_1_10);
     }
 
     @Test
-    public void testV9() throws IOException {
+    void testV9() throws IOException {
         roundTripVersionedXmlTest("tieline.xml", IidmXmlVersion.V_1_9);
     }
 }
