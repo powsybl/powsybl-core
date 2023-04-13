@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Load;
  */
 public interface LoadAsymmetricalAdder extends ExtensionAdder<Load, LoadAsymmetrical> {
 
+    LoadAsymmetricalAdder withConnectionType(LoadConnectionType connectionType);
+
     LoadAsymmetricalAdder withDeltaPa(double deltaPa);
 
     LoadAsymmetricalAdder withDeltaQa(double deltaQa);

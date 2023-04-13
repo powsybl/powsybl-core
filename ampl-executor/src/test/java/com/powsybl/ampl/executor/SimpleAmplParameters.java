@@ -60,4 +60,9 @@ public class SimpleAmplParameters implements AmplParameters {
     public boolean isReadingDone() {
         return readingDone;
     }
+
+    @Override
+    public boolean isDebug() {
+        return true;
+    }
 }

@@ -194,11 +194,13 @@ public abstract class AbstractFortescueExtensionTest {
         var network = EurostagTutorialExample1Factory.create();
         var load = network.getLoad("LOAD");
         LoadAsymmetrical asym = load.newExtension(LoadAsymmetricalAdder.class)
+                .withConnectionType(LoadConnectionType.DELTA)
                 .withDeltaPa(-1)
                 .withDeltaQa(1)
                 .withDeltaPc(-2)
                 .withDeltaQc(2)
                 .add();
+        assertSame(LoadConnectionType.DELTA, asym.getConnectionType());
         assertEquals(-1, asym.getDeltaPa(), 0);
         assertEquals(1, asym.getDeltaQa(), 0);
         assertEquals(0, asym.getDeltaPb(), 0);
@@ -206,6 +208,7 @@ public abstract class AbstractFortescueExtensionTest {
         assertEquals(-2, asym.getDeltaPc(), 0);
         assertEquals(2, asym.getDeltaQc(), 0);
 
+        asym.setConnectionType(LoadConnectionType.Y);
         asym.setDeltaPa(-1.5);
         asym.setDeltaQa(1.5);
         asym.setDeltaPb(-0.5);
@@ -213,6 +216,7 @@ public abstract class AbstractFortescueExtensionTest {
         asym.setDeltaPc(-2.5);
         asym.setDeltaQc(2.5);
 
+        assertSame(LoadConnectionType.Y, asym.getConnectionType());
         assertEquals(-1.5, asym.getDeltaPa(), 0);
         assertEquals(1.5, asym.getDeltaQa(), 0);
         assertEquals(-0.5, asym.getDeltaPb(), 0);

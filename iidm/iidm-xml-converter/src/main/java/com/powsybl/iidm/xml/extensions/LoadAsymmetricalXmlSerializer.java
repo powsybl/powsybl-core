@@ -15,6 +15,7 @@ import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadAsymmetrical;
 import com.powsybl.iidm.network.extensions.LoadAsymmetricalAdder;
+import com.powsybl.iidm.network.extensions.LoadConnectionType;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -32,6 +33,7 @@ public class LoadAsymmetricalXmlSerializer extends AbstractExtensionXmlSerialize
 
     @Override
     public void write(LoadAsymmetrical loadAsym, XmlWriterContext context) throws XMLStreamException {
+        context.getWriter().writeAttribute("connectionType", loadAsym.getConnectionType().name());
         XmlUtil.writeOptionalDouble("deltaPa", loadAsym.getDeltaPa(), 0, context.getWriter());
         XmlUtil.writeOptionalDouble("deltaQa", loadAsym.getDeltaQa(), 0, context.getWriter());
         XmlUtil.writeOptionalDouble("deltaPb", loadAsym.getDeltaPb(), 0, context.getWriter());
@@ -42,6 +44,7 @@ public class LoadAsymmetricalXmlSerializer extends AbstractExtensionXmlSerialize
 
     @Override
     public LoadAsymmetrical read(Load load, XmlReaderContext context) throws XMLStreamException {
+        LoadConnectionType connectionType = LoadConnectionType.valueOf(context.getReader().getAttributeValue(null, "connectionType"));
         double deltaPa = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "deltaPa", 0);
         double deltaQa = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "deltaQa", 0);
         double deltaPb = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "deltaPb", 0);
@@ -49,6 +52,7 @@ public class LoadAsymmetricalXmlSerializer extends AbstractExtensionXmlSerialize
         double deltaPc = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "deltaPc", 0);
         double deltaQc = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "deltaQc", 0);
         return load.newExtension(LoadAsymmetricalAdder.class)
+                .withConnectionType(connectionType)
                 .withDeltaPa(deltaPa)
                 .withDeltaQa(deltaQa)
                 .withDeltaPb(deltaPb)

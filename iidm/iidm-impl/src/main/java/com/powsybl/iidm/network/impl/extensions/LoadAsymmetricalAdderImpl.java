@@ -10,6 +10,9 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.extensions.LoadAsymmetrical;
 import com.powsybl.iidm.network.extensions.LoadAsymmetricalAdder;
+import com.powsybl.iidm.network.extensions.LoadConnectionType;
+
+import java.util.Objects;
 
 /**
  * @author Jean-Baptiste Heyberger <jbheyberger at gmail.com>
@@ -17,6 +20,7 @@ import com.powsybl.iidm.network.extensions.LoadAsymmetricalAdder;
  */
 public class LoadAsymmetricalAdderImpl extends AbstractExtensionAdder<Load, LoadAsymmetrical> implements LoadAsymmetricalAdder {
 
+    private LoadConnectionType connectionType = LoadConnectionType.Y;
     private double deltaPa = 0;
     private double deltaQa = 0;
     private double deltaPb = 0;
@@ -35,7 +39,13 @@ public class LoadAsymmetricalAdderImpl extends AbstractExtensionAdder<Load, Load
 
     @Override
     protected LoadAsymmetricalImpl createExtension(Load load) {
-        return new LoadAsymmetricalImpl(load, deltaPa, deltaQa, deltaPb, deltaQb, deltaPc, deltaQc);
+        return new LoadAsymmetricalImpl(connectionType, load, deltaPa, deltaQa, deltaPb, deltaQb, deltaPc, deltaQc);
+    }
+
+    @Override
+    public LoadAsymmetricalAdderImpl withConnectionType(LoadConnectionType connectionType) {
+        this.connectionType = Objects.requireNonNull(connectionType);
+        return this;
     }
 
     public LoadAsymmetricalAdderImpl withDeltaPa(double deltaPa) {

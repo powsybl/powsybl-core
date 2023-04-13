@@ -22,6 +22,10 @@ public interface LoadAsymmetrical extends Extension<Load> {
         return NAME;
     }
 
+    LoadConnectionType getConnectionType();
+
+    LoadAsymmetrical setConnectionType(LoadConnectionType connectionType);
+
     double getDeltaPa();
 
     LoadAsymmetrical setDeltaPa(double deltaPa);
