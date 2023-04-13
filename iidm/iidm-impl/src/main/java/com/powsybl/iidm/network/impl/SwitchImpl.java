@@ -64,9 +64,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         boolean oldValue = this.open.get(index);
         if (oldValue != open) {
             this.open.set(index, open);
+            voltageLevel.invalidateCache(isRetained());
             String variantId = network.getVariantManager().getVariantId(index);
             network.getListeners().notifyUpdate(this, "open", variantId, oldValue, open);
-            voltageLevel.invalidateCache(isRetained());
         }
     }
 
@@ -85,9 +85,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         boolean oldValue = this.retained.get(index);
         if (oldValue != retained) {
             this.retained.set(index, retained);
+            voltageLevel.invalidateCache();
             String variantId = network.getVariantManager().getVariantId(index);
             network.getListeners().notifyUpdate(this, "retained", variantId, oldValue, retained);
-            voltageLevel.invalidateCache();
         }
     }
 
