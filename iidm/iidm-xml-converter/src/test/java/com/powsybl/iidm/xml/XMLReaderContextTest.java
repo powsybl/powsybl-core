@@ -18,6 +18,6 @@ class XMLReaderContextTest extends AbstractConverterTest {
 
     @Test
     void xmlReaderContextExceptionTest() {
-        NullPointerException e = assertThrows(NullPointerException.class, () -> new NetworkXmlReaderContext(null, null));
+        NullPointerException e = assertThrows(NullPointerException.class, () -> new NetworkXmlReaderContext(null, null, null));
     }
 }

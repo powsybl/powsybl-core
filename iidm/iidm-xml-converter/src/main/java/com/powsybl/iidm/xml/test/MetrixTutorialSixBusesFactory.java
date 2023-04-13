@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml.test;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.ImportOptions;
@@ -24,6 +25,6 @@ public final class MetrixTutorialSixBusesFactory {
     }
 
     public static Network create(NetworkFactory networkFactory) {
-        return NetworkXml.read(MetrixTutorialSixBusesFactory.class.getResourceAsStream("/metrix-tutorial-6-buses-network.xiidm"), new ImportOptions(), null, networkFactory);
+        return NetworkXml.read(MetrixTutorialSixBusesFactory.class.getResourceAsStream("/metrix-tutorial-6-buses-network.xiidm"), new ImportOptions(), null, networkFactory, Reporter.NO_OP);
     }
 }

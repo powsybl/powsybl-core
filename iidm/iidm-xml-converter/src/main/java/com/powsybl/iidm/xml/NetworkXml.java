@@ -16,6 +16,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import com.powsybl.iidm.xml.anonymizer.SimpleAnonymizer;
@@ -412,10 +413,11 @@ public final class NetworkXml {
     }
 
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer) {
-        return read(is, config, anonymizer, NetworkFactory.findDefault());
+        return read(is, config, anonymizer, NetworkFactory.findDefault(), Reporter.NO_OP);
     }
 
-    public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory) {
+    public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory, Reporter reporter) {
+        Objects.requireNonNull(reporter);
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             int state = reader.next();
@@ -424,7 +426,7 @@ public final class NetworkXml {
             }
 
             IidmXmlVersion version = IidmXmlVersion.fromNamespaceURI(reader.getNamespaceURI());
-            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version, reporter);
 
             String id = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, ID));
             DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
@@ -529,8 +531,9 @@ public final class NetworkXml {
         return read(xmlFile, new ImportOptions());
     }
 
-    public static Network read(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, ImportOptions options, String dataSourceExt) throws IOException {
+    public static Network read(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, ImportOptions options, String dataSourceExt, Reporter reporter) throws IOException {
         Objects.requireNonNull(dataSource);
+        Objects.requireNonNull(reporter);
         Network network;
         Anonymizer anonymizer = null;
 
@@ -542,7 +545,7 @@ public final class NetworkXml {
         }
         //Read the base file with the extensions declared in the extensions list
         try (InputStream isb = dataSource.newInputStream(null, dataSourceExt)) {
-            network = NetworkXml.read(isb, options, anonymizer, networkFactory);
+            network = NetworkXml.read(isb, options, anonymizer, networkFactory, reporter);
         }
         return network;
     }
@@ -581,6 +584,7 @@ public final class NetworkXml {
                 if (extensionXmlSerializer != null) {
                     Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
                     identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                    XmlReports.importedExtension(context.getReporter(), extensionName);
                 } else {
                     extensionNamesNotFound.add(extensionName);
                 }
@@ -741,7 +745,7 @@ public final class NetworkXml {
                     }
                 }
             });
-            return read(is, new ImportOptions(), null, networkFactory);
+            return read(is, new ImportOptions(), null, networkFactory, Reporter.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

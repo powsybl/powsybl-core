@@ -19,6 +19,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
@@ -177,8 +178,9 @@ public class XMLImporter implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
         Objects.requireNonNull(dataSource);
+        Objects.requireNonNull(reporter);
         Network network;
 
         ImportOptions options = createImportOptions(parameters);
@@ -190,7 +192,8 @@ public class XMLImporter implements Importer {
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
 
-            network = NetworkXml.read(dataSource, networkFactory, options, ext);
+            network = NetworkXml.read(dataSource, networkFactory, options, ext, reporter);
+            XmlReports.importedXmlNetworkReport(reporter, network.getId());
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new PowsyblException(e);
