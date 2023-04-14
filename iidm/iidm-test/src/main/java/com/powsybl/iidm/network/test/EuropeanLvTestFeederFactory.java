@@ -16,6 +16,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.commons.configuration2.INIConfiguration;
 import org.apache.commons.configuration2.SubnodeConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
+import org.apache.commons.math3.util.Precision;
 import org.joda.time.DateTime;
 import org.locationtech.proj4j.*;
 
@@ -264,7 +265,7 @@ public final class EuropeanLvTestFeederFactory {
             }
             lambertToWgs.transform(new ProjCoordinate(busCoord.x, busCoord.y), coord);
             s.newExtension(SubstationPositionAdder.class)
-                    .withCoordinate(new Coordinate(coord.y, coord.x))
+                    .withCoordinate(new Coordinate(Precision.round(coord.y, 13), Precision.round(coord.x, 13)))
                     .add();
             VoltageLevel vl = s.newVoltageLevel()
                     .setId(getVoltageLevelId(busCoord.busName))
