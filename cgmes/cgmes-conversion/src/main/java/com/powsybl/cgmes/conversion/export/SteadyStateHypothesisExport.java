@@ -7,6 +7,8 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.extensions.CgmesControlArea;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -62,6 +64,7 @@ public final class SteadyStateHypothesisExport {
             writeSwitches(network, cimNamespace, writer, context);
             // TODO writeControlAreas
             writeTerminals(network, cimNamespace, writer, context);
+            writeControlAreas(network, cimNamespace, writer, context);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -685,6 +688,22 @@ public final class SteadyStateHypothesisExport {
         } else {
             return "GeneratingUnit";
         }
+    }
+
+    private static void writeControlAreas(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesControlAreas areas = network.getExtension(CgmesControlAreas.class);
+        for (CgmesControlArea area : areas.getCgmesControlAreas()) {
+            writeControlArea(area, cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeControlArea(CgmesControlArea area, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String areaId = context.getNamingStrategy().getCgmesId(area.getId());
+        CgmesExportUtil.writeStartAbout("ControlArea", areaId, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "ControlArea.netInterchange");
+        writer.writeCharacters(CgmesExportUtil.format(area.getNetInterchange()));
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     private enum RegulatingControlType {
