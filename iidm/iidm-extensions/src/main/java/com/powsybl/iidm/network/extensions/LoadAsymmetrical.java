@@ -29,7 +29,7 @@ public interface LoadAsymmetrical extends Extension<Load> {
     /**
      * DeltaPa is used to extend the modelling of load P0 for load with a phase asymmetry. Using that attribute makes P0
      * the balanced part of the power of the load. DeltaPa models the additional unbalanced active power part on phase A.
-     * Therefore the complete load to be taken into account in calculations for phase A is Pa = P0 + DeltaPa
+     * Therefore the complete load to be taken into account in calculations for phase A is Pa = P0 + deltaPa
      */
     double getDeltaPa();
 
@@ -38,7 +38,7 @@ public interface LoadAsymmetrical extends Extension<Load> {
     /**
      * DeltaPb is used to extend the modelling of load P0 for load with a phase asymmetry. Using that attribute makes P0
      * the balanced part of the active power of the load. DeltaPb models the additional unbalanced active power part on phase B.
-     * Therefore the complete load to be taken into account in calculations for phase B is Pb = P0 + DeltaPb
+     * Therefore the complete load to be taken into account in calculations for phase B is Pb = P0 + deltaPb
      */
     double getDeltaPb();
 
@@ -47,7 +47,7 @@ public interface LoadAsymmetrical extends Extension<Load> {
     /**
      * DeltaPc is used to extend the modelling of load P0 for load with a phase asymmetry. Using that attribute makes P0
      * the balanced part of the active power of the load. DeltaPc models the additional unbalanced active power part on phase C.
-     * Therefore the complete load to be taken into account in calculations for phase C is Pc = P0 + DeltaPc
+     * Therefore the complete load to be taken into account in calculations for phase C is Pc = P0 + deltaPc
      */
     double getDeltaPc();
 
@@ -56,7 +56,7 @@ public interface LoadAsymmetrical extends Extension<Load> {
     /**
      * DeltaQa is used to extend the modelling of load Q0 for load with a phase asymmetry. Using that attribute makes Q0
      * the balanced part of the reactive power of the load. DeltaQa models the additional unbalanced reactive power part on phase A.
-     * Therefore the complete load to be taken into account in calculations for phase A is Qa = Q0 + DeltaQa
+     * Therefore the complete load to be taken into account in calculations for phase A is Qa = Q0 + deltaQa
      */
     double getDeltaQa();
 
@@ -65,7 +65,7 @@ public interface LoadAsymmetrical extends Extension<Load> {
     /**
      * DeltaQb is used to extend the modelling of load Q0 for load with a phase asymmetry. Using that attribute makes Q0
      * the balanced part of the reactive power of the load. DeltaQb models the additional unbalanced reactive power part on phase B.
-     * Therefore the complete load to be taken into account in calculations for phase B is Qb = Q0 + DeltaQb
+     * Therefore the complete load to be taken into account in calculations for phase B is Qb = Q0 + deltaQb
      */
     double getDeltaQb();
 
@@ -74,7 +74,7 @@ public interface LoadAsymmetrical extends Extension<Load> {
     /**
      * DeltaQc is used to extend the modelling of load Q0 for load with a phase asymmetry. Using that attribute makes Q0
      * the balanced part of the reactive power of the load. DeltaQc models the additional unbalanced reactive power part on phase C.
-     * Therefore the complete load to be taken into account in calculations for phase C is Qc = Q0 + DeltaQc
+     * Therefore the complete load to be taken into account in calculations for phase C is Qc = Q0 + deltaQc
      */
     double getDeltaQc();
 
