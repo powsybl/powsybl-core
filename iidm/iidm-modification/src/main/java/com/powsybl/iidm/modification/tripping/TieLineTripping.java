@@ -34,7 +34,7 @@ public class TieLineTripping extends AbstractTripping {
 
         TieLine tieLine = network.getTieLine(id);
         if (tieLine == null) {
-            throw new PowsyblException("Tie line '" + tieLine + "' not found");
+            throw new PowsyblException("Tie line '" + id + "' not found");
         }
 
         Terminal terminal1 = tieLine.getHalf1().getTerminal();
