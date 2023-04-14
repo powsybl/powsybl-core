@@ -128,7 +128,7 @@ public class GenerationDispatch extends AbstractNetworkModification {
             if (identifiable.getType() == IdentifiableType.GENERATOR &&
                     attribute.equals("targetP") &&
                     (double) oldValue != (double) newValue) {
-                report(reporter, "GeneratorSetTargetP", "Generator ${generator} targetP : ${oldValue} --> ${newValue}",
+                report(reporter, "GeneratorSetTargetP", "Generator ${generator} targetP : ${oldValue} MW --> ${newValue} MW",
                         Map.of("generator", identifiable.getId(), "oldValue", oldValue, "newValue", newValue), TypedValue.INFO_SEVERITY);
             }
         }
@@ -149,12 +149,12 @@ public class GenerationDispatch extends AbstractNetworkModification {
 
             // get total value of connected loads in the connected component
             totalDemand.put(componentNum, computeTotalDemand(component));
-            report(powerToDispatchReporter, "TotalDemand", "The total demand is : ${totalDemand}",
+            report(powerToDispatchReporter, "TotalDemand", "The total demand is : ${totalDemand} MW",
                     Map.of("totalDemand", totalDemand.get(componentNum)), TypedValue.INFO_SEVERITY);
 
             // get total supply value for non adjustable generators (will be 0. in this first version)
             double totalAmountFixedSupply = computeTotalAmountFixedSupply(componentNum);
-            report(powerToDispatchReporter, "TotalAmountFixedSupply", "The total amount of fixed supply is : ${totalAmountFixedSupply}",
+            report(powerToDispatchReporter, "TotalAmountFixedSupply", "The total amount of fixed supply is : ${totalAmountFixedSupply} MW",
                     Map.of("totalAmountFixedSupply", totalAmountFixedSupply), TypedValue.INFO_SEVERITY);
 
             double totalAmountSupplyToBeDispatched = totalDemand.get(componentNum) - totalAmountFixedSupply;
@@ -163,7 +163,7 @@ public class GenerationDispatch extends AbstractNetworkModification {
                     Map.of(), TypedValue.WARN_SEVERITY);
                 continue;
             } else {
-                report(powerToDispatchReporter, "TotalAmountSupplyToBeDispatched", "The total amount of supply to be dispatched is : ${totalAmountSupplyToBeDispatched}",
+                report(powerToDispatchReporter, "TotalAmountSupplyToBeDispatched", "The total amount of supply to be dispatched is : ${totalAmountSupplyToBeDispatched} MW",
                     Map.of("totalAmountSupplyToBeDispatched", totalAmountSupplyToBeDispatched), TypedValue.INFO_SEVERITY);
             }
 
@@ -195,7 +195,7 @@ public class GenerationDispatch extends AbstractNetworkModification {
                     Map.of(), TypedValue.INFO_SEVERITY);
             } else {
                 remainingPowerImbalance.put(componentNum, totalAmountSupplyToBeDispatched - realized);
-                report(resultReporter, "SupplyDemandBalanceCouldNotBeMet", "The supply-demand balance could not be met : the remaining power in balance is ${remainingPower}",
+                report(resultReporter, "SupplyDemandBalanceCouldNotBeMet", "The supply-demand balance could not be met : the remaining power imbalance is ${remainingPower} MW",
                     Map.of("remainingPower", remainingPowerImbalance.get(componentNum)), TypedValue.WARN_SEVERITY);
             }
         }
