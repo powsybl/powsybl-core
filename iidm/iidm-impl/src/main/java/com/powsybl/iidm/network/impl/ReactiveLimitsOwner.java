@@ -13,5 +13,7 @@ import com.powsybl.iidm.network.ReactiveLimits;
  */
 interface ReactiveLimitsOwner {
 
+    NetworkImpl getNetwork();
+
     void setReactiveLimits(ReactiveLimits reactiveLimits);
 }

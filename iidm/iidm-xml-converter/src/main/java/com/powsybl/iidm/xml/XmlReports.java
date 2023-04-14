@@ -23,7 +23,7 @@ public final class XmlReports {
         if (reporter != null) {
             reporter.report(Report.builder()
                     .withKey("importedXmlNetwork")
-                    .withDefaultMessage("XML network ${networkId} is imported.")
+                    .withDefaultMessage("XML network \"${networkId}\" is imported.")
                     .withValue("networkId", networkId)
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());
@@ -35,7 +35,7 @@ public final class XmlReports {
         if (reporter != null) {
             reporter.report(Report.builder()
                     .withKey("importedExtension")
-                    .withDefaultMessage("Extension ${extensionName} is imported.")
+                    .withDefaultMessage("Extension ${extensionName} imported.")
                     .withValue("extensionName", extensionName)
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .build());

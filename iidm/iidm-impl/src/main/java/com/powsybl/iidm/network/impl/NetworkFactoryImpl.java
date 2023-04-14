@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 
@@ -16,6 +17,11 @@ public class NetworkFactoryImpl implements NetworkFactory {
 
     @Override
     public Network createNetwork(String id, String sourceFormat) {
-        return new NetworkImpl(id, id, sourceFormat);
+        return new NetworkImpl(id, id, sourceFormat, Reporter.NO_OP);
+    }
+
+    @Override
+    public Network createNetwork(String id, String sourceFormat, Reporter reporter) {
+        return new NetworkImpl(id, id, sourceFormat, reporter);
     }
 }

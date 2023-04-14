@@ -1,0 +1,3 @@
++ test reporter
+   2 windings transformer 'NHV2_NLOAD':  has both Ratio and Phase Tap Changer.
+   XML network "sim1" is imported.

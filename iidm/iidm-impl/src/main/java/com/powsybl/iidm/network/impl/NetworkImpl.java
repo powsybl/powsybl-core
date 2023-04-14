@@ -54,6 +54,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
+    private final Reporter reporter;
+
     class BusBreakerViewImpl implements BusBreakerView {
 
         @Override
@@ -135,9 +137,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final BusViewImpl busView = new BusViewImpl();
 
-    NetworkImpl(String id, String name, String sourceFormat) {
+    NetworkImpl(String id, String name, String sourceFormat, Reporter reporter) {
         super(id, name);
         Objects.requireNonNull(sourceFormat, "source format is null");
+        Objects.requireNonNull(reporter, "reporter is null");
+        this.reporter = reporter;
         this.sourceFormat = sourceFormat;
         variantManager = new VariantManagerImpl(this);
         variants = new VariantArray<>(ref, VariantImpl::new);
@@ -187,6 +191,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     NetworkListenerList getListeners() {
         return listeners;
+    }
+
+    Reporter getReporter() {
+        return reporter;
     }
 
     public NetworkIndex getIndex() {

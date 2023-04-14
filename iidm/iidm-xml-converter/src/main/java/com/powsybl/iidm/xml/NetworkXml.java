@@ -433,7 +433,7 @@ public final class NetworkXml {
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
             String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
 
-            Network network = networkFactory.createNetwork(id, sourceFormat);
+            Network network = networkFactory.createNetwork(id, sourceFormat, reporter);
             network.setCaseDate(date);
             network.setForecastDistance(forecastDistance);
 
