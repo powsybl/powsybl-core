@@ -265,7 +265,7 @@ public final class EuropeanLvTestFeederFactory {
             }
             lambertToWgs.transform(new ProjCoordinate(busCoord.x, busCoord.y), coord);
             s.newExtension(SubstationPositionAdder.class)
-                    .withCoordinate(new Coordinate(Precision.round(coord.y, 13), Precision.round(coord.x, 13)))
+                    .withCoordinate(new Coordinate(Precision.round(coord.y, 12), Precision.round(coord.x, 12)))
                     .add();
             VoltageLevel vl = s.newVoltageLevel()
                     .setId(getVoltageLevelId(busCoord.busName))
