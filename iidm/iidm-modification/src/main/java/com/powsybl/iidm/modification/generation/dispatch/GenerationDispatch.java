@@ -169,6 +169,9 @@ public class GenerationDispatch extends AbstractNetworkModification {
 
             // get adjustable generators in the component
             computeAdjustableGenerators(component, powerToDispatchReporter);
+            if (adjustableGenerators.get(componentNum).isEmpty()) {
+                continue;
+            }
 
             // set targetP to 0 for all adjustable generators
             adjustableGenerators.get(componentNum).forEach(generator -> generator.setTargetP(0.));
