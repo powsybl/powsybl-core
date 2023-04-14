@@ -7,6 +7,7 @@
 package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseVersioned;
+import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
@@ -20,21 +21,27 @@ public class PsseOwnership extends PsseVersioned {
     @Parsed
     private double f1 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int o2 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double f2 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int o3 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double f3 = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int o4 = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double f4 = 1;
 

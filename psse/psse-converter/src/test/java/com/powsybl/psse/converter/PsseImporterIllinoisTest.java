@@ -15,6 +15,8 @@ import com.powsybl.psse.model.PsseException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -51,12 +53,12 @@ class PsseImporterIllinoisTest extends AbstractConverterTest {
 
     @Test
     void testLiteratureBasedIeee57() {
-        testInvalid("/illinois/literature-based", "IEEE 57 bus.RAW");
-    }
-
-    @Test
-    void testLiteratureBasedIeee57Fixed() {
-        testValid("/illinois/literature-based", "IEEE 57 bus-fixed-duplicated-ids.RAW");
+        Network n = testValid("/illinois/literature-based", "IEEE 57 bus.RAW");
+        // Check that lines and transformers with duplicated ids are correctly imported
+        assertNotNull(n.getLine("L-24-25-1 "));
+        assertNotNull(n.getLine("L-24-25-10"));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-18-1 "));
+        assertNotNull(n.getTwoWindingsTransformer("T-4-18-10"));
     }
 
     @Test
@@ -66,12 +68,21 @@ class PsseImporterIllinoisTest extends AbstractConverterTest {
 
     @Test
     void testLiteratureBasedIeee118() {
-        testInvalid("/illinois/literature-based", "IEEE 118 Bus.RAW");
-    }
-
-    @Test
-    void testLiteratureBasedIeee118Fixed() {
-        testValid("/illinois/literature-based", "IEEE 118 Bus-fixed-duplicated-ids.RAW");
+        Network n = testValid("/illinois/literature-based", "IEEE 118 Bus.RAW");
+        assertNotNull(n.getLine("L-42-49-1 "));
+        assertNotNull(n.getLine("L-42-49-10"));
+        assertNotNull(n.getLine("L-77-80-1 "));
+        assertNotNull(n.getLine("L-77-80-10"));
+        assertNotNull(n.getLine("L-49-66-1 "));
+        assertNotNull(n.getLine("L-49-66-10"));
+        assertNotNull(n.getLine("L-49-54-1 "));
+        assertNotNull(n.getLine("L-49-54-10"));
+        assertNotNull(n.getLine("L-89-92-1 "));
+        assertNotNull(n.getLine("L-89-92-10"));
+        assertNotNull(n.getLine("L-56-59-1 "));
+        assertNotNull(n.getLine("L-56-59-10"));
+        assertNotNull(n.getLine("L-89-90-1 "));
+        assertNotNull(n.getLine("L-89-90-10"));
     }
 
     @Test
@@ -114,16 +125,12 @@ class PsseImporterIllinoisTest extends AbstractConverterTest {
         return Network.read(new ResourceDataSource(baseName, new ResourceSet(resourcePath, sample)));
     }
 
-    private static void testInvalid(String resourcePath, String sample) {
-        testInvalid(resourcePath, sample, "The PSS/E file is not a valid case");
-    }
-
     private static void testInvalid(String resourcePath, String sample, String message) {
         PsseException exception = Assertions.assertThrows(PsseException.class, () -> load(resourcePath, sample));
         Assertions.assertEquals(message, exception.getMessage());
     }
 
-    private static void testValid(String resourcePath, String sample) {
-        load(resourcePath, sample);
+    private static Network testValid(String resourcePath, String sample) {
+        return load(resourcePath, sample);
     }
 }

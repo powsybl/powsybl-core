@@ -529,7 +529,12 @@ public final class EquipmentExport {
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
             int neutralStep = getRatioTapChangerNeutralStep(rtc);
-            double stepVoltageIncrement = 100.0 * (1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0) / (rtc.getLowTapPosition() - neutralStep);
+            double stepVoltageIncrement;
+            if (rtc.getHighTapPosition() == rtc.getLowTapPosition()) {
+                stepVoltageIncrement = 100;
+            } else {
+                stepVoltageIncrement = 100.0 * (1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0 / rtc.getStep(rtc.getHighTapPosition()).getRho()) / (rtc.getLowTapPosition() - rtc.getHighTapPosition());
+            }
             String ratioTapChangerTableId = CgmesExportUtil.getUniqueId();
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
