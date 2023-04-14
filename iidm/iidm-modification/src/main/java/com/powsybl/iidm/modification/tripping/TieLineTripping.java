@@ -40,17 +40,6 @@ public class TieLineTripping extends AbstractTripping {
         Terminal terminal1 = tieLine.getHalf1().getTerminal();
         Terminal terminal2 = tieLine.getHalf2().getTerminal();
 
-        if (voltageLevelId != null) {
-            if (voltageLevelId.equals(terminal1.getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(terminal1, switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            } else if (voltageLevelId.equals(terminal2.getVoltageLevel().getId())) {
-                TrippingTopologyTraverser.traverse(terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            } else {
-                throw new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to tie line '" + id + "'");
-            }
-        } else {
-            TrippingTopologyTraverser.traverse(terminal1, switchesToOpen, terminalsToDisconnect, traversedTerminals);
-            TrippingTopologyTraverser.traverse(terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals);
-        }
+        traverseDoubleSidedEquipment(voltageLevelId, terminal1, terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals, tieLine.getType().name());
     }
 }
