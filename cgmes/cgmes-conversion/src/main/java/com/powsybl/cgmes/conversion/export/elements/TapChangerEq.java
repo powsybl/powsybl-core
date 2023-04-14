@@ -84,9 +84,8 @@ public final class TapChangerEq {
         writer.writeCharacters(CgmesExportUtil.format(stepVoltageIncrement));
         writer.writeEndElement();
         writeSteps(lowStep, highStep, neutralStep, normalStep, neutralU, ltcFlag, cimNamespace, writer);
-        writer.writeStartElement(cimNamespace, "RatioTapChanger.tculControlMode");
-        writer.writeCharacters(String.format("%s%s.%s", cimNamespace, "TransformerControlMode", controlMode));
-        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, "RatioTapChanger.tculControlMode");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", cimNamespace, "TransformerControlMode", controlMode));
         CgmesExportUtil.writeReference(EQ_RATIOTAPCHANGER_RATIOTAPCHANGERTABLE, ratioTapChangerTableId, cimNamespace, writer, context);
         if (cgmesRegulatingControlId != null) {
             CgmesExportUtil.writeReference("TapChanger.TapChangerControl", cgmesRegulatingControlId, cimNamespace, writer, context);
