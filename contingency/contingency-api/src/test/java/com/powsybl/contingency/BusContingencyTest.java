@@ -47,11 +47,15 @@ class BusContingencyTest {
     @Test
     void test2() {
         Network network = EurostagTutorialExample1Factory.create();
-        ContingencyList contingencyList = ContingencyList.of(Contingency.bus("NGEN"));
+        ContingencyBuilder builder = new ContingencyBuilder("NHV1");
+        builder.addIdentifiable(network.getBusBreakerView().getBus("NHV1"));
+        ContingencyList contingencyList = ContingencyList.of(Contingency.bus("NGEN"), builder.build());
         List<Contingency> contingencies = contingencyList.getContingencies(network);
-        assertEquals(1, contingencies.size());
+        assertEquals(2, contingencies.size());
 
         BusContingency busCtg = (BusContingency) contingencies.get(0).getElements().get(0);
         assertEquals("NGEN", busCtg.getId());
+        BusContingency busCtg2 = (BusContingency) contingencies.get(1).getElements().get(0);
+        assertEquals("NHV1", busCtg2.getId());
     }
 }

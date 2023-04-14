@@ -44,7 +44,9 @@ class TieLineContingencyTest {
     @Test
     void test2() {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        ContingencyList contingencyList = ContingencyList.of(Contingency.tieLine("NHV1_NHV2_1"), Contingency.tieLine("NHV1_NHV2_1", "UNKNOWN"));
+        ContingencyBuilder builder = new ContingencyBuilder("NHV1_NHV2_1");
+        builder.addIdentifiable(network.getTieLine("NHV1_NHV2_1"));
+        ContingencyList contingencyList = ContingencyList.of(builder.build(), Contingency.tieLine("NHV1_NHV2_1", "UNKNOWN"));
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
 
