@@ -21,6 +21,10 @@ public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFor
 
     private double xz = Double.NaN;
 
+    private boolean openPhaseA = false;
+    private boolean openPhaseB = false;
+    private boolean openPhaseC = false;
+
     public LineFortescueAdderImpl(Line line) {
         super(line);
     }
@@ -32,7 +36,7 @@ public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFor
 
     @Override
     protected LineFortescueImpl createExtension(Line line) {
-        return new LineFortescueImpl(line, rz, xz);
+        return new LineFortescueImpl(line, rz, xz, openPhaseA, openPhaseB, openPhaseC);
     }
 
     @Override
@@ -44,6 +48,24 @@ public class LineFortescueAdderImpl extends AbstractExtensionAdder<Line, LineFor
     @Override
     public LineFortescueAdderImpl withXz(double xz) {
         this.xz = xz;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdder withOpenPhaseA(boolean openPhaseA) {
+        this.openPhaseA = openPhaseA;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdder withOpenPhaseB(boolean openPhaseB) {
+        this.openPhaseB = openPhaseB;
+        return this;
+    }
+
+    @Override
+    public LineFortescueAdder withOpenPhaseC(boolean openPhaseC) {
+        this.openPhaseC = openPhaseC;
         return this;
     }
 }
