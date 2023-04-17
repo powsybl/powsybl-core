@@ -57,6 +57,7 @@ class FlowsValidationTest extends AbstractValidationTest {
     private Line line1;
     private RatioTapChanger ratioTapChanger;
     private TwoWindingsTransformer transformer1;
+    private TieLine tieLine1;
 
     private ValidationConfig looseConfigSpecificCompatibility;
     private ValidationConfig strictConfigSpecificCompatibility;
@@ -131,6 +132,23 @@ class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(transformer1.getRatedU1()).thenReturn(ratedU1);
         Mockito.when(transformer1.getRatedU2()).thenReturn(ratedU2);
 
+        tieLine1 = Mockito.mock(TieLine.class);
+        Mockito.when(tieLine1.getId()).thenReturn("tieLine1");
+        DanglingLine dl1 = Mockito.mock(DanglingLine.class);
+        Mockito.when(tieLine1.getHalf1()).thenReturn(dl1);
+        Mockito.when(dl1.getTerminal()).thenReturn(terminal1);
+
+        DanglingLine dl2 = Mockito.mock(DanglingLine.class);
+        Mockito.when(tieLine1.getHalf2()).thenReturn(dl2);
+        Mockito.when(dl2.getTerminal()).thenReturn(terminal2);
+
+        Mockito.when(tieLine1.getR()).thenReturn(r);
+        Mockito.when(tieLine1.getX()).thenReturn(x);
+        Mockito.when(tieLine1.getG1()).thenReturn(g1);
+        Mockito.when(tieLine1.getG2()).thenReturn(g2);
+        Mockito.when(tieLine1.getB1()).thenReturn(b1);
+        Mockito.when(tieLine1.getB2()).thenReturn(b2);
+
         looseConfigSpecificCompatibility = new ValidationConfig(0.1, true, "LoadFlowMock", ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                 ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
                 ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters().setTwtSplitShuntAdmittance(true), ValidationConfig.OK_MISSING_VALUES_DEFAULT,
@@ -165,13 +183,13 @@ class FlowsValidationTest extends AbstractValidationTest {
         assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, u1, u2, theta1, theta2, alpha1, alpha2, g1, g2, b1, b2, p1, q1, p2, q2, connected1, connected2,
                                                mainComponent1, mainComponent2, strictConfig.getEpsilonX(), strictConfig.applyReactanceCorrection()), strictConfig, NullWriter.NULL_WRITER));
 
-        // check disconnected on one end
+        // check disconnected at one end
         assertTrue(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, u2, Double.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Double.NaN, Double.NaN, 0f, 0f, false, connected2,
                                             mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, new PrintWriter(System.err)));
         assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, u2, Double.NaN, theta2, alpha1, alpha2, g1, g2, b1, b2, Double.NaN, Double.NaN, 0.2f, 0f, false, connected2,
                                                mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
 
-        // check disconnected on both end
+        // check disconnected at both ends
         assertTrue(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, Double.NaN, Double.NaN, Double.NaN, alpha1, alpha2, g1, g2, b1, b2, Float.NaN, Float.NaN, Float.NaN, Float.NaN,
                                               false, false, mainComponent1, mainComponent2, looseConfig.getEpsilonX(), looseConfig.applyReactanceCorrection()), looseConfig, NullWriter.NULL_WRITER));
         assertFalse(FlowsValidation.INSTANCE.checkFlows(new BranchData("test", r, x, rho1, rho2, Double.NaN, Double.NaN, Double.NaN, Double.NaN, alpha1, alpha2, g1, g2, b1, b2, p1, q2, Double.NaN, Double.NaN,
@@ -204,6 +222,15 @@ class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(bus1.isInMainConnectedComponent()).thenReturn(false);
         Mockito.when(bus2.isInMainConnectedComponent()).thenReturn(false);
         assertTrue(FlowsValidation.INSTANCE.checkFlows(transformer1, strictConfig, NullWriter.NULL_WRITER));
+    }
+
+    @Test
+    void checkTieLineFlows() {
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(tieLine1, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.NULL_WRITER));
+        Mockito.when(bus1.isInMainConnectedComponent()).thenReturn(false);
+        Mockito.when(bus2.isInMainConnectedComponent()).thenReturn(false);
+        assertTrue(FlowsValidation.INSTANCE.checkFlows(tieLine1, strictConfig, NullWriter.NULL_WRITER));
     }
 
     @Test

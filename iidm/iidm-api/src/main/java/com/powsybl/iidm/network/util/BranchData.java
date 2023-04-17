@@ -13,6 +13,7 @@ import org.apache.commons.math3.complex.Complex;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
@@ -208,6 +209,52 @@ public class BranchData {
         boolean connectableMainComponent2 = connectableBus2 != null && connectableBus2.isInMainConnectedComponent();
         mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
         mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
+
+        computeValues();
+    }
+
+    public BranchData(TieLine tieLine, double epsilonX, boolean applyReactanceCorrection) {
+        Objects.requireNonNull(tieLine);
+
+        id = tieLine.getId();
+
+        Bus bus1 = tieLine.getHalf1().getTerminal().getBusView().getBus();
+        Bus bus2 = tieLine.getHalf2().getTerminal().getBusView().getBus();
+        Bus connectableBus1 = tieLine.getHalf1().getTerminal().getBusView().getConnectableBus();
+        Bus connectableBus2 = tieLine.getHalf2().getTerminal().getBusView().getConnectableBus();
+
+        r = tieLine.getR();
+        x = tieLine.getX();
+        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
+        z = Math.hypot(r, fixedX);
+        y = 1 / z;
+        ksi = Math.atan2(r, fixedX);
+        u1 = bus1 != null ? bus1.getV() : Double.NaN;
+        u2 = bus2 != null ? bus2.getV() : Double.NaN;
+        theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
+        theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
+        g1 = tieLine.getG1();
+        g2 = tieLine.getG2();
+        b1 = tieLine.getB1();
+        b2 = tieLine.getB2();
+        p1 = tieLine.getHalf1().getTerminal().getP();
+        q1 = tieLine.getHalf1().getTerminal().getQ();
+        p2 = tieLine.getHalf2().getTerminal().getP();
+        q2 = tieLine.getHalf2().getTerminal().getQ();
+
+        phaseAngleClock = 0;
+
+        connected1 = bus1 != null;
+        connected2 = bus2 != null;
+        boolean connectableMainComponent1 = connectableBus1 != null && connectableBus1.isInMainConnectedComponent();
+        boolean connectableMainComponent2 = connectableBus2 != null && connectableBus2.isInMainConnectedComponent();
+        mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
+        mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
+
+        rho1 = 1f;
+        alpha1 = 0f;
+        rho2 = 1f;
+        alpha2 = 0f;
 
         computeValues();
     }
