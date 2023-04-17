@@ -296,12 +296,14 @@ class CgmesExportTest {
     }
 
     @Test
-    void testFromIidmDanglingLineBusBranch() throws IOException {
+    void testFromIidmBusBranch() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
 
         Network network = DanglingLineNetworkFactory.create();
         DanglingLine expected = network.getDanglingLine("DL");
+        network.merge(BatteryNetworkFactory.create()); // add battery
+        Battery battery = network.getBattery("BAT");
 
         // Before exporting, we have to define to which point
         // in the external boundary definition we want to associate this dangling line
@@ -331,6 +333,12 @@ class CgmesExportTest {
             DanglingLine actual = networkFromCgmes.getDanglingLine("DL");
             assertNotNull(actual);
             checkDanglingLineParams(expected, actual);
+            Generator generator = networkFromCgmes.getGenerator("BAT");
+            assertNotNull(generator);
+            assertEquals(battery.getTargetP(), generator.getTargetP(), 0.0);
+            assertEquals(battery.getTargetQ(), generator.getTargetQ(), 0.0);
+            assertEquals(battery.getMinP(), generator.getMinP(), 0.0);
+            assertEquals(battery.getMaxP(), generator.getMaxP(), 0.0);
         }
     }
 
@@ -361,14 +369,12 @@ class CgmesExportTest {
     }
 
     @Test
-    void testFromIidmNodeBreaker() throws IOException {
+    void testFromIidmDanglingLineNodeBreaker() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
 
         Network network = DanglingLineNetworkFactory.create();
-        network.merge(BatteryNetworkFactory.create()); // add battery
         DanglingLine expected = network.getDanglingLine("DL");
-        Battery battery = network.getBattery("BAT");
 
         // Before exporting, we have to define to which point
         // in the external boundary definition we want to associate this dangling line
@@ -395,12 +401,6 @@ class CgmesExportTest {
             DanglingLine actual = networkFromCgmes.getDanglingLine("DL");
             assertNotNull(actual);
             checkDanglingLineParams(expected, actual);
-            Generator generator = networkFromCgmes.getGenerator("BAT");
-            assertNotNull(generator);
-            assertEquals(battery.getTargetP(), generator.getTargetP(), 0.0);
-            assertEquals(battery.getTargetQ(), generator.getTargetQ(), 0.0);
-            assertEquals(battery.getMinP(), generator.getMinP(), 0.0);
-            assertEquals(battery.getMaxP(), generator.getMaxP(), 0.0);
         }
     }
 
