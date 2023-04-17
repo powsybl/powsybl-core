@@ -13,6 +13,7 @@ import com.powsybl.psse.model.Revision;
 import com.powsybl.psse.model.pf.io.WindingHeaderTransformer;
 import com.powsybl.psse.model.pf.io.WindingRatesHeaderTransformer;
 import com.univocity.parsers.annotations.Nested;
+import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
@@ -83,6 +84,7 @@ public class PsseTransformer extends PsseVersioned {
     @Revision(since = 33)
     private String vecgrp = "            ";
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int zcod = 0;
@@ -372,27 +374,35 @@ public class PsseTransformer extends PsseVersioned {
         @Parsed(field = {"sbase12", "sbase1_2"})
         private double sbase12 = Double.NaN;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"r23", "r2_3"})
         private double r23 = 0;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"x23", "x2_3"})
         private double x23 = Double.NaN;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"sbase23", "sbase2_3"})
         private double sbase23 = Double.NaN;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"r31", "r3_1"})
         private double r31 = 0;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"x31", "x3_1"})
         private double x31 = Double.NaN;
 
+        @NullString(nulls = {"null"})
         @Parsed(field = {"sbase31", "sbase3_1"})
         private double sbase31 = Double.NaN;
 
+        @NullString(nulls = {"null"})
         @Parsed
         private double vmstar = 1;
 
+        @NullString(nulls = {"null"})
         @Parsed
         private double anstar = 0;
     }

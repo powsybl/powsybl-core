@@ -63,16 +63,23 @@ public abstract class AbstractFortescueExtensionTest {
         LineFortescue fortescue = l.newExtension(LineFortescueAdder.class)
                 .withRz(0.1d)
                 .withXz(2d)
+                .withOpenPhaseA(true)
+                .withOpenPhaseC(true)
                 .add();
 
         assertEquals(0.1d, fortescue.getRz());
         assertEquals(2d, fortescue.getXz());
+        assertTrue(fortescue.isOpenPhaseA());
+        assertFalse(fortescue.isOpenPhaseB());
+        assertTrue(fortescue.isOpenPhaseC());
 
         fortescue.setRz(0.11d);
         fortescue.setXz(2.03d);
+        fortescue.setOpenPhaseA(false);
 
         assertEquals(0.11d, fortescue.getRz());
         assertEquals(2.03d, fortescue.getXz());
+        assertFalse(fortescue.isOpenPhaseA());
     }
 
     @Test
@@ -180,5 +187,41 @@ public abstract class AbstractFortescueExtensionTest {
         assertSame(WindingConnectionType.DELTA, fortescue.getLeg1().getConnectionType());
         assertEquals(1.2d, fortescue.getLeg1().getGroundingR());
         assertEquals(3.1d, fortescue.getLeg1().getGroundingX());
+    }
+
+    @Test
+    void testLoad() {
+        var network = EurostagTutorialExample1Factory.create();
+        var load = network.getLoad("LOAD");
+        LoadAsymmetrical asym = load.newExtension(LoadAsymmetricalAdder.class)
+                .withConnectionType(LoadConnectionType.DELTA)
+                .withDeltaPa(-1)
+                .withDeltaQa(1)
+                .withDeltaPc(-2)
+                .withDeltaQc(2)
+                .add();
+        assertSame(LoadConnectionType.DELTA, asym.getConnectionType());
+        assertEquals(-1, asym.getDeltaPa(), 0);
+        assertEquals(1, asym.getDeltaQa(), 0);
+        assertEquals(0, asym.getDeltaPb(), 0);
+        assertEquals(0, asym.getDeltaQb(), 0);
+        assertEquals(-2, asym.getDeltaPc(), 0);
+        assertEquals(2, asym.getDeltaQc(), 0);
+
+        asym.setConnectionType(LoadConnectionType.Y);
+        asym.setDeltaPa(-1.5);
+        asym.setDeltaQa(1.5);
+        asym.setDeltaPb(-0.5);
+        asym.setDeltaQb(0.5);
+        asym.setDeltaPc(-2.5);
+        asym.setDeltaQc(2.5);
+
+        assertSame(LoadConnectionType.Y, asym.getConnectionType());
+        assertEquals(-1.5, asym.getDeltaPa(), 0);
+        assertEquals(1.5, asym.getDeltaQa(), 0);
+        assertEquals(-0.5, asym.getDeltaPb(), 0);
+        assertEquals(0.5, asym.getDeltaQb(), 0);
+        assertEquals(-2.5, asym.getDeltaPc(), 0);
+        assertEquals(2.5, asym.getDeltaQc(), 0);
     }
 }

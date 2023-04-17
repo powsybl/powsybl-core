@@ -25,4 +25,11 @@ public interface AmplParameters {
      * @see AmplModel#checkModelConvergence
      */
     Collection<AmplOutputFile> getOutputParameters(boolean hasConverged);
+
+    /**
+     * Check if run is done in debug mode. In debug mode, AMPL temporary files are not deleted.
+     *
+     * @return true if debug mode is on, else otherwise
+     */
+    boolean isDebug();
 }
