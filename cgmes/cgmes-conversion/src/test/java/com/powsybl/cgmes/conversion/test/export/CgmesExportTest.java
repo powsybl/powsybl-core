@@ -23,6 +23,7 @@ import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.util.Networks;
@@ -360,12 +361,14 @@ class CgmesExportTest {
     }
 
     @Test
-    void testFromIidmDanglingLineNodeBreaker() throws IOException {
+    void testFromIidmNodeBreaker() throws IOException {
         // If we want to export an IIDM that contains dangling lines,
         // we will have to rely on some external boundaries definition
 
         Network network = DanglingLineNetworkFactory.create();
+        network.merge(BatteryNetworkFactory.create()); // add battery
         DanglingLine expected = network.getDanglingLine("DL");
+        Battery battery = network.getBattery("BAT");
 
         // Before exporting, we have to define to which point
         // in the external boundary definition we want to associate this dangling line
@@ -392,6 +395,12 @@ class CgmesExportTest {
             DanglingLine actual = networkFromCgmes.getDanglingLine("DL");
             assertNotNull(actual);
             checkDanglingLineParams(expected, actual);
+            Generator generator = networkFromCgmes.getGenerator("BAT");
+            assertNotNull(generator);
+            assertEquals(battery.getTargetP(), generator.getTargetP(), 0.0);
+            assertEquals(battery.getTargetQ(), generator.getTargetQ(), 0.0);
+            assertEquals(battery.getMinP(), generator.getMinP(), 0.0);
+            assertEquals(battery.getMaxP(), generator.getMaxP(), 0.0);
         }
     }
 
