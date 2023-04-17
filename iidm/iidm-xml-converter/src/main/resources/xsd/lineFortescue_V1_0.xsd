@@ -16,6 +16,9 @@
         <xs:complexType>
             <xs:attribute name="rz" type="xs:double"/>
             <xs:attribute name="xz" type="xs:double"/>
+            <xs:attribute name="openPhaseA" type="xs:boolean"/>
+            <xs:attribute name="openPhaseB" type="xs:boolean"/>
+            <xs:attribute name="openPhaseC" type="xs:boolean"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>
