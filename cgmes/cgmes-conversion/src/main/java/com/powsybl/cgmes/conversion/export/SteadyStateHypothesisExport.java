@@ -259,7 +259,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(isInSlackBus(b) ? "1" : "0");
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode.generator"); // FIXME when is a battery motor and when is it generator?
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode.generatorOrMotor");
             writer.writeEndElement();
         }
     }
