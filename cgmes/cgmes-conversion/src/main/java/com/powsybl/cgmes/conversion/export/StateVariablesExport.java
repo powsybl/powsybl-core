@@ -198,7 +198,6 @@ public final class StateVariablesExport {
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getBatteryStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getShuntCompensatorStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getStaticVarCompensatorStream);
-        writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getBatteryStream);
 
         // Fictitious loads are not exported as Equipment, they are just added to SV as SvInjection
         for (Load load : network.getLoads()) {
