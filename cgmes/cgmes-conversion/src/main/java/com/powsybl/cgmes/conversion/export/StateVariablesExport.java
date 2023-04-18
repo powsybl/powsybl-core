@@ -195,6 +195,7 @@ public final class StateVariablesExport {
     private static void writePowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getLoadStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getGeneratorStream);
+        writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getBatteryStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getShuntCompensatorStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getStaticVarCompensatorStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getBatteryStream);
