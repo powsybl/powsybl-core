@@ -261,26 +261,10 @@ public final class StateVariablesExport {
     private static void writePowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String cgmesTerminal = CgmesExportUtil.getTerminalId(terminal, context);
         if (cgmesTerminal != null) {
-            writePowerFlow(cgmesTerminal, getTerminalP(terminal), terminal.getQ(), cimNamespace, writer, context);
+            writePowerFlow(cgmesTerminal, terminal.getP(), terminal.getQ(), cimNamespace, writer, context);
         } else {
             LOG.error("No defined CGMES terminal for {}", terminal.getConnectable().getId());
         }
-    }
-
-    private static double getTerminalP(Terminal terminal) {
-        double p = terminal.getP();
-        if (!Double.isNaN(p)) {
-            return p;
-        }
-        // P is NaN
-        if (Double.isNaN(terminal.getQ())) {
-            return p;
-        }
-        // P is NaN and Q != NaN
-        if (terminal.getConnectable() instanceof StaticVarCompensator) {
-            return 0.0;
-        }
-        return p;
     }
 
     private static void writeSvInjection(Load load, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
@@ -315,10 +299,6 @@ public final class StateVariablesExport {
     }
 
     private static void writePowerFlow(String cgmesTerminalId, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        // Export only if flow is a number
-        if (Double.isNaN(p) && Double.isNaN(q)) {
-            return;
-        }
         try {
             CgmesExportUtil.writeStartId("SvPowerFlow", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "SvPowerFlow.p");
