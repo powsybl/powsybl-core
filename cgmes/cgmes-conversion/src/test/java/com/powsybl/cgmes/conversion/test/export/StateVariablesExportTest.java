@@ -34,8 +34,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -135,11 +135,6 @@ class StateVariablesExportTest extends AbstractConverterTest {
         load.getTerminal().setQ(Double.NaN);
         String sv2 = exportSvAsString(network, 4);
         assertTrue(sv2.contains(cgmesTerminal));
-
-        load.getTerminal().setP(Double.NaN);
-        load.getTerminal().setQ(Double.NaN);
-        String sv3 = exportSvAsString(network, 4);
-        assertFalse(sv3.contains(cgmesTerminal));
     }
 
     @Test
@@ -155,11 +150,6 @@ class StateVariablesExportTest extends AbstractConverterTest {
         shuntCompensator.getTerminal().setQ(-13.03);
         String sv = exportSvAsString(network, 4);
         assertTrue(sv.contains(cgmesTerminal));
-
-        shuntCompensator.getTerminal().setQ(Double.NaN);
-        shuntCompensator.getTerminal().setP(Double.NaN);
-        String sv1 = exportSvAsString(network, 4);
-        assertFalse(sv1.contains(cgmesTerminal));
     }
 
     @Test
@@ -256,6 +246,14 @@ class StateVariablesExportTest extends AbstractConverterTest {
         // Import with new SV
         Network actual = Network.read(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+
+        // Before comparison, set undefined p/q in expected network at 0.0
+        expected.getConnectableStream()
+                .filter(c -> !(c instanceof BusbarSection))
+                .filter(c -> !(c instanceof HvdcConverterStation))
+                .flatMap(c -> (Stream<Terminal>) c.getTerminals().stream())
+                .filter(t -> Double.isNaN(t.getP()) && Double.isNaN(t.getQ()))
+                .forEach(t -> t.setP(0.0).setQ(0.0));
 
         // Export original and with new SV
         // comparison without extensions, only Networks
