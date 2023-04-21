@@ -39,6 +39,11 @@ public class DefaultNamingStrategy implements NamingStrategy {
 
     @Override
     public UcteNodeCode getUcteNodeCode(Bus bus) {
+        if (bus.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            int length = bus.getId().length();
+            // Remove last underscore and add 1 to bus number
+            return getUcteNodeCode(bus.getId().substring(0, length - 2) + (Character.getNumericValue(bus.getId().charAt(length - 1)) + 1));
+        }
         return getUcteNodeCode(bus.getId());
     }
 

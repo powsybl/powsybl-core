@@ -14,6 +14,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
+import com.powsybl.ucte.converter.util.UcteConstants;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.jupiter.api.Test;
 
@@ -83,6 +84,78 @@ class UcteExporterTest extends AbstractConverterTest {
     void testExport() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         testExporter(network, "/expectedExport.uct");
+    }
+
+    private static void introduceNbVl(Network network) {
+        network.getTwoWindingsTransformer("B_SU1_11 B_SU1_21 1").remove();
+        network.getLine("XB__F_11 B_SU1_11 1 + XB__F_11 F_SU1_11 1").remove();
+        network.getVoltageLevel("B_SU1_1").remove();
+        VoltageLevel vl = network.getSubstation("B_SU1_").newVoltageLevel()
+                .setId("B_SU1_1")
+                .setNominalV(380.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();
+        vl.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(2).add();
+        vl.newLoad().setId("B_SU1_11_load").setLoadType(LoadType.UNDEFINED).setP0(50.0).setQ0(0.0).setNode(2).add();
+        TwoWindingsTransformer twt = network.getSubstation("B_SU1_").newTwoWindingsTransformer()
+                .setId("B_SU1_11 B_SU1_21 1")
+                .setR(0.55)
+                .setX(1.68)
+                .setG(0.0)
+                .setB(1.325E-5)
+                .setRatedU1(225.0)
+                .setRatedU2(400.0)
+                .setBus1("B_SU1_21")
+                .setVoltageLevel1("B_SU1_2")
+                .setNode2(0)
+                .setVoltageLevel2("B_SU1_1")
+                .add();
+        twt.setProperty(UcteConstants.NOMINAL_POWER_KEY, "5000.0");
+        twt.setProperty(UcteConstants.ELEMENT_NAME_PROPERTY_KEY, "Test 2WT 2");
+        twt.newCurrentLimits2().setPermanentLimit(5000.0).add();
+        Line tl = network.newTieLine()
+                .setId("XB__F_11 B_SU1_11 1 + XB__F_11 F_SU1_11 1")
+                .setUcteXnodeCode("XB__F_11")
+                .setNode1(1)
+                .setVoltageLevel1("B_SU1_1")
+                .setNode1(1)
+                .setVoltageLevel2("F_SU1_1")
+                .setBus2("F_SU1_11")
+                .newHalfLine1()
+                .setId("XB__F_11 B_SU1_11 1")
+                .setR(0.55)
+                .setX(1.68)
+                .setG1(0.0)
+                .setB1(1.325E-5)
+                .setG2(0.0)
+                .setB2(0.0)
+                .setFictitious(true)
+                .add()
+                .newHalfLine2()
+                .setId("XB__F_11 F_SU1_11 1")
+                .setR(0.55)
+                .setX(1.68)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(1.325E-5)
+                .setFictitious(true)
+                .add()
+                .add();
+        tl.setProperty(UcteConstants.GEOGRAPHICAL_NAME_PROPERTY_KEY, "FR-BE Xnode1");
+        tl.setProperty("elementName_1", "Test TL 1/2");
+        tl.setProperty("elementName_2", "Test TL 1/1");
+        tl.setProperty("status_XNode", "EQUIVALENT");
+        tl.newCurrentLimits1().setPermanentLimit(5000.0).add();
+        tl.newCurrentLimits2().setPermanentLimit(5000.0).add();
+    }
+
+    @Test
+    void testNbExport() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        introduceNbVl(network);
+        testExporter(network, "/expectedExportNb.uct"); // only difference is there is no bus name
     }
 
     @Test
