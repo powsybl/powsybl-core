@@ -308,4 +308,70 @@ public abstract class AbstractLoadTest {
         assertEquals("FOO", load.getOptionalName().orElseThrow());
         Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "name", null, "FOO");
     }
+
+    @Test
+    public void testZipLoadModel() {
+        Load load = voltageLevel.newLoad()
+                .setId("newZipLoad")
+                .setP0(2.0)
+                .setQ0(1.0)
+                .setNode(1)
+                .newZipModel()
+                    .setPp(0.9)
+                    .setIp(0.5)
+                    .setZp(0.4)
+                    .setPq(0.8)
+                    .setIq(0.7)
+                    .setZq(0.6)
+                    .add()
+                .add();
+        assertEquals(2.0, load.getP0(), 0.0);
+        assertEquals(1.0, load.getQ0(), 0.0);
+        ZipLoadModel loadModel = (ZipLoadModel) load.getModel().orElseThrow();
+        assertEquals(0.9, loadModel.getPp(), 0);
+        assertEquals(0.5, loadModel.getIp(), 0);
+        assertEquals(0.4, loadModel.getZp(), 0);
+        assertEquals(0.8, loadModel.getPq(), 0);
+        assertEquals(0.7, loadModel.getIq(), 0);
+        assertEquals(0.6, loadModel.getZq(), 0);
+        loadModel.setPp(0.91);
+        loadModel.setIp(0.51);
+        loadModel.setZp(0.41);
+        loadModel.setPq(0.81);
+        loadModel.setIq(0.71);
+        loadModel.setZq(0.61);
+        assertEquals(0.91, loadModel.getPp(), 0);
+        assertEquals(0.51, loadModel.getIp(), 0);
+        assertEquals(0.41, loadModel.getZp(), 0);
+        assertEquals(0.81, loadModel.getPq(), 0);
+        assertEquals(0.71, loadModel.getIq(), 0);
+        assertEquals(0.61, loadModel.getZq(), 0);
+        ValidationException e = assertThrows(ValidationException.class, () -> loadModel.setPp(-2));
+        assertEquals("Load 'newZipLoad': Invalid zip load model coefficient: -2.0", e.getMessage());
+    }
+
+    @Test
+    public void testExponentialLoadModel() {
+        Load load = voltageLevel.newLoad()
+                .setId("newZipLoad")
+                .setP0(2.0)
+                .setQ0(1.0)
+                .setNode(1)
+                .newExponentialModel()
+                    .setNp(0.6)
+                    .setNq(0.5)
+                    .add()
+                .add();
+        assertEquals(2.0, load.getP0(), 0.0);
+        assertEquals(1.0, load.getQ0(), 0.0);
+        ExponentialLoadModel loadModel = (ExponentialLoadModel) load.getModel().orElseThrow();
+        assertEquals(0.6, loadModel.getNp(), 0);
+        assertEquals(0.5, loadModel.getNq(), 0);
+        loadModel.setNp(0.61);
+        loadModel.setNq(0.51);
+        assertEquals(0.61, loadModel.getNp(), 0);
+        assertEquals(0.51, loadModel.getNq(), 0);
+        ValidationException e = assertThrows(ValidationException.class, () -> loadModel.setNp(-2));
+        assertEquals("Load 'newZipLoad': Invalid load model exponential value: -2.0", e.getMessage());
+    }
 }
