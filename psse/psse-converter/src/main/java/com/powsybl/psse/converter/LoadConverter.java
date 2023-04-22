@@ -34,18 +34,19 @@ class LoadConverter extends AbstractConverter {
         VoltageLevel voltageLevel = getNetwork()
             .getVoltageLevel(getContainersMapping().getVoltageLevelId(psseLoad.getI()));
 
-        // Only constant power is considered at the moment
-        // S = VI*, S = YVV*
-        // .setIp(psseLoad.getIp())
-        // .setIq(psseLoad.getIq())
-        // .setYp(psseLoad.getYp())
-        // .setYq(psseLoad.getYq())
-
         LoadAdder adder = voltageLevel.newLoad()
             .setId(getLoadId(busId))
             .setConnectableBus(busId)
-            .setP0(psseLoad.getPl())
-            .setQ0(psseLoad.getQl());
+            .setP0(psseLoad.getPl() + psseLoad.getIp() + psseLoad.getYp())
+            .setQ0(psseLoad.getQl() + psseLoad.getIq() + psseLoad.getYq())
+            .newZipModel()
+                .setPp(1)
+                .setIp(psseLoad.getIp() / psseLoad.getPl())
+                .setZp(psseLoad.getYp() / psseLoad.getPl())
+                .setPq(1)
+                .setIq(psseLoad.getIq() / psseLoad.getQl())
+                .setZq(psseLoad.getYq() / psseLoad.getQl())
+                .add();
 
         adder.setBus(psseLoad.getStatus() == 1 ? busId : null);
         adder.add();
