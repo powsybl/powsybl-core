@@ -38,15 +38,18 @@ class LoadConverter extends AbstractConverter {
             .setId(getLoadId(busId))
             .setConnectableBus(busId)
             .setP0(psseLoad.getPl())
-            .setQ0(psseLoad.getQl())
-            .newZipModel()
-                .setPp(1)
-                .setIp(psseLoad.getIp() / psseLoad.getPl())
-                .setZp(psseLoad.getYp() / psseLoad.getPl())
-                .setPq(1)
-                .setIq(psseLoad.getIq() / psseLoad.getQl())
-                .setZq(psseLoad.getYq() / psseLoad.getQl())
-                .add();
+            .setQ0(psseLoad.getQl());
+
+        if (psseLoad.getIp() != 0 || psseLoad.getYp() != 0 || psseLoad.getIq() != 0 || psseLoad.getYq() != 0) {
+            adder.newZipModel()
+                    .setPp(1)
+                    .setIp(psseLoad.getIp() / psseLoad.getPl())
+                    .setZp(psseLoad.getYp() / psseLoad.getPl())
+                    .setPq(1)
+                    .setIq(psseLoad.getIq() / psseLoad.getQl())
+                    .setZq(psseLoad.getYq() / psseLoad.getQl())
+                    .add();
+        }
 
         adder.setBus(psseLoad.getStatus() == 1 ? busId : null);
         adder.add();

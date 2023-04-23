@@ -40,10 +40,45 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
                 .setLoadType(loadType);
         identify(adder);
         connect(adder);
+        model(adder);
         Load load = adder.add();
         addAliasesAndProperties(load);
         convertedTerminals(load.getTerminal());
         setLoadDetail(loadKind, load);
+    }
+
+    private void model(LoadAdder adder) {
+        boolean exponentModel = p.asBoolean("exponentModel", false);
+        if (exponentModel) {
+            double pVoltageExponent = p.asDouble("pVoltageExponent", 0);
+            double qVoltageExponent = p.asDouble("qVoltageExponent", 0);
+            boolean constantPower = pVoltageExponent == 0 && qVoltageExponent == 0;
+            if (!constantPower) {
+                adder.newExponentialModel()
+                        .setNp(pVoltageExponent)
+                        .setNq(qVoltageExponent)
+                        .add();
+            }
+        } else {
+            double pConstantCurrent = p.asDouble("pConstantCurrent");
+            double pConstantImpedance = p.asDouble("pConstantImpedance");
+            double pConstantPower = p.asDouble("pConstantPower");
+            double qConstantCurrent = p.asDouble("qConstantCurrent");
+            double qConstantImpedance = p.asDouble("qConstantImpedance");
+            double qConstantPower = p.asDouble("qConstantPower");
+            boolean constantPower = pConstantPower == 1 && pConstantCurrent == 0 && pConstantImpedance == 0
+                    && qConstantPower == 1 && qConstantCurrent == 0 && qConstantImpedance == 0;
+            if (!constantPower) {
+                adder.newZipModel()
+                        .setPp(pConstantPower)
+                        .setIp(pConstantCurrent)
+                        .setZp(pConstantImpedance)
+                        .setPq(qConstantPower)
+                        .setIq(qConstantCurrent)
+                        .setZq(qConstantImpedance)
+                        .add();
+            }
+        }
     }
 
     private static void setLoadDetail(String type, Load load) {

@@ -682,7 +682,19 @@ WHERE {
     ?EnergyConsumer
         a ?type ;
         cim:IdentifiedObject.name ?name .
+    OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.LoadResponse ?LoadResponseCharacteristic }
     VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad cim:StationSupply }
+    ?LoadResponseCharacteristic
+        a ?loadResponseCharacteristicType ;
+        cim:LoadResponseCharacteristic.exponentModel ?exponentModel .
+    OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pConstantCurrent ?pConstantCurrent }
+    OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pConstantImpedance ?pConstantImpedance }
+    OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pConstantPower ?pConstantPower }
+    OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qConstantCurrent ?qConstantCurrent }
+    OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qConstantImpedance ?qConstantImpedance }
+    OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qConstantPower ?qConstantPower }
+    OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pVoltageExponent ?pVoltageExponent }
+    OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qVoltageExponent ?qVoltageExponent }
     ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer .
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.qfixed ?qfixed }
