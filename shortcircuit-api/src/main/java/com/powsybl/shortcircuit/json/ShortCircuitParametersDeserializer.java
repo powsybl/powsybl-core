@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import static com.powsybl.shortcircuit.json.JsonShortCircuitParameters.getExtensionSerializers;
+
 /**
  * @author Boubakeur Brahimi
  */
@@ -78,13 +80,13 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     break;
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonShortCircuitParameters.getExtensionSerializers(), parameters);
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
-        JsonShortCircuitParameters.getExtensionSerializers().addExtensions(parameters, extensions);
+        extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
         return parameters;
     }
 
