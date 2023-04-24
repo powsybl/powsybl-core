@@ -34,7 +34,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -249,9 +248,11 @@ class StateVariablesExportTest extends AbstractConverterTest {
 
         // Before comparison, set undefined p/q in expected network at 0.0
         expected.getConnectableStream()
+                .filter(c -> c instanceof Injection)
                 .filter(c -> !(c instanceof BusbarSection))
                 .filter(c -> !(c instanceof HvdcConverterStation))
-                .flatMap(c -> (Stream<Terminal>) c.getTerminals().stream())
+                .map(c -> (Injection<?>) c)
+                .map(Injection::getTerminal)
                 .filter(t -> Double.isNaN(t.getP()) && Double.isNaN(t.getQ()))
                 .forEach(t -> t.setP(0.0).setQ(0.0));
 
