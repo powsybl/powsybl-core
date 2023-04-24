@@ -23,6 +23,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
+
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
@@ -527,7 +529,12 @@ public final class EquipmentExport {
             String cgmesTapChangerId = context.getNamingStrategy().getCgmesIdFromAlias(eq, aliasType);
 
             int neutralStep = getRatioTapChangerNeutralStep(rtc);
-            double stepVoltageIncrement = 100.0 * (1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0) / (rtc.getLowTapPosition() - neutralStep);
+            double stepVoltageIncrement;
+            if (rtc.getHighTapPosition() == rtc.getLowTapPosition()) {
+                stepVoltageIncrement = 100;
+            } else {
+                stepVoltageIncrement = 100.0 * (1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0 / rtc.getStep(rtc.getHighTapPosition()).getRho()) / (rtc.getLowTapPosition() - rtc.getHighTapPosition());
+            }
             String ratioTapChangerTableId = CgmesExportUtil.getUniqueId();
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
@@ -729,17 +736,17 @@ public final class EquipmentExport {
             OperationalLimitTypeEq.writePatl(operationalLimitTypeId, cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
             String operationalLimitSetId = CgmesExportUtil.getUniqueId();
             OperationalLimitSetEq.write(operationalLimitSetId, "operational limit patl", terminalId, cimNamespace, writer, context);
-            LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(), "CurrentLimit", limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
+            LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(), loadingLimitClassName(limits.getClass()) + " PATL", limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
         }
         if (!limits.getTemporaryLimits().isEmpty()) {
             Iterator<LoadingLimits.TemporaryLimit> iterator = limits.getTemporaryLimits().iterator();
             while (iterator.hasNext()) {
                 LoadingLimits.TemporaryLimit temporaryLimit = iterator.next();
                 String operationalLimitTypeId = CgmesExportUtil.getUniqueId();
-                OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, temporaryLimit.getName(), temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+                OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, "TATL " + temporaryLimit.getAcceptableDuration(), temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
                 String operationalLimitSetId = CgmesExportUtil.getUniqueId();
                 OperationalLimitSetEq.write(operationalLimitSetId, "operational limit tatl", terminalId, cimNamespace, writer, context);
-                LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(), "CurrentLimit", temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
+                LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(), temporaryLimit.getName(), temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
             }
         }
     }

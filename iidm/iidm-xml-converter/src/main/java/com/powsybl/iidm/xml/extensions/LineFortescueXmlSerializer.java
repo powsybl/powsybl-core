@@ -34,15 +34,24 @@ public class LineFortescueXmlSerializer extends AbstractExtensionXmlSerializer<L
     public void write(LineFortescue lineFortescue, XmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeOptionalDouble("rz", lineFortescue.getRz(), Double.NaN, context.getWriter());
         XmlUtil.writeOptionalDouble("xz", lineFortescue.getXz(), Double.NaN, context.getWriter());
+        XmlUtil.writeOptionalBoolean("openPhaseA", lineFortescue.isOpenPhaseA(), false, context.getWriter());
+        XmlUtil.writeOptionalBoolean("openPhaseB", lineFortescue.isOpenPhaseB(), false, context.getWriter());
+        XmlUtil.writeOptionalBoolean("openPhaseC", lineFortescue.isOpenPhaseC(), false, context.getWriter());
     }
 
     @Override
     public LineFortescue read(Line line, XmlReaderContext context) throws XMLStreamException {
         double rz = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "rz");
         double xz = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xz");
+        boolean openPhaseA = XmlUtil.readOptionalBoolAttribute(context.getReader(), "openPhaseA", false);
+        boolean openPhaseB = XmlUtil.readOptionalBoolAttribute(context.getReader(), "openPhaseB", false);
+        boolean openPhaseC = XmlUtil.readOptionalBoolAttribute(context.getReader(), "openPhaseC", false);
         return line.newExtension(LineFortescueAdder.class)
                 .withRz(rz)
                 .withXz(xz)
+                .withOpenPhaseA(openPhaseA)
+                .withOpenPhaseB(openPhaseB)
+                .withOpenPhaseC(openPhaseC)
                 .add();
     }
 }

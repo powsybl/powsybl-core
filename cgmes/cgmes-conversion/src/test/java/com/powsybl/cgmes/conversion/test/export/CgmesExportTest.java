@@ -53,6 +53,9 @@ class CgmesExportTest {
         Network network = FictitiousSwitchFactory.create();
         VoltageLevel vl = network.getVoltageLevel("C");
 
+        // set as WIND generator
+        network.getGenerator("CB").setEnergySource(EnergySource.WIND);
+
         // Add disconnected node on switch (side 2)
         vl.getNodeBreakerView().newSwitch().setId("TEST_SW")
                 .setKind(SwitchKind.DISCONNECTOR)
