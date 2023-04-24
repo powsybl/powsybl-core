@@ -40,7 +40,8 @@ class LoadConverter extends AbstractConverter {
             .setP0(psseLoad.getPl())
             .setQ0(psseLoad.getQl());
 
-        if (psseLoad.getIp() != 0 || psseLoad.getYp() != 0 || psseLoad.getIq() != 0 || psseLoad.getYq() != 0) {
+        boolean constantPower = psseLoad.getIp() == 0 && psseLoad.getYp() == 0 && psseLoad.getIq() == 0 && psseLoad.getYq() == 0;
+        if (!constantPower) {
             adder.newZipModel()
                     .setPp(1)
                     .setIp(psseLoad.getIp() / psseLoad.getPl())

@@ -1,0 +1,74 @@
+/**
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.iidm.xml;
+
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.joda.time.DateTime;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+class LoadModelXmlTest extends AbstractXmlConverterTest {
+
+    @Test
+    void zipModelTest() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(DateTime.parse("2020-07-16T10:08:48.321+02:00"));
+        network.getVoltageLevel("VLLOAD").newLoad()
+                .setId("LOAD2")
+                .setBus("NLOAD")
+                .setP0(10)
+                .setQ0(5)
+                .newZipModel()
+                    .setPp(0.9)
+                    .setIp(0.5)
+                    .setZp(0.4)
+                    .setPq(0.8)
+                    .setIq(0.7)
+                    .setZq(0.6)
+                    .add()
+                .add();
+
+        roundTripXmlTest(network,
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                getVersionedNetworkPath("eurostag-tutorial-example1-zip-load-model.xml", CURRENT_IIDM_XML_VERSION));
+
+        // backward compatibility, load model is skipped
+        roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
+    }
+
+    @Test
+    void expoModelTest() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(DateTime.parse("2020-07-16T10:08:48.321+02:00"));
+        network.getVoltageLevel("VLLOAD").newLoad()
+                .setId("LOAD2")
+                .setBus("NLOAD")
+                .setP0(10)
+                .setQ0(5)
+                .newExponentialModel()
+                    .setNp(0.6)
+                    .setNq(0.5)
+                    .add()
+                .add();
+
+        roundTripXmlTest(network,
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                getVersionedNetworkPath("eurostag-tutorial-example1-expo-load-model.xml", CURRENT_IIDM_XML_VERSION));
+
+        // backward compatibility, load model is skipped
+        roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
+    }
+}

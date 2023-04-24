@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
  * ZIP load model.
  * p = p0 * (pp + ip * (v / v0) + zp * (v / v0)^2)
  * q = q0 * (pq + iq * (v / v0) + zq * (v / v0)^2)
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ZipLoadModel extends LoadModel {

@@ -277,11 +277,29 @@
     <xs:complexType name="Load">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
+                <xs:sequence minOccurs="0">
+                    <xs:choice>
+                        <xs:element name="zipModel" type="iidm:ZipLoadModel"/>
+                        <xs:element name="exponentialModel" type="iidm:ExponentialLoadModel"/>
+                    </xs:choice>
+                </xs:sequence>
                 <xs:attribute name="p0" use="optional" type="xs:double"/>
                 <xs:attribute name="q0" use="optional" type="xs:double"/>
                 <xs:attribute name="loadType" use="required" type="iidm:LoadType"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="ZipLoadModel">
+        <xs:attribute name="pp" use="required" type="xs:double"/>
+        <xs:attribute name="ip" use="required" type="xs:double"/>
+        <xs:attribute name="zp" use="required" type="xs:double"/>
+        <xs:attribute name="pq" use="required" type="xs:double"/>
+        <xs:attribute name="iq" use="required" type="xs:double"/>
+        <xs:attribute name="zq" use="required" type="xs:double"/>
+    </xs:complexType>
+    <xs:complexType name="ExponentialLoadModel">
+        <xs:attribute name="np" use="required" type="xs:double"/>
+        <xs:attribute name="nq" use="required" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="ShuntCompensator">
         <xs:complexContent>

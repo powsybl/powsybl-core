@@ -51,7 +51,7 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
 
     @Override
     protected void writeSubElements(Load load, VoltageLevel parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_9, context, () -> writeModel(load, context));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> writeModel(load, context));
     }
 
     private void writeModel(Load load, NetworkXmlWriterContext context) {
@@ -108,7 +108,7 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case EXPONENTIAL_MODEL:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_10, context);
                     double np = XmlUtil.readDoubleAttribute(context.getReader(), "np");
                     double nq = XmlUtil.readDoubleAttribute(context.getReader(), "nq");
                     adder.newExponentialModel()
@@ -117,7 +117,7 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
                             .add();
                     break;
                 case ZIP_MODEL:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_9, context);
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_10, context);
                     double pp = XmlUtil.readDoubleAttribute(context.getReader(), "pp");
                     double ip = XmlUtil.readDoubleAttribute(context.getReader(), "ip");
                     double zp = XmlUtil.readDoubleAttribute(context.getReader(), "zp");
