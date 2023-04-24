@@ -1013,10 +1013,11 @@ public class UcteImporter implements Importer {
         // lexical sort to always end up with same merge line id
         String mergeLineId = dlAtSideOne.getId() + " + " + dlAtSideTwo.getId();
 
-        // create XNODE merge extension
+        // create MergedXnode extension
         // In case R1 and R2 (resp. X1 and X2) are zero, rdp (resp. xdp) is set to 0.5:
         // by default the line is split in the middle.
         // R1 = 0 and R2 = 0 (resp. X1 = 0 and X2 = 0) are recovered when splitting the mergedXnode anyway.
+        // FIXME: not useful anymore.
         double sumR = dlAtSideOne.getR() + dlAtSideTwo.getR();
         double sumX = dlAtSideOne.getX() + dlAtSideTwo.getX();
         double rdp = (sumR == 0.) ? 0.5 : dlAtSideOne.getR() / sumR;
