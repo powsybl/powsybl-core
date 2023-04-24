@@ -18,6 +18,8 @@ import static com.powsybl.iidm.network.impl.ZipLoadModelImpl.checkCoefficient;
  */
 public class ZipLoadModelAdderImpl implements ZipLoadModelAdder {
 
+    private static final double EPSILON = 1E-8;
+
     private final LoadAdderImpl parentAdder;
 
     private double pp = 1;
@@ -69,10 +71,10 @@ public class ZipLoadModelAdderImpl implements ZipLoadModelAdder {
 
     @Override
     public LoadAdderImpl add() {
-        if (pp + ip + zp != 1d) {
+        if (Math.abs(pp + ip + zp - 1d) > EPSILON) {
             throw new ValidationException(parentAdder, "Sum of pp, ip and zp should be 1");
         }
-        if (pq + iq + zq != 1d) {
+        if (Math.abs(pq + iq + zq - 1d) > EPSILON) {
             throw new ValidationException(parentAdder, "Sum of pq, iq and zq should be 1");
         }
         parentAdder.setModel(new ZipLoadModelImpl(pp, ip, zp, pq, iq, zq));

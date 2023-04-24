@@ -34,21 +34,24 @@ class LoadConverter extends AbstractConverter {
         VoltageLevel voltageLevel = getNetwork()
             .getVoltageLevel(getContainersMapping().getVoltageLevelId(psseLoad.getI()));
 
+        double p0 = psseLoad.getPl() + psseLoad.getIp() + psseLoad.getYp();
+        double q0 = psseLoad.getQl() + psseLoad.getIq() + psseLoad.getYq();
+
         LoadAdder adder = voltageLevel.newLoad()
             .setId(getLoadId(busId))
             .setConnectableBus(busId)
-            .setP0(psseLoad.getPl())
-            .setQ0(psseLoad.getQl());
+            .setP0(p0)
+            .setQ0(q0);
 
         boolean constantPower = psseLoad.getIp() == 0 && psseLoad.getYp() == 0 && psseLoad.getIq() == 0 && psseLoad.getYq() == 0;
         if (!constantPower) {
             adder.newZipModel()
-                    .setPp(1)
-                    .setIp(psseLoad.getIp() / psseLoad.getPl())
-                    .setZp(psseLoad.getYp() / psseLoad.getPl())
-                    .setPq(1)
-                    .setIq(psseLoad.getIq() / psseLoad.getQl())
-                    .setZq(psseLoad.getYq() / psseLoad.getQl())
+                    .setPp(psseLoad.getPl() / p0)
+                    .setIp(psseLoad.getIp() / p0)
+                    .setZp(psseLoad.getYp() / p0)
+                    .setPq(psseLoad.getQl() / q0)
+                    .setIq(psseLoad.getIq() / q0)
+                    .setZq(psseLoad.getYq() / q0)
                     .add();
         }
 
