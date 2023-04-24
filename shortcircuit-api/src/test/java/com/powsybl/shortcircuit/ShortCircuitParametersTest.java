@@ -13,10 +13,10 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.YamlModuleConfigRepository;
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
@@ -36,31 +36,43 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
 
     private static final String DUMMY_EXTENSION_NAME = "dummy-extension";
 
-    static class DummyExtension extends AbstractExtension<ShortCircuitParameters> {
+    public static class DummyExtension extends AbstractExtension<ShortCircuitParameters> {
         double parameterDouble;
         boolean parameterBoolean;
         String parameterString;
 
-        DummyExtension() {
+        public DummyExtension() {
             super();
         }
 
-        DummyExtension(DummyExtension another) {
+        public DummyExtension(DummyExtension another) {
             this.parameterDouble = another.parameterDouble;
             this.parameterBoolean = another.parameterBoolean;
             this.parameterString = another.parameterString;
         }
 
-        boolean isParameterBoolean() {
-            return parameterBoolean;
+        /**
+         * Return the name of this extension.
+         */
+        @Override
+        public String getName() {
+            return "dummy-extension";
+        }
+
+        public boolean isParameterBoolean() {
+            return this.parameterBoolean;
+        }
+
+        public String getParameterString() {
+            return this.parameterString;
         }
 
         double getParameterDouble() {
-            return parameterDouble;
+            return this.parameterDouble;
         }
 
-        String getParameterString() {
-            return parameterString;
+        void setParameterDouble(double parameterDouble) {
+            this.parameterDouble = parameterDouble;
         }
 
         void setParameterBoolean(boolean parameterBoolean) {
@@ -70,20 +82,17 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         void setParameterString(String parameterString) {
             this.parameterString = parameterString;
         }
-
-        void setParameterDouble(double parameterDouble) {
-            this.parameterDouble = parameterDouble;
-        }
-
-        @Override
-        public String getName() {
-            return DUMMY_EXTENSION_NAME;
-        }
     }
 
-    @AutoService(JsonShortCircuitParameters.ExtensionSerializer.class)
-    public static class DummySerializer implements JsonShortCircuitParameters.ExtensionSerializer<DummyExtension> {
-        private interface SerializationSpec {
+    public static class DummySerializer implements ExtensionJsonSerializer<ShortCircuitParameters, DummyExtension> {
+
+        @Override
+        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeEndObject();
+        }
+
+        interface SerializationSpec {
 
             @JsonIgnore
             String getName();
@@ -94,17 +103,11 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
 
         private static ObjectMapper createMapper() {
             return JsonUtil.createObjectMapper()
-                    .addMixIn(DummyExtension.class, DummySerializer.SerializationSpec.class);
+                    .addMixIn(DummyExtension.class, SerializationSpec.class);
         }
 
         @Override
-        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeEndObject();
-        }
-
-        @Override
-        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
             return new DummyExtension();
         }
 
@@ -112,17 +115,18 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         public DummyExtension deserializeAndUpdate(JsonParser jsonParser, DeserializationContext deserializationContext, DummyExtension parameters) throws IOException {
             ObjectMapper objectMapper = createMapper();
             ObjectReader objectReader = objectMapper.readerForUpdating(parameters);
-            return objectReader.readValue(jsonParser, DummyExtension.class);
+            DummyExtension updatedParameters = objectReader.readValue(jsonParser, DummyExtension.class);
+            return updatedParameters;
         }
 
         @Override
         public String getExtensionName() {
-            return DUMMY_EXTENSION_NAME;
+            return "dummy-extension";
         }
 
         @Override
         public String getCategoryName() {
-            return "short-circuit-parameters";
+            return "shortcircuit-parameters";
         }
 
         @Override
@@ -191,30 +195,6 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertTrue(parameters.isWithFortescueResult());
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertEquals(1.2, parameters.getMinVoltageDropProportionalThreshold(), 0.0);
-    }
-
-    @AutoService(ShortCircuitParameters.ConfigLoader.class)
-    public static class DummyLoader implements ShortCircuitParameters.ConfigLoader<DummyExtension> {
-
-        @Override
-        public DummyExtension load(PlatformConfig platformConfig) {
-            return new DummyExtension();
-        }
-
-        @Override
-        public String getExtensionName() {
-            return DUMMY_EXTENSION_NAME;
-        }
-
-        @Override
-        public String getCategoryName() {
-            return "short-circuit-parameters";
-        }
-
-        @Override
-        public Class<? super DummyExtension> getExtensionClass() {
-            return DummyExtension.class;
-        }
     }
 
     @Test

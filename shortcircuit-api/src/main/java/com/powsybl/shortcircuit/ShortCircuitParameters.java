@@ -6,15 +6,11 @@
  */
 package com.powsybl.shortcircuit;
 
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionConfigLoader;
-import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.util.ServiceLoaderCache;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
 
@@ -26,16 +22,9 @@ import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
  */
 public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParameters> {
 
-    public interface ConfigLoader<E extends Extension<ShortCircuitParameters>>
-            extends ExtensionConfigLoader<ShortCircuitParameters, E> {
-    }
-
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
     public static final String VERSION = "1.1";
-
-    private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
-            .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "short-circuit-parameters"));
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
     private boolean withFortescueResult = DEFAULT_WITH_FORTESCUE_RESULT;
@@ -70,8 +59,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     private void readExtensions(PlatformConfig platformConfig) {
-        for (ConfigLoader provider : SUPPLIER.get().getProviders()) {
-            addExtension(provider.getExtensionClass(), provider.load(platformConfig));
+        for (ShortCircuitAnalysisProvider provider : new ServiceLoaderCache<>(ShortCircuitAnalysisProvider.class).getServices()) {
+            provider.loadSpecificParameters(platformConfig).ifPresent(shortCircuitParametersExtension ->
+                    addExtension((Class) shortCircuitParametersExtension.getClass(), shortCircuitParametersExtension));
         }
     }
 
