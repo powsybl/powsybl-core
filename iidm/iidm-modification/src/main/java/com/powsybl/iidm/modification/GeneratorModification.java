@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -84,6 +84,14 @@ public class GeneratorModification extends AbstractNetworkModification {
         g.setTargetP(Math.min(g.getMaxP(), Math.max(g.getMinP(), targetP)));
     }
 
+    public Modifs getModifs() {
+        return modifs;
+    }
+
+    public String getGeneratorId() {
+        return generatorId;
+    }
+
     public static class Modifs {
         private Double minP;
         private Double maxP;
@@ -94,7 +102,7 @@ public class GeneratorModification extends AbstractNetworkModification {
         private Boolean voltageRegulatorOn;
         private Boolean connected;
 
-        Double getMinP() {
+        public Double getMinP() {
             return minP;
         }
 
@@ -102,7 +110,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             this.minP = minP;
         }
 
-        Double getMaxP() {
+        public Double getMaxP() {
             return maxP;
         }
 
@@ -110,7 +118,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             this.maxP = maxP;
         }
 
-        Double getTargetP() {
+        public Double getTargetP() {
             return targetP;
         }
 
@@ -118,7 +126,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             this.targetP = targetP;
         }
 
-        Double getDeltaTargetP() {
+        public Double getDeltaTargetP() {
             return deltaTargetP;
         }
 
@@ -126,7 +134,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             this.deltaTargetP = deltaTargetP;
         }
 
-        Double getTargetV() {
+        public Double getTargetV() {
             return targetV;
         }
 
@@ -134,7 +142,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             this.targetV = targetV;
         }
 
-        Double getTargetQ() {
+        public Double getTargetQ() {
             return targetQ;
         }
 
@@ -142,7 +150,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             this.targetQ = targetQ;
         }
 
-        Boolean getVoltageRegulatorOn() {
+        public Boolean getVoltageRegulatorOn() {
             return voltageRegulatorOn;
         }
 
@@ -150,7 +158,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             this.voltageRegulatorOn = voltageRegulatorOn;
         }
 
-        Boolean getConnected() {
+        public Boolean getConnected() {
             return connected;
         }
 
