@@ -30,16 +30,16 @@ class LoadModelXmlTest extends AbstractXmlConverterTest {
                 .setP0(10)
                 .setQ0(5)
                 .newZipModel()
-                    .setPp(0.9)
+                    .setPp(0.3)
                     .setIp(0.5)
-                    .setZp(0.4)
-                    .setPq(0.8)
-                    .setIq(0.7)
-                    .setZq(0.6)
+                    .setZp(0.2)
+                    .setPq(0.1)
+                    .setIq(0.2)
+                    .setZq(0.7)
                     .add()
                 .add();
 
-        roundTripXmlTest(network,
+        roundTripTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 getVersionedNetworkPath("eurostag-tutorial-example1-zip-load-model.xml", CURRENT_IIDM_XML_VERSION));

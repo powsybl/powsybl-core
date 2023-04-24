@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ZipLoadModelAdder;
 
 import java.util.Objects;
@@ -68,6 +69,12 @@ public class ZipLoadModelAdderImpl implements ZipLoadModelAdder {
 
     @Override
     public LoadAdderImpl add() {
+        if (pp + ip + zp != 1d) {
+            throw new ValidationException(parentAdder, "Sum of pp, ip and zp should be 1");
+        }
+        if (pq + iq + zq != 1d) {
+            throw new ValidationException(parentAdder, "Sum of pq, iq and zq should be 1");
+        }
         parentAdder.setModel(new ZipLoadModelImpl(pp, ip, zp, pq, iq, zq));
         return parentAdder;
     }

@@ -32,7 +32,7 @@ public class ZipLoadModelImpl extends AbstractLoadModelImpl implements ZipLoadMo
     }
 
     static double checkCoefficient(Validable validable, double coefficient) {
-        if (coefficient < 0) {
+        if (Double.isNaN(coefficient) || coefficient < 0) {
             throw new ValidationException(validable, "Invalid zip load model coefficient: " + coefficient);
         }
         return coefficient;

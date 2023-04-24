@@ -24,7 +24,7 @@ public class ExponentialLoadModelImpl extends AbstractLoadModelImpl implements E
     }
 
     static double checkExponent(Validable validable, double n) {
-        if (n < 0) {
+        if (Double.isNaN(n) || n < 0) {
             throw new ValidationException(validable, "Invalid load model exponential value: " + n);
         }
         return n;
