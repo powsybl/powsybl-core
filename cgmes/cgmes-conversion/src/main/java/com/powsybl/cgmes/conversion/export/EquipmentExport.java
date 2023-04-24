@@ -201,7 +201,9 @@ public final class EquipmentExport {
             String subGeographicalRegionId = context.getNamingStrategy().getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId");
             String geographicalRegionId = context.getNamingStrategy().getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
             if (!writtenSubRegions.contains(subGeographicalRegionId)) {
-                writeSubGeographicalRegion(subGeographicalRegionId, Optional.ofNullable(context.getSubRegionName(subGeographicalRegionId)).orElse("N/A"), geographicalRegionId, cimNamespace, writer, context);
+                writeSubGeographicalRegion(subGeographicalRegionId,
+                        Optional.ofNullable(context.getSubRegionName(subGeographicalRegionId)).orElse("N/A"), // FIXME sub-regions can be non-unique (same name for different IDs)
+                        geographicalRegionId, cimNamespace, writer, context);
                 writtenSubRegions.add(subGeographicalRegionId);
             }
             SubstationEq.write(context.getNamingStrategy().getCgmesId(substation), substation.getNameOrId(), subGeographicalRegionId, cimNamespace, writer, context);
