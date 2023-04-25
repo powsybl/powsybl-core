@@ -39,12 +39,12 @@ class LoadConversionTest {
             LoadModel loadModel = l3.getModel().orElseThrow();
             assertEquals(LoadModelType.ZIP, loadModel.getType());
             ZipLoadModel zipLoadModel = (ZipLoadModel) loadModel;
-            assertEquals(0.8, zipLoadModel.getPp());
-            assertEquals(0.2, zipLoadModel.getIp());
-            assertEquals(0, zipLoadModel.getZp());
-            assertEquals(0.7, zipLoadModel.getPq());
-            assertEquals(0.3, zipLoadModel.getIq());
-            assertEquals(0, zipLoadModel.getZq());
+            assertEquals(0.8, zipLoadModel.getC0p());
+            assertEquals(0.2, zipLoadModel.getC1p());
+            assertEquals(0, zipLoadModel.getC2p());
+            assertEquals(0.7, zipLoadModel.getC0q());
+            assertEquals(0.3, zipLoadModel.getC1q());
+            assertEquals(0, zipLoadModel.getC2q());
         }
     }
 }

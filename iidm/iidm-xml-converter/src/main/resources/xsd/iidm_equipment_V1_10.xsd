@@ -290,12 +290,12 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="ZipLoadModel">
-        <xs:attribute name="pp" use="required" type="xs:double"/>
-        <xs:attribute name="ip" use="required" type="xs:double"/>
-        <xs:attribute name="zp" use="required" type="xs:double"/>
-        <xs:attribute name="pq" use="required" type="xs:double"/>
-        <xs:attribute name="iq" use="required" type="xs:double"/>
-        <xs:attribute name="zq" use="required" type="xs:double"/>
+        <xs:attribute name="c0p" use="required" type="xs:double"/>
+        <xs:attribute name="c1p" use="required" type="xs:double"/>
+        <xs:attribute name="c2p" use="required" type="xs:double"/>
+        <xs:attribute name="c0q" use="required" type="xs:double"/>
+        <xs:attribute name="c1q" use="required" type="xs:double"/>
+        <xs:attribute name="c2q" use="required" type="xs:double"/>
     </xs:complexType>
     <xs:complexType name="ExponentialLoadModel">
         <xs:attribute name="np" use="required" type="xs:double"/>

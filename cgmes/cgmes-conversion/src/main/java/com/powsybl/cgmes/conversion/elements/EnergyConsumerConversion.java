@@ -70,12 +70,12 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
                         && qConstantPower == 1 && qConstantCurrent == 0 && qConstantImpedance == 0;
                 if (!constantPower) {
                     adder.newZipModel()
-                            .setPp(pConstantPower)
-                            .setIp(pConstantCurrent)
-                            .setZp(pConstantImpedance)
-                            .setPq(qConstantPower)
-                            .setIq(qConstantCurrent)
-                            .setZq(qConstantImpedance)
+                            .setC0p(pConstantPower)
+                            .setC1p(pConstantCurrent)
+                            .setC2p(pConstantImpedance)
+                            .setC0q(qConstantPower)
+                            .setC1q(qConstantCurrent)
+                            .setC2q(qConstantImpedance)
                             .add();
                 }
             }

@@ -73,12 +73,12 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
             case ZIP:
                 ZipLoadModel zipModel = (ZipLoadModel) model;
                 context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), ZIP_MODEL);
-                XmlUtil.writeDouble("pp", zipModel.getPp(), context.getWriter());
-                XmlUtil.writeDouble("ip", zipModel.getIp(), context.getWriter());
-                XmlUtil.writeDouble("zp", zipModel.getZp(), context.getWriter());
-                XmlUtil.writeDouble("pq", zipModel.getPq(), context.getWriter());
-                XmlUtil.writeDouble("iq", zipModel.getIq(), context.getWriter());
-                XmlUtil.writeDouble("zq", zipModel.getZq(), context.getWriter());
+                XmlUtil.writeDouble("c0p", zipModel.getC0p(), context.getWriter());
+                XmlUtil.writeDouble("c1p", zipModel.getC1p(), context.getWriter());
+                XmlUtil.writeDouble("c2p", zipModel.getC2p(), context.getWriter());
+                XmlUtil.writeDouble("c0q", zipModel.getC0q(), context.getWriter());
+                XmlUtil.writeDouble("c1q", zipModel.getC1q(), context.getWriter());
+                XmlUtil.writeDouble("c2q", zipModel.getC2q(), context.getWriter());
                 break;
             default:
                 throw new PowsyblException("Unexpected load model type: " + model.getType());
@@ -120,19 +120,19 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
                     break;
                 case ZIP_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_10, context);
-                    double pp = XmlUtil.readDoubleAttribute(context.getReader(), "pp");
-                    double ip = XmlUtil.readDoubleAttribute(context.getReader(), "ip");
-                    double zp = XmlUtil.readDoubleAttribute(context.getReader(), "zp");
-                    double pq = XmlUtil.readDoubleAttribute(context.getReader(), "pq");
-                    double iq = XmlUtil.readDoubleAttribute(context.getReader(), "iq");
-                    double zq = XmlUtil.readDoubleAttribute(context.getReader(), "zq");
+                    double pp = XmlUtil.readDoubleAttribute(context.getReader(), "c0p");
+                    double ip = XmlUtil.readDoubleAttribute(context.getReader(), "c1p");
+                    double zp = XmlUtil.readDoubleAttribute(context.getReader(), "c2p");
+                    double pq = XmlUtil.readDoubleAttribute(context.getReader(), "c0q");
+                    double iq = XmlUtil.readDoubleAttribute(context.getReader(), "c1q");
+                    double zq = XmlUtil.readDoubleAttribute(context.getReader(), "c2q");
                     adder.newZipModel()
-                            .setPp(pp)
-                            .setIp(ip)
-                            .setZp(zp)
-                            .setPq(pq)
-                            .setIq(iq)
-                            .setZq(zq)
+                            .setC0p(pp)
+                            .setC1p(ip)
+                            .setC2p(zp)
+                            .setC0q(pq)
+                            .setC1q(iq)
+                            .setC2q(zq)
                             .add();
                     break;
                 default:

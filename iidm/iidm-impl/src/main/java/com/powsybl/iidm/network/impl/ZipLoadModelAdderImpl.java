@@ -23,62 +23,62 @@ public class ZipLoadModelAdderImpl implements ZipLoadModelAdder {
 
     private final LoadAdderImpl parentAdder;
 
-    private double pp = 1;
-    private double ip = 0;
-    private double zp = 0;
-    private double pq = 1;
-    private double iq = 0;
-    private double zq = 0;
+    private double c0p = 1;
+    private double c1p = 0;
+    private double c2p = 0;
+    private double c0q = 1;
+    private double c1q = 0;
+    private double c2q = 0;
 
     public ZipLoadModelAdderImpl(LoadAdderImpl parentAdder) {
         this.parentAdder = Objects.requireNonNull(parentAdder);
     }
 
     @Override
-    public ZipLoadModelAdderImpl setPp(double pp) {
-        this.pp = checkCoefficient(parentAdder, pp);
+    public ZipLoadModelAdderImpl setC0p(double c0p) {
+        this.c0p = checkCoefficient(parentAdder, c0p);
         return this;
     }
 
     @Override
-    public ZipLoadModelAdderImpl setIp(double ip) {
-        this.ip = checkCoefficient(parentAdder, ip);
+    public ZipLoadModelAdderImpl setC1p(double c1p) {
+        this.c1p = checkCoefficient(parentAdder, c1p);
         return this;
     }
 
     @Override
-    public ZipLoadModelAdderImpl setZp(double zp) {
-        this.zp = checkCoefficient(parentAdder, zp);
+    public ZipLoadModelAdderImpl setC2p(double c2p) {
+        this.c2p = checkCoefficient(parentAdder, c2p);
         return this;
     }
 
     @Override
-    public ZipLoadModelAdderImpl setPq(double pq) {
-        this.pq = checkCoefficient(parentAdder, pq);
+    public ZipLoadModelAdderImpl setC0q(double c0q) {
+        this.c0q = checkCoefficient(parentAdder, c0q);
         return this;
     }
 
     @Override
-    public ZipLoadModelAdderImpl setIq(double iq) {
-        this.iq = checkCoefficient(parentAdder, iq);
+    public ZipLoadModelAdderImpl setC1q(double c1q) {
+        this.c1q = checkCoefficient(parentAdder, c1q);
         return this;
     }
 
     @Override
-    public ZipLoadModelAdderImpl setZq(double zq) {
-        this.zq = checkCoefficient(parentAdder, zq);
+    public ZipLoadModelAdderImpl setC2q(double c2q) {
+        this.c2q = checkCoefficient(parentAdder, c2q);
         return this;
     }
 
     @Override
     public LoadAdderImpl add() {
-        if (Math.abs(pp + ip + zp - 1d) > SUM_EPSILON) {
-            throw new ValidationException(parentAdder, "Sum of pp, ip and zp should be 1");
+        if (Math.abs(c0p + c1p + c2p - 1d) > SUM_EPSILON) {
+            throw new ValidationException(parentAdder, "Sum of c0p, c1p and c2p should be 1");
         }
-        if (Math.abs(pq + iq + zq - 1d) > SUM_EPSILON) {
-            throw new ValidationException(parentAdder, "Sum of pq, iq and zq should be 1");
+        if (Math.abs(c0q + c1q + c2q - 1d) > SUM_EPSILON) {
+            throw new ValidationException(parentAdder, "Sum of c0q, c1q and c2q should be 1");
         }
-        parentAdder.setModel(new ZipLoadModelImpl(pp, ip, zp, pq, iq, zq));
+        parentAdder.setModel(new ZipLoadModelImpl(c0p, c1p, c2p, c0q, c1q, c2q));
         return parentAdder;
     }
 }

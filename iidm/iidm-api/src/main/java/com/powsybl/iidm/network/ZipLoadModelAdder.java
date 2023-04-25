@@ -12,17 +12,17 @@ package com.powsybl.iidm.network;
  */
 public interface ZipLoadModelAdder {
 
-    ZipLoadModelAdder setPp(double pp);
+    ZipLoadModelAdder setC0p(double c0p);
 
-    ZipLoadModelAdder setIp(double ip);
+    ZipLoadModelAdder setC1p(double c1p);
 
-    ZipLoadModelAdder setZp(double zp);
+    ZipLoadModelAdder setC2p(double c2p);
 
-    ZipLoadModelAdder setPq(double pq);
+    ZipLoadModelAdder setC0q(double c0q);
 
-    ZipLoadModelAdder setIq(double iq);
+    ZipLoadModelAdder setC1q(double c1q);
 
-    ZipLoadModelAdder setZq(double zq);
+    ZipLoadModelAdder setC2q(double c2q);
 
     LoadAdder add();
 }

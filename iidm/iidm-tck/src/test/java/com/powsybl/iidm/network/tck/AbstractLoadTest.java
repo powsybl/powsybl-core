@@ -317,36 +317,36 @@ public abstract class AbstractLoadTest {
                 .setQ0(1.0)
                 .setNode(1)
                 .newZipModel()
-                    .setPp(0.3)
-                    .setIp(0.5)
-                    .setZp(0.2)
-                    .setPq(0.1)
-                    .setIq(0.2)
-                    .setZq(0.7)
+                    .setC0p(0.3)
+                    .setC1p(0.5)
+                    .setC2p(0.2)
+                    .setC0q(0.1)
+                    .setC1q(0.2)
+                    .setC2q(0.7)
                     .add()
                 .add();
         assertEquals(2.0, load.getP0(), 0.0);
         assertEquals(1.0, load.getQ0(), 0.0);
         ZipLoadModel loadModel = (ZipLoadModel) load.getModel().orElseThrow();
-        assertEquals(0.3, loadModel.getPp(), 0);
-        assertEquals(0.5, loadModel.getIp(), 0);
-        assertEquals(0.2, loadModel.getZp(), 0);
-        assertEquals(0.1, loadModel.getPq(), 0);
-        assertEquals(0.2, loadModel.getIq(), 0);
-        assertEquals(0.7, loadModel.getZq(), 0);
-        loadModel.setPp(0.31);
-        loadModel.setIp(0.51);
-        loadModel.setZp(0.21);
-        loadModel.setPq(0.11);
-        loadModel.setIq(0.21);
-        loadModel.setZq(0.71);
-        assertEquals(0.31, loadModel.getPp(), 0);
-        assertEquals(0.51, loadModel.getIp(), 0);
-        assertEquals(0.21, loadModel.getZp(), 0);
-        assertEquals(0.11, loadModel.getPq(), 0);
-        assertEquals(0.21, loadModel.getIq(), 0);
-        assertEquals(0.71, loadModel.getZq(), 0);
-        ValidationException e = assertThrows(ValidationException.class, () -> loadModel.setPp(-2));
+        assertEquals(0.3, loadModel.getC0p(), 0);
+        assertEquals(0.5, loadModel.getC1p(), 0);
+        assertEquals(0.2, loadModel.getC2p(), 0);
+        assertEquals(0.1, loadModel.getC0q(), 0);
+        assertEquals(0.2, loadModel.getC1q(), 0);
+        assertEquals(0.7, loadModel.getC2q(), 0);
+        loadModel.setC0p(0.31);
+        loadModel.setC1p(0.51);
+        loadModel.setC2p(0.21);
+        loadModel.setC0q(0.11);
+        loadModel.setC1q(0.21);
+        loadModel.setC2q(0.71);
+        assertEquals(0.31, loadModel.getC0p(), 0);
+        assertEquals(0.51, loadModel.getC1p(), 0);
+        assertEquals(0.21, loadModel.getC2p(), 0);
+        assertEquals(0.11, loadModel.getC0q(), 0);
+        assertEquals(0.21, loadModel.getC1q(), 0);
+        assertEquals(0.71, loadModel.getC2q(), 0);
+        ValidationException e = assertThrows(ValidationException.class, () -> loadModel.setC0p(-2));
         assertEquals("Load 'newZipLoad': Invalid zip load model coefficient: -2.0", e.getMessage());
     }
 

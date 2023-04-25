@@ -21,27 +21,27 @@ public interface ZipLoadModel extends LoadModel {
         return LoadModelType.ZIP;
     }
 
-    double getPp();
+    double getC0p();
 
-    ZipLoadModel setPp(double pp);
+    ZipLoadModel setC0p(double c0p);
 
-    double getIp();
+    double getC1p();
 
-    ZipLoadModel setIp(double ip);
+    ZipLoadModel setC1p(double c1p);
 
-    double getZp();
+    double getC2p();
 
-    ZipLoadModel setZp(double zp);
+    ZipLoadModel setC2p(double c2p);
 
-    double getPq();
+    double getC0q();
 
-    ZipLoadModel setPq(double pq);
+    ZipLoadModel setC0q(double c0q);
 
-    double getIq();
+    double getC1q();
 
-    ZipLoadModel setIq(double iq);
+    ZipLoadModel setC1q(double c1q);
 
-    double getZq();
+    double getC2q();
 
-    ZipLoadModel setZq(double zq);
+    ZipLoadModel setC2q(double c2q);
 }

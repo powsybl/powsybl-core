@@ -31,12 +31,12 @@ class LoadModelXmlTest extends AbstractXmlConverterTest {
                 .setP0(10)
                 .setQ0(5)
                 .newZipModel()
-                    .setPp(0.3)
-                    .setIp(0.5)
-                    .setZp(0.2)
-                    .setPq(0.1)
-                    .setIq(0.2)
-                    .setZq(0.7)
+                    .setC0p(0.3)
+                    .setC1p(0.5)
+                    .setC2p(0.2)
+                    .setC0q(0.1)
+                    .setC1q(0.2)
+                    .setC2q(0.7)
                     .add()
                 .add();
 

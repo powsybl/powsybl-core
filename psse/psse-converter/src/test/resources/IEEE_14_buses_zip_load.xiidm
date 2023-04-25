@@ -20,7 +20,7 @@
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="50.0"/>
             </iidm:generator>
             <iidm:load id="B2-L1 " loadType="UNDEFINED" p0="31.7" q0="28.08" bus="B2" connectableBus="B2">
-                <iidm:zipModel pp="0.6845425867507886" ip="0.26813880126182965" zp="0.04731861198738171" pq="0.45227920227920226" iq="0.4287749287749288" zq="0.11894586894586895"/>
+                <iidm:zipModel c0p="0.6845425867507886" c1p="0.26813880126182965" c2p="0.04731861198738171" c0q="0.45227920227920226" c1q="0.4287749287749288" c2q="0.11894586894586895"/>
             </iidm:load>
         </iidm:voltageLevel>
     </iidm:substation>

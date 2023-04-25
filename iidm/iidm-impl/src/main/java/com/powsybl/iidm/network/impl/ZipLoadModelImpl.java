@@ -16,20 +16,20 @@ import com.powsybl.iidm.network.ZipLoadModel;
  */
 public class ZipLoadModelImpl extends AbstractLoadModelImpl implements ZipLoadModel {
 
-    private double pp;
-    private double ip;
-    private double zp;
-    private double pq;
-    private double iq;
-    private double zq;
+    private double c0p;
+    private double c1p;
+    private double c2p;
+    private double c0q;
+    private double c1q;
+    private double c2q;
 
-    public ZipLoadModelImpl(double pp, double ip, double zp, double pq, double iq, double zq) {
-        this.pp = pp;
-        this.ip = ip;
-        this.zp = zp;
-        this.pq = pq;
-        this.iq = iq;
-        this.zq = zq;
+    public ZipLoadModelImpl(double c0p, double c1p, double c2p, double c0q, double c1q, double c2q) {
+        this.c0p = c0p;
+        this.c1p = c1p;
+        this.c2p = c2p;
+        this.c0q = c0q;
+        this.c1q = c1q;
+        this.c2q = c2q;
     }
 
     static double checkCoefficient(Validable validable, double coefficient) {
@@ -40,68 +40,68 @@ public class ZipLoadModelImpl extends AbstractLoadModelImpl implements ZipLoadMo
     }
 
     @Override
-    public double getPp() {
-        return pp;
+    public double getC0p() {
+        return c0p;
     }
 
     @Override
-    public ZipLoadModelImpl setPp(double pp) {
-        this.pp = checkCoefficient(load, pp);
+    public ZipLoadModelImpl setC0p(double c0p) {
+        this.c0p = checkCoefficient(load, c0p);
         return this;
     }
 
     @Override
-    public double getIp() {
-        return ip;
+    public double getC1p() {
+        return c1p;
     }
 
     @Override
-    public ZipLoadModelImpl setIp(double ip) {
-        this.ip = checkCoefficient(load, ip);
+    public ZipLoadModelImpl setC1p(double c1p) {
+        this.c1p = checkCoefficient(load, c1p);
         return this;
     }
 
     @Override
-    public double getZp() {
-        return zp;
+    public double getC2p() {
+        return c2p;
     }
 
     @Override
-    public ZipLoadModelImpl setZp(double zp) {
-        this.zp = checkCoefficient(load, zp);
+    public ZipLoadModelImpl setC2p(double c2p) {
+        this.c2p = checkCoefficient(load, c2p);
         return this;
     }
 
     @Override
-    public double getPq() {
-        return pq;
+    public double getC0q() {
+        return c0q;
     }
 
     @Override
-    public ZipLoadModelImpl setPq(double pq) {
-        this.pq = checkCoefficient(load, pq);
+    public ZipLoadModelImpl setC0q(double c0q) {
+        this.c0q = checkCoefficient(load, c0q);
         return this;
     }
 
     @Override
-    public double getIq() {
-        return iq;
+    public double getC1q() {
+        return c1q;
     }
 
     @Override
-    public ZipLoadModelImpl setIq(double iq) {
-        this.iq = checkCoefficient(load, iq);
+    public ZipLoadModelImpl setC1q(double c1q) {
+        this.c1q = checkCoefficient(load, c1q);
         return this;
     }
 
     @Override
-    public double getZq() {
-        return zq;
+    public double getC2q() {
+        return c2q;
     }
 
     @Override
-    public ZipLoadModelImpl setZq(double zq) {
-        this.zq = checkCoefficient(load, zq);
+    public ZipLoadModelImpl setC2q(double c2q) {
+        this.c2q = checkCoefficient(load, c2q);
         return this;
     }
 }
