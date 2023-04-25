@@ -352,7 +352,7 @@ final class ModificationReports {
                 .withKey("removeVoltageLevel")
                 .withDefaultMessage("Voltage level ${voltageLevelId}, its equipments and the branches it is connected to have been removed")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
 
@@ -361,7 +361,7 @@ final class ModificationReports {
                 .withKey("removeHvdcLine")
                 .withDefaultMessage("Hvdc line ${hvdcLineId} has been removed")
                 .withValue(HVDC_LINE_ID, hvdcLineId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
 
@@ -370,7 +370,7 @@ final class ModificationReports {
                 .withKey("removeVscConverterStation")
                 .withDefaultMessage("Vsc converter station ${vscConverterStationId} has been removed")
                 .withValue("vscConverterStationId", vscConverterStationId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
 
@@ -379,7 +379,7 @@ final class ModificationReports {
                 .withKey("removeLccConverterStation")
                 .withDefaultMessage("Lcc converter station ${lccConverterStationId} has been removed")
                 .withValue("lccConverterStationId", lccConverterStationId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
 
@@ -388,7 +388,7 @@ final class ModificationReports {
                 .withKey("removeShuntCompensator")
                 .withDefaultMessage("Shunt compensator ${shuntCompensatorId} has been removed")
                 .withValue("shuntCompensatorId", shuntCompensatorId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
 
