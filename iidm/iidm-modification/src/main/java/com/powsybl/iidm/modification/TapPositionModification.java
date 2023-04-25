@@ -24,7 +24,8 @@ import java.util.OptionalInt;
  */
 public class TapPositionModification extends AbstractNetworkModification {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VscConverterStationModification.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TapPositionModification.class);
+    private static final String TRANSFORMER_STR = "Transformer '";
 
     private final String transfoId;
     private final TransformerElement element;
@@ -62,33 +63,29 @@ public class TapPositionModification extends AbstractNetworkModification {
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager,
                       Reporter reporter) {
-        switch (type) {
-            case RATIO:
-                applyRtc(network, throwException);
-                break;
-            case PHASE:
-                applyPtc(network, throwException);
-                break;
+        if (type == TapType.RATIO) {
+            applyRtc(network, throwException);
+        } else if (type == TapType.PHASE) {
+            applyPtc(network, throwException);
+        } else {
+            logOrThrow(throwException, "Unhandled TapType.");
         }
     }
 
     private void applyPtc(Network network, boolean throwException) {
         PhaseTapChangerHolder transformer = null;
-        switch (element) {
-            case TWO_WINDING_TRANSFORMER:
-                transformer = network.getTwoWindingsTransformer(transfoId);
-                break;
-            case THREE_WINDING_TRANSFORMER:
-                transformer = getLeg(network.getThreeWindingsTransformer(transfoId));
-                break;
+        if (element == TransformerElement.TWO_WINDING_TRANSFORMER) {
+            transformer = network.getTwoWindingsTransformer(transfoId);
+        } else if (element == TransformerElement.THREE_WINDING_TRANSFORMER) {
+            transformer = getLeg(network.getThreeWindingsTransformer(transfoId));
         }
 
         if (transformer == null) {
-            logOrThrow(throwException, "Transformer '" + transfoId + "' not found");
+            logOrThrow(throwException, TRANSFORMER_STR + transfoId + "' not found");
             return;
         }
         if (!transformer.hasPhaseTapChanger()) {
-            logOrThrow(throwException, "Transformer '" + transfoId + "' does not have a PhaseTapChanger");
+            logOrThrow(throwException, TRANSFORMER_STR + transfoId + "' does not have a PhaseTapChanger");
             return;
         }
         PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
@@ -102,21 +99,18 @@ public class TapPositionModification extends AbstractNetworkModification {
 
     private void applyRtc(Network network, boolean throwException) {
         RatioTapChangerHolder transformer = null;
-        switch (element) {
-            case TWO_WINDING_TRANSFORMER:
-                transformer = network.getTwoWindingsTransformer(transfoId);
-                break;
-            case THREE_WINDING_TRANSFORMER:
-                transformer = getLeg(network.getThreeWindingsTransformer(transfoId));
-                break;
+        if (element == TransformerElement.TWO_WINDING_TRANSFORMER) {
+            transformer = network.getTwoWindingsTransformer(transfoId);
+        } else if (element == TransformerElement.THREE_WINDING_TRANSFORMER) {
+            transformer = getLeg(network.getThreeWindingsTransformer(transfoId));
         }
 
         if (transformer == null) {
-            logOrThrow(throwException, "Transformer '" + transfoId + "' not found");
+            logOrThrow(throwException, TRANSFORMER_STR + transfoId + "' not found");
             return;
         }
         if (!transformer.hasRatioTapChanger()) {
-            logOrThrow(throwException, "Transformer '" + transfoId + "' does not have a RatioTapChanger");
+            logOrThrow(throwException, TRANSFORMER_STR + transfoId + "' does not have a RatioTapChanger");
             return;
         }
         RatioTapChanger rtc = transformer.getRatioTapChanger();

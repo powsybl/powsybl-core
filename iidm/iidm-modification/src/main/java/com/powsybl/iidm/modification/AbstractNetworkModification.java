@@ -55,7 +55,7 @@ public abstract class AbstractNetworkModification implements NetworkModification
         if (throwException) {
             throw new PowsyblException(message);
         } else {
-            LOGGER.warn("Error while applying modification : " + message);
+            LOGGER.warn("Error while applying modification : {}", message);
         }
     }
 }
