@@ -37,14 +37,14 @@ class VscConverterStationModificationTest {
     void testConstructorCoherence() {
         // Ok
         assertDoesNotThrow(
-                () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.empty(), OptionalDouble.of(10)));
+            () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.empty(), OptionalDouble.of(10)));
         assertDoesNotThrow(
-                () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.of(10), OptionalDouble.empty()));
+            () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.of(10), OptionalDouble.empty()));
         assertDoesNotThrow(
-                () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.of(10), OptionalDouble.of(10)));
+            () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.of(10), OptionalDouble.of(10)));
         // Warn log but ok
         assertDoesNotThrow(
-                () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.empty(), OptionalDouble.empty()));
+            () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.empty(), OptionalDouble.empty()));
     }
 
     @Test
