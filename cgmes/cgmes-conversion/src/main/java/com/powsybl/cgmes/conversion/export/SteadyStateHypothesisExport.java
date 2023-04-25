@@ -7,6 +7,8 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.extensions.CgmesControlArea;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -62,6 +64,7 @@ public final class SteadyStateHypothesisExport {
             writeSwitches(network, cimNamespace, writer, context);
             // TODO writeControlAreas
             writeTerminals(network, cimNamespace, writer, context);
+            writeControlAreas(network, cimNamespace, writer, context);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -89,15 +92,17 @@ public final class SteadyStateHypothesisExport {
             }
         }
         for (Switch sw : network.getSwitches()) {
-            // Terminals for switches are exported as always connected
-            // The status of the switch is "open" if any of the original terminals were not connected
-            // An original "closed" switch with any terminal disconnected
-            // will be exported as "open" with terminals connected
-            if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_1).isPresent()) {
-                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_1), true, cimNamespace, writer, context);
-            }
-            if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_2).isPresent()) {
-                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_2), true, cimNamespace, writer, context);
+            if (context.isExportedEquipment(sw)) {
+                // Terminals for switches are exported as always connected
+                // The status of the switch is "open" if any of the original terminals were not connected
+                // An original "closed" switch with any terminal disconnected
+                // will be exported as "open" with terminals connected
+                if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_1).isPresent()) {
+                    writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_1), true, cimNamespace, writer, context);
+                }
+                if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_2).isPresent()) {
+                    writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_2), true, cimNamespace, writer, context);
+                }
             }
         }
         for (DanglingLine dl : network.getDanglingLines()) {
@@ -716,6 +721,22 @@ public final class SteadyStateHypothesisExport {
             return "HydroGeneratingUnit"; // TODO export battery differently in CGMES 3.0
         }
         throw new PowsyblException("Unexpected class for " + i.getId() + " using generating units: " + i.getClass());
+    }
+
+    private static void writeControlAreas(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesControlAreas areas = network.getExtension(CgmesControlAreas.class);
+        for (CgmesControlArea area : areas.getCgmesControlAreas()) {
+            writeControlArea(area, cimNamespace, writer, context);
+        }
+    }
+
+    private static void writeControlArea(CgmesControlArea area, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String areaId = context.getNamingStrategy().getCgmesId(area.getId());
+        CgmesExportUtil.writeStartAbout("ControlArea", areaId, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "ControlArea.netInterchange");
+        writer.writeCharacters(CgmesExportUtil.format(area.getNetInterchange()));
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     private enum RegulatingControlType {

@@ -21,6 +21,9 @@ public final class TieFlowEq {
         CgmesExportUtil.writeStartId("TieFlow", id, false, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("TieFlow.ControlArea", controlAreaId, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("TieFlow.Terminal", terminalId, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "TieFlow.positiveFlowIn");
+        writer.writeCharacters("true"); // always true
+        writer.writeEndElement();
         writer.writeEndElement();
     }
 
