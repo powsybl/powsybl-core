@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-public class TapPositionModificationTest {
+class TapPositionModificationTest {
     private Network network;
     private TwoWindingsTransformer transformer;
 
@@ -37,33 +37,36 @@ public class TapPositionModificationTest {
     }
 
     @Test
-    public void testArgumentCoherence() {
+    void testArgumentCoherence() {
         // Good
-        new TapPositionModification(transformer.getId(),
+        String id = transformer.getId();
+        OptionalInt empty = OptionalInt.empty();
+        OptionalInt nonEmptyInt = OptionalInt.of(3);
+        assertDoesNotThrow(() -> new TapPositionModification(id,
                 TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
-                TapPositionModification.TapType.PHASE, 0, OptionalInt.empty());
+                TapPositionModification.TapType.PHASE, 0, empty));
         // Log warning, but good, Leg value is ignored
-        new TapPositionModification(transformer.getId(),
+        assertDoesNotThrow(() -> new TapPositionModification(id,
                 TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
-                TapPositionModification.TapType.PHASE, 0, OptionalInt.of(10));
+                TapPositionModification.TapType.PHASE, 0, nonEmptyInt));
         // good
-        new TapPositionModification(transformer.getId(),
+        assertDoesNotThrow(() -> new TapPositionModification(id,
                 TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
-                TapPositionModification.TapType.PHASE, 0, OptionalInt.of(1));
+                TapPositionModification.TapType.PHASE, 0, nonEmptyInt));
         // bad should throw
-        assertThrows(PowsyblException.class, () -> new TapPositionModification(transformer.getId(),
+        assertThrows(PowsyblException.class, () -> new TapPositionModification(id,
                         TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
-                        TapPositionModification.TapType.PHASE, 0, OptionalInt.empty()),
+                        TapPositionModification.TapType.PHASE, 0, empty),
                 "Constructor should throw on three winding without specifying the leg.");
         // bad should throw
-        assertThrows(PowsyblException.class, () -> new TapPositionModification(transformer.getId(),
+        assertThrows(PowsyblException.class, () -> new TapPositionModification(id,
                         TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
-                        TapPositionModification.TapType.PHASE, 0, OptionalInt.of(3)),
+                        TapPositionModification.TapType.PHASE, 0, nonEmptyInt),
                 "Constructor should throw on three winding with a wrong leg number.");
     }
 
     @Test
-    public void testUnknownId() {
+    void testUnknownId() {
         TapPositionModification modif = new TapPositionModification("UNKNOWN_ID",
                 TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
                 TapPositionModification.TapType.PHASE, 5, OptionalInt.empty());
@@ -71,7 +74,7 @@ public class TapPositionModificationTest {
     }
 
     @Test
-    public void testTwoWindingsModif() {
+    void testTwoWindingsModif() {
         // These assert are assumptions for the rest of the test.
         assertTrue(transformer.getPhaseTapChanger().getLowTapPosition() < transformer.getPhaseTapChanger()
                                                                                      .getHighTapPosition());

@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-public class VscConverterStationModificationTest {
+class VscConverterStationModificationTest {
 
     private Network network;
     private VscConverterStation vsc;
@@ -34,17 +34,21 @@ public class VscConverterStationModificationTest {
     }
 
     @Test
-    public void testConstructorCoherence() {
+    void testConstructorCoherence() {
         // Ok
-        new VscConverterStationModification(vsc.getId(), OptionalDouble.empty(), OptionalDouble.of(10));
-        new VscConverterStationModification(vsc.getId(), OptionalDouble.of(10), OptionalDouble.empty());
-        new VscConverterStationModification(vsc.getId(), OptionalDouble.of(10), OptionalDouble.of(10));
+        assertDoesNotThrow(
+                () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.empty(), OptionalDouble.of(10)));
+        assertDoesNotThrow(
+                () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.of(10), OptionalDouble.empty()));
+        assertDoesNotThrow(
+                () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.of(10), OptionalDouble.of(10)));
         // Warn log but ok
-        new VscConverterStationModification(vsc.getId(), OptionalDouble.empty(), OptionalDouble.empty());
+        assertDoesNotThrow(
+                () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.empty(), OptionalDouble.empty()));
     }
 
     @Test
-    public void testApplyChecks() {
+    void testApplyChecks() {
         VscConverterStationModification modif1 = new VscConverterStationModification("UNKNOWN_ID", OptionalDouble.of(1),
                 OptionalDouble.of(2));
         assertThrows(PowsyblException.class, () -> modif1.apply(network, true, Reporter.NO_OP),

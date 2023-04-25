@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-public class StaticVarCompensatorModificationTest {
+class StaticVarCompensatorModificationTest {
 
     private Network network;
     private StaticVarCompensator svc;
@@ -36,17 +36,22 @@ public class StaticVarCompensatorModificationTest {
     }
 
     @Test
-    public void testConstructorCoherence() {
+    void testConstructorCoherence() {
         // Ok
-        new StaticVarCompensatorModification(svc.getId(), OptionalDouble.empty(), OptionalDouble.of(10));
-        new StaticVarCompensatorModification(svc.getId(), OptionalDouble.of(10), OptionalDouble.empty());
-        new StaticVarCompensatorModification(svc.getId(), OptionalDouble.of(10), OptionalDouble.of(10));
+        String id = svc.getId();
+        assertDoesNotThrow(
+                () -> new StaticVarCompensatorModification(id, OptionalDouble.empty(), OptionalDouble.of(10)));
+        assertDoesNotThrow(
+                () -> new StaticVarCompensatorModification(id, OptionalDouble.of(10), OptionalDouble.empty()));
+        assertDoesNotThrow(
+                () -> new StaticVarCompensatorModification(id, OptionalDouble.of(10), OptionalDouble.of(10)));
         // Warn log but ok
-        new StaticVarCompensatorModification(svc.getId(), OptionalDouble.empty(), OptionalDouble.empty());
+        assertDoesNotThrow(
+                () -> new StaticVarCompensatorModification(id, OptionalDouble.empty(), OptionalDouble.empty()));
     }
 
     @Test
-    public void testApplyChecks() {
+    void testApplyChecks() {
         StaticVarCompensatorModification modif1 = new StaticVarCompensatorModification("UNKNOWN_ID",
                 OptionalDouble.of(1), OptionalDouble.of(2));
         assertThrows(PowsyblException.class, () -> modif1.apply(network, true, Reporter.NO_OP),

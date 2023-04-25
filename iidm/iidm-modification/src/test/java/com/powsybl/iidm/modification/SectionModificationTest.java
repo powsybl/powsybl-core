@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-public class SectionModificationTest {
+class SectionModificationTest {
 
     private Network network;
     private ShuntCompensator shunt;
@@ -33,15 +33,16 @@ public class SectionModificationTest {
     }
 
     @Test
-    public void testConstructorCoherence() {
-        assertThrows(PowsyblException.class, () -> new SectionModification(shunt.getId(), -3),
+    void testConstructorCoherence() {
+        String id = shunt.getId();
+        assertThrows(PowsyblException.class, () -> new SectionModification(id, -3),
                 "Negative value should not be accepted.");
         assertThrows(NullPointerException.class, () -> new SectionModification(null, 1),
                 "Null id value should not be accepted.");
     }
 
     @Test
-    public void testApplyChecks() {
+    void testApplyChecks() {
         SectionModification modif = new SectionModification(shunt.getId(), 1);
         assertDoesNotThrow(() -> modif.apply(network, true, Reporter.NO_OP));
         SectionModification modif1 = new SectionModification("UNKNOWN_ID", 1);
