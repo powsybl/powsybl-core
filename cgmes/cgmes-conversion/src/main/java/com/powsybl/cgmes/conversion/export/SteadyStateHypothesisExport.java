@@ -92,15 +92,17 @@ public final class SteadyStateHypothesisExport {
             }
         }
         for (Switch sw : network.getSwitches()) {
-            // Terminals for switches are exported as always connected
-            // The status of the switch is "open" if any of the original terminals were not connected
-            // An original "closed" switch with any terminal disconnected
-            // will be exported as "open" with terminals connected
-            if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_1).isPresent()) {
-                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_1), true, cimNamespace, writer, context);
-            }
-            if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_2).isPresent()) {
-                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_2), true, cimNamespace, writer, context);
+            if (context.isExportedEquipment(sw)) {
+                // Terminals for switches are exported as always connected
+                // The status of the switch is "open" if any of the original terminals were not connected
+                // An original "closed" switch with any terminal disconnected
+                // will be exported as "open" with terminals connected
+                if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_1).isPresent()) {
+                    writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_1), true, cimNamespace, writer, context);
+                }
+                if (sw.getAliasFromType(ALIAS_TYPE_TERMINAL_2).isPresent()) {
+                    writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(sw, ALIAS_TYPE_TERMINAL_2), true, cimNamespace, writer, context);
+                }
             }
         }
         for (DanglingLine dl : network.getDanglingLines()) {

@@ -80,6 +80,9 @@ public final class TopologyExport {
 
     private static void writeSwitchesTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Switch sw : network.getSwitches()) {
+            if (!context.isExportedEquipment(sw)) {
+                continue;
+            }
             VoltageLevel vl = sw.getVoltageLevel();
 
             String tn1;
