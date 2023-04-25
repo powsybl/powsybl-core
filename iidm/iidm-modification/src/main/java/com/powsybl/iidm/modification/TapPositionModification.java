@@ -9,10 +9,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChangerHolder;
-import com.powsybl.iidm.network.RatioTapChangerHolder;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +91,13 @@ public class TapPositionModification extends AbstractNetworkModification {
             logOrThrow(throwException, "Transformer '" + transfoId + "' does not have a PhaseTapChanger");
             return;
         }
-        transformer.getPhaseTapChanger().setTapPosition(tapPosition);
+        PhaseTapChanger phaseTapChanger = transformer.getPhaseTapChanger();
+        if (tapPosition < phaseTapChanger.getLowTapPosition() || tapPosition > phaseTapChanger.getHighTapPosition()) {
+            logOrThrow(throwException,
+                    "PhaseTapChanger of transformer '" + transfoId + "' can't be set to the value given (out of Tap range).");
+            return;
+        }
+        phaseTapChanger.setTapPosition(tapPosition);
     }
 
     private void applyRtc(Network network, boolean throwException) {
@@ -114,6 +117,12 @@ public class TapPositionModification extends AbstractNetworkModification {
         }
         if (!transformer.hasRatioTapChanger()) {
             logOrThrow(throwException, "Transformer '" + transfoId + "' does not have a RatioTapChanger");
+            return;
+        }
+        RatioTapChanger rtc = transformer.getRatioTapChanger();
+        if (tapPosition < rtc.getLowTapPosition() || tapPosition > rtc.getHighTapPosition()) {
+            logOrThrow(throwException,
+                    "RatioTapChanger of transformer '" + transfoId + "' can't be set to the value given (out of Tap range).");
             return;
         }
         transformer.getRatioTapChanger().setTapPosition(tapPosition);
