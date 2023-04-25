@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 
 /**
+ * Simple {@link NetworkModification} to change the section of a shunt compensator.
+ *
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
 public class SectionModification extends AbstractNetworkModification {
@@ -53,7 +55,4 @@ public class SectionModification extends AbstractNetworkModification {
         return shuntCompensatorId;
     }
 
-    private void logFailedApply() {
-        LOGGER.warn("Applying TapPositionModification failed, skipping.");
-    }
 }

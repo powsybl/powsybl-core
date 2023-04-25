@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.util.OptionalDouble;
 
 /**
- * TODO
+ * Simple {@link NetworkModification} for vsc converter stations.
  *
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
