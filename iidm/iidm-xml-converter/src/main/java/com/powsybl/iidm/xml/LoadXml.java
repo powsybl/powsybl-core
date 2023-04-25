@@ -41,6 +41,11 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
     }
 
     @Override
+    protected boolean hasSubElements(Load l, NetworkXmlWriterContext context) {
+        return hasSubElements(l) || context.getVersion().compareTo(IidmXmlVersion.V_1_10) >= 0;
+    }
+
+    @Override
     protected void writeRootElementAttributes(Load l, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("loadType", l.getLoadType().name());
         XmlUtil.writeDouble("p0", l.getP0(), context.getWriter());
