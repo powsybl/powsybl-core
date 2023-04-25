@@ -82,27 +82,27 @@ public class TapPositionModificationTest {
         testValidTapPos(TapPositionModification.TapType.RATIO,
                 transformer.getRatioTapChanger().getHighTapPosition() - 1);
 
-        int actualTapPos = transformer.getRatioTapChanger().getTapPosition();
-        testInvalidTapPosition(actualTapPos, TapPositionModification.TapType.PHASE,
+        int actualRtcPos = transformer.getRatioTapChanger().getTapPosition();
+        int actualPtcPos = transformer.getPhaseTapChanger().getTapPosition();
+        testInvalidTapPosition(actualPtcPos, TapPositionModification.TapType.PHASE,
+                TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
+                transformer.getPhaseTapChanger().getHighTapPosition() + 1);
+        testInvalidTapPosition(actualPtcPos, TapPositionModification.TapType.PHASE,
+                TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
+                transformer.getPhaseTapChanger().getLowTapPosition() - 1);
+        testInvalidTapPosition(actualRtcPos, TapPositionModification.TapType.RATIO,
                 TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
                 transformer.getRatioTapChanger().getHighTapPosition() + 1);
-        testInvalidTapPosition(actualTapPos, TapPositionModification.TapType.PHASE,
-                TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
-                transformer.getRatioTapChanger().getLowTapPosition() - 1);
-        testInvalidTapPosition(actualTapPos, TapPositionModification.TapType.RATIO,
-                TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
-                transformer.getRatioTapChanger().getHighTapPosition() + 1);
-        testInvalidTapPosition(actualTapPos, TapPositionModification.TapType.RATIO,
+        testInvalidTapPosition(actualRtcPos, TapPositionModification.TapType.RATIO,
                 TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
                 transformer.getRatioTapChanger().getLowTapPosition() - 1);
     }
 
     private void testValidTapPos(final TapPositionModification.TapType type, final int tapPos) {
-        Supplier<Integer> tapPositionSupplier = getTapPositionSupplier(type);
         TapPositionModification modif = new TapPositionModification(transformer.getId(),
                 TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER, type, tapPos, OptionalInt.empty());
         modif.apply(network);
-        assertEquals(tapPos, tapPositionSupplier.get(), "Tap Modification did not change the network");
+        assertEquals(tapPos, getTapPositionSupplier(type).get(), "Tap Modification did not change the network");
     }
 
     private void testInvalidTapPosition(int currentTapPos, final TapPositionModification.TapType type,
