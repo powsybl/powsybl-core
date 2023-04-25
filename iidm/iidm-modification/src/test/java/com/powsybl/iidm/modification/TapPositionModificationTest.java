@@ -71,6 +71,10 @@ class TapPositionModificationTest {
                 TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
                 TapPositionModification.TapType.PHASE, 5, OptionalInt.empty());
         assertThrows(PowsyblException.class, () -> modif.apply(network, true, Reporter.NO_OP));
+        TapPositionModification modif2 = new TapPositionModification("UNKNOWN_ID",
+                TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
+                TapPositionModification.TapType.RATIO, 5, OptionalInt.empty());
+        assertThrows(PowsyblException.class, () -> modif2.apply(network, true, Reporter.NO_OP));
     }
 
     @Test

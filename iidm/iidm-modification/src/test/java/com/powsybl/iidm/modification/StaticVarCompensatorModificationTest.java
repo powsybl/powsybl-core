@@ -40,25 +40,25 @@ class StaticVarCompensatorModificationTest {
         // Ok
         String id = svc.getId();
         assertDoesNotThrow(
-                () -> new StaticVarCompensatorModification(id, OptionalDouble.empty(), OptionalDouble.of(10)));
+            () -> new StaticVarCompensatorModification(id, OptionalDouble.empty(), OptionalDouble.of(10)));
         assertDoesNotThrow(
-                () -> new StaticVarCompensatorModification(id, OptionalDouble.of(10), OptionalDouble.empty()));
+            () -> new StaticVarCompensatorModification(id, OptionalDouble.of(10), OptionalDouble.empty()));
         assertDoesNotThrow(
-                () -> new StaticVarCompensatorModification(id, OptionalDouble.of(10), OptionalDouble.of(10)));
+            () -> new StaticVarCompensatorModification(id, OptionalDouble.of(10), OptionalDouble.of(10)));
         // Warn log but ok
         assertDoesNotThrow(
-                () -> new StaticVarCompensatorModification(id, OptionalDouble.empty(), OptionalDouble.empty()));
+            () -> new StaticVarCompensatorModification(id, OptionalDouble.empty(), OptionalDouble.empty()));
     }
 
     @Test
     void testApplyChecks() {
         StaticVarCompensatorModification modif1 = new StaticVarCompensatorModification("UNKNOWN_ID",
-                OptionalDouble.of(1), OptionalDouble.of(2));
+            OptionalDouble.of(1), OptionalDouble.of(2));
         assertThrows(PowsyblException.class, () -> modif1.apply(network, true, Reporter.NO_OP),
-                "An invalid ID should fail to apply.");
+            "An invalid ID should fail to apply.");
 
         StaticVarCompensatorModification modif2 = new StaticVarCompensatorModification(svc.getId(),
-                OptionalDouble.of(1), OptionalDouble.of(2));
+            OptionalDouble.of(1), OptionalDouble.of(2));
         modif2.apply(network, true, Reporter.NO_OP);
         assertEquals(1, svc.getVoltageSetpoint(), "Failed to modify network during apply.");
         assertEquals(2, svc.getReactivePowerSetpoint(), "Failed to modify network during apply.");
