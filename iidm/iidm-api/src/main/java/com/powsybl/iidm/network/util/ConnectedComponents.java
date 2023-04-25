@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
 import com.powsybl.iidm.network.Load;
@@ -35,8 +34,9 @@ public final class ConnectedComponents {
 
     public static double computeTotalActiveLoad(Component component) {
         Objects.requireNonNull(component);
-        final AtomicDouble totalLoad = new AtomicDouble(0.);
-        component.getBusStream().forEach(bus -> totalLoad.addAndGet(bus.getLoadStream().filter(load -> load.getTerminal().isConnected()).mapToDouble(Load::getP0).sum()));
-        return totalLoad.get();
+        return component.getBusStream().flatMap(Bus::getLoadStream)
+                .filter(load -> load.getTerminal().isConnected())
+                .mapToDouble(Load::getP0)
+                .sum();
     }
 }

@@ -40,6 +40,7 @@ public class GenerationDispatch extends AbstractNetworkModification {
     private static final String POWER_TO_DISPATCH = "PowerToDispatch";
     private static final String STACKING = "Stacking";
     private static final String RESULT = "Result";
+    private static final double EPSILON = 0.001;
 
     private final double lossCoefficient;  // loss coefficient (between 0 and 100)
 
@@ -85,34 +86,33 @@ public class GenerationDispatch extends AbstractNetworkModification {
     }
 
     public void computeAdjustableGenerators(Component component, Reporter reporter) {
-        List<Generator> generators = new ArrayList<>();
+        // get all generators in the component
+        List<Generator> generators = component.getBusStream().flatMap(Bus::getGeneratorStream).collect(Collectors.toList());
 
-        // get all connected generators in the component
-        for (Bus bus : component.getBuses()) {
-            generators.addAll(bus.getGeneratorStream().filter(generator -> generator.getTerminal().isConnected())
-                    .collect(Collectors.toList()));
-        }
         // remove non adjustable generators (empty list in this first version)
         generators.removeAll(fixedSupplyGenerators.get(component.getNum()));
 
-        // remove generators without marginal cost
+        // set targetP to 0
+        generators.forEach(generator -> generator.setTargetP(0.));
+
+        // adjustable generators : generators with marginal cost
         adjustableGenerators.put(component.getNum(), generators.stream().filter(generator -> {
             GeneratorStartup startupExtension = generator.getExtension(GeneratorStartup.class);
             boolean marginalCostAvailable = startupExtension != null && !Double.isNaN(startupExtension.getMarginalCost());
             if (!marginalCostAvailable) {
                 report(reporter, "MissingMarginalCostForGenerator", "The generator ${generator} does not have a marginal cost",
-                        Map.of("generator", generator.getId()), TypedValue.WARN_SEVERITY);
+                    Map.of("generator", generator.getId()), TypedValue.WARN_SEVERITY);
             }
             return marginalCostAvailable;
         }).collect(Collectors.toList()));
 
         // sort generators by marginal cost, and then by alphabetic order of id
         adjustableGenerators.get(component.getNum()).sort(Comparator.comparing(generator -> ((Generator) generator).getExtension(GeneratorStartup.class).getMarginalCost())
-                .thenComparing(generator -> ((Generator) generator).getId()));
+            .thenComparing(generator -> ((Generator) generator).getId()));
 
         if (adjustableGenerators.get(component.getNum()).isEmpty()) {
             report(reporter, "NoAvailableAdjustableGenerator", "There is no adjustable generator",
-                        Map.of(), TypedValue.WARN_SEVERITY);
+                Map.of(), TypedValue.WARN_SEVERITY);
         }
     }
 
@@ -127,7 +127,7 @@ public class GenerationDispatch extends AbstractNetworkModification {
         public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
             if (identifiable.getType() == IdentifiableType.GENERATOR &&
                     attribute.equals("targetP") &&
-                    (double) oldValue != (double) newValue) {
+                    Double.compare((double) oldValue, (double) newValue) != 0) {
                 report(reporter, "GeneratorSetTargetP", "Generator ${generator} targetP : ${oldValue} MW --> ${newValue} MW",
                         Map.of("generator", identifiable.getId(), "oldValue", oldValue, "newValue", newValue), TypedValue.INFO_SEVERITY);
             }
@@ -169,31 +169,28 @@ public class GenerationDispatch extends AbstractNetworkModification {
 
             // get adjustable generators in the component
             computeAdjustableGenerators(component, powerToDispatchReporter);
-            if (adjustableGenerators.get(componentNum).isEmpty()) {
-                continue;
+
+            double realized = 0.;
+            if (!adjustableGenerators.get(componentNum).isEmpty()) {
+                // stacking of adjustable generators to ensure the totalAmountSupplyToBeDispatched
+                List<Scalable> generatorsScalable = adjustableGenerators.get(componentNum).stream().map(generator ->
+                        (Scalable) Scalable.onGenerator(generator.getId(), generator.getMinP(), generator.getMaxP())
+                ).collect(Collectors.toList());
+
+                Reporter stackingReporter = componentReporter.createSubReporter(STACKING, STACKING);
+
+                GeneratorTargetPListener listener = new GeneratorTargetPListener(stackingReporter);
+                network.addListener(listener);
+
+                Scalable scalable = Scalable.stack(generatorsScalable.toArray(Scalable[]::new));
+                realized = scalable.scale(network, totalAmountSupplyToBeDispatched);
+
+                network.removeListener(listener);
             }
-
-            // set targetP to 0 for all adjustable generators
-            adjustableGenerators.get(componentNum).forEach(generator -> generator.setTargetP(0.));
-
-            // stacking of adjustable generators to ensure the totalAmountSupplyToBeDispatched
-            List<Scalable> generatorsScalable = adjustableGenerators.get(componentNum).stream().map(generator ->
-                (Scalable) Scalable.onGenerator(generator.getId(), generator.getMinP(), generator.getMaxP())
-            ).collect(Collectors.toList());
-
-            Reporter stackingReporter = componentReporter.createSubReporter(STACKING, STACKING);
-
-            GeneratorTargetPListener listener = new GeneratorTargetPListener(stackingReporter);
-            network.addListener(listener);
-
-            Scalable scalable = Scalable.stack(generatorsScalable.toArray(Scalable[]::new));
-            double realized = scalable.scale(network, totalAmountSupplyToBeDispatched);
-
-            network.removeListener(listener);
 
             Reporter resultReporter = componentReporter.createSubReporter(RESULT, RESULT);
 
-            if (realized == totalAmountSupplyToBeDispatched) {
+            if (Math.abs(totalAmountSupplyToBeDispatched - realized) < EPSILON) {
                 report(resultReporter, "SupplyDemandBalanceCouldBeMet", "The supply-demand balance could be met",
                     Map.of(), TypedValue.INFO_SEVERITY);
             } else {
