@@ -13,28 +13,37 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChangerHolder;
 import com.powsybl.iidm.network.RatioTapChangerHolder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 import java.util.OptionalInt;
 
 /**
- * TODO
+ * Allow to modify a tap phase or ratio on two or three winding transformers.
+ * For three windings you must specify the Leg.
  *
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
 public class TapPositionModification extends AbstractNetworkModification {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(VscConverterStationModification.class);
 
     private final String tapId;
     private final TransformerElement element;
     private final TransformerType type;
     private final int tapPosition;
     /**
-     * Defines the leg on which to apply the change for three winding tranformers.
+     * Defines the leg on which to apply the change for three winding tranformers. 0, 1 or 2
      *
      * @implNote Must NOT be empty if element == TransformerElement.THREE_WINDING_TRANSFORMER
      */
     private final OptionalInt leg;
 
+    /**
+     * @param tapPosition the new tag position
+     * @param leg         defines on which leg of the three winding transformer the modification will be done. Ignored on two windings.
+     */
     public TapPositionModification(String tapId, TransformerElement element, TransformerType type, int tapPosition,
                                    OptionalInt leg) {
         this.tapId = Objects.requireNonNull(tapId);
@@ -43,7 +52,10 @@ public class TapPositionModification extends AbstractNetworkModification {
         this.tapPosition = tapPosition;
         this.leg = leg;
         if (element == TransformerElement.THREE_WINDING_TRANSFORMER && leg.isEmpty()) {
-            throw new PowsyblException("TapPositionModification needs a side for Three winding transformers");
+            throw new PowsyblException("TapPositionModification needs a leg for three winding transformers");
+        }
+        if (element == TransformerElement.TWO_WINDING_TRANSFORMER && leg.isPresent()) {
+            LOGGER.warn("TapPositionModification does not need a side for two winding transformers");
         }
     }
 
@@ -108,7 +120,7 @@ public class TapPositionModification extends AbstractNetworkModification {
         if (threeWindingsTransformer == null) {
             return null;
         }
-        // Constructor ensures that on ThreeWinding, side member is not empty.
+        // Constructor ensures that, on Three Winding Transformers, leg field is not empty.
         return threeWindingsTransformer.getLegs().get(leg.getAsInt());
     }
 
