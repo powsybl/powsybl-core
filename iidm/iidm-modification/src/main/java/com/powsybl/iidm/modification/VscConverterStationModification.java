@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.VscConverterStation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.OptionalDouble;
 
 /**
@@ -31,8 +32,8 @@ public class VscConverterStationModification extends AbstractNetworkModification
     public VscConverterStationModification(String vscId, OptionalDouble voltageSetPoint,
                                            OptionalDouble reactivePowerSetPoint) {
         this.vscId = vscId;
-        this.voltageSetPoint = voltageSetPoint;
-        this.reactivePowerSetPoint = reactivePowerSetPoint;
+        this.voltageSetPoint = Objects.requireNonNull(voltageSetPoint);
+        this.reactivePowerSetPoint = Objects.requireNonNull(reactivePowerSetPoint);
         if (voltageSetPoint.isEmpty() && reactivePowerSetPoint.isEmpty()) {
             LOGGER.warn("Creating a VscConverterStationModification with no change !");
         }

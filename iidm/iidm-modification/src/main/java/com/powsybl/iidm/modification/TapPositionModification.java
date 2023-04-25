@@ -50,7 +50,7 @@ public class TapPositionModification extends AbstractNetworkModification {
         this.element = Objects.requireNonNull(element);
         this.type = Objects.requireNonNull(type);
         this.tapPosition = tapPosition;
-        this.leg = leg;
+        this.leg = Objects.requireNonNullElse(leg, OptionalInt.empty());
         if (element == TransformerElement.THREE_WINDING_TRANSFORMER && leg.isEmpty()) {
             throw new PowsyblException("TapPositionModification needs a leg for three winding transformers");
         } else if (element == TransformerElement.THREE_WINDING_TRANSFORMER && (leg.getAsInt() < 0 || leg.getAsInt() > 2)) {
