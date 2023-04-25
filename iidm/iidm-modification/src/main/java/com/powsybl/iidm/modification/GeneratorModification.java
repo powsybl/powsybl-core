@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Generator;
@@ -32,7 +31,8 @@ public class GeneratorModification extends AbstractNetworkModification {
                       ComputationManager computationManager, Reporter reporter) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
-            throw new PowsyblException("Generator '" + generatorId + "' not found");
+            logOrThrow(throwException, "Generator '" + generatorId + "' not found");
+            return;
         }
         if (modifs.getMinP() != null) {
             g.setMinP(modifs.getMinP());
