@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
@@ -27,6 +26,7 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
     static final LoadXml INSTANCE = new LoadXml();
 
     static final String ROOT_ELEMENT_NAME = "load";
+    public static final String MODEL = "model";
     private static final String EXPONENTIAL_MODEL = "exponentialModel";
     private static final String ZIP_MODEL = "zipModel";
 
@@ -56,36 +56,33 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
 
     @Override
     protected void writeSubElements(Load load, VoltageLevel parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> writeModel(load, context));
+        load.getModel().ifPresent(model -> {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, MODEL, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_10, context);
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> writeModel(model, context));
+        });
     }
 
-    private void writeModel(Load load, NetworkXmlWriterContext context) {
-        load.getModel().ifPresent(model -> {
-            try {
-                switch (model.getType()) {
-                    case EXPONENTIAL:
-                        ExponentialLoadModel expModel = (ExponentialLoadModel) model;
-                        context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), EXPONENTIAL_MODEL);
-                        XmlUtil.writeDouble("np", expModel.getNp(), context.getWriter());
-                        XmlUtil.writeDouble("nq", expModel.getNq(), context.getWriter());
-                        break;
-                    case ZIP:
-                        ZipLoadModel zipModel = (ZipLoadModel) model;
-                        context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), ZIP_MODEL);
-                        XmlUtil.writeDouble("pp", zipModel.getPp(), context.getWriter());
-                        XmlUtil.writeDouble("ip", zipModel.getIp(), context.getWriter());
-                        XmlUtil.writeDouble("zp", zipModel.getZp(), context.getWriter());
-                        XmlUtil.writeDouble("pq", zipModel.getPq(), context.getWriter());
-                        XmlUtil.writeDouble("iq", zipModel.getIq(), context.getWriter());
-                        XmlUtil.writeDouble("zq", zipModel.getZq(), context.getWriter());
-                        break;
-                    default:
-                        throw new PowsyblException("Unexpected load model type: " + model.getType());
-                }
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+    private void writeModel(LoadModel model, NetworkXmlWriterContext context) throws XMLStreamException {
+        switch (model.getType()) {
+            case EXPONENTIAL:
+                ExponentialLoadModel expModel = (ExponentialLoadModel) model;
+                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), EXPONENTIAL_MODEL);
+                XmlUtil.writeDouble("np", expModel.getNp(), context.getWriter());
+                XmlUtil.writeDouble("nq", expModel.getNq(), context.getWriter());
+                break;
+            case ZIP:
+                ZipLoadModel zipModel = (ZipLoadModel) model;
+                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), ZIP_MODEL);
+                XmlUtil.writeDouble("pp", zipModel.getPp(), context.getWriter());
+                XmlUtil.writeDouble("ip", zipModel.getIp(), context.getWriter());
+                XmlUtil.writeDouble("zp", zipModel.getZp(), context.getWriter());
+                XmlUtil.writeDouble("pq", zipModel.getPq(), context.getWriter());
+                XmlUtil.writeDouble("iq", zipModel.getIq(), context.getWriter());
+                XmlUtil.writeDouble("zq", zipModel.getZq(), context.getWriter());
+                break;
+            default:
+                throw new PowsyblException("Unexpected load model type: " + model.getType());
+        }
     }
 
     @Override
