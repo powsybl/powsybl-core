@@ -6,12 +6,11 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
@@ -22,14 +21,15 @@ import java.util.Objects;
  */
 public class SectionModification extends AbstractNetworkModification {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SectionModification.class);
-
     private final String shuntCompensatorId;
     private final int sectionCount;
 
     public SectionModification(String shuntCompensatorId, int sectionCount) {
         this.shuntCompensatorId = Objects.requireNonNull(shuntCompensatorId);
         this.sectionCount = sectionCount;
+        if (sectionCount < 0) {
+            throw new PowsyblException("Section count of a Shunt can't be negative");
+        }
     }
 
     @Override
@@ -38,10 +38,6 @@ public class SectionModification extends AbstractNetworkModification {
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
         if (shuntCompensator == null) {
             logOrThrow(throwException, "Shunt Compensator '" + shuntCompensatorId + "' not found");
-            return;
-        }
-        if (sectionCount < 0) {
-            logOrThrow(throwException, "Section count of a Shunt can't be negative");
             return;
         }
         shuntCompensator.setSectionCount(sectionCount);
