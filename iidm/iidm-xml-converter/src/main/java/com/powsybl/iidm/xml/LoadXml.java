@@ -120,19 +120,19 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
                     break;
                 case ZIP_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, EXPONENTIAL_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_10, context);
-                    double pp = XmlUtil.readDoubleAttribute(context.getReader(), "c0p");
-                    double ip = XmlUtil.readDoubleAttribute(context.getReader(), "c1p");
-                    double zp = XmlUtil.readDoubleAttribute(context.getReader(), "c2p");
-                    double pq = XmlUtil.readDoubleAttribute(context.getReader(), "c0q");
-                    double iq = XmlUtil.readDoubleAttribute(context.getReader(), "c1q");
-                    double zq = XmlUtil.readDoubleAttribute(context.getReader(), "c2q");
+                    double c0p = XmlUtil.readDoubleAttribute(context.getReader(), "c0p");
+                    double c1p = XmlUtil.readDoubleAttribute(context.getReader(), "c1p");
+                    double c2p = XmlUtil.readDoubleAttribute(context.getReader(), "c2p");
+                    double c0q = XmlUtil.readDoubleAttribute(context.getReader(), "c0q");
+                    double c1q = XmlUtil.readDoubleAttribute(context.getReader(), "c1q");
+                    double c2q = XmlUtil.readDoubleAttribute(context.getReader(), "c2q");
                     adder.newZipModel()
-                            .setC0p(pp)
-                            .setC1p(ip)
-                            .setC2p(zp)
-                            .setC0q(pq)
-                            .setC1q(iq)
-                            .setC2q(zq)
+                            .setC0p(c0p)
+                            .setC1p(c1p)
+                            .setC2p(c2p)
+                            .setC0q(c0q)
+                            .setC1q(c1q)
+                            .setC2q(c2q)
                             .add();
                     break;
                 default:
