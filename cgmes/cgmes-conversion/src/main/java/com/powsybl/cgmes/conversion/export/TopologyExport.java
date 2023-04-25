@@ -142,7 +142,7 @@ public final class TopologyExport {
         return context.getNamingStrategy().getCgmesId(nodeSet.stream()
                 .sorted()
                 .findFirst()
-                .map(selectedNode -> "DISCONNECTED_" + vl.getId() + "_" + selectedNode)
+                .map(selectedNode -> vl.getId() + "_" + selectedNode)
                 .orElseThrow(() -> new PowsyblException("nodeSet is never empty")));
     }
 
