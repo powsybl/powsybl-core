@@ -42,7 +42,7 @@ class LoadXml extends AbstractComplexIdentifiableXml<Load, LoadAdder, VoltageLev
 
     @Override
     protected boolean hasSubElements(Load l, NetworkXmlWriterContext context) {
-        return hasSubElements(l) || context.getVersion().compareTo(IidmXmlVersion.V_1_10) >= 0;
+        return hasSubElements(l) && context.getVersion().compareTo(IidmXmlVersion.V_1_10) >= 0;
     }
 
     @Override
