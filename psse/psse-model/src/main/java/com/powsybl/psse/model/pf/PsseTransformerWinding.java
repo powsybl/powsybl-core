@@ -8,6 +8,7 @@ package com.powsybl.psse.model.pf;
 
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
+import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
@@ -15,49 +16,64 @@ import com.univocity.parsers.annotations.Parsed;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class PsseTransformerWinding extends PsseVersioned {
+    @NullString(nulls = {"null"})
     @Parsed
     private double windv = Double.NaN;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double nomv = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double ang = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int cod = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int cont = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     @Revision(since = 35)
     private int node = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double rma = Double.NaN;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double rmi = Double.NaN;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double vma = Double.NaN;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double vmi = Double.NaN;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int ntp = 33;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int tab = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double cr = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double cx = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double cnxa = 0;
 

@@ -18,8 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,6 +34,8 @@ class LineFortescueXmlSerializerTest extends AbstractConverterTest {
         LineFortescue fortescue = l.newExtension(LineFortescueAdder.class)
                 .withRz(0.1d)
                 .withXz(2d)
+                .withOpenPhaseA(true)
+                .withOpenPhaseC(true)
                 .add();
 
         Network network2 = roundTripXmlTest(network,
@@ -48,5 +49,8 @@ class LineFortescueXmlSerializerTest extends AbstractConverterTest {
 
         assertEquals(fortescue.getRz(), fortescue2.getRz(), 0);
         assertEquals(fortescue.getXz(), fortescue2.getXz(), 0);
+        assertTrue(fortescue2.isOpenPhaseA());
+        assertFalse(fortescue2.isOpenPhaseB());
+        assertTrue(fortescue2.isOpenPhaseC());
     }
 }

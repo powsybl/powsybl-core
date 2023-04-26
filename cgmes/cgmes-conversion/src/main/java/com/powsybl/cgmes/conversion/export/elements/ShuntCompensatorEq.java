@@ -52,11 +52,13 @@ public final class ShuntCompensatorEq {
                 writer.writeCharacters(CgmesExportUtil.format(bPerSection));
             }
             writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_GPERSECTION);
             if (!Double.isNaN(gPerSection)) {
-                writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_GPERSECTION);
                 writer.writeCharacters(CgmesExportUtil.format(gPerSection));
-                writer.writeEndElement();
+            } else {
+                writer.writeCharacters("0");
             }
+            writer.writeEndElement();
         }
         if (regulatingControlId != null) {
             CgmesExportUtil.writeReference("RegulatingCondEq.RegulatingControl", regulatingControlId, cimNamespace, writer, context);
