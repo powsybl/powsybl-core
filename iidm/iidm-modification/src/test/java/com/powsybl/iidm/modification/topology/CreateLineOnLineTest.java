@@ -161,7 +161,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLineAdder(adder2)
                 .build();
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Identifiable LOAD is not a bus or a busbar section", exception3.getMessage());
+        assertEquals("Unexpected type of identifiable LOAD: LOAD", exception3.getMessage());
     }
 
     private static LineAdder createLineAdder(Line line, Network network) {

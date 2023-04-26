@@ -7,14 +7,15 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundIdentifiableReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.unexpectedIdentifiableType;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -118,12 +119,7 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         Identifiable<?> identifiable = network.getIdentifiable(id);
         if (identifiable == null) {
             logger.error("Identifiable {} not found", id);
-            reporter.report(Report.builder()
-                    .withKey("notFoundIdentifiable")
-                    .withDefaultMessage("Identifiable ${identifiableId} not found")
-                    .withValue("identifiableId", id)
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
+            notFoundIdentifiableReport(reporter, id);
             if (throwException) {
                 throw new PowsyblException("Identifiable " + id + " not found");
             }
@@ -139,15 +135,10 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
             BusbarSection bbs = (BusbarSection) identifiable;
             return bbs.getTerminal().getVoltageLevel();
         } else {
-            logger.error("Identifiable {} is not a bus or a busbar section", identifiable.getId());
-            reporter.report(Report.builder()
-                    .withKey("unexpectedIdentifiableType")
-                    .withDefaultMessage("Identifiable ${identifiableId} is not a bus or a busbar section")
-                    .withValue("identifiableId", identifiable.getId())
-                    .withSeverity(TypedValue.ERROR_SEVERITY)
-                    .build());
+            logger.error("Unexpected type of identifiable {}: {}", identifiable.getId(), identifiable.getType());
+            unexpectedIdentifiableType(reporter, identifiable);
             if (throwException) {
-                throw new PowsyblException("Identifiable " + identifiable.getId() + " is not a bus or a busbar section");
+                throw new PowsyblException("Unexpected type of identifiable " + identifiable.getId() + ": " + identifiable.getType());
             }
             return null;
         }
