@@ -1054,6 +1054,14 @@ public interface Network extends Container<Network> {
     Collection<Identifiable<?>> getIdentifiables();
 
     /**
+     * Executes runnable with a specific reporter, network operations use "network.getReporter()" to report functional logs
+     * This method changes the network reporter to the one in parameter, executes the Runnable, then set the original reporter back
+     * @param reporter that will be set for runnable to report logs
+     * @param runnable runnable we want to execute with a specific network.getReporter()
+      */
+    public void executeWithReporter(Reporter reporter, Runnable runnable);
+
+    /**
      * Get all connectables of the network for a given type
      *
      * @param clazz connectable type class

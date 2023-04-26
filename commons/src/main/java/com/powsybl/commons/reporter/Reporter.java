@@ -6,7 +6,9 @@
  */
 package com.powsybl.commons.reporter;
 
+import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -86,6 +88,15 @@ public interface Reporter {
     Reporter createSubReporter(String taskKey, String defaultName, String key, Object value, String type);
 
     /**
+     *
+     * @param reporter the sub-reporter object we want to remove from the list
+     * @return true if sub-reporter removed with success, false otherwise
+     */
+    boolean removeSubReporter(Reporter reporter);
+
+    Collection<Report> getReports();
+
+    /**
      * Add a new report with its associated values.
      * @param reportKey a key identifying the current report
      * @param defaultMessage the default report message, which may contain references to the provided values or to the
@@ -139,6 +150,16 @@ public interface Reporter {
         @Override
         public Reporter createSubReporter(String taskKey, String defaultName, Map<String, TypedValue> values) {
             return new NoOpImpl();
+        }
+
+        @Override
+        public boolean removeSubReporter(Reporter reporter) {
+            return true; // No-op
+        }
+
+        @Override
+        public Collection<Report> getReports() {
+            return null;
         }
 
         @Override

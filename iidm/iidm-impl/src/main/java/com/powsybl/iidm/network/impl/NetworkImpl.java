@@ -54,7 +54,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
-    private final Reporter reporter;
+    private Reporter reporter;
 
     class BusBreakerViewImpl implements BusBreakerView {
 
@@ -195,6 +195,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     Reporter getReporter() {
         return reporter;
+    }
+
+    @Override
+    public void executeWithReporter(Reporter reporter, Runnable runnable) {
+        Reporter originalReporter = this.reporter;
+        this.reporter = reporter;
+        runnable.run();
+        this.reporter = originalReporter;
     }
 
     public NetworkIndex getIndex() {

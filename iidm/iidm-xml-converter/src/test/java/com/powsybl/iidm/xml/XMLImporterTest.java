@@ -232,6 +232,20 @@ class XMLImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    void importDataReporterMultipleExtension() throws IOException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("multiple-extensions", new ResourceSet("/V1_9/", "multiple-extensions.xml"));
+        ReporterModel reporterModel = new ReporterModel("test", "test reporter");
+        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
+
+        StringWriter sw = new StringWriter();
+        reporterModel.export(sw);
+        InputStream ref = XMLImporterTest.class.getResourceAsStream("/importXmlReportExtensions.txt");
+        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
+        String logExport = normalizeLineSeparator(sw.toString());
+        assertEquals(refLogExport, logExport);
+    }
+
+    @Test
     void importDataReporterValidationTest() throws IOException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("twoWindingsTransformerPhaseAndRatioTap", new ResourceSet("/V1_9/", "twoWindingsTransformerPhaseAndRatioTap.xml"));
         ReporterModel reporterModel = new ReporterModel("test", "test reporter");
@@ -245,4 +259,30 @@ class XMLImporterTest extends AbstractConverterTest {
         assertEquals(refLogExport, logExport);
     }
 
+    @Test
+    void importDataReporterValidationAndMultipleExtensionTest() throws IOException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("twoWindingsTransformerPhaseAndRatioTapWithExtensions", new ResourceSet("/V1_9/", "twoWindingsTransformerPhaseAndRatioTapWithExtensions.xml"));
+        ReporterModel reporterModel = new ReporterModel("test", "test reporter");
+        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
+
+        StringWriter sw = new StringWriter();
+        reporterModel.export(sw);
+        InputStream ref = XMLImporterTest.class.getResourceAsStream("/importXmlReportExtensionsAndValidations.txt");
+        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
+        String logExport = normalizeLineSeparator(sw.toString());
+        assertEquals(refLogExport, logExport);
+    }
+
+    @Test
+    void importDataReporterExtensionNotFoundTest() throws IOException {
+        ReporterModel reporterModel = new ReporterModel("test", "test reporter");
+        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), null, reporterModel));
+
+        StringWriter sw = new StringWriter();
+        reporterModel.export(sw);
+        InputStream ref = XMLImporterTest.class.getResourceAsStream("/importXmlReportExtensionsNotFound.txt");
+        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
+        String logExport = normalizeLineSeparator(sw.toString());
+        assertEquals(refLogExport, logExport);
+    }
 }

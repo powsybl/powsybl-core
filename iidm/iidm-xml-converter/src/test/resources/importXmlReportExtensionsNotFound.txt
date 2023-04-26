@@ -1,5 +1,5 @@
 + test reporter
-  + Imported extensions
-     Extension substationPosition imported.
+  + Not found extensions
+     Extension foo not found.
   + XIIDM import done
      XML network "test" is imported.

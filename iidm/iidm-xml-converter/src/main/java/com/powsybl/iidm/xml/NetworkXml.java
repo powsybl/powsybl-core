@@ -418,6 +418,7 @@ public final class NetworkXml {
 
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory, Reporter reporter) {
         Objects.requireNonNull(reporter);
+
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             int state = reader.next();
@@ -448,8 +449,10 @@ public final class NetworkXml {
                 context.buildExtensionNamespaceUriList(EXTENSIONS_SUPPLIER.get().getProviders().stream());
             }
 
+            Set<String> extensionNamesImported = new TreeSet<>();
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
+            Reporter validationReporter = reporter.createSubReporter("validationWarnings", "Validation warnings");
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
                     case AliasesXml.ALIAS:
@@ -501,7 +504,7 @@ public final class NetworkXml {
                         if (identifiable == null) {
                             throw new PowsyblException("Identifiable " + id2 + " not found");
                         }
-                        readExtensions(identifiable, context, extensionNamesNotFound);
+                        readExtensions(identifiable, context, extensionNamesImported, extensionNamesNotFound);
                         break;
 
                     default:
@@ -509,15 +512,38 @@ public final class NetworkXml {
                 }
             });
 
-            checkExtensionsNotFound(context, extensionNamesNotFound);
 
-            context.getEndTasks().forEach(Runnable::run);
+            if(!extensionNamesImported.isEmpty()){
+                Reporter importedExtensionReporter = reporter.createSubReporter("importedExtensions", "Imported extensions");
+                logExtensionsImported(importedExtensionReporter, extensionNamesImported);
+
+            }
+            if(!extensionNamesNotFound.isEmpty()){
+                Reporter extensionsNotFoundReporter = reporter.createSubReporter("extensionsNotFound", "Not found extensions");
+                checkExtensionsNotFound(context, extensionNamesNotFound);
+                logExtensionsNotFound(extensionsNotFoundReporter, extensionNamesNotFound);
+            }
+
+            network.executeWithReporter(validationReporter, () -> context.getEndTasks().forEach(Runnable::run));
+
+            if(validationReporter.getReports() == null || validationReporter.getReports().isEmpty()){
+                reporter.removeSubReporter(validationReporter);
+            }
+
             reader.close();
             XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    private static void logExtensionsImported(Reporter reporter, Set<String> extensionNamesImported) {
+        XmlReports.importedExtension(reporter, extensionNamesImported);
+    }
+
+    private static void logExtensionsNotFound(Reporter reporter, Set<String> extensionNamesNotFound) {
+        XmlReports.extensionNotFound(reporter, extensionNamesNotFound);
     }
 
     private static void checkExtensionsNotFound(NetworkXmlReaderContext context, Set<String> extensionNamesNotFound) {
@@ -567,9 +593,8 @@ public final class NetworkXml {
         return validateAndRead(xmlFile, new ImportOptions());
     }
 
-    private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
+    private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context, Set<String> extensionNamesImported,
                                        Set<String> extensionNamesNotFound) throws XMLStreamException {
-
         XmlUtil.readUntilEndElementWithDepth(EXTENSION_ELEMENT_NAME, context.getReader(), elementDepth -> {
             // extensions root elements are nested directly in 'extension' element, so there is no need
             // to check for an extension to exist if depth is greater than zero. Furthermore in case of
@@ -584,7 +609,9 @@ public final class NetworkXml {
                 if (extensionXmlSerializer != null) {
                     Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
                     identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
-                    XmlReports.importedExtension(context.getReporter(), extensionName);
+                    if(!extensionNamesImported.contains(extensionName)) {
+                        extensionNamesImported.add(extensionName);
+                    }
                 } else {
                     extensionNamesNotFound.add(extensionName);
                 }

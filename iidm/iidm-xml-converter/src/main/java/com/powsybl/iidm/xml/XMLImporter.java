@@ -193,7 +193,7 @@ public class XMLImporter implements Importer {
             }
 
             network = NetworkXml.read(dataSource, networkFactory, options, ext, reporter);
-            XmlReports.importedXmlNetworkReport(reporter, network.getId());
+            XmlReports.importedXmlNetworkReport(reporter.createSubReporter("xiidmImportDone", "XIIDM import done"), network.getId());
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new PowsyblException(e);
