@@ -107,7 +107,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         String station1Id = hvdcConverterStation1.getId();
         String station2Id = hvdcConverterStation2.getId();
         HvdcConverterStation.HvdcType station1Type = hvdcConverterStation1.getHvdcType();
-        HvdcConverterStation.HvdcType station2Type = hvdcConverterStation1.getHvdcType();
+        HvdcConverterStation.HvdcType station2Type = hvdcConverterStation2.getHvdcType();
         new RemoveFeederBay(station1Id).apply(network, throwException, computationManager, reporter);
         new RemoveFeederBay(station2Id).apply(network, throwException, computationManager, reporter);
         reportConverterStationRemoved(reporter, station1Id, station1Type);
