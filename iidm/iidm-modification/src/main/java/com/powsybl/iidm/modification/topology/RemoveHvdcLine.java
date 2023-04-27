@@ -108,10 +108,12 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         String station2Id = hvdcConverterStation2.getId();
         boolean isStation1LccStation = isLccConverterStation(hvdcConverterStation1);
         boolean isStation2LccStation = isLccConverterStation(hvdcConverterStation2);
+        boolean isStation1VscStation = isVscConverterStation(hvdcConverterStation1);
+        boolean isStation2VscStation = isVscConverterStation(hvdcConverterStation2);
         new RemoveFeederBay(station1Id).apply(network, throwException, computationManager, reporter);
         new RemoveFeederBay(station2Id).apply(network, throwException, computationManager, reporter);
-        reportConverterStationRemoved(reporter, station1Id, isStation1LccStation);
-        reportConverterStationRemoved(reporter, station2Id, isStation2LccStation);
+        reportConverterStationRemoved(reporter, station1Id, isStation1LccStation, isStation1VscStation);
+        reportConverterStationRemoved(reporter, station2Id, isStation2LccStation, isStation2VscStation);
     }
 
     private static boolean isLccConverterStation(HvdcConverterStation<?> hvdcConverterStation) {
@@ -122,11 +124,11 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         return hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.VSC;
     }
 
-    private static void reportConverterStationRemoved(Reporter reporter, String stationId, boolean isLccConverterStation) {
+    private static void reportConverterStationRemoved(Reporter reporter, String stationId, boolean isLccConverterStation, boolean isVscConverterStation) {
         if (isLccConverterStation) {
             removedLccConverterStationReport(reporter, stationId);
         }
-        if (isLccConverterStation) {
+        if (isVscConverterStation) {
             removedVscConverterStationReport(reporter, stationId);
         }
     }
