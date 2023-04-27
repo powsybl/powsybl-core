@@ -342,6 +342,14 @@ public final class MergingView implements Network, MultiVariantObject {
         return index.getIdentifiables();
     }
 
+    /**
+     * This implementation does not carry the reporter, we run the runnable without any change
+     */
+    @Override
+    public void executeWithReporter(Reporter reporter, Runnable runnable) {
+        runnable.run();
+    }
+
     @Override
     public <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz) {
         return Collections.unmodifiableCollection(index.getConnectables(clazz));

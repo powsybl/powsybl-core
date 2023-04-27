@@ -512,13 +512,12 @@ public final class NetworkXml {
                 }
             });
 
-
-            if(!extensionNamesImported.isEmpty()){
+            if (!extensionNamesImported.isEmpty()) {
                 Reporter importedExtensionReporter = reporter.createSubReporter("importedExtensions", "Imported extensions");
                 logExtensionsImported(importedExtensionReporter, extensionNamesImported);
 
             }
-            if(!extensionNamesNotFound.isEmpty()){
+            if (!extensionNamesNotFound.isEmpty()) {
                 Reporter extensionsNotFoundReporter = reporter.createSubReporter("extensionsNotFound", "Not found extensions");
                 checkExtensionsNotFound(context, extensionNamesNotFound);
                 logExtensionsNotFound(extensionsNotFoundReporter, extensionNamesNotFound);
@@ -526,7 +525,7 @@ public final class NetworkXml {
 
             network.executeWithReporter(validationReporter, () -> context.getEndTasks().forEach(Runnable::run));
 
-            if(validationReporter.getReports() == null || validationReporter.getReports().isEmpty()){
+            if (validationReporter.getReports() == null || validationReporter.getReports().isEmpty()) {
                 reporter.removeSubReporter(validationReporter);
             }
 
@@ -609,7 +608,7 @@ public final class NetworkXml {
                 if (extensionXmlSerializer != null) {
                     Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
                     identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
-                    if(!extensionNamesImported.contains(extensionName)) {
+                    if (!extensionNamesImported.contains(extensionName)) {
                         extensionNamesImported.add(extensionName);
                     }
                 } else {
