@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -25,6 +26,8 @@ public class TwoCountriesCriterion implements Criterion {
     }
 
     public TwoCountriesCriterion(List<Country> countries1, List<Country> countries2) {
+        Objects.requireNonNull(countries1);
+        Objects.requireNonNull(countries2);
         this.countries1 = ImmutableList.copyOf(countries1);
         this.countries2 = ImmutableList.copyOf(countries2);
     }

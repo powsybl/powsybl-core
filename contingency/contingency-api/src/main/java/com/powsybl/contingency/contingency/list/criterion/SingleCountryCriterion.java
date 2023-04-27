@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -19,6 +20,7 @@ public class SingleCountryCriterion implements Criterion {
     private final List<Country> countries;
 
     public SingleCountryCriterion(List<Country> countries) {
+        Objects.requireNonNull(countries);
         this.countries = ImmutableList.copyOf(countries);
     }
 

@@ -75,7 +75,7 @@ class CriterionContingencyListJsonTest extends AbstractConverterTest {
                 countriesCriterion, nominalVoltageCriterion, Collections.singletonList(propertyCriterion), regexCriterion);
     }
 
-    private static InjectionCriterionContingencyList createInjectionCriterionContingencyListNoCountry() {
+    private static InjectionCriterionContingencyList createInjectionCriterionContingencyListNoCountryCriterion() {
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(200.0, 230.0, true, true));
         return new InjectionCriterionContingencyList("list2", IdentifiableType.GENERATOR,
@@ -147,9 +147,9 @@ class CriterionContingencyListJsonTest extends AbstractConverterTest {
 
     @Test
     void createInjectionCriterionContingencyListNoCountryTest() throws IOException {
-        roundTripTest(createInjectionCriterionContingencyListNoCountry(), CriterionContingencyListJsonTest::write,
+        roundTripTest(createInjectionCriterionContingencyListNoCountryCriterion(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readInjectionCriterionContingencyList,
-                "/injectionCriterionContingencyListNoCountry.json");
+                "/injectionCriterionContingencyListNoCountryCriterion.json");
     }
 
     @Test
