@@ -53,12 +53,13 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     protected abstract ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder);
 
-    protected AbstractCreateConnectableFeederBays(int... sides) {
+    protected AbstractCreateConnectableFeederBays(Reporter reporter, int... sides) {
+        super(reporter);
         this.sides = Arrays.copyOf(sides, sides.length);
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, boolean throwException, ComputationManager computationManager) {
         if (!setAdderConnectivity(network, reporter, throwException)) {
             return;
         }

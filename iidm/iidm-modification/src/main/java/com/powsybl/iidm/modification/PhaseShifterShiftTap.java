@@ -24,6 +24,7 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
     private final int tapDelta;
 
     public PhaseShifterShiftTap(String phaseShifterId, int tapDelta) {
+        super(Reporter.NO_OP);
         this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
         this.tapDelta = tapDelta;
     }
@@ -34,7 +35,7 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager) {
         Objects.requireNonNull(network);
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null) {

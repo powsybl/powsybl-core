@@ -70,7 +70,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
      * NB: This constructor is package-private, Please use {@link ReplaceTeePointByVoltageLevelOnLineBuilder} instead.
      */
     ReplaceTeePointByVoltageLevelOnLine(String teePointLine1Id, String teePointLine2Id, String teePointLineToRemoveId, String bbsOrBusId,
-                                        String newLine1Id, String newLine1Name, String newLine2Id, String newLine2Name) {
+                                        String newLine1Id, String newLine1Name, String newLine2Id, String newLine2Name, Reporter reporter) {
+        super(reporter);
         this.teePointLine1Id = Objects.requireNonNull(teePointLine1Id);
         this.teePointLine2Id = Objects.requireNonNull(teePointLine2Id);
         this.teePointLineToRemoveId = Objects.requireNonNull(teePointLineToRemoveId);
@@ -115,7 +116,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager) {
         Line tpLine1 = network.getLine(teePointLine1Id);
         if (tpLine1 == null) {
             notFoundLineReport(reporter, teePointLine1Id);
@@ -249,7 +250,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         tpLine2.remove();
         removedLineReport(reporter, teePointLine2Id);
         LOGGER.info("Line {} removed", teePointLine2Id);
-        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, throwException, computationManager, reporter);
+        new RemoveFeederBay(tpLineToRemove.getId(), reporter).apply(network, throwException, computationManager);
         removedLineReport(reporter, teePointLineToRemoveId);
         LOGGER.info("Line {} removed", teePointLineToRemoveId);
 

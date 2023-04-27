@@ -22,6 +22,7 @@ public class ScriptNetworkModification extends AbstractNetworkModification {
     private final Closure<Void> script;
 
     public ScriptNetworkModification(Closure<Void> script) {
+        super(Reporter.NO_OP);
         this.script = Objects.requireNonNull(script);
     }
 
@@ -31,7 +32,7 @@ public class ScriptNetworkModification extends AbstractNetworkModification {
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager) {
         script.call(network, computationManager);
     }
 }

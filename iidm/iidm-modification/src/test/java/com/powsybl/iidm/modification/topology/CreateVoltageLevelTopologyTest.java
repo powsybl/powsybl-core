@@ -6,9 +6,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
@@ -146,7 +145,7 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true));
         assertEquals("Voltage level NOT_EXISTING is not found", e.getMessage());
     }
 

@@ -26,6 +26,7 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
     protected final String id;
 
     protected AbstractTripping(String id) {
+        super(Reporter.NO_OP);
         this.id = Objects.requireNonNull(id);
     }
 
@@ -34,8 +35,7 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager,
-                      Reporter reporter) {
+    public void apply(Network network, boolean throwException, ComputationManager computationManager) {
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
 

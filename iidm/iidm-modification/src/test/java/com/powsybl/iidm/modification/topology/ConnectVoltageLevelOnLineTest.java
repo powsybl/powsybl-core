@@ -7,7 +7,6 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
@@ -131,7 +130,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network1.getLine("CJ"))
                 .build();
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, Reporter.NO_OP));
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true));
         assertEquals("Identifiable NOT_EXISTING not found", exception2.getMessage());
 
         Network network2 = createBbNetwork();
@@ -139,7 +138,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network2.getLine("NHV1_NHV2_1"))
                 .build();
-        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
+        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true));
         assertEquals("Identifiable NOT_EXISTING not found", exception3.getMessage());
     }
 

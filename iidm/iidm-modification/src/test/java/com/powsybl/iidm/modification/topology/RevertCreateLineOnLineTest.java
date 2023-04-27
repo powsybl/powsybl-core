@@ -7,7 +7,6 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
@@ -46,14 +45,14 @@ class RevertCreateLineOnLineTest extends AbstractConverterTest {
                 .withLineToBeDeletedId("CJ_2")
                 .withMergedLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, Reporter.NO_OP), "Line line1NotFound is not found");
+        assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true), "Line line1NotFound is not found");
         final NetworkModification modificationWithError11 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("line1NotFound")
                 .withLineToBeMerged2Id("CJ_1")
                 .withLineToBeDeletedId("CJ_2")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError11.apply(network, false, Reporter.NO_OP);
+        modificationWithError11.apply(network, false);
         assertNull(network.getLine("CJ"));
 
         final NetworkModification modificationWithError2 = new RevertCreateLineOnLineBuilder()
@@ -62,14 +61,14 @@ class RevertCreateLineOnLineTest extends AbstractConverterTest {
                 .withLineToBeDeletedId("CJ_3")
                 .withMergedLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, Reporter.NO_OP), "Line line2NotFound is not found");
+        assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true), "Line line2NotFound is not found");
         final NetworkModification modificationWithError21 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("line2NotFound")
                 .withLineToBeDeletedId("CJ_3")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError21.apply(network, false, Reporter.NO_OP);
+        modificationWithError21.apply(network, false);
         assertNull(network.getLine("CJ"));
 
         final NetworkModification modificationWithError3 = new RevertCreateLineOnLineBuilder()
@@ -78,14 +77,14 @@ class RevertCreateLineOnLineTest extends AbstractConverterTest {
                 .withLineToBeDeletedId("line3NotFound")
                 .withMergedLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, Reporter.NO_OP), "Line line3NotFound is not found");
+        assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true), "Line line3NotFound is not found");
         final NetworkModification modificationWithError31 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
                 .withLineToBeDeletedId("line3NotFound")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError31.apply(network, false, Reporter.NO_OP);
+        modificationWithError31.apply(network, false);
         assertNull(network.getLine("CJ"));
 
         final NetworkModification modificationWithError4 = new RevertCreateLineOnLineBuilder()
@@ -94,14 +93,14 @@ class RevertCreateLineOnLineTest extends AbstractConverterTest {
                 .withLineToBeDeletedId("LINE34")
                 .withMergedLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true, Reporter.NO_OP), "Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34");
+        assertThrows(PowsyblException.class, () -> modificationWithError4.apply(network, true), "Unable to find the attachment point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34");
         final NetworkModification modificationWithError41 = new RevertCreateLineOnLineBuilder()
                 .withLineToBeMerged1Id("CJ_1")
                 .withLineToBeMerged2Id("CJ_2")
                 .withLineToBeDeletedId("LINE34")
                 .withMergedLineId("CJ")
                 .build();
-        modificationWithError41.apply(network, false, Reporter.NO_OP);
+        modificationWithError41.apply(network, false);
         assertNull(network.getLine("CJ"));
 
         modification = new RevertCreateLineOnLineBuilder()
@@ -110,7 +109,7 @@ class RevertCreateLineOnLineTest extends AbstractConverterTest {
                 .withLineToBeDeletedId("testLine")
                 .withMergedLineId("CJ_NEW")
                 .build();
-        modification.apply(network, true, Reporter.NO_OP);
+        modification.apply(network, true);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-revert-create-line-on-line-l.xml");
     }
@@ -129,7 +128,7 @@ class RevertCreateLineOnLineTest extends AbstractConverterTest {
                 .withLineToBeDeletedId("testLine")
                 .withMergedLineId("NHV1_NHV2_1")
                 .build();
-        modification.apply(network, true, Reporter.NO_OP);
+        modification.apply(network, true);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-revert-create-line-on-line-nb-l.xml");
     }
@@ -148,7 +147,7 @@ class RevertCreateLineOnLineTest extends AbstractConverterTest {
                 .withLineToBeDeletedId("testLine")
                 .withMergedLineId("NHV1_NHV2_1")
                 .build();
-        modification.apply(network, true, Reporter.NO_OP);
+        modification.apply(network, true);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-revert-create-line-on-line-bb-l.xml");
     }

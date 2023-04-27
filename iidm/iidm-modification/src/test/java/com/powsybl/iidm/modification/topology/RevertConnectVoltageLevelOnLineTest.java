@@ -7,7 +7,6 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
@@ -47,21 +46,21 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine2Id("CJ_2")
                 .withLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, Reporter.NO_OP), "Line line1NotFound is not found");
+        assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true), "Line line1NotFound is not found");
 
         final NetworkModification modificationWithError2 = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("CJ_1")
                 .withLine2Id("line2NotFound")
                 .withLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, Reporter.NO_OP), "Line line2NotFound is not found");
+        assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true), "Line line2NotFound is not found");
 
         final NetworkModification modificationWithError3 = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("CJ_1")
                 .withLine2Id("LINE34")
                 .withLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, Reporter.NO_OP), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
+        assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
 
         // create limits on tee point side
         Line line1 = network.getLine("CJ_1");
@@ -79,7 +78,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine2Id("CJ_2")
                 .withLineId("CJ")
                 .build();
-        modification.apply(network, true, Reporter.NO_OP);
+        modification.apply(network, true);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-revert-connect-voltage-level-on-line-vl.xml");
     }
@@ -99,7 +98,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine2Id("NHV1_NHV2_1_2")
                 .withLineId("NHV1_NHV2_1")
                 .build();
-        modification.apply(network, true, Reporter.NO_OP);
+        modification.apply(network, true);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-revert-connect-voltage-level-on-line-nb-vl.xml");
     }
@@ -119,7 +118,7 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine2Id("NHV1_NHV2_1_2")
                 .withLineId("NHV1_NHV2_1")
                 .build();
-        modification.apply(network, true, Reporter.NO_OP);
+        modification.apply(network, true);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-revert-connect-voltage-level-on-line-bb-vl.xml");
     }

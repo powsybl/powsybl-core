@@ -21,13 +21,14 @@ public class PhaseShifterSetAsFixedTap extends AbstractNetworkModification {
     private final int tapPosition;
 
     public PhaseShifterSetAsFixedTap(String phaseShifterId, int tapPosition) {
+        super(Reporter.NO_OP);
         this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
         this.tapPosition = tapPosition;
     }
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager) {
         Objects.requireNonNull(network);
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null) {

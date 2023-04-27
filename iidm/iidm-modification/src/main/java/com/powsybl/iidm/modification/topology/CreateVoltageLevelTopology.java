@@ -20,8 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.createdNewSymmetricalTopology;
-import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundVoltageLevelReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
@@ -51,34 +50,39 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
 
     CreateVoltageLevelTopology(String voltageLevelId, int lowBusOrBusbarIndex, Integer alignedBusesOrBusbarCount,
                                int lowSectionIndex, Integer sectionCount,
-                               String busOrBusbarSectionPrefixId, String switchPrefixId, List<SwitchKind> switchKinds) {
+                               String busOrBusbarSectionPrefixId, String switchPrefixId, List<SwitchKind> switchKinds, Reporter reporter) {
+        super(reporter);
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId, "Undefined voltage level ID");
-        this.lowBusOrBusbarIndex = checkCount(lowBusOrBusbarIndex, "low busbar index", 0);
-        this.alignedBusesOrBusbarCount = checkCount(alignedBusesOrBusbarCount, "busBar count", 1);
-        this.lowSectionIndex = checkCount(lowSectionIndex, "low section index", 0);
-        this.sectionCount = checkCount(sectionCount, "section count", 1);
+        this.lowBusOrBusbarIndex = checkCount(lowBusOrBusbarIndex, "low busbar index", 0, reporter);
+        this.alignedBusesOrBusbarCount = checkCount(alignedBusesOrBusbarCount, "busBar count", 1, reporter);
+        this.lowSectionIndex = checkCount(lowSectionIndex, "low section index", 0, reporter);
+        this.sectionCount = checkCount(sectionCount, "section count", 1, reporter);
         this.busOrBusbarSectionPrefixId = Objects.requireNonNull(busOrBusbarSectionPrefixId, "Undefined busbar section prefix ID");
         this.switchPrefixId = Objects.requireNonNull(switchPrefixId, "Undefined switch prefix ID");
         this.switchKinds = switchKinds;
     }
 
-    private static int checkCount(Integer count, String type, int min) {
+    private static int checkCount(Integer count, String type, int min, Reporter reporter) {
         Objects.requireNonNull(count, "Undefined " + type);
         if (count < min) {
+            countLowerThanMin(reporter, type, min);
             throw new PowsyblException(type + " must be >= " + min);
         }
         return count;
     }
 
-    private static List<SwitchKind> checkSwitchKinds(List<SwitchKind> switchKinds, int sectionCount) {
+    private static List<SwitchKind> checkSwitchKinds(List<SwitchKind> switchKinds, int sectionCount, Reporter reporter) {
         Objects.requireNonNull(switchKinds, "Undefined switch kinds");
         if (switchKinds.size() != sectionCount - 1) {
+            unexpectedSwitchKindsCount(reporter, switchKinds.size(), sectionCount - 1);
             throw new PowsyblException("Unexpected switch kinds count (" + switchKinds.size() + "). Should be " + (sectionCount - 1));
         }
         if (switchKinds.contains(null)) {
+            undefinedSwitchKind(reporter);
             throw new PowsyblException("All switch kinds must be defined");
         }
         if (switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER)) {
+            wrongSwitchKind(reporter);
             throw new PowsyblException("Switch kinds must be DISCONNECTOR or BREAKER");
         }
         return new ArrayList<>(switchKinds);
@@ -109,7 +113,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, boolean throwException, ComputationManager computationManager) {
         // Get the voltage level
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
@@ -131,7 +135,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             createBusBreakerSwitches(voltageLevel);
         } else {
             // Check switch kinds
-            checkSwitchKinds(switchKinds, sectionCount);
+            checkSwitchKinds(switchKinds, sectionCount, reporter);
             // Create busbar sections
             createBusbarSections(voltageLevel);
             // Create switches

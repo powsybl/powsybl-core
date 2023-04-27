@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Line;
 
 /**
@@ -23,10 +24,11 @@ public class ConnectVoltageLevelOnLineBuilder {
     private String line2Name = null;
 
     private Line line = null;
+    private Reporter reporter = Reporter.NO_OP;
 
     public ConnectVoltageLevelOnLine build() {
         return new ConnectVoltageLevelOnLine(positionPercent, bbsOrBusId, line1Id, line1Name,
-                line2Id, line2Name, line);
+                line2Id, line2Name, line, reporter);
     }
 
     public ConnectVoltageLevelOnLineBuilder withPositionPercent(double positionPercent) {
@@ -67,6 +69,11 @@ public class ConnectVoltageLevelOnLineBuilder {
         if (line2Id == null) {
             line2Id = line.getId() + "_2";
         }
+        return this;
+    }
+
+    public ConnectVoltageLevelOnLineBuilder withReporter(Reporter reporter) {
+        this.reporter = reporter;
         return this;
     }
 }

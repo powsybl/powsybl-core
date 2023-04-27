@@ -24,12 +24,13 @@ public final class ConnectGenerator extends AbstractNetworkModification {
     private final String generatorId;
 
     public ConnectGenerator(String generatorId) {
+        super(Reporter.NO_OP);
         this.generatorId = generatorId;
     }
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             throw new PowsyblException("Generator '" + generatorId + "' not found");

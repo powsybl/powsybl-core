@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.topology.ModificationReports.undefinedFictitiousSubstationId;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
@@ -61,23 +62,25 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
+     * @param reporter                 The reporter that will be used for functional log
      * <p>
      * NB: This constructor is package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                             boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
-                            String line1Id, String line1Name, String line2Id, String line2Name, Line line, LineAdder lineAdder) {
-        super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
+                            String line1Id, String line1Name, String line2Id, String line2Name, Line line, LineAdder lineAdder, Reporter reporter) {
+        super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line, reporter);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
         this.createFictSubstation = createFictSubstation;
-        this.fictitiousSubstationId = checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId);
+        this.fictitiousSubstationId = checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId, reporter);
         this.fictitiousSubstationName = fictitiousSubstationName;
         this.lineAdder = Objects.requireNonNull(lineAdder);
     }
 
-    private static String checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId) {
+    private static String checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId, Reporter reporter) {
         if (createFictSubstation && fictitiousSubstationId == null) {
+            undefinedFictitiousSubstationId(reporter);
             throw new PowsyblException("Fictitious substation ID must be defined if a fictitious substation is to be created");
         }
         return fictitiousSubstationId;
@@ -94,14 +97,22 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     }
 
     public CreateLineOnLine setCreateFictSubstation(boolean createFictSubstation) {
-        checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId);
+        return setCreateFictSubstation(createFictSubstation, Reporter.NO_OP);
+    }
+
+    public CreateLineOnLine setCreateFictSubstation(boolean createFictSubstation, Reporter reporter) {
+        checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId, reporter);
         this.createFictSubstation = createFictSubstation;
         return this;
     }
 
-    public CreateLineOnLine setFictitiousSubstationId(String fictitiousSubstationId) {
-        this.fictitiousSubstationId = checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId);
+    public CreateLineOnLine setFictitiousSubstationId(String fictitiousSubstationId, Reporter reporter) {
+        this.fictitiousSubstationId = checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId, reporter);
         return this;
+    }
+
+    public CreateLineOnLine setFictitiousSubstationId(String fictitiousSubstationId) {
+        return setFictitiousSubstationId(fictitiousSubstationId, Reporter.NO_OP);
     }
 
     public CreateLineOnLine setFictitiousSubstationName(String fictitiousSubstationName) {
@@ -111,7 +122,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager) {
         // Checks
         if (failChecks(network, throwException, reporter, LOG)) {
             return;

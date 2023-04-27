@@ -22,6 +22,7 @@ public class NetworkModificationList extends AbstractNetworkModification {
     private final List<NetworkModification> modificationList;
 
     public NetworkModificationList(List<NetworkModification> modificationList) {
+        super(Reporter.NO_OP);
         this.modificationList = Objects.requireNonNull(modificationList);
     }
 
@@ -31,7 +32,7 @@ public class NetworkModificationList extends AbstractNetworkModification {
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
-        modificationList.forEach(modification -> modification.apply(network, throwException, computationManager, reporter));
+                      ComputationManager computationManager) {
+        modificationList.forEach(modification -> modification.apply(network, throwException, computationManager));
     }
 }

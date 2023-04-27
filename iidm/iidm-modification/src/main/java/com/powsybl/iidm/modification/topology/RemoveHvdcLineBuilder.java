@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.reporter.Reporter;
+
 import java.util.*;
 
 /**
@@ -19,9 +21,11 @@ public class RemoveHvdcLineBuilder {
 
     private final List<String> shuntCompensatorIds = new ArrayList<>();
 
+    private Reporter reporter = Reporter.NO_OP;
+
     public RemoveHvdcLine build() {
         Objects.requireNonNull(hvdcLineId);
-        return new RemoveHvdcLine(hvdcLineId, shuntCompensatorIds);
+        return new RemoveHvdcLine(hvdcLineId, shuntCompensatorIds, reporter);
     }
 
     /**
@@ -47,6 +51,11 @@ public class RemoveHvdcLineBuilder {
     public RemoveHvdcLineBuilder withShuntCompensatorIds(String... shuntCompensatorIds) {
         this.shuntCompensatorIds.clear();
         this.shuntCompensatorIds.addAll(Arrays.asList(shuntCompensatorIds));
+        return this;
+    }
+
+    public RemoveHvdcLineBuilder withReporter(Reporter reporter) {
+        this.reporter = reporter;
         return this;
     }
 }

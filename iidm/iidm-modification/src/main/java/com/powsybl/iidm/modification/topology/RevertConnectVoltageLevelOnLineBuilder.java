@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.reporter.Reporter;
+
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
@@ -16,9 +18,10 @@ public class RevertConnectVoltageLevelOnLineBuilder {
 
     private String lineId = null;
     private String lineName = null;
+    private Reporter reporter = Reporter.NO_OP;
 
     public RevertConnectVoltageLevelOnLine build() {
-        return new RevertConnectVoltageLevelOnLine(line1Id, line2Id, lineId, lineName);
+        return new RevertConnectVoltageLevelOnLine(line1Id, line2Id, lineId, lineName, reporter);
     }
 
     /**
@@ -50,6 +53,11 @@ public class RevertConnectVoltageLevelOnLineBuilder {
      */
     public RevertConnectVoltageLevelOnLineBuilder withLineName(String lineName) {
         this.lineName = lineName;
+        return this;
+    }
+
+    public RevertConnectVoltageLevelOnLineBuilder withReporter(Reporter reporter) {
+        this.reporter = reporter;
         return this;
     }
 }

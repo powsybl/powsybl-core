@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.reporter.Reporter;
+
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
@@ -17,9 +19,10 @@ public class RevertCreateLineOnLineBuilder {
 
     private String mergedLineId = null;
     private String mergedLineName = null;
+    private Reporter reporter = Reporter.NO_OP;
 
     public RevertCreateLineOnLine build() {
-        return new RevertCreateLineOnLine(lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId, mergedLineId, mergedLineName);
+        return new RevertCreateLineOnLine(lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId, mergedLineId, mergedLineName, reporter);
     }
 
     /**
@@ -59,6 +62,11 @@ public class RevertCreateLineOnLineBuilder {
      */
     public RevertCreateLineOnLineBuilder withMergedLineName(String mergedLineName) {
         this.mergedLineName = mergedLineName;
+        return this;
+    }
+
+    public RevertCreateLineOnLineBuilder withReporter(Reporter reporter) {
+        this.reporter = reporter;
         return this;
     }
 }

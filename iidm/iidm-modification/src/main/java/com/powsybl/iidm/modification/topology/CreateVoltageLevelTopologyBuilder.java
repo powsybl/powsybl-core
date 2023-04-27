@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.SwitchKind;
 
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ public class CreateVoltageLevelTopologyBuilder {
     private String switchPrefixId = null;
 
     private List<SwitchKind> switchKinds = Collections.emptyList();
+
+    private Reporter reporter = Reporter.NO_OP;
 
     /**
      * Set the voltage level ID in which the symmetrical topology will be created.
@@ -142,7 +145,15 @@ public class CreateVoltageLevelTopologyBuilder {
         return this;
     }
 
+    /**
+     * The reporter to be used to get functional logs.
+     */
+    public CreateVoltageLevelTopologyBuilder withReporter(Reporter reporter) {
+        this.reporter = reporter;
+        return this;
+    }
+
     public CreateVoltageLevelTopology build() {
-        return new CreateVoltageLevelTopology(voltageLevelId, lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, busOrBusbarSectionPrefixId, switchPrefixId, switchKinds);
+        return new CreateVoltageLevelTopology(voltageLevelId, lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, busOrBusbarSectionPrefixId, switchPrefixId, switchKinds, reporter);
     }
 }

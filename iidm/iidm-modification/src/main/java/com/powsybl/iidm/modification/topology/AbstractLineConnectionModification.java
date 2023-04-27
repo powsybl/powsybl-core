@@ -14,8 +14,7 @@ import org.slf4j.Logger;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundIdentifiableReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.unexpectedIdentifiableType;
+import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -36,14 +35,20 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
     protected VoltageLevel voltageLevel;
 
     protected AbstractLineConnectionModification(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
-                                       String line2Id, String line2Name, Line line) {
-        this.positionPercent = checkPositionPercent(positionPercent);
+                                       String line2Id, String line2Name, Line line, Reporter reporter) {
+        super(reporter);
+        this.positionPercent = checkPositionPercent(positionPercent, reporter);
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
         this.line1Id = Objects.requireNonNull(line1Id);
         this.line1Name = line1Name;
         this.line2Id = Objects.requireNonNull(line2Id);
         this.line2Name = line2Name;
         this.line = Objects.requireNonNull(line);
+    }
+
+    protected AbstractLineConnectionModification(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
+                                                 String line2Id, String line2Name, Line line) {
+        this(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line, Reporter.NO_OP);
     }
 
     public M setLine1Id(String line1Id) {
@@ -67,7 +72,11 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
     }
 
     public M setPositionPercent(double positionPercent) {
-        this.positionPercent = checkPositionPercent(positionPercent);
+        return setPositionPercent(positionPercent, Reporter.NO_OP);
+    }
+
+    public M setPositionPercent(double positionPercent, Reporter reporter) {
+        this.positionPercent = checkPositionPercent(positionPercent, reporter);
         return (M) this;
     }
 
@@ -99,8 +108,9 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         return line2Name;
     }
 
-    private static double checkPositionPercent(double positionPercent) {
+    private static double checkPositionPercent(double positionPercent, Reporter reporter) {
         if (Double.isNaN(positionPercent)) {
+            undefinedPercent(reporter);
             throw new PowsyblException("Percent should not be undefined");
         }
         return positionPercent;
