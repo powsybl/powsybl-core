@@ -264,7 +264,8 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(isInSlackBus(b) ? "1" : "0");
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode.generatorOrMotor");
+            String mode = b.getTargetP() > 0 ? "generator" : "motor";
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode);
             writer.writeEndElement();
         }
     }

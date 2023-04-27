@@ -312,7 +312,7 @@ public final class EquipmentExport {
             }
             SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
                     context.getNamingStrategy().getCgmesId(generator.getTerminal().getVoltageLevel()),
-                    generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, generator.getRatedS(), cimNamespace, writer, context);
+                    generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, generator.getRatedS(), "generator", cimNamespace, writer, context);
             if (!generatingUnitsWritten.contains(generatingUnit)) {
                 // We have not preserved the names of generating units
                 // We name generating units based on the first machine found
@@ -355,7 +355,7 @@ public final class EquipmentExport {
             }
             SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(battery), battery.getNameOrId(),
                     context.getNamingStrategy().getCgmesId(battery.getTerminal().getVoltageLevel()),
-                    generatingUnit, null, reactiveLimitsId, minQ, maxQ, Double.NaN, cimNamespace, writer, context);
+                    generatingUnit, null, reactiveLimitsId, minQ, maxQ, Double.NaN, "generatorOrMotor", cimNamespace, writer, context);
             if (!generatingUnitsWritten.contains(generatingUnit)) {
                 // We have not preserved the names of generating units
                 // We name generating units based on the first machine found
