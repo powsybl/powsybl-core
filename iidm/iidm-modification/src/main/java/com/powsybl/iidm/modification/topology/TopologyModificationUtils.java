@@ -37,13 +37,13 @@ public final class TopologyModificationUtils {
     private TopologyModificationUtils() {
     }
 
-    static final class LoadingLimitsBags {
+    public static final class LoadingLimitsBags {
 
         private final LoadingLimitsBag activePowerLimits;
         private final LoadingLimitsBag apparentPowerLimits;
         private final LoadingLimitsBag currentLimits;
 
-        LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
+        public LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
                           Supplier<Optional<CurrentLimits>> currentLimitsGetter) {
             activePowerLimits = activePowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
             apparentPowerLimits = apparentPowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
@@ -170,7 +170,7 @@ public final class TopologyModificationUtils {
         }
     }
 
-    static void addLoadingLimits(Line created, LoadingLimitsBags limits, Branch.Side side) {
+    public static void addLoadingLimits(Line created, LoadingLimitsBags limits, Branch.Side side) {
         if (side == Branch.Side.ONE) {
             limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
             limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));
