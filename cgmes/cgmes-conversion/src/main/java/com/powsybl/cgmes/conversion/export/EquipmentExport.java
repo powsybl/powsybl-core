@@ -23,6 +23,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
+
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
@@ -199,7 +201,9 @@ public final class EquipmentExport {
             String subGeographicalRegionId = context.getNamingStrategy().getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "subRegionId");
             String geographicalRegionId = context.getNamingStrategy().getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionId");
             if (!writtenSubRegions.contains(subGeographicalRegionId)) {
-                writeSubGeographicalRegion(subGeographicalRegionId, context.getSubRegionName(subGeographicalRegionId), geographicalRegionId, cimNamespace, writer, context);
+                writeSubGeographicalRegion(subGeographicalRegionId,
+                        Optional.ofNullable(context.getSubRegionName(subGeographicalRegionId)).orElse("N/A"), // FIXME sub-regions can be non-unique (same name for different IDs)
+                        geographicalRegionId, cimNamespace, writer, context);
                 writtenSubRegions.add(subGeographicalRegionId);
             }
             SubstationEq.write(context.getNamingStrategy().getCgmesId(substation), substation.getNameOrId(), subGeographicalRegionId, cimNamespace, writer, context);
@@ -395,8 +399,8 @@ public final class EquipmentExport {
             // In the rest of situations, we keep the same id under alias for tc1.
             adjustTapChangerAliases2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
             adjustTapChangerAliases2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
-            writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getTerminal1().getVoltageLevel().getNominalV(), regulatingControlsWritten, cimNamespace, writer, context);
-            writeRatioTapChanger(twt, twt.getRatioTapChanger(), twt.getNameOrId(), endNumber, end1Id, regulatingControlsWritten, cimNamespace, writer, context);
+            writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1(), regulatingControlsWritten, cimNamespace, writer, context);
+            writeRatioTapChanger(twt, twt.getRatioTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1(), regulatingControlsWritten, cimNamespace, writer, context);
             writeBranchLimits(twt, exportedTerminalId(mapTerminal2Id, twt.getTerminal1()), exportedTerminalId(mapTerminal2Id, twt.getTerminal2()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
         }
     }
@@ -445,8 +449,8 @@ public final class EquipmentExport {
         double b = leg.getB() / a02;
         BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(leg.getTerminal().getVoltageLevel().getNominalV());
         PowerTransformerEq.writeEnd(endId, twtName, twtId, endNumber, r, x, g, b, leg.getRatedS(), leg.getRatedU(), terminalId, baseVoltage.getId(), cimNamespace, writer, context);
-        writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, endNumber, endId, leg.getTerminal().getVoltageLevel().getNominalV(), regulatingControlsWritten, cimNamespace, writer, context);
-        writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, endNumber, endId, regulatingControlsWritten, cimNamespace, writer, context);
+        writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, endNumber, endId, leg.getRatedU(), regulatingControlsWritten, cimNamespace, writer, context);
+        writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, endNumber, endId, leg.getRatedU(), regulatingControlsWritten, cimNamespace, writer, context);
         writeFlowsLimits(leg, terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
     }
 
@@ -520,7 +524,7 @@ public final class EquipmentExport {
         return neutralStep;
     }
 
-    private static <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, int endNumber, String endId, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static <C extends Connectable<C>> void writeRatioTapChanger(C eq, RatioTapChanger rtc, String twtName, int endNumber, String endId, double neutralU, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         if (rtc != null) {
             String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber;
             String tapChangerId = eq.getAliasFromType(aliasType).orElseThrow();
@@ -547,7 +551,7 @@ public final class EquipmentExport {
                     regulatingControlsWritten.add(cgmesRegulatingControlId);
                 }
             }
-            TapChangerEq.writeRatio(cgmesTapChangerId, twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, rtc.getTapPosition(), rtc.getTargetV(), rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement,
+            TapChangerEq.writeRatio(cgmesTapChangerId, twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, rtc.getTapPosition(), neutralU, rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement,
                     ratioTapChangerTableId, cgmesRegulatingControlId, controlMode, cimNamespace, writer, context);
             TapChangerEq.writeRatioTable(ratioTapChangerTableId, twtName + "_TABLE", cimNamespace, writer, context);
             for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
@@ -609,6 +613,13 @@ public final class EquipmentExport {
                     context.getBaseVoltageByNominalVoltage(danglingLine.getTerminal().getVoltageLevel().getNominalV()).getId(),
                     danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer, context);
             writeFlowsLimits(danglingLine, exportedTerminalId(mapTerminal2Id, danglingLine.getTerminal()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+            danglingLine.getAliasFromType("CGMES.Terminal_Boundary").ifPresent(terminalBdId -> {
+                try {
+                    writeFlowsLimits(danglingLine, terminalBdId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+                } catch (XMLStreamException e) {
+                    throw new UncheckedXmlStreamException(e);
+                }
+            });
         }
     }
 
@@ -734,17 +745,17 @@ public final class EquipmentExport {
             OperationalLimitTypeEq.writePatl(operationalLimitTypeId, cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
             String operationalLimitSetId = CgmesExportUtil.getUniqueId();
             OperationalLimitSetEq.write(operationalLimitSetId, "operational limit patl", terminalId, cimNamespace, writer, context);
-            LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(), "CurrentLimit", limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
+            LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(), loadingLimitClassName(limits.getClass()) + " PATL", limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
         }
         if (!limits.getTemporaryLimits().isEmpty()) {
             Iterator<LoadingLimits.TemporaryLimit> iterator = limits.getTemporaryLimits().iterator();
             while (iterator.hasNext()) {
                 LoadingLimits.TemporaryLimit temporaryLimit = iterator.next();
                 String operationalLimitTypeId = CgmesExportUtil.getUniqueId();
-                OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, temporaryLimit.getName(), temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+                OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, "TATL " + temporaryLimit.getAcceptableDuration(), temporaryLimit.getAcceptableDuration(), cimNamespace, euNamespace, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
                 String operationalLimitSetId = CgmesExportUtil.getUniqueId();
                 OperationalLimitSetEq.write(operationalLimitSetId, "operational limit tatl", terminalId, cimNamespace, writer, context);
-                LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(), "CurrentLimit", temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
+                LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(), temporaryLimit.getName(), temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
             }
         }
     }
