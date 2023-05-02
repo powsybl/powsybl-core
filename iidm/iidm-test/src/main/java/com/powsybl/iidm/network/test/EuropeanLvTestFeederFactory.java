@@ -16,9 +16,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.commons.configuration2.INIConfiguration;
 import org.apache.commons.configuration2.SubnodeConfiguration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.apache.commons.math3.util.Precision;
 import org.joda.time.DateTime;
-import org.locationtech.proj4j.*;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -249,12 +247,6 @@ public final class EuropeanLvTestFeederFactory {
     }
 
     private static void createBuses(Network network) {
-        CRSFactory crsFactory = new CRSFactory();
-        CoordinateReferenceSystem wgs84 = crsFactory.createFromName("epsg:4326");
-        CoordinateReferenceSystem lambertSudFrance = crsFactory.createFromName("epsg:27563");
-        CoordinateTransformFactory ctFactory = new CoordinateTransformFactory();
-        CoordinateTransform lambertToWgs = ctFactory.createTransform(lambertSudFrance, wgs84);
-        ProjCoordinate coord = new ProjCoordinate();
         for (BusCoord busCoord : parseCsv("/europeanLvTestFeeder/Buscoords.csv", BusCoord.class)) {
             String substationId = getSubstationId(busCoord.busName);
             Substation s = network.getSubstation(substationId);
@@ -263,10 +255,6 @@ public final class EuropeanLvTestFeederFactory {
                         .setId(substationId)
                         .add();
             }
-            lambertToWgs.transform(new ProjCoordinate(busCoord.x, busCoord.y), coord);
-            s.newExtension(SubstationPositionAdder.class)
-                    .withCoordinate(new Coordinate(Precision.round(coord.y, 12), Precision.round(coord.x, 12)))
-                    .add();
             VoltageLevel vl = s.newVoltageLevel()
                     .setId(getVoltageLevelId(busCoord.busName))
                     .setTopologyKind(TopologyKind.BUS_BREAKER)

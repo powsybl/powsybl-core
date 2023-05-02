@@ -124,7 +124,6 @@
         <mockito.version>5.1.1</mockito.version>
         <nativelibloader.version>2.4.0</nativelibloader.version>
         <poi.version>5.2.3</poi.version>
-        <proj4j.version>1.2.3</proj4j.version>
         <rdf4j.version>4.2.2</rdf4j.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>1.7.22</slf4j.version>
@@ -704,16 +703,6 @@
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>${jodatime.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.locationtech.proj4j</groupId>
-                <artifactId>proj4j</artifactId>
-                <version>${proj4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.locationtech.proj4j</groupId>
-                <artifactId>proj4j-epsg</artifactId>
-                <version>${proj4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.java.dev.stax-utils</groupId>
