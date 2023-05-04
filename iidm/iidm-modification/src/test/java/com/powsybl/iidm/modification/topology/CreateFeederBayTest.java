@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.jupiter.api.Assertions.*;
@@ -88,7 +87,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
         int loadPositionOrder = unusedOrderPositionsAfter.get().getMinimum();
         NetworkModification modification = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
-                .withBusOrBusbarSectionId("bbs1")
+                .withBusOrBusbarSectionId("bbs2")
                 .withInjectionPositionOrder(loadPositionOrder)
                 .withInjectionDirection(TOP)
                 .build();
@@ -183,7 +182,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
         NetworkModification modification = new CreateFeederBayBuilder()
                 .withInjectionAdder(generatorAdder)
                 .withBusOrBusbarSectionId("bbs1")
-                .withInjectionPositionOrder(115)
+                .withInjectionPositionOrder(71)
                 .withInjectionDirection(BOTTOM)
                 .build();
         modification.apply(network);
@@ -203,7 +202,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
         NetworkModification addBatteryModification = new CreateFeederBayBuilder()
                 .withInjectionAdder(batteryAdder)
                 .withBusOrBusbarSectionId("bbs1")
-                .withInjectionPositionOrder(115)
+                .withInjectionPositionOrder(71)
                 .withInjectionDirection(BOTTOM)
                 .build();
         addBatteryModification.apply(network);
@@ -306,7 +305,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         addVscConverterStationModification.apply(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-equipments-bbs1.xml");
     }
 
@@ -360,5 +359,57 @@ class CreateFeederBayTest extends AbstractConverterTest {
         assertNotNull(position);
         assertEquals(BOTTOM, position.getFeeder().getDirection());
         assertEquals(Optional.of(10), position.getFeeder().getOrder());
+    }
+
+    @Test
+    void testNoExtensionCreatedIfOrderPositionIsOutOfRange() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+                .setId("newLoad")
+                .setLoadType(LoadType.UNDEFINED)
+                .setP0(0)
+                .setQ0(0);
+        System.out.println(getFeederPositionsByConnectable(network.getVoltageLevel("vl1")));
+        // order position is too high
+        new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBusOrBusbarSectionId("bbs1")
+                .withInjectionPositionOrder(100)
+                .build().apply(network);
+        assertNull(network.getLoad("newLoad").getExtension(ConnectablePosition.class));
+
+        // order position is too low
+        loadAdder.setId("newLoad2");
+        new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBusOrBusbarSectionId("bbs4")
+                .withInjectionPositionOrder(60)
+                .build().apply(network);
+        assertNull(network.getLoad("newLoad2").getExtension(ConnectablePosition.class));
+
+        //negative order position
+        loadAdder.setId("newLoad3");
+        CreateFeederBayBuilder builder = new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBusOrBusbarSectionId("bbs1")
+                .withInjectionPositionOrder(-2);
+        PowsyblException e = assertThrows(PowsyblException.class, builder::build);
+        assertEquals("Position order should be positive", e.getMessage());
+
+        //no space on bbs1
+        new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBusOrBusbarSectionId("bbs3")
+                .withInjectionPositionOrder(79)
+                .build().apply(network);
+        assertEquals(79, network.getLoad("newLoad3").getExtension(ConnectablePosition.class).getFeeder().getOrder().orElse(0), 0);
+
+        loadAdder.setId("newLoad4");
+        new CreateFeederBayBuilder()
+                .withInjectionAdder(loadAdder)
+                .withBusOrBusbarSectionId("bbs3")
+                .withInjectionPositionOrder(100)
+                .build().apply(network);
+        assertNull(network.getLoad("newLoad4").getExtension(ConnectablePosition.class));
     }
 }

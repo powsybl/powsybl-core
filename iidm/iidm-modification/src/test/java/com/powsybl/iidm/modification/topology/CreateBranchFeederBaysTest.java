@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
-import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.jupiter.api.Assertions.*;
@@ -155,7 +154,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
         int positionOrder1 = unusedOrderPositionsAfter.get().getMinimum();
         NetworkModification modification = new CreateBranchFeederBaysBuilder()
                 .withBranchAdder(lineAdder)
-                .withBusOrBusbarSectionId1("bbs1")
+                .withBusOrBusbarSectionId1("bbs2")
                 .withPositionOrder1(positionOrder1)
                 .withDirection1(TOP)
                 .withBusOrBusbarSectionId2("bbs5")
@@ -257,7 +256,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
     void baseNodeBreakerTwoWindingsTransformerTest() throws IOException {
         TwoWindingsTransformerAdder twtAdder = nbNetwork.getSubstation("subst")
                 .newTwoWindingsTransformer()
-                .setId("lineTest")
+                .setId("twtTest")
                 .setR(1.0)
                 .setX(1.0)
                 .setG(0.0)
@@ -270,11 +269,11 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withPositionOrder1(115)
                 .withDirection1(BOTTOM)
                 .withBusOrBusbarSectionId2("bbs1")
-                .withPositionOrder2(121)
+                .withPositionOrder2(71)
                 .withDirection2(TOP)
                 .build();
         modification.apply(nbNetwork);
-        roundTripXmlTest(nbNetwork, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripTest(nbNetwork, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-twt-feeders-bbs.xml");
     }
 
