@@ -117,8 +117,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
     private static void reportConverterStationRemoved(Reporter reporter, String stationId, HvdcConverterStation.HvdcType converterStationType) {
         if (converterStationType == HvdcConverterStation.HvdcType.LCC) {
             removedLccConverterStationReport(reporter, stationId);
-        }
-        if (converterStationType == HvdcConverterStation.HvdcType.VSC) {
+        } else if (converterStationType == HvdcConverterStation.HvdcType.VSC) {
             removedVscConverterStationReport(reporter, stationId);
         }
     }
