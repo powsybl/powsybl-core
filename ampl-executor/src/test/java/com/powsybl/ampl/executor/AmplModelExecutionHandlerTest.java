@@ -98,7 +98,7 @@ class AmplModelExecutionHandlerTest {
                 AmplResults amplState = result.join();
                 // Test assert
                 assertTrue(amplState.isSuccess(), "AmplResult must be OK.");
-                assertTrue(parameters.isReadingDone(), "Did not read custom result file.");
+                assertTrue(parameters.isReadingDone(), "The reading of the output file was not done.");
             }
         }
     }
