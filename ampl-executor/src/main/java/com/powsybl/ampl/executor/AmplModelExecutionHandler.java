@@ -17,14 +17,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.CopyOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -78,7 +73,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         for (Pair<String, InputStream> fileAndStream : model.getModelAsStream()) {
             try (InputStream modelStream = fileAndStream.getRight()) {
                 Files.copy(modelStream, workingDir.resolve(fileAndStream.getLeft()),
-                        StandardCopyOption.REPLACE_EXISTING);
+                    StandardCopyOption.REPLACE_EXISTING);
             }
         }
     }
@@ -91,8 +86,9 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
      */
     private void exportAmplParameters(Path workingDir) throws IOException {
         for (AmplInputFile param : parameters.getInputParameters()) {
-            try (InputStream paramStream = param.getParameterFileAsStream(this.mapper)) {
-                Files.copy(paramStream, workingDir.resolve(param.getFileName()), StandardCopyOption.REPLACE_EXISTING);
+            try (BufferedWriter bufferedWriter = Files.newBufferedWriter(workingDir.resolve(param.getFileName()),
+                StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW, StandardOpenOption.TRUNCATE_EXISTING)) {
+                param.write(this.mapper, bufferedWriter);
             }
         }
     }
@@ -128,12 +124,16 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
 
     private void readCustomFiles(Path workingDir, boolean hasModelConverged) {
         for (AmplOutputFile amplOutputFile : parameters.getOutputParameters(hasModelConverged)) {
-            Path outputPath = workingDir.resolve(amplOutputFile.getFileName());
-            try {
-                amplOutputFile.read(outputPath, this.mapper);
-            } catch (IOException e) {
-                LOGGER.error("Failed to read custom output file : " + outputPath.toAbsolutePath(), e);
-                throw new UncheckedIOException(e);
+            Path customFilePath = workingDir.resolve(amplOutputFile.getFileName());
+            if (customFilePath.toFile().exists()) {
+                try (BufferedReader reader = Files.newBufferedReader(customFilePath, StandardCharsets.UTF_8)) {
+                    amplOutputFile.read(this.mapper, reader);
+                } catch (IOException e) {
+                    LOGGER.error("Failed to read custom output file : " + customFilePath.toAbsolutePath(), e);
+                    throw new UncheckedIOException(e);
+                }
+            } else if (amplOutputFile.throwOnMissingFile()) {
+                throw new PowsyblException();
             }
         }
     }
@@ -151,9 +151,9 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
 
     protected static CommandExecution createAmplRunCommand(AmplConfig config, AmplModel model) {
         Command cmd = new SimpleCommandBuilder().id(COMMAND_ID)
-                                                .program(getAmplBinPath(config))
-                                                .args(model.getAmplRunFiles())
-                                                .build();
+            .program(getAmplBinPath(config))
+            .args(model.getAmplRunFiles())
+            .build();
         return new CommandExecution(cmd, 1, 0);
     }
 
@@ -175,7 +175,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         super.after(workingDir.toAbsolutePath(), report);
         DataSource networkAmplResults = new FileDataSource(workingDir, this.model.getOutputFilePrefix());
         AmplNetworkReader reader = new AmplNetworkReader(networkAmplResults, this.network, this.model.getVariant(),
-                mapper, this.model.getNetworkUpdaterFactory(), this.model.getOutputFormat());
+            mapper, this.model.getNetworkUpdaterFactory(), this.model.getOutputFormat());
         Map<String, String> indicators = readIndicators(reader);
         boolean hasModelConverged = model.checkModelConvergence(indicators);
         postProcess(workingDir, reader, hasModelConverged);
