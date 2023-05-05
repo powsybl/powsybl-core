@@ -136,7 +136,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         half1.removeTieLine();
         half2.removeTieLine();
 
-        // Remove this voltage level from the network
+        // Remove this tie line from the network
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
