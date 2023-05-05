@@ -9,5 +9,35 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface LineCharacteristics<T> extends LineCharacteristicsGetters, LineCharacteristicsSetters<T> {
+public interface LineCharacteristics<T> extends LineCharacteristicsGetters {
+
+    /**
+     * Set the series resistance in &#937;.
+     */
+    T setR(double r);
+
+    /**
+     * Set the series reactance in &#937;.
+     */
+    T setX(double x);
+
+    /**
+     * Set the first side shunt conductance in S.
+     */
+    T setG1(double g1);
+
+    /**
+     * Set the second side shunt conductance in S.
+     */
+    T setG2(double g2);
+
+    /**
+     * Set the first side shunt susceptance in S.
+     */
+    T setB1(double b1);
+
+    /**
+     * Set the second side shunt susceptance in S.
+     */
+    T setB2(double b2);
 }
