@@ -6,15 +6,11 @@
  */
 package com.powsybl.iidm.network.util;
 
-import java.util.Objects;
-
+import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 
-import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import java.util.Objects;
 
 /**
  *
@@ -118,18 +114,17 @@ public class BranchData {
         computeValues();
     }
 
-    public BranchData(Line line, double epsilonX, boolean applyReactanceCorrection) {
-        Objects.requireNonNull(line);
+    private <T extends LineCharacteristicsGetters & Identifiable<T>> BranchData(T lineOrTieLine, double epsilonX, boolean applyReactanceCorrection,
+                                                                                Terminal terminal1, Terminal terminal2) {
+        id = lineOrTieLine.getId();
 
-        id = line.getId();
+        Bus bus1 = terminal1.getBusView().getBus();
+        Bus bus2 = terminal2.getBusView().getBus();
+        Bus connectableBus1 = terminal1.getBusView().getConnectableBus();
+        Bus connectableBus2 = terminal2.getBusView().getConnectableBus();
 
-        Bus bus1 = line.getTerminal1().getBusView().getBus();
-        Bus bus2 = line.getTerminal2().getBusView().getBus();
-        Bus connectableBus1 = line.getTerminal1().getBusView().getConnectableBus();
-        Bus connectableBus2 = line.getTerminal2().getBusView().getConnectableBus();
-
-        r = line.getR();
-        x = line.getX();
+        r = lineOrTieLine.getR();
+        x = lineOrTieLine.getX();
         double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
@@ -138,14 +133,14 @@ public class BranchData {
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        g1 = line.getG1();
-        g2 = line.getG2();
-        b1 = line.getB1();
-        b2 = line.getB2();
-        p1 = line.getTerminal1().getP();
-        q1 = line.getTerminal1().getQ();
-        p2 = line.getTerminal2().getP();
-        q2 = line.getTerminal2().getQ();
+        g1 = lineOrTieLine.getG1();
+        g2 = lineOrTieLine.getG2();
+        b1 = lineOrTieLine.getB1();
+        b2 = lineOrTieLine.getB2();
+        p1 = terminal1.getP();
+        q1 = terminal1.getQ();
+        p2 = terminal2.getP();
+        q2 = terminal2.getQ();
 
         phaseAngleClock = 0;
 
@@ -162,6 +157,11 @@ public class BranchData {
         alpha2 = 0f;
 
         computeValues();
+    }
+
+    public BranchData(Line line, double epsilonX, boolean applyReactanceCorrection) {
+        this(Objects.requireNonNull(line), epsilonX, applyReactanceCorrection,
+                Objects.requireNonNull(line).getTerminal1(), Objects.requireNonNull(line).getTerminal2());
     }
 
     public BranchData(TwoWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection, boolean twtSplitShuntAdmittance) {
@@ -214,49 +214,8 @@ public class BranchData {
     }
 
     public BranchData(TieLine tieLine, double epsilonX, boolean applyReactanceCorrection) {
-        Objects.requireNonNull(tieLine);
-
-        id = tieLine.getId();
-
-        Bus bus1 = tieLine.getHalf1().getTerminal().getBusView().getBus();
-        Bus bus2 = tieLine.getHalf2().getTerminal().getBusView().getBus();
-        Bus connectableBus1 = tieLine.getHalf1().getTerminal().getBusView().getConnectableBus();
-        Bus connectableBus2 = tieLine.getHalf2().getTerminal().getBusView().getConnectableBus();
-
-        r = tieLine.getR();
-        x = tieLine.getX();
-        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
-        z = Math.hypot(r, fixedX);
-        y = 1 / z;
-        ksi = Math.atan2(r, fixedX);
-        u1 = bus1 != null ? bus1.getV() : Double.NaN;
-        u2 = bus2 != null ? bus2.getV() : Double.NaN;
-        theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
-        theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        g1 = tieLine.getG1();
-        g2 = tieLine.getG2();
-        b1 = tieLine.getB1();
-        b2 = tieLine.getB2();
-        p1 = tieLine.getHalf1().getTerminal().getP();
-        q1 = tieLine.getHalf1().getTerminal().getQ();
-        p2 = tieLine.getHalf2().getTerminal().getP();
-        q2 = tieLine.getHalf2().getTerminal().getQ();
-
-        phaseAngleClock = 0;
-
-        connected1 = bus1 != null;
-        connected2 = bus2 != null;
-        boolean connectableMainComponent1 = connectableBus1 != null && connectableBus1.isInMainConnectedComponent();
-        boolean connectableMainComponent2 = connectableBus2 != null && connectableBus2.isInMainConnectedComponent();
-        mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
-        mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
-
-        rho1 = 1f;
-        alpha1 = 0f;
-        rho2 = 1f;
-        alpha2 = 0f;
-
-        computeValues();
+        this(Objects.requireNonNull(tieLine), epsilonX, applyReactanceCorrection,
+                Objects.requireNonNull(tieLine).getHalf1().getTerminal(), Objects.requireNonNull(tieLine).getHalf2().getTerminal());
     }
 
     private double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
