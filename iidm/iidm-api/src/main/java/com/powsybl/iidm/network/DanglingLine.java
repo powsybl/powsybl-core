@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -284,11 +283,7 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
      */
     String getUcteXnodeCode();
 
-    default Boundary getBoundary() {
-        LOG.warn("Default implement to get boundary: a new wrapper is created everytime, which might lead to index errors. " +
-                "Please implement this method.");
-        return new DanglingLineBoundaryImpl(this);
-    }
+    Boundary getBoundary();
 
     default Optional<TieLine> getTieLine() {
         return Optional.empty();
