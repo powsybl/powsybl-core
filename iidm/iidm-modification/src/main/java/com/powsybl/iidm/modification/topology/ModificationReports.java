@@ -156,6 +156,51 @@ final class ModificationReports {
                 .build());
     }
 
+    static void removedVoltageLevelReport(Reporter reporter, String voltageLevelId) {
+        reporter.report(Report.builder()
+                .withKey("removeVoltageLevel")
+                .withDefaultMessage("Voltage level ${voltageLevelId}, its equipments and the branches it is connected to have been removed")
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    static void removedHvdcLineReport(Reporter reporter, String hvdcLineId) {
+        reporter.report(Report.builder()
+                .withKey("removeHvdcLine")
+                .withDefaultMessage("Hvdc line ${hvdcLineId} has been removed")
+                .withValue(HVDC_LINE_ID, hvdcLineId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    static void removedVscConverterStationReport(Reporter reporter, String vscConverterStationId) {
+        reporter.report(Report.builder()
+                .withKey("removeVscConverterStation")
+                .withDefaultMessage("Vsc converter station ${vscConverterStationId} has been removed")
+                .withValue("vscConverterStationId", vscConverterStationId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    static void removedLccConverterStationReport(Reporter reporter, String lccConverterStationId) {
+        reporter.report(Report.builder()
+                .withKey("removeLccConverterStation")
+                .withDefaultMessage("Lcc converter station ${lccConverterStationId} has been removed")
+                .withValue("lccConverterStationId", lccConverterStationId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    static void removedShuntCompensatorReport(Reporter reporter, String shuntCompensatorId) {
+        reporter.report(Report.builder()
+                .withKey("removeShuntCompensator")
+                .withDefaultMessage("Shunt compensator ${shuntCompensatorId} has been removed")
+                .withValue("shuntCompensatorId", shuntCompensatorId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
     // WARN
     static void ignoredVscShunts(Reporter reporter, String shuntsIds, String converterStationId1, String converterStationId2) {
         reporter.report(Report.builder()
@@ -343,51 +388,6 @@ final class ModificationReports {
                 .withDefaultMessage("Voltage level associated to ${busOrBusbarSectionId1} or ${busOrBusbarSectionId2} not found.")
                 .withValue("busOrBusbarSectionId1", busOrBusbarSectionId1)
                 .withValue("busOrBusbarSectionId2", busOrBusbarSectionId2)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void removedVoltageLevelReport(Reporter reporter, String voltageLevelId) {
-        reporter.report(Report.builder()
-                .withKey("removeVoltageLevel")
-                .withDefaultMessage("Voltage level ${voltageLevelId}, its equipments and the branches it is connected to have been removed")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void removedHvdcLineReport(Reporter reporter, String hvdcLineId) {
-        reporter.report(Report.builder()
-                .withKey("removeHvdcLine")
-                .withDefaultMessage("Hvdc line ${hvdcLineId} has been removed")
-                .withValue(HVDC_LINE_ID, hvdcLineId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void removedVscConverterStationReport(Reporter reporter, String vscConverterStationId) {
-        reporter.report(Report.builder()
-                .withKey("removeVscConverterStation")
-                .withDefaultMessage("Vsc converter station ${vscConverterStationId} has been removed")
-                .withValue("vscConverterStationId", vscConverterStationId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void removedLccConverterStationReport(Reporter reporter, String lccConverterStationId) {
-        reporter.report(Report.builder()
-                .withKey("removeLccConverterStation")
-                .withDefaultMessage("Lcc converter station ${lccConverterStationId} has been removed")
-                .withValue("lccConverterStationId", lccConverterStationId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    static void removedShuntCompensatorReport(Reporter reporter, String shuntCompensatorId) {
-        reporter.report(Report.builder()
-                .withKey("removeShuntCompensator")
-                .withDefaultMessage("Shunt compensator ${shuntCompensatorId} has been removed")
-                .withValue("shuntCompensatorId", shuntCompensatorId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
