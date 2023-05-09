@@ -936,10 +936,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             if (dl1.getUcteXnodeCode() != null) {
                 dl1byXnodeCode.get(dl1.getUcteXnodeCode()).remove(dl1);
             }
-
-            // Dangling line 2 must always be reoriented
-            // setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
-
             MergedLine l = new MergedLine();
             l.id = buildMergedId(dl1.getId(), dl2.getId());
             l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
