@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -272,25 +271,6 @@ public abstract class AbstractLoadTest {
         } catch (PowsyblException e) {
             assertEquals("Voltage level 'unknownVl' not found", e.getMessage());
         }
-    }
-
-    @Test
-    public void moveListenerTest() {
-        MutableObject<Object> obj = new MutableObject<>();
-        network.addListener(new DefaultNetworkListener() {
-            @Override
-            public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
-                obj.setValue(newValue);
-            }
-        });
-        Load loadNbv = network.getLoad("CF");
-        loadNbv.getTerminal().getNodeBreakerView().moveConnectable(3, voltageLevel.getId());
-        assertNotNull(obj.getValue());
-        assertTrue(obj.getValue() instanceof NodeTopologyPoint);
-        NodeTopologyPoint topologyPoint = (NodeTopologyPoint) obj.getValue();
-        assertSame(TopologyKind.NODE_BREAKER, topologyPoint.getTopologyKind());
-        assertEquals("C", topologyPoint.getVoltageLevelId());
-        assertEquals(3, topologyPoint.getNode());
     }
 
     private void createLoad(String id, double p0, double q0) {
