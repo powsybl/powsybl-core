@@ -55,14 +55,6 @@ class MergedLine implements TieLine {
         return index.getView();
     }
 
-    DanglingLine getDanglingLine1() {
-        return half1.getDelegate();
-    }
-
-    DanglingLine getDanglingLine2() {
-        return half2.getDelegate();
-    }
-
     @Override
     public String getId() {
         return id;
@@ -131,13 +123,13 @@ class MergedLine implements TieLine {
 
     @Override
     public boolean isFictitious() {
-        return getDanglingLine1().isFictitious() || getDanglingLine2().isFictitious();
+        return getHalf1().isFictitious() || getHalf2().isFictitious();
     }
 
     @Override
     public void setFictitious(boolean fictitious) {
-        getDanglingLine1().setFictitious(fictitious);
-        getDanglingLine2().setFictitious(fictitious);
+        getHalf1().setFictitious(fictitious);
+        getHalf2().setFictitious(fictitious);
     }
 
     @Override
@@ -154,15 +146,15 @@ class MergedLine implements TieLine {
 
     @Override
     public String setProperty(final String key, final String value) {
-        getDanglingLine1().setProperty(key, value);
-        getDanglingLine2().setProperty(key, value);
+        getHalf1().setProperty(key, value);
+        getHalf2().setProperty(key, value);
         return (String) properties.setProperty(key, value);
     }
 
     @Override
     public boolean removeProperty(String key) {
-        boolean removed1 = getDanglingLine1().removeProperty(key);
-        boolean removed2 = getDanglingLine2().removeProperty(key);
+        boolean removed1 = getHalf1().removeProperty(key);
+        boolean removed2 = getHalf2().removeProperty(key);
         properties.remove(key);
         return removed1 || removed2;
     }
@@ -217,7 +209,7 @@ class MergedLine implements TieLine {
 
     @Override
     public String getUcteXnodeCode() {
-        return Optional.ofNullable(getDanglingLine1().getUcteXnodeCode()).orElseGet(() -> getDanglingLine2().getUcteXnodeCode());
+        return Optional.ofNullable(getHalf1().getUcteXnodeCode()).orElseGet(() -> getHalf2().getUcteXnodeCode());
     }
 
     @Override
