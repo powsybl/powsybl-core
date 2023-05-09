@@ -12,6 +12,8 @@ package com.powsybl.iidm.network;
  */
 public interface ZipLoadModelAdder {
 
+    double SUM_EPSILON = 1E-8; // tolerance on coefficient sum
+
     ZipLoadModelAdder setC0p(double c0p);
 
     ZipLoadModelAdder setC1p(double c1p);

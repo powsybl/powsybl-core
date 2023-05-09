@@ -19,8 +19,6 @@ import static com.powsybl.iidm.network.impl.ZipLoadModelImpl.checkCoefficient;
  */
 public class ZipLoadModelAdderImpl implements ZipLoadModelAdder {
 
-    private static final double SUM_EPSILON = 1E-8;
-
     private final LoadAdderImpl parentAdder;
 
     private double c0p = 1;
