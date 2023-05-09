@@ -153,7 +153,7 @@ public final class CgmesExportUtil {
     public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writeStartId(className, id, true, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(name);
+        writer.writeCharacters(name.length() > 32 ? name.substring(0, 32) : name); // name should not be longer than 32 characters
         writer.writeEndElement();
     }
 
