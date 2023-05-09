@@ -11,7 +11,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.Network;
-import org.jgrapht.alg.util.Pair;
 
 import java.util.List;
 import java.util.Objects;
@@ -52,12 +51,12 @@ public class IdentifierContingencyList implements ContingencyList {
     @Override
     public List<Contingency> getContingencies(Network network) {
         return networkElementIdentifiers.stream()
-                .map(identifiant -> Pair.of(identifiant.getContingencyName(), identifiant.filterIdentifiable(network)))
-                .filter(identifiant -> !identifiant.getSecond().isEmpty())
-                .map(identifiant -> new Contingency(identifiant.getFirst(), identifiant.getSecond()
-                        .stream()
-                        .map(ContingencyElement::of)
-                        .collect(Collectors.toList())))
+                .filter(identifier -> !identifier.filterIdentifiable(network).isEmpty())
+                .map(identifier -> new Contingency(identifier.getContingencyName(),
+                        identifier.filterIdentifiable(network)
+                                .stream()
+                                .map(ContingencyElement::of)
+                                .collect(Collectors.toList())))
                 .filter(contingency -> contingency.isValid(network))
                 .collect(Collectors.toList());
     }

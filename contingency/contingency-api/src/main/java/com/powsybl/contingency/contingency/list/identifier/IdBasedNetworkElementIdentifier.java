@@ -22,7 +22,7 @@ public class IdBasedNetworkElementIdentifier implements NetworkElementIdentifier
     private final String contingencyId;
 
     public IdBasedNetworkElementIdentifier(Set<String> identifiers, String contingencyId) {
-        this.identifiers = ImmutableSet.copyOf(identifiers);
+        this.identifiers = ImmutableSet.copyOf(Objects.requireNonNull(identifiers));
         this.contingencyId = Objects.requireNonNull(contingencyId);
     }
 

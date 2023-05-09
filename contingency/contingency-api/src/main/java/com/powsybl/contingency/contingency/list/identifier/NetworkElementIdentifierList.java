@@ -30,9 +30,9 @@ public class NetworkElementIdentifierList implements NetworkElementIdentifier {
 
     @Override
     public Set<Identifiable<?>> filterIdentifiable(Network network) {
-        Set<Identifiable<?>> linkedHashSet = new LinkedHashSet<>();
-        networkElementIdentifiers.forEach(identifiant -> linkedHashSet.addAll(identifiant.filterIdentifiable(network)));
-        return linkedHashSet;
+        Set<Identifiable<?>> identifiables = new LinkedHashSet<>();
+        networkElementIdentifiers.forEach(identifiant -> identifiables.addAll(identifiant.filterIdentifiable(network)));
+        return identifiables;
     }
 
     @Override
