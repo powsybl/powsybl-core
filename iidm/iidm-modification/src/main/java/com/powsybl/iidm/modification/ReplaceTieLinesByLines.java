@@ -36,8 +36,8 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         for (TieLine tl : network.getTieLines()) {
-            DanglingLine dl1 = tl.getHalf1();
-            DanglingLine dl2 = tl.getHalf2();
+            DanglingLine dl1 = tl.getDanglingLine1();
+            DanglingLine dl2 = tl.getDanglingLine2();
             String dl1Id = dl1.getId();
             String dl2Id = dl2.getId();
             LineAdder adder = network.newLine()
