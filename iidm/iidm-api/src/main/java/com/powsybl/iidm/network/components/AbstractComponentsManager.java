@@ -104,8 +104,8 @@ abstract class AbstractComponentsManager<C extends Component> {
             addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
         }
         for (TieLine tl : getNetwork().getTieLines()) {
-            Bus bus1 = tl.getHalf1().getTerminal().getBusView().getBus();
-            Bus bus2 = tl.getHalf2().getTerminal().getBusView().getBus();
+            Bus bus1 = tl.getDanglingLine1().getTerminal().getBusView().getBus();
+            Bus bus2 = tl.getDanglingLine2().getTerminal().getBusView().getBus();
             addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
         }
         for (TwoWindingsTransformer transfo : getNetwork().getTwoWindingsTransformers()) {

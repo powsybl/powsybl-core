@@ -34,14 +34,14 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
     }
 
     @Override
-    public TieLineAdderImpl setHalf1(String half1Id) {
-        this.dl1Id = half1Id;
+    public TieLineAdderImpl setDanglingLine1(String dl1Id) {
+        this.dl1Id = dl1Id;
         return this;
     }
 
     @Override
-    public TieLineAdderImpl setHalf2(String half2Id) {
-        this.dl2Id = half2Id;
+    public TieLineAdderImpl setDanglingLine2(String dl2Id) {
+        this.dl2Id = dl2Id;
         return this;
     }
 
@@ -49,7 +49,7 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
     public TieLineImpl add() {
         String id = checkAndGetUniqueId();
         if (dl1Id == null || dl2Id == null) {
-            throw new ValidationException(this, "undefined half");
+            throw new ValidationException(this, "undefined dangling line");
         }
         DanglingLineImpl dl1 = network.getDanglingLine(dl1Id);
         DanglingLineImpl dl2 = network.getDanglingLine(dl2Id);
@@ -57,10 +57,10 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
             throw new ValidationException(this, dl1Id + " and/or " + dl2Id + " are not dangling lines in the network");
         }
         if (dl1 == dl2) {
-            throw new ValidationException(this, "half1 and half2 are identifical (" + dl1.getId() + ")");
+            throw new ValidationException(this, "danglingLine1 and danglingLine2 are identical (" + dl1.getId() + ")");
         }
         if (dl1.getTieLine().isPresent() || dl2.getTieLine().isPresent()) {
-            throw new ValidationException(this, "half1 (" + dl1Id + ") and/or half2 (" + dl2Id + ") already has a tie line");
+            throw new ValidationException(this, "danglingLine1 (" + dl1Id + ") and/or danglingLine2 (" + dl2Id + ") already has a tie line");
         }
         if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null && !Objects.equals(dl1.getUcteXnodeCode(), dl2.getUcteXnodeCode())) {
             throw new ValidationException(this, "ucteXnodeCode is not consistent");

@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 
 public abstract class AbstractLineTest {
 
-    private static final String HALF1_NAME = "half1_name";
+    private static final String DANGLING1_NAME = "dl1_name";
 
     private static final String INVALID = "invalid";
 
@@ -551,7 +551,7 @@ public abstract class AbstractLineTest {
                 .setBus("busA")
                 .setId("hl1")
                 .setEnsureIdUnicity(true)
-                .setName(HALF1_NAME)
+                .setName(DANGLING1_NAME)
                 .setR(r)
                 .setX(x)
                 .setB(hl1b1 + hl1b2)
@@ -569,14 +569,14 @@ public abstract class AbstractLineTest {
                 .add();
         TieLineAdder adder = network.newTieLine().setId("testTie")
                 .setName("testNameTie")
-                .setHalf1(dl1.getId())
-                .setHalf2(dl2.getId());
+                .setDanglingLine1(dl1.getId())
+                .setDanglingLine2(dl2.getId());
         TieLine tieLine = adder.add();
         assertEquals(IdentifiableType.TIE_LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
-        assertEquals("hl1", tieLine.getHalf1().getId());
-        assertEquals(HALF1_NAME, tieLine.getHalf1().getOptionalName().orElse(null));
-        assertEquals("hl2", tieLine.getHalf2().getId());
+        assertEquals("hl1", tieLine.getDanglingLine1().getId());
+        assertEquals(DANGLING1_NAME, tieLine.getDanglingLine1().getOptionalName().orElse(null));
+        assertEquals("hl2", tieLine.getDanglingLine2().getId());
         assertEquals(11.0, tieLine.getR(), tol);
         assertEquals(22.0, tieLine.getX(), tol);
         assertEquals(0.065, tieLine.getG1(), tol);
@@ -584,35 +584,35 @@ public abstract class AbstractLineTest {
         assertEquals(0.08499999999, tieLine.getB1(), tol);
         assertEquals(0.0285, tieLine.getB2(), tol);
 
-        DanglingLine half1 = tieLine.getHalf1();
+        DanglingLine danglingLine1 = tieLine.getDanglingLine1();
 
-        DanglingLine half2 = tieLine.getHalf2();
+        DanglingLine danglingLine2 = tieLine.getDanglingLine2();
 
-        // Check notification on HalfLine changes
+        // Check notification on DanglingLine changes
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
-        // Apply changes on Half lines
-        half1.setR(r + 1);
-        half1.setX(x + 1);
-        half1.setG(hl1g1 + hl1g2 + 2);
-        half1.setB(hl1b1 + hl1b2 + 2);
-        half2.setR(r + 1);
-        half2.setX(x + 1);
-        half2.setG(hl2g1 + hl1g2 + 2);
-        half2.setB(hl2b1 + hl2b2 + 2);
+        // Apply changes on dangling lines
+        danglingLine1.setR(r + 1);
+        danglingLine1.setX(x + 1);
+        danglingLine1.setG(hl1g1 + hl1g2 + 2);
+        danglingLine1.setB(hl1b1 + hl1b2 + 2);
+        danglingLine2.setR(r + 1);
+        danglingLine2.setX(x + 1);
+        danglingLine2.setG(hl2g1 + hl1g2 + 2);
+        danglingLine2.setB(hl2b1 + hl2b2 + 2);
         verify(mockedListener, times(8)).onUpdate(any(DanglingLine.class), anyString(), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
-        // Cancel changes on Half lines
-        half1.setR(r);
-        half1.setX(x);
-        half1.setG(hl1g1 + hl1g2);
-        half1.setB(hl1b1 + hl1b2);
-        half2.setR(r);
-        half2.setX(x);
-        half2.setG(hl2g1 + hl2g2);
-        half2.setB(hl2b1 + hl2b2);
+        // Cancel changes on dangling lines
+        danglingLine1.setR(r);
+        danglingLine1.setX(x);
+        danglingLine1.setG(hl1g1 + hl1g2);
+        danglingLine1.setB(hl1b1 + hl1b2);
+        danglingLine2.setR(r);
+        danglingLine2.setX(x);
+        danglingLine2.setG(hl2g1 + hl2g2);
+        danglingLine2.setB(hl2b1 + hl2b2);
         // Check no notification
         verifyNoMoreInteractions(mockedListener);
 
@@ -629,39 +629,39 @@ public abstract class AbstractLineTest {
         double v2 = 380.0;
         double angle1 = -1e-4;
         double angle2 = -1.7e-3;
-        tieLine.getHalf1().getTerminal().setP(p1).setQ(q1).getBusView().getBus().setV(v1).setAngle(angle1);
-        tieLine.getHalf2().getTerminal().setP(p2).setQ(q2).getBusView().getBus().setV(v2).setAngle(angle2);
+        tieLine.getDanglingLine1().getTerminal().setP(p1).setQ(q1).getBusView().getBus().setV(v1).setAngle(angle1);
+        tieLine.getDanglingLine2().getTerminal().setP(p2).setQ(q2).getBusView().getBus().setV(v2).setAngle(angle2);
 
         // test boundaries values
         SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE);
         SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.TWO);
-        assertEquals(expectedSV1.otherSideP(tieLine.getHalf1(), true), tieLine.getHalf1().getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV1.otherSideQ(tieLine.getHalf1(), true), tieLine.getHalf1().getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.otherSideP(tieLine.getHalf2(), true), tieLine.getHalf2().getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV2.otherSideQ(tieLine.getHalf2(), true), tieLine.getHalf2().getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV1.otherSideU(tieLine.getHalf1(), true), tieLine.getHalf1().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.otherSideA(tieLine.getHalf1(), true), tieLine.getHalf1().getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV2.otherSideU(tieLine.getHalf2(), true), tieLine.getHalf2().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.otherSideA(tieLine.getHalf2(), true), tieLine.getHalf2().getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV1.otherSideP(tieLine.getDanglingLine1(), true), tieLine.getDanglingLine1().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.otherSideQ(tieLine.getDanglingLine1(), true), tieLine.getDanglingLine1().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.otherSideP(tieLine.getDanglingLine2(), true), tieLine.getDanglingLine2().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.otherSideQ(tieLine.getDanglingLine2(), true), tieLine.getDanglingLine2().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV1.otherSideU(tieLine.getDanglingLine1(), true), tieLine.getDanglingLine1().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV1.otherSideA(tieLine.getDanglingLine1(), true), tieLine.getDanglingLine1().getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.otherSideU(tieLine.getDanglingLine2(), true), tieLine.getDanglingLine2().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV2.otherSideA(tieLine.getDanglingLine2(), true), tieLine.getDanglingLine2().getBoundary().getAngle(), 0.0d);
     }
 
     @Test
-    public void halfLine1NotSet() {
+    public void danglingLine1NotSet() {
         // adder
         ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
                 .add());
-        assertTrue(e.getMessage().contains("undefined half"));
+        assertTrue(e.getMessage().contains("undefined dangling line"));
     }
 
     @Test
-    public void halfLine2NotSet() {
+    public void danglingLine2NotSet() {
         // adder
         DanglingLine dl1 = voltageLevelA.newDanglingLine()
                 .setBus("busA")
                 .setId("hl1")
-                .setName(HALF1_NAME)
+                .setName(DANGLING1_NAME)
                 .setR(10.0)
                 .setX(20.0)
                 .setB(80.0)
@@ -672,64 +672,64 @@ public abstract class AbstractLineTest {
         ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
-                .setHalf1(dl1.getId())
+                .setDanglingLine1(dl1.getId())
                 .add());
-        assertTrue(e.getMessage().contains("undefined half"));
+        assertTrue(e.getMessage().contains("undefined dangling line"));
     }
 
     @Test
-    public void invalidHalfLineCharacteristicsR() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
+    public void invalidDanglingLineCharacteristicsR() {
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
                 6.5, 8.5, "code"));
         assertTrue(e.getMessage().contains("r is invalid"));
     }
 
     @Test
-    public void invalidHalfLineCharacteristicsX() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
+    public void invalidDanglingLineCharacteristicsX() {
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
                 6.5, 8.5, "code"));
         assertTrue(e.getMessage().contains("x is invalid"));
     }
 
     @Test
-    public void invalidHalfLineCharacteristicsG() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
+    public void invalidDanglingLineCharacteristicsG() {
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
                 Double.NaN, 8.5, "code"));
         assertTrue(e.getMessage().contains("g is invalid"));
     }
 
     @Test
-    public void invalidHalfLineCharacteristicsB() {
-        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
+    public void invalidDanglingLineCharacteristicsB() {
+        ValidationException e = assertThrows(ValidationException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
                 6.5, Double.NaN, "code"));
         assertTrue(e.getMessage().contains("b is invalid"));
     }
 
     @Test
-    public void halfLineIdNull() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
+    public void danglingLineIdNull() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
                 6.5, 8.5, "code"));
         assertTrue(e.getMessage().contains("Dangling line id is not set"));
     }
 
     @Test
-    public void halfLineIdEmpty() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithHalfline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
+    public void danglingLineIdEmpty() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
                 6.5, 8.5, "code"));
         assertTrue(e.getMessage().contains("Invalid id ''"));
     }
 
     @Test
     public void duplicate() {
-        createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
+        createTieLineWithDanglingline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
                 6.5, 8.5, DUPLICATE);
-        assertThrows(PowsyblException.class, () -> createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
+        assertThrows(PowsyblException.class, () -> createTieLineWithDanglingline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
                 6.5, 8.5, DUPLICATE));
     }
 
     @Test
     public void testRemove() {
-        createTieLineWithHalfline2ByDefault(TO_REMOVE, TO_REMOVE, "id1", 1.0, 2.0,
+        createTieLineWithDanglingline2ByDefault(TO_REMOVE, TO_REMOVE, "id1", 1.0, 2.0,
                 6.5, 8.5, TO_REMOVE);
         TieLine line = network.getTieLine(TO_REMOVE);
         assertNotNull(line);
@@ -760,12 +760,12 @@ public abstract class AbstractLineTest {
                 .add();
     }
 
-    private void createTieLineWithHalfline2ByDefault(String id, String name, String halfLineId, double r, double x,
-                                                     double g, double b, String code) {
+    private void createTieLineWithDanglingline2ByDefault(String id, String name, String danglingLineId, double r, double x,
+                                                         double g, double b, String code) {
         DanglingLine dl1 = voltageLevelA.newDanglingLine()
                 .setBus("busA")
-                .setId(halfLineId)
-                .setName(HALF1_NAME)
+                .setId(danglingLineId)
+                .setName(DANGLING1_NAME)
                 .setR(r)
                 .setX(x)
                 .setB(b)
@@ -785,8 +785,8 @@ public abstract class AbstractLineTest {
                 .setId(id)
                 .setEnsureIdUnicity(true)
                 .setName(name)
-                .setHalf1(dl1.getId())
-                .setHalf2(dl2.getId())
+                .setDanglingLine1(dl1.getId())
+                .setDanglingLine2(dl2.getId())
                 .add();
     }
 }

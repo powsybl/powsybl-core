@@ -134,12 +134,12 @@ public final class AmplUtil {
             mapper.newInt(AmplSubset.BRANCH, tl.getId());
             mapper.newInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tl));
             mapper.newInt(AmplSubset.BUS, AmplUtil.getXnodeBusId(tl));
-            mapper.newInt(AmplSubset.BRANCH, tl.getHalf1().getId());
-            mapper.newInt(AmplSubset.BRANCH, tl.getHalf2().getId());
+            mapper.newInt(AmplSubset.BRANCH, tl.getDanglingLine1().getId());
+            mapper.newInt(AmplSubset.BRANCH, tl.getDanglingLine2().getId());
 
             // limits
-            tl.getHalf1().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_1_"));
-            tl.getHalf2().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_2_"));
+            tl.getDanglingLine1().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_1_"));
+            tl.getDanglingLine2().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_2_"));
         }
     }
 

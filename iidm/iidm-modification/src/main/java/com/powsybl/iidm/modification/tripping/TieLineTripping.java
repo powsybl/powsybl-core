@@ -37,8 +37,8 @@ public class TieLineTripping extends AbstractTripping {
             throw new PowsyblException("Tie line '" + id + "' not found");
         }
 
-        Terminal terminal1 = tieLine.getHalf1().getTerminal();
-        Terminal terminal2 = tieLine.getHalf2().getTerminal();
+        Terminal terminal1 = tieLine.getDanglingLine1().getTerminal();
+        Terminal terminal2 = tieLine.getDanglingLine2().getTerminal();
 
         traverseDoubleSidedEquipment(voltageLevelId, terminal1, terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals, tieLine.getType().name());
     }

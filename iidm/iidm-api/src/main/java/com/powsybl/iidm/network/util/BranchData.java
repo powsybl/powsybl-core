@@ -165,8 +165,8 @@ public class BranchData {
                 1f,
                 0f,
                 0f,
-                tieLine.getHalf1().getTerminal(),
-                tieLine.getHalf2().getTerminal());
+                tieLine.getDanglingLine1().getTerminal(),
+                tieLine.getDanglingLine2().getTerminal());
     }
 
     private BranchData(Identifiable<?> identifiable, double epsilonX, boolean applyReactanceCorrection,

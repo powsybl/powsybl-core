@@ -116,7 +116,7 @@ class EquipmentExportTest extends AbstractConverterTest {
                 .setNetInterchange(Double.NaN)
                 .add();
         TieLine tieLine = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
-        cgmesControlArea.add(tieLine.getHalf2().getBoundary());
+        cgmesControlArea.add(tieLine.getDanglingLine2().getBoundary());
 
         // TODO(Luma) updated expected result after halves of tie lines are exported as equipment
         //  instead of an error logged and the tie flow ignored,

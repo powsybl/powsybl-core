@@ -165,30 +165,30 @@ package com.powsybl.iidm.network;
 public interface TieLine extends Identifiable<TieLine>, LineCharacteristicsGetters {
 
     /**
-     * Get the UCTE Xnode code corresponding to this line in the case where the
+     * Get the UCTE Xnode code corresponding to this tie line in the case where the
      * line is a boundary, return null otherwise.
      */
     String getUcteXnodeCode();
 
     /**
-     * Get first half of the line characteristics
+     * Get first dangling line of this tie line
      */
-    DanglingLine getHalf1();
+    DanglingLine getDanglingLine1();
 
     /**
-     * Get second half of the line characteristics
+     * Get second dangling line of this tie line
      */
-    DanglingLine getHalf2();
+    DanglingLine getDanglingLine2();
 
     /**
-     * Get a given side half of the line characteristics
+     * Get the dangling line of this tie line corresponding to the given side
      */
-    DanglingLine getHalf(Branch.Side side);
+    DanglingLine getDanglingLine(Branch.Side side);
 
     /**
-     * Get a half of the line characteristics in the given voltage level
+     * Get the dangling line of this tie line corresponding to the given voltage level
      */
-    DanglingLine getHalf(String voltageLevelId);
+    DanglingLine getDanglingLine(String voltageLevelId);
 
     @Override
     default IdentifiableType getType() {

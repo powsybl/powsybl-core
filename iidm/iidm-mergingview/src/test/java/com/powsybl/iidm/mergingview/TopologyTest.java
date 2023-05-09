@@ -30,7 +30,7 @@ class TopologyTest {
 
         TieLine mergedLine = cgm.getTieLine("DL1 + DL2");
         assertNotNull(mergedLine);
-        assertNotNull(mergedLine.getHalf1().getTerminal().getBusView().getBus());
+        assertNotNull(mergedLine.getDanglingLine1().getTerminal().getBusView().getBus());
         // FIXME(mathbagu) assertNotNull(mergedLine.getTerminal2().getBusView().getBus());
 
         final String idVL1 = "VL1";

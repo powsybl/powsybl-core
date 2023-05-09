@@ -210,7 +210,7 @@ public final class CgmesExportUtil {
         if (c.getTerminals().size() == 1) {
             if (c instanceof DanglingLine) {
                 DanglingLine dl = (DanglingLine) c;
-                return dl.getTieLine().map(tl -> tl.getHalf1() == dl ? 1 : 2).orElse(1);
+                return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
             }
             return 1;
         } else {

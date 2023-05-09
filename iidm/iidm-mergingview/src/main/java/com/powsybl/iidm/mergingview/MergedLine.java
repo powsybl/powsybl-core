@@ -25,9 +25,9 @@ class MergedLine implements TieLine {
 
     private final MergingViewIndex index;
 
-    private final DanglingLineAdapter half1;
+    private final DanglingLineAdapter danglingLine1;
 
-    private final DanglingLineAdapter half2;
+    private final DanglingLineAdapter danglingLine2;
 
     private String id;
 
@@ -37,10 +37,10 @@ class MergedLine implements TieLine {
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
-        this.half1 = index.getDanglingLine(dl1);
+        this.danglingLine1 = index.getDanglingLine(dl1);
         // must be reoriented. TieLine is defined as networkNode1-boundaryNode--boundaryNode-networkNode2
         // and in danglingLines the networkNode is always at end1
-        this.half2 = index.getDanglingLine(dl2);
+        this.danglingLine2 = index.getDanglingLine(dl2);
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildMergedId(dl1.getId(), dl2.getId()), index::contains) : buildMergedId(dl1.getId(), dl2.getId());
         this.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
         mergeProperties(dl1, dl2, properties);
@@ -68,32 +68,32 @@ class MergedLine implements TieLine {
 
     @Override
     public double getR() {
-        return TieLineUtil.getR(half1, half2);
+        return TieLineUtil.getR(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getX() {
-        return TieLineUtil.getX(half1, half2);
+        return TieLineUtil.getX(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getG1() {
-        return TieLineUtil.getG1(half1, half2);
+        return TieLineUtil.getG1(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getG2() {
-        return TieLineUtil.getG2(half1, half2);
+        return TieLineUtil.getG2(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getB1() {
-        return TieLineUtil.getB1(half1, half2);
+        return TieLineUtil.getB1(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getB2() {
-        return TieLineUtil.getB2(half1, half2);
+        return TieLineUtil.getB2(danglingLine1, danglingLine2);
     }
 
     @Override
@@ -123,13 +123,13 @@ class MergedLine implements TieLine {
 
     @Override
     public boolean isFictitious() {
-        return getHalf1().isFictitious() || getHalf2().isFictitious();
+        return getDanglingLine1().isFictitious() || getDanglingLine2().isFictitious();
     }
 
     @Override
     public void setFictitious(boolean fictitious) {
-        getHalf1().setFictitious(fictitious);
-        getHalf2().setFictitious(fictitious);
+        getDanglingLine1().setFictitious(fictitious);
+        getDanglingLine2().setFictitious(fictitious);
     }
 
     @Override
@@ -146,15 +146,15 @@ class MergedLine implements TieLine {
 
     @Override
     public String setProperty(final String key, final String value) {
-        getHalf1().setProperty(key, value);
-        getHalf2().setProperty(key, value);
+        getDanglingLine1().setProperty(key, value);
+        getDanglingLine2().setProperty(key, value);
         return (String) properties.setProperty(key, value);
     }
 
     @Override
     public boolean removeProperty(String key) {
-        boolean removed1 = getHalf1().removeProperty(key);
-        boolean removed2 = getHalf2().removeProperty(key);
+        boolean removed1 = getDanglingLine1().removeProperty(key);
+        boolean removed2 = getDanglingLine2().removeProperty(key);
         properties.remove(key);
         return removed1 || removed2;
     }
@@ -209,38 +209,38 @@ class MergedLine implements TieLine {
 
     @Override
     public String getUcteXnodeCode() {
-        return Optional.ofNullable(getHalf1().getUcteXnodeCode()).orElseGet(() -> getHalf2().getUcteXnodeCode());
+        return Optional.ofNullable(getDanglingLine1().getUcteXnodeCode()).orElseGet(() -> getDanglingLine2().getUcteXnodeCode());
     }
 
     @Override
-    public DanglingLine getHalf1() {
-        return half1;
+    public DanglingLine getDanglingLine1() {
+        return danglingLine1;
     }
 
     @Override
-    public DanglingLine getHalf2() {
-        return half2;
+    public DanglingLine getDanglingLine2() {
+        return danglingLine2;
     }
 
     @Override
-    public DanglingLine getHalf(Branch.Side side) {
+    public DanglingLine getDanglingLine(Branch.Side side) {
         switch (side) {
             case ONE:
-                return half1;
+                return danglingLine1;
             case TWO:
-                return half2;
+                return danglingLine2;
             default:
                 throw new IllegalStateException("Unknown branch side " + side);
         }
     }
 
     @Override
-    public DanglingLine getHalf(String voltageLevelId) {
-        if (half1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return half1;
+    public DanglingLine getDanglingLine(String voltageLevelId) {
+        if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine1;
         }
-        if (half2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return half2;
+        if (danglingLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine2;
         }
         return null;
     }

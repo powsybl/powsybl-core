@@ -109,12 +109,12 @@ public class BusFilter {
             return true;
         }
         Bus b = options.getTopologyLevel() == TopologyLevel.BUS_BRANCH ?
-                tl.getHalf1().getTerminal().getBusView().getConnectableBus() : tl.getHalf1().getTerminal().getBusBreakerView().getConnectableBus();
+                tl.getDanglingLine1().getTerminal().getBusView().getConnectableBus() : tl.getDanglingLine1().getTerminal().getBusBreakerView().getConnectableBus();
         if (b != null && !buses.contains(b.getId())) {
             return false;
         }
         b = options.getTopologyLevel() == TopologyLevel.BUS_BRANCH ?
-                tl.getHalf2().getTerminal().getBusView().getConnectableBus() : tl.getHalf2().getTerminal().getBusBreakerView().getConnectableBus();
+                tl.getDanglingLine2().getTerminal().getBusView().getConnectableBus() : tl.getDanglingLine2().getTerminal().getBusBreakerView().getConnectableBus();
         return b == null || buses.contains(b.getId());
     }
 }

@@ -365,11 +365,11 @@ public final class EquipmentExport {
     private static void writeTieLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (TieLine line : network.getTieLines()) { // TODO Export TieLines from CGMES as two AC Line Segments
             String baseVoltage = null;
-            if (line.getHalf1().getTerminal().getVoltageLevel().getNominalV() == line.getHalf2().getTerminal().getVoltageLevel().getNominalV()) {
-                baseVoltage = context.getBaseVoltageByNominalVoltage(line.getHalf1().getTerminal().getVoltageLevel().getNominalV()).getId();
+            if (line.getDanglingLine1().getTerminal().getVoltageLevel().getNominalV() == line.getDanglingLine2().getTerminal().getVoltageLevel().getNominalV()) {
+                baseVoltage = context.getBaseVoltageByNominalVoltage(line.getDanglingLine1().getTerminal().getVoltageLevel().getNominalV()).getId();
             }
             AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(line), line.getNameOrId(), baseVoltage, line.getR(), line.getX(), line.getG1() + line.getG2(), line.getB1() + line.getB2(), cimNamespace, writer, context);
-            writeBranchLimits(line, exportedTerminalId(mapTerminal2Id, line.getHalf1().getTerminal()), exportedTerminalId(mapTerminal2Id, line.getHalf2().getTerminal()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+            writeBranchLimits(line, exportedTerminalId(mapTerminal2Id, line.getDanglingLine1().getTerminal()), exportedTerminalId(mapTerminal2Id, line.getDanglingLine2().getTerminal()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
         }
     }
 
@@ -724,27 +724,27 @@ public final class EquipmentExport {
     }
 
     private static void writeBranchLimits(TieLine tl, String terminalId1, String terminalId2, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        Optional<ActivePowerLimits> activePowerLimits1 = tl.getHalf1().getActivePowerLimits();
+        Optional<ActivePowerLimits> activePowerLimits1 = tl.getDanglingLine1().getActivePowerLimits();
         if (activePowerLimits1.isPresent()) {
             writeLoadingLimits(activePowerLimits1.get(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
         }
-        Optional<ActivePowerLimits> activePowerLimits2 = tl.getHalf2().getActivePowerLimits();
+        Optional<ActivePowerLimits> activePowerLimits2 = tl.getDanglingLine2().getActivePowerLimits();
         if (activePowerLimits2.isPresent()) {
             writeLoadingLimits(activePowerLimits2.get(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
         }
-        Optional<ApparentPowerLimits> apparentPowerLimits1 = tl.getHalf1().getApparentPowerLimits();
+        Optional<ApparentPowerLimits> apparentPowerLimits1 = tl.getDanglingLine1().getApparentPowerLimits();
         if (apparentPowerLimits1.isPresent()) {
             writeLoadingLimits(apparentPowerLimits1.get(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
         }
-        Optional<ApparentPowerLimits> apparentPowerLimits2 = tl.getHalf2().getApparentPowerLimits();
+        Optional<ApparentPowerLimits> apparentPowerLimits2 = tl.getDanglingLine2().getApparentPowerLimits();
         if (apparentPowerLimits2.isPresent()) {
             writeLoadingLimits(apparentPowerLimits2.get(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
         }
-        Optional<CurrentLimits> currentLimits1 = tl.getHalf1().getCurrentLimits();
+        Optional<CurrentLimits> currentLimits1 = tl.getDanglingLine1().getCurrentLimits();
         if (currentLimits1.isPresent()) {
             writeLoadingLimits(currentLimits1.get(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
         }
-        Optional<CurrentLimits> currentLimits2 = tl.getHalf2().getCurrentLimits();
+        Optional<CurrentLimits> currentLimits2 = tl.getDanglingLine2().getCurrentLimits();
         if (currentLimits2.isPresent()) {
             writeLoadingLimits(currentLimits2.get(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
         }

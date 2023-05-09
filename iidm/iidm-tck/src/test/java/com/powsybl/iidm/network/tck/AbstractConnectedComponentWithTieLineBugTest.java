@@ -80,8 +80,8 @@ public abstract class AbstractConnectedComponentWithTieLineBugTest {
                 .add();
         n.newTieLine()
                 .setId("l1 + l2")
-                .setHalf1(dl1.getId())
-                .setHalf2(dl2.getId())
+                .setDanglingLine1(dl1.getId())
+                .setDanglingLine2(dl2.getId())
                 .add();
         assertEquals(0, b1.getConnectedComponent().getNum());
         assertEquals(0, b2.getConnectedComponent().getNum());

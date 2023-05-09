@@ -262,8 +262,8 @@ public class Contingency extends AbstractExtendable<Contingency> {
     private static boolean checkTieLineContingency(Contingency contingency, TieLineContingency element, Network network) {
         TieLine tieLine = network.getTieLine(element.getId());
         if (tieLine == null || (element.getVoltageLevelId() != null &&
-                !(element.getVoltageLevelId().equals(tieLine.getHalf1().getTerminal().getVoltageLevel().getId()) ||
-                        element.getVoltageLevelId().equals(tieLine.getHalf2().getTerminal().getVoltageLevel().getId())))) {
+                !(element.getVoltageLevelId().equals(tieLine.getDanglingLine1().getTerminal().getVoltageLevel().getId()) ||
+                        element.getVoltageLevelId().equals(tieLine.getDanglingLine2().getTerminal().getVoltageLevel().getId())))) {
             LOGGER.warn("Tie line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }

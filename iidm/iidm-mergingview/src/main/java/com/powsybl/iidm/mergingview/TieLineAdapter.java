@@ -15,13 +15,13 @@ import com.powsybl.iidm.network.TieLine;
  */
 public class TieLineAdapter extends AbstractIdentifiableAdapter<TieLine> implements TieLine {
 
-    private final DanglingLine half1;
-    private final DanglingLine half2;
+    private final DanglingLine danglingLine1;
+    private final DanglingLine danglingLine2;
 
     TieLineAdapter(final TieLine delegate, final MergingViewIndex index) {
         super(delegate, index);
-        this.half1 = index.getDanglingLine(delegate.getHalf1());
-        this.half2 = index.getDanglingLine(delegate.getHalf2());
+        this.danglingLine1 = index.getDanglingLine(delegate.getDanglingLine1());
+        this.danglingLine2 = index.getDanglingLine(delegate.getDanglingLine2());
     }
 
     @Override
@@ -38,35 +38,35 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<TieLine> impleme
     }
 
     @Override
-    public DanglingLine getHalf1() {
-        return half1;
+    public DanglingLine getDanglingLine1() {
+        return danglingLine1;
     }
 
     @Override
-    public DanglingLine getHalf2() {
-        return half2;
+    public DanglingLine getDanglingLine2() {
+        return danglingLine2;
     }
 
     @Override
-    public DanglingLine getHalf(Branch.Side side) {
+    public DanglingLine getDanglingLine(Branch.Side side) {
         switch (side) {
             case ONE:
-                return half1;
+                return danglingLine1;
             case TWO:
-                return half2;
+                return danglingLine2;
             default:
                 throw new IllegalStateException("Unexpected side: " + side);
         }
     }
 
     @Override
-    public DanglingLine getHalf(String voltageLevelId) {
+    public DanglingLine getDanglingLine(String voltageLevelId) {
 
-        if (half1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return half1;
+        if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine1;
         }
-        if (half2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return half2;
+        if (danglingLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine2;
         }
         return null;
     }

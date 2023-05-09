@@ -34,9 +34,9 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         return "Tie Line";
     }
 
-    private DanglingLineImpl half1;
+    private DanglingLineImpl danglingLine1;
 
-    private DanglingLineImpl half2;
+    private DanglingLineImpl danglingLine2;
 
     private final Ref<NetworkImpl> networkRef;
 
@@ -47,84 +47,84 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         this.networkRef = network;
     }
 
-    void attachDanglingLines(DanglingLineImpl half1, DanglingLineImpl half2) {
-        this.half1 = attach(half1);
-        this.half2 = attach(half2);
+    void attachDanglingLines(DanglingLineImpl dl1, DanglingLineImpl dl2) {
+        this.danglingLine1 = attach(dl1);
+        this.danglingLine2 = attach(dl2);
     }
 
-    private DanglingLineImpl attach(DanglingLineImpl half) {
-        half.setTieLine(this);
-        return half;
+    private DanglingLineImpl attach(DanglingLineImpl danglingLine) {
+        danglingLine.setTieLine(this);
+        return danglingLine;
     }
 
     @Override
     public String getUcteXnodeCode() {
-        return Optional.ofNullable(half1.getUcteXnodeCode()).orElseGet(() -> half2.getUcteXnodeCode());
+        return Optional.ofNullable(danglingLine1.getUcteXnodeCode()).orElseGet(() -> danglingLine2.getUcteXnodeCode());
     }
 
     @Override
-    public DanglingLineImpl getHalf1() {
-        return half1;
+    public DanglingLineImpl getDanglingLine1() {
+        return danglingLine1;
     }
 
     @Override
-    public DanglingLineImpl getHalf2() {
-        return half2;
+    public DanglingLineImpl getDanglingLine2() {
+        return danglingLine2;
     }
 
     @Override
-    public DanglingLineImpl getHalf(Branch.Side side) {
+    public DanglingLineImpl getDanglingLine(Branch.Side side) {
         switch (side) {
             case ONE:
-                return half1;
+                return danglingLine1;
             case TWO:
-                return half2;
+                return danglingLine2;
             default:
                 throw new IllegalStateException("Unknown branch side " + side);
         }
     }
 
     @Override
-    public DanglingLine getHalf(String voltageLevelId) {
-        if (half1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return half1;
+    public DanglingLine getDanglingLine(String voltageLevelId) {
+        if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine1;
         }
-        if (half2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return half2;
+        if (danglingLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine2;
         }
         return null;
     }
 
-    // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
+    // danglingLine1 and danglingLine2 are dangling lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getR() {
-        return TieLineUtil.getR(half1, half2);
+        return TieLineUtil.getR(danglingLine1, danglingLine2);
     }
 
-    // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
+    // danglingLine1 and danglingLine2 are dangling lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getX() {
-        return TieLineUtil.getX(half1, half2);
+        return TieLineUtil.getX(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getG1() {
-        return TieLineUtil.getG1(half1, half2);
+        return TieLineUtil.getG1(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getB1() {
-        return TieLineUtil.getB1(half1, half2);
+        return TieLineUtil.getB1(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getG2() {
-        return TieLineUtil.getG2(half1, half2);
+        return TieLineUtil.getG2(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getB2() {
-        return TieLineUtil.getB2(half1, half2);
+        return TieLineUtil.getB2(danglingLine1, danglingLine2);
     }
 
     @Override
@@ -133,8 +133,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         network.getListeners().notifyBeforeRemoval(this);
 
         // Remove dangling lines
-        half1.removeTieLine();
-        half2.removeTieLine();
+        danglingLine1.removeTieLine();
+        danglingLine2.removeTieLine();
 
         // Remove this tie line from the network
         network.getIndex().remove(this);

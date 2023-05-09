@@ -23,18 +23,18 @@ class TieLineTrippingTest extends AbstractTrippingTest {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         TieLine line = network.getTieLine("NHV1_NHV2_1");
 
-        assertTrue(line.getHalf1().getTerminal().isConnected());
-        assertTrue(line.getHalf2().getTerminal().isConnected());
+        assertTrue(line.getDanglingLine1().getTerminal().isConnected());
+        assertTrue(line.getDanglingLine2().getTerminal().isConnected());
 
         new TieLineTripping("NHV1_NHV2_1", "VLHV2").apply(network);
 
-        assertTrue(line.getHalf1().getTerminal().isConnected());
-        assertFalse(line.getHalf2().getTerminal().isConnected());
+        assertTrue(line.getDanglingLine1().getTerminal().isConnected());
+        assertFalse(line.getDanglingLine2().getTerminal().isConnected());
 
         new TieLineTripping("NHV1_NHV2_1").apply(network);
 
-        assertFalse(line.getHalf1().getTerminal().isConnected());
-        assertFalse(line.getHalf2().getTerminal().isConnected());
+        assertFalse(line.getDanglingLine1().getTerminal().isConnected());
+        assertFalse(line.getDanglingLine2().getTerminal().isConnected());
 
         TieLineTripping unknownLineTripping = new TieLineTripping("NOT_EXISTS");
         Exception e1 = assertThrows(PowsyblException.class, () -> unknownLineTripping.apply(network));

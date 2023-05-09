@@ -217,8 +217,8 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         network.newTieLine()
                 .setId("NHV1_NHV2_1")
-                .setHalf1(nhv1xnode1.getId())
-                .setHalf2(xnode1nhv2.getId())
+                .setDanglingLine1(nhv1xnode1.getId())
+                .setDanglingLine2(xnode1nhv2.getId())
                 .add();
         DanglingLine nvh1xnode2 = network.getVoltageLevel("VLHV1").newDanglingLine()
                 .setId("NVH1_XNODE2")
@@ -240,19 +240,19 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         network.newTieLine()
                 .setId("NHV1_NHV2_2")
-                .setHalf1(nvh1xnode2.getId())
-                .setHalf2(xnode2nhv2.getId())
+                .setDanglingLine1(nvh1xnode2.getId())
+                .setDanglingLine2(xnode2nhv2.getId())
                 .add();
-        network.getTieLine("NHV1_NHV2_1").getHalf1().getTerminal()
+        network.getTieLine("NHV1_NHV2_1").getDanglingLine1().getTerminal()
                 .setP(302.4440612792969)
                 .setQ(98.74027252197266);
-        network.getTieLine("NHV1_NHV2_1").getHalf2().getTerminal()
+        network.getTieLine("NHV1_NHV2_1").getDanglingLine2().getTerminal()
                 .setP(-300.43389892578125)
                 .setQ(-137.18849182128906);
-        network.getTieLine("NHV1_NHV2_2").getHalf1().getTerminal()
+        network.getTieLine("NHV1_NHV2_2").getDanglingLine1().getTerminal()
                 .setP(302.4440612792969)
                 .setQ(98.74027252197266);
-        network.getTieLine("NHV1_NHV2_2").getHalf2().getTerminal()
+        network.getTieLine("NHV1_NHV2_2").getDanglingLine2().getTerminal()
                 .setP(-300.43389892578125)
                 .setQ(-137.188491821289060);
 

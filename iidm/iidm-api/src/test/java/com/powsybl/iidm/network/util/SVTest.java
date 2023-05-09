@@ -197,35 +197,6 @@ class SVTest {
         assertEquals(a1, svB1.getA(), tol);
     }
 
-    @Test
-    void testHalfLine() {
-        DanglingLine halfLine = new HalfLineTestData().getHalfLine();
-
-        double tol = 0.0001;
-        double p1 = 485.306701;
-        double q1 = 48.537745;
-        double v1 = 138.0;
-        double a1 = 0.0;
-
-        double p2 = -104.996276;
-        double q2 = -123.211145;
-        double v2 = 137.5232696533203;
-        double a2 = -0.18332427740097046;
-
-        SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
-        SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
-
-        assertEquals(p2, svA1.otherSideP(halfLine, true), tol);
-        assertEquals(q2, svA1.otherSideQ(halfLine, true), tol);
-        assertEquals(v2, svA1.otherSideU(halfLine, true), tol);
-        assertEquals(a2, svA1.otherSideA(halfLine, true), tol);
-
-        assertEquals(p1, svB2.otherSideP(halfLine, true), tol);
-        assertEquals(q1, svB2.otherSideQ(halfLine, true), tol);
-        assertEquals(v1, svB2.otherSideU(halfLine, true), tol);
-        assertEquals(a1, svB2.otherSideA(halfLine, true), tol);
-    }
-
     private static final class LineTestData {
         private static double R = 0.15;
         private static double X = 0.25;
@@ -421,26 +392,6 @@ class SVTest {
 
         private TwoWindingsTransformer getTwoWindingsTransformer() {
             return twt;
-        }
-    }
-
-    private static final class HalfLineTestData {
-        private static double R = 0.15;
-        private static double X = 0.25;
-        private static double G = 0.02;
-        private static double B = 0.0040;
-        private DanglingLine halfLine;
-
-        private HalfLineTestData() {
-            halfLine = Mockito.mock(DanglingLine.class);
-            Mockito.when(halfLine.getR()).thenReturn(R);
-            Mockito.when(halfLine.getX()).thenReturn(X);
-            Mockito.when(halfLine.getG()).thenReturn(G);
-            Mockito.when(halfLine.getB()).thenReturn(B);
-        }
-
-        private DanglingLine getHalfLine() {
-            return halfLine;
         }
     }
 }

@@ -11,9 +11,9 @@ package com.powsybl.iidm.network;
  */
 public interface TieLineAdder extends IdentifiableAdder<TieLine, TieLineAdder> {
 
-    TieLineAdder setHalf1(String half1Id);
+    TieLineAdder setDanglingLine1(String dl1Id);
 
-    TieLineAdder setHalf2(String half2Id);
+    TieLineAdder setDanglingLine2(String dl2Id);
 
     @Override
     TieLine add();

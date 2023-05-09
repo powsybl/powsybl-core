@@ -939,17 +939,17 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             MergedLine l = new MergedLine();
             l.id = buildMergedId(dl1.getId(), dl2.getId());
             l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
-            l.half1Id = dl1.getId();
-            l.half2Id = dl2.getId();
+            l.dl1Id = dl1.getId();
+            l.dl2Id = dl2.getId();
             l.aliases = new HashMap<>();
             mergeProperties(dl1, dl2, l.properties);
             lines.add(l);
 
             if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
-                ((DanglingLineImpl) dl1).replaceId(l.half1Id + "_1");
-                ((DanglingLineImpl) dl2).replaceId(l.half2Id + "_2");
-                l.half1Id = dl1.getId();
-                l.half2Id = dl2.getId();
+                ((DanglingLineImpl) dl1).replaceId(l.dl1Id + "_1");
+                ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
+                l.dl1Id = dl1.getId();
+                l.dl2Id = dl2.getId();
             }
             mergeIdenticalAliases(dl1, dl2, l.aliases);
         }
@@ -958,13 +958,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     private void replaceDanglingLineByLine(List<MergedLine> lines) {
         for (MergedLine mergedLine : lines) {
             LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
-                    mergedLine.id, mergedLine.half1Id, mergedLine.half2Id);
+                    mergedLine.id, mergedLine.dl1Id, mergedLine.dl2Id);
             TieLineImpl l = newTieLine()
                     .setId(mergedLine.id)
                     .setEnsureIdUnicity(true)
                     .setName(mergedLine.name)
-                    .setHalf1(mergedLine.half1Id)
-                    .setHalf2(mergedLine.half2Id)
+                    .setDanglingLine1(mergedLine.dl1Id)
+                    .setDanglingLine2(mergedLine.dl2Id)
                     .add();
             mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
             mergedLine.aliases.forEach((alias, type) -> {
@@ -980,8 +980,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     class MergedLine {
         String id;
         String name;
-        String half1Id;
-        String half2Id;
+        String dl1Id;
+        String dl2Id;
         Map<String, String> aliases;
         Properties properties = new Properties();
     }

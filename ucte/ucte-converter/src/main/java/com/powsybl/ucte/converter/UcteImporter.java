@@ -1026,8 +1026,8 @@ public class UcteImporter implements Importer {
 
         TieLine mergeLine = network.newTieLine()
                 .setId(mergeLineId)
-                .setHalf1(dlAtSideOne.getId())
-                .setHalf2(dlAtSideTwo.getId())
+                .setDanglingLine1(dlAtSideOne.getId())
+                .setDanglingLine2(dlAtSideTwo.getId())
                 .add();
 
         Map<String, String> properties = new HashMap<>();

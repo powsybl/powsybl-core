@@ -84,15 +84,15 @@ class Cgmes3ConversionTest {
         assertEquals(10, lntl2.getAcceptableDuration());
 
         TieLine tln = n.getTieLine("dad02278-bd25-476f-8f58-dbe44be72586 + ed0c5d75-4a54-43c8-b782-b20d7431630b");
-        assertEquals(1371.0, tln.getHalf1().getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
-        assertEquals(1226.0, tln.getHalf2().getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
+        assertEquals(1371.0, tln.getDanglingLine1().getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
+        assertEquals(1226.0, tln.getDanglingLine2().getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
-        assertEquals(1, (int) tln.getHalf1().getCurrentLimits().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
-        TemporaryLimit tlntl1 = tln.getHalf1().getCurrentLimits().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
+        assertEquals(1, (int) tln.getDanglingLine1().getCurrentLimits().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
+        TemporaryLimit tlntl1 = tln.getDanglingLine1().getCurrentLimits().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, tlntl1.getValue(), 0.0);
         assertEquals(10, tlntl1.getAcceptableDuration());
 
-        assertEquals(1, (int) tln.getHalf2().getCurrentLimits().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
+        assertEquals(1, (int) tln.getDanglingLine2().getCurrentLimits().map(lim -> lim.getTemporaryLimits().size()).orElse(-1));
         TemporaryLimit tlntl2 = ln.getCurrentLimits2().flatMap(lim -> lim.getTemporaryLimits().stream().findFirst()).orElseThrow(IllegalStateException::new);
         assertEquals(500.0, tlntl2.getValue(), 0.0);
         assertEquals(10, tlntl2.getAcceptableDuration());

@@ -242,8 +242,8 @@ public class MatpowerExporter implements Exporter {
 
     private void createTieLines(Network network, MatpowerModel model, Context context) {
         for (TieLine l : network.getTieLines()) {
-            Terminal t1 = l.getHalf1().getTerminal();
-            Terminal t2 = l.getHalf2().getTerminal();
+            Terminal t1 = l.getDanglingLine1().getTerminal();
+            Terminal t2 = l.getDanglingLine2().getTerminal();
             Bus bus1 = t1.getBusView().getBus();
             Bus bus2 = t2.getBusView().getBus();
             if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2)) {

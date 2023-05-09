@@ -74,7 +74,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
     private static Branch.Side getSide(Boundary boundary) {
         // a TieLine with two dangingLines inside
         return boundary.getDanglingLine().getTieLine().map(tl -> {
-            if (tl.getHalf1() == boundary.getDanglingLine()) {
+            if (tl.getDanglingLine1() == boundary.getDanglingLine()) {
                 return Branch.Side.ONE;
             }
             return Branch.Side.TWO;
@@ -117,7 +117,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                     } else if (identifiable instanceof TieLine) {
                         side = networkContext.getReader().getAttributeValue(null, "side");
                         TieLine tl = (TieLine) identifiable;
-                        cgmesControlArea.add(tl.getHalf(Branch.Side.valueOf(side)).getBoundary());
+                        cgmesControlArea.add(tl.getDanglingLine(Branch.Side.valueOf(side)).getBoundary());
                     } else {
                         throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());
                     }
