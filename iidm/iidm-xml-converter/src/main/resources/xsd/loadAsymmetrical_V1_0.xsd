@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2023, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    SPDX-License-Identifier: MPL-2.0
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:las="http://www.powsybl.org/schema/iidm/ext/load_asymmetrical/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/load_asymmetrical/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name="LoadConnectionType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Y"/>
+            <xs:enumeration value="DELTA"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="loadAsymmetrical">
+        <xs:complexType>
+            <xs:attribute name="connectionType" use="required" type="las:LoadConnectionType"/>
+            <xs:attribute name="deltaPa" type="xs:double"/>
+            <xs:attribute name="deltaQa" type="xs:double"/>
+            <xs:attribute name="deltaPb" type="xs:double"/>
+            <xs:attribute name="deltaQb" type="xs:double"/>
+            <xs:attribute name="deltaPc" type="xs:double"/>
+            <xs:attribute name="deltaQc" type="xs:double"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

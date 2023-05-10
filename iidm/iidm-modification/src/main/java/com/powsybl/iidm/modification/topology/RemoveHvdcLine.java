@@ -45,7 +45,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             HvdcConverterStation<?> hvdcConverterStation1 = hvdcLine.getConverterStation1();
             HvdcConverterStation<?> hvdcConverterStation2 = hvdcLine.getConverterStation2();
             Set<ShuntCompensator> shunts = null;
-            if (isLccConverterStation(hvdcConverterStation1)) { // in real-life cases, both converter stations are of the same type
+            if (hvdcConverterStation1.getHvdcType() == HvdcConverterStation.HvdcType.LCC) { // in real-life cases, both converter stations are of the same type
                 shunts = shuntCompensatorIds.stream()
                         .map(id -> getShuntCompensator(id, network, throwException, reporter))
                         .filter(Objects::nonNull).collect(Collectors.toCollection(LinkedHashSet::new));
@@ -104,26 +104,21 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
     }
 
     private static void removeConverterStations(Network network, HvdcConverterStation<?> hvdcConverterStation1, HvdcConverterStation<?> hvdcConverterStation2, boolean throwException, ComputationManager computationManager, Reporter reporter) {
-        new RemoveFeederBay(hvdcConverterStation1.getId()).apply(network, throwException, computationManager, reporter);
-        new RemoveFeederBay(hvdcConverterStation2.getId()).apply(network, throwException, computationManager, reporter);
-        reportConverterStationRemoved(reporter, hvdcConverterStation1);
-        reportConverterStationRemoved(reporter, hvdcConverterStation2);
+        String station1Id = hvdcConverterStation1.getId();
+        String station2Id = hvdcConverterStation2.getId();
+        HvdcConverterStation.HvdcType station1Type = hvdcConverterStation1.getHvdcType();
+        HvdcConverterStation.HvdcType station2Type = hvdcConverterStation2.getHvdcType();
+        new RemoveFeederBay(station1Id).apply(network, throwException, computationManager, reporter);
+        new RemoveFeederBay(station2Id).apply(network, throwException, computationManager, reporter);
+        reportConverterStationRemoved(reporter, station1Id, station1Type);
+        reportConverterStationRemoved(reporter, station2Id, station2Type);
     }
 
-    private static boolean isLccConverterStation(HvdcConverterStation<?> hvdcConverterStation) {
-        return hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.LCC;
-    }
-
-    private static boolean isVscConverterStation(HvdcConverterStation<?> hvdcConverterStation) {
-        return hvdcConverterStation.getHvdcType() == HvdcConverterStation.HvdcType.VSC;
-    }
-
-    private static void reportConverterStationRemoved(Reporter reporter, HvdcConverterStation<?> hvdcConverterStation) {
-        if (isLccConverterStation(hvdcConverterStation)) {
-            removedLccConverterStationReport(reporter, hvdcConverterStation.getId());
-        }
-        if (isVscConverterStation(hvdcConverterStation)) {
-            removedVscConverterStationReport(reporter, hvdcConverterStation.getId());
+    private static void reportConverterStationRemoved(Reporter reporter, String stationId, HvdcConverterStation.HvdcType converterStationType) {
+        if (converterStationType == HvdcConverterStation.HvdcType.LCC) {
+            removedLccConverterStationReport(reporter, stationId);
+        } else if (converterStationType == HvdcConverterStation.HvdcType.VSC) {
+            removedVscConverterStationReport(reporter, stationId);
         }
     }
 

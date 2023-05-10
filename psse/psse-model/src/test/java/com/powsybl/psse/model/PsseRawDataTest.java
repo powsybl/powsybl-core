@@ -51,8 +51,16 @@ class PsseRawDataTest extends AbstractConverterTest {
         return new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.raw"));
     }
 
+    private ReadOnlyDataSource ieee14nonInductionMachineDataRaw() {
+        return new ResourceDataSource("IEEE_14_bus_non_induction_machine_data", new ResourceSet("/", "IEEE_14_bus_non_induction_machine_data.raw"));
+    }
+
     private ReadOnlyDataSource ieee14Raw35() {
         return new ResourceDataSource("IEEE_14_bus_rev35", new ResourceSet("/", "IEEE_14_bus_rev35.raw"));
+    }
+
+    private ReadOnlyDataSource ieee14nonInductionMachineDataRaw35() {
+        return new ResourceDataSource("IEEE_14_bus_non_induction_machine_data_rev35", new ResourceSet("/", "IEEE_14_bus_non_induction_machine_data_rev35.raw"));
     }
 
     private ReadOnlyDataSource ieee14Rawx35() {
@@ -614,7 +622,7 @@ class PsseRawDataTest extends AbstractConverterTest {
         PssePowerFlowModel rawXData35 = new PowerFlowRawxData35().read(ieee24Rawx35(), "rawx", context);
         assertNotNull(rawXData35);
 
-        String[] expectedSwitchedShuntDataReadFields = new String[] {"i", "id", "modsw", "adjm", "stat", "vswhi", "vswlo", "swreg", "nreg", "rmpct", "rmidnt", "binit", "s1", "n1", "b1"};
+        String[] expectedSwitchedShuntDataReadFields = new String[] {"ibus", "shntid", "modsw", "adjm", "stat", "vswhi", "vswlo", "swreg", "nreg", "rmpct", "rmidnt", "binit", "s1", "n1", "b1"};
         String[] actualSwitchedShuntDataReadFields = context.getFieldNames(SWITCHED_SHUNT);
         assertArrayEquals(expectedSwitchedShuntDataReadFields, actualSwitchedShuntDataReadFields);
     }
@@ -678,6 +686,22 @@ class PsseRawDataTest extends AbstractConverterTest {
     void ieee14BusCompletedRev35RawxTest() throws IOException {
         String expectedJson = loadReference("/IEEE_14_bus_completed_rev35.json");
         PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14CompletedRawx35(), "rawx", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    void ieee14BusNonInductionMachineDataTest() throws IOException {
+        String expectedJson = loadReference("/IEEE_14_bus.json");
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14nonInductionMachineDataRaw(), "raw", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    void ieee14BusNonInductionMachineDataRev35Test() throws IOException {
+        String expectedJson = loadReference("/IEEE_14_bus_rev35.json");
+        PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14nonInductionMachineDataRaw35(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
     }

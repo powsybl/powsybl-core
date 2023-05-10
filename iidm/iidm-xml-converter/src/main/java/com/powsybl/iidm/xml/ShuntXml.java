@@ -9,6 +9,8 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -20,6 +22,8 @@ import static com.powsybl.iidm.xml.ConnectableXmlUtil.writeNodeOrBus;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCompensatorAdder, VoltageLevel> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShuntXml.class);
 
     static final ShuntXml INSTANCE = new ShuntXml();
 
@@ -42,12 +46,10 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
             IidmXmlUtil.assertMinimumVersion(getRootElementName(), SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
         }
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            ShuntCompensatorModel model = sc.getModel();
-            double bPerSection = model instanceof ShuntCompensatorLinearModel ? ((ShuntCompensatorLinearModel) model).getBPerSection() : sc.getB();
-            context.getWriter().writeDoubleAttribute(B_PER_SECTION, bPerSection);
-            int maximumSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getMaximumSectionCount() : 1;
+            context.getWriter().writeDoubleAttribute(B_PER_SECTION, getBPerSection(sc, context.getVersion()));
+            int maximumSectionCount = sc.getModel() instanceof ShuntCompensatorLinearModel ? sc.getMaximumSectionCount() : 1;
             context.getWriter().writeIntAttribute(MAXIMUM_SECTION_COUNT, maximumSectionCount);
-            int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount() : 1;
+            int currentSectionCount = sc.getModel() instanceof ShuntCompensatorLinearModel ? sc.getSectionCount() : 1;
             context.getWriter().writeIntAttribute("currentSectionCount", currentSectionCount);
         });
         if (sc.findSectionCount().isPresent()) {
@@ -61,6 +63,19 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
         writeNodeOrBus(null, sc.getTerminal(), context);
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_9, context, () -> context.getWriter().writeDoubleAttribute("p", sc.getTerminal().getP(), Double.NaN));
         context.getWriter().writeDoubleAttribute("q", sc.getTerminal().getQ(), Double.NaN);
+    }
+
+    private static double getBPerSection(ShuntCompensator sc, IidmXmlVersion version) {
+        ShuntCompensatorModel model = sc.getModel();
+        double bPerSection = model instanceof ShuntCompensatorLinearModel ? ((ShuntCompensatorLinearModel) model).getBPerSection() : sc.getB();
+        if (bPerSection == 0 && version.compareTo(IidmXmlVersion.V_1_4) <= 0) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("bPerSection of {} is 0. It is set as {} since XIIDM version < 1.5 ({})", sc.getId(),
+                        Double.MIN_NORMAL, version.toString("."));
+            }
+            bPerSection = Double.MIN_NORMAL;
+        }
+        return bPerSection;
     }
 
     @Override
@@ -80,7 +95,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
     private static void writeModel(ShuntCompensator sc, NetworkXmlWriterContext context) {
         if (sc.getModelType() == ShuntCompensatorModelType.LINEAR) {
             context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_LINEAR_MODEL);
-            context.getWriter().writeDoubleAttribute(B_PER_SECTION, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection());
+            context.getWriter().writeDoubleAttribute(B_PER_SECTION, getBPerSection(sc, context.getVersion()));
             context.getWriter().writeDoubleAttribute("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection());
             context.getWriter().writeIntAttribute(MAXIMUM_SECTION_COUNT, sc.getMaximumSectionCount());
             context.getWriter().writeEndNode();

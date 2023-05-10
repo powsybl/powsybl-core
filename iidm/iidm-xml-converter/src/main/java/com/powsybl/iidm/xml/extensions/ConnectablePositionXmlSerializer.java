@@ -46,6 +46,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
                         .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put(V_1_0, "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0")

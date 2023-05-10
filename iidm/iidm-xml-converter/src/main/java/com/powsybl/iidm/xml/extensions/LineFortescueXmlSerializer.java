@@ -1,3 +1,4 @@
+
 /**
  * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -31,15 +32,24 @@ public class LineFortescueXmlSerializer extends AbstractExtensionXmlSerializer<L
     public void write(LineFortescue lineFortescue, XmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("rz", lineFortescue.getRz(), Double.NaN);
         context.getWriter().writeDoubleAttribute("xz", lineFortescue.getXz(), Double.NaN);
+        context.getWriter().writeBooleanAttribute("openPhaseA", lineFortescue.isOpenPhaseA(), false);
+        context.getWriter().writeBooleanAttribute("openPhaseB", lineFortescue.isOpenPhaseB(), false);
+        context.getWriter().writeBooleanAttribute("openPhaseC", lineFortescue.isOpenPhaseC(), false);
     }
 
     @Override
     public LineFortescue read(Line line, XmlReaderContext context) {
         double rz = context.getReader().readDoubleAttribute("rz");
         double xz = context.getReader().readDoubleAttribute("xz");
+        boolean openPhaseA = context.getReader().readBooleanAttribute("openPhaseA", false);
+        boolean openPhaseB = context.getReader().readBooleanAttribute("openPhaseB", false);
+        boolean openPhaseC = context.getReader().readBooleanAttribute("openPhaseC", false);
         return line.newExtension(LineFortescueAdder.class)
                 .withRz(rz)
                 .withXz(xz)
+                .withOpenPhaseA(openPhaseA)
+                .withOpenPhaseB(openPhaseB)
+                .withOpenPhaseC(openPhaseC)
                 .add();
     }
 }
