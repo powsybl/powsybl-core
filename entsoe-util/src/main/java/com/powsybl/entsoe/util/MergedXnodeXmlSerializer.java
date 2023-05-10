@@ -42,6 +42,7 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
                         .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of("1.0", "1.1"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/merged_xnode/1_0")
