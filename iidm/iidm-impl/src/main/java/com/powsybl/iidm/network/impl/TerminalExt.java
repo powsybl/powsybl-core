@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyPoint;
 import com.powsybl.math.graph.TraverseResult;
 
 import java.util.Set;
@@ -52,7 +53,7 @@ interface TerminalExt extends Terminal, MultiVariantObject {
      */
     boolean traverse(TopologyTraverser traverser, Set<Terminal> visitedTerminals);
 
-    String getConnectionInfo();
+    TopologyPoint getTopologyPoint();
 
     void removeAsRegulationPoint();
 
