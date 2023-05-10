@@ -78,6 +78,7 @@ public final class EquipmentExport {
             writeLoads(network, loadGroups, cimNamespace, writer, context);
             writeLoadGroups(loadGroups.found(), cimNamespace, writer, context);
             writeGenerators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writeInitialP, writer, context);
+            writeBatteries(network, cimNamespace, writeInitialP, writer, context);
             writeShuntCompensators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writer, context);
             writeStaticVarCompensators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writer, context);
             writeLines(network, mapTerminal2Id, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
@@ -163,7 +164,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeBuses(VoltageLevel vl, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context)throws XMLStreamException {
+    private static void writeBuses(VoltageLevel vl, Map <String, String> mapNodeKey2NodeId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Bus bus : vl.getBusBreakerView().getBuses()) {
             String cgmesNodeId = context.getNamingStrategy().getCgmesId(bus, CONNECTIVITY_NODE_SUFFIX);
             ConnectivityNodeEq.write(cgmesNodeId, bus.getNameOrId(), context.getNamingStrategy().getCgmesId(vl), cimNamespace, writer, context);
@@ -171,7 +172,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context)throws XMLStreamException {
+    private static void writeSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 VoltageLevel vl = sw.getVoltageLevel();
@@ -285,41 +286,61 @@ public final class EquipmentExport {
         // We have to write each generating unit only once
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
-            String generatingUnit = context.getNamingStrategy().getCgmesIdFromProperty(generator, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
             String regulatingControlId = RegulatingControlEq.writeKindVoltage(generator, exportedTerminalId(mapTerminal2Id, generator.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, writer, context);
-            String reactiveLimitsId = null;
-            double minQ = 0.0;
-            double maxQ = 0.0;
-            switch (generator.getReactiveLimits().getKind()) {
-                case CURVE:
-                    reactiveLimitsId = CgmesExportUtil.getUniqueId();
-                    ReactiveCapabilityCurve curve = generator.getReactiveLimits(ReactiveCapabilityCurve.class);
-                    for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                        CurveDataEq.write(CgmesExportUtil.getUniqueId(), point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context);
-                    }
-                    String reactiveCapabilityCurveName = "RCC_" + generator.getNameOrId();
-                    ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, generator, cimNamespace, writer, context);
-                    break;
+            writeSynchronousMachine(generator, cimNamespace, writeInitialP, "generator",
+                    generator.getMinP(), generator.getMaxP(), generator.getTargetP(), generator.getRatedS(), generator.getEnergySource(),
+                    regulatingControlId, writer, context, generatingUnitsWritten);
+        }
+    }
 
-                case MIN_MAX:
-                    minQ = generator.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ();
-                    maxQ = generator.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ();
-                    break;
+    private static void writeBatteries(Network network, String cimNamespace, boolean writeInitialP,
+                                        XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        // Multiple synchronous machines may be grouped in the same generating unit
+        // We have to write each generating unit only once
+        Set<String> generatingUnitsWritten = new HashSet<>();
+        for (Battery battery : network.getBatteries()) {
+            writeSynchronousMachine(battery, cimNamespace, writeInitialP, "generatorOrMotor",
+                    battery.getMinP(), battery.getMaxP(), battery.getTargetP(), Double.NaN, EnergySource.HYDRO, null,
+                    writer, context, generatingUnitsWritten);
+        }
+    }
 
-                default:
-                    throw new PowsyblException("Unexpected type of ReactiveLimits on the generator " + generator.getNameOrId());
-            }
-            SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
-                    context.getNamingStrategy().getCgmesId(generator.getTerminal().getVoltageLevel()),
-                    generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, generator.getRatedS(), cimNamespace, writer, context);
-            if (!generatingUnitsWritten.contains(generatingUnit)) {
-                // We have not preserved the names of generating units
-                // We name generating units based on the first machine found
-                String generatingUnitName = "GU_" + generator.getNameOrId();
-                GeneratingUnitEq.write(generatingUnit, generatingUnitName, generator.getEnergySource(), generator.getMinP(), generator.getMaxP(), generator.getTargetP(), cimNamespace, writeInitialP,
-                        generator.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), writer, context);
-                generatingUnitsWritten.add(generatingUnit);
-            }
+    private static <I extends ReactiveLimitsHolder & Injection<I>> void writeSynchronousMachine(I i, String cimNamespace, boolean writeInitialP, String kind,
+                                                double minP, double maxP, double targetP, double ratedS, EnergySource energySource, String regulatingControlId,
+                                                XMLStreamWriter writer, CgmesExportContext context, Set<String> generatingUnitsWritten) throws XMLStreamException {
+        String generatingUnit = context.getNamingStrategy().getCgmesIdFromProperty(i, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
+        String reactiveLimitsId = null;
+        double minQ = 0.0;
+        double maxQ = 0.0;
+        switch (i.getReactiveLimits().getKind()) {
+            case CURVE:
+                reactiveLimitsId = CgmesExportUtil.getUniqueId();
+                ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
+                for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
+                    CurveDataEq.write(CgmesExportUtil.getUniqueId(), point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context);
+                }
+                String reactiveCapabilityCurveName = "RCC_" + i.getNameOrId();
+                ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, i, cimNamespace, writer, context);
+                break;
+
+            case MIN_MAX:
+                minQ = i.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ();
+                maxQ = i.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ();
+                break;
+
+            default:
+                throw new PowsyblException("Unexpected type of ReactiveLimits on the generator " + i.getNameOrId());
+        }
+        SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
+                context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel()),
+                generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, ratedS, kind, cimNamespace, writer, context);
+        if (!generatingUnitsWritten.contains(generatingUnit)) {
+            // We have not preserved the names of generating units
+            // We name generating units based on the first machine found
+            String generatingUnitName = "GU_" + i.getNameOrId();
+            GeneratingUnitEq.write(generatingUnit, generatingUnitName, energySource, minP, maxP, targetP, cimNamespace, writeInitialP,
+                    i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), writer, context);
+            generatingUnitsWritten.add(generatingUnit);
         }
     }
 
