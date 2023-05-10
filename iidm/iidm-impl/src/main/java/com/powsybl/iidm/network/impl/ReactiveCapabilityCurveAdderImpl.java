@@ -76,10 +76,9 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
                     LOGGER.warn("{}duplicate point for active power {}", owner.getMessageHeader(), p);
                 }
             }
-             if (maxQ < minQ) {
-                 throw new ValidationException(owner,
-                         "maximum reactive power is expected to be greater than or equal to minimum reactive power");
-             }
+            if (maxQ < minQ) {
+                throw new ValidationException(owner, "maximum reactive power is expected to be greater than or equal to minimum reactive power");
+            }
             points.put(p, new PointImpl(p, minQ, maxQ));
             return ReactiveCapabilityCurveAdderImpl.this;
         }
