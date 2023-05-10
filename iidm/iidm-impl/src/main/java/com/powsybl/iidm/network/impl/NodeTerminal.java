@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyPoint;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -49,7 +50,7 @@ class NodeTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
             }
-            getConnectable().move(NodeTerminal.this, getConnectionInfo(), node, voltageLevelId);
+            getConnectable().move(NodeTerminal.this, getTopologyPoint(), node, voltageLevelId);
         }
     };
 
@@ -81,14 +82,14 @@ class NodeTerminal extends AbstractTerminal {
             if (removed) {
                 throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
             }
-            getConnectable().move(NodeTerminal.this, getConnectionInfo(), busId, connected);
+            getConnectable().move(NodeTerminal.this, getTopologyPoint(), busId, connected);
         }
 
     };
 
     @Override
-    public String getConnectionInfo() {
-        return "node " + getNode() + ", Voltage level " + getVoltageLevel().getId();
+    public TopologyPoint getTopologyPoint() {
+        return new NodeTopologyPointImpl(getVoltageLevel().getId(), getNode());
     }
 
     private final BusViewExt busView = new BusViewExt() {
