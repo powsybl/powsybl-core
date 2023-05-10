@@ -86,4 +86,35 @@ class NetworkElementIdentifierContingencyListTest {
         assertEquals(1, contingencies.size());
         assertEquals(new Contingency("contingency", Arrays.asList(new LineContingency("NHV1_NHV2_2"), new LineContingency("NHV1_NHV2_1"))), contingencies.get(0));
     }
+
+    @Test
+    void testIdentifierListOfIdBasedWithSeveralIds() {
+        Network network = EurostagTutorialExample1Factory.create();
+        List<NetworkElementIdentifier> networkElementIdentifierListElements = new ArrayList<>();
+
+        networkElementIdentifierListElements.add(
+                new NetworkElementIdentifierList(List.of(
+                        new IdBasedNetworkElementIdentifier(
+                                new HashSet<>(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2")), "test3"),
+                        new IdBasedNetworkElementIdentifier(
+                                new HashSet<>(Arrays.asList("NHV1_NHV2_1", "GEN")), "test4")
+                ), "contingencyId1")
+        );
+        networkElementIdentifierListElements.add(
+                new NetworkElementIdentifierList(List.of(
+                        new NetworkElementIdentifierList(List.of(
+                                new IdBasedNetworkElementIdentifier(
+                                        new HashSet<>(Arrays.asList("NHV1_NHV2_2", "GEN")),
+                                        "")),
+                                "")
+                ), "contingencyId2")
+        );
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierListElements);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(2, contingencies.size());
+        assertEquals(new Contingency("contingencyId1", Arrays.asList(new LineContingency("NHV1_NHV2_2"),
+                new LineContingency("NHV1_NHV2_1"), new GeneratorContingency("GEN"))), contingencies.get(0));
+        assertEquals(new Contingency("contingencyId2", Arrays.asList(new GeneratorContingency("GEN"),
+                new LineContingency("NHV1_NHV2_2"))), contingencies.get(1));
+    }
 }
