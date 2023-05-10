@@ -21,6 +21,7 @@ import org.joda.time.DateTime;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -64,6 +65,7 @@ public class CgmesExportContext {
     private final BiMap<String, String> regionsIdsByRegionName = HashBiMap.create();
     private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
     private final Map<String, String> fictitiousContainers = new HashMap<>();
+    private final Map<String, Bus> topologicalNodes = new HashMap<>();
 
     // Update dependencies in a way that:
     // [EQ.dependentOn EQ_BD]
@@ -258,6 +260,7 @@ public class CgmesExportContext {
         addIidmMappingsBaseVoltages(bvMapping, network);
         addIidmMappingsTerminals(network);
         addIidmMappingsGenerators(network);
+        addIidmMappingsBatteries(network);
         addIidmMappingsShuntCompensators(network);
         addIidmMappingsStaticVarCompensators(network);
         addIidmMappingsEndsAndTapChangers(network);
@@ -438,6 +441,17 @@ public class CgmesExportContext {
                 regulatingControlId = CgmesExportUtil.getUniqueId();
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
+        }
+    }
+
+    private static void addIidmMappingsBatteries(Network network) {
+        for (Battery battery : network.getBatteries()) {
+            String generatingUnit = battery.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
+            if (generatingUnit == null) {
+                generatingUnit = CgmesExportUtil.getUniqueId();
+                battery.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
+            }
+            // TODO regulation
         }
     }
 
@@ -673,6 +687,21 @@ public class CgmesExportContext {
 
     public Reporter getReporter() {
         return this.reporter;
+    }
+
+    public void putTopologicalNode(String tn, Bus bus) {
+        topologicalNodes.put(tn, bus);
+    }
+
+    public boolean containsTopologicalNode(String tn) {
+        return topologicalNodes.containsKey(tn);
+    }
+
+    public Map<String, Bus> getTopologicalNodes(Network network) {
+        if (topologicalNodes.isEmpty()) {
+            return network.getBusBreakerView().getBusStream().collect(Collectors.toMap(b -> namingStrategy.getCgmesId(b), b -> b));
+        }
+        return Collections.unmodifiableMap(topologicalNodes);
     }
 }
 
