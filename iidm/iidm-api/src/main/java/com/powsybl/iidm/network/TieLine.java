@@ -162,7 +162,7 @@ package com.powsybl.iidm.network;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public interface TieLine extends Identifiable<TieLine>, LineCharacteristicsGetters {
+public interface TieLine extends Identifiable<TieLine>, LineCharacteristics {
 
     /**
      * Get the UCTE Xnode code corresponding to this tie line in the case where the
