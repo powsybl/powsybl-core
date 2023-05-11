@@ -8,7 +8,10 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TapChanger;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.OptionalInt;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,6 +31,8 @@ class TapPositionModificationTest {
     private Network threeWindingNetwork;
     private TwoWindingsTransformer twoWindingsTransformer;
     private ThreeWindingsTransformer threeWindingTransformer;
+    private static final int LEG_NUM = 1; // Using leg number 2
+    private ThreeWindingsTransformer.Leg threeWindingTransformerLeg;
 
     @BeforeEach
     public void setUp() {
@@ -39,7 +45,8 @@ class TapPositionModificationTest {
         twoWindingsTransformer.getPhaseTapChanger()
                               .setTapPosition(twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition());
         twoWindingsTransformer.getRatioTapChanger()
-                              .setTapPosition(twoWindingsTransformer.getRatioTapChanger().getHighTapPosition());
+            .setTapPosition(twoWindingsTransformer.getRatioTapChanger().getHighTapPosition());
+        threeWindingTransformerLeg = threeWindingTransformer.getLegStream().collect(Collectors.toList()).get(LEG_NUM);
     }
 
     @Test
@@ -91,9 +98,13 @@ class TapPositionModificationTest {
 
     @Test
     void testTwoWindingsModif() {
-        testRtcTransformer(twoWindingsTransformer, TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
+        testTapTransformer(twoWindingsTransformer.getPhaseTapChanger(),
+            TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
+            TapPositionModification.TapType.PHASE,
             twoWindingsTransformer.getId());
-        testPtcTransformer(twoWindingsTransformer, TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
+        testTapTransformer(twoWindingsTransformer.getRatioTapChanger(),
+            TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
+            TapPositionModification.TapType.RATIO,
             twoWindingsTransformer.getId());
     }
 
@@ -120,44 +131,31 @@ class TapPositionModificationTest {
             .setAlpha(1.1)
             .endStep()
             .add();
-        testRtcTransformer(leg, TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
+        testTapTransformer(threeWindingTransformerLeg.getPhaseTapChanger(),
+            TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
+            TapPositionModification.TapType.PHASE,
             threeWindingTransformer.getId());
-        testPtcTransformer(leg, TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
+        testTapTransformer(threeWindingTransformerLeg.getRatioTapChanger(),
+            TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
+            TapPositionModification.TapType.RATIO,
             threeWindingTransformer.getId());
     }
 
-    private void testPtcTransformer(PhaseTapChangerHolder ptcHolder,
+    private void testTapTransformer(TapChanger<?, ?> tapChanger,
                                     final TapPositionModification.TransformerElement transformerElement,
+                                    final TapPositionModification.TapType tapType,
                                     final String transformerId) {
-        Supplier<Integer> tapPositionSupplier = ptcHolder.getPhaseTapChanger()::getTapPosition;
-
+        Supplier<Integer> tapPositionSupplier = tapChanger::getTapPosition;
         assertTrue(
-            ptcHolder.getPhaseTapChanger().getLowTapPosition() < ptcHolder.getPhaseTapChanger().getHighTapPosition());
+            tapChanger.getLowTapPosition() < tapChanger.getHighTapPosition());
 
-        testValidTapPos(TapPositionModification.TapType.PHASE, ptcHolder.getPhaseTapChanger().getHighTapPosition() - 1,
+        testValidTapPos(tapType, tapChanger.getHighTapPosition() - 1,
             transformerId, transformerElement, tapPositionSupplier);
-        int actualPtcPos = ptcHolder.getPhaseTapChanger().getTapPosition();
-        testInvalidTapPosition(actualPtcPos, TapPositionModification.TapType.PHASE, transformerElement,
-            ptcHolder.getPhaseTapChanger().getHighTapPosition() + 1, transformerId, tapPositionSupplier);
-        testInvalidTapPosition(actualPtcPos, TapPositionModification.TapType.PHASE, transformerElement,
-            ptcHolder.getPhaseTapChanger().getLowTapPosition() - 1, transformerId, tapPositionSupplier);
-    }
-
-    private void testRtcTransformer(RatioTapChangerHolder rtcHolder,
-                                    final TapPositionModification.TransformerElement transformerElement,
-                                    final String transformerId) {
-        Supplier<Integer> tapPositionSupplier = rtcHolder.getRatioTapChanger()::getTapPosition;
-        // This assert is an assumption for the rest of the test.
-        assertTrue(
-            rtcHolder.getRatioTapChanger().getLowTapPosition() < rtcHolder.getRatioTapChanger().getHighTapPosition());
-        testValidTapPos(TapPositionModification.TapType.RATIO, rtcHolder.getRatioTapChanger().getHighTapPosition() - 1,
-            transformerId, transformerElement, tapPositionSupplier);
-
-        int actualRtcPos = rtcHolder.getRatioTapChanger().getTapPosition();
-        testInvalidTapPosition(actualRtcPos, TapPositionModification.TapType.RATIO, transformerElement,
-            rtcHolder.getRatioTapChanger().getHighTapPosition() + 1, transformerId, tapPositionSupplier);
-        testInvalidTapPosition(actualRtcPos, TapPositionModification.TapType.RATIO, transformerElement,
-            rtcHolder.getRatioTapChanger().getLowTapPosition() - 1, transformerId, tapPositionSupplier);
+        int actualPtcPos = tapChanger.getTapPosition();
+        testInvalidTapPosition(actualPtcPos, tapType, transformerElement,
+            tapChanger.getHighTapPosition() + 1, transformerId, tapPositionSupplier);
+        testInvalidTapPosition(actualPtcPos, tapType, transformerElement,
+            tapChanger.getLowTapPosition() - 1, transformerId, tapPositionSupplier);
     }
 
     private void testValidTapPos(final TapPositionModification.TapType type, final int tapPos,
@@ -169,8 +167,7 @@ class TapPositionModificationTest {
             optLeg = OptionalInt.empty();
             networkToApply = network;
         } else {
-            // using leg2
-            optLeg = OptionalInt.of(1);
+            optLeg = OptionalInt.of(LEG_NUM);
             networkToApply = threeWindingNetwork;
         }
         TapPositionModification modif = new TapPositionModification(transformerId, element, type, tapPos, optLeg);
