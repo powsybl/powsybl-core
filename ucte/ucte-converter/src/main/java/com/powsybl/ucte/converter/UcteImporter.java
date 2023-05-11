@@ -323,8 +323,6 @@ public class UcteImporter implements Importer {
                     .add();
         }
 
-        dl.newExtension(XnodeAdder.class).withCode(xnode.getCode().toString()).add();
-
         if (ucteLine.getCurrentLimit() != null) {
             dl.newCurrentLimits()
                     .setPermanentLimit(ucteLine.getCurrentLimit())
@@ -694,7 +692,6 @@ public class UcteImporter implements Importer {
                 .setTargetQ(-targetQ)
                 .add()
                 .add();
-        yDanglingLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();
         addXnodeStatusProperty(ucteXnode, yDanglingLine);
         addGeographicalNameProperty(ucteXnode, yDanglingLine);
 
@@ -838,11 +835,7 @@ public class UcteImporter implements Importer {
     }
 
     private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Multimap<String, DanglingLine> danglingLinesByXnodeCode) {
-        Xnode xnodExtension = dl1.getExtension(Xnode.class);
-        if (xnodExtension == null) {
-            throw new UcteException("Dangling line " + dl1.getNameOrId() + " doesn't have the Xnode extension");
-        }
-        String otherXnodeCode = xnodExtension.getCode();
+        String otherXnodeCode = dl1.getUcteXnodeCode();
         List<DanglingLine> matchingDanglingLines = danglingLinesByXnodeCode.get(otherXnodeCode)
                 .stream().filter(dl -> dl != dl1)
                 .collect(Collectors.toList());
@@ -987,7 +980,7 @@ public class UcteImporter implements Importer {
     private void mergeXnodeDanglingLines(UcteNetwork ucteNetwork, Network network) {
         Multimap<String, DanglingLine> danglingLinesByXnodeCode = HashMultimap.create();
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
-            danglingLinesByXnodeCode.put(dl.getExtension(Xnode.class).getCode(), dl);
+            danglingLinesByXnodeCode.put(dl.getUcteXnodeCode(), dl);
         }
 
         Set<DanglingLine> danglingLinesToProcess = Sets.newHashSet(network.getDanglingLines(DanglingLineFilter.ALL));
@@ -1022,7 +1015,7 @@ public class UcteImporter implements Importer {
         double sumX = dlAtSideOne.getX() + dlAtSideTwo.getX();
         double rdp = (sumR == 0.) ? 0.5 : dlAtSideOne.getR() / sumR;
         double xdp = (sumX == 0.) ? 0.5 : dlAtSideOne.getX() / sumX;
-        String xnodeCode = dlAtSideOne.getExtension(Xnode.class).getCode();
+        String xnodeCode = dlAtSideOne.getUcteXnodeCode();
 
         TieLine mergeLine = network.newTieLine()
                 .setId(mergeLineId)
