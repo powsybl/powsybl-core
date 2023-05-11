@@ -26,16 +26,16 @@ public class StaticVarCompensatorModification extends AbstractNetworkModificatio
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticVarCompensatorModification.class);
 
     private final String svcId;
-    private final OptionalDouble voltageSetPoint;
-    private final OptionalDouble reactivePowerSetPoint;
+    private final OptionalDouble voltageSetpoint;
+    private final OptionalDouble reactivePowerSetpoint;
 
-    public StaticVarCompensatorModification(String svcId, OptionalDouble voltageSetPoint,
-                                            OptionalDouble reactivePowerSetPoint) {
-        this.svcId = svcId;
-        this.voltageSetPoint = Objects.requireNonNull(voltageSetPoint);
-        this.reactivePowerSetPoint = Objects.requireNonNull(reactivePowerSetPoint);
-        if (voltageSetPoint.isEmpty() && reactivePowerSetPoint.isEmpty()) {
-            LOGGER.warn("Creating a StaticVarCompensatorModification with no change !");
+    public StaticVarCompensatorModification(String svcId, OptionalDouble voltageSetpoint,
+                                            OptionalDouble reactivePowerSetpoint) {
+        this.svcId = Objects.requireNonNull(svcId);
+        this.voltageSetpoint = Objects.requireNonNull(voltageSetpoint);
+        this.reactivePowerSetpoint = Objects.requireNonNull(reactivePowerSetpoint);
+        if (voltageSetpoint.isEmpty() && reactivePowerSetpoint.isEmpty()) {
+            LOGGER.warn("Creating a StaticVarCompensatorModification with no modification !");
         }
     }
 
@@ -48,19 +48,19 @@ public class StaticVarCompensatorModification extends AbstractNetworkModificatio
             logOrThrow(throwException, "StaticVarcompensator '" + svcId + "' not found");
             return;
         }
-        voltageSetPoint.ifPresent(svc::setVoltageSetpoint);
-        reactivePowerSetPoint.ifPresent(svc::setReactivePowerSetpoint);
+        voltageSetpoint.ifPresent(svc::setVoltageSetpoint);
+        reactivePowerSetpoint.ifPresent(svc::setReactivePowerSetpoint);
     }
 
     public String getSvcId() {
         return svcId;
     }
 
-    public OptionalDouble getReactivePowerSetPoint() {
-        return reactivePowerSetPoint;
+    public OptionalDouble getReactivePowerSetpoint() {
+        return reactivePowerSetpoint;
     }
 
-    public OptionalDouble getVoltageSetPoint() {
-        return voltageSetPoint;
+    public OptionalDouble getVoltageSetpoint() {
+        return voltageSetpoint;
     }
 }

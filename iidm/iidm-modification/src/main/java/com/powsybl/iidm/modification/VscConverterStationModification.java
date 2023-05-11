@@ -31,7 +31,7 @@ public class VscConverterStationModification extends AbstractNetworkModification
 
     public VscConverterStationModification(String vscId, OptionalDouble voltageSetPoint,
                                            OptionalDouble reactivePowerSetPoint) {
-        this.vscId = vscId;
+        this.vscId = Objects.requireNonNull(vscId);
         this.voltageSetPoint = Objects.requireNonNull(voltageSetPoint);
         this.reactivePowerSetPoint = Objects.requireNonNull(reactivePowerSetPoint);
         if (voltageSetPoint.isEmpty() && reactivePowerSetPoint.isEmpty()) {
