@@ -26,15 +26,15 @@ public class VscConverterStationModification extends AbstractNetworkModification
     private static final Logger LOGGER = LoggerFactory.getLogger(VscConverterStationModification.class);
 
     private final String vscId;
-    private final OptionalDouble voltageSetPoint;
-    private final OptionalDouble reactivePowerSetPoint;
+    private final OptionalDouble voltageSetpoint;
+    private final OptionalDouble reactivePowerSetpoint;
 
-    public VscConverterStationModification(String vscId, OptionalDouble voltageSetPoint,
-                                           OptionalDouble reactivePowerSetPoint) {
+    public VscConverterStationModification(String vscId, OptionalDouble voltageSetpoint,
+                                           OptionalDouble reactivePowerSetpoint) {
         this.vscId = Objects.requireNonNull(vscId);
-        this.voltageSetPoint = Objects.requireNonNull(voltageSetPoint);
-        this.reactivePowerSetPoint = Objects.requireNonNull(reactivePowerSetPoint);
-        if (voltageSetPoint.isEmpty() && reactivePowerSetPoint.isEmpty()) {
+        this.voltageSetpoint = Objects.requireNonNull(voltageSetpoint);
+        this.reactivePowerSetpoint = Objects.requireNonNull(reactivePowerSetpoint);
+        if (voltageSetpoint.isEmpty() && reactivePowerSetpoint.isEmpty()) {
             LOGGER.warn("Creating a VscConverterStationModification with no change !");
         }
     }
@@ -48,19 +48,19 @@ public class VscConverterStationModification extends AbstractNetworkModification
             logOrThrow(throwException, "VscConverterStation '" + vscId + "' not found");
             return;
         }
-        voltageSetPoint.ifPresent(vsc::setVoltageSetpoint);
-        reactivePowerSetPoint.ifPresent(vsc::setReactivePowerSetpoint);
+        voltageSetpoint.ifPresent(vsc::setVoltageSetpoint);
+        reactivePowerSetpoint.ifPresent(vsc::setReactivePowerSetpoint);
     }
 
     public String getVscId() {
         return vscId;
     }
 
-    public OptionalDouble getReactivePowerSetPoint() {
-        return reactivePowerSetPoint;
+    public OptionalDouble getReactivePowerSetpoint() {
+        return reactivePowerSetpoint;
     }
 
-    public OptionalDouble getVoltageSetPoint() {
-        return voltageSetPoint;
+    public OptionalDouble getVoltageSetpoint() {
+        return voltageSetpoint;
     }
 }
