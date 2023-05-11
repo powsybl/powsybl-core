@@ -301,12 +301,12 @@ class VoltageLevelAdapterTest {
                 .setBus("busA")
                 .setConnectableBus("busA")
             .add();
-        vlActual.getDanglingLines().forEach(s -> {
+        vlActual.getDanglingLines(DanglingLineFilter.ALL).forEach(s -> {
             assertTrue(s instanceof DanglingLineAdapter);
             assertNotNull(s);
         });
         assertEquals(vlExpected.getDanglingLineCount(), vlActual.getDanglingLineCount());
-        assertEquals(vlExpected.getDanglingLineStream().count(), vlActual.getDanglingLineStream().count());
+        assertEquals(vlExpected.getDanglingLineStream(DanglingLineFilter.ALL).count(), vlActual.getDanglingLineStream(DanglingLineFilter.ALL).count());
 
         // Topology : Bus kind
         assertEquals(vlExpected.getTopologyKind(), vlActual.getTopologyKind());

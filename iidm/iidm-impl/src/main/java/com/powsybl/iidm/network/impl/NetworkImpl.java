@@ -489,13 +489,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return Collections.unmodifiableCollection(index.getAll(DanglingLineImpl.class));
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return index.getAll(DanglingLineImpl.class).stream().map(Function.identity());
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return index.getAll(DanglingLineImpl.class).stream().filter(danglingLineFilter.getPredicate()).map(Function.identity());
     }
 
     @Override
@@ -903,12 +903,12 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         List<MergedLine> lines = new ArrayList<>();
         Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
 
-        for (DanglingLine dl1 : getDanglingLines()) {
+        for (DanglingLine dl1 : getDanglingLines(DanglingLineFilter.ALL)) {
             if (dl1.getUcteXnodeCode() != null) {
                 dl1byXnodeCode.computeIfAbsent(dl1.getUcteXnodeCode(), k -> new ArrayList<>()).add(dl1);
             }
         }
-        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
+        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
             findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> mergeDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 

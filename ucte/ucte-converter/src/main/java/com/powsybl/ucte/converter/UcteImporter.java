@@ -986,11 +986,11 @@ public class UcteImporter implements Importer {
 
     private void mergeXnodeDanglingLines(UcteNetwork ucteNetwork, Network network) {
         Multimap<String, DanglingLine> danglingLinesByXnodeCode = HashMultimap.create();
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             danglingLinesByXnodeCode.put(dl.getExtension(Xnode.class).getCode(), dl);
         }
 
-        Set<DanglingLine> danglingLinesToProcess = Sets.newHashSet(network.getDanglingLines());
+        Set<DanglingLine> danglingLinesToProcess = Sets.newHashSet(network.getDanglingLines(DanglingLineFilter.ALL));
         while (!danglingLinesToProcess.isEmpty()) {
             DanglingLine dlToProcess = danglingLinesToProcess.iterator().next();
             DanglingLine dlMatchingDlToProcess = getMatchingDanglingLine(dlToProcess, danglingLinesByXnodeCode);

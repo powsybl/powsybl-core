@@ -8,16 +8,8 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -202,10 +194,7 @@ public final class AmplUtil {
     }
 
     private static void fillDanglingLines(StringToIntMapper<AmplSubset> mapper, Network network) {
-        for (DanglingLine dl : network.getDanglingLines()) {
-            if (dl.isMerged()) {
-                continue;
-            }
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
             mapper.newInt(AmplSubset.VOLTAGE_LEVEL, dl.getId());
             mapper.newInt(AmplSubset.BUS, dl.getId());
             mapper.newInt(AmplSubset.BRANCH, dl.getId());

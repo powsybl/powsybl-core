@@ -152,10 +152,7 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : network.getDanglingLines()) {
-            if (dl.isMerged()) {
-                continue;
-            }
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
             Bus b = dl.getTerminal().getBusView().getBus();
             String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNode != null) {
@@ -207,7 +204,7 @@ public final class StateVariablesExport {
 
         Map<String, Double> equivalentInjectionTerminalP = new HashMap<>();
         Map<String, Double> equivalentInjectionTerminalQ = new HashMap<>();
-        network.getDanglingLineStream().filter(dl -> !dl.isMerged()).forEach(dl -> {
+        network.getDanglingLineStream(DanglingLineFilter.UNMERGED).forEach(dl -> {
             // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
             // DanglingLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {

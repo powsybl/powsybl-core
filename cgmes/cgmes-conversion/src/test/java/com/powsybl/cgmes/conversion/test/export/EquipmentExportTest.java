@@ -145,7 +145,7 @@ class EquipmentExportTest extends AbstractConverterTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         // Remove aliases of equivalent injections, so they will have to be created during export
-        for (DanglingLine danglingLine : expected.getDanglingLines()) {
+        for (DanglingLine danglingLine : expected.getDanglingLines(DanglingLineFilter.ALL)) {
             danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         }
@@ -488,7 +488,7 @@ class EquipmentExportTest extends AbstractConverterTest {
             compareFlowLimits(expectedTwt.getLeg2(), twt.getLeg2());
             compareFlowLimits(expectedTwt.getLeg3(), twt.getLeg3());
         }
-        for (DanglingLine danglingLine : actual.getDanglingLines()) {
+        for (DanglingLine danglingLine : actual.getDanglingLines(DanglingLineFilter.ALL)) {
             compareFlowLimits((FlowsLimitsHolder) expected.getIdentifiable(danglingLine.getId()), danglingLine);
         }
     }

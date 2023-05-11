@@ -152,14 +152,14 @@ class BusAdapterTest {
 
         // Check that dangling lines are present in networks and that merged line doesn't exist
         Bus busA = network1.getBusBreakerView().getBus("busA");
-        assertFalse(busA.getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
-        assertFalse(StreamSupport.stream(busA.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertFalse(busA.getDanglingLineStream(DanglingLineFilter.ALL).noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertFalse(StreamSupport.stream(busA.getDanglingLines(DanglingLineFilter.ALL).spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
         assertTrue(busA.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
         assertTrue(StreamSupport.stream(busA.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
 
         Bus busC = network2.getBusBreakerView().getBus("busC");
-        assertFalse(busC.getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
-        assertFalse(StreamSupport.stream(busC.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(busC.getDanglingLineStream(DanglingLineFilter.ALL).noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(StreamSupport.stream(busC.getDanglingLines(DanglingLineFilter.ALL).spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
         assertTrue(busC.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
         assertTrue(StreamSupport.stream(busC.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
 
@@ -171,15 +171,15 @@ class BusAdapterTest {
         Bus mergedBusA = mergingView.getBusBreakerView().getBus("busA");
 
         assertTrue(mergedBusA.getLineStream().allMatch(l -> l instanceof LineAdapter));
-        assertTrue(mergedBusA.getDanglingLineStream().allMatch(dl -> dl instanceof DanglingLineAdapter));
+        assertTrue(mergedBusA.getDanglingLineStream(DanglingLineFilter.ALL).allMatch(dl -> dl instanceof DanglingLineAdapter));
 
         // Check that merged dangling lines are not present anymore and that merged line exist
-        assertFalse(mergedBusA.getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
-        assertFalse(StreamSupport.stream(mergedBusA.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertFalse(mergedBusA.getDanglingLineStream(DanglingLineFilter.ALL).noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertFalse(StreamSupport.stream(mergedBusA.getDanglingLines(DanglingLineFilter.ALL).spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
 
         Bus mergedBusC = mergingView.getBusBreakerView().getBus("busC");
-        assertFalse(mergedBusC.getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
-        assertFalse(StreamSupport.stream(mergedBusC.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(mergedBusC.getDanglingLineStream(DanglingLineFilter.ALL).noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(StreamSupport.stream(mergedBusC.getDanglingLines(DanglingLineFilter.ALL).spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
     }
 
     @Test

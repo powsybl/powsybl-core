@@ -188,10 +188,10 @@ class MergingNetworkTest {
         assertEquals(0, mergingView.getConnectableCount(Line.class));
 
         // DanglingLines
-        assertFalse(mergingView.getDanglingLines().iterator().hasNext());
-        assertEquals(0, mergingView.getDanglingLineStream().count());
+        assertFalse(mergingView.getDanglingLines(DanglingLineFilter.ALL).iterator().hasNext());
+        assertEquals(0, mergingView.getDanglingLineStream(DanglingLineFilter.ALL).count());
         assertEquals(0, mergingView.getDanglingLineCount());
-        assertArrayEquals(Iterables.toArray(mergingView.getDanglingLines(), DanglingLine.class), Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class));
+        assertArrayEquals(Iterables.toArray(mergingView.getDanglingLines(DanglingLineFilter.ALL), DanglingLine.class), Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class));
         assertEquals(0, mergingView.getConnectableStream(DanglingLine.class).count());
         assertEquals(0, mergingView.getConnectableCount(DanglingLine.class));
 

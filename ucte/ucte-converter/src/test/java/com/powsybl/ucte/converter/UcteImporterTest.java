@@ -111,7 +111,7 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
 
         assertEquals(2, network.getVoltageLevelCount());
-        assertEquals(1, network.getDanglingLineStream().filter(dl -> !dl.isMerged()).count());
+        assertEquals(1, network.getDanglingLineStream(DanglingLineFilter.UNMERGED).count());
         assertEquals(1, network.getTieLineCount());
         TieLine l = network.getTieLineStream().findFirst().orElseThrow(IllegalStateException::new);
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());

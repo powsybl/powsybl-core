@@ -158,10 +158,7 @@ public class UcteExporter implements Exporter {
                 }
             }
         }
-        for (DanglingLine danglingLine : network.getDanglingLines()) {
-            if (danglingLine.isMerged()) {
-                continue;
-            }
+        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
             convertDanglingLine(ucteNetwork, danglingLine, context);
         }
         for (Line line : network.getLines()) {

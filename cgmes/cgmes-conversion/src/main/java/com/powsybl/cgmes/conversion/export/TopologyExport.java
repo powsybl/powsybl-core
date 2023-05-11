@@ -73,10 +73,7 @@ public final class TopologyExport {
 
     private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
-        for (DanglingLine dl : network.getDanglingLines()) {
-            if (dl.isMerged()) {
-                continue;
-            }
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
             writeBoundaryTerminal(dl, exported, cimNamespace, writer, context);
         }
     }
@@ -238,7 +235,7 @@ public final class TopologyExport {
     }
 
     private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
             if (dl.isMerged()) {
                 continue;
             }

@@ -72,7 +72,7 @@ class MergingViewIndex {
         // Local storage for mergeable network
         networks.add(other);
         // Manage DanglingLines
-        other.getDanglingLineStream().forEach(this::checkNewDanglingLine);
+        other.getDanglingLineStream(DanglingLineFilter.ALL).forEach(this::checkNewDanglingLine);
     }
 
     void checkNewDanglingLine(DanglingLine dl2) {
@@ -150,7 +150,7 @@ class MergingViewIndex {
         if (clazz == Line.class) {
             return getLineStream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
         } else if (clazz == DanglingLine.class) {
-            return getDanglingLineStream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+            return getDanglingLineStream(DanglingLineFilter.ALL).filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
         } else {
             return getNetworkStream()
                     .flatMap(n -> n.getConnectableStream(clazz))
@@ -329,12 +329,12 @@ class MergingViewIndex {
         return mergedLineCached.containsKey(dl.getUcteXnodeCode()) || mergedLineCached.containsKey(dl.getId());
     }
 
-    Stream<DanglingLine> getDanglingLineStream() {
-        return getNetworkStream().flatMap(Network::getDanglingLineStream).map(this::getDanglingLine);
+    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return getNetworkStream().flatMap(n -> n.getDanglingLineStream(danglingLineFilter)).map(this::getDanglingLine);
     }
 
-    Iterable<DanglingLine> getDanglingLines() {
-        return getNetworkStream().flatMap(Network::getDanglingLineStream).map(this::getDanglingLine).collect(Collectors.toList());
+    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getNetworkStream().flatMap(n -> n.getDanglingLineStream(danglingLineFilter)).map(this::getDanglingLine).collect(Collectors.toList());
     }
 
     int getDanglingLineCount() {

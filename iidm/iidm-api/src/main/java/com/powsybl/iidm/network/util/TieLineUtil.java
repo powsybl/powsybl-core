@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.util;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.DanglingLineFilter;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.Branch;
@@ -131,8 +132,7 @@ public final class TieLineUtil {
         if (danglingLine == null) { // if dangling line with same ID not present, find dangling line(s) with same X-node code in merging network if present
             // mapping by ucte xnode code
             if (candidateDanglingLine.getUcteXnodeCode() != null) { // if X-node code null: no associated dangling line
-                if (candidateDanglingLine.getNetwork().getDanglingLineStream()
-                        .filter(d -> !d.isMerged())
+                if (candidateDanglingLine.getNetwork().getDanglingLineStream(DanglingLineFilter.UNMERGED)
                         .filter(d -> d != candidateDanglingLine)
                         .filter(d -> candidateDanglingLine.getUcteXnodeCode().equals(d.getUcteXnodeCode()))
                         .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same X-node code in the network to be merged

@@ -852,14 +852,28 @@ public interface Network extends Container<Network> {
     ShuntCompensator getShuntCompensator(String id);
 
     /**
-     * Get all dangling lines.
+     * Get all dangling lines corresponding to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
 
     /**
      * Get all dangling lines.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    default Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLines(DanglingLineFilter.ALL);
+    }
+
+    /**
+     * Get the dangling lines corresponding to given filter.
+     */
+    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+
+    /**
+     * Get all the dangling lines.
+     */
+    default Stream<DanglingLine> getDanglingLineStream() {
+        return getDanglingLineStream(DanglingLineFilter.ALL);
+    }
 
     /**
      * Get the dangling line count.
@@ -1226,7 +1240,7 @@ public interface Network extends Container<Network> {
             case THREE_WINDINGS_TRANSFORMER:
                 return getThreeWindingsTransformerStream().map(Function.identity());
             case DANGLING_LINE:
-                return getDanglingLineStream().map(Function.identity());
+                return getDanglingLineStream(DanglingLineFilter.ALL).map(Function.identity());
             case LINE:
                 return getLineStream().map(Function.identity());
             case TIE_LINE:

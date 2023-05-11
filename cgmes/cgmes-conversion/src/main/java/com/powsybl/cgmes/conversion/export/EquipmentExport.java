@@ -587,11 +587,7 @@ public final class EquipmentExport {
     private static void writeDanglingLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName,
                                            String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
-        for (DanglingLine danglingLine : network.getDanglingLines()) {
-            if (danglingLine.isMerged()) {
-                continue;
-            }
-
+        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
             // We may create fictitious containers for boundary side of dangling lines,
             // and we consider the situation where the base voltage of a line lying at a boundary has a baseVoltage defined in the IGM,
             String baseVoltageId = writeDanglingLineBaseVoltage(danglingLine, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
