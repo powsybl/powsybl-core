@@ -165,6 +165,10 @@ public class MatpowerExporter implements Exporter {
                     pDemand += l.getP0();
                     qDemand += l.getQ0();
                 }
+                for (Battery battery : bus.getBatteries()) {
+                    pDemand += battery.getTargetP();
+                    qDemand += battery.getTargetQ();
+                }
                 mBus.setRealPowerDemand(pDemand);
                 mBus.setReactivePowerDemand(qDemand);
                 double bSum = 0;
@@ -427,9 +431,6 @@ public class MatpowerExporter implements Exporter {
         Objects.requireNonNull(reporter);
         if (network.getHvdcLineCount() > 0) {
             throw new PowsyblException("HVDC line conversion not supported");
-        }
-        if (network.getBatteryCount() > 0) {
-            throw new PowsyblException("Battery conversion not supported");
         }
 
         MatpowerModel model = new MatpowerModel(network.getId());
