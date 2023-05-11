@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-class SectionModificationTest {
+class ShuntCompensatorPositionModificationTest {
 
     private Network network;
     private ShuntCompensator shunt;
@@ -35,22 +35,22 @@ class SectionModificationTest {
     @Test
     void testConstructorCoherence() {
         String id = shunt.getId();
-        assertThrows(PowsyblException.class, () -> new SectionModification(id, -3),
-                "Negative value should not be accepted.");
-        assertThrows(NullPointerException.class, () -> new SectionModification(null, 1),
-                "Null id value should not be accepted.");
+        assertThrows(NullPointerException.class, () -> new ShuntCompensatorPositionModification(null, 1),
+            "Null id value should not be accepted.");
     }
 
     @Test
     void testApplyChecks() {
-        SectionModification modif = new SectionModification(shunt.getId(), 1);
+        ShuntCompensatorPositionModification modif = new ShuntCompensatorPositionModification(shunt.getId(), 1);
         assertDoesNotThrow(() -> modif.apply(network, true, Reporter.NO_OP));
-        SectionModification modif1 = new SectionModification("UNKNOWN_ID", 1);
+        assertEquals(1, shunt.getSectionCount(), "A valid apply should modify the value");
+        ShuntCompensatorPositionModification modif1 = new ShuntCompensatorPositionModification("UNKNOWN_ID", 1);
         assertThrows(PowsyblException.class, () -> modif1.apply(network, true, Reporter.NO_OP),
-                "An invalid ID should fail to apply.");
-        SectionModification modif2 = new SectionModification(shunt.getId(), shunt.getMaximumSectionCount() + 1);
+            "An invalid ID should fail to apply.");
+        ShuntCompensatorPositionModification modif2 = new ShuntCompensatorPositionModification(shunt.getId(),
+            shunt.getMaximumSectionCount() + 1);
         assertThrows(PowsyblException.class, () -> modif2.apply(network, true, Reporter.NO_OP),
-                "Trying to set the number of section outside of range should not be accepted.");
-        assertEquals(1, shunt.getSectionCount(), " Failed apply should not modify the value");
+            "Trying to set the number of section outside of range should not be accepted.");
+        assertEquals(1, shunt.getSectionCount(), "Failed apply should not modify the value");
     }
 }

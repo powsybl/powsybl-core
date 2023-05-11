@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -19,17 +18,14 @@ import java.util.Objects;
  *
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-public class SectionModification extends AbstractNetworkModification {
+public class ShuntCompensatorPositionModification extends AbstractNetworkModification {
 
     private final String shuntCompensatorId;
     private final int sectionCount;
 
-    public SectionModification(String shuntCompensatorId, int sectionCount) {
+    public ShuntCompensatorPositionModification(String shuntCompensatorId, int sectionCount) {
         this.shuntCompensatorId = Objects.requireNonNull(shuntCompensatorId);
         this.sectionCount = sectionCount;
-        if (sectionCount < 0) {
-            throw new PowsyblException("Section count of a Shunt can't be negative");
-        }
     }
 
     @Override
