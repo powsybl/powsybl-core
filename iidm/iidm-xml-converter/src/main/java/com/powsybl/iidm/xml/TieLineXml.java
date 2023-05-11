@@ -133,7 +133,7 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
 
     @Override
     protected TieLine readRootElementAttributes(TieLineAdder adder, Network network, NetworkXmlReaderContext context) {
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> adder.setDanglingLine1(readHalf(network, context, 1)).setDanglingLine2(readHalf(network, context, 2)));
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> adder.setDanglingLine1(readDanglingLine(network, context, 1)).setDanglingLine2(readDanglingLine(network, context, 2)));
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
             String dl1Id = context.getReader().getAttributeValue(null, "danglingLineId1");
             String dl2Id = context.getReader().getAttributeValue(null, "danglingLineId2");
@@ -161,7 +161,7 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
         return tl;
     }
 
-    private static String readHalf(Network network, NetworkXmlReaderContext context, int side) {
+    private static String readDanglingLine(Network network, NetworkXmlReaderContext context, int side) {
         String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId" + side));
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id_" + side));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name_" + side));
