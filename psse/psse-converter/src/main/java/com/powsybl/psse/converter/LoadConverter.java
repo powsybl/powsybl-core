@@ -44,14 +44,38 @@ class LoadConverter extends AbstractConverter {
             .setQ0(q0);
 
         boolean constantPower = psseLoad.getIp() == 0 && psseLoad.getYp() == 0 && psseLoad.getIq() == 0 && psseLoad.getYq() == 0;
-        if (!constantPower) {
+        if (!constantPower && (p0 != 0 || q0 != 0)) {
+            double c0p;
+            double c1p;
+            double c2p;
+            if (p0 != 0) {
+                c0p = psseLoad.getPl() / p0;
+                c1p = psseLoad.getIp() / p0;
+                c2p = psseLoad.getYp() / p0;
+            } else {
+                c0p = 1;
+                c1p = 0;
+                c2p = 0;
+            }
+            double c0q;
+            double c1q;
+            double c2q;
+            if (q0 != 0) {
+                c0q = psseLoad.getQl() / q0;
+                c1q = psseLoad.getIq() / q0;
+                c2q = psseLoad.getYq() / q0;
+            } else {
+                c0q = 1;
+                c1q = 0;
+                c2q = 0;
+            }
             adder.newZipModel()
-                    .setC0p(psseLoad.getPl() / p0)
-                    .setC1p(psseLoad.getIp() / p0)
-                    .setC2p(psseLoad.getYp() / p0)
-                    .setC0q(psseLoad.getQl() / q0)
-                    .setC1q(psseLoad.getIq() / q0)
-                    .setC2q(psseLoad.getYq() / q0)
+                    .setC0p(c0p)
+                    .setC1p(c1p)
+                    .setC2p(c2p)
+                    .setC0q(c0q)
+                    .setC1q(c1q)
+                    .setC2q(c2q)
                     .add();
         }
 
