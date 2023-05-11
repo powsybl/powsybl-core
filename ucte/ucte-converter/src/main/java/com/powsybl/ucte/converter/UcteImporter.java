@@ -9,8 +9,6 @@ package com.powsybl.ucte.converter;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Enums;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.config.PlatformConfig;
@@ -834,7 +832,7 @@ public class UcteImporter implements Importer {
         return bus != null ? bus.getId() : null;
     }
 
-    private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Multimap<String, DanglingLine> danglingLinesByXnodeCode) {
+    private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Map<String, List<DanglingLine>> danglingLinesByXnodeCode) {
         String otherXnodeCode = dl1.getUcteXnodeCode();
         List<DanglingLine> matchingDanglingLines = danglingLinesByXnodeCode.get(otherXnodeCode)
                 .stream().filter(dl -> dl != dl1)
@@ -978,9 +976,9 @@ public class UcteImporter implements Importer {
     }
 
     private void mergeXnodeDanglingLines(UcteNetwork ucteNetwork, Network network) {
-        Multimap<String, DanglingLine> danglingLinesByXnodeCode = HashMultimap.create();
+        Map<String, List<DanglingLine>> danglingLinesByXnodeCode = new HashMap<>();
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
-            danglingLinesByXnodeCode.put(dl.getUcteXnodeCode(), dl);
+            danglingLinesByXnodeCode.computeIfAbsent(dl.getUcteXnodeCode(), code -> new ArrayList<>()).add(dl);
         }
 
         Set<DanglingLine> danglingLinesToProcess = Sets.newHashSet(network.getDanglingLines(DanglingLineFilter.ALL));
