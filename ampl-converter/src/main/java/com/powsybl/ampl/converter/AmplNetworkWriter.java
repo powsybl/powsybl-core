@@ -651,10 +651,10 @@ public class AmplNetworkWriter {
                         .writeCell(xNodeVoltageLevelNum)
                         .writeCell(l.getDanglingLine1().getR() / zb)
                         .writeCell(l.getDanglingLine1().getX() / zb)
-                        .writeCell(l.getDanglingLine1().getG() * zb)
-                        .writeCell(0.0)
-                        .writeCell(l.getDanglingLine1().getB() * zb)
-                        .writeCell(0.0)
+                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
+                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
+                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
+                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
                         .writeCell(1f) // constant ratio
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer
@@ -678,10 +678,10 @@ public class AmplNetworkWriter {
                         .writeCell(vl2Num)
                         .writeCell(l.getDanglingLine2().getR() / zb)
                         .writeCell(l.getDanglingLine2().getX() / zb)
-                        .writeCell(l.getDanglingLine2().getG() * zb)
-                        .writeCell(0.0)
-                        .writeCell(l.getDanglingLine2().getB() * zb)
-                        .writeCell(0.0)
+                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
+                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
+                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
+                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
                         .writeCell(1f) // constant ratio
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer
