@@ -289,7 +289,7 @@ public final class CgmesExportUtil {
     public static String getTerminalId(Terminal t, CgmesExportContext context) {
         String aliasType;
         Connectable<?> c = t.getConnectable();
-        if (c instanceof DanglingLine && !((DanglingLine) c).isMerged()) {
+        if (c instanceof DanglingLine && !((DanglingLine) c).isPaired()) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL;
         } else {
             int sequenceNumber = getTerminalSequenceNumber(t);

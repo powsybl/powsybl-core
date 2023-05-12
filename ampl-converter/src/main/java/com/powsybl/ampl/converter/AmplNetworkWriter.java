@@ -272,7 +272,7 @@ public class AmplNetworkWriter {
                 addExtensions(num, twt);
             }
             // voltage level associated to dangling lines middle bus
-            for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
+            for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
                 String vlId = getDanglingLineMiddleVoltageLevelId(dl);
                 int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
                 VoltageLevel vl = dl.getTerminal().getVoltageLevel();
@@ -442,7 +442,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus b = AmplUtil.getBus(dl.getTerminal());
 
@@ -983,7 +983,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLines(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus1 = AmplUtil.getBus(t);
             String bus1Id = getBusId(bus1);
@@ -1306,7 +1306,7 @@ public class AmplNetworkWriter {
                         .writeCell(t.getQ());
                 addExtensions(num, l);
             }
-            for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
+            for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
                 String middleBusId = getDanglingLineMiddleBusId(dl);
                 String id = dl.getId();
                 int num = mapper.getInt(AmplSubset.LOAD, id);
@@ -1759,7 +1759,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             String branchId = dl.getId();
             Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
             if (currentLimits.isPresent()) {

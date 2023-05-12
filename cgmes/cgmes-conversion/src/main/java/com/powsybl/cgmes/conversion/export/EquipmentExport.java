@@ -587,7 +587,7 @@ public final class EquipmentExport {
     private static void writeDanglingLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName,
                                            String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context, Set<Double> exportedBaseVoltagesByNominalV) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
-        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNMERGED)) {
+        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             // We may create fictitious containers for boundary side of dangling lines,
             // and we consider the situation where the base voltage of a line lying at a boundary has a baseVoltage defined in the IGM,
             String baseVoltageId = writeDanglingLineBaseVoltage(danglingLine, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
@@ -925,7 +925,7 @@ public final class EquipmentExport {
 
     private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context) {
         DanglingLine dl = boundary.getDanglingLine();
-        if (!dl.isMerged()) {
+        if (!dl.isPaired()) {
             return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         } else {
             // This means the boundary corresponds to a TieLine.
@@ -976,7 +976,7 @@ public final class EquipmentExport {
     private static void writeTerminal(Terminal t, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
                                       String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
-        if (t.getConnectable() instanceof DanglingLine && ((DanglingLine) t.getConnectable()).isMerged()) {
+        if (t.getConnectable() instanceof DanglingLine && ((DanglingLine) t.getConnectable()).isPaired()) {
             equipmentId = context.getNamingStrategy().getCgmesId(((DanglingLine) t.getConnectable()).getTieLine().orElseThrow(IllegalStateException::new));
         }
         writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t), CgmesExportUtil.getTerminalSequenceNumber(t), cimNamespace, writer, context);

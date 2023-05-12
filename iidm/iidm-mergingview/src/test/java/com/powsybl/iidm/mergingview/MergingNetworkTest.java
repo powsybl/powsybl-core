@@ -301,7 +301,7 @@ class MergingNetworkTest {
         assertEquals(1, mergingView.getTieLineCount());
 
         // DanglingLines
-        assertEquals(Collections.singletonList("DL"), mergingView.getConnectableStream(DanglingLine.class).filter(dl -> !dl.isMerged()).map(DanglingLine::getId).collect(Collectors.toList()));
+        assertEquals(Collections.singletonList("DL"), mergingView.getConnectableStream(DanglingLine.class).filter(dl -> !dl.isPaired()).map(DanglingLine::getId).collect(Collectors.toList()));
         assertArrayEquals(Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class),
                 mergingView.getConnectableStream(DanglingLine.class).toArray());
         assertEquals(3, mergingView.getConnectableCount(DanglingLine.class));

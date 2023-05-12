@@ -271,7 +271,7 @@ public class Conversion {
             .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
 
         // Voltage and angle in boundary buses
-        network.getDanglingLineStream(DanglingLineFilter.UNMERGED)
+        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
             .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
     }
 

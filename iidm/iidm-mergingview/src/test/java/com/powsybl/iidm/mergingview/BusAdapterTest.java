@@ -173,7 +173,7 @@ class BusAdapterTest {
         assertTrue(mergedBusA.getLineStream().allMatch(l -> l instanceof LineAdapter));
         assertTrue(mergedBusA.getDanglingLineStream(DanglingLineFilter.ALL).allMatch(dl -> dl instanceof DanglingLineAdapter));
 
-        // Check that merged dangling lines are not present anymore and that merged line exist
+        // Check that paired dangling lines are not present anymore
         assertFalse(mergedBusA.getDanglingLineStream(DanglingLineFilter.ALL).noneMatch(dl -> "DL1".equals(dl.getId())));
         assertFalse(StreamSupport.stream(mergedBusA.getDanglingLines(DanglingLineFilter.ALL).spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
 

@@ -31,11 +31,11 @@ class UcteAliasesCreationTest {
     void checkAliasesCreationWhenImportingMergedFile() {
         Network network = loadNetworkFromResourceFile("/uxTestGridForMerging.uct");
 
-        // Merged dangling lines are there but merged
+        // Dangling lines are there but paired
         assertNotNull(network.getIdentifiable("BBBBBB11 XXXXXX11 1"));
-        assertTrue(network.getDanglingLine("BBBBBB11 XXXXXX11 1").isMerged());
+        assertTrue(network.getDanglingLine("BBBBBB11 XXXXXX11 1").isPaired());
         assertNotNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1"));
-        assertTrue(network.getDanglingLine("FFFFFF11 XXXXXX11 1").isMerged());
+        assertTrue(network.getDanglingLine("FFFFFF11 XXXXXX11 1").isPaired());
 
         // No aliases on element name
         assertNull(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));

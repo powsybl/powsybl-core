@@ -204,7 +204,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
 
     private void writeDanglingLines(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         for (DanglingLine dl : IidmXmlUtil.sorted(vl.getDanglingLines(DanglingLineFilter.ALL), context.getOptions())) {
-            if (!context.getFilter().test(dl) || (context.getVersion().compareTo(IidmXmlVersion.V_1_10) < 0 && dl.isMerged())) {
+            if (!context.getFilter().test(dl) || (context.getVersion().compareTo(IidmXmlVersion.V_1_10) < 0 && dl.isPaired())) {
                 continue;
             }
             DanglingLineXml.INSTANCE.write(dl, vl, context);

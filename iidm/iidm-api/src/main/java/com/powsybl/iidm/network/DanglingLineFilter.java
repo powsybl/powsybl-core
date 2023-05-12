@@ -16,11 +16,11 @@ public enum DanglingLineFilter {
     /** All dangling lines, that is, no filtering */
     ALL(dl -> true),
 
-    /** Only merged dangling lines */
-    MERGED(DanglingLine::isMerged),
+    /** Only paired dangling lines */
+    PAIRED(DanglingLine::isPaired),
 
-    /** Only unmerged dangling lines */
-    UNMERGED(Predicate.not(DanglingLine::isMerged));
+    /** Only unpaired dangling lines */
+    UNPAIRED(Predicate.not(DanglingLine::isPaired));
 
     private final Predicate<DanglingLine> predicate;
 

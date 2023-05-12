@@ -317,7 +317,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public boolean isMerged() {
+    public boolean isPaired() {
         return tieLine != null;
     }
 

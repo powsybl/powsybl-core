@@ -104,7 +104,7 @@ class BusesValidationTest extends AbstractValidationTest {
         Mockito.when(danglingLineTerminal.getBusView()).thenReturn(danglingLineBusView);
         danglingLine = Mockito.mock(DanglingLine.class);
         Mockito.when(danglingLine.getTerminal()).thenReturn(danglingLineTerminal);
-        Mockito.when(danglingLine.isMerged()).thenReturn(false);
+        Mockito.when(danglingLine.isPaired()).thenReturn(false);
 
         Bus t2wBus = Mockito.mock(Bus.class);
         Mockito.when(t2wBus.getId()).thenReturn("bus");
@@ -197,8 +197,8 @@ class BusesValidationTest extends AbstractValidationTest {
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.BUSES);
         assertTrue(ValidationType.BUSES.check(network, looseConfig, validationWriter));
 
-        // Consider merged danglingLines
-        Mockito.when(danglingLine.isMerged()).thenReturn(true);
+        // Consider paired danglingLines
+        Mockito.when(danglingLine.isPaired()).thenReturn(true);
 
         assertTrue(BusesValidation.INSTANCE.checkBuses(network, looseConfig, data));
         assertFalse(BusesValidation.INSTANCE.checkBuses(network, strictConfig, data));

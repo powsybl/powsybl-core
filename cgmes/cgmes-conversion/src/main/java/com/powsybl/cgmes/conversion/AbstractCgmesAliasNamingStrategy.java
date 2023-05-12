@@ -96,7 +96,7 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         if (identifiable instanceof DanglingLine) {
             DanglingLine dl = (DanglingLine) identifiable;
             id = identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
-            if (dl.isMerged()) {
+            if (dl.isPaired()) {
                 realIdentifiable = dl.getTieLine().orElseThrow(IllegalStateException::new);
             }
         } else {
