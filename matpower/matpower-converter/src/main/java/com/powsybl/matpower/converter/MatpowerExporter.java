@@ -7,12 +7,12 @@
 package com.powsybl.matpower.converter;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.matpower.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,6 +168,10 @@ public class MatpowerExporter implements Exporter {
                 for (Battery battery : bus.getBatteries()) {
                     pDemand -= battery.getTargetP();
                     qDemand -= battery.getTargetQ();
+                }
+                for (LccConverterStation lcc : bus.getLccConverterStations()) {
+                    pDemand += HvdcUtils.getConverterStationTargetP(lcc);
+                    qDemand += HvdcUtils.getLccConverterStationLoadTargetQ(lcc);
                 }
                 mBus.setRealPowerDemand(pDemand);
                 mBus.setReactivePowerDemand(qDemand);
@@ -457,9 +461,6 @@ public class MatpowerExporter implements Exporter {
         Objects.requireNonNull(network);
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(reporter);
-        if (network.getHvdcLineCount() > 0) {
-            throw new PowsyblException("HVDC line conversion not supported");
-        }
 
         MatpowerModel model = new MatpowerModel(network.getId());
         model.setBaseMva(BASE_MVA);
