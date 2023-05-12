@@ -166,8 +166,8 @@ public class MatpowerExporter implements Exporter {
                     qDemand += l.getQ0();
                 }
                 for (Battery battery : bus.getBatteries()) {
-                    pDemand += battery.getTargetP();
-                    qDemand += battery.getTargetQ();
+                    pDemand -= battery.getTargetP();
+                    qDemand -= battery.getTargetQ();
                 }
                 mBus.setRealPowerDemand(pDemand);
                 mBus.setReactivePowerDemand(qDemand);
@@ -362,7 +362,7 @@ public class MatpowerExporter implements Exporter {
                 if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svc.getRegulationMode())) {
                     targetQ = -svc.getReactivePowerSetpoint();
                 } else {
-                    targetQ = svc.getReactivePowerSetpoint();
+                    targetQ = 0;
                 }
                 double vSquared = bus.getV() * bus.getV();
                 double minQ = svc.getBmin() * vSquared;
@@ -370,7 +370,7 @@ public class MatpowerExporter implements Exporter {
                 double targetV = svc.getVoltageSetpoint();
                 Bus regulatedBus = svc.getRegulatingTerminal().getBusView().getBus();
                 boolean voltageRegulation = StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode());
-                addMgen(model, context, bus, vl, id, targetV, 0, -Double.MAX_VALUE, Double.MAX_VALUE, targetQ, minQ,
+                addMgen(model, context, bus, vl, id, targetV, 0, 0, 0, targetQ, minQ,
                     maxQ, regulatedBus,
                     voltageRegulation);
             }
@@ -390,9 +390,9 @@ public class MatpowerExporter implements Exporter {
                 double maxQ = vsc.getReactiveLimits().getMaxQ(0);
                 double targetV = vsc.getVoltageSetpoint();
                 Bus regulatedBus = vsc.getRegulatingTerminal().getBusView().getBus();
-                addMgen(model, context, bus, vl, id, targetV, 0, -Double.MAX_VALUE, Double.MAX_VALUE, targetQ, minQ,
-                    maxQ, regulatedBus,
-                    false);
+                boolean voltageRegulation = vsc.isVoltageRegulatorOn();
+                addMgen(model, context, bus, vl, id, targetV, 0, 0, 0, targetQ, minQ,
+                    maxQ, regulatedBus, voltageRegulation);
             }
         }
         createDanglingLineGenerators(network, model, context);
