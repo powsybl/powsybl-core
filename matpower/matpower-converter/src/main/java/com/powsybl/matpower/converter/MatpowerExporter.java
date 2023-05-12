@@ -358,11 +358,20 @@ public class MatpowerExporter implements Exporter {
             if (isConnectedToMainCc(bus)) {
                 VoltageLevel vl = t.getVoltageLevel();
                 String id = svc.getId();
-                double targetQ = svc.getReactivePowerSetpoint();
+                double targetQ;
+                if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svc.getRegulationMode())) {
+                    targetQ = -svc.getReactivePowerSetpoint();
+                } else {
+                    targetQ = svc.getReactivePowerSetpoint();
+                }
+                double vSquared = bus.getV() * bus.getV();
+                double minQ = svc.getBmin() * vSquared;
+                double maxQ = svc.getBmax() * vSquared;
                 double targetV = svc.getVoltageSetpoint();
                 Bus regulatedBus = svc.getRegulatingTerminal().getBusView().getBus();
                 boolean voltageRegulation = StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode());
-                addMgen(model, context, bus, vl, id, targetV, 0, 0, 0, targetQ, targetQ, targetQ, regulatedBus,
+                addMgen(model, context, bus, vl, id, targetV, 0, -Double.MAX_VALUE, Double.MAX_VALUE, targetQ, minQ,
+                    maxQ, regulatedBus,
                     voltageRegulation);
             }
         }
