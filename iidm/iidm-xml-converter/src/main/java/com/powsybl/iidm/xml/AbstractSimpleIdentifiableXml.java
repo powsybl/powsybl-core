@@ -21,7 +21,7 @@ import javax.xml.stream.XMLStreamException;
  */
 abstract class AbstractSimpleIdentifiableXml<T extends Identifiable<? super T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> extends AbstractIdentifiableXml<T, A, P> {
 
-    protected abstract T readRootElementAttributes(A adder, NetworkXmlReaderContext context);
+    protected abstract T readRootElementAttributes(A adder, P parent, NetworkXmlReaderContext context);
 
     protected void readSubElements(T identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
         if (context.getReader().getLocalName().equals(PropertiesXml.PROPERTY)) {
@@ -38,7 +38,7 @@ abstract class AbstractSimpleIdentifiableXml<T extends Identifiable<? super T>, 
     public final void read(P parent, NetworkXmlReaderContext context) throws XMLStreamException {
         A adder = createAdder(parent);
         readIdentifierAttributes(adder, context);
-        T identifiable = readRootElementAttributes(adder, context);
+        T identifiable = readRootElementAttributes(adder, parent, context);
         if (identifiable != null) {
             readSubElements(identifiable, context);
         }

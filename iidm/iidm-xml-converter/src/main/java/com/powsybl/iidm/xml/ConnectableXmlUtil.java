@@ -91,10 +91,14 @@ public final class ConnectableXmlUtil {
         }
     }
 
-    public static void readNodeOrBus(InjectionAdder adder, NetworkXmlReaderContext context) {
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS));
-        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE);
+    public static void readNodeOrBus(InjectionAdder<?, ?> adder, NetworkXmlReaderContext context) {
+        readNodeOrBus(adder, "", context);
+    }
+
+    public static void readNodeOrBus(InjectionAdder<?, ?> adder, String suffix, NetworkXmlReaderContext context) {
+        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + suffix));
+        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS + suffix));
+        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE + suffix);
         if (bus != null) {
             adder.setBus(bus);
         }
@@ -106,7 +110,7 @@ public final class ConnectableXmlUtil {
         }
     }
 
-    public static void readNodeOrBus(BranchAdder adder, NetworkXmlReaderContext context) {
+    public static void readNodeOrBus(BranchAdder<?, ?> adder, NetworkXmlReaderContext context) {
         String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
         String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus1"));
         Integer node1 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node1");

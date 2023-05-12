@@ -625,6 +625,11 @@ public interface Network extends Container<Network> {
     Iterable<Line> getLines();
 
     /**
+     * Get all tie lines.
+     */
+    Iterable<TieLine> getTieLines();
+
+    /**
      * Get a branch
      * @param branchId the id of the branch
      */
@@ -651,9 +656,19 @@ public interface Network extends Container<Network> {
     Stream<Line> getLineStream();
 
     /**
+     * Get all tie lines.
+     */
+    Stream<TieLine> getTieLineStream();
+
+    /**
      * Get the AC line count.
      */
     int getLineCount();
+
+    /**
+     * Get the tie line count.
+     */
+    int getTieLineCount();
 
     /**
      * Get a AC line.
@@ -661,6 +676,13 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the AC line
      */
     Line getLine(String id);
+
+    /**
+     * Get a tie line.
+     *
+     * @param id the id or an alias of the AC line
+     */
+    TieLine getTieLine(String id);
 
     /**
      * Get a builder to create a new AC tie line.
@@ -830,14 +852,28 @@ public interface Network extends Container<Network> {
     ShuntCompensator getShuntCompensator(String id);
 
     /**
-     * Get all dangling lines.
+     * Get all dangling lines corresponding to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
 
     /**
      * Get all dangling lines.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    default Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLines(DanglingLineFilter.ALL);
+    }
+
+    /**
+     * Get the dangling lines corresponding to given filter.
+     */
+    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+
+    /**
+     * Get all the dangling lines.
+     */
+    default Stream<DanglingLine> getDanglingLineStream() {
+        return getDanglingLineStream(DanglingLineFilter.ALL);
+    }
 
     /**
      * Get the dangling line count.
@@ -1204,9 +1240,11 @@ public interface Network extends Container<Network> {
             case THREE_WINDINGS_TRANSFORMER:
                 return getThreeWindingsTransformerStream().map(Function.identity());
             case DANGLING_LINE:
-                return getDanglingLineStream().map(Function.identity());
+                return getDanglingLineStream(DanglingLineFilter.ALL).map(Function.identity());
             case LINE:
                 return getLineStream().map(Function.identity());
+            case TIE_LINE:
+                return getTieLineStream().map(Function.identity());
             case LOAD:
                 return getLoadStream().map(Function.identity());
             case BATTERY:

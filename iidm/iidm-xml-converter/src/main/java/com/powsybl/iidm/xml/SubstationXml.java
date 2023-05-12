@@ -79,7 +79,7 @@ class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, Substation
     }
 
     @Override
-    protected Substation readRootElementAttributes(SubstationAdder adder, NetworkXmlReaderContext context) {
+    protected Substation readRootElementAttributes(SubstationAdder adder, Network network, NetworkXmlReaderContext context) {
 
         Country country = Optional.ofNullable(context.getReader().getAttributeValue(null, COUNTRY))
                 .map(c -> context.getAnonymizer().deanonymizeCountry(Country.valueOf(c)))

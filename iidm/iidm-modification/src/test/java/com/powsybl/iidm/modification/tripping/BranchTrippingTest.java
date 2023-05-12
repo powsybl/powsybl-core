@@ -50,7 +50,7 @@ class BranchTrippingTest extends AbstractTrippingTest {
 
         LineTripping unknownVlTripping = new LineTripping("NHV1_NHV2_1", "NOT_EXISTS_VL");
         Exception e2 = assertThrows(PowsyblException.class, () -> unknownVlTripping.apply(network));
-        assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to line 'NHV1_NHV2_1'", e2.getMessage());
+        assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to LINE 'NHV1_NHV2_1'", e2.getMessage());
     }
 
     @Test
@@ -77,7 +77,7 @@ class BranchTrippingTest extends AbstractTrippingTest {
 
         TwoWindingsTransformerTripping unknownVlTripping = new TwoWindingsTransformerTripping("NHV2_NLOAD", "NOT_EXISTS_VL");
         Exception e2 = assertThrows(PowsyblException.class, () -> unknownVlTripping.apply(network));
-        assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to the two windings transformer 'NHV2_NLOAD'", e2.getMessage());
+        assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to TWO_WINDINGS_TRANSFORMER 'NHV2_NLOAD'", e2.getMessage());
     }
 
     @Test

@@ -22,16 +22,23 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
 
     @Override
     public Boundary getBoundary() {
-        if (getIndex().isMerged(this)) {
-            MergedLine line = getIndex().getMergedLineByCode(getUcteXnodeCode());
-            if (getDelegate() == line.getDanglingLine1()) {
-                return getIndex().getBoundary(getDelegate().getBoundary(), Branch.Side.ONE);
-            }
-            if (getDelegate() == line.getDanglingLine2()) {
-                return getIndex().getBoundary(getDelegate().getBoundary(), Branch.Side.TWO);
-            }
-        }
         return getIndex().getBoundary(getDelegate().getBoundary());
+    }
+
+    @Override
+    public Optional<TieLine> getTieLine() {
+        if (getIndex().isMerged(this)) {
+            return Optional.of(getIndex().getMergedLineByCode(getUcteXnodeCode()));
+        }
+        return getDelegate().getTieLine().map(tl -> getIndex().getTieLine(tl));
+    }
+
+    @Override
+    public boolean isPaired() {
+        if (getIndex().isMerged(this)) {
+            return true;
+        }
+        return getDelegate().isPaired();
     }
 
     // -------------------------------

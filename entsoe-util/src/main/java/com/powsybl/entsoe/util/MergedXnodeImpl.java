@@ -7,14 +7,14 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Identifiable;
 
 import java.util.Objects;
 
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
  */
-public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXnode {
+public class MergedXnodeImpl<T extends Identifiable<T>> extends AbstractExtension<T> implements MergedXnode<T> {
 
     private double rdp = Double.NaN; // r divider position 1 -> 2
 
@@ -46,7 +46,7 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
 
     private String code;
 
-    public MergedXnodeImpl(Line line, double rdp, double xdp, double xnodeP1, double xnodeQ1, double xnodeP2, double xnodeQ2,
+    public MergedXnodeImpl(T line, double rdp, double xdp, double xnodeP1, double xnodeQ1, double xnodeP2, double xnodeQ2,
                            String line1Name, String line2Name, String code) {
         super(line);
         this.rdp = checkDividerPosition(rdp);
@@ -60,7 +60,7 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
         this.code = Objects.requireNonNull(code);
     }
 
-    public MergedXnodeImpl(Line line, double rdp, double xdp,
+    public MergedXnodeImpl(T line, double rdp, double xdp,
                            String line1Name, boolean line1Fictitious, double xnodeP1, double xnodeQ1, double b1dp, double g1dp,
                            String line2Name, boolean line2Fictitious, double xnodeP2, double xnodeQ2, double b2dp, double g2dp,
                            String code) {

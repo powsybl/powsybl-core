@@ -18,9 +18,15 @@ package com.powsybl.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see LineAdder
  */
-public interface Line extends Branch<Line>, LineCharacteristics<Line> {
+public interface Line extends Branch<Line>, MutableLineCharacteristics<Line> {
 
-    boolean isTieLine();
+    /**
+     * @deprecated tie lines are not lines anymore.
+     */
+    @Deprecated(since = "5.2.0")
+    default boolean isTieLine() {
+        return false;
+    }
 
     @Override
     default IdentifiableType getType() {
