@@ -1004,17 +1004,6 @@ public class UcteImporter implements Importer {
         // lexical sort to always end up with same merge line id
         String mergeLineId = dlAtSideOne.getId() + " + " + dlAtSideTwo.getId();
 
-        // create MergedXnode extension
-        // In case R1 and R2 (resp. X1 and X2) are zero, rdp (resp. xdp) is set to 0.5:
-        // by default the line is split in the middle.
-        // R1 = 0 and R2 = 0 (resp. X1 = 0 and X2 = 0) are recovered when splitting the mergedXnode anyway.
-        // FIXME: not useful anymore.
-        double sumR = dlAtSideOne.getR() + dlAtSideTwo.getR();
-        double sumX = dlAtSideOne.getX() + dlAtSideTwo.getX();
-        double rdp = (sumR == 0.) ? 0.5 : dlAtSideOne.getR() / sumR;
-        double xdp = (sumX == 0.) ? 0.5 : dlAtSideOne.getX() / sumX;
-        String xnodeCode = dlAtSideOne.getUcteXnodeCode();
-
         TieLine mergeLine = network.newTieLine()
                 .setId(mergeLineId)
                 .setDanglingLine1(dlAtSideOne.getId())
@@ -1025,29 +1014,8 @@ public class UcteImporter implements Importer {
         addElementNameProperty(properties, dlAtSideOne, dlAtSideTwo);
         addGeographicalNameProperty(ucteNetwork, properties, dlAtSideOne, dlAtSideTwo);
         addXnodeStatusProperty(properties, dlAtSideOne);
-        double b1dp = dlAtSideOne.getB() == 0 ? 0.5 : 1;
-        double g1dp = dlAtSideOne.getG() == 0 ? 0.5 : 1;
-        double b2dp = dlAtSideTwo.getB() == 0 ? 0.5 : 0;
-        double g2dp = dlAtSideTwo.getG() == 0 ? 0.5 : 0;
-        String id1 = dlAtSideOne.getId();
-        boolean fict1 = dlAtSideOne.isFictitious();
-        String id2 = dlAtSideTwo.getId();
-        boolean fict2 = dlAtSideTwo.isFictitious();
 
         properties.forEach(mergeLine::setProperty);
-
-        mergeLine.newExtension(MergedXnodeAdder.class)
-                .withRdp(rdp).withXdp(xdp)
-                .withLine1Name(id1)
-                .withLine1Fictitious(fict1)
-                .withB1dp(b1dp)
-                .withG1dp(g1dp)
-                .withLine2Name(id2)
-                .withLine2Fictitious(fict2)
-                .withB2dp(b2dp)
-                .withG2dp(g2dp)
-                .withCode(xnodeCode)
-                .add();
     }
 
     @Override
