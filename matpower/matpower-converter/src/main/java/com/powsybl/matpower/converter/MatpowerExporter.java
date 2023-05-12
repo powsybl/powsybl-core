@@ -375,7 +375,26 @@ public class MatpowerExporter implements Exporter {
                     voltageRegulation);
             }
         }
+        createDanglingLineGenerators(network, model, context);
+    }
 
+    private void createVSC(Network network, MatpowerModel model, Context context) {
+        for (VscConverterStation vsc : network.getVscConverterStations()) {
+            Terminal t = vsc.getTerminal();
+            Bus bus = t.getBusView().getBus();
+            if (isConnectedToMainCc(bus)) {
+                VoltageLevel vl = t.getVoltageLevel();
+                String id = vsc.getId();
+                double targetQ = vsc.getReactivePowerSetpoint();
+                double minQ = vsc.getReactiveLimits().getMinQ(0);
+                double maxQ = vsc.getReactiveLimits().getMaxQ(0);
+                double targetV = vsc.getVoltageSetpoint();
+                Bus regulatedBus = vsc.getRegulatingTerminal().getBusView().getBus();
+                addMgen(model, context, bus, vl, id, targetV, 0, -Double.MAX_VALUE, Double.MAX_VALUE, targetQ, minQ,
+                    maxQ, regulatedBus,
+                    false);
+            }
+        }
         createDanglingLineGenerators(network, model, context);
     }
 
@@ -460,6 +479,7 @@ public class MatpowerExporter implements Exporter {
         createBranches(network, model, context);
         createGenerators(network, model, context);
         createStaticVarCompensators(network, model, context);
+        createVSC(network, model, context);
 
         try (OutputStream os = dataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
             MatpowerWriter.write(model, os);
