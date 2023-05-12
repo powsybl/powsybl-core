@@ -164,7 +164,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         double q = terminal.getQ();
         line.remove();
 
-        DanglingLine dl = dlAdder.add();
+        BoundaryLine dl = dlAdder.add();
         dl.getTerminal()
                 .setP(p)
                 .setQ(q);

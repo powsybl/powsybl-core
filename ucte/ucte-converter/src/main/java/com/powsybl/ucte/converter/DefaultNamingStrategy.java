@@ -43,8 +43,8 @@ public class DefaultNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public UcteNodeCode getUcteNodeCode(DanglingLine danglingLine) {
-        return getUcteNodeCode(danglingLine.getUcteXnodeCode());
+    public UcteNodeCode getUcteNodeCode(BoundaryLine boundaryLine) {
+        return getUcteNodeCode(boundaryLine.getUcteXnodeCode());
     }
 
     @Override
@@ -63,8 +63,8 @@ public class DefaultNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public UcteElementId getUcteElementId(DanglingLine danglingLine) {
-        return getUcteElementId(danglingLine.getId());
+    public UcteElementId getUcteElementId(BoundaryLine boundaryLine) {
+        return getUcteElementId(boundaryLine.getId());
     }
 
 }

@@ -7,12 +7,13 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.DanglingLine;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Xnode extends Extension<DanglingLine> {
+public interface Xnode extends Extension<BoundaryLine> {
 
     String NAME = "xnode";
 

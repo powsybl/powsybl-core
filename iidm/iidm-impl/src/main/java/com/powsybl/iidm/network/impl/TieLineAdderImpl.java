@@ -51,8 +51,8 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
         if (dl1Id == null || dl2Id == null) {
             throw new ValidationException(this, "undefined dangling line");
         }
-        DanglingLineImpl dl1 = network.getDanglingLine(dl1Id);
-        DanglingLineImpl dl2 = network.getDanglingLine(dl2Id);
+        BoundaryLineImpl dl1 = network.getDanglingLine(dl1Id);
+        BoundaryLineImpl dl2 = network.getDanglingLine(dl2Id);
         if (dl1 == null || dl2 == null) {
             throw new ValidationException(this, dl1Id + " and/or " + dl2Id + " are not dangling lines in the network");
         }

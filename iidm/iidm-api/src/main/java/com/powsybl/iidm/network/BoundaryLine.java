@@ -120,9 +120,9 @@ import java.util.Optional;
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  * @see DanglingLineAdder
  */
-public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder {
+public interface BoundaryLine extends Injection<BoundaryLine>, FlowsLimitsHolder {
 
-    Logger LOG = LoggerFactory.getLogger(DanglingLine.class);
+    Logger LOG = LoggerFactory.getLogger(BoundaryLine.class);
 
     interface Generation extends ReactiveLimitsHolder {
         /**
@@ -217,7 +217,7 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
      * <p>Depends on the working variant.
      * @see VariantManager
      */
-    DanglingLine setP0(double p0);
+    BoundaryLine setP0(double p0);
 
     /**
      * Get the constant reactive power in MW.
@@ -231,7 +231,7 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
      * <p>Depends on the working variant.
      * @see VariantManager
      */
-    DanglingLine setQ0(double q0);
+    BoundaryLine setQ0(double q0);
 
     /**
      * Get the series resistance in &#937;.
@@ -241,7 +241,7 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
     /**
      * Set the series resistance in &#937;.
      */
-    DanglingLine setR(double r);
+    BoundaryLine setR(double r);
 
     /**
      * Get the series reactance in &#937;.
@@ -251,7 +251,7 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
     /**
      * Set the series reactance in &#937;.
      */
-    DanglingLine setX(double x);
+    BoundaryLine setX(double x);
 
     /**
      * Get the shunt conductance in S.
@@ -261,7 +261,7 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
     /**
      * Set the shunt conductance in S.
      */
-    DanglingLine setG(double g);
+    BoundaryLine setG(double g);
 
     /**
      * Get the shunt susceptance in S.
@@ -271,7 +271,7 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
     /**
      * Set the shunt susceptance in S.
      */
-    DanglingLine setB(double b);
+    BoundaryLine setB(double b);
 
     default Generation getGeneration() {
         return null;

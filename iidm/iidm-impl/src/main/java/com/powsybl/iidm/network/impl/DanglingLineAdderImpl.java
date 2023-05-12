@@ -101,7 +101,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
-    public DanglingLineImpl add() {
+    public BoundaryLineImpl add() {
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
@@ -111,12 +111,12 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
 
-        DanglingLineImpl.GenerationImpl generation = null;
+        BoundaryLineImpl.GenerationImpl generation = null;
         if (generationAdder != null) {
             generation = generationAdder.build();
         }
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
+        BoundaryLineImpl danglingLine = new BoundaryLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         network.getIndex().checkAndAdd(danglingLine);

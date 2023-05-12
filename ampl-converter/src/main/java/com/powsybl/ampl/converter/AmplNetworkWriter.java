@@ -159,15 +159,15 @@ public class AmplNetworkWriter {
         return middleCcNum;
     }
 
-    private static String getDanglingLineMiddleBusId(DanglingLine dl) {
+    private static String getDanglingLineMiddleBusId(BoundaryLine dl) {
         return dl.getId(); // same id as the dangling line
     }
 
-    private static String getDanglingLineMiddleVoltageLevelId(DanglingLine dl) {
+    private static String getDanglingLineMiddleVoltageLevelId(BoundaryLine dl) {
         return dl.getId(); // same id as the dangling line
     }
 
-    private static int getDanglingLineMiddleBusComponentNum(AmplExportContext context, DanglingLine dl) {
+    private static int getDanglingLineMiddleBusComponentNum(AmplExportContext context, BoundaryLine dl) {
         Bus b = AmplUtil.getBus(dl.getTerminal());
         int middleCcNum;
         // if the connection bus of the dangling line is null or not in the main cc, the middle bus is
@@ -182,8 +182,8 @@ public class AmplNetworkWriter {
     }
 
     private static int getTieLineMiddleBusComponentNum(AmplExportContext context, TieLine tieLine) {
-        Terminal t1 = tieLine.getDanglingLine1().getTerminal();
-        Terminal t2 = tieLine.getDanglingLine2().getTerminal();
+        Terminal t1 = tieLine.getBoundaryLine1().getTerminal();
+        Terminal t2 = tieLine.getBoundaryLine2().getTerminal();
         Bus b1 = AmplUtil.getBus(t1);
         Bus b2 = AmplUtil.getBus(t2);
         int xNodeCcNum;
@@ -272,7 +272,7 @@ public class AmplNetworkWriter {
                 addExtensions(num, twt);
             }
             // voltage level associated to dangling lines middle bus
-            for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+            for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
                 String vlId = getDanglingLineMiddleVoltageLevelId(dl);
                 int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
                 VoltageLevel vl = dl.getTerminal().getVoltageLevel();
@@ -301,7 +301,7 @@ public class AmplNetworkWriter {
                             .writeCell(num)
                             .writeCell("")
                             .writeCell(0)
-                            .writeCell(tieLine.getDanglingLine1().getTerminal().getVoltageLevel().getNominalV())
+                            .writeCell(tieLine.getBoundaryLine1().getTerminal().getVoltageLevel().getNominalV())
                             .writeCell(Float.NaN)
                             .writeCell(Float.NaN)
                             .writeCell(faultNum)
@@ -442,7 +442,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus b = AmplUtil.getBus(dl.getTerminal());
 
@@ -604,8 +604,8 @@ public class AmplNetworkWriter {
 
     private void writeTieLines(AmplExportContext context, TableFormatter formatter) throws IOException {
         for (TieLine l : network.getTieLines()) {
-            Terminal t1 = l.getDanglingLine1().getTerminal();
-            Terminal t2 = l.getDanglingLine2().getTerminal();
+            Terminal t1 = l.getBoundaryLine1().getTerminal();
+            Terminal t2 = l.getBoundaryLine2().getTerminal();
             Bus bus1 = AmplUtil.getBus(t1);
             Bus bus2 = AmplUtil.getBus(t2);
             if (bus1 != null && bus2 != null && bus1 == bus2) {
@@ -633,8 +633,8 @@ public class AmplNetworkWriter {
 
             boolean merged = !config.isExportXNodes();
             if (config.isExportXNodes()) {
-                String dl1Id = l.getDanglingLine1().getId();
-                String dl2Id = l.getDanglingLine2().getId();
+                String dl1Id = l.getBoundaryLine1().getId();
+                String dl2Id = l.getBoundaryLine2().getId();
                 int dl1Num = mapper.getInt(AmplSubset.BRANCH, dl1Id);
                 int dl2Num = mapper.getInt(AmplSubset.BRANCH, dl2Id);
                 String xNodeBusId = AmplUtil.getXnodeBusId(l);
@@ -649,26 +649,26 @@ public class AmplNetworkWriter {
                         .writeCell(-1)
                         .writeCell(vl1Num)
                         .writeCell(xNodeVoltageLevelNum)
-                        .writeCell(l.getDanglingLine1().getR() / zb)
-                        .writeCell(l.getDanglingLine1().getX() / zb)
-                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
+                        .writeCell(l.getBoundaryLine1().getR() / zb)
+                        .writeCell(l.getBoundaryLine1().getX() / zb)
+                        .writeCell(l.getBoundaryLine1().getG() * zb / 2)
+                        .writeCell(l.getBoundaryLine1().getG() * zb / 2)
+                        .writeCell(l.getBoundaryLine1().getB() * zb / 2)
+                        .writeCell(l.getBoundaryLine1().getB() * zb / 2)
                         .writeCell(1f) // constant ratio
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer
                         .writeCell(t1.getP())
-                        .writeCell(l.getDanglingLine1().getBoundary().getP()) // xnode node flow side 1
+                        .writeCell(l.getBoundaryLine1().getBoundary().getP()) // xnode node flow side 1
                         .writeCell(t1.getQ())
-                        .writeCell(l.getDanglingLine1().getBoundary().getQ()) // xnode node flow side 1
-                        .writeCell(getPermanentLimit(l.getDanglingLine1().getCurrentLimits().orElse(null)))
+                        .writeCell(l.getBoundaryLine1().getBoundary().getQ()) // xnode node flow side 1
+                        .writeCell(getPermanentLimit(l.getBoundaryLine1().getCurrentLimits().orElse(null)))
                         .writeCell(Float.NaN)
                         .writeCell(merged)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(dl1Id)
-                        .writeCell(l.getDanglingLine1().getNameOrId());
+                        .writeCell(l.getBoundaryLine1().getNameOrId());
                 formatter.writeCell(variantIndex)
                         .writeCell(dl2Num)
                         .writeCell(xNodeBusNum)
@@ -676,26 +676,26 @@ public class AmplNetworkWriter {
                         .writeCell(-1)
                         .writeCell(xNodeVoltageLevelNum)
                         .writeCell(vl2Num)
-                        .writeCell(l.getDanglingLine2().getR() / zb)
-                        .writeCell(l.getDanglingLine2().getX() / zb)
-                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getG() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
-                        .writeCell(l.getDanglingLine1().getB() * zb / 2)
+                        .writeCell(l.getBoundaryLine2().getR() / zb)
+                        .writeCell(l.getBoundaryLine2().getX() / zb)
+                        .writeCell(l.getBoundaryLine1().getG() * zb / 2)
+                        .writeCell(l.getBoundaryLine1().getG() * zb / 2)
+                        .writeCell(l.getBoundaryLine1().getB() * zb / 2)
+                        .writeCell(l.getBoundaryLine1().getB() * zb / 2)
                         .writeCell(1f) // constant ratio
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer
-                        .writeCell(l.getDanglingLine2().getBoundary().getP()) // xnode node flow side 2
+                        .writeCell(l.getBoundaryLine2().getBoundary().getP()) // xnode node flow side 2
                         .writeCell(t2.getP())
-                        .writeCell(l.getDanglingLine2().getBoundary().getQ()) // xnode node flow side 2
+                        .writeCell(l.getBoundaryLine2().getBoundary().getQ()) // xnode node flow side 2
                         .writeCell(t2.getQ())
                         .writeCell(Float.NaN)
-                        .writeCell(getPermanentLimit(l.getDanglingLine2().getCurrentLimits().orElse(null)))
+                        .writeCell(getPermanentLimit(l.getBoundaryLine2().getCurrentLimits().orElse(null)))
                         .writeCell(merged)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(dl2Id)
-                        .writeCell(l.getDanglingLine2().getNameOrId());
+                        .writeCell(l.getBoundaryLine2().getNameOrId());
             } else {
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
@@ -717,8 +717,8 @@ public class AmplNetworkWriter {
                         .writeCell(t2.getP())
                         .writeCell(t1.getQ())
                         .writeCell(t2.getQ())
-                        .writeCell(getPermanentLimit(l.getDanglingLine1().getCurrentLimits().orElse(null)))
-                        .writeCell(getPermanentLimit(l.getDanglingLine2().getCurrentLimits().orElse(null)))
+                        .writeCell(getPermanentLimit(l.getBoundaryLine1().getCurrentLimits().orElse(null)))
+                        .writeCell(getPermanentLimit(l.getBoundaryLine2().getCurrentLimits().orElse(null)))
                         .writeCell(merged)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
@@ -983,7 +983,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLines(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus1 = AmplUtil.getBus(t);
             String bus1Id = getBusId(bus1);
@@ -1306,7 +1306,7 @@ public class AmplNetworkWriter {
                         .writeCell(t.getQ());
                 addExtensions(num, l);
             }
-            for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+            for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
                 String middleBusId = getDanglingLineMiddleBusId(dl);
                 String id = dl.getId();
                 int num = mapper.getInt(AmplSubset.LOAD, id);
@@ -1759,7 +1759,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
             String branchId = dl.getId();
             Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
             if (currentLimits.isPresent()) {

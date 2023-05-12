@@ -762,12 +762,12 @@ public final class MergingView implements Network, MultiVariantObject {
 
     // DanglingLines
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return index.getDanglingLines(danglingLineFilter);
+    public Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter) {
+        return index.getBoundaryLines(danglingLineFilter);
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+    public Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
         return index.getDanglingLineStream(danglingLineFilter);
     }
 
@@ -777,7 +777,7 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
-    public DanglingLine getDanglingLine(final String id) {
+    public BoundaryLine getDanglingLine(final String id) {
         return index.get(n -> n.getDanglingLine(id), index::getDanglingLine);
     }
 

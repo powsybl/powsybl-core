@@ -8,17 +8,11 @@ package com.powsybl.iidm.network.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.BoundaryLine;
 
 /**
  *
@@ -59,7 +53,7 @@ class SVTest {
 
     @Test
     void testDanglingLine() {
-        DanglingLine dl = new DanglingLineTestData().getDanglingLine();
+        BoundaryLine dl = new DanglingLineTestData().getDanglingLine();
 
         double tol = 0.0001;
         double p1 = 126.818177;
@@ -226,17 +220,17 @@ class SVTest {
         private static double X = 40.20;
         private static double G = 0.01;
         private static double B = 0.0016;
-        private DanglingLine danglinLine;
+        private BoundaryLine danglinLine;
 
         private DanglingLineTestData() {
-            danglinLine = Mockito.mock(DanglingLine.class);
+            danglinLine = Mockito.mock(BoundaryLine.class);
             Mockito.when(danglinLine.getR()).thenReturn(R);
             Mockito.when(danglinLine.getX()).thenReturn(X);
             Mockito.when(danglinLine.getG()).thenReturn(G);
             Mockito.when(danglinLine.getB()).thenReturn(B);
         }
 
-        private DanglingLine getDanglingLine() {
+        private BoundaryLine getDanglingLine() {
             return danglinLine;
         }
     }

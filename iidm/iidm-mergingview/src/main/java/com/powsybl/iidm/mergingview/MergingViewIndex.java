@@ -75,26 +75,26 @@ class MergingViewIndex {
         other.getDanglingLineStream(DanglingLineFilter.ALL).forEach(this::checkNewDanglingLine);
     }
 
-    void checkNewDanglingLine(DanglingLine dl2) {
-        DanglingLine dl1 = getNetworkStream().map(n -> n.getDanglingLine(dl2.getId()))
+    void checkNewDanglingLine(BoundaryLine dl2) {
+        BoundaryLine dl1 = getNetworkStream().map(n -> n.getDanglingLine(dl2.getId()))
                 .filter(Objects::nonNull)
                 .filter(dl -> dl != dl2)
                 .findFirst()
                 .orElse(null);
-        Function<String, List<DanglingLine>> getDanglingLinesByXnodeCode = code -> getNetworkStream()
+        Function<String, List<BoundaryLine>> getBoundaryLinesByXnodeCode = code -> getNetworkStream()
                 .flatMap(Network::getDanglingLineStream)
                 .filter(d -> code.equals(d.getUcteXnodeCode()))
                 .filter(d -> d.getNetwork() != dl2.getNetwork())
                 .distinct()
                 .collect(Collectors.toList());
-        BiConsumer<DanglingLine, DanglingLine> pairDanglingLines = (dll1, dll2) -> {
+        BiConsumer<BoundaryLine, BoundaryLine> pairDanglingLines = (dll1, dll2) -> {
             String key = dll1.getId();
             if (dll1.getUcteXnodeCode() != null && dll2.getUcteXnodeCode() != null) {
                 key = dll1.getUcteXnodeCode();
             }
             mergedLineCached.computeIfAbsent(key, k -> new MergedLine(this, dll1, dll2));
         };
-        findAndAssociateDanglingLines(dl2, dl1, getDanglingLinesByXnodeCode, pairDanglingLines);
+        findAndAssociateDanglingLines(dl2, dl1, getBoundaryLinesByXnodeCode, pairDanglingLines);
     }
 
     MergedLine getMergedLineByCode(final String ucteXnodeCode) {
@@ -149,7 +149,7 @@ class MergingViewIndex {
         // Search Connectables of a given type into merging & working networks
         if (clazz == Line.class) {
             return getLineStream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
-        } else if (clazz == DanglingLine.class) {
+        } else if (clazz == BoundaryLine.class) {
             return getDanglingLineStream(DanglingLineFilter.ALL).filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
         } else {
             return getNetworkStream()
@@ -325,15 +325,15 @@ class MergingViewIndex {
         return getNetworkStream().mapToInt(Network::getTieLineCount).sum() + mergedLineCached.size();
     }
 
-    boolean isMerged(final DanglingLine dl) {
+    boolean isMerged(final BoundaryLine dl) {
         return mergedLineCached.containsKey(dl.getUcteXnodeCode()) || mergedLineCached.containsKey(dl.getId());
     }
 
-    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+    Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
         return getNetworkStream().flatMap(n -> n.getDanglingLineStream(danglingLineFilter)).map(this::getDanglingLine);
     }
 
-    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+    Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter) {
         return getNetworkStream().flatMap(n -> n.getDanglingLineStream(danglingLineFilter)).map(this::getDanglingLine).collect(Collectors.toList());
     }
 
@@ -462,8 +462,8 @@ class MergingViewIndex {
         return svc == null ? null : (StaticVarCompensatorAdapter) identifiableCached.computeIfAbsent(svc, key -> new StaticVarCompensatorAdapter((StaticVarCompensator) key, this));
     }
 
-    DanglingLineAdapter getDanglingLine(final DanglingLine dll) {
-        return dll == null ? null : (DanglingLineAdapter) identifiableCached.computeIfAbsent(dll, key -> new DanglingLineAdapter((DanglingLine) key, this));
+    BoundaryLineAdapter getDanglingLine(final BoundaryLine dll) {
+        return dll == null ? null : (BoundaryLineAdapter) identifiableCached.computeIfAbsent(dll, key -> new BoundaryLineAdapter((BoundaryLine) key, this));
     }
 
     Connectable getConnectable(final Connectable connectable) {
@@ -487,7 +487,7 @@ class MergingViewIndex {
             case SHUNT_COMPENSATOR:
                 return getShuntCompensator((ShuntCompensator) connectable);
             case DANGLING_LINE:
-                return getDanglingLine((DanglingLine) connectable);
+                return getDanglingLine((BoundaryLine) connectable);
             case STATIC_VAR_COMPENSATOR:
                 return getStaticVarCompensator((StaticVarCompensator) connectable);
             case HVDC_CONVERTER_STATION:

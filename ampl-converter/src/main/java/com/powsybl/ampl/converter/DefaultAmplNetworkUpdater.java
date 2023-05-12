@@ -99,7 +99,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
             l.getTerminal().setP(p).setQ(q);
             busConnection(l.getTerminal(), busNum, networkMapper);
         } else {
-            DanglingLine dl = network.getDanglingLine(id);
+            BoundaryLine dl = network.getDanglingLine(id);
             if (dl != null) {
                 dl.setP0(p0).setQ0(q0);
                 dl.getTerminal().setP(p).setQ(q);
@@ -158,7 +158,7 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
             busConnection(br.getTerminal1(), busNum, networkMapper);
             busConnection(br.getTerminal2(), busNum2, networkMapper);
         } else if (!readThreeWindingsTransformerBranch(network, id, p1, q1, busNum, networkMapper)) {
-            DanglingLine dl = network.getDanglingLine(id);
+            BoundaryLine dl = network.getDanglingLine(id);
             if (dl != null) {
                 dl.getTerminal().setP(p1).setQ(q1);
                 busConnection(dl.getTerminal(), busNum, networkMapper);

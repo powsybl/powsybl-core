@@ -6,10 +6,10 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.iidm.network.BoundaryLine;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusBreakerView;
 import com.powsybl.iidm.network.Terminal.BusView;
@@ -38,7 +38,7 @@ class DanglingLineTestData {
     private BusView busView;
     private BusBreakerView busBreakerView;
     private Terminal terminal;
-    private DanglingLine danglingLine;
+    private BoundaryLine boundaryLine;
 
     DanglingLineTestData() {
         bus = Mockito.mock(Bus.class);
@@ -50,31 +50,31 @@ class DanglingLineTestData {
         busBreakerView = Mockito.mock(BusBreakerView.class);
         Mockito.when(busBreakerView.getBus()).thenReturn(bus);
 
-        danglingLine = Mockito.mock(DanglingLine.class);
-        Mockito.when(danglingLine.getId()).thenReturn("DanglingLineTest");
+        boundaryLine = Mockito.mock(BoundaryLine.class);
+        Mockito.when(boundaryLine.getId()).thenReturn("DanglingLineTest");
         terminal = Mockito.mock(Terminal.class);
-        Mockito.when(danglingLine.getTerminal()).thenReturn(terminal);
+        Mockito.when(boundaryLine.getTerminal()).thenReturn(terminal);
         Mockito.when(terminal.isConnected()).thenReturn(true);
         Mockito.when(terminal.getBusView()).thenReturn(busView);
         Mockito.when(terminal.getBusBreakerView()).thenReturn(busBreakerView);
 
-        Mockito.when(danglingLine.getR()).thenReturn(r);
-        Mockito.when(danglingLine.getX()).thenReturn(x);
-        Mockito.when(danglingLine.getG()).thenReturn(G);
-        Mockito.when(danglingLine.getB()).thenReturn(B);
-        Mockito.when(danglingLine.getP0()).thenReturn(P0);
-        Mockito.when(danglingLine.getQ0()).thenReturn(Q0);
+        Mockito.when(boundaryLine.getR()).thenReturn(r);
+        Mockito.when(boundaryLine.getX()).thenReturn(x);
+        Mockito.when(boundaryLine.getG()).thenReturn(G);
+        Mockito.when(boundaryLine.getB()).thenReturn(B);
+        Mockito.when(boundaryLine.getP0()).thenReturn(P0);
+        Mockito.when(boundaryLine.getQ0()).thenReturn(Q0);
     }
 
-    DanglingLine getDanglingLine() {
-        return danglingLine;
+    BoundaryLine getDanglingLine() {
+        return boundaryLine;
     }
 
     void setP0Zero() {
-        Mockito.when(danglingLine.getP0()).thenReturn(0.0);
+        Mockito.when(boundaryLine.getP0()).thenReturn(0.0);
     }
 
     void setQ0Zero() {
-        Mockito.when(danglingLine.getQ0()).thenReturn(0.0);
+        Mockito.when(boundaryLine.getQ0()).thenReturn(0.0);
     }
 }

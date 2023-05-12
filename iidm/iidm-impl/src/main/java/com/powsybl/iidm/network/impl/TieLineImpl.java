@@ -34,9 +34,9 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         return "Tie Line";
     }
 
-    private DanglingLineImpl danglingLine1;
+    private BoundaryLineImpl danglingLine1;
 
-    private DanglingLineImpl danglingLine2;
+    private BoundaryLineImpl danglingLine2;
 
     private final Ref<NetworkImpl> networkRef;
 
@@ -47,12 +47,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         this.networkRef = network;
     }
 
-    void attachDanglingLines(DanglingLineImpl dl1, DanglingLineImpl dl2) {
+    void attachDanglingLines(BoundaryLineImpl dl1, BoundaryLineImpl dl2) {
         this.danglingLine1 = attach(dl1);
         this.danglingLine2 = attach(dl2);
     }
 
-    private DanglingLineImpl attach(DanglingLineImpl danglingLine) {
+    private BoundaryLineImpl attach(BoundaryLineImpl danglingLine) {
         danglingLine.setTieLine(this);
         return danglingLine;
     }
@@ -63,17 +63,17 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine1() {
+    public BoundaryLineImpl getBoundaryLine1() {
         return danglingLine1;
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine2() {
+    public BoundaryLineImpl getBoundaryLine2() {
         return danglingLine2;
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine(Branch.Side side) {
+    public BoundaryLineImpl getDanglingLine(Branch.Side side) {
         switch (side) {
             case ONE:
                 return danglingLine1;
@@ -85,7 +85,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public DanglingLine getDanglingLine(String voltageLevelId) {
+    public BoundaryLine getDanglingLine(String voltageLevelId) {
         if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
             return danglingLine1;
         }

@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-class DanglingLineXmlTest extends AbstractXmlConverterTest {
+class BoundaryLineXmlTest extends AbstractXmlConverterTest {
 
     @Test
     void test() throws IOException {

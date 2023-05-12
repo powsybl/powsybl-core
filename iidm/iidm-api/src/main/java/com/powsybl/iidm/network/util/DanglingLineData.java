@@ -6,10 +6,9 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.iidm.network.BoundaryLine;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
-
-import com.powsybl.iidm.network.DanglingLine;
 
 import java.util.Objects;
 
@@ -19,25 +18,25 @@ import java.util.Objects;
  */
 public class DanglingLineData {
 
-    private final DanglingLine danglingLine;
+    private final BoundaryLine boundaryLine;
 
     private final double boundaryBusU;
     private final double boundaryBusTheta;
 
-    public DanglingLineData(DanglingLine danglingLine) {
-        this(danglingLine, true);
+    public DanglingLineData(BoundaryLine boundaryLine) {
+        this(boundaryLine, true);
     }
 
-    public DanglingLineData(DanglingLine danglingLine, boolean splitShuntAdmittance) {
-        this.danglingLine = Objects.requireNonNull(danglingLine);
+    public DanglingLineData(BoundaryLine boundaryLine, boolean splitShuntAdmittance) {
+        this.boundaryLine = Objects.requireNonNull(boundaryLine);
 
-        double g1 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : danglingLine.getG();
-        double b1 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : danglingLine.getB();
-        double g2 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : 0.0;
-        double b2 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : 0.0;
+        double g1 = splitShuntAdmittance ? boundaryLine.getG() * 0.5 : boundaryLine.getG();
+        double b1 = splitShuntAdmittance ? boundaryLine.getB() * 0.5 : boundaryLine.getB();
+        double g2 = splitShuntAdmittance ? boundaryLine.getG() * 0.5 : 0.0;
+        double b2 = splitShuntAdmittance ? boundaryLine.getB() * 0.5 : 0.0;
 
-        double u1 = getV(danglingLine);
-        double theta1 = getTheta(danglingLine);
+        double u1 = getV(boundaryLine);
+        double theta1 = getTheta(boundaryLine);
 
         if (!valid(u1, theta1)) {
             boundaryBusU = Double.NaN;
@@ -48,14 +47,14 @@ public class DanglingLineData {
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
 
         Complex vBoundaryBus = new Complex(Double.NaN, Double.NaN);
-        if (danglingLine.getP0() == 0.0 && danglingLine.getQ0() == 0.0) {
-            LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(danglingLine.getR(), danglingLine.getX(), 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
+        if (boundaryLine.getP0() == 0.0 && boundaryLine.getQ0() == 0.0) {
+            LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(boundaryLine.getR(), boundaryLine.getX(), 1.0, 0.0, 1.0, 0.0, new Complex(g1, b1), new Complex(g2, b2));
             vBoundaryBus = adm.y21().multiply(v1).negate().divide(adm.y22());
         } else {
 
             // Two buses Loadflow
-            Complex sBoundary = new Complex(-danglingLine.getP0(), -danglingLine.getQ0());
-            Complex ytr = new Complex(danglingLine.getR(), danglingLine.getX()).reciprocal();
+            Complex sBoundary = new Complex(-boundaryLine.getP0(), -boundaryLine.getQ0());
+            Complex ytr = new Complex(boundaryLine.getR(), boundaryLine.getX()).reciprocal();
             Complex ysh2 = new Complex(g2, b2);
             Complex zt = ytr.add(ysh2).reciprocal();
             Complex v0 = ytr.multiply(v1).divide(ytr.add(ysh2));
@@ -73,14 +72,14 @@ public class DanglingLineData {
         boundaryBusTheta = vBoundaryBus.getArgument();
     }
 
-    private static double getV(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected() ? danglingLine.getTerminal().getBusView().getBus().getV()
+    private static double getV(BoundaryLine boundaryLine) {
+        return boundaryLine.getTerminal().isConnected() ? boundaryLine.getTerminal().getBusView().getBus().getV()
             : Double.NaN;
     }
 
-    private static double getTheta(DanglingLine danglingLine) {
-        return danglingLine.getTerminal().isConnected()
-            ? Math.toRadians(danglingLine.getTerminal().getBusView().getBus().getAngle())
+    private static double getTheta(BoundaryLine boundaryLine) {
+        return boundaryLine.getTerminal().isConnected()
+            ? Math.toRadians(boundaryLine.getTerminal().getBusView().getBus().getAngle())
             : Double.NaN;
     }
 
@@ -92,7 +91,7 @@ public class DanglingLineData {
     }
 
     public String getId() {
-        return danglingLine.getId();
+        return boundaryLine.getId();
     }
 
     public double getBoundaryBusU() {

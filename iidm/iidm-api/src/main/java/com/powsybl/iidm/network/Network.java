@@ -854,24 +854,24 @@ public interface Network extends Container<Network> {
     /**
      * Get all dangling lines corresponding to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
+    Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter);
 
     /**
      * Get all dangling lines.
      */
-    default Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLines(DanglingLineFilter.ALL);
+    default Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLines(DanglingLineFilter.ALL);
     }
 
     /**
      * Get the dangling lines corresponding to given filter.
      */
-    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+    Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
 
     /**
      * Get all the dangling lines.
      */
-    default Stream<DanglingLine> getDanglingLineStream() {
+    default Stream<BoundaryLine> getDanglingLineStream() {
         return getDanglingLineStream(DanglingLineFilter.ALL);
     }
 
@@ -885,7 +885,7 @@ public interface Network extends Container<Network> {
      *
      * @param id the id or an alias of the dangling line
      */
-    DanglingLine getDanglingLine(String id);
+    BoundaryLine getDanglingLine(String id);
 
     /**
      * Get all static var compensators.

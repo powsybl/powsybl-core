@@ -125,8 +125,8 @@ class CgmesConformity3ConversionTest {
         for (TieLine tl : n.getTieLines()) {
             // The danglingLine1 and danglingLine1.boundary.dl must be the same object
             // Both should correspond to objects at my level of merging
-            assertEquals(tl.getDanglingLine1(), tl.getDanglingLine1().getBoundary().getDanglingLine());
-            assertEquals(tl.getDanglingLine2(), tl.getDanglingLine2().getBoundary().getDanglingLine());
+            assertEquals(tl.getBoundaryLine1(), tl.getBoundaryLine1().getBoundary().getDanglingLine());
+            assertEquals(tl.getBoundaryLine2(), tl.getBoundaryLine2().getBoundary().getDanglingLine());
         }
         // No dangling lines should be seen in the merging view
         // Even if dangling line adapters have been added to the cached identifiables in the merging index

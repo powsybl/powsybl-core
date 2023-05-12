@@ -7,22 +7,22 @@
 package com.powsybl.cgmes.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class CgmesDanglingLineBoundaryNodeAdderImpl extends AbstractExtensionAdder<DanglingLine, CgmesDanglingLineBoundaryNode> implements CgmesDanglingLineBoundaryNodeAdder {
+class CgmesDanglingLineBoundaryNodeAdderImpl extends AbstractExtensionAdder<BoundaryLine, CgmesDanglingLineBoundaryNode> implements CgmesDanglingLineBoundaryNodeAdder {
 
     private boolean isHvdc;
     private String lineEnergyIdentificationCodeEic;
 
-    CgmesDanglingLineBoundaryNodeAdderImpl(DanglingLine extendable) {
+    CgmesDanglingLineBoundaryNodeAdderImpl(BoundaryLine extendable) {
         super(extendable);
     }
 
     @Override
-    protected CgmesDanglingLineBoundaryNode createExtension(DanglingLine extendable) {
+    protected CgmesDanglingLineBoundaryNode createExtension(BoundaryLine extendable) {
         return new CgmesDanglingLineBoundaryNodeImpl(isHvdc, lineEnergyIdentificationCodeEic);
     }
 

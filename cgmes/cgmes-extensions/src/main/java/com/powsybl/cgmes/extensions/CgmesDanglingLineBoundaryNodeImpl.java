@@ -7,14 +7,14 @@
 package com.powsybl.cgmes.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 
 import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class CgmesDanglingLineBoundaryNodeImpl extends AbstractExtension<DanglingLine> implements CgmesDanglingLineBoundaryNode {
+class CgmesDanglingLineBoundaryNodeImpl extends AbstractExtension<BoundaryLine> implements CgmesDanglingLineBoundaryNode {
 
     private final boolean isHvdc;
     private final String lineEnergyIdentificationCodeEic;

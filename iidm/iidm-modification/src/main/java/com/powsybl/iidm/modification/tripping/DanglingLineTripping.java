@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -20,8 +20,8 @@ public class DanglingLineTripping extends AbstractInjectionTripping {
     }
 
     @Override
-    protected DanglingLine getInjection(Network network) {
-        DanglingLine injection = network.getDanglingLine(id);
+    protected BoundaryLine getInjection(Network network) {
+        BoundaryLine injection = network.getDanglingLine(id);
         if (injection == null) {
             throw new PowsyblException("Dangling line '" + id + "' not found");
         }

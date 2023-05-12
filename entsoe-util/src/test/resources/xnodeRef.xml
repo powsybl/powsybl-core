@@ -5,7 +5,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B"/>
             </iidm:busBreakerTopology>
-            <iidm:danglingLine id="DL" p0="0.0" q0="0.0" r="1.0" x="1.0" g="0.0" b="0.0" bus="B" connectableBus="B"/>
+            <iidm:boundaryLine id="DL" p0="0.0" q0="0.0" r="1.0" x="1.0" g="0.0" b="0.0" bus="B" connectableBus="B"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:extension id="DL">

@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -51,9 +52,9 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     // A dangling line has been created at the boundary node of the equivalent injection
-    public DanglingLine convertOverDanglingLine(DanglingLineAdder adder, PowerFlow fother) {
+    public BoundaryLine convertOverDanglingLine(DanglingLineAdder adder, PowerFlow fother) {
         Regulation regulation = getRegulation();
-        DanglingLine dl;
+        BoundaryLine dl;
         if (regulation.status) {
             // If this equivalent injection is regulating voltage,
             // map it over the dangling line 'virtual generator'

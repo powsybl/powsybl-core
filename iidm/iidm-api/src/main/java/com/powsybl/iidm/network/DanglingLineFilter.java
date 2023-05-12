@@ -17,18 +17,18 @@ public enum DanglingLineFilter {
     ALL(dl -> true),
 
     /** Only paired dangling lines */
-    PAIRED(DanglingLine::isPaired),
+    PAIRED(BoundaryLine::isPaired),
 
     /** Only unpaired dangling lines */
-    UNPAIRED(Predicate.not(DanglingLine::isPaired));
+    UNPAIRED(Predicate.not(BoundaryLine::isPaired));
 
-    private final Predicate<DanglingLine> predicate;
+    private final Predicate<BoundaryLine> predicate;
 
-    DanglingLineFilter(Predicate<DanglingLine> predicate) {
+    DanglingLineFilter(Predicate<BoundaryLine> predicate) {
         this.predicate = predicate;
     }
 
-    public Predicate<DanglingLine> getPredicate() {
+    public Predicate<BoundaryLine> getPredicate() {
         return this.predicate;
     }
 }

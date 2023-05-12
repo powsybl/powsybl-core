@@ -284,13 +284,13 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+    public Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter) {
         checkValidity();
-        return super.getDanglingLines(danglingLineFilter);
+        return super.getBoundaryLines(danglingLineFilter);
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+    public Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
         checkValidity();
         return super.getDanglingLineStream(danglingLineFilter);
     }

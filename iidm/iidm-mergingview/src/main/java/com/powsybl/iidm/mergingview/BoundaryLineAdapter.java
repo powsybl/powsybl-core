@@ -14,9 +14,9 @@ import java.util.Optional;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> implements DanglingLine {
+public class BoundaryLineAdapter extends AbstractInjectionAdapter<BoundaryLine> implements BoundaryLine {
 
-    DanglingLineAdapter(final DanglingLine delegate, final MergingViewIndex index) {
+    BoundaryLineAdapter(final BoundaryLine delegate, final MergingViewIndex index) {
         super(delegate, index);
     }
 
@@ -50,7 +50,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLine setP0(final double p0) {
+    public BoundaryLine setP0(final double p0) {
         getDelegate().setP0(p0);
         return this;
     }
@@ -61,7 +61,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLine setQ0(final double q0) {
+    public BoundaryLine setQ0(final double q0) {
         getDelegate().setQ0(q0);
         return this;
     }
@@ -72,7 +72,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLine setR(final double r) {
+    public BoundaryLine setR(final double r) {
         getDelegate().setR(r);
         return this;
     }
@@ -83,7 +83,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLine setX(final double x) {
+    public BoundaryLine setX(final double x) {
         getDelegate().setX(x);
         return this;
     }
@@ -94,7 +94,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLine setG(final double g) {
+    public BoundaryLine setG(final double g) {
         getDelegate().setG(g);
         return this;
     }
@@ -105,7 +105,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public DanglingLine setB(final double b) {
+    public BoundaryLine setB(final double b) {
         getDelegate().setB(b);
         return this;
     }

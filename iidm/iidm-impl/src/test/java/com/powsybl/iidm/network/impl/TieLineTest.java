@@ -33,31 +33,31 @@ class TieLineTest {
         Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), Branch.Side.TWO, Branch.Side.ONE, caseSv0);
         TieLine tieLine = n.getTieLine("TWO + ONE");
 
-        SV sv2 = new SV(tieLine.getDanglingLine1().getTerminal().getP(), tieLine.getDanglingLine1().getTerminal().getQ(),
-            tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(),
-            tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(),
+        SV sv2 = new SV(tieLine.getBoundaryLine1().getTerminal().getP(), tieLine.getBoundaryLine1().getTerminal().getQ(),
+            tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getV(),
+            tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getAngle(),
             Branch.Side.ONE).otherSide(tieLine);
         SV isv2 = initialSv2(caseSv0, initialModelCase(Branch.Side.TWO, Branch.Side.ONE), Branch.Side.TWO, Branch.Side.ONE);
         assertTrue(compare(sv2, caseSv0.node2, caseSv0.line2, Branch.Side.ONE, isv2));
 
-        SV sv1 = new SV(tieLine.getDanglingLine2().getTerminal().getP(), tieLine.getDanglingLine2().getTerminal().getQ(),
-            tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getV(),
-            tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getAngle(),
+        SV sv1 = new SV(tieLine.getBoundaryLine2().getTerminal().getP(), tieLine.getBoundaryLine2().getTerminal().getQ(),
+            tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().getV(),
+            tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().getAngle(),
             Branch.Side.TWO).otherSide(tieLine);
         SV isv1 = initialSv1(caseSv0, initialModelCase(Branch.Side.TWO, Branch.Side.ONE), Branch.Side.TWO, Branch.Side.ONE);
         assertTrue(compare(sv1, caseSv0.node1, caseSv0.line1, Branch.Side.TWO, isv1));
 
         SV isvHalf1 = initialHalf1SvBoundary(caseSv0, initialModelCase(Branch.Side.TWO, Branch.Side.ONE), Branch.Side.TWO);
-        assertTrue(compare(caseSv0.nodeBoundary.v, tieLine.getDanglingLine1().getBoundary().getV(), isvHalf1.getU()));
-        assertTrue(compare(caseSv0.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
-        assertTrue(compare(getP(caseSv0.line1, Branch.Side.TWO), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
-        assertTrue(compare(getQ(caseSv0.line1, Branch.Side.TWO), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(caseSv0.nodeBoundary.v, tieLine.getBoundaryLine1().getBoundary().getV(), isvHalf1.getU()));
+        assertTrue(compare(caseSv0.nodeBoundary.a, tieLine.getBoundaryLine1().getBoundary().getAngle(), isvHalf1.getA()));
+        assertTrue(compare(getP(caseSv0.line1, Branch.Side.TWO), tieLine.getBoundaryLine1().getBoundary().getP(), isvHalf1.getP()));
+        assertTrue(compare(getQ(caseSv0.line1, Branch.Side.TWO), tieLine.getBoundaryLine1().getBoundary().getQ(), isvHalf1.getQ()));
 
         SV isvHalf2 = initialHalf2SvBoundary(caseSv0, initialModelCase(Branch.Side.TWO, Branch.Side.ONE), Branch.Side.ONE);
-        assertTrue(compare(caseSv0.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
-        assertTrue(compare(caseSv0.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
-        assertTrue(compare(getP(caseSv0.line2, Branch.Side.ONE), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
-        assertTrue(compare(getQ(caseSv0.line2, Branch.Side.ONE), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(caseSv0.nodeBoundary.v, tieLine.getBoundaryLine2().getBoundary().getV(), isvHalf2.getU()));
+        assertTrue(compare(caseSv0.nodeBoundary.a, tieLine.getBoundaryLine2().getBoundary().getAngle(), isvHalf2.getA()));
+        assertTrue(compare(getP(caseSv0.line2, Branch.Side.ONE), tieLine.getBoundaryLine2().getBoundary().getP(), isvHalf2.getP()));
+        assertTrue(compare(getQ(caseSv0.line2, Branch.Side.ONE), tieLine.getBoundaryLine2().getBoundary().getQ(), isvHalf2.getQ()));
     }
 
     @Test
@@ -68,31 +68,31 @@ class TieLineTest {
         Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), Branch.Side.TWO, Branch.Side.TWO, caseSv1);
         TieLine tieLine = n.getTieLine("TWO + TWO");
 
-        SV sv2 = new SV(tieLine.getDanglingLine1().getTerminal().getP(), tieLine.getDanglingLine1().getTerminal().getQ(),
-            tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(),
-            tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(),
+        SV sv2 = new SV(tieLine.getBoundaryLine1().getTerminal().getP(), tieLine.getBoundaryLine1().getTerminal().getQ(),
+            tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getV(),
+            tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getAngle(),
             Branch.Side.ONE).otherSide(tieLine);
         SV isv2 = initialSv2(caseSv1, initialModelCase(Branch.Side.TWO, Branch.Side.TWO), Branch.Side.TWO, Branch.Side.TWO);
         assertTrue(compare(sv2, caseSv1.node2, caseSv1.line2, Branch.Side.TWO, isv2));
 
-        SV sv1 = new SV(tieLine.getDanglingLine2().getTerminal().getP(), tieLine.getDanglingLine2().getTerminal().getQ(),
-            tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getV(),
-            tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getAngle(),
+        SV sv1 = new SV(tieLine.getBoundaryLine2().getTerminal().getP(), tieLine.getBoundaryLine2().getTerminal().getQ(),
+            tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().getV(),
+            tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().getAngle(),
             Branch.Side.TWO).otherSide(tieLine);
         SV isv1 = initialSv1(caseSv1, initialModelCase(Branch.Side.TWO, Branch.Side.TWO), Branch.Side.TWO, Branch.Side.TWO);
         assertTrue(compare(sv1, caseSv1.node1, caseSv1.line1, Branch.Side.TWO, isv1));
 
         SV isvHalf1 = initialHalf1SvBoundary(caseSv1, initialModelCase(Branch.Side.TWO, Branch.Side.TWO), Branch.Side.TWO);
-        assertTrue(compare(caseSv1.nodeBoundary.v, tieLine.getDanglingLine1().getBoundary().getV(), isvHalf1.getU()));
-        assertTrue(compare(caseSv1.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
-        assertTrue(compare(getP(caseSv1.line1, Branch.Side.TWO), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
-        assertTrue(compare(getQ(caseSv1.line1, Branch.Side.TWO), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(caseSv1.nodeBoundary.v, tieLine.getBoundaryLine1().getBoundary().getV(), isvHalf1.getU()));
+        assertTrue(compare(caseSv1.nodeBoundary.a, tieLine.getBoundaryLine1().getBoundary().getAngle(), isvHalf1.getA()));
+        assertTrue(compare(getP(caseSv1.line1, Branch.Side.TWO), tieLine.getBoundaryLine1().getBoundary().getP(), isvHalf1.getP()));
+        assertTrue(compare(getQ(caseSv1.line1, Branch.Side.TWO), tieLine.getBoundaryLine1().getBoundary().getQ(), isvHalf1.getQ()));
 
         SV isvHalf2 = initialHalf2SvBoundary(caseSv1, initialModelCase(Branch.Side.TWO, Branch.Side.TWO), Branch.Side.TWO);
-        assertTrue(compare(caseSv1.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
-        assertTrue(compare(caseSv1.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
-        assertTrue(compare(getP(caseSv1.line2, Branch.Side.TWO), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
-        assertTrue(compare(getQ(caseSv1.line2, Branch.Side.TWO), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(caseSv1.nodeBoundary.v, tieLine.getBoundaryLine2().getBoundary().getV(), isvHalf2.getU()));
+        assertTrue(compare(caseSv1.nodeBoundary.a, tieLine.getBoundaryLine2().getBoundary().getAngle(), isvHalf2.getA()));
+        assertTrue(compare(getP(caseSv1.line2, Branch.Side.TWO), tieLine.getBoundaryLine2().getBoundary().getP(), isvHalf2.getP()));
+        assertTrue(compare(getQ(caseSv1.line2, Branch.Side.TWO), tieLine.getBoundaryLine2().getBoundary().getQ(), isvHalf2.getQ()));
     }
 
     @Test
@@ -103,31 +103,31 @@ class TieLineTest {
         Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), Branch.Side.ONE, Branch.Side.ONE, caseSv2);
         TieLine tieLine = n.getTieLine("ONE + ONE");
 
-        SV sv2 = new SV(tieLine.getDanglingLine1().getTerminal().getP(), tieLine.getDanglingLine1().getTerminal().getQ(),
-            tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(),
-            tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(),
+        SV sv2 = new SV(tieLine.getBoundaryLine1().getTerminal().getP(), tieLine.getBoundaryLine1().getTerminal().getQ(),
+            tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getV(),
+            tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getAngle(),
             Branch.Side.ONE).otherSide(tieLine);
         SV isv2 = initialSv2(caseSv2, initialModelCase(Branch.Side.ONE, Branch.Side.ONE), Branch.Side.ONE, Branch.Side.ONE);
         assertTrue(compare(sv2, caseSv2.node2, caseSv2.line2, Branch.Side.ONE, isv2));
 
-        SV sv1 = new SV(tieLine.getDanglingLine2().getTerminal().getP(), tieLine.getDanglingLine2().getTerminal().getQ(),
-            tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getV(),
-            tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getAngle(),
+        SV sv1 = new SV(tieLine.getBoundaryLine2().getTerminal().getP(), tieLine.getBoundaryLine2().getTerminal().getQ(),
+            tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().getV(),
+            tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().getAngle(),
             Branch.Side.TWO).otherSide(tieLine);
         SV isv1 = initialSv1(caseSv2, initialModelCase(Branch.Side.ONE, Branch.Side.ONE), Branch.Side.ONE, Branch.Side.ONE);
         assertTrue(compare(sv1, caseSv2.node1, caseSv2.line1, Branch.Side.ONE, isv1));
 
         SV isvHalf1 = initialHalf1SvBoundary(caseSv2, initialModelCase(Branch.Side.ONE, Branch.Side.ONE), Branch.Side.ONE);
-        assertTrue(compare(caseSv2.nodeBoundary.v, tieLine.getDanglingLine1().getBoundary().getV(), isvHalf1.getU()));
-        assertTrue(compare(caseSv2.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
-        assertTrue(compare(getP(caseSv2.line1, Branch.Side.ONE), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
-        assertTrue(compare(getQ(caseSv2.line1, Branch.Side.ONE), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(caseSv2.nodeBoundary.v, tieLine.getBoundaryLine1().getBoundary().getV(), isvHalf1.getU()));
+        assertTrue(compare(caseSv2.nodeBoundary.a, tieLine.getBoundaryLine1().getBoundary().getAngle(), isvHalf1.getA()));
+        assertTrue(compare(getP(caseSv2.line1, Branch.Side.ONE), tieLine.getBoundaryLine1().getBoundary().getP(), isvHalf1.getP()));
+        assertTrue(compare(getQ(caseSv2.line1, Branch.Side.ONE), tieLine.getBoundaryLine1().getBoundary().getQ(), isvHalf1.getQ()));
 
         SV isvHalf2 = initialHalf2SvBoundary(caseSv2, initialModelCase(Branch.Side.ONE, Branch.Side.ONE), Branch.Side.ONE);
-        assertTrue(compare(caseSv2.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
-        assertTrue(compare(caseSv2.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
-        assertTrue(compare(getP(caseSv2.line2, Branch.Side.ONE), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
-        assertTrue(compare(getQ(caseSv2.line2, Branch.Side.ONE), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(caseSv2.nodeBoundary.v, tieLine.getBoundaryLine2().getBoundary().getV(), isvHalf2.getU()));
+        assertTrue(compare(caseSv2.nodeBoundary.a, tieLine.getBoundaryLine2().getBoundary().getAngle(), isvHalf2.getA()));
+        assertTrue(compare(getP(caseSv2.line2, Branch.Side.ONE), tieLine.getBoundaryLine2().getBoundary().getP(), isvHalf2.getP()));
+        assertTrue(compare(getQ(caseSv2.line2, Branch.Side.ONE), tieLine.getBoundaryLine2().getBoundary().getQ(), isvHalf2.getQ()));
     }
 
     @Test
@@ -138,31 +138,31 @@ class TieLineTest {
         Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), Branch.Side.ONE, Branch.Side.TWO, caseSv3);
         TieLine tieLine = n.getTieLine("ONE + TWO");
 
-        SV sv2 = new SV(tieLine.getDanglingLine1().getTerminal().getP(), tieLine.getDanglingLine1().getTerminal().getQ(),
-            tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(),
-            tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(),
+        SV sv2 = new SV(tieLine.getBoundaryLine1().getTerminal().getP(), tieLine.getBoundaryLine1().getTerminal().getQ(),
+            tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getV(),
+            tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getAngle(),
             Branch.Side.ONE).otherSide(tieLine);
         SV isv2 = initialSv2(caseSv3, initialModelCase(Branch.Side.ONE, Branch.Side.TWO), Branch.Side.ONE, Branch.Side.TWO);
         assertTrue(compare(sv2, caseSv3.node2, caseSv3.line2, Branch.Side.TWO, isv2));
 
-        SV sv1 = new SV(tieLine.getDanglingLine2().getTerminal().getP(), tieLine.getDanglingLine2().getTerminal().getQ(),
-            tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getV(),
-            tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getAngle(),
+        SV sv1 = new SV(tieLine.getBoundaryLine2().getTerminal().getP(), tieLine.getBoundaryLine2().getTerminal().getQ(),
+            tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().getV(),
+            tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().getAngle(),
             Branch.Side.TWO).otherSide(tieLine);
         SV isv1 = initialSv1(caseSv3, initialModelCase(Branch.Side.ONE, Branch.Side.TWO), Branch.Side.ONE, Branch.Side.TWO);
         assertTrue(compare(sv1, caseSv3.node1, caseSv3.line1, Branch.Side.ONE, isv1));
 
         SV isvHalf1 = initialHalf1SvBoundary(caseSv3, initialModelCase(Branch.Side.ONE, Branch.Side.TWO), Branch.Side.ONE);
-        assertTrue(compare(caseSv3.nodeBoundary.v, tieLine.getDanglingLine1().getBoundary().getV(), isvHalf1.getU()));
-        assertTrue(compare(caseSv3.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
-        assertTrue(compare(getP(caseSv3.line1, Branch.Side.ONE), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
-        assertTrue(compare(getQ(caseSv3.line1, Branch.Side.ONE), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(caseSv3.nodeBoundary.v, tieLine.getBoundaryLine1().getBoundary().getV(), isvHalf1.getU()));
+        assertTrue(compare(caseSv3.nodeBoundary.a, tieLine.getBoundaryLine1().getBoundary().getAngle(), isvHalf1.getA()));
+        assertTrue(compare(getP(caseSv3.line1, Branch.Side.ONE), tieLine.getBoundaryLine1().getBoundary().getP(), isvHalf1.getP()));
+        assertTrue(compare(getQ(caseSv3.line1, Branch.Side.ONE), tieLine.getBoundaryLine1().getBoundary().getQ(), isvHalf1.getQ()));
 
         SV isvHalf2 = initialHalf2SvBoundary(caseSv3, initialModelCase(Branch.Side.ONE, Branch.Side.TWO), Branch.Side.TWO);
-        assertTrue(compare(caseSv3.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
-        assertTrue(compare(caseSv3.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
-        assertTrue(compare(getP(caseSv3.line2, Branch.Side.TWO), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
-        assertTrue(compare(getQ(caseSv3.line2, Branch.Side.TWO), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(caseSv3.nodeBoundary.v, tieLine.getBoundaryLine2().getBoundary().getV(), isvHalf2.getU()));
+        assertTrue(compare(caseSv3.nodeBoundary.a, tieLine.getBoundaryLine2().getBoundary().getAngle(), isvHalf2.getA()));
+        assertTrue(compare(getP(caseSv3.line2, Branch.Side.TWO), tieLine.getBoundaryLine2().getBoundary().getP(), isvHalf2.getP()));
+        assertTrue(compare(getQ(caseSv3.line2, Branch.Side.TWO), tieLine.getBoundaryLine2().getBoundary().getQ(), isvHalf2.getQ()));
     }
 
     @Test
@@ -173,31 +173,31 @@ class TieLineTest {
         Network n = createNetworkWithTieLineWithDifferentNominalVoltageAtEnds(NetworkFactory.findDefault(), Branch.Side.TWO, Branch.Side.ONE, caseSv);
         TieLine tieLine = n.getTieLine("TWO + ONE");
 
-        SV sv2 = new SV(tieLine.getDanglingLine1().getTerminal().getP(), tieLine.getDanglingLine1().getTerminal().getQ(),
-            tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(),
-            tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(),
+        SV sv2 = new SV(tieLine.getBoundaryLine1().getTerminal().getP(), tieLine.getBoundaryLine1().getTerminal().getQ(),
+            tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getV(),
+            tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().getAngle(),
             Branch.Side.ONE).otherSide(tieLine);
         SV isv2 = initialSv2(caseSv, initialModelDifferentVlCase(Branch.Side.TWO, Branch.Side.ONE), Branch.Side.TWO, Branch.Side.ONE);
         assertTrue(compare(sv2, caseSv.node2, caseSv.line2, Branch.Side.ONE, isv2));
 
-        SV sv1 = new SV(tieLine.getDanglingLine2().getTerminal().getP(), tieLine.getDanglingLine2().getTerminal().getQ(),
-            tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getV(),
-            tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getAngle(),
+        SV sv1 = new SV(tieLine.getBoundaryLine2().getTerminal().getP(), tieLine.getBoundaryLine2().getTerminal().getQ(),
+            tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().getV(),
+            tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().getAngle(),
             Branch.Side.TWO).otherSide(tieLine);
         SV isv1 = initialSv1(caseSv, initialModelDifferentVlCase(Branch.Side.TWO, Branch.Side.ONE), Branch.Side.TWO, Branch.Side.ONE);
         assertTrue(compare(sv1, caseSv.node1, caseSv.line1, Branch.Side.TWO, isv1));
 
         SV isvHalf1 = initialHalf1SvBoundary(caseSv, initialModelDifferentVlCase(Branch.Side.TWO, Branch.Side.ONE), Branch.Side.TWO);
-        assertTrue(compare(caseSv.nodeBoundary.v, tieLine.getDanglingLine1().getBoundary().getV(), isvHalf1.getU()));
-        assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
-        assertTrue(compare(getP(caseSv.line1, Branch.Side.TWO), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
-        assertTrue(compare(getQ(caseSv.line1, Branch.Side.TWO), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(caseSv.nodeBoundary.v, tieLine.getBoundaryLine1().getBoundary().getV(), isvHalf1.getU()));
+        assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getBoundaryLine1().getBoundary().getAngle(), isvHalf1.getA()));
+        assertTrue(compare(getP(caseSv.line1, Branch.Side.TWO), tieLine.getBoundaryLine1().getBoundary().getP(), isvHalf1.getP()));
+        assertTrue(compare(getQ(caseSv.line1, Branch.Side.TWO), tieLine.getBoundaryLine1().getBoundary().getQ(), isvHalf1.getQ()));
 
         SV isvHalf2 = initialHalf2SvBoundary(caseSv, initialModelDifferentVlCase(Branch.Side.TWO, Branch.Side.ONE), Branch.Side.ONE);
-        assertTrue(compare(caseSv.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
-        assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
-        assertTrue(compare(getP(caseSv.line2, Branch.Side.ONE), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
-        assertTrue(compare(getQ(caseSv.line2, Branch.Side.ONE), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(caseSv.nodeBoundary.v, tieLine.getBoundaryLine2().getBoundary().getV(), isvHalf2.getU()));
+        assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getBoundaryLine2().getBoundary().getAngle(), isvHalf2.getA()));
+        assertTrue(compare(getP(caseSv.line2, Branch.Side.ONE), tieLine.getBoundaryLine2().getBoundary().getP(), isvHalf2.getP()));
+        assertTrue(compare(getQ(caseSv.line2, Branch.Side.ONE), tieLine.getBoundaryLine2().getBoundary().getQ(), isvHalf2.getQ()));
     }
 
     @Test
@@ -233,7 +233,7 @@ class TieLineTest {
 
         Branch.Side boundarySide1 = Branch.Side.ONE;
         Branch.Side boundarySide2 = Branch.Side.TWO;
-        DanglingLine dl1 = s1vl1.newDanglingLine()
+        BoundaryLine dl1 = s1vl1.newDanglingLine()
                 .setId(boundarySide1.name())
                 .setName(boundarySide1.name())
                 .setR(1.0)
@@ -241,7 +241,7 @@ class TieLineTest {
                 .setBus("S1VL1-BUS")
                 .setUcteXnodeCode("UcteNode")
                 .add();
-        DanglingLine dl2 = s2vl1.newDanglingLine()
+        BoundaryLine dl2 = s2vl1.newDanglingLine()
                 .setId(boundarySide2.name())
                 .setName(boundarySide2.name())
                 .setR(1.0)
@@ -257,13 +257,13 @@ class TieLineTest {
                 .setDanglingLine2(dl2.getId())
                 .add();
 
-        assertEquals(0.0, tieLine.getDanglingLine1().getG(), 0.0);
-        assertEquals(0.0, tieLine.getDanglingLine1().getB(), 0.0);
-        assertEquals(0.0, tieLine.getDanglingLine2().getG(), 0.0);
-        assertEquals(0.0, tieLine.getDanglingLine2().getB(), 0.0);
+        assertEquals(0.0, tieLine.getBoundaryLine1().getG(), 0.0);
+        assertEquals(0.0, tieLine.getBoundaryLine1().getB(), 0.0);
+        assertEquals(0.0, tieLine.getBoundaryLine2().getG(), 0.0);
+        assertEquals(0.0, tieLine.getBoundaryLine2().getB(), 0.0);
 
-        assertSame(s1vl1, tieLine.getDanglingLine1().getTerminal().getVoltageLevel());
-        assertSame(s2vl1, tieLine.getDanglingLine2().getTerminal().getVoltageLevel());
+        assertSame(s1vl1, tieLine.getBoundaryLine1().getTerminal().getVoltageLevel());
+        assertSame(s2vl1, tieLine.getBoundaryLine2().getTerminal().getVoltageLevel());
     }
 
     private static Network createNetworkWithTieLine(NetworkFactory networkFactory,
@@ -305,7 +305,7 @@ class TieLineTest {
         // AcLinesegment 2 must be reoriented if boundary side is at end 2
         // Current model does not allow shunt admittances at both ends, so it does not make sense to reorient the AcLineSegments
 
-        DanglingLine dl1 = s1vl1.newDanglingLine()
+        BoundaryLine dl1 = s1vl1.newDanglingLine()
                 .setBus("S1VL1-BUS")
                 .setId(boundarySide1.name())
                 .setEnsureIdUnicity(true)
@@ -315,7 +315,7 @@ class TieLineTest {
                 .setG(0.05)
                 .setB(0.14)
                 .add();
-        DanglingLine dl2 = s2vl1.newDanglingLine()
+        BoundaryLine dl2 = s2vl1.newDanglingLine()
                 .setBus("S2VL1-BUS")
                 .setId(boundarySide2.name())
                 .setEnsureIdUnicity(true)
@@ -333,15 +333,15 @@ class TieLineTest {
             .setDanglingLine1(dl1.getId())
             .setDanglingLine2(dl2.getId())
             .add();
-        tieLine.getDanglingLine1().getTerminal().getBusView().getBus().setV(caseSv.node1.v);
-        tieLine.getDanglingLine1().getTerminal().getBusView().getBus().setAngle(caseSv.node1.a);
-        tieLine.getDanglingLine1().getTerminal().setP(getOtherSideP(caseSv.line1, boundarySide1));
-        tieLine.getDanglingLine1().getTerminal().setQ(getOtherSideQ(caseSv.line1, boundarySide1));
+        tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().setV(caseSv.node1.v);
+        tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().setAngle(caseSv.node1.a);
+        tieLine.getBoundaryLine1().getTerminal().setP(getOtherSideP(caseSv.line1, boundarySide1));
+        tieLine.getBoundaryLine1().getTerminal().setQ(getOtherSideQ(caseSv.line1, boundarySide1));
 
-        tieLine.getDanglingLine2().getTerminal().getBusView().getBus().setV(caseSv.node2.v);
-        tieLine.getDanglingLine2().getTerminal().getBusView().getBus().setAngle(caseSv.node2.a);
-        tieLine.getDanglingLine2().getTerminal().setP(getOtherSideP(caseSv.line2, boundarySide2));
-        tieLine.getDanglingLine2().getTerminal().setQ(getOtherSideQ(caseSv.line2, boundarySide2));
+        tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().setV(caseSv.node2.v);
+        tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().setAngle(caseSv.node2.a);
+        tieLine.getBoundaryLine2().getTerminal().setP(getOtherSideP(caseSv.line2, boundarySide2));
+        tieLine.getBoundaryLine2().getTerminal().setQ(getOtherSideQ(caseSv.line2, boundarySide2));
 
         return network;
     }
@@ -386,7 +386,7 @@ class TieLineTest {
         // The initial parameters for AcLineSegment 2 are R = 3.1513680000000006, X = 14.928011999999999, G1 = 0.008044414674299755, B1 = -0.03791520949675112, G2 = -0.005046041932060755, B2 = 0.023978278075869598
         // AcLinesegment 2 must be reoriented if boundary side is at end 2
         // Current model does not allow shunt admittances at both ends, so it does not make sense to reorient it
-        DanglingLine dl1 = s1vl1.newDanglingLine()
+        BoundaryLine dl1 = s1vl1.newDanglingLine()
                 .setBus("S1VL1-BUS")
                 .setId(boundarySide1.name())
                 .setName(boundarySide1.name())
@@ -396,7 +396,7 @@ class TieLineTest {
                 .setB(0.00032976265)
                 .setUcteXnodeCode("UcteNode")
                 .add();
-        DanglingLine dl2 = s2vl1.newDanglingLine()
+        BoundaryLine dl2 = s2vl1.newDanglingLine()
                 .setBus("S2VL1-BUS")
                 .setId(boundarySide2.name())
                 .setName(boundarySide2.name())
@@ -413,15 +413,15 @@ class TieLineTest {
                 .setDanglingLine2(dl2.getId())
                 .add();
 
-        tieLine.getDanglingLine1().getTerminal().getBusView().getBus().setV(caseSv.node1.v);
-        tieLine.getDanglingLine1().getTerminal().getBusView().getBus().setAngle(caseSv.node1.a);
-        tieLine.getDanglingLine1().getTerminal().setP(getOtherSideP(caseSv.line1, boundarySide1));
-        tieLine.getDanglingLine1().getTerminal().setQ(getOtherSideQ(caseSv.line1, boundarySide1));
+        tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().setV(caseSv.node1.v);
+        tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().setAngle(caseSv.node1.a);
+        tieLine.getBoundaryLine1().getTerminal().setP(getOtherSideP(caseSv.line1, boundarySide1));
+        tieLine.getBoundaryLine1().getTerminal().setQ(getOtherSideQ(caseSv.line1, boundarySide1));
 
-        tieLine.getDanglingLine2().getTerminal().getBusView().getBus().setV(caseSv.node2.v);
-        tieLine.getDanglingLine2().getTerminal().getBusView().getBus().setAngle(caseSv.node2.a);
-        tieLine.getDanglingLine2().getTerminal().setP(getOtherSideP(caseSv.line2, boundarySide2));
-        tieLine.getDanglingLine2().getTerminal().setQ(getOtherSideQ(caseSv.line2, boundarySide2));
+        tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().setV(caseSv.node2.v);
+        tieLine.getBoundaryLine2().getTerminal().getBusView().getBus().setAngle(caseSv.node2.a);
+        tieLine.getBoundaryLine2().getTerminal().setP(getOtherSideP(caseSv.line2, boundarySide2));
+        tieLine.getBoundaryLine2().getTerminal().setQ(getOtherSideQ(caseSv.line2, boundarySide2));
 
         return network;
     }

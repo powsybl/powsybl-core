@@ -7,7 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
@@ -46,9 +46,9 @@ public final class ValidationUtil {
     }
 
     private static void checkValidDanglingLines(Identifiable<?> origin, Identifiable<?> other) {
-        if (other instanceof DanglingLine && origin instanceof DanglingLine) {
-            String xnodeCode1 = ((DanglingLine) origin).getUcteXnodeCode();
-            String xnodeCode2 = ((DanglingLine) other).getUcteXnodeCode();
+        if (other instanceof BoundaryLine && origin instanceof BoundaryLine) {
+            String xnodeCode1 = ((BoundaryLine) origin).getUcteXnodeCode();
+            String xnodeCode2 = ((BoundaryLine) other).getUcteXnodeCode();
             if ((xnodeCode1 != null && xnodeCode2 != null && !xnodeCode1.equals(xnodeCode2)) || (xnodeCode1 == null && xnodeCode2 == null)) {
                 throw new PowsyblException(String.format("Dangling line couple %s have inconsistent Xnodes (%s,%s)", origin.getId(), xnodeCode1, xnodeCode2));
             }

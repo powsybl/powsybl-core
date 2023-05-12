@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
 
 import java.util.Objects;
@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<DanglingLine, DanglingLineAdder> implements DanglingLineAdder {
+public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<BoundaryLine, DanglingLineAdder> implements DanglingLineAdder {
 
     class GenerationAdderAdapter implements GenerationAdder {
 
@@ -72,9 +72,9 @@ public class DanglingLineAdderAdapter extends AbstractInjectionAdderAdapter<Dang
     }
 
     @Override
-    public DanglingLine add() {
+    public BoundaryLine add() {
         checkAndSetUniqueId();
-        final DanglingLine dl = getDelegate().add();
+        final BoundaryLine dl = getDelegate().add();
         getIndex().checkNewDanglingLine(dl);
         return getIndex().getDanglingLine(dl);
     }

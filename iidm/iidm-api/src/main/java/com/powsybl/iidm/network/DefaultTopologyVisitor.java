@@ -53,7 +53,7 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
     }
 
     @Override
-    public void visitDanglingLine(DanglingLine danglingLine) {
+    public void visitDanglingLine(BoundaryLine boundaryLine) {
         // empty default implementation
     }
 

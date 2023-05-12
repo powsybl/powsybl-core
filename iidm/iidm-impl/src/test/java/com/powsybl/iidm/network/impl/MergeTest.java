@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 import java.io.StringWriter;
 
+import com.powsybl.iidm.network.BoundaryLine;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -77,7 +77,7 @@ class MergeTest {
     private static Network createNetworkWithDanglingLine(String nid) {
         Network n = NetworkTest1Factory.create(nid);
         VoltageLevel vl = n.getVoltageLevel(id("voltageLevel1", nid));
-        DanglingLine dl = vl.newDanglingLine()
+        BoundaryLine dl = vl.newDanglingLine()
                 .setId(id("danglingLineb", nid))
                 .setNode(6)
                 .setR(1.0)

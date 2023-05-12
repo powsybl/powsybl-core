@@ -238,7 +238,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         connect(dlAdder, modelSide);
         EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(
             boundaryNode);
-        DanglingLine dl;
+        com.powsybl.iidm.network.BoundaryLine dl;
         if (equivalentInjectionConversion != null) {
             dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
             Optional.ofNullable(dl.getGeneration()).ifPresent(equivalentInjectionConversion::convertReactiveLimits);
@@ -273,9 +273,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
             if (isZ0(dl)) {
                 // Flow out must be equal to the consumption seen at boundary
-                Optional<DanglingLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
-                dl.getTerminal().setP(dl.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0));
-                dl.getTerminal().setQ(dl.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0));
+                Optional<com.powsybl.iidm.network.BoundaryLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
+                dl.getTerminal().setP(dl.getP0() - generation.map(com.powsybl.iidm.network.BoundaryLine.Generation::getTargetP).orElse(0.0));
+                dl.getTerminal().setQ(dl.getQ0() - generation.map(com.powsybl.iidm.network.BoundaryLine.Generation::getTargetQ).orElse(0.0));
 
             } else {
                 setDanglingLineModelSideFlow(dl, boundaryNode);
@@ -283,7 +283,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public static void calculateVoltageAndAngleInBoundaryBus(DanglingLine dl) {
+    public static void calculateVoltageAndAngleInBoundaryBus(com.powsybl.iidm.network.BoundaryLine dl) {
         double v = dl.getBoundary().getV();
         double angle = dl.getBoundary().getAngle();
 
@@ -293,7 +293,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    private void setBoundaryNodeInfo(String boundaryNode, DanglingLine dl) {
+    private void setBoundaryNodeInfo(String boundaryNode, com.powsybl.iidm.network.BoundaryLine dl) {
         if (context.boundary().isHvdc(boundaryNode) || context.boundary().lineAtBoundary(boundaryNode) != null) {
             dl.newExtension(CgmesDanglingLineBoundaryNodeAdder.class)
                     .setHvdc(context.boundary().isHvdc(boundaryNode))
@@ -310,20 +310,20 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    private boolean isZ0(DanglingLine dl) {
+    private boolean isZ0(com.powsybl.iidm.network.BoundaryLine dl) {
         return dl.getR() == 0.0 && dl.getX() == 0.0 && dl.getG() == 0.0 && dl.getB() == 0.0;
     }
 
-    private void setDanglingLineModelSideFlow(DanglingLine dl, String boundaryNode) {
+    private void setDanglingLineModelSideFlow(com.powsybl.iidm.network.BoundaryLine dl, String boundaryNode) {
 
         double v = context.boundary().vAtBoundary(boundaryNode);
         double angle = context.boundary().angleAtBoundary(boundaryNode);
         // The net sum of power flow "entering" at boundary is "exiting"
         // through the line, we have to change the sign of the sum of flows
         // at the node when we consider flow at line end
-        Optional<DanglingLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
-        double p = dl.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0);
-        double q = dl.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0);
+        Optional<com.powsybl.iidm.network.BoundaryLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
+        double p = dl.getP0() - generation.map(com.powsybl.iidm.network.BoundaryLine.Generation::getTargetP).orElse(0.0);
+        double q = dl.getQ0() - generation.map(com.powsybl.iidm.network.BoundaryLine.Generation::getTargetQ).orElse(0.0);
         SV svboundary = new SV(-p, -q, v, angle, Branch.Side.ONE);
         // The other side power flow must be computed taking into account
         // the same criteria used for ACLineSegment: total shunt admittance

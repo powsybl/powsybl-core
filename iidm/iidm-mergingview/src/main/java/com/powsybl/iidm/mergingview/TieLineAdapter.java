@@ -6,8 +6,8 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.TieLine;
 
 /**
@@ -15,13 +15,13 @@ import com.powsybl.iidm.network.TieLine;
  */
 public class TieLineAdapter extends AbstractIdentifiableAdapter<TieLine> implements TieLine {
 
-    private final DanglingLine danglingLine1;
-    private final DanglingLine danglingLine2;
+    private final BoundaryLine boundaryLine1;
+    private final BoundaryLine boundaryLine2;
 
     TieLineAdapter(final TieLine delegate, final MergingViewIndex index) {
         super(delegate, index);
-        this.danglingLine1 = index.getDanglingLine(delegate.getDanglingLine1());
-        this.danglingLine2 = index.getDanglingLine(delegate.getDanglingLine2());
+        this.boundaryLine1 = index.getDanglingLine(delegate.getBoundaryLine1());
+        this.boundaryLine2 = index.getDanglingLine(delegate.getBoundaryLine2());
     }
 
     @Override
@@ -38,35 +38,35 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<TieLine> impleme
     }
 
     @Override
-    public DanglingLine getDanglingLine1() {
-        return danglingLine1;
+    public BoundaryLine getBoundaryLine1() {
+        return boundaryLine1;
     }
 
     @Override
-    public DanglingLine getDanglingLine2() {
-        return danglingLine2;
+    public BoundaryLine getBoundaryLine2() {
+        return boundaryLine2;
     }
 
     @Override
-    public DanglingLine getDanglingLine(Branch.Side side) {
+    public BoundaryLine getDanglingLine(Branch.Side side) {
         switch (side) {
             case ONE:
-                return danglingLine1;
+                return boundaryLine1;
             case TWO:
-                return danglingLine2;
+                return boundaryLine2;
             default:
                 throw new IllegalStateException("Unexpected side: " + side);
         }
     }
 
     @Override
-    public DanglingLine getDanglingLine(String voltageLevelId) {
+    public BoundaryLine getDanglingLine(String voltageLevelId) {
 
-        if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return danglingLine1;
+        if (boundaryLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return boundaryLine1;
         }
-        if (danglingLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return danglingLine2;
+        if (boundaryLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return boundaryLine2;
         }
         return null;
     }

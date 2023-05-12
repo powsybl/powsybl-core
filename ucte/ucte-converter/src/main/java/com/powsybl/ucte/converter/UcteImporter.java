@@ -292,7 +292,7 @@ public class UcteImporter implements Importer {
         double targetQ = isValueValid(xnode.getReactivePowerGeneration()) ? xnode.getReactivePowerGeneration() : 0;
 
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
-        DanglingLine dl = voltageLevel.newDanglingLine()
+        BoundaryLine dl = voltageLevel.newDanglingLine()
                 .setId(ucteLine.getId().toString())
                 .setName(xnode.getGeographicalName())
                 .setBus(connected ? nodeCode.toString() : null)
@@ -678,7 +678,7 @@ public class UcteImporter implements Importer {
         double targetQ = isValueValid(ucteXnode.getReactivePowerGeneration()) ? ucteXnode.getReactivePowerGeneration() : 0;
 
         // create a small impedance dangling line connected to the YNODE
-        DanglingLine yDanglingLine = yVoltageLevel.newDanglingLine()
+        BoundaryLine yBoundaryLine = yVoltageLevel.newDanglingLine()
                 .setId(xNodeName + " " + yNodeName)
                 .setBus(yNodeName)
                 .setConnectableBus(yNodeName)
@@ -694,9 +694,9 @@ public class UcteImporter implements Importer {
                 .setTargetQ(-targetQ)
                 .add()
                 .add();
-        yDanglingLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();
-        addXnodeStatusProperty(ucteXnode, yDanglingLine);
-        addGeographicalNameProperty(ucteXnode, yDanglingLine);
+        yBoundaryLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();
+        addXnodeStatusProperty(ucteXnode, yBoundaryLine);
+        addGeographicalNameProperty(ucteXnode, yBoundaryLine);
 
         String voltageLevelId1;
         String voltageLevelId2;
@@ -837,38 +837,38 @@ public class UcteImporter implements Importer {
         return bus != null ? bus.getId() : null;
     }
 
-    private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Multimap<String, DanglingLine> danglingLinesByXnodeCode) {
+    private static BoundaryLine getMatchingDanglingLine(BoundaryLine dl1, Multimap<String, BoundaryLine> danglingLinesByXnodeCode) {
         Xnode xnodExtension = dl1.getExtension(Xnode.class);
         if (xnodExtension == null) {
             throw new UcteException("Dangling line " + dl1.getNameOrId() + " doesn't have the Xnode extension");
         }
         String otherXnodeCode = xnodExtension.getCode();
-        List<DanglingLine> matchingDanglingLines = danglingLinesByXnodeCode.get(otherXnodeCode)
+        List<BoundaryLine> matchingBoundaryLines = danglingLinesByXnodeCode.get(otherXnodeCode)
                 .stream().filter(dl -> dl != dl1)
                 .collect(Collectors.toList());
-        if (matchingDanglingLines.isEmpty()) {
+        if (matchingBoundaryLines.isEmpty()) {
             return null;
-        } else if (matchingDanglingLines.size() == 1) {
-            return matchingDanglingLines.get(0);
+        } else if (matchingBoundaryLines.size() == 1) {
+            return matchingBoundaryLines.get(0);
         } else {
             if (!dl1.getTerminal().isConnected()) {
                 return null;
             }
-            List<DanglingLine> connectedMatchingDanglingLines = matchingDanglingLines.stream()
+            List<BoundaryLine> connectedMatchingBoundaryLines = matchingBoundaryLines.stream()
                     .filter(dl -> dl.getTerminal().isConnected())
                     .collect(Collectors.toList());
-            if (connectedMatchingDanglingLines.isEmpty()) {
+            if (connectedMatchingBoundaryLines.isEmpty()) {
                 return null;
             }
-            if (connectedMatchingDanglingLines.size() == 1) {
-                return connectedMatchingDanglingLines.get(0);
+            if (connectedMatchingBoundaryLines.size() == 1) {
+                return connectedMatchingBoundaryLines.get(0);
             } else {
                 throw new UcteException("More that 2 connected dangling lines have the same XNODE " + dl1.getUcteXnodeCode());
             }
         }
     }
 
-    private static void addElementNameProperty(Map<String, String> properties, DanglingLine dl1, DanglingLine dl2) {
+    private static void addElementNameProperty(Map<String, String> properties, BoundaryLine dl1, BoundaryLine dl2) {
         if (dl1.hasProperty(ELEMENT_NAME_PROPERTY_KEY)) {
             properties.put(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }
@@ -896,7 +896,7 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void addGeographicalNameProperty(UcteNetwork ucteNetwork, Map<String, String> properties, DanglingLine dl1, DanglingLine dl2) {
+    private static void addGeographicalNameProperty(UcteNetwork ucteNetwork, Map<String, String> properties, BoundaryLine dl1, BoundaryLine dl2) {
         Optional<UcteNodeCode> optUcteNodeCode = UcteNodeCode.parseUcteNodeCode(dl1.getUcteXnodeCode());
 
         if (optUcteNodeCode.isPresent()) {
@@ -922,21 +922,21 @@ public class UcteImporter implements Importer {
         identifiable.setProperty(STATUS_PROPERTY_KEY + "_XNode", ucteNode.getStatus().toString());
     }
 
-    private static void addXnodeStatusProperty(Map<String, String> properties, DanglingLine danglingLine) {
-        properties.put(STATUS_PROPERTY_KEY + "_XNode", danglingLine.getProperty(STATUS_PROPERTY_KEY + "_XNode"));
+    private static void addXnodeStatusProperty(Map<String, String> properties, BoundaryLine boundaryLine) {
+        properties.put(STATUS_PROPERTY_KEY + "_XNode", boundaryLine.getProperty(STATUS_PROPERTY_KEY + "_XNode"));
     }
 
-    private static void addDanglingLineCouplerProperty(UcteLine ucteLine, DanglingLine danglingLine) {
+    private static void addDanglingLineCouplerProperty(UcteLine ucteLine, BoundaryLine boundaryLine) {
         switch (ucteLine.getStatus()) {
             case BUSBAR_COUPLER_IN_OPERATION:
             case BUSBAR_COUPLER_OUT_OF_OPERATION:
-                danglingLine.setProperty(IS_COUPLER_PROPERTY_KEY, "true");
+                boundaryLine.setProperty(IS_COUPLER_PROPERTY_KEY, "true");
                 break;
             case REAL_ELEMENT_IN_OPERATION:
             case REAL_ELEMENT_OUT_OF_OPERATION:
             case EQUIVALENT_ELEMENT_IN_OPERATION:
             case EQUIVALENT_ELEMENT_OUT_OF_OPERATION:
-                danglingLine.setProperty(IS_COUPLER_PROPERTY_KEY, "false");
+                boundaryLine.setProperty(IS_COUPLER_PROPERTY_KEY, "false");
                 break;
         }
     }
@@ -985,31 +985,31 @@ public class UcteImporter implements Importer {
     }
 
     private void mergeXnodeDanglingLines(UcteNetwork ucteNetwork, Network network) {
-        Multimap<String, DanglingLine> danglingLinesByXnodeCode = HashMultimap.create();
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
+        Multimap<String, BoundaryLine> danglingLinesByXnodeCode = HashMultimap.create();
+        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.ALL)) {
             danglingLinesByXnodeCode.put(dl.getExtension(Xnode.class).getCode(), dl);
         }
 
-        Set<DanglingLine> danglingLinesToProcess = Sets.newHashSet(network.getDanglingLines(DanglingLineFilter.ALL));
-        while (!danglingLinesToProcess.isEmpty()) {
-            DanglingLine dlToProcess = danglingLinesToProcess.iterator().next();
-            DanglingLine dlMatchingDlToProcess = getMatchingDanglingLine(dlToProcess, danglingLinesByXnodeCode);
+        Set<BoundaryLine> boundaryLinesToProcesses = Sets.newHashSet(network.getBoundaryLines(DanglingLineFilter.ALL));
+        while (!boundaryLinesToProcesses.isEmpty()) {
+            BoundaryLine dlToProcess = boundaryLinesToProcesses.iterator().next();
+            BoundaryLine dlMatchingDlToProcess = getMatchingDanglingLine(dlToProcess, danglingLinesByXnodeCode);
 
             if (dlMatchingDlToProcess != null) {
                 // lexical sort to always end up with same merge line id
                 boolean switchDanglingLinesOrder = dlToProcess.getId().compareTo(dlMatchingDlToProcess.getId()) > 0;
-                DanglingLine dlAtSideOne = switchDanglingLinesOrder ? dlMatchingDlToProcess : dlToProcess;
-                DanglingLine dlAtSideTwo = switchDanglingLinesOrder ? dlToProcess : dlMatchingDlToProcess;
+                BoundaryLine dlAtSideOne = switchDanglingLinesOrder ? dlMatchingDlToProcess : dlToProcess;
+                BoundaryLine dlAtSideTwo = switchDanglingLinesOrder ? dlToProcess : dlMatchingDlToProcess;
 
                 createTieLine(ucteNetwork, network, dlAtSideOne, dlAtSideTwo);
 
-                danglingLinesToProcess.remove(dlMatchingDlToProcess);
+                boundaryLinesToProcesses.remove(dlMatchingDlToProcess);
             }
-            danglingLinesToProcess.remove(dlToProcess);
+            boundaryLinesToProcesses.remove(dlToProcess);
         }
     }
 
-    private void createTieLine(UcteNetwork ucteNetwork, Network network, DanglingLine dlAtSideOne, DanglingLine dlAtSideTwo) {
+    private void createTieLine(UcteNetwork ucteNetwork, Network network, BoundaryLine dlAtSideOne, BoundaryLine dlAtSideTwo) {
         // lexical sort to always end up with same merge line id
         String mergeLineId = dlAtSideOne.getId() + " + " + dlAtSideTwo.getId();
 

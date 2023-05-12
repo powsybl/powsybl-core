@@ -74,7 +74,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
     private static Branch.Side getSide(Boundary boundary) {
         // a TieLine with two dangingLines inside
         return boundary.getDanglingLine().getTieLine().map(tl -> {
-            if (tl.getDanglingLine1() == boundary.getDanglingLine()) {
+            if (tl.getBoundaryLine1() == boundary.getDanglingLine()) {
                 return Branch.Side.ONE;
             }
             return Branch.Side.TWO;
@@ -111,8 +111,8 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                 case "boundary":
                     id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
                     Identifiable identifiable = network.getIdentifiable(id);
-                    if (identifiable instanceof DanglingLine) {
-                        DanglingLine dl = (DanglingLine) identifiable;
+                    if (identifiable instanceof BoundaryLine) {
+                        BoundaryLine dl = (BoundaryLine) identifiable;
                         cgmesControlArea.add(dl.getBoundary());
                     } else if (identifiable instanceof TieLine) {
                         side = networkContext.getReader().getAttributeValue(null, "side");

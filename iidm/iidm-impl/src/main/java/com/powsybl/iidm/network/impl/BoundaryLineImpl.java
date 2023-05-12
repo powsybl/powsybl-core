@@ -18,11 +18,11 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine {
+class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements BoundaryLine {
 
     static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
-        private DanglingLineImpl danglingLine;
+        private BoundaryLineImpl danglingLine;
 
         private ReactiveLimitsHolderImpl reactiveLimits;
 
@@ -57,7 +57,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
             }
         }
 
-        GenerationImpl attach(DanglingLineImpl danglingLine) {
+        GenerationImpl attach(BoundaryLineImpl danglingLine) {
             if (this.danglingLine != null) {
                 throw new IllegalStateException("DanglingLine.Generation already attached to " + this.danglingLine.getId());
             }
@@ -253,7 +253,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final DanglingLineBoundaryImpl boundary;
 
-    DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode, GenerationImpl generation) {
+    BoundaryLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode, GenerationImpl generation) {
         super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -327,7 +327,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setP0(double p0) {
+    public BoundaryLineImpl setP0(double p0) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
@@ -343,7 +343,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setQ0(double q0) {
+    public BoundaryLineImpl setQ0(double q0) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
@@ -359,7 +359,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setR(double r) {
+    public BoundaryLineImpl setR(double r) {
         ValidationUtil.checkR(this, r);
         double oldValue = this.r;
         this.r = r;
@@ -373,7 +373,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setX(double x) {
+    public BoundaryLineImpl setX(double x) {
         ValidationUtil.checkX(this, x);
         double oldValue = this.x;
         this.x = x;
@@ -387,7 +387,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setG(double g) {
+    public BoundaryLineImpl setG(double g) {
         ValidationUtil.checkG(this, g);
         double oldValue = this.g;
         this.g = g;
@@ -401,7 +401,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setB(double b) {
+    public BoundaryLineImpl setB(double b) {
         ValidationUtil.checkB(this, b);
         double oldValue = this.b;
         this.b = b;

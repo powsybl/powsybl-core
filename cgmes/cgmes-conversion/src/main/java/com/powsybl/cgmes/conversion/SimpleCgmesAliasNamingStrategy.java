@@ -7,7 +7,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Identifiable;
 
 import java.util.Map;
@@ -44,8 +44,8 @@ public class SimpleCgmesAliasNamingStrategy extends AbstractCgmesAliasNamingStra
     public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
         // We assume all identifiers stored in aliases came from original CGMES models
         // and we do not try to fix them
-        if (identifiable instanceof DanglingLine) {
-            DanglingLine dl = (DanglingLine) identifiable;
+        if (identifiable instanceof BoundaryLine) {
+            BoundaryLine dl = (BoundaryLine) identifiable;
             return identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
         }
         return identifiable.getAliasFromType(aliasType)

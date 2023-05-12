@@ -53,7 +53,7 @@ class EquivalentBranchConversionTest {
         assertEquals(0.000036646138, lineBaseVoltage2.getG2(), 1.0e-6);
         assertEquals(-0.000647699180, lineBaseVoltage2.getB2(), 1.0e-6);
 
-        DanglingLine dl = n.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        BoundaryLine dl = n.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
         assertEquals(4.6, dl.getR(), 1.0e-6);
         assertEquals(69.0, dl.getX(), 1.0e-6);
         assertEquals(0.0, dl.getG(), 1.0e-6);

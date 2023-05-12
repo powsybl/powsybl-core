@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-class DanglingLineContingencyTest {
+class BoundaryLineContingencyTest {
     @Test
     void test() {
         Contingency contingency = Contingency.danglingLine("id");

@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public abstract class AbstractDanglingLineTest {
+public abstract class AbstractBoundaryLineTest {
 
     private static final String DUPLICATE = "duplicate";
 
@@ -77,20 +77,20 @@ public abstract class AbstractDanglingLineTest {
                         .setBus(BUS_VL_ID)
                         .setConnectableBus(BUS_VL_ID)
                     .add();
-        DanglingLine danglingLine = network.getDanglingLine(id);
+        BoundaryLine boundaryLine = network.getDanglingLine(id);
         // adder
-        assertEquals(IdentifiableType.DANGLING_LINE, danglingLine.getType());
-        assertEquals(r, danglingLine.getR(), 0.0);
-        assertEquals(x, danglingLine.getX(), 0.0);
-        assertEquals(g, danglingLine.getG(), 0.0);
-        assertEquals(b, danglingLine.getB(), 0.0);
-        assertEquals(p0, danglingLine.getP0(), 0.0);
-        assertEquals(q0, danglingLine.getQ0(), 0.0);
-        assertEquals(id, danglingLine.getId());
-        assertEquals(name, danglingLine.getOptionalName().orElse(null));
-        assertEquals(name, danglingLine.getNameOrId());
-        assertEquals(ucteXnodeCode, danglingLine.getUcteXnodeCode());
-        assertNull(danglingLine.getGeneration());
+        assertEquals(IdentifiableType.DANGLING_LINE, boundaryLine.getType());
+        assertEquals(r, boundaryLine.getR(), 0.0);
+        assertEquals(x, boundaryLine.getX(), 0.0);
+        assertEquals(g, boundaryLine.getG(), 0.0);
+        assertEquals(b, boundaryLine.getB(), 0.0);
+        assertEquals(p0, boundaryLine.getP0(), 0.0);
+        assertEquals(q0, boundaryLine.getQ0(), 0.0);
+        assertEquals(id, boundaryLine.getId());
+        assertEquals(name, boundaryLine.getOptionalName().orElse(null));
+        assertEquals(name, boundaryLine.getNameOrId());
+        assertEquals(ucteXnodeCode, boundaryLine.getUcteXnodeCode());
+        assertNull(boundaryLine.getGeneration());
 
         // setter getter
         double r2 = 11.0;
@@ -99,36 +99,36 @@ public abstract class AbstractDanglingLineTest {
         double b2 = 41.0;
         double p02 = 51.0;
         double q02 = 61.0;
-        danglingLine.setR(r2);
-        assertEquals(r2, danglingLine.getR(), 0.0);
-        danglingLine.setX(x2);
-        assertEquals(x2, danglingLine.getX(), 0.0);
-        danglingLine.setG(g2);
-        assertEquals(g2, danglingLine.getG(), 0.0);
-        danglingLine.setB(b2);
-        assertEquals(b2, danglingLine.getB(), 0.0);
-        danglingLine.setP0(p02);
-        assertEquals(p02, danglingLine.getP0(), 0.0);
-        danglingLine.setQ0(q02);
-        assertEquals(q02, danglingLine.getQ0(), 0.0);
+        boundaryLine.setR(r2);
+        assertEquals(r2, boundaryLine.getR(), 0.0);
+        boundaryLine.setX(x2);
+        assertEquals(x2, boundaryLine.getX(), 0.0);
+        boundaryLine.setG(g2);
+        assertEquals(g2, boundaryLine.getG(), 0.0);
+        boundaryLine.setB(b2);
+        assertEquals(b2, boundaryLine.getB(), 0.0);
+        boundaryLine.setP0(p02);
+        assertEquals(p02, boundaryLine.getP0(), 0.0);
+        boundaryLine.setQ0(q02);
+        assertEquals(q02, boundaryLine.getQ0(), 0.0);
 
-        danglingLine.newCurrentLimits()
+        boundaryLine.newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .add();
-        assertEquals(100.0, danglingLine.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
+        assertEquals(100.0, boundaryLine.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
-        danglingLine.newActivePowerLimits()
+        boundaryLine.newActivePowerLimits()
                 .setPermanentLimit(60.0)
                 .add();
-        assertEquals(60.0, danglingLine.getActivePowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
+        assertEquals(60.0, boundaryLine.getActivePowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
-        danglingLine.newApparentPowerLimits()
+        boundaryLine.newApparentPowerLimits()
                 .setPermanentLimit(132.0)
                 .add();
-        assertEquals(132.0, danglingLine.getApparentPowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
+        assertEquals(132.0, boundaryLine.getApparentPowerLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), 0.0);
 
         Bus bus = voltageLevel.getBusBreakerView().getBus(BUS_VL_ID);
-        Bus terminal = danglingLine.getTerminal().getBusBreakerView().getBus();
+        Bus terminal = boundaryLine.getTerminal().getBusBreakerView().getBus();
         assertSame(bus, terminal);
     }
 
@@ -145,9 +145,9 @@ public abstract class AbstractDanglingLineTest {
                 .setBus(BUS_VL_ID)
                 .add();
 
-        DanglingLine danglingLine = network.getDanglingLine("danglingId");
-        assertEquals(0.0, danglingLine.getG(), 0.0);
-        assertEquals(0.0, danglingLine.getB(), 0.0);
+        BoundaryLine boundaryLine = network.getDanglingLine("danglingId");
+        assertEquals(0.0, boundaryLine.getG(), 0.0);
+        assertEquals(0.0, boundaryLine.getB(), 0.0);
     }
 
     @Test
@@ -185,30 +185,30 @@ public abstract class AbstractDanglingLineTest {
     @Test
     public void testRemove() {
         createDanglingLine(TO_REMOVE, TO_REMOVE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
-        DanglingLine danglingLine = network.getDanglingLine(TO_REMOVE);
+        BoundaryLine boundaryLine = network.getDanglingLine(TO_REMOVE);
         int count = network.getDanglingLineCount();
-        assertNotNull(danglingLine);
-        danglingLine.remove();
+        assertNotNull(boundaryLine);
+        boundaryLine.remove();
         assertEquals(count - 1L, network.getDanglingLineCount());
         assertNull(network.getDanglingLine(TO_REMOVE));
-        assertNotNull(danglingLine);
+        assertNotNull(boundaryLine);
     }
 
     @Test
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
         createDanglingLine(TEST_MULTI_VARIANT, TEST_MULTI_VARIANT, 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
-        DanglingLine danglingLine = network.getDanglingLine(TEST_MULTI_VARIANT);
+        BoundaryLine boundaryLine = network.getDanglingLine(TEST_MULTI_VARIANT);
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertEquals(1.0, danglingLine.getP0(), 0.0);
-        assertEquals(1.2, danglingLine.getQ0(), 0.0);
+        assertEquals(1.0, boundaryLine.getP0(), 0.0);
+        assertEquals(1.2, boundaryLine.getQ0(), 0.0);
         // change values in s4
-        danglingLine.setP0(3.0);
-        danglingLine.setQ0(2.0);
+        boundaryLine.setP0(3.0);
+        boundaryLine.setQ0(2.0);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -216,18 +216,18 @@ public abstract class AbstractDanglingLineTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertEquals(3.0, danglingLine.getP0(), 0.0);
-        assertEquals(2.0, danglingLine.getQ0(), 0.0);
+        assertEquals(3.0, boundaryLine.getP0(), 0.0);
+        assertEquals(2.0, boundaryLine.getQ0(), 0.0);
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertEquals(1.0, danglingLine.getP0(), 0.0);
-        assertEquals(1.2, danglingLine.getQ0(), 0.0);
+        assertEquals(1.0, boundaryLine.getP0(), 0.0);
+        assertEquals(1.2, boundaryLine.getQ0(), 0.0);
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
         try {
-            danglingLine.getQ0();
+            boundaryLine.getQ0();
             fail();
         } catch (Exception ignored) {
             // ignore
@@ -264,9 +264,9 @@ public abstract class AbstractDanglingLineTest {
                     .setTargetV(400)
                     .setVoltageRegulationOn(true)
                 .add();
-        DanglingLine dl = adder.add();
+        BoundaryLine dl = adder.add();
 
-        DanglingLine.Generation generation = dl.getGeneration();
+        BoundaryLine.Generation generation = dl.getGeneration();
         assertNotNull(generation);
         assertEquals(440, generation.getTargetP(), 0.0);
         assertEquals(900, generation.getMaxP(), 0.0);
@@ -281,7 +281,7 @@ public abstract class AbstractDanglingLineTest {
         assertTrue(generation.getReactiveLimits() instanceof MinMaxReactiveLimits);
 
         // Test if new Generation is instantiate at each add
-        DanglingLine dl2 = adder.setId(id + "_2").add();
+        BoundaryLine dl2 = adder.setId(id + "_2").add();
         assertNotSame(dl.getGeneration(), dl2.getGeneration());
     }
 

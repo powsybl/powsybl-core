@@ -155,7 +155,7 @@ public final class Networks {
     }
 
     private static void addDanglingLines(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
             Terminal.BusBreakerView view = dl.getTerminal().getBusBreakerView();
             if (view.getBus() != null) {
                 if (view.getBus().isInMainConnectedComponent()) {

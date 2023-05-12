@@ -173,22 +173,22 @@ public interface TieLine extends Identifiable<TieLine>, LineCharacteristics {
     /**
      * Get first dangling line of this tie line
      */
-    DanglingLine getDanglingLine1();
+    BoundaryLine getBoundaryLine1();
 
     /**
      * Get second dangling line of this tie line
      */
-    DanglingLine getDanglingLine2();
+    BoundaryLine getBoundaryLine2();
 
     /**
      * Get the dangling line of this tie line corresponding to the given side
      */
-    DanglingLine getDanglingLine(Branch.Side side);
+    BoundaryLine getDanglingLine(Branch.Side side);
 
     /**
      * Get the dangling line of this tie line corresponding to the given voltage level
      */
-    DanglingLine getDanglingLine(String voltageLevelId);
+    BoundaryLine getDanglingLine(String voltageLevelId);
 
     @Override
     default IdentifiableType getType() {

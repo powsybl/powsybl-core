@@ -547,7 +547,7 @@ public abstract class AbstractLineTest {
         double hl2b2 = 0.0145;
 
         // adder
-        DanglingLine dl1 = voltageLevelA.newDanglingLine()
+        BoundaryLine dl1 = voltageLevelA.newDanglingLine()
                 .setBus("busA")
                 .setId("hl1")
                 .setEnsureIdUnicity(true)
@@ -558,7 +558,7 @@ public abstract class AbstractLineTest {
                 .setG(hl1g1 + hl1g2)
                 .setUcteXnodeCode("ucte")
                 .add();
-        DanglingLine dl2 = voltageLevelB.newDanglingLine()
+        BoundaryLine dl2 = voltageLevelB.newDanglingLine()
                 .setBus("busB")
                 .setId("hl2")
                 .setEnsureIdUnicity(true)
@@ -574,9 +574,9 @@ public abstract class AbstractLineTest {
         TieLine tieLine = adder.add();
         assertEquals(IdentifiableType.TIE_LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
-        assertEquals("hl1", tieLine.getDanglingLine1().getId());
-        assertEquals(DANGLING1_NAME, tieLine.getDanglingLine1().getOptionalName().orElse(null));
-        assertEquals("hl2", tieLine.getDanglingLine2().getId());
+        assertEquals("hl1", tieLine.getBoundaryLine1().getId());
+        assertEquals(DANGLING1_NAME, tieLine.getBoundaryLine1().getOptionalName().orElse(null));
+        assertEquals("hl2", tieLine.getBoundaryLine2().getId());
         assertEquals(11.0, tieLine.getR(), tol);
         assertEquals(22.0, tieLine.getX(), tol);
         assertEquals(0.065, tieLine.getG1(), tol);
@@ -584,35 +584,35 @@ public abstract class AbstractLineTest {
         assertEquals(0.08499999999, tieLine.getB1(), tol);
         assertEquals(0.0285, tieLine.getB2(), tol);
 
-        DanglingLine danglingLine1 = tieLine.getDanglingLine1();
+        BoundaryLine boundaryLine1 = tieLine.getBoundaryLine1();
 
-        DanglingLine danglingLine2 = tieLine.getDanglingLine2();
+        BoundaryLine boundaryLine2 = tieLine.getBoundaryLine2();
 
         // Check notification on DanglingLine changes
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
         // Apply changes on dangling lines
-        danglingLine1.setR(r + 1);
-        danglingLine1.setX(x + 1);
-        danglingLine1.setG(hl1g1 + hl1g2 + 2);
-        danglingLine1.setB(hl1b1 + hl1b2 + 2);
-        danglingLine2.setR(r + 1);
-        danglingLine2.setX(x + 1);
-        danglingLine2.setG(hl2g1 + hl1g2 + 2);
-        danglingLine2.setB(hl2b1 + hl2b2 + 2);
-        verify(mockedListener, times(8)).onUpdate(any(DanglingLine.class), anyString(), any(), any());
+        boundaryLine1.setR(r + 1);
+        boundaryLine1.setX(x + 1);
+        boundaryLine1.setG(hl1g1 + hl1g2 + 2);
+        boundaryLine1.setB(hl1b1 + hl1b2 + 2);
+        boundaryLine2.setR(r + 1);
+        boundaryLine2.setX(x + 1);
+        boundaryLine2.setG(hl2g1 + hl1g2 + 2);
+        boundaryLine2.setB(hl2b1 + hl2b2 + 2);
+        verify(mockedListener, times(8)).onUpdate(any(BoundaryLine.class), anyString(), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
         // Cancel changes on dangling lines
-        danglingLine1.setR(r);
-        danglingLine1.setX(x);
-        danglingLine1.setG(hl1g1 + hl1g2);
-        danglingLine1.setB(hl1b1 + hl1b2);
-        danglingLine2.setR(r);
-        danglingLine2.setX(x);
-        danglingLine2.setG(hl2g1 + hl2g2);
-        danglingLine2.setB(hl2b1 + hl2b2);
+        boundaryLine1.setR(r);
+        boundaryLine1.setX(x);
+        boundaryLine1.setG(hl1g1 + hl1g2);
+        boundaryLine1.setB(hl1b1 + hl1b2);
+        boundaryLine2.setR(r);
+        boundaryLine2.setX(x);
+        boundaryLine2.setG(hl2g1 + hl2g2);
+        boundaryLine2.setB(hl2b1 + hl2b2);
         // Check no notification
         verifyNoMoreInteractions(mockedListener);
 
@@ -629,20 +629,20 @@ public abstract class AbstractLineTest {
         double v2 = 380.0;
         double angle1 = -1e-4;
         double angle2 = -1.7e-3;
-        tieLine.getDanglingLine1().getTerminal().setP(p1).setQ(q1).getBusView().getBus().setV(v1).setAngle(angle1);
-        tieLine.getDanglingLine2().getTerminal().setP(p2).setQ(q2).getBusView().getBus().setV(v2).setAngle(angle2);
+        tieLine.getBoundaryLine1().getTerminal().setP(p1).setQ(q1).getBusView().getBus().setV(v1).setAngle(angle1);
+        tieLine.getBoundaryLine2().getTerminal().setP(p2).setQ(q2).getBusView().getBus().setV(v2).setAngle(angle2);
 
         // test boundaries values
         SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE);
         SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.TWO);
-        assertEquals(expectedSV1.otherSideP(tieLine.getDanglingLine1(), true), tieLine.getDanglingLine1().getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV1.otherSideQ(tieLine.getDanglingLine1(), true), tieLine.getDanglingLine1().getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.otherSideP(tieLine.getDanglingLine2(), true), tieLine.getDanglingLine2().getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV2.otherSideQ(tieLine.getDanglingLine2(), true), tieLine.getDanglingLine2().getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV1.otherSideU(tieLine.getDanglingLine1(), true), tieLine.getDanglingLine1().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.otherSideA(tieLine.getDanglingLine1(), true), tieLine.getDanglingLine1().getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV2.otherSideU(tieLine.getDanglingLine2(), true), tieLine.getDanglingLine2().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.otherSideA(tieLine.getDanglingLine2(), true), tieLine.getDanglingLine2().getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV1.otherSideP(tieLine.getBoundaryLine1(), true), tieLine.getBoundaryLine1().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.otherSideQ(tieLine.getBoundaryLine1(), true), tieLine.getBoundaryLine1().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.otherSideP(tieLine.getBoundaryLine2(), true), tieLine.getBoundaryLine2().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.otherSideQ(tieLine.getBoundaryLine2(), true), tieLine.getBoundaryLine2().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV1.otherSideU(tieLine.getBoundaryLine1(), true), tieLine.getBoundaryLine1().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV1.otherSideA(tieLine.getBoundaryLine1(), true), tieLine.getBoundaryLine1().getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.otherSideU(tieLine.getBoundaryLine2(), true), tieLine.getBoundaryLine2().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV2.otherSideA(tieLine.getBoundaryLine2(), true), tieLine.getBoundaryLine2().getBoundary().getAngle(), 0.0d);
     }
 
     @Test
@@ -658,7 +658,7 @@ public abstract class AbstractLineTest {
     @Test
     public void danglingLine2NotSet() {
         // adder
-        DanglingLine dl1 = voltageLevelA.newDanglingLine()
+        BoundaryLine dl1 = voltageLevelA.newDanglingLine()
                 .setBus("busA")
                 .setId("hl1")
                 .setName(DANGLING1_NAME)
@@ -762,7 +762,7 @@ public abstract class AbstractLineTest {
 
     private void createTieLineWithDanglingline2ByDefault(String id, String name, String danglingLineId, double r, double x,
                                                          double g, double b, String code) {
-        DanglingLine dl1 = voltageLevelA.newDanglingLine()
+        BoundaryLine dl1 = voltageLevelA.newDanglingLine()
                 .setBus("busA")
                 .setId(danglingLineId)
                 .setName(DANGLING1_NAME)
@@ -771,7 +771,7 @@ public abstract class AbstractLineTest {
                 .setB(b)
                 .setG(g)
                 .add();
-        DanglingLine dl2 = voltageLevelB.newDanglingLine()
+        BoundaryLine dl2 = voltageLevelB.newDanglingLine()
                 .setBus("busB")
                 .setId("hl2")
                 .setName("half2_name")

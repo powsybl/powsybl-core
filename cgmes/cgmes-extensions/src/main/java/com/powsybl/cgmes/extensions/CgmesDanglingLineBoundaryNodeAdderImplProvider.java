@@ -8,13 +8,13 @@ package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class CgmesDanglingLineBoundaryNodeAdderImplProvider implements ExtensionAdderProvider<DanglingLine, CgmesDanglingLineBoundaryNode, CgmesDanglingLineBoundaryNodeAdderImpl> {
+public class CgmesDanglingLineBoundaryNodeAdderImplProvider implements ExtensionAdderProvider<BoundaryLine, CgmesDanglingLineBoundaryNode, CgmesDanglingLineBoundaryNodeAdderImpl> {
     @Override
     public String getImplementationName() {
         return "Default";
@@ -31,7 +31,7 @@ public class CgmesDanglingLineBoundaryNodeAdderImplProvider implements Extension
     }
 
     @Override
-    public CgmesDanglingLineBoundaryNodeAdderImpl newAdder(DanglingLine extendable) {
+    public CgmesDanglingLineBoundaryNodeAdderImpl newAdder(BoundaryLine extendable) {
         return new CgmesDanglingLineBoundaryNodeAdderImpl(extendable);
     }
 }

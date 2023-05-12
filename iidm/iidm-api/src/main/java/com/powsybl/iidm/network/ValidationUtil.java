@@ -685,11 +685,11 @@ public final class ValidationUtil {
                 Battery battery = (Battery) identifiable;
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, battery.getTargetP(), throwException, reporter));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, battery.getTargetQ(), throwException, reporter));
-            } else if (identifiable instanceof DanglingLine) {
-                DanglingLine danglingLine = (DanglingLine) identifiable;
-                validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, danglingLine.getP0(), throwException, reporter));
-                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, danglingLine.getQ0(), throwException, reporter));
-                DanglingLine.Generation generation = danglingLine.getGeneration();
+            } else if (identifiable instanceof BoundaryLine) {
+                BoundaryLine boundaryLine = (BoundaryLine) identifiable;
+                validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, boundaryLine.getP0(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, boundaryLine.getQ0(), throwException, reporter));
+                BoundaryLine.Generation generation = boundaryLine.getGeneration();
                 if (generation != null) {
                     validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generation.getTargetP(), throwException, reporter));
                     validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(), throwException, reporter));

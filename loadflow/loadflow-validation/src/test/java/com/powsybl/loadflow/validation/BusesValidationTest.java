@@ -51,7 +51,7 @@ class BusesValidationTest extends AbstractValidationTest {
     private boolean mainComponent = true;
 
     private Bus bus;
-    private DanglingLine danglingLine;
+    private BoundaryLine boundaryLine;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -102,9 +102,9 @@ class BusesValidationTest extends AbstractValidationTest {
         Mockito.when(danglingLineTerminal.getQ()).thenReturn(danglingLineQ);
         Mockito.when(danglingLineTerminal.isConnected()).thenReturn(true);
         Mockito.when(danglingLineTerminal.getBusView()).thenReturn(danglingLineBusView);
-        danglingLine = Mockito.mock(DanglingLine.class);
-        Mockito.when(danglingLine.getTerminal()).thenReturn(danglingLineTerminal);
-        Mockito.when(danglingLine.isPaired()).thenReturn(false);
+        boundaryLine = Mockito.mock(BoundaryLine.class);
+        Mockito.when(boundaryLine.getTerminal()).thenReturn(danglingLineTerminal);
+        Mockito.when(boundaryLine.isPaired()).thenReturn(false);
 
         Bus t2wBus = Mockito.mock(Bus.class);
         Mockito.when(t2wBus.getId()).thenReturn("bus");
@@ -141,7 +141,7 @@ class BusesValidationTest extends AbstractValidationTest {
         Mockito.when(bus.getStaticVarCompensatorStream()).thenAnswer(dummyShunts -> Stream.empty());
         Mockito.when(bus.getVscConverterStationStream()).thenAnswer(dummyShunts -> Stream.empty());
         Mockito.when(bus.getLineStream()).thenAnswer(dummyLines -> Stream.of(line));
-        Mockito.when(bus.getDanglingLineStream(DanglingLineFilter.ALL)).thenAnswer(dummyDanglingLines -> Stream.of(danglingLine));
+        Mockito.when(bus.getDanglingLineStream(DanglingLineFilter.ALL)).thenAnswer(dummyDanglingLines -> Stream.of(boundaryLine));
         Mockito.when(bus.getTwoWindingsTransformerStream()).thenAnswer(dummyTwoWindingsTransformers -> Stream.of(t2w));
         Mockito.when(bus.getThreeWindingsTransformerStream()).thenAnswer(dummyThreeWindingsTransformers -> Stream.of(t3w));
         Mockito.when(bus.isInMainConnectedComponent()).thenReturn(mainComponent);
@@ -198,7 +198,7 @@ class BusesValidationTest extends AbstractValidationTest {
         assertTrue(ValidationType.BUSES.check(network, looseConfig, validationWriter));
 
         // Consider paired danglingLines
-        Mockito.when(danglingLine.isPaired()).thenReturn(true);
+        Mockito.when(boundaryLine.isPaired()).thenReturn(true);
 
         assertTrue(BusesValidation.INSTANCE.checkBuses(network, looseConfig, data));
         assertFalse(BusesValidation.INSTANCE.checkBuses(network, strictConfig, data));

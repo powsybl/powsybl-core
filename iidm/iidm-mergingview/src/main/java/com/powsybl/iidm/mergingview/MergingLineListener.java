@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Identifiable;
 
 /**
@@ -20,10 +20,10 @@ public class MergingLineListener extends DefaultMergingViewListener {
 
     @Override
     public void onCreation(final Identifiable identifiable) {
-        if (identifiable instanceof DanglingLine) {
+        if (identifiable instanceof BoundaryLine) {
             // Check DanglingLine creation from Network merged into MergingView
             // in order to create a new MergedLine if it's needed
-            index.checkNewDanglingLine((DanglingLine) identifiable);
+            index.checkNewDanglingLine((BoundaryLine) identifiable);
         }
     }
 }

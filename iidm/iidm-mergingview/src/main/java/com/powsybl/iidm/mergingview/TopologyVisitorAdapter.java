@@ -59,8 +59,8 @@ class TopologyVisitorAdapter extends AbstractAdapter<TopologyVisitor> implements
     }
 
     @Override
-    public void visitDanglingLine(DanglingLine danglingLine) {
-        getDelegate().visitDanglingLine(danglingLine);
+    public void visitDanglingLine(BoundaryLine boundaryLine) {
+        getDelegate().visitDanglingLine(boundaryLine);
     }
 
     @Override

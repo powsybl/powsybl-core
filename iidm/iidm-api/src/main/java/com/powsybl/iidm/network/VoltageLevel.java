@@ -1085,24 +1085,24 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Get the dangling lines in this voltage level which correspond to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
+    Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter);
 
     /**
      * Get all dangling lines in this voltage level.
      */
-    default Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLines(DanglingLineFilter.ALL);
+    default Iterable<BoundaryLine> getBoundaryLines() {
+        return getBoundaryLines(DanglingLineFilter.ALL);
     }
 
     /**
      * Get the dangling lines in this voltage level which correspond to given filter.
      */
-    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+    Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
 
    /**
      * Get all dangling lines in this voltage level.
      */
-    default Stream<DanglingLine> getDanglingLineStream() {
+    default Stream<BoundaryLine> getDanglingLineStream() {
         return getDanglingLineStream(DanglingLineFilter.ALL);
     }
 

@@ -34,7 +34,7 @@ public interface ContingencyElement {
             return new GeneratorContingency(identifiable.getId());
         } else if (identifiable instanceof Switch) {
             return new SwitchContingency(identifiable.getId());
-        } else if (identifiable instanceof DanglingLine) {
+        } else if (identifiable instanceof BoundaryLine) {
             return new DanglingLineContingency(identifiable.getId());
         } else if (identifiable instanceof Load) {
             return new LoadContingency(identifiable.getId());

@@ -8,23 +8,22 @@ package com.powsybl.iidm.network.util;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.powsybl.iidm.network.BoundaryLine;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.powsybl.iidm.network.DanglingLine;
 
 /**
  *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class DanglingLineDataTest {
+class BoundaryLineDataTest {
 
     @Test
     void test() {
-        DanglingLine danglingLine = new DanglingLineTestData().getDanglingLine();
-        DanglingLineData dlData = new DanglingLineData(danglingLine);
+        BoundaryLine boundaryLine = new DanglingLineTestData().getDanglingLine();
+        DanglingLineData dlData = new DanglingLineData(boundaryLine);
 
         boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.63382758266334, -8.573434828294932);
         assertTrue(ok);
@@ -35,8 +34,8 @@ class DanglingLineDataTest {
         DanglingLineTestData dlTestData = new DanglingLineTestData();
         dlTestData.setP0Zero();
         dlTestData.setQ0Zero();
-        DanglingLine danglingLine = dlTestData.getDanglingLine();
-        DanglingLineData dlData = new DanglingLineData(danglingLine);
+        BoundaryLine boundaryLine = dlTestData.getDanglingLine();
+        DanglingLineData dlData = new DanglingLineData(boundaryLine);
 
         boolean ok = dlCompareBoundaryBusVoltage(dlData, 406.6200406620039, -8.60000143239463);
         assertTrue(ok);
@@ -52,5 +51,5 @@ class DanglingLineDataTest {
         return true;
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(DanglingLineDataTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BoundaryLineDataTest.class);
 }

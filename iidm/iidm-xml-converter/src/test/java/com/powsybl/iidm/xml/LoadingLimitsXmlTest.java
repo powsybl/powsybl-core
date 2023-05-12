@@ -33,7 +33,7 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
     void testDanglingLine() throws IOException {
         Network network = DanglingLineNetworkFactory.create();
         network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
-        DanglingLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getDanglingLine("DL");
         createLoadingLimits(dl::newActivePowerLimits);
         createLoadingLimits(dl::newApparentPowerLimits);
         createLoadingLimits(dl::newCurrentLimits);
@@ -119,12 +119,12 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
     void testTieLine() throws IOException {
         Network network = NetworkXml.read(getVersionedNetworkAsStream("tieline.xml", CURRENT_IIDM_XML_VERSION));
         TieLine tl = network.getTieLine("NHV1_NHV2_1");
-        createLoadingLimits(tl.getDanglingLine1()::newActivePowerLimits);
-        createLoadingLimits(tl.getDanglingLine2()::newActivePowerLimits);
-        createLoadingLimits(tl.getDanglingLine1()::newApparentPowerLimits);
-        createLoadingLimits(tl.getDanglingLine2()::newApparentPowerLimits);
-        createLoadingLimits(tl.getDanglingLine1()::newCurrentLimits);
-        createLoadingLimits(tl.getDanglingLine2()::newCurrentLimits);
+        createLoadingLimits(tl.getBoundaryLine1()::newActivePowerLimits);
+        createLoadingLimits(tl.getBoundaryLine2()::newActivePowerLimits);
+        createLoadingLimits(tl.getBoundaryLine1()::newApparentPowerLimits);
+        createLoadingLimits(tl.getBoundaryLine2()::newApparentPowerLimits);
+        createLoadingLimits(tl.getBoundaryLine1()::newCurrentLimits);
+        createLoadingLimits(tl.getBoundaryLine2()::newCurrentLimits);
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,

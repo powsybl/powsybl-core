@@ -7,12 +7,12 @@
 package com.powsybl.cgmes.extensions;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface CgmesDanglingLineBoundaryNodeAdder extends ExtensionAdder<DanglingLine, CgmesDanglingLineBoundaryNode> {
+public interface CgmesDanglingLineBoundaryNodeAdder extends ExtensionAdder<BoundaryLine, CgmesDanglingLineBoundaryNode> {
 
     CgmesDanglingLineBoundaryNodeAdder setHvdc(boolean isHvdc);
 

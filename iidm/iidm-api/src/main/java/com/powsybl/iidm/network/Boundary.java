@@ -34,7 +34,7 @@ public interface Boundary {
     /**
      * Get the danglingLine the boundary is associated to.
      */
-    DanglingLine getDanglingLine();
+    BoundaryLine getDanglingLine();
 
     /**
      * Get the voltage level at network side.

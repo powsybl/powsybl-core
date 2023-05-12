@@ -25,9 +25,9 @@ class MergedLine implements TieLine {
 
     private final MergingViewIndex index;
 
-    private final DanglingLineAdapter danglingLine1;
+    private final BoundaryLineAdapter danglingLine1;
 
-    private final DanglingLineAdapter danglingLine2;
+    private final BoundaryLineAdapter danglingLine2;
 
     private String id;
 
@@ -35,7 +35,7 @@ class MergedLine implements TieLine {
 
     private final Properties properties = new Properties();
 
-    MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
+    MergedLine(final MergingViewIndex index, final BoundaryLine dl1, final BoundaryLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
         this.danglingLine1 = index.getDanglingLine(dl1);
         // must be reoriented. TieLine is defined as networkNode1-boundaryNode--boundaryNode-networkNode2
@@ -46,7 +46,7 @@ class MergedLine implements TieLine {
         mergeProperties(dl1, dl2, properties);
     }
 
-    MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2) {
+    MergedLine(final MergingViewIndex index, final BoundaryLine dl1, final BoundaryLine dl2) {
         this(index, dl1, dl2, false);
     }
 
@@ -123,13 +123,13 @@ class MergedLine implements TieLine {
 
     @Override
     public boolean isFictitious() {
-        return getDanglingLine1().isFictitious() || getDanglingLine2().isFictitious();
+        return getBoundaryLine1().isFictitious() || getBoundaryLine2().isFictitious();
     }
 
     @Override
     public void setFictitious(boolean fictitious) {
-        getDanglingLine1().setFictitious(fictitious);
-        getDanglingLine2().setFictitious(fictitious);
+        getBoundaryLine1().setFictitious(fictitious);
+        getBoundaryLine2().setFictitious(fictitious);
     }
 
     @Override
@@ -146,15 +146,15 @@ class MergedLine implements TieLine {
 
     @Override
     public String setProperty(final String key, final String value) {
-        getDanglingLine1().setProperty(key, value);
-        getDanglingLine2().setProperty(key, value);
+        getBoundaryLine1().setProperty(key, value);
+        getBoundaryLine2().setProperty(key, value);
         return (String) properties.setProperty(key, value);
     }
 
     @Override
     public boolean removeProperty(String key) {
-        boolean removed1 = getDanglingLine1().removeProperty(key);
-        boolean removed2 = getDanglingLine2().removeProperty(key);
+        boolean removed1 = getBoundaryLine1().removeProperty(key);
+        boolean removed2 = getBoundaryLine2().removeProperty(key);
         properties.remove(key);
         return removed1 || removed2;
     }
@@ -209,21 +209,21 @@ class MergedLine implements TieLine {
 
     @Override
     public String getUcteXnodeCode() {
-        return Optional.ofNullable(getDanglingLine1().getUcteXnodeCode()).orElseGet(() -> getDanglingLine2().getUcteXnodeCode());
+        return Optional.ofNullable(getBoundaryLine1().getUcteXnodeCode()).orElseGet(() -> getBoundaryLine2().getUcteXnodeCode());
     }
 
     @Override
-    public DanglingLine getDanglingLine1() {
+    public BoundaryLine getBoundaryLine1() {
         return danglingLine1;
     }
 
     @Override
-    public DanglingLine getDanglingLine2() {
+    public BoundaryLine getBoundaryLine2() {
         return danglingLine2;
     }
 
     @Override
-    public DanglingLine getDanglingLine(Branch.Side side) {
+    public BoundaryLine getDanglingLine(Branch.Side side) {
         switch (side) {
             case ONE:
                 return danglingLine1;
@@ -235,7 +235,7 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public DanglingLine getDanglingLine(String voltageLevelId) {
+    public BoundaryLine getDanglingLine(String voltageLevelId) {
         if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
             return danglingLine1;
         }

@@ -126,12 +126,12 @@ public final class AmplUtil {
             mapper.newInt(AmplSubset.BRANCH, tl.getId());
             mapper.newInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tl));
             mapper.newInt(AmplSubset.BUS, AmplUtil.getXnodeBusId(tl));
-            mapper.newInt(AmplSubset.BRANCH, tl.getDanglingLine1().getId());
-            mapper.newInt(AmplSubset.BRANCH, tl.getDanglingLine2().getId());
+            mapper.newInt(AmplSubset.BRANCH, tl.getBoundaryLine1().getId());
+            mapper.newInt(AmplSubset.BRANCH, tl.getBoundaryLine2().getId());
 
             // limits
-            tl.getDanglingLine1().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_1_"));
-            tl.getDanglingLine2().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_2_"));
+            tl.getBoundaryLine1().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_1_"));
+            tl.getBoundaryLine2().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_2_"));
         }
     }
 
@@ -194,7 +194,7 @@ public final class AmplUtil {
     }
 
     private static void fillDanglingLines(StringToIntMapper<AmplSubset> mapper, Network network) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
             mapper.newInt(AmplSubset.VOLTAGE_LEVEL, dl.getId());
             mapper.newInt(AmplSubset.BUS, dl.getId());
             mapper.newInt(AmplSubset.BRANCH, dl.getId());

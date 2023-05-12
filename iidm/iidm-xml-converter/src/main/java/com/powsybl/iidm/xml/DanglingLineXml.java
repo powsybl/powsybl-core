@@ -19,7 +19,7 @@ import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
+class DanglingLineXml extends AbstractSimpleIdentifiableXml<BoundaryLine, DanglingLineAdder, VoltageLevel> {
     private static final String GENERATION = "generation";
     private static final String GENERATION_MAX_P = "generationMaxP";
     private static final String GENERATION_MIN_P = "generationMinP";
@@ -37,22 +37,22 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     }
 
     @Override
-    protected boolean hasSubElements(DanglingLine dl) {
+    protected boolean hasSubElements(BoundaryLine dl) {
         throw new IllegalStateException("Should not be called");
     }
 
     @Override
-    protected boolean hasSubElements(DanglingLine dl, NetworkXmlWriterContext context) {
+    protected boolean hasSubElements(BoundaryLine dl, NetworkXmlWriterContext context) {
         return hasValidGeneration(dl, context) || hasValidOperationalLimits(dl, context);
     }
 
     @Override
-    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel parent, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(BoundaryLine dl, VoltageLevel parent, NetworkXmlWriterContext context) throws XMLStreamException {
         writeRootElementAttributesInternal(dl, dl::getTerminal, context);
     }
 
-    static void writeRootElementAttributesInternal(DanglingLine dl, Supplier<Terminal> terminalGetter, NetworkXmlWriterContext context) throws XMLStreamException {
-        DanglingLine.Generation generation = dl.getGeneration();
+    static void writeRootElementAttributesInternal(BoundaryLine dl, Supplier<Terminal> terminalGetter, NetworkXmlWriterContext context) throws XMLStreamException {
+        BoundaryLine.Generation generation = dl.getGeneration();
         double[] p0 = new double[1];
         double[] q0 = new double[1];
         p0[0] = dl.getP0();
@@ -98,7 +98,7 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
         return parent.newDanglingLine();
     }
 
-    static boolean hasValidGeneration(DanglingLine dl, NetworkXmlWriterContext context) {
+    static boolean hasValidGeneration(BoundaryLine dl, NetworkXmlWriterContext context) {
         if (dl.getGeneration() != null) {
             return context.getVersion().compareTo(IidmXmlVersion.V_1_3) > 0;
         }
@@ -106,7 +106,7 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     }
 
     @Override
-    protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(BoundaryLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
         }
@@ -128,11 +128,11 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     }
 
     @Override
-    protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
+    protected BoundaryLine readRootElementAttributes(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         readRootElementAttributesInternal(adder, context);
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         adder.setUcteXnodeCode(ucteXnodeCode);
-        DanglingLine dl = adder.add();
+        BoundaryLine dl = adder.add();
         readPQ(null, dl.getTerminal(), context.getReader());
         return dl;
     }
@@ -173,7 +173,7 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     }
 
     @Override
-    protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(BoundaryLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case ACTIVE_POWER_LIMITS:

@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
-import com.powsybl.iidm.network.tck.AbstractDanglingLineTest;
+import com.powsybl.iidm.network.tck.AbstractBoundaryLineTest;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-class DanglingLineTest extends AbstractDanglingLineTest { }
+class BoundaryLineTest extends AbstractBoundaryLineTest { }

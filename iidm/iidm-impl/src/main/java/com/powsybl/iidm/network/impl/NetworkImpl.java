@@ -489,23 +489,23 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+    public Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter) {
         return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return index.getAll(DanglingLineImpl.class).stream().filter(danglingLineFilter.getPredicate()).map(Function.identity());
+    public Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return index.getAll(BoundaryLineImpl.class).stream().filter(danglingLineFilter.getPredicate()).map(Function.identity());
     }
 
     @Override
     public int getDanglingLineCount() {
-        return index.getAll(DanglingLineImpl.class).size();
+        return index.getAll(BoundaryLineImpl.class).size();
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine(String id) {
-        return index.get(id, DanglingLineImpl.class);
+    public BoundaryLineImpl getDanglingLine(String id) {
+        return index.get(id, BoundaryLineImpl.class);
     }
 
     @Override
@@ -888,7 +888,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
-            if (clazz == DanglingLineImpl.class) { // fine for dangling lines
+            if (clazz == BoundaryLineImpl.class) { // fine for dangling lines
                 continue;
             }
             Collection<String> objs = entry.getValue();
@@ -901,14 +901,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
-        Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
+        Map<String, List<BoundaryLine>> dl1byXnodeCode = new HashMap<>();
 
-        for (DanglingLine dl1 : getDanglingLines(DanglingLineFilter.ALL)) {
+        for (BoundaryLine dl1 : getBoundaryLines(DanglingLineFilter.ALL)) {
             if (dl1.getUcteXnodeCode() != null) {
                 dl1byXnodeCode.computeIfAbsent(dl1.getUcteXnodeCode(), k -> new ArrayList<>()).add(dl1);
             }
         }
-        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
+        for (BoundaryLine dl2 : Lists.newArrayList(other.getBoundaryLines(DanglingLineFilter.ALL))) {
             findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 
@@ -931,7 +931,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
+    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, BoundaryLine dl1, BoundaryLine dl2, Map<String, List<BoundaryLine>> dl1byXnodeCode) {
         if (dl1 != null) {
             if (dl1.getUcteXnodeCode() != null) {
                 dl1byXnodeCode.get(dl1.getUcteXnodeCode()).remove(dl1);
@@ -946,8 +946,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             danglingLinePairs.add(l);
 
             if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
-                ((DanglingLineImpl) dl1).replaceId(l.dl1Id + "_1");
-                ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
+                ((BoundaryLineImpl) dl1).replaceId(l.dl1Id + "_1");
+                ((BoundaryLineImpl) dl2).replaceId(l.dl2Id + "_2");
                 l.dl1Id = dl1.getId();
                 l.dl2Id = dl2.getId();
             }

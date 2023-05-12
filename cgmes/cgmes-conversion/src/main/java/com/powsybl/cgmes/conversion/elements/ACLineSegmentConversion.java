@@ -88,11 +88,11 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         mline.addAlias(boundaryLine2.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2");
         mline.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2", boundaryLine2.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
 
-        context.convertedTerminal(boundaryLine1.getModelTerminalId(), mline.getDanglingLine1().getTerminal(), 1, boundaryLine1.getModelPowerFlow());
-        context.convertedTerminal(boundaryLine2.getModelTerminalId(), mline.getDanglingLine2().getTerminal(), 2, boundaryLine2.getModelPowerFlow());
+        context.convertedTerminal(boundaryLine1.getModelTerminalId(), mline.getBoundaryLine1().getTerminal(), 1, boundaryLine1.getModelPowerFlow());
+        context.convertedTerminal(boundaryLine2.getModelTerminalId(), mline.getBoundaryLine2().getTerminal(), 2, boundaryLine2.getModelPowerFlow());
 
-        context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), mline.getDanglingLine1().getBoundary(), 2);
-        context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), mline.getDanglingLine2().getBoundary(), 1);
+        context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), mline.getBoundaryLine1().getBoundary(), 2);
+        context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), mline.getBoundaryLine2().getBoundary(), 1);
 
         context.namingStrategy().readIdMapping(mline, "TieLine"); // TODO: maybe this should be refined for merged line
     }
@@ -141,8 +141,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
                 .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
         connect(context, adder1, boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(), boundaryLine1.getModelNode());
         connect(context, adder2, boundaryLine2.getModelBus(), boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
-        DanglingLine dl1 = adder1.add();
-        DanglingLine dl2 = adder2.add();
+        com.powsybl.iidm.network.BoundaryLine dl1 = adder1.add();
+        com.powsybl.iidm.network.BoundaryLine dl2 = adder2.add();
         TieLineAdder adder = context.network().newTieLine()
                 .setDanglingLine1(dl1.getId())
                 .setDanglingLine2(dl2.getId());

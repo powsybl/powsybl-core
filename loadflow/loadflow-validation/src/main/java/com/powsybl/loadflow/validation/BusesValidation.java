@@ -98,8 +98,8 @@ public final class BusesValidation {
         double lineP = bus.getLineStream().map(line -> getBranchTerminal(line, bus)).mapToDouble(Terminal::getP).sum();
         double lineQ = bus.getLineStream().map(line -> getBranchTerminal(line, bus)).mapToDouble(Terminal::getQ).sum();
         // all danglingLines must be considered
-        double danglingLineP = bus.getDanglingLineStream(DanglingLineFilter.ALL).map(DanglingLine::getTerminal).mapToDouble(Terminal::getP).sum();
-        double danglingLineQ = bus.getDanglingLineStream(DanglingLineFilter.ALL).map(DanglingLine::getTerminal).mapToDouble(Terminal::getQ).sum();
+        double danglingLineP = bus.getDanglingLineStream(DanglingLineFilter.ALL).map(BoundaryLine::getTerminal).mapToDouble(Terminal::getP).sum();
+        double danglingLineQ = bus.getDanglingLineStream(DanglingLineFilter.ALL).map(BoundaryLine::getTerminal).mapToDouble(Terminal::getQ).sum();
         double t2wtP = bus.getTwoWindingsTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getP).sum();
         double t2wtQ = bus.getTwoWindingsTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getQ).sum();
         double t3wtP = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();

@@ -561,7 +561,7 @@ public class Comparison {
                 actual.getCurrentLimits2().orElse(null));
     }
 
-    private void compareDanglingLines(DanglingLine expected, DanglingLine actual) {
+    private void compareDanglingLines(BoundaryLine expected, BoundaryLine actual) {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());

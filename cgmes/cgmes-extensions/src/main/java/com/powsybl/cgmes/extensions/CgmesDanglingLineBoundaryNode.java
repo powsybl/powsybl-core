@@ -7,14 +7,14 @@
 package com.powsybl.cgmes.extensions;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 
 import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface CgmesDanglingLineBoundaryNode extends Extension<DanglingLine> {
+public interface CgmesDanglingLineBoundaryNode extends Extension<BoundaryLine> {
 
     String NAME = "cgmesDanglingLineBoundaryNode";
 

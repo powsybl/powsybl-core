@@ -75,7 +75,7 @@ class GenerationAdderImpl implements DanglingLineAdder.GenerationAdder {
         return parent;
     }
 
-    DanglingLineImpl.GenerationImpl build() {
-        return new DanglingLineImpl.GenerationImpl(parent.getNetwork(), minP, maxP, targetP, targetQ, targetV, voltageRegulationOn);
+    BoundaryLineImpl.GenerationImpl build() {
+        return new BoundaryLineImpl.GenerationImpl(parent.getNetwork(), minP, maxP, targetP, targetQ, targetV, voltageRegulationOn);
     }
 }

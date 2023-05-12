@@ -11,7 +11,7 @@ import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.univocity.parsers.csv.*;
 
@@ -93,8 +93,8 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
         // Tap changers of power transformers
         String id;
         Identifiable<?> realIdentifiable = identifiable;
-        if (identifiable instanceof DanglingLine) {
-            DanglingLine dl = (DanglingLine) identifiable;
+        if (identifiable instanceof BoundaryLine) {
+            BoundaryLine dl = (BoundaryLine) identifiable;
             id = identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
             if (dl.isPaired()) {
                 realIdentifiable = dl.getTieLine().orElseThrow(IllegalStateException::new);

@@ -7,7 +7,7 @@
 package com.powsybl.cgmes.gl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -37,7 +37,7 @@ public class LinePositionImporter {
 
     public void importPosition() {
         Map<Line, SortedMap<Integer, Coordinate>> lineCoordinates = new HashMap<>();
-        Map<DanglingLine, SortedMap<Integer, Coordinate>> danglingLineCoordinates = new HashMap<>();
+        Map<BoundaryLine, SortedMap<Integer, Coordinate>> danglingLineCoordinates = new HashMap<>();
 
         cgmesGLModel.getLinesPositions().forEach(propertyBag -> importPosition(propertyBag, lineCoordinates, danglingLineCoordinates));
 
@@ -47,15 +47,15 @@ public class LinePositionImporter {
             line.newExtension(LinePositionAdder.class).withCoordinates(new ArrayList<>(coordinates.values())).add();
         }
 
-        for (Map.Entry<DanglingLine, SortedMap<Integer, Coordinate>> e : danglingLineCoordinates.entrySet()) {
-            DanglingLine danglingLine = e.getKey();
+        for (Map.Entry<BoundaryLine, SortedMap<Integer, Coordinate>> e : danglingLineCoordinates.entrySet()) {
+            BoundaryLine boundaryLine = e.getKey();
             SortedMap<Integer, Coordinate> coordinates = e.getValue();
-            danglingLine.newExtension(LinePositionAdder.class).withCoordinates(new ArrayList<>(coordinates.values())).add();
+            boundaryLine.newExtension(LinePositionAdder.class).withCoordinates(new ArrayList<>(coordinates.values())).add();
         }
     }
 
     private void importPosition(PropertyBag linePositionData, Map<Line, SortedMap<Integer, Coordinate>> lineCoordinates,
-                                Map<DanglingLine, SortedMap<Integer, Coordinate>> danglingLineCoordinates) {
+                                Map<BoundaryLine, SortedMap<Integer, Coordinate>> danglingLineCoordinates) {
         Objects.requireNonNull(linePositionData);
         if (!CgmesGLUtils.checkCoordinateSystem(linePositionData.getId("crsName"), linePositionData.getId("crsUrn"))) {
             throw new PowsyblException("Unsupported coodinates system: " + linePositionData.getId("crsName"));
@@ -67,9 +67,9 @@ public class LinePositionImporter {
                     .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x")));
                      // y <=> lat, x <=> lon
         } else {
-            DanglingLine danglingLine = network.getDanglingLine(lineId);
-            if (danglingLine != null) {
-                danglingLineCoordinates.computeIfAbsent(danglingLine, k -> new TreeMap<>())
+            BoundaryLine boundaryLine = network.getDanglingLine(lineId);
+            if (boundaryLine != null) {
+                danglingLineCoordinates.computeIfAbsent(boundaryLine, k -> new TreeMap<>())
                         .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x")));
                         // y <=> lat, x <=> lon
             } else {

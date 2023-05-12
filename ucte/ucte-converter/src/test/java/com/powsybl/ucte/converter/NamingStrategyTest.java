@@ -66,12 +66,12 @@ class NamingStrategyTest {
         Bus bus1 = network.getVoltageLevel("B_SU1_1").getBusBreakerView().getBus("B_SU1_11");
         assertEquals(code1, strategy.getUcteNodeCode(bus1));
 
-        DanglingLine danglingLine = network.getDanglingLine("XG__F_21 F_SU1_21 1");
+        BoundaryLine boundaryLine = network.getDanglingLine("XG__F_21 F_SU1_21 1");
         UcteNodeCode code2 = strategy.getUcteNodeCode("XG__F_21");
-        assertEquals(code2, strategy.getUcteNodeCode(danglingLine));
+        assertEquals(code2, strategy.getUcteNodeCode(boundaryLine));
 
         UcteElementId elementId1 = strategy.getUcteElementId("XG__F_21 F_SU1_21 1");
-        assertEquals(elementId1, strategy.getUcteElementId(danglingLine));
+        assertEquals(elementId1, strategy.getUcteElementId(boundaryLine));
 
         UcteElementId elementId2 = strategy.getUcteElementId("B_SU1_11 B_SU1_21 1");
         Branch branch = network.getBranch("B_SU1_11 B_SU1_21 1");

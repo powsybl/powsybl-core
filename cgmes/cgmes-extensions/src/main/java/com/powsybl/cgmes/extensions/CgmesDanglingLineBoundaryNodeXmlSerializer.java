@@ -13,7 +13,7 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -21,7 +21,7 @@ import javax.xml.stream.XMLStreamException;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSerializer<DanglingLine, CgmesDanglingLineBoundaryNode> {
+public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSerializer<BoundaryLine, CgmesDanglingLineBoundaryNode> {
 
     public CgmesDanglingLineBoundaryNodeXmlSerializer() {
         super("cgmesDanglingLineBoundaryNode", "network", CgmesDanglingLineBoundaryNode.class,
@@ -43,7 +43,7 @@ public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensio
     }
 
     @Override
-    public CgmesDanglingLineBoundaryNode read(DanglingLine extendable, XmlReaderContext context) throws XMLStreamException {
+    public CgmesDanglingLineBoundaryNode read(BoundaryLine extendable, XmlReaderContext context) throws XMLStreamException {
         boolean isHvdc = XmlUtil.readBoolAttribute(context.getReader(), "isHvdc");
         String lineEnergyIdentificationCodeEic = context.getReader().getAttributeValue(null, "lineEnergyIdentificationCodeEic");
         extendable.newExtension(CgmesDanglingLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();

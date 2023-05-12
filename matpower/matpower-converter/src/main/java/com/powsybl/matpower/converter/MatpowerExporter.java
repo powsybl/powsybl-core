@@ -119,7 +119,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static void createDanglingLineBuses(Network network, MatpowerModel model, Context context) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isConnectedToMainCc(bus)) {
@@ -239,8 +239,8 @@ public class MatpowerExporter implements Exporter {
 
     private void createTieLines(Network network, MatpowerModel model, Context context) {
         for (TieLine l : network.getTieLines()) {
-            Terminal t1 = l.getDanglingLine1().getTerminal();
-            Terminal t2 = l.getDanglingLine2().getTerminal();
+            Terminal t1 = l.getBoundaryLine1().getTerminal();
+            Terminal t2 = l.getBoundaryLine2().getTerminal();
             Bus bus1 = t1.getBusView().getBus();
             Bus bus2 = t2.getBusView().getBus();
             if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2)) {
@@ -259,7 +259,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private void createDanglingLineBranches(Network network, MatpowerModel model, Context context) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isConnectedToMainCc(bus)) {
@@ -323,7 +323,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private void createDanglingLineGenerators(Network network, MatpowerModel model, Context context) {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isConnectedToMainCc(bus)) {
@@ -400,7 +400,7 @@ public class MatpowerExporter implements Exporter {
             }
 
             @Override
-            public void visitDanglingLine(DanglingLine danglingLine) {
+            public void visitDanglingLine(BoundaryLine boundaryLine) {
                 branchCount[0]++;
             }
         });

@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public interface DanglingLineAdder extends InjectionAdder<DanglingLine, DanglingLineAdder> {
+public interface DanglingLineAdder extends InjectionAdder<BoundaryLine, DanglingLineAdder> {
 
     interface GenerationAdder {
 
@@ -48,5 +48,5 @@ public interface DanglingLineAdder extends InjectionAdder<DanglingLine, Dangling
     }
 
     @Override
-    DanglingLine add();
+    BoundaryLine add();
 }

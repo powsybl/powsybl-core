@@ -9,8 +9,8 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -162,10 +162,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             } else {
                 createLimitsAdder(terminalNumber, limitSubClass, b);
             }
-        } else if (identifiable instanceof DanglingLine) {
-            DanglingLine danglingLine = (DanglingLine) identifiable;
-            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(danglingLine.getId() + "_" + limitSubClass,
-                    getLoadingLimitAdderSupplier(limitSubClass, danglingLine));
+        } else if (identifiable instanceof BoundaryLine) {
+            BoundaryLine boundaryLine = (BoundaryLine) identifiable;
+            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(boundaryLine.getId() + "_" + limitSubClass,
+                    getLoadingLimitAdderSupplier(limitSubClass, boundaryLine));
         } else if (identifiable instanceof ThreeWindingsTransformer) {
             ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
             if (terminalNumber == -1) {

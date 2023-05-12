@@ -31,7 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-class DanglingLineContingencyScriptTest {
+class BoundaryLineContingencyScriptTest {
 
     private FileSystem fileSystem;
 

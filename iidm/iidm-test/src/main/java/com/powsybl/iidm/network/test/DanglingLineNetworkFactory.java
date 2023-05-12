@@ -24,7 +24,7 @@ public final class DanglingLineNetworkFactory {
 
     public static Network create(NetworkFactory networkFactory) {
         Network network = createBase(networkFactory);
-        DanglingLine danglingLine = network.getVoltageLevel("VL").newDanglingLine()
+        BoundaryLine boundaryLine = network.getVoltageLevel("VL").newDanglingLine()
                 .setId("DL")
                 .setBus("BUS")
                 .setR(10.0)
@@ -34,7 +34,7 @@ public final class DanglingLineNetworkFactory {
                 .setP0(50.0)
                 .setQ0(30.0)
                 .add();
-        createDanglingLineCurrentLimits(danglingLine);
+        createDanglingLineCurrentLimits(boundaryLine);
         return network;
     }
 
@@ -44,7 +44,7 @@ public final class DanglingLineNetworkFactory {
 
     public static Network createWithGeneration(NetworkFactory networkFactory) {
         Network network = createBase(networkFactory);
-        DanglingLine danglingLine = network.getVoltageLevel("VL").newDanglingLine()
+        BoundaryLine boundaryLine = network.getVoltageLevel("VL").newDanglingLine()
                 .setId("DL")
                 .setBus("BUS")
                 .setR(10.0)
@@ -61,7 +61,7 @@ public final class DanglingLineNetworkFactory {
                 .setVoltageRegulationOn(true)
                 .add()
                 .add();
-        danglingLine.getGeneration().newReactiveCapabilityCurve()
+        boundaryLine.getGeneration().newReactiveCapabilityCurve()
                 .beginPoint()
                 .setP(0.0)
                 .setMinQ(-59.3)
@@ -73,7 +73,7 @@ public final class DanglingLineNetworkFactory {
                 .setMaxQ(46.25)
                 .endPoint()
                 .add();
-        createDanglingLineCurrentLimits(danglingLine);
+        createDanglingLineCurrentLimits(boundaryLine);
         return network;
     }
 
@@ -109,8 +109,8 @@ public final class DanglingLineNetworkFactory {
         return network;
     }
 
-    private static void createDanglingLineCurrentLimits(DanglingLine danglingLine) {
-        danglingLine.newCurrentLimits()
+    private static void createDanglingLineCurrentLimits(BoundaryLine boundaryLine) {
+        boundaryLine.newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                 .setName("20'")

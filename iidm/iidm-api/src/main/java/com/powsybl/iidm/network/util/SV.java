@@ -139,11 +139,11 @@ public class SV {
         }
     }
 
-    public SV otherSide(DanglingLine dl) {
+    public SV otherSide(BoundaryLine dl) {
         return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
-    public SV otherSide(DanglingLine dl, boolean splitShuntAdmittance) {
+    public SV otherSide(BoundaryLine dl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
             return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
         } else {
@@ -167,11 +167,11 @@ public class SV {
         return otherSideP(adm);
     }
 
-    public double otherSideP(DanglingLine dl) {
+    public double otherSideP(BoundaryLine dl) {
         return otherSideP(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
-    public double otherSideP(DanglingLine dl, boolean splitShuntAdmittance) {
+    public double otherSideP(BoundaryLine dl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
             return otherSideP(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
         } else {
@@ -195,11 +195,11 @@ public class SV {
         return otherSideQ(adm);
     }
 
-    public double otherSideQ(DanglingLine dl) {
+    public double otherSideQ(BoundaryLine dl) {
         return otherSideQ(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
-    public double otherSideQ(DanglingLine dl, boolean splitShuntAdmittance) {
+    public double otherSideQ(BoundaryLine dl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
             return otherSideQ(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
         } else {
@@ -223,11 +223,11 @@ public class SV {
         return otherSideU(adm);
     }
 
-    public double otherSideU(DanglingLine dl) {
+    public double otherSideU(BoundaryLine dl) {
         return otherSideU(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
-    public double otherSideU(DanglingLine dl, boolean splitShuntAdmittance) {
+    public double otherSideU(BoundaryLine dl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
             return otherSideU(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
         } else {
@@ -251,11 +251,11 @@ public class SV {
         return otherSideA(adm);
     }
 
-    public double otherSideA(DanglingLine dl) {
+    public double otherSideA(BoundaryLine dl) {
         return otherSideA(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
-    public double otherSideA(DanglingLine dl, boolean splitShuntAdmittance) {
+    public double otherSideA(BoundaryLine dl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
             return otherSideA(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
         } else {

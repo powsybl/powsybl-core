@@ -7,12 +7,13 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.DanglingLine;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
  */
-public interface XnodeAdder extends ExtensionAdder<DanglingLine, Xnode> {
+public interface XnodeAdder extends ExtensionAdder<BoundaryLine, Xnode> {
 
     @Override
     default Class<Xnode> getExtensionClass() {

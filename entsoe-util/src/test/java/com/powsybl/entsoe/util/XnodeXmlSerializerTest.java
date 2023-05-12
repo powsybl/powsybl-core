@@ -55,7 +55,7 @@ class XnodeXmlSerializerTest extends AbstractConverterTest {
         Network network = createTestNetwork();
 
         // extends dangling line
-        DanglingLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getDanglingLine("DL");
 
         Xnode xnode = new XnodeImpl(dl, "XXXXXX11");
         dl.addExtension(Xnode.class, xnode);
@@ -64,7 +64,7 @@ class XnodeXmlSerializerTest extends AbstractConverterTest {
                 NetworkXml::read,
                 "/xnodeRef.xml");
 
-        DanglingLine dl2 = network2.getDanglingLine("DL");
+        BoundaryLine dl2 = network2.getDanglingLine("DL");
         Xnode xnode2 = dl2.getExtension(Xnode.class);
         assertNotNull(xnode2);
         assertEquals(xnode.getCode(), xnode2.getCode());

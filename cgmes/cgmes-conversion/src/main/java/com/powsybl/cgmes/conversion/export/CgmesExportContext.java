@@ -403,8 +403,8 @@ public class CgmesExportContext {
     }
 
     private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
-        if (c instanceof DanglingLine) {
-            DanglingLine dl = (DanglingLine) c;
+        if (c instanceof BoundaryLine) {
+            BoundaryLine dl = (BoundaryLine) c;
             if (dl.isPaired()) {
                 TieLine tl = dl.getTieLine().orElseThrow(IllegalStateException::new);
                 int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
@@ -543,17 +543,17 @@ public class CgmesExportContext {
     }
 
     private static void addIidmMappingsEquivalentInjection(Network network) {
-        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine boundaryLine : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
             String alias;
-            alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            alias = boundaryLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             if (alias == null) {
                 String equivalentInjectionId = CgmesExportUtil.getUniqueId();
-                danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", equivalentInjectionId);
+                boundaryLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", equivalentInjectionId);
             }
-            alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            alias = boundaryLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
             if (alias == null) {
                 String equivalentInjectionTerminalId = CgmesExportUtil.getUniqueId();
-                danglingLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", equivalentInjectionTerminalId);
+                boundaryLine.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", equivalentInjectionTerminalId);
             }
         }
     }
@@ -570,8 +570,8 @@ public class CgmesExportContext {
                     .setEnergyIdentificationCodeEic("Network--1")
                     .add();
             CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
-            for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
-                cgmesControlArea.add(danglingLine.getTerminal());
+            for (BoundaryLine boundaryLine : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
+                cgmesControlArea.add(boundaryLine.getTerminal());
             }
         }
     }

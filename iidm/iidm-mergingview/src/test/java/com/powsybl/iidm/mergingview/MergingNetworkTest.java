@@ -188,12 +188,12 @@ class MergingNetworkTest {
         assertEquals(0, mergingView.getConnectableCount(Line.class));
 
         // DanglingLines
-        assertFalse(mergingView.getDanglingLines(DanglingLineFilter.ALL).iterator().hasNext());
+        assertFalse(mergingView.getBoundaryLines(DanglingLineFilter.ALL).iterator().hasNext());
         assertEquals(0, mergingView.getDanglingLineStream(DanglingLineFilter.ALL).count());
         assertEquals(0, mergingView.getDanglingLineCount());
-        assertArrayEquals(Iterables.toArray(mergingView.getDanglingLines(DanglingLineFilter.ALL), DanglingLine.class), Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class));
-        assertEquals(0, mergingView.getConnectableStream(DanglingLine.class).count());
-        assertEquals(0, mergingView.getConnectableCount(DanglingLine.class));
+        assertArrayEquals(Iterables.toArray(mergingView.getBoundaryLines(DanglingLineFilter.ALL), BoundaryLine.class), Iterables.toArray(mergingView.getConnectables(BoundaryLine.class), BoundaryLine.class));
+        assertEquals(0, mergingView.getConnectableStream(BoundaryLine.class).count());
+        assertEquals(0, mergingView.getConnectableCount(BoundaryLine.class));
 
         // Connectables
         assertFalse(mergingView.getConnectables().iterator().hasNext());
@@ -301,10 +301,10 @@ class MergingNetworkTest {
         assertEquals(1, mergingView.getTieLineCount());
 
         // DanglingLines
-        assertEquals(Collections.singletonList("DL"), mergingView.getConnectableStream(DanglingLine.class).filter(dl -> !dl.isPaired()).map(DanglingLine::getId).collect(Collectors.toList()));
-        assertArrayEquals(Iterables.toArray(mergingView.getConnectables(DanglingLine.class), DanglingLine.class),
-                mergingView.getConnectableStream(DanglingLine.class).toArray());
-        assertEquals(3, mergingView.getConnectableCount(DanglingLine.class));
+        assertEquals(Collections.singletonList("DL"), mergingView.getConnectableStream(BoundaryLine.class).filter(dl -> !dl.isPaired()).map(BoundaryLine::getId).collect(Collectors.toList()));
+        assertArrayEquals(Iterables.toArray(mergingView.getConnectables(BoundaryLine.class), BoundaryLine.class),
+                mergingView.getConnectableStream(BoundaryLine.class).toArray());
+        assertEquals(3, mergingView.getConnectableCount(BoundaryLine.class));
 
         // Connectables
         assertEquals(Arrays.asList("LOAD", "NHV1_NHV2_2", "NGEN_NHV1", "DL1", "NHV2_NLOAD", "GEN", "G", "DL", "DL2"),

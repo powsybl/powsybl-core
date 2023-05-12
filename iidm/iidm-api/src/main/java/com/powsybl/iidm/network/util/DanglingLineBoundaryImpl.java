@@ -17,9 +17,9 @@ public class DanglingLineBoundaryImpl implements Boundary {
     // for SV use: side represents the network side, that is always
     // Side.ONE for a dangling line.
 
-    private final DanglingLine parent;
+    private final BoundaryLine parent;
 
-    public DanglingLineBoundaryImpl(DanglingLine parent) {
+    public DanglingLineBoundaryImpl(BoundaryLine parent) {
         this.parent = Objects.requireNonNull(parent);
     }
 
@@ -67,7 +67,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
     }
 
     @Override
-    public DanglingLine getDanglingLine() {
+    public BoundaryLine getDanglingLine() {
         return parent;
     }
 

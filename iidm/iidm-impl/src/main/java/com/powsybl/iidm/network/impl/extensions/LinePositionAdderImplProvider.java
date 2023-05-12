@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.extensions.LinePosition;
@@ -39,7 +39,7 @@ public class LinePositionAdderImplProvider<I extends Identifiable<I>> implements
 
     @Override
     public LinePositionAdderImpl<I> newAdder(I line) {
-        if (!(line instanceof Line) && !(line instanceof DanglingLine)) {
+        if (!(line instanceof Line) && !(line instanceof BoundaryLine)) {
             throw new PowsyblException("Line position extension only supported for lines and dangling lines");
         }
         return new LinePositionAdderImpl<>(line);

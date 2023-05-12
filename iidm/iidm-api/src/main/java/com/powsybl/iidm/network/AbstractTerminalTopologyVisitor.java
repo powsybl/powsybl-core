@@ -84,8 +84,8 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     }
 
     @Override
-    public void visitDanglingLine(DanglingLine danglingLine) {
-        visitInjection(danglingLine);
+    public void visitDanglingLine(BoundaryLine boundaryLine) {
+        visitInjection(boundaryLine);
     }
 
     @Override

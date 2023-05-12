@@ -415,13 +415,13 @@ class AmplNetworkReaderTest {
     }
 
     private void testDLBranches(Network network, AmplNetworkReader reader) throws IOException {
-        DanglingLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getDanglingLine("DL");
         assertTrue(Double.isNaN(dl.getTerminal().getP()));
         assertTrue(Double.isNaN(dl.getTerminal().getQ()));
 
         reader.readBranches();
 
-        DanglingLine dl2 = network.getDanglingLine("DL");
+        BoundaryLine dl2 = network.getDanglingLine("DL");
         assertEquals(-100, dl2.getTerminal().getP(), 0.0);
         assertEquals(-110, dl2.getTerminal().getQ(), 0.0);
     }

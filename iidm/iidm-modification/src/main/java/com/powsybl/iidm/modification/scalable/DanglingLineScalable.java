@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -47,7 +47,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
     public void reset(Network n) {
         Objects.requireNonNull(n);
 
-        DanglingLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getDanglingLine(id);
         if (dl != null) {
             dl.setP0(0);
         }
@@ -63,7 +63,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
-        DanglingLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getDanglingLine(id);
         if (dl != null) {
             return scalingConvention == LOAD ? maxValue : -minValue;
         } else {
@@ -81,7 +81,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
-        DanglingLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getDanglingLine(id);
         if (dl != null) {
             return scalingConvention == LOAD ? minValue : -maxValue;
         } else {
@@ -94,7 +94,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(injections);
 
-        DanglingLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getDanglingLine(id);
         if (dl != null) {
             injections.add(dl);
         } else if (notFoundInjections != null) {
@@ -113,7 +113,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(parameters);
 
-        DanglingLine dl = n.getDanglingLine(id);
+        BoundaryLine dl = n.getDanglingLine(id);
 
         double done = 0;
         if (dl == null) {

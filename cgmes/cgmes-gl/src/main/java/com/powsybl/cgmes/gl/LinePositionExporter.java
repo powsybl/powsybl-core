@@ -6,7 +6,7 @@
  */
 package com.powsybl.cgmes.gl;
 
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.iidm.network.extensions.LinePosition;
@@ -33,10 +33,10 @@ public class LinePositionExporter extends AbstractPositionExporter {
         exportPosition(line.getId(), line.getNameOrId(), linePosition);
     }
 
-    public void exportPosition(DanglingLine danglingLine) {
-        Objects.requireNonNull(danglingLine);
-        LinePosition<DanglingLine> linePosition = danglingLine.getExtension(LinePosition.class);
-        exportPosition(danglingLine.getId(), danglingLine.getNameOrId(), linePosition);
+    public void exportPosition(BoundaryLine boundaryLine) {
+        Objects.requireNonNull(boundaryLine);
+        LinePosition<BoundaryLine> linePosition = boundaryLine.getExtension(LinePosition.class);
+        exportPosition(boundaryLine.getId(), boundaryLine.getNameOrId(), linePosition);
     }
 
     private void exportPosition(String id, String name, LinePosition<?> linePosition) {
