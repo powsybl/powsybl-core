@@ -900,7 +900,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
 
         // try to find dangling lines couples
-        List<MergedLine> lines = new ArrayList<>();
+        List<DanglingLinePair> lines = new ArrayList<>();
         Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
 
         for (DanglingLine dl1 : getDanglingLines(DanglingLineFilter.ALL)) {
@@ -909,7 +909,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             }
         }
         for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
-            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> mergeDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
+            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 
         // do not forget to remove the other network from its index!!!
@@ -931,19 +931,19 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
+    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
         if (dl1 != null) {
             if (dl1.getUcteXnodeCode() != null) {
                 dl1byXnodeCode.get(dl1.getUcteXnodeCode()).remove(dl1);
             }
-            MergedLine l = new MergedLine();
+            DanglingLinePair l = new DanglingLinePair();
             l.id = buildMergedId(dl1.getId(), dl2.getId());
             l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
             l.dl1Id = dl1.getId();
             l.dl2Id = dl2.getId();
             l.aliases = new HashMap<>();
             mergeProperties(dl1, dl2, l.properties);
-            lines.add(l);
+            danglingLinePairs.add(l);
 
             if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
                 ((DanglingLineImpl) dl1).replaceId(l.dl1Id + "_1");
@@ -955,19 +955,19 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
-    private void replaceDanglingLineByLine(List<MergedLine> lines) {
-        for (MergedLine mergedLine : lines) {
+    private void replaceDanglingLineByLine(List<DanglingLinePair> lines) {
+        for (DanglingLinePair danglingLinePair : lines) {
             LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
-                    mergedLine.id, mergedLine.dl1Id, mergedLine.dl2Id);
+                    danglingLinePair.id, danglingLinePair.dl1Id, danglingLinePair.dl2Id);
             TieLineImpl l = newTieLine()
-                    .setId(mergedLine.id)
+                    .setId(danglingLinePair.id)
                     .setEnsureIdUnicity(true)
-                    .setName(mergedLine.name)
-                    .setDanglingLine1(mergedLine.dl1Id)
-                    .setDanglingLine2(mergedLine.dl2Id)
+                    .setName(danglingLinePair.name)
+                    .setDanglingLine1(danglingLinePair.dl1Id)
+                    .setDanglingLine2(danglingLinePair.dl2Id)
                     .add();
-            mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-            mergedLine.aliases.forEach((alias, type) -> {
+            danglingLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
+            danglingLinePair.aliases.forEach((alias, type) -> {
                 if (type.isEmpty()) {
                     l.addAlias(alias);
                 } else {
@@ -977,7 +977,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
-    class MergedLine {
+    class DanglingLinePair {
         String id;
         String name;
         String dl1Id;

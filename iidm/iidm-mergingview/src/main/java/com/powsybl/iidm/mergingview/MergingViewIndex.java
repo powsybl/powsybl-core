@@ -87,14 +87,14 @@ class MergingViewIndex {
                 .filter(d -> d.getNetwork() != dl2.getNetwork())
                 .distinct()
                 .collect(Collectors.toList());
-        BiConsumer<DanglingLine, DanglingLine> mergeDanglingLines = (dll1, dll2) -> {
+        BiConsumer<DanglingLine, DanglingLine> pairDanglingLines = (dll1, dll2) -> {
             String key = dll1.getId();
             if (dll1.getUcteXnodeCode() != null && dll2.getUcteXnodeCode() != null) {
                 key = dll1.getUcteXnodeCode();
             }
             mergedLineCached.computeIfAbsent(key, k -> new MergedLine(this, dll1, dll2));
         };
-        findAndAssociateDanglingLines(dl2, dl1, getDanglingLinesByXnodeCode, mergeDanglingLines);
+        findAndAssociateDanglingLines(dl2, dl1, getDanglingLinesByXnodeCode, pairDanglingLines);
     }
 
     MergedLine getMergedLineByCode(final String ucteXnodeCode) {

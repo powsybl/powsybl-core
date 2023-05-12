@@ -108,7 +108,7 @@ class DanglingLineAdapterTest {
     }
 
     @Test
-    void mergedDanglingLine() {
+    void pairedDanglingLine() {
         mergingView.merge(noEquipNetwork);
         double p10 = 0.11710908004064359;
         double q10 = -0.012883304869602126;
@@ -389,7 +389,7 @@ class DanglingLineAdapterTest {
     }
 
     @Test
-    void mergedDanglingLineWithSameId() {
+    void pairedDanglingLineWithSameId() {
         double p0 = 1.0;
         double q0 = 1.0;
         Network network = EurostagTutorialExample1Factory.create();
