@@ -11,7 +11,9 @@ package com.powsybl.iidm.network;
  * ZIP (polynomial) load model.
  * p = p0 * (c0p + c1p * (v / v0) + c2p * (v / v0)^2)
  * q = q0 * (c0q + c1q * (v / v0) + c2q * (v / v0)^2)
- *
+ * with v0 the nominal voltage.
+ * C0p, C1p and C2p must be positive. The sum should equal 1.
+ * C0q, C1q and C2q must be positive. The sum should equal 1.
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ZipLoadModel extends LoadModel {
