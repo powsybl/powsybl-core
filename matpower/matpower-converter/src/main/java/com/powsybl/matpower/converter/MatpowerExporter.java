@@ -203,14 +203,7 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
                 mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
                 mBranch.setStatus(CONNECTED_STATUS);
-                double rpu = impedanceToPerUnitForLine(l.getR(), vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-                double xpu = impedanceToPerUnitForLine(l.getX(), vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-                Complex ytr = impedanceToAdmittance(l.getR(), l.getX());
-                double b1pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), l.getB1(), vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-                double b2pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), l.getB2(), vl2.getNominalV(), vl1.getNominalV(), BASE_MVA);
-                mBranch.setR(rpu);
-                mBranch.setX(xpu);
-                mBranch.setB(b1pu + b2pu);
+                setBranchParameters(vl1, vl2, l.getR(), l.getX(), l.getB1(), l.getB2(), mBranch);
                 model.addBranch(mBranch);
             }
         }
@@ -257,17 +250,22 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
                 mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
                 mBranch.setStatus(CONNECTED_STATUS);
-                double rpu = impedanceToPerUnitForLine(l.getR(), vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-                double xpu = impedanceToPerUnitForLine(l.getX(), vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-                Complex ytr = impedanceToAdmittance(l.getR(), l.getX());
-                double b1pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), l.getB1(), vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-                double b2pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), l.getB2(), vl2.getNominalV(), vl1.getNominalV(), BASE_MVA);
-                mBranch.setR(rpu);
-                mBranch.setX(xpu);
-                mBranch.setB(b1pu + b2pu);
+                setBranchParameters(vl1, vl2, l.getR(), l.getX(), l.getB1(), l.getB2(), mBranch);
                 model.addBranch(mBranch);
             }
         }
+    }
+
+    private static void setBranchParameters(VoltageLevel vl1, VoltageLevel vl2, double r, double x, double b1,
+        double b2, MBranch mBranch) {
+        double rpu = impedanceToPerUnitForLine(r, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
+        double xpu = impedanceToPerUnitForLine(x, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
+        Complex ytr = impedanceToAdmittance(r, x);
+        double b1pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), b1, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
+        double b2pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), b2, vl2.getNominalV(), vl1.getNominalV(), BASE_MVA);
+        mBranch.setR(rpu);
+        mBranch.setX(xpu);
+        mBranch.setB(b1pu + b2pu);
     }
 
     // avoid NaN when r and x, both are 0.0
