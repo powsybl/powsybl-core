@@ -11,13 +11,12 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.iidm.network.Exporter;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
@@ -553,43 +552,6 @@ public class UcteExporter implements Exporter {
                 return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
             }
         }
-    }
-
-    private static UcteElementStatus getStatus(Identifiable<?> identifiable, Branch.Side side) {
-        if (identifiable instanceof Branch) {
-            Branch<?> branch = (Branch<?>) identifiable;
-            if (branch.isFictitious()) {
-                if (branch.getTerminal(side).isConnected()) {
-                    return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
-                } else {
-                    return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
-                }
-            } else {
-                if (branch.getTerminal(side).isConnected()) {
-                    return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
-                } else {
-                    return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
-                }
-            }
-        }
-        if (identifiable instanceof TieLine) {
-            TieLine branch = (TieLine) identifiable;
-            if (branch.isFictitious()) {
-                if (branch.getDanglingLine(side).getTerminal().isConnected()) {
-                    return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
-                } else {
-                    return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
-                }
-            } else {
-                if (branch.getDanglingLine(side).getTerminal().isConnected()) {
-                    return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
-                } else {
-                    return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
-                }
-            }
-
-        }
-        throw new IllegalStateException();
     }
 
     private static UcteElementStatus getStatusHalf(TieLine tieLine, Branch.Side side) {
