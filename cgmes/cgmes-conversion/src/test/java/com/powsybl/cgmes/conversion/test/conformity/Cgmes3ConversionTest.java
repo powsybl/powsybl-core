@@ -11,10 +11,9 @@ import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
@@ -307,15 +306,9 @@ class Cgmes3ConversionTest {
         assertTrue(true);
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
         config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config);
-        return c.convert();
+        return ConversionUtil.networkModel(testGridModel, config);
     }
 
     private static void resetBusVoltageAndAngleBeforeComparison(Network network) {
