@@ -7,8 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
@@ -16,15 +15,8 @@ import com.powsybl.iidm.network.VoltageLevel;
  */
 class BoundaryAdapter extends AbstractAdapter<Boundary> implements Boundary {
 
-    private final Branch.Side mergedSide;
-
     BoundaryAdapter(Boundary delegate, MergingViewIndex index) {
-        this(delegate, null, index);
-    }
-
-    BoundaryAdapter(Boundary delegate, Branch.Side mergedSide, MergingViewIndex index) {
         super(delegate, index);
-        this.mergedSide = mergedSide;
     }
 
     @Override
@@ -48,13 +40,8 @@ class BoundaryAdapter extends AbstractAdapter<Boundary> implements Boundary {
     }
 
     @Override
-    public Branch.Side getSide() {
-        return getDelegate().getSide() == null ? mergedSide : getDelegate().getSide();
-    }
-
-    @Override
-    public Connectable getConnectable() {
-        return getIndex().getConnectable(getDelegate().getConnectable());
+    public DanglingLine getDanglingLine() {
+        return getIndex().getDanglingLine(getDelegate().getDanglingLine());
     }
 
     @Override

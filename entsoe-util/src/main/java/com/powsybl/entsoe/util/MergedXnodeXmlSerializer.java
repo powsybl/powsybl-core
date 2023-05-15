@@ -13,7 +13,7 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
@@ -27,7 +27,7 @@ import java.util.List;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Line, MergedXnode> {
+public class MergedXnodeXmlSerializer<T extends Identifiable<T>> extends AbstractVersionableNetworkExtensionXmlSerializer<T, MergedXnode<T>> {
 
     public MergedXnodeXmlSerializer() {
         super("mergedXnode", MergedXnode.class, false, "mxn",
@@ -42,6 +42,7 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
                         .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of("1.0", "1.1"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/merged_xnode/1_0")
@@ -61,7 +62,7 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
     }
 
     @Override
-    public void write(MergedXnode xnode, XmlWriterContext context) throws XMLStreamException {
+    public void write(MergedXnode<T> xnode, XmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("rdp", xnode.getRdp(), context.getWriter());
         XmlUtil.writeDouble("xdp", xnode.getXdp(), context.getWriter());
         XmlUtil.writeDouble("xnodeP1", xnode.getXnodeP1(), context.getWriter());
@@ -79,13 +80,13 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
         }
     }
 
-    private void writeLinesNames(MergedXnode xnode, XmlWriterContext context) throws XMLStreamException {
+    private void writeLinesNames(MergedXnode<T> xnode, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("line1Name", xnode.getLine1Name());
         context.getWriter().writeAttribute("line2Name", xnode.getLine2Name());
     }
 
     @Override
-    public MergedXnode read(Line line, XmlReaderContext context) {
+    public MergedXnode read(T line, XmlReaderContext context) {
         double rdp = XmlUtil.readDoubleAttribute(context.getReader(), "rdp");
         double xdp = XmlUtil.readDoubleAttribute(context.getReader(), "xdp");
         double xnodeP1 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeP1");

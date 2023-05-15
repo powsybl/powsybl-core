@@ -149,7 +149,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
+    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, Container<? extends Identifiable<?>> c, NetworkXmlReaderContext context) {
         double r1 = XmlUtil.readDoubleAttribute(context.getReader(), "r1");
         double x1 = XmlUtil.readDoubleAttribute(context.getReader(), "x1");
         double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");

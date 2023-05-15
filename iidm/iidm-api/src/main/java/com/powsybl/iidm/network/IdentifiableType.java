@@ -19,6 +19,7 @@ public enum IdentifiableType {
     SWITCH,
     BUSBAR_SECTION,
     LINE,
+    TIE_LINE,
     TWO_WINDINGS_TRANSFORMER,
     THREE_WINDINGS_TRANSFORMER,
     GENERATOR,

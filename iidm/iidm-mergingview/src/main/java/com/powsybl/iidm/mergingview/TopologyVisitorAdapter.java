@@ -60,13 +60,7 @@ class TopologyVisitorAdapter extends AbstractAdapter<TopologyVisitor> implements
 
     @Override
     public void visitDanglingLine(DanglingLine danglingLine) {
-        if (getIndex().isMerged(danglingLine)) {
-            MergedLine line = getIndex().getMergedLineByCode(danglingLine.getUcteXnodeCode());
-            Side side = line.getSide(danglingLine);
-            getDelegate().visitLine(line, side);
-        } else {
-            getDelegate().visitDanglingLine(danglingLine);
-        }
+        getDelegate().visitDanglingLine(danglingLine);
     }
 
     @Override

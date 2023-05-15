@@ -208,11 +208,13 @@ public final class CgmesExportUtil {
     public static int getTerminalSequenceNumber(Terminal t) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
+            if (c instanceof DanglingLine) {
+                DanglingLine dl = (DanglingLine) c;
+                return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
+            }
             return 1;
         } else {
-            if (c instanceof Injection) {
-                // An injection should have only one terminal
-            } else if (c instanceof Branch) {
+            if (c instanceof Branch) {
                 switch (((Branch<?>) c).getSide(t)) {
                     case ONE:
                         return 1;
@@ -236,7 +238,6 @@ public final class CgmesExportUtil {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
             }
         }
-        return 0;
     }
 
     public static boolean isConverterStationRectifier(HvdcConverterStation<?> converterStation) {
@@ -288,7 +289,7 @@ public final class CgmesExportUtil {
     public static String getTerminalId(Terminal t, CgmesExportContext context) {
         String aliasType;
         Connectable<?> c = t.getConnectable();
-        if (c instanceof DanglingLine) {
+        if (c instanceof DanglingLine && !((DanglingLine) c).isPaired()) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL;
         } else {
             int sequenceNumber = getTerminalSequenceNumber(t);

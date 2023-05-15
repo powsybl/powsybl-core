@@ -51,7 +51,7 @@ class LoadXml extends AbstractSimpleIdentifiableXml<Load, LoadAdder, VoltageLeve
     }
 
     @Override
-    protected Load readRootElementAttributes(LoadAdder adder, NetworkXmlReaderContext context) {
+    protected Load readRootElementAttributes(LoadAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         String loadTypeStr = context.getReader().getAttributeValue(null, "loadType");
         LoadType loadType = loadTypeStr == null ? LoadType.UNDEFINED : LoadType.valueOf(loadTypeStr);
         double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");

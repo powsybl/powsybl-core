@@ -50,7 +50,7 @@ class BusbarSectionXml extends AbstractSimpleIdentifiableXml<BusbarSection, Busb
     }
 
     @Override
-    protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, NetworkXmlReaderContext context) {
+    protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         int node = XmlUtil.readIntAttribute(context.getReader(), "node");
         BusbarSection bbs = adder.setNode(node)
                 .add();
