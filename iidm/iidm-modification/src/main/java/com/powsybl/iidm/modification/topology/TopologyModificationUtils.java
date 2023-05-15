@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>

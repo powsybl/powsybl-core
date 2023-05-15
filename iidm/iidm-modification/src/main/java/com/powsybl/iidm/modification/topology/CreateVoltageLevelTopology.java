@@ -20,8 +20,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.createdNewSymmetricalTopology;
-import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundVoltageLevelReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.createdNewSymmetricalTopology;
+import static com.powsybl.iidm.modification.util.ModificationReports.notFoundVoltageLevelReport;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
