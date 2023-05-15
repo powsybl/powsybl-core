@@ -50,7 +50,7 @@ class HvdcLineXml extends AbstractSimpleIdentifiableXml<HvdcLine, HvdcLineAdder,
     }
 
     @Override
-    protected HvdcLine readRootElementAttributes(HvdcLineAdder adder, NetworkXmlReaderContext context) {
+    protected HvdcLine readRootElementAttributes(HvdcLineAdder adder, Network network, NetworkXmlReaderContext context) {
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
         double nominalV = XmlUtil.readDoubleAttribute(context.getReader(), "nominalV");
         HvdcLine.ConvertersMode convertersMode = XmlUtil.readOptionalEnum(context.getReader(), "convertersMode", HvdcLine.ConvertersMode.class);

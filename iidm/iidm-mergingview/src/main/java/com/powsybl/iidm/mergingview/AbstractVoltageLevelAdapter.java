@@ -99,23 +99,6 @@ abstract class AbstractVoltageLevelAdapter extends AbstractIdentifiableAdapter<V
     @Override
     public <T extends Connectable> T getConnectable(String id, Class<T> clazz) {
         T connectable = getDelegate().getConnectable(id, clazz);
-        if (clazz == DanglingLine.class) {
-            DanglingLine dl = (DanglingLine) connectable;
-            return dl == null || getIndex().isMerged(dl) ? null : clazz.cast(getIndex().getDanglingLine(dl));
-        } else if (clazz == Line.class) {
-            Line line = (Line) connectable;
-            if (line != null) {
-                return clazz.cast(getIndex().getLine(line));
-            }
-
-            line = getIndex().getMergedLine(id);
-            if (line.getTerminal1().getVoltageLevel() == this || line.getTerminal2().getVoltageLevel() == this) {
-                return clazz.cast(line);
-            }
-
-            return null;
-        }
-
         return connectable == null ? null : clazz.cast(getIndex().getConnectable(connectable));
     }
 
@@ -126,21 +109,8 @@ abstract class AbstractVoltageLevelAdapter extends AbstractIdentifiableAdapter<V
 
     @Override
     public <T extends Connectable> Stream<T> getConnectableStream(Class<T> clazz) {
-        if (clazz == Line.class) {
-            Stream<T> lines = getDelegate().getConnectableStream(Line.class).map(l -> clazz.cast(getIndex().getLine(l)));
-            Stream<T> mergedLines = getDelegate().getConnectableStream(DanglingLine.class)
-                    .filter(getIndex()::isMerged)
-                    .map(dl -> clazz.cast(getIndex().getMergedLine(dl.getId())));
-
-            return Stream.concat(lines, mergedLines);
-        } else if (clazz == DanglingLine.class) {
-            return getDelegate().getConnectableStream(DanglingLine.class)
-                    .filter(dl -> !getIndex().isMerged(dl))
-                    .map(dl -> clazz.cast(getIndex().getDanglingLine(dl)));
-        } else {
-            return getDelegate().getConnectableStream(clazz)
-                    .map(c -> clazz.cast(getIndex().getConnectable(c)));
-        }
+        return getDelegate().getConnectableStream(clazz)
+                .map(c -> clazz.cast(getIndex().getConnectable(c)));
     }
 
     @Override
@@ -266,13 +236,13 @@ abstract class AbstractVoltageLevelAdapter extends AbstractIdentifiableAdapter<V
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return getConnectables(DanglingLine.class);
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getConnectableStream(DanglingLine.class);
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return getConnectableStream(DanglingLine.class).filter(danglingLineFilter.getPredicate());
     }
 
     @Override

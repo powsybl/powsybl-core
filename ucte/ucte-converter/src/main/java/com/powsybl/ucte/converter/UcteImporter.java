@@ -868,13 +868,13 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void addElementNameProperty(TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
+    private static void addElementNameProperty(Map<String, String> properties, DanglingLine dl1, DanglingLine dl2) {
         if (dl1.hasProperty(ELEMENT_NAME_PROPERTY_KEY)) {
-            tieLine.setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperty(ELEMENT_NAME_PROPERTY_KEY));
+            properties.put(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }
 
         if (dl2.hasProperty(ELEMENT_NAME_PROPERTY_KEY)) {
-            tieLine.setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperty(ELEMENT_NAME_PROPERTY_KEY));
+            properties.put(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }
     }
 
@@ -896,12 +896,12 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void addGeographicalNameProperty(UcteNetwork ucteNetwork, TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
+    private static void addGeographicalNameProperty(UcteNetwork ucteNetwork, Map<String, String> properties, DanglingLine dl1, DanglingLine dl2) {
         Optional<UcteNodeCode> optUcteNodeCode = UcteNodeCode.parseUcteNodeCode(dl1.getUcteXnodeCode());
 
         if (optUcteNodeCode.isPresent()) {
             UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode.get());
-            tieLine.setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
+            properties.put(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
         } else {
             throw new UcteException(NOT_POSSIBLE_TO_IMPORT);
         }
@@ -922,8 +922,8 @@ public class UcteImporter implements Importer {
         identifiable.setProperty(STATUS_PROPERTY_KEY + "_XNode", ucteNode.getStatus().toString());
     }
 
-    private static void addXnodeStatusProperty(TieLine tieLine, DanglingLine danglingLine) {
-        tieLine.setProperty(STATUS_PROPERTY_KEY + "_XNode", danglingLine.getProperty(STATUS_PROPERTY_KEY + "_XNode"));
+    private static void addXnodeStatusProperty(Map<String, String> properties, DanglingLine danglingLine) {
+        properties.put(STATUS_PROPERTY_KEY + "_XNode", danglingLine.getProperty(STATUS_PROPERTY_KEY + "_XNode"));
     }
 
     private static void addDanglingLineCouplerProperty(UcteLine ucteLine, DanglingLine danglingLine) {
@@ -986,11 +986,11 @@ public class UcteImporter implements Importer {
 
     private void mergeXnodeDanglingLines(UcteNetwork ucteNetwork, Network network) {
         Multimap<String, DanglingLine> danglingLinesByXnodeCode = HashMultimap.create();
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             danglingLinesByXnodeCode.put(dl.getExtension(Xnode.class).getCode(), dl);
         }
 
-        Set<DanglingLine> danglingLinesToProcess = Sets.newHashSet(network.getDanglingLines());
+        Set<DanglingLine> danglingLinesToProcess = Sets.newHashSet(network.getDanglingLines(DanglingLineFilter.ALL));
         while (!danglingLinesToProcess.isEmpty()) {
             DanglingLine dlToProcess = danglingLinesToProcess.iterator().next();
             DanglingLine dlMatchingDlToProcess = getMatchingDanglingLine(dlToProcess, danglingLinesByXnodeCode);
@@ -1003,9 +1003,6 @@ public class UcteImporter implements Importer {
 
                 createTieLine(ucteNetwork, network, dlAtSideOne, dlAtSideTwo);
 
-                dlToProcess.remove();
-                dlMatchingDlToProcess.remove();
-
                 danglingLinesToProcess.remove(dlMatchingDlToProcess);
             }
             danglingLinesToProcess.remove(dlToProcess);
@@ -1016,10 +1013,11 @@ public class UcteImporter implements Importer {
         // lexical sort to always end up with same merge line id
         String mergeLineId = dlAtSideOne.getId() + " + " + dlAtSideTwo.getId();
 
-        // create XNODE merge extension
+        // create MergedXnode extension
         // In case R1 and R2 (resp. X1 and X2) are zero, rdp (resp. xdp) is set to 0.5:
         // by default the line is split in the middle.
         // R1 = 0 and R2 = 0 (resp. X1 = 0 and X2 = 0) are recovered when splitting the mergedXnode anyway.
+        // FIXME: not useful anymore.
         double sumR = dlAtSideOne.getR() + dlAtSideTwo.getR();
         double sumX = dlAtSideOne.getX() + dlAtSideTwo.getX();
         double rdp = (sumR == 0.) ? 0.5 : dlAtSideOne.getR() / sumR;
@@ -1028,55 +1026,33 @@ public class UcteImporter implements Importer {
 
         TieLine mergeLine = network.newTieLine()
                 .setId(mergeLineId)
-                .setVoltageLevel1(dlAtSideOne.getTerminal().getVoltageLevel().getId())
-                .setConnectableBus1(getBusId(dlAtSideOne.getTerminal().getBusBreakerView().getConnectableBus()))
-                .setBus1(getBusId(dlAtSideOne.getTerminal().getBusBreakerView().getBus()))
-                .setVoltageLevel2(dlAtSideTwo.getTerminal().getVoltageLevel().getId())
-                .setConnectableBus2(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getConnectableBus()))
-                .setBus2(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getBus()))
-                .newHalfLine1()
-                .setId(dlAtSideOne.getId())
-                .setR(dlAtSideOne.getR())
-                .setX(dlAtSideOne.getX())
-                .setB1(dlAtSideOne.getB())
-                .setB2(0.0)
-                .setG1(dlAtSideOne.getG())
-                .setG2(0.0)
-                .setFictitious(dlAtSideOne.isFictitious())
-                .add()
-                .newHalfLine2()
-                .setId(dlAtSideTwo.getId())
-                .setR(dlAtSideTwo.getR())
-                .setX(dlAtSideTwo.getX())
-                .setB1(0.0)
-                .setB2(dlAtSideTwo.getB())
-                .setG1(0.0)
-                .setG2(dlAtSideTwo.getG())
-                .setFictitious(dlAtSideTwo.isFictitious())
-                .add()
-                .setUcteXnodeCode(xnodeCode)
+                .setDanglingLine1(dlAtSideOne.getId())
+                .setDanglingLine2(dlAtSideTwo.getId())
                 .add();
 
-        addElementNameProperty(mergeLine, dlAtSideOne, dlAtSideTwo);
-        addGeographicalNameProperty(ucteNetwork, mergeLine, dlAtSideOne, dlAtSideTwo);
-        addXnodeStatusProperty(mergeLine, dlAtSideOne);
-
-        dlAtSideOne.getCurrentLimits()
-                .ifPresent(currentLimits -> mergeLine.newCurrentLimits1().setPermanentLimit(currentLimits.getPermanentLimit()).add());
-        dlAtSideTwo.getCurrentLimits()
-                .ifPresent(currentLimits -> mergeLine.newCurrentLimits2().setPermanentLimit(currentLimits.getPermanentLimit()).add());
+        Map<String, String> properties = new HashMap<>();
+        addElementNameProperty(properties, dlAtSideOne, dlAtSideTwo);
+        addGeographicalNameProperty(ucteNetwork, properties, dlAtSideOne, dlAtSideTwo);
+        addXnodeStatusProperty(properties, dlAtSideOne);
         double b1dp = dlAtSideOne.getB() == 0 ? 0.5 : 1;
         double g1dp = dlAtSideOne.getG() == 0 ? 0.5 : 1;
         double b2dp = dlAtSideTwo.getB() == 0 ? 0.5 : 0;
         double g2dp = dlAtSideTwo.getG() == 0 ? 0.5 : 0;
+        String id1 = dlAtSideOne.getId();
+        boolean fict1 = dlAtSideOne.isFictitious();
+        String id2 = dlAtSideTwo.getId();
+        boolean fict2 = dlAtSideTwo.isFictitious();
+
+        properties.forEach(mergeLine::setProperty);
+
         mergeLine.newExtension(MergedXnodeAdder.class)
                 .withRdp(rdp).withXdp(xdp)
-                .withLine1Name(dlAtSideOne.getId())
-                .withLine1Fictitious(dlAtSideOne.isFictitious())
+                .withLine1Name(id1)
+                .withLine1Fictitious(fict1)
                 .withB1dp(b1dp)
                 .withG1dp(g1dp)
-                .withLine2Name(dlAtSideTwo.getId())
-                .withLine2Fictitious(dlAtSideTwo.isFictitious())
+                .withLine2Name(id2)
+                .withLine2Fictitious(fict2)
                 .withB2dp(b2dp)
                 .withG2dp(g2dp)
                 .withCode(xnodeCode)

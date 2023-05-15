@@ -6,14 +6,17 @@
  */
 package com.powsybl.entsoe.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.TieLine;
 
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
  */
-public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXnode>
-        implements MergedXnodeAdder {
+public class MergedXnodeAdderImpl<T extends Identifiable<T>> extends AbstractExtensionAdder<T, MergedXnode<T>>
+        implements MergedXnodeAdder<T> {
 
     private double rdp = Double.NaN; // r divider position 1 -> 2
 
@@ -45,16 +48,19 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
 
     private String code;
 
-    public MergedXnodeAdderImpl(Line extendable) {
+    public MergedXnodeAdderImpl(T extendable) {
         super(extendable);
     }
 
     @Override
-    protected MergedXnode createExtension(Line extendable) {
-        return new MergedXnodeImpl(extendable, rdp, xdp,
-                line1Name, line1Fictitious, xnodeP1, xnodeQ1, b1dp, g1dp,
-                line2Name, line2Fictitious, xnodeP2, xnodeQ2, b2dp, g2dp,
-                code);
+    protected MergedXnode createExtension(T extendable) {
+        if (extendable instanceof Line || extendable instanceof TieLine) {
+            return new MergedXnodeImpl(extendable, rdp, xdp,
+                    line1Name, line1Fictitious, xnodeP1, xnodeQ1, b1dp, g1dp,
+                    line2Name, line2Fictitious, xnodeP2, xnodeQ2, b2dp, g2dp,
+                    code);
+        }
+        throw new PowsyblException(extendable.getId() + " is not a Line or a Tie Line.");
     }
 
     @Override
