@@ -17,10 +17,10 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class EurostagJsonTest extends AbstractXmlConverterTest {
+class EurostagJsonTest extends AbstractXmlConverterTest {
 
     @Test
-    public void loadFlowResultsTest() throws IOException {
+    void test() throws IOException {
         ExportOptions exportOptions = new ExportOptions().setFormat(TreeDataFormat.JSON);
         ImportOptions importOptions = new ImportOptions().setFormat(TreeDataFormat.JSON);
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
