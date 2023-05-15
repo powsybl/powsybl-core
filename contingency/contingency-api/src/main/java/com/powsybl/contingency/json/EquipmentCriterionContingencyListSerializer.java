@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.contingency.contingency.list.AbstractEquipmentCriterionContingencyList;
 import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.contingency.contingency.list.TieLineCriterionContingencyList;
 
 import java.io.IOException;
 
