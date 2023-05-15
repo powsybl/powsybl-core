@@ -46,7 +46,7 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
     }
 
     @Override
-    protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, NetworkXmlReaderContext context) {
+    protected Switch readRootElementAttributes(VoltageLevel.BusBreakerView.SwitchAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         boolean open = context.getReader().readBooleanAttribute("open");
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_1, context, () -> {
             boolean fictitious = context.getReader().readBooleanAttribute("fictitious", false);

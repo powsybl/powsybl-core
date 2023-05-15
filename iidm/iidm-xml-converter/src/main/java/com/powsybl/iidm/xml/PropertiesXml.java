@@ -21,8 +21,8 @@ public final class PropertiesXml {
 
     static final String PROPERTY = "property";
 
-    private static final String NAME = "name";
-    private static final String VALUE = "value";
+    static final String NAME = "name";
+    static final String VALUE = "value";
 
     public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) {
         if (identifiable.hasProperty()) {

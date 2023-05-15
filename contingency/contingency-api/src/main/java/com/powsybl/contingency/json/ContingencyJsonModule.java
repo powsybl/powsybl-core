@@ -25,6 +25,7 @@ public class ContingencyJsonModule extends SimpleModule {
         addSerializer(InjectionCriterionContingencyList.class, new InjectionCriterionContingencyListSerializer());
         addSerializer(HvdcLineCriterionContingencyList.class, new HvdcLineCriterionContingencyListSerializer());
         addSerializer(LineCriterionContingencyList.class, new LineCriterionContingencyListSerializer());
+        addSerializer(TieLineCriterionContingencyList.class, new TieLineCriterionContingencyListSerializer());
         addSerializer(TwoWindingsTransformerCriterionContingencyList.class, new TwoWindingsTransformerCriterionContingencyListSerializer());
         addSerializer(ThreeWindingsTransformerCriterionContingencyList.class, new ThreeWindingsTransformerCriterionContingencyListSerializer());
 
@@ -40,6 +41,7 @@ public class ContingencyJsonModule extends SimpleModule {
         addDeserializer(InjectionCriterionContingencyList.class, new InjectionCriterionContingencyListDeserializer());
         addDeserializer(HvdcLineCriterionContingencyList.class, new HvdcLineCriterionContingencyListDeserializer());
         addDeserializer(LineCriterionContingencyList.class, new LineCriterionContingencyListDeserializer());
+        addDeserializer(TieLineCriterionContingencyList.class, new TieLineCriterionContingencyListDeserializer());
         addDeserializer(TwoWindingsTransformerCriterionContingencyList.class, new TwoWindingsTransformerCriterionContingencyListDeserializer());
         addDeserializer(ThreeWindingsTransformerCriterionContingencyList.class, new ThreeWindingsTransformerCriterionContingencyListDeserializer());
 

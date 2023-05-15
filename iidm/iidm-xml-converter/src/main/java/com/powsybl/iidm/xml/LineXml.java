@@ -80,7 +80,7 @@ class LineXml extends AbstractSimpleIdentifiableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    protected Line readRootElementAttributes(LineAdder adder, NetworkXmlReaderContext context) {
+    protected Line readRootElementAttributes(LineAdder adder, Network network, NetworkXmlReaderContext context) {
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
         double g1 = context.getReader().readDoubleAttribute("g1");

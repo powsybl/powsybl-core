@@ -51,15 +51,30 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                 TerminalRefXml.writeTerminalRef(terminal, networkContext, getNamespaceUri(), "terminal");
             }
             for (Boundary boundary : controlArea.getBoundaries()) {
-                if (boundary.getConnectable() != null) { // TODO: delete this later, only for compatibility
+                if (boundary.getDanglingLine() != null) { // TODO: delete this later, only for compatibility
                     writer.writeStartNode(getNamespaceUri(), "boundary");
-                    writer.writeStringAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getConnectable().getId()));
-                    writer.writeEnumAttribute("side", boundary.getSide());
+                    writer.writeStringAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getDanglingLine().getId()));
+
+                    // TODO use TieLine Id and DanglingLine Id for reference instead of TieLine Id and Side
+                    Branch.Side side = getSide(boundary);
+                    if (side != null) {
+                        writer.writeEnumAttribute("side", side);
+                    }
                     writer.writeEndNode();
                 }
             }
             writer.writeEndNode();
         }
+    }
+
+    private static Branch.Side getSide(Boundary boundary) {
+        // a TieLine with two dangingLines inside
+        return boundary.getDanglingLine().getTieLine().map(tl -> {
+            if (tl.getDanglingLine1() == boundary.getDanglingLine()) {
+                return Branch.Side.ONE;
+            }
+            return Branch.Side.TWO;
+        }).orElse(null);
     }
 
     @Override
@@ -98,7 +113,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                     } else if (identifiable instanceof TieLine) {
                         side = networkContext.getReader().readStringAttribute("side");
                         TieLine tl = (TieLine) identifiable;
-                        cgmesControlArea.add(tl.getHalf(Branch.Side.valueOf(side)).getBoundary());
+                        cgmesControlArea.add(tl.getDanglingLine(Branch.Side.valueOf(side)).getBoundary());
                     } else {
                         throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());
                     }

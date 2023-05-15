@@ -55,7 +55,7 @@ class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdd
     }
 
     @Override
-    protected Generator readRootElementAttributes(GeneratorAdder adder, NetworkXmlReaderContext context) {
+    protected Generator readRootElementAttributes(GeneratorAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         EnergySource energySource = context.getReader().readEnumAttribute("energySource", EnergySource.class);
         double minP = context.getReader().readDoubleAttribute("minP");
         double maxP = context.getReader().readDoubleAttribute("maxP");

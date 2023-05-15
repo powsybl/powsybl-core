@@ -50,7 +50,7 @@ class BatteryXml extends AbstractSimpleIdentifiableXml<Battery, BatteryAdder, Vo
     }
 
     @Override
-    protected Battery readRootElementAttributes(BatteryAdder adder, NetworkXmlReaderContext context) {
+    protected Battery readRootElementAttributes(BatteryAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         double targetP = context.getReader().readDoubleAttribute(
                 IidmXmlUtil.getAttributeName("p0", "targetP", context.getVersion(), IidmXmlVersion.V_1_8));
         double targetQ = context.getReader().readDoubleAttribute(

@@ -99,7 +99,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
+    protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, Container<? extends Identifiable<?>> c, NetworkXmlReaderContext context) {
         double r = context.getReader().readDoubleAttribute("r");
         double x = context.getReader().readDoubleAttribute("x");
         double g = context.getReader().readDoubleAttribute("g");

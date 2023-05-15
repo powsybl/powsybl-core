@@ -7,12 +7,12 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Identifiable;
 
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
  */
-public interface MergedXnodeAdder extends ExtensionAdder<Line, MergedXnode> {
+public interface MergedXnodeAdder<T extends Identifiable<T>> extends ExtensionAdder<T, MergedXnode<T>> {
 
     @Override
     default Class<MergedXnode> getExtensionClass() {

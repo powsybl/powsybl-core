@@ -51,4 +51,10 @@ class MatpowerExporterTest {
         Network network = Network.read(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource());
         exportToMatAndCompareTo(network, "/be.json");
     }
+
+    @Test
+    void testWithTieLines() throws IOException {
+        var network = EurostagTutorialExample1Factory.createWithTieLine();
+        exportToMatAndCompareTo(network, "/sim1-with-tie-lines.json");
+    }
 }

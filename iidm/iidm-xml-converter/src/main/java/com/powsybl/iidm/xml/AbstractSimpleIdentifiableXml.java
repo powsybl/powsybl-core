@@ -19,7 +19,7 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
  */
 abstract class AbstractSimpleIdentifiableXml<T extends Identifiable<? super T>, A extends IdentifiableAdder<T, A>, P extends Identifiable> extends AbstractIdentifiableXml<T, A, P> {
 
-    protected abstract T readRootElementAttributes(A adder, NetworkXmlReaderContext context);
+    protected abstract T readRootElementAttributes(A adder, P parent, NetworkXmlReaderContext context);
 
     protected void readSubElements(T identifiable, NetworkXmlReaderContext context) {
         if (context.getReader().getNodeName().equals(PropertiesXml.PROPERTY)) {
@@ -36,7 +36,7 @@ abstract class AbstractSimpleIdentifiableXml<T extends Identifiable<? super T>, 
     public final void read(P parent, NetworkXmlReaderContext context) {
         A adder = createAdder(parent);
         readIdentifierAttributes(adder, context);
-        T identifiable = readRootElementAttributes(adder, context);
+        T identifiable = readRootElementAttributes(adder, parent, context);
         if (identifiable != null) {
             readSubElements(identifiable, context);
         }

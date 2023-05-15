@@ -12,7 +12,7 @@ import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.extensions.XmlReaderContext;
 import com.powsybl.commons.extensions.XmlWriterContext;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
@@ -25,7 +25,7 @@ import java.util.List;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<Line, MergedXnode> {
+public class MergedXnodeXmlSerializer<T extends Identifiable<T>> extends AbstractVersionableNetworkExtensionXmlSerializer<T, MergedXnode<T>> {
 
     public MergedXnodeXmlSerializer() {
         super("mergedXnode", MergedXnode.class, "mxn",
@@ -60,7 +60,7 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
     }
 
     @Override
-    public void write(MergedXnode xnode, XmlWriterContext context) {
+    public void write(MergedXnode<T> xnode, XmlWriterContext context) {
         context.getWriter().writeDoubleAttribute("rdp", xnode.getRdp());
         context.getWriter().writeDoubleAttribute("xdp", xnode.getXdp());
         context.getWriter().writeDoubleAttribute("xnodeP1", xnode.getXnodeP1());
@@ -78,13 +78,13 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
         }
     }
 
-    private void writeLinesNames(MergedXnode xnode, XmlWriterContext context) {
+    private void writeLinesNames(MergedXnode<T> xnode, XmlWriterContext context) {
         context.getWriter().writeStringAttribute("line1Name", xnode.getLine1Name());
         context.getWriter().writeStringAttribute("line2Name", xnode.getLine2Name());
     }
 
     @Override
-    public MergedXnode read(Line line, XmlReaderContext context) {
+    public MergedXnode read(T line, XmlReaderContext context) {
         double rdp = context.getReader().readDoubleAttribute("rdp");
         double xdp = context.getReader().readDoubleAttribute("xdp");
         double xnodeP1 = context.getReader().readDoubleAttribute("xnodeP1");

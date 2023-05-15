@@ -48,6 +48,8 @@ public interface ContingencyElement {
             return new BatteryContingency(identifiable.getId());
         } else if (identifiable instanceof Bus) {
             return new BusContingency(identifiable.getId());
+        } else if (identifiable instanceof TieLine) {
+            return new TieLineContingency(identifiable.getId());
         } else {
             throw new PowsyblException(identifiable.getId() + " can not be a ContingencyElement");
         }

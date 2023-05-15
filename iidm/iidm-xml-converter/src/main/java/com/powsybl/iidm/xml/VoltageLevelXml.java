@@ -225,8 +225,8 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
 
     private void writeDanglingLines(VoltageLevel vl, NetworkXmlWriterContext context) {
         context.getWriter().writeStartNodes("danglingLines");
-        for (DanglingLine dl : IidmXmlUtil.sorted(vl.getDanglingLines(), context.getOptions())) {
-            if (!context.getFilter().test(dl)) {
+        for (DanglingLine dl : IidmXmlUtil.sorted(vl.getDanglingLines(DanglingLineFilter.ALL), context.getOptions())) {
+            if (!context.getFilter().test(dl) || (context.getVersion().compareTo(IidmXmlVersion.V_1_10) < 0 && dl.isPaired())) {
                 continue;
             }
             DanglingLineXml.INSTANCE.write(dl, vl, context);
@@ -279,7 +279,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
     }
 
     @Override
-    protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, NetworkXmlReaderContext context) {
+    protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, Container<? extends Identifiable<?>> c, NetworkXmlReaderContext context) {
         double nominalV = context.getReader().readDoubleAttribute("nominalV");
         double lowVoltageLimit = context.getReader().readDoubleAttribute("lowVoltageLimit");
         double highVoltageLimit = context.getReader().readDoubleAttribute("highVoltageLimit");
