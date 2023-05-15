@@ -106,17 +106,17 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             double xNodeQ2 = dl2.getBoundary().getQ();
             Properties properties = new Properties();
             tl.getPropertyNames().forEach(pn -> properties.put(pn, tl.getProperty(pn)));
-            mergeProperties(dl1, dl2, properties); // TODO add reporter in method (mergeProperties(dl1, dl2, properties, reporter)
+            mergeProperties(dl1, dl2, properties, reporter);
             Map<String, String> aliases = new HashMap<>();
             tl.getAliases().forEach(alias -> aliases.put(alias, tl.getAliasType(alias).orElse("")));
-            mergeIdenticalAliases(dl1, dl2, aliases); // TODO add reporter in method (mergeIdenticalAliases(dl1, dl2, aliases, reporter)
+            mergeIdenticalAliases(dl1, dl2, aliases, reporter);
             tl.remove();
             dl1.remove();
             dl2.remove();
             Line line = adder.add();
             properties.forEach((pn, pv) -> line.setProperty((String) pn, (String) pv));
             aliases.forEach((alias, type) -> {
-                if ("".equals(type)) {
+                if (type.isEmpty()) {
                     line.addAlias(alias);
                 } else {
                     line.addAlias(alias, type);
