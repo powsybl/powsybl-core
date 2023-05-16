@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.matpower.model.MatpowerModel;
 import com.powsybl.matpower.model.MatpowerReader;
 import org.junit.jupiter.api.Test;
@@ -56,5 +57,11 @@ class MatpowerExporterTest {
     void testWithTieLines() throws IOException {
         var network = EurostagTutorialExample1Factory.createWithTieLine();
         exportToMatAndCompareTo(network, "/sim1-with-tie-lines.json");
+    }
+
+    @Test
+    void testWithHvdcLines() throws IOException {
+        var network = FourSubstationsNodeBreakerFactory.create();
+        exportToMatAndCompareTo(network, "/fourSubstationFactory.json");
     }
 }
