@@ -53,7 +53,7 @@ public class DanglingLineData {
             return;
         }
 
-        // boundary voltage from properties
+        // boundary voltage from properties, paired and not paired danglingLines are considered
         double vBoundary = getDoubleProperty(danglingLine, PROPERTY_V);
         double tethaBoundary = Math.toRadians(getDoubleProperty(danglingLine, PROPERTY_ANGLE));
 
@@ -68,7 +68,7 @@ public class DanglingLineData {
             return;
         }
 
-        dlDataNonSupportedCases(networkFlow);
+        dlDataNotSupportedCases(networkFlow);
     }
 
     private void dlDataWhenThereIsNotVoltageAtNetworkSide(Complex networkFlow) {
@@ -129,7 +129,7 @@ public class DanglingLineData {
     // it is possible to calculate the boundary voltage by knowing the network side voltage
     // and the boundary injection (with and without voltage control), nevertheless
     // these configurations are not considered in the current version
-    private void dlDataNonSupportedCases(Complex networkFlow) {
+    private void dlDataNotSupportedCases(Complex networkFlow) {
         boundaryBusU = Double.NaN;
         boundaryBusTheta = Double.NaN;
         boundaryFlowP = Double.NaN;

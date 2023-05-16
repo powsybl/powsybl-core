@@ -25,9 +25,6 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getV() {
-        if (!parent.isPaired()) {
-            // TODO
-        }
         DanglingLineData danglingLineData = new DanglingLineData(parent, true);
         return danglingLineData.getBoundaryBusU();
     }
