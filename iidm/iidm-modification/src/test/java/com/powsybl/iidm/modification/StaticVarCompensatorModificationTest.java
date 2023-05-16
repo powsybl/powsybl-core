@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.OptionalDouble;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -62,5 +64,15 @@ class StaticVarCompensatorModificationTest {
         modif2.apply(network, true, Reporter.NO_OP);
         assertEquals(1, svc.getVoltageSetpoint(), "Failed to modify network during apply.");
         assertEquals(2, svc.getReactivePowerSetpoint(), "Failed to modify network during apply.");
+    }
+
+    @Test
+    void testGetters() {
+        StaticVarCompensatorModification modif = new StaticVarCompensatorModification("UNKNOWN_ID",
+            1., null);
+        assertEquals(OptionalDouble.empty(), modif.getOptionalReactivePowerSetpoint());
+        assertNull(modif.getReactivePowerSetpoint());
+        assertEquals(OptionalDouble.of(1.), modif.getOptionalVoltageSetpoint());
+        assertEquals(1., modif.getVoltageSetpoint());
     }
 }
