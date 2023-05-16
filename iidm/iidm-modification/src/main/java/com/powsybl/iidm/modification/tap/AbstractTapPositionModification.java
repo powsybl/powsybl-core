@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.iidm.modification.tap;
 
 import com.powsybl.commons.PowsyblException;
@@ -12,6 +18,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.OptionalInt;
 
+/**
+ * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
+ */
 public abstract class AbstractTapPositionModification extends AbstractNetworkModification {
     public static final String TRANSFORMER_STR = "Transformer '";
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTapPositionModification.class);
@@ -77,10 +86,6 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
 
     public TransformerType getElement() {
         return element;
-    }
-
-    public enum TransformerElement {
-        TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER
     }
 
 }
