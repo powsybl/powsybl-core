@@ -38,8 +38,8 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
      * @param tapPosition the new tap position
      * @param leg         defines on which leg of the three winding transformer the modification will be done. Ignored on two windings.
      */
-    public AbstractTapPositionModification(String transfoId, TransformerType element, int tapPosition,
-                                           Integer leg) {
+    protected AbstractTapPositionModification(String transfoId, TransformerType element, int tapPosition,
+                                              Integer leg) {
         this.transfoId = Objects.requireNonNull(transfoId);
         this.element = Objects.requireNonNull(element);
         this.tapPosition = tapPosition;
