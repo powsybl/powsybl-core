@@ -25,35 +25,66 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getV() {
-        DanglingLineData danglingLineData = new DanglingLineData(parent, true);
-        return danglingLineData.getBoundaryBusU();
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+            return danglingLineData.getBoundaryBusU();
+        }
+
+        Terminal t = parent.getTerminal();
+        Bus b = t.getBusView().getBus();
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideU(parent, true);
     }
 
     @Override
     public double getAngle() {
-        DanglingLineData danglingLineData = new DanglingLineData(parent, true);
-        return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+            return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
+        }
+        Terminal t = parent.getTerminal();
+        Bus b = t.getBusView().getBus();
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideA(parent, true);
     }
 
     @Override
     public double getP() {
-        DanglingLineData danglingLineData = new DanglingLineData(parent, true);
-        return danglingLineData.getBoundaryFlowP();
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+            return -parent.getP0();
+        }
+        Terminal t = parent.getTerminal();
+        Bus b = t.getBusView().getBus();
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideP(parent, true);
     }
 
     @Override
     public double getQ() {
-        DanglingLineData danglingLineData = new DanglingLineData(parent, true);
-        return danglingLineData.getBoundaryFlowQ();
+        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+            return -parent.getQ0();
+        }
+        Terminal t = parent.getTerminal();
+        Bus b = t.getBusView().getBus();
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideQ(parent, true);
     }
 
     @Override
-    public Branch.Side getSide() {
-        return null;
-    }
-
-    @Override
-    public DanglingLine getConnectable() {
+    public DanglingLine getDanglingLine() {
         return parent;
+    }
+
+    @Override
+    public VoltageLevel getNetworkSideVoltageLevel() {
+        return parent.getTerminal().getVoltageLevel();
+    }
+
+    private static double getV(Bus b) {
+        return b == null ? Double.NaN : b.getV();
+    }
+
+    private static double getAngle(Bus b) {
+        return b == null ? Double.NaN : b.getAngle();
+    }
+
+    private static boolean valid(double p0, double q0) {
+        return !Double.isNaN(p0) && !Double.isNaN(q0);
     }
 }

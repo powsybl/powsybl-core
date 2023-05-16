@@ -7,12 +7,12 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Identifiable;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface MergedXnode extends Extension<Line> {
+public interface MergedXnode<T extends Identifiable<T>> extends Extension<T> {
 
     String NAME = "mergedXnode";
 

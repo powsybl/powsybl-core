@@ -26,7 +26,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
     private final Ref<NetworkImpl> networkRef;
-    private boolean removed = false;
+    protected boolean removed = false;
 
     AbstractConnectable(Ref<NetworkImpl> ref, String id, String name, boolean fictitious) {
         super(id, name, fictitious);

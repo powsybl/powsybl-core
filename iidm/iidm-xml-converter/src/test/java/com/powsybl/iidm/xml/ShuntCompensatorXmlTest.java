@@ -95,13 +95,13 @@ class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
         NetworkXml.write(network, new ExportOptions().setVersion(IidmXmlVersion.V_1_4.toString(".")), path);
         Network n = NetworkXml.read(path);
         ShuntCompensator sc = n.getShuntCompensator("SHUNT");
-        assertEquals(Double.MIN_VALUE, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
+        assertEquals(Double.MIN_NORMAL, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
 
         network.getShuntCompensator("SHUNT").setVoltageRegulatorOn(false).setTargetV(Double.NaN).setTargetDeadband(Double.NaN).setRegulatingTerminal(null);
         NetworkXml.write(network, new ExportOptions().setVersion(IidmXmlVersion.V_1_1.toString(".")), path);
         Network n2 = NetworkXml.read(path);
         ShuntCompensator sc2 = n2.getShuntCompensator("SHUNT");
-        assertEquals(Double.MIN_VALUE, sc2.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
+        assertEquals(Double.MIN_NORMAL, sc2.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
     }
 
     private void write(Network network, String version) {

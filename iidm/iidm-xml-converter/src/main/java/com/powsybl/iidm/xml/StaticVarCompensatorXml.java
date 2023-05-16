@@ -70,7 +70,7 @@ public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<Stati
     }
 
     @Override
-    protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) {
+    protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         double bMin = XmlUtil.readDoubleAttribute(context.getReader(), "bMin");
         double bMax = XmlUtil.readDoubleAttribute(context.getReader(), "bMax");
 

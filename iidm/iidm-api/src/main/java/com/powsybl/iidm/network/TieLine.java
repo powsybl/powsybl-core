@@ -162,187 +162,40 @@ package com.powsybl.iidm.network;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public interface TieLine extends Line {
+public interface TieLine extends Identifiable<TieLine>, LineCharacteristics {
 
     /**
-     * Half line
-     *
-     * <p>
-     *  Characteristics
-     * </p>
-     *
-     * <table style="border: 1px solid black; border-collapse: collapse">
-     *     <thead>
-     *         <tr>
-     *             <th style="border: 1px solid black">Attribute</th>
-     *             <th style="border: 1px solid black">Type</th>
-     *             <th style="border: 1px solid black">Unit</th>
-     *             <th style="border: 1px solid black">Required</th>
-     *             <th style="border: 1px solid black">Defaut value</th>
-     *             <th style="border: 1px solid black">Description</th>
-     *         </tr>
-     *     </thead>
-     *     <tbody>
-     *         <tr>
-     *             <td style="border: 1px solid black">Id</td>
-     *             <td style="border: 1px solid black">String</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">Unique identifier of the half line</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">Name</td>
-     *             <td style="border: 1px solid black">String</td>
-     *             <td style="border: 1px solid black">-</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">Human-readable name of the half line</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">R</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">&Omega;</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The series resistance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">X</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">&Omega;</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The series reactance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">G1</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">S</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The first side shunt conductance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">B1</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">S</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The first side shunt susceptance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">G2</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">S</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The second side shunt conductance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">B2</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">S</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The second side shunt susceptance</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">XNodeP</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">MW</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The active power consumption</td>
-     *         </tr>
-     *         <tr>
-     *             <td style="border: 1px solid black">XNodeQ</td>
-     *             <td style="border: 1px solid black">double</td>
-     *             <td style="border: 1px solid black">MVar</td>
-     *             <td style="border: 1px solid black">yes</td>
-     *             <td style="border: 1px solid black"> - </td>
-     *             <td style="border: 1px solid black">The reactive power consumption</td>
-     *         </tr>
-     *     </tbody>
-     * </table>
-     */
-
-    interface HalfLine extends LineCharacteristics<HalfLine> {
-
-        String getId();
-
-        String getName();
-
-        /**
-         * @deprecated Use {@link #getBoundary()} and {@link Boundary#getP()} instead.
-         */
-        @Deprecated
-        default double getXnodeP() {
-            return getBoundary().getP();
-        }
-
-        /**
-         * @deprecated Boundary P is always calculated, never set.
-         */
-        @Deprecated
-        default HalfLine setXnodeP(double p) {
-            return this;
-        }
-
-        /**
-         * @deprecated Use {@link #getBoundary()} and {@link Boundary#getQ()} instead.
-         */
-        @Deprecated
-        default double getXnodeQ() {
-            return getBoundary().getQ();
-        }
-
-        /**
-         * @deprecated Boundary Q is always calculated, never set.
-         */
-        @Deprecated
-        default HalfLine setXnodeQ(double q) {
-            return this;
-        }
-
-        default Boundary getBoundary() {
-            throw new UnsupportedOperationException();
-        }
-
-        /**
-         * Get the fictitious status
-         */
-        default boolean isFictitious() {
-            return false;
-        }
-
-        /**
-         * Set the fictitious status
-         */
-        default HalfLine setFictitious(boolean fictitious) {
-            throw new UnsupportedOperationException();
-        }
-
-    }
-
-    /**
-     * Get the UCTE Xnode code corresponding to this line in the case where the
+     * Get the UCTE Xnode code corresponding to this tie line in the case where the
      * line is a boundary, return null otherwise.
      */
     String getUcteXnodeCode();
 
     /**
-     * Get first half of the line characteristics
+     * Get first dangling line of this tie line
      */
-    HalfLine getHalf1();
+    DanglingLine getDanglingLine1();
 
     /**
-     * Get second half of the line characteristics
+     * Get second dangling line of this tie line
      */
-    HalfLine getHalf2();
+    DanglingLine getDanglingLine2();
 
     /**
-     * Get a given side half of the line characteristics
+     * Get the dangling line of this tie line corresponding to the given side
      */
-    HalfLine getHalf(Side side);
+    DanglingLine getDanglingLine(Branch.Side side);
+
+    /**
+     * Get the dangling line of this tie line corresponding to the given voltage level
+     */
+    DanglingLine getDanglingLine(String voltageLevelId);
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.TIE_LINE;
+    }
+
+    void remove();
+
+    Network getNetwork();
 }

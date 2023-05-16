@@ -301,12 +301,12 @@ class VoltageLevelAdapterTest {
                 .setBus("busA")
                 .setConnectableBus("busA")
             .add();
-        vlActual.getDanglingLines().forEach(s -> {
+        vlActual.getDanglingLines(DanglingLineFilter.ALL).forEach(s -> {
             assertTrue(s instanceof DanglingLineAdapter);
             assertNotNull(s);
         });
         assertEquals(vlExpected.getDanglingLineCount(), vlActual.getDanglingLineCount());
-        assertEquals(vlExpected.getDanglingLineStream().count(), vlActual.getDanglingLineStream().count());
+        assertEquals(vlExpected.getDanglingLineStream(DanglingLineFilter.ALL).count(), vlActual.getDanglingLineStream(DanglingLineFilter.ALL).count());
 
         // Topology : Bus kind
         assertEquals(vlExpected.getTopologyKind(), vlActual.getTopologyKind());
@@ -345,21 +345,15 @@ class VoltageLevelAdapterTest {
         VoltageLevel vl1 = cgm.getVoltageLevel("VL1");
         VoltageLevel vl2 = cgm.getVoltageLevel("VL2");
 
-        assertNull(cgm.getDanglingLine("DL1"));
-        assertNull(vl1.getConnectable("DL1", DanglingLine.class));
-        assertEquals(0, Iterables.size(vl1.getConnectables(DanglingLine.class)));
+        assertNotNull(cgm.getDanglingLine("DL1"));
+        assertNotNull(vl1.getConnectable("DL1", DanglingLine.class));
+        assertEquals(1, Iterables.size(vl1.getConnectables(DanglingLine.class)));
 
-        assertNull(cgm.getDanglingLine("DL2"));
-        assertNull(vl2.getConnectable("DL2", DanglingLine.class));
-        assertEquals(0, Iterables.size(vl2.getConnectables(DanglingLine.class)));
+        assertNotNull(cgm.getDanglingLine("DL2"));
+        assertNotNull(vl2.getConnectable("DL2", DanglingLine.class));
+        assertEquals(1, Iterables.size(vl2.getConnectables(DanglingLine.class)));
 
-        assertNotNull(cgm.getLine("DL1 + DL2"));
-        assertEquals(1, Iterables.size(vl1.getConnectables(Line.class)));
-        assertEquals(1, vl1.getConnectableCount(Line.class));
-        assertNotNull(vl1.getConnectable("DL1 + DL2", Line.class));
-        assertEquals(1, Iterables.size(vl2.getConnectables(Line.class)));
-        assertEquals(1, vl2.getConnectableCount(Line.class));
-        assertNotNull(vl2.getConnectable("DL1 + DL2", Line.class));
+        assertNotNull(cgm.getTieLine("DL1 + DL2"));
     }
 
     @Test
