@@ -103,8 +103,27 @@ class TapPositionModificationTest {
     }
 
     @Test
+    void testMissingTap() {
+        ThreeWindingsTransformer.Leg leg = threeWindingTransformer.getLeg1();
+        // Leg1 does not have a Rtc/Ptc. Trying to modify them must throw/log.
+        // Ratio
+        assertFalse(leg.hasPhaseTapChanger(), "Test assumptions are wrong.");
+        NetworkModification modifRtc = new RatioTapPositionModification(threeWindingNetwork.getId(),
+            TransformerType.THREE_WINDINGS_TRANSFORMER, 1, 0);
+        assertThrows(PowsyblException.class, () -> modifRtc.apply(threeWindingNetwork, true, Reporter.NO_OP),
+            "Modifying a Ratio tap that is not present should throw.");
+        // Phase
+        assertFalse(leg.hasRatioTapChanger(), "Test assumptions are wrong.");
+        NetworkModification modifPtc = new PhaseTapPositionModification(threeWindingNetwork.getId(),
+            TransformerType.THREE_WINDINGS_TRANSFORMER, 1, 0);
+        assertThrows(PowsyblException.class, () -> modifPtc.apply(threeWindingNetwork, true, Reporter.NO_OP),
+            "Modifying a Phasetap that is not present should throw.");
+    }
+
+    @Test
     void testThreeWindingsModif() {
         ThreeWindingsTransformer.Leg leg = threeWindingTransformer.getLeg2();
+
         leg.newPhaseTapChanger()
             .setLowTapPosition(0)
             .setTapPosition(0)

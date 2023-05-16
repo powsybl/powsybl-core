@@ -34,7 +34,6 @@ class ShuntCompensatorPositionModificationTest {
 
     @Test
     void testConstructorCoherence() {
-        String id = shunt.getId();
         assertThrows(NullPointerException.class, () -> new ShuntCompensatorPositionModification(null, 1),
             "Null id value should not be accepted.");
     }
@@ -44,13 +43,15 @@ class ShuntCompensatorPositionModificationTest {
         ShuntCompensatorPositionModification modif = new ShuntCompensatorPositionModification(shunt.getId(), 1);
         assertDoesNotThrow(() -> modif.apply(network, true, Reporter.NO_OP));
         assertEquals(1, shunt.getSectionCount(), "A valid apply should modify the value");
-        ShuntCompensatorPositionModification modif1 = new ShuntCompensatorPositionModification("UNKNOWN_ID", 1);
+        ShuntCompensatorPositionModification modif1 = new ShuntCompensatorPositionModification("UNKNOWN_ID", 0);
         assertThrows(PowsyblException.class, () -> modif1.apply(network, true, Reporter.NO_OP),
             "An invalid ID should fail to apply.");
+        assertDoesNotThrow(() -> modif1.apply(network, false, Reporter.NO_OP),
+            "An invalid ID should not throw if throwException is false.");
         ShuntCompensatorPositionModification modif2 = new ShuntCompensatorPositionModification(shunt.getId(),
             shunt.getMaximumSectionCount() + 1);
         assertThrows(PowsyblException.class, () -> modif2.apply(network, true, Reporter.NO_OP),
             "Trying to set the number of section outside of range should not be accepted.");
-        assertEquals(1, shunt.getSectionCount(), "Failed apply should not modify the value");
+        assertEquals(1, shunt.getSectionCount(), "Failed applies should not modify the value");
     }
 }
