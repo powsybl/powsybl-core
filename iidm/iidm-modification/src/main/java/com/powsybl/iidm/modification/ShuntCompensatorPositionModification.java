@@ -35,10 +35,6 @@ public class ShuntCompensatorPositionModification extends AbstractNetworkModific
         if (shuntCompensator == null) {
             logOrThrow(throwException, "Shunt Compensator '" + shuntCompensatorId + "' not found");
             return;
-        } else if (shuntCompensator.getMaximumSectionCount() < sectionCount) {
-            logOrThrow(throwException,
-                    "Section Count to apply is greater than the maximum value of the shunt compensator." + sectionCount + " > " + shuntCompensator.getMaximumSectionCount());
-            return;
         }
         shuntCompensator.setSectionCount(sectionCount);
     }
