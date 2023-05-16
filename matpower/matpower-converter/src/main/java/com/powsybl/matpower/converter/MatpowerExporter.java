@@ -197,7 +197,7 @@ public class MatpowerExporter implements Exporter {
             Bus bus1 = t1.getBusView().getBus();
             Bus bus2 = t2.getBusView().getBus();
             if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2)) {
-                VoltageLevel vl1 = t2.getVoltageLevel();
+                VoltageLevel vl1 = t1.getVoltageLevel();
                 VoltageLevel vl2 = t2.getVoltageLevel();
                 MBranch mBranch = new MBranch();
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
