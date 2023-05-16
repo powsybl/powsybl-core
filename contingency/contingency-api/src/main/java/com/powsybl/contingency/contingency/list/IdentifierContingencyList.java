@@ -11,6 +11,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.network.Network;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -52,11 +53,18 @@ public class IdentifierContingencyList implements ContingencyList {
     public List<Contingency> getContingencies(Network network) {
         return networkElementIdentifiers.stream()
                 .filter(identifier -> !identifier.filterIdentifiable(network).isEmpty())
-                .map(identifier -> new Contingency(identifier.getContingencyName(),
-                        identifier.filterIdentifiable(network)
-                                .stream()
-                                .map(ContingencyElement::of)
-                                .collect(Collectors.toList())))
+                .map(identifier -> {
+                    List<ContingencyElement> contingencyElements = identifier.filterIdentifiable(network)
+                            .stream()
+                            .map(ContingencyElement::of)
+                            .collect(Collectors.toList());
+                    String contingencyId = identifier.getContingencyId().orElse("Contingency : " +
+                            StringUtils.join(contingencyElements
+                                    .stream()
+                                    .map(ContingencyElement::getId)
+                                    .collect(Collectors.toList()), " + "));
+                    return new Contingency(contingencyId, contingencyElements);
+                })
                 .filter(contingency -> contingency.isValid(network))
                 .collect(Collectors.toList());
     }

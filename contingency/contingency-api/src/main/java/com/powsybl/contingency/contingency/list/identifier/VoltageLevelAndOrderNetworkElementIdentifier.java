@@ -27,11 +27,15 @@ public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElem
     private final char order;
     private final String contingencyId;
 
+    public VoltageLevelAndOrderNetworkElementIdentifier(String voltageLevelId1, String voltageLevelId2, char order) {
+        this(voltageLevelId1, voltageLevelId2, order, null);
+    }
+
     public VoltageLevelAndOrderNetworkElementIdentifier(String voltageLevelId1, String voltageLevelId2, char order, String contingencyId) {
         this.voltageLevelId1 = Objects.requireNonNull(voltageLevelId1);
         this.voltageLevelId2 = Objects.requireNonNull(voltageLevelId2);
-        this.order = Objects.requireNonNull(order);
-        this.contingencyId = Objects.requireNonNull(contingencyId);
+        this.order = order;
+        this.contingencyId = contingencyId;
     }
 
     @Override
@@ -62,8 +66,8 @@ public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElem
     }
 
     @Override
-    public String getContingencyName() {
-        return contingencyId;
+    public Optional<String> getContingencyId() {
+        return Optional.ofNullable(contingencyId);
     }
 
     public String getVoltageLevelId1() {

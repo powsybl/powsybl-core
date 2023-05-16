@@ -28,7 +28,9 @@ public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier
     public void serialize(NetworkElementIdentifier networkElementIdentifier, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", networkElementIdentifier.getType().toString());
-        jsonGenerator.writeStringField("contingencyName", networkElementIdentifier.getContingencyName());
+        if (networkElementIdentifier.getContingencyId().isPresent()) {
+            jsonGenerator.writeStringField("contingencyName", networkElementIdentifier.getContingencyId().get());
+        }
         switch (networkElementIdentifier.getType()) {
             case ID_BASED:
                 serializerProvider.defaultSerializeField("identifiers",

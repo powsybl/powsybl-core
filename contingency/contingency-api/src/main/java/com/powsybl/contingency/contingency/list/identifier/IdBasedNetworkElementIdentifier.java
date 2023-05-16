@@ -21,9 +21,13 @@ public class IdBasedNetworkElementIdentifier implements NetworkElementIdentifier
     private final Set<String> identifiers;
     private final String contingencyId;
 
+    public IdBasedNetworkElementIdentifier(Set<String> identifiers) {
+        this(identifiers, null);
+    }
+
     public IdBasedNetworkElementIdentifier(Set<String> identifiers, String contingencyId) {
         this.identifiers = ImmutableSet.copyOf(Objects.requireNonNull(identifiers));
-        this.contingencyId = Objects.requireNonNull(contingencyId);
+        this.contingencyId = contingencyId;
     }
 
     @Override
@@ -44,7 +48,7 @@ public class IdBasedNetworkElementIdentifier implements NetworkElementIdentifier
     }
 
     @Override
-    public String getContingencyName() {
-        return contingencyId;
+    public Optional<String> getContingencyId() {
+        return Optional.ofNullable(contingencyId);
     }
 }

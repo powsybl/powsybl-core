@@ -9,6 +9,7 @@ package com.powsybl.contingency.contingency.list.identifier;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -25,5 +26,5 @@ public interface NetworkElementIdentifier {
 
     IdentifierType getType();
 
-    String getContingencyName();
+    Optional<String> getContingencyId();
 }

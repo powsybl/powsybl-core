@@ -23,9 +23,13 @@ public class NetworkElementIdentifierList implements NetworkElementIdentifier {
         return networkElementIdentifiers;
     }
 
+    public NetworkElementIdentifierList(List<NetworkElementIdentifier> networkElementIdentifiers) {
+        this(networkElementIdentifiers, null);
+    }
+
     public NetworkElementIdentifierList(List<NetworkElementIdentifier> networkElementIdentifiers, String contingencyId) {
         this.networkElementIdentifiers = ImmutableList.copyOf(networkElementIdentifiers);
-        this.contingencyId = Objects.requireNonNull(contingencyId);
+        this.contingencyId = contingencyId;
     }
 
     @Override
@@ -41,7 +45,7 @@ public class NetworkElementIdentifierList implements NetworkElementIdentifier {
     }
 
     @Override
-    public String getContingencyName() {
-        return contingencyId;
+    public Optional<String> getContingencyId() {
+        return Optional.ofNullable(contingencyId);
     }
 }
