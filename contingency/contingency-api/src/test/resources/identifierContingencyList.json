@@ -4,20 +4,23 @@
   "name" : "list1",
   "identifiers" : [ {
     "type" : "ID_BASED",
-    "contingencyName" : "contingencyId1",
+    "contingencyId" : "contingencyId1",
     "identifiers" : [ "identifier" ]
   }, {
+    "type" : "ID_BASED",
+    "identifiers" : [ "identifier2" ]
+  }, {
     "type" : "VOLTAGE_LEVELS_AND_ORDER",
-    "contingencyName" : "contingencyId2",
+    "contingencyId" : "contingencyId2",
     "voltageLevelId1" : "vl1",
     "voltageLevelId2" : "vl2",
     "order" : "1"
   }, {
     "type" : "LIST",
-    "contingencyName" : "contingencyId3",
+    "contingencyId" : "contingencyId3",
     "identifierList" : [ {
       "type" : "ID_BASED",
-      "contingencyName" : "contingencyId3",
+      "contingencyId" : "contingencyId3",
       "identifiers" : [ "identifier" ]
     } ]
   } ]

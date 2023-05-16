@@ -29,7 +29,7 @@ public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", networkElementIdentifier.getType().toString());
         if (networkElementIdentifier.getContingencyId().isPresent()) {
-            jsonGenerator.writeStringField("contingencyName", networkElementIdentifier.getContingencyId().get());
+            jsonGenerator.writeStringField("contingencyId", networkElementIdentifier.getContingencyId().get());
         }
         switch (networkElementIdentifier.getType()) {
             case ID_BASED:
