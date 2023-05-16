@@ -6,7 +6,10 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
 
 /**
  * A dangling line to model boundaries (X nodes).
@@ -119,6 +122,8 @@ import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
  */
 public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder {
 
+    Logger LOG = LoggerFactory.getLogger(DanglingLine.class);
+
     interface Generation extends ReactiveLimitsHolder {
         /**
          * <p>Get the generator active power target in MW.</p>
@@ -198,6 +203,8 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
         Generation setTargetV(double targetV);
     }
 
+    boolean isPaired();
+
     /**
      * Get the constant active power in MW.
      * <p>Depends on the working variant.
@@ -276,8 +283,10 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
      */
     String getUcteXnodeCode();
 
-    default Boundary getBoundary() {
-        return new DanglingLineBoundaryImpl(this);
+    Boundary getBoundary();
+
+    default Optional<TieLine> getTieLine() {
+        return Optional.empty();
     }
 
     @Override

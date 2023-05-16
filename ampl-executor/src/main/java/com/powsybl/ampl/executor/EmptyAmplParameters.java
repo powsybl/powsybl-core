@@ -23,4 +23,9 @@ public class EmptyAmplParameters implements AmplParameters {
     public Collection<AmplOutputFile> getOutputParameters(boolean hasConverged) {
         return Collections.emptyList();
     }
+
+    @Override
+    public boolean isDebug() {
+        return false;
+    }
 }

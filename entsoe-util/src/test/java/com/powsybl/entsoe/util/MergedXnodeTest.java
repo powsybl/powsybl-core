@@ -301,15 +301,15 @@ class MergedXnodeTest {
     }
 
     @Test
-    void testDefaultImpl() {
-        MergedXnode mergedXnode = new MergedXnode() {
+    <T extends Identifiable<T>> void testDefaultImpl() {
+        MergedXnode<T> mergedXnode = new MergedXnode<T>() {
             @Override
-            public Line getExtendable() {
+            public T getExtendable() {
                 return null;
             }
 
             @Override
-            public void setExtendable(Line extendable) {
+            public void setExtendable(T extendable) {
             }
 
             @Override

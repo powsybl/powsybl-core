@@ -7,12 +7,12 @@
 package com.powsybl.cgmes.extensions;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.TieLine;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface CgmesLineBoundaryNodeAdder extends ExtensionAdder<Line, CgmesLineBoundaryNode> {
+public interface CgmesLineBoundaryNodeAdder extends ExtensionAdder<TieLine, CgmesLineBoundaryNode> {
 
     CgmesLineBoundaryNodeAdder setHvdc(boolean isHvdc);
 

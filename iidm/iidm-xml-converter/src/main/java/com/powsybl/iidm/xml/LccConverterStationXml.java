@@ -49,7 +49,7 @@ public class LccConverterStationXml extends AbstractSimpleIdentifiableXml<LccCon
     }
 
     @Override
-    protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, NetworkXmlReaderContext context) {
+    protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
         float powerFactor = XmlUtil.readOptionalFloatAttribute(context.getReader(), "powerFactor");
         readNodeOrBus(adder, context);

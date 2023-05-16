@@ -236,7 +236,7 @@
              ]
          },
          "swshunt":{
-             "fields":["i", "id", "modsw", "adjm", "stat", "vswhi", "vswlo", "swreg", "nreg", "rmpct", "rmidnt", "binit", "s1", "n1", "b1"],
+             "fields":["ibus", "shntid", "modsw", "adjm", "stat", "vswhi", "vswlo", "swreg", "nreg", "rmpct", "rmidnt", "binit", "s1", "n1", "b1"],
              "data":[
                  [1,"1",0,0,1,1.00000,0.99000,    0,0,100.0,"        ",  120.00, 1, 1, 120.00],
                  [6,"1",0,0,1,1.00000,0.99000,    0,0,100.0,"        ",  100.00, 1, 1, 100.00]

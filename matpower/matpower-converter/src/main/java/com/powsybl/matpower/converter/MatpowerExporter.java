@@ -119,7 +119,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static void createDanglingLineBuses(Network network, MatpowerModel model, Context context) {
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isConnectedToMainCc(bus)) {
@@ -237,8 +237,29 @@ public class MatpowerExporter implements Exporter {
         }
     }
 
+    private void createTieLines(Network network, MatpowerModel model, Context context) {
+        for (TieLine l : network.getTieLines()) {
+            Terminal t1 = l.getDanglingLine1().getTerminal();
+            Terminal t2 = l.getDanglingLine2().getTerminal();
+            Bus bus1 = t1.getBusView().getBus();
+            Bus bus2 = t2.getBusView().getBus();
+            if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2)) {
+                VoltageLevel vl2 = t2.getVoltageLevel();
+                MBranch mBranch = new MBranch();
+                mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
+                mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
+                mBranch.setStatus(CONNECTED_STATUS);
+                double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
+                mBranch.setR(l.getR() / zb);
+                mBranch.setX(l.getX() / zb);
+                mBranch.setB((l.getB1() + l.getB2()) * zb);
+                model.addBranch(mBranch);
+            }
+        }
+    }
+
     private void createDanglingLineBranches(Network network, MatpowerModel model, Context context) {
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isConnectedToMainCc(bus)) {
@@ -295,13 +316,14 @@ public class MatpowerExporter implements Exporter {
 
     private void createBranches(Network network, MatpowerModel model, Context context) {
         createLines(network, model, context);
+        createTieLines(network, model, context);
         createTransformers2(network, model, context);
         createDanglingLineBranches(network, model, context);
         createTransformerLegs(network, model, context);
     }
 
     private void createDanglingLineGenerators(Network network, MatpowerModel model, Context context) {
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isConnectedToMainCc(bus)) {

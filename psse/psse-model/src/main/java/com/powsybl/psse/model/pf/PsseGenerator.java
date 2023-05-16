@@ -9,6 +9,7 @@ package com.powsybl.psse.model.pf;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
 import com.univocity.parsers.annotations.Nested;
+import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
@@ -74,9 +75,11 @@ public class PsseGenerator extends PsseVersioned {
     @Nested
     private PsseOwnership ownership;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private int wmod = 0;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private double wpf = 1;
 

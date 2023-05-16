@@ -9,10 +9,10 @@ package com.powsybl.iidm.network.util;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.DanglingLineFilter;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,6 +89,26 @@ public final class TieLineUtil {
         dl2Properties.forEach(prop -> properties.setProperty(prop + "_2", dl2.getProperty(prop)));
     }
 
+    public static void mergeIdenticalAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases) {
+        for (String alias : dl1.getAliases()) {
+            if (dl2.getAliases().contains(alias)) {
+                LOGGER.debug("Alias '{}' is found in dangling lines '{}' and '{}'. It is moved to their new tie line.", alias, dl1.getId(), dl2.getId());
+                String type1 = dl1.getAliasType(alias).orElse("");
+                String type2 = dl2.getAliasType(alias).orElse("");
+                if (type1.equals(type2)) {
+                    aliases.put(alias, type1);
+                } else {
+                    LOGGER.warn("Inconsistencies found for alias '{}' type in dangling lines '{}' and '{}'. Type is lost.", alias, dl1.getId(), dl2.getId());
+                    aliases.put(alias, "");
+                }
+            }
+        }
+        aliases.keySet().forEach(alias -> {
+            dl1.removeAlias(alias);
+            dl2.removeAlias(alias);
+        });
+    }
+
     /**
      * If it exists, find the dangling line in the merging network that should be associated to a candidate dangling line in the network to be merged.
      * Two dangling lines in different IGM should be associated if:
@@ -112,7 +132,7 @@ public final class TieLineUtil {
         if (danglingLine == null) { // if dangling line with same ID not present, find dangling line(s) with same X-node code in merging network if present
             // mapping by ucte xnode code
             if (candidateDanglingLine.getUcteXnodeCode() != null) { // if X-node code null: no associated dangling line
-                if (candidateDanglingLine.getNetwork().getDanglingLineStream()
+                if (candidateDanglingLine.getNetwork().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
                         .filter(d -> d != candidateDanglingLine)
                         .filter(d -> candidateDanglingLine.getUcteXnodeCode().equals(d.getUcteXnodeCode()))
                         .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same X-node code in the network to be merged
@@ -148,46 +168,46 @@ public final class TieLineUtil {
         }
     }
 
-    public static double getR(TieLine.HalfLine half1, TieLine.HalfLine half2) {
-        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
+    public static double getR(DanglingLine dl1, DanglingLine dl2) {
+        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         // Add 0.0 to avoid negative zero, tests where the R value is compared as text, fail
         return adm.y12().negate().reciprocal().getReal() + 0.0;
     }
 
-    public static double getX(TieLine.HalfLine half1, TieLine.HalfLine half2) {
-        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
+    public static double getX(DanglingLine dl1, DanglingLine dl2) {
+        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         // Add 0.0 to avoid negative zero, tests where the X value is compared as text, fail
         return adm.y12().negate().reciprocal().getImaginary() + 0.0;
     }
 
-    public static double getG1(TieLine.HalfLine half1, TieLine.HalfLine half2) {
-        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
+    public static double getG1(DanglingLine dl1, DanglingLine dl2) {
+        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         return adm.y11().add(adm.y12()).getReal();
     }
 
-    public static double getB1(TieLine.HalfLine half1, TieLine.HalfLine half2) {
-        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
+    public static double getB1(DanglingLine dl1, DanglingLine dl2) {
+        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         return adm.y11().add(adm.y12()).getImaginary();
     }
 
-    public static double getG2(TieLine.HalfLine half1, TieLine.HalfLine half2) {
-        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
+    public static double getG2(DanglingLine dl1, DanglingLine dl2) {
+        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         return adm.y22().add(adm.y21()).getReal();
     }
 
-    public static double getB2(TieLine.HalfLine half1, TieLine.HalfLine half2) {
-        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
+    public static double getB2(DanglingLine dl1, DanglingLine dl2) {
+        LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         return adm.y22().add(adm.y21()).getImaginary();
     }
 
-    private static LinkData.BranchAdmittanceMatrix equivalentBranchAdmittanceMatrix(TieLine.HalfLine half1,
-        TieLine.HalfLine half2) {
+    private static LinkData.BranchAdmittanceMatrix equivalentBranchAdmittanceMatrix(DanglingLine dl1,
+        DanglingLine dl2) {
         // zero impedance half lines should be supported
 
-        BranchAdmittanceMatrix adm1 = LinkData.calculateBranchAdmittance(half1.getR(), half1.getX(), 1.0, 0.0, 1.0, 0.0,
-            new Complex(half1.getG1(), half1.getB1()), new Complex(half1.getG2(), half1.getB2()));
-        BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(half2.getR(), half2.getX(), 1.0, 0.0, 1.0, 0.0,
-            new Complex(half2.getG1(), half2.getB1()), new Complex(half2.getG2(), half2.getB2()));
+        BranchAdmittanceMatrix adm1 = LinkData.calculateBranchAdmittance(dl1.getR(), dl1.getX(), 1.0, 0.0, 1.0, 0.0,
+            new Complex(dl1.getG(), dl1.getB()), new Complex(0.0, 0.0));
+        BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(dl2.getR(), dl2.getX(), 1.0, 0.0, 1.0, 0.0,
+            new Complex(0.0, 0.0), new Complex(dl2.getG(), dl2.getB()));
 
         if (zeroImpedanceLine(adm1)) {
             return adm2;

@@ -128,6 +128,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
                     valid = checkBusContingency(this, (BusContingency) element, network);
                     break;
 
+                case TIE_LINE:
+                    valid = checkTieLineContingency(this, (TieLineContingency) element, network);
+                    break;
+
                 default:
                     throw new IllegalStateException("Unknown contingency element type " + element.getType());
             }
@@ -255,6 +259,17 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
+    private static boolean checkTieLineContingency(Contingency contingency, TieLineContingency element, Network network) {
+        TieLine tieLine = network.getTieLine(element.getId());
+        if (tieLine == null || (element.getVoltageLevelId() != null &&
+                !(element.getVoltageLevelId().equals(tieLine.getDanglingLine1().getTerminal().getVoltageLevel().getId()) ||
+                        element.getVoltageLevelId().equals(tieLine.getDanglingLine2().getTerminal().getVoltageLevel().getId())))) {
+            LOGGER.warn("Tie line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
     public static ContingencyBuilder builder(String id) {
         return new ContingencyBuilder(id);
     }
@@ -320,6 +335,20 @@ public class Contingency extends AbstractExtendable<Contingency> {
      */
     public static Contingency line(String id, String voltageLevelId) {
         return builder(id).addLine(id, voltageLevelId).build();
+    }
+
+    /**
+     * Creates a new contingency on the tie line whose id is given
+     */
+    public static Contingency tieLine(String id) {
+        return builder(id).addTieLine(id).build();
+    }
+
+    /**
+     * Creates a new contingency on the tie line whose id is given, on the side of the given voltage level
+     */
+    public static Contingency tieLine(String id, String voltageLevelId) {
+        return builder(id).addTieLine(id, voltageLevelId).build();
     }
 
     /**
