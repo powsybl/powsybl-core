@@ -60,11 +60,19 @@ public class VscConverterStationModification extends AbstractNetworkModification
         return vscId;
     }
 
-    public OptionalDouble getReactivePowerSetpoint() {
-        return OptionalDouble.of(reactivePowerSetpoint);
+    public Double getReactivePowerSetpoint() {
+        return reactivePowerSetpoint;
     }
 
-    public OptionalDouble getVoltageSetpoint() {
-        return OptionalDouble.of(voltageSetpoint);
+    public OptionalDouble getOptionalReactivePowerSetpoint() {
+        return reactivePowerSetpoint == null ? OptionalDouble.empty() : OptionalDouble.of(reactivePowerSetpoint);
+    }
+
+    public Double getVoltageSetpoint() {
+        return voltageSetpoint;
+    }
+
+    public OptionalDouble getOptionalVoltageSetpoint() {
+        return voltageSetpoint == null ? OptionalDouble.empty() : OptionalDouble.of(voltageSetpoint);
     }
 }
