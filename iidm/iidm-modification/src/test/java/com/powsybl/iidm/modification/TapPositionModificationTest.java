@@ -57,24 +57,24 @@ class TapPositionModificationTest {
         OptionalInt optionalLeg = OptionalInt.of(2);
         OptionalInt optionalBadLeg = OptionalInt.of(3);
         assertDoesNotThrow(
-            () -> new TapPositionModification(id, TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
+            () -> new TapPositionModification(id, TapPositionModification.TransformerElement.TWO_WINDINGS_TRANSFORMER,
                 TapPositionModification.TapType.PHASE, 0, empty));
         // Log warning, but good, Leg value is ignored
         assertDoesNotThrow(
-            () -> new TapPositionModification(id, TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
+            () -> new TapPositionModification(id, TapPositionModification.TransformerElement.TWO_WINDINGS_TRANSFORMER,
                 TapPositionModification.TapType.PHASE, 0, optionalLeg));
         // good
         assertDoesNotThrow(
-            () -> new TapPositionModification(id, TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
+            () -> new TapPositionModification(id, TapPositionModification.TransformerElement.THREE_WINDINGS_TRANSFORMER,
                 TapPositionModification.TapType.PHASE, 0, optionalLeg));
         // bad should throw
         assertThrows(PowsyblException.class,
-            () -> new TapPositionModification(id, TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
+            () -> new TapPositionModification(id, TapPositionModification.TransformerElement.THREE_WINDINGS_TRANSFORMER,
                 TapPositionModification.TapType.PHASE, 0, empty),
             "Constructor should throw on three winding without specifying the leg.");
         // bad should throw
         assertThrows(PowsyblException.class,
-            () -> new TapPositionModification(id, TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
+            () -> new TapPositionModification(id, TapPositionModification.TransformerElement.THREE_WINDINGS_TRANSFORMER,
                 TapPositionModification.TapType.PHASE, 0, optionalBadLeg),
             "Constructor should throw on three winding with a wrong leg number.");
     }
@@ -82,13 +82,13 @@ class TapPositionModificationTest {
     @Test
     void testUnknownId() {
         TapPositionModification modif = new TapPositionModification("UNKNOWN_ID",
-            TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER, TapPositionModification.TapType.PHASE,
+            TapPositionModification.TransformerElement.TWO_WINDINGS_TRANSFORMER, TapPositionModification.TapType.PHASE,
             5, OptionalInt.empty());
         assertThrows(PowsyblException.class, () -> modif.apply(network, true, Reporter.NO_OP));
         assertDoesNotThrow(() -> modif.apply(network, false, Reporter.NO_OP),
             "An invalid ID should not throw if throwException is false.");
         TapPositionModification modif2 = new TapPositionModification("UNKNOWN_ID",
-            TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER, TapPositionModification.TapType.RATIO,
+            TapPositionModification.TransformerElement.TWO_WINDINGS_TRANSFORMER, TapPositionModification.TapType.RATIO,
             5, OptionalInt.empty());
         assertThrows(PowsyblException.class, () -> modif2.apply(network, true, Reporter.NO_OP));
         assertDoesNotThrow(() -> modif2.apply(network, false, Reporter.NO_OP),
@@ -99,11 +99,11 @@ class TapPositionModificationTest {
     @Test
     void testTwoWindingsModif() {
         testTapTransformer(twoWindingsTransformer.getPhaseTapChanger(),
-            TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
+            TapPositionModification.TransformerElement.TWO_WINDINGS_TRANSFORMER,
             TapPositionModification.TapType.PHASE,
             twoWindingsTransformer.getId());
         testTapTransformer(twoWindingsTransformer.getRatioTapChanger(),
-            TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER,
+            TapPositionModification.TransformerElement.TWO_WINDINGS_TRANSFORMER,
             TapPositionModification.TapType.RATIO,
             twoWindingsTransformer.getId());
     }
@@ -132,11 +132,11 @@ class TapPositionModificationTest {
             .endStep()
             .add();
         testTapTransformer(threeWindingTransformerLeg.getPhaseTapChanger(),
-            TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
+            TapPositionModification.TransformerElement.THREE_WINDINGS_TRANSFORMER,
             TapPositionModification.TapType.PHASE,
             threeWindingTransformer.getId());
         testTapTransformer(threeWindingTransformerLeg.getRatioTapChanger(),
-            TapPositionModification.TransformerElement.THREE_WINDING_TRANSFORMER,
+            TapPositionModification.TransformerElement.THREE_WINDINGS_TRANSFORMER,
             TapPositionModification.TapType.RATIO,
             threeWindingTransformer.getId());
     }
@@ -163,7 +163,7 @@ class TapPositionModificationTest {
                                  final Supplier<Integer> tapPositionSupplier) {
         OptionalInt optLeg;
         Network networkToApply;
-        if (TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER.equals(element)) {
+        if (TapPositionModification.TransformerElement.TWO_WINDINGS_TRANSFORMER.equals(element)) {
             optLeg = OptionalInt.empty();
             networkToApply = network;
         } else {
@@ -180,7 +180,7 @@ class TapPositionModificationTest {
                                         final String id, final Supplier<Integer> tapPositionSupplier) {
         OptionalInt optLeg;
         Network networkToApply;
-        if (TapPositionModification.TransformerElement.TWO_WINDING_TRANSFORMER.equals(element)) {
+        if (TapPositionModification.TransformerElement.TWO_WINDINGS_TRANSFORMER.equals(element)) {
             optLeg = OptionalInt.empty();
             networkToApply = network;
         } else {

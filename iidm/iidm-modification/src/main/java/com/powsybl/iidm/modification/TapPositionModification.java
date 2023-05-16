@@ -49,12 +49,12 @@ public class TapPositionModification extends AbstractNetworkModification {
         this.type = Objects.requireNonNull(type);
         this.tapPosition = tapPosition;
         this.leg = Objects.requireNonNullElse(leg, OptionalInt.empty());
-        if (element == TransformerElement.THREE_WINDING_TRANSFORMER && leg.isEmpty()) {
+        if (element == TransformerElement.THREE_WINDINGS_TRANSFORMER && leg.isEmpty()) {
             throw new PowsyblException("TapPositionModification needs a leg for three winding transformers");
-        } else if (element == TransformerElement.THREE_WINDING_TRANSFORMER && (leg.getAsInt() < 0 || leg.getAsInt() > 2)) {
+        } else if (element == TransformerElement.THREE_WINDINGS_TRANSFORMER && (leg.getAsInt() < 0 || leg.getAsInt() > 2)) {
             throw new PowsyblException("Leg number is invalid, must be  0, 1 or 2");
         }
-        if (element == TransformerElement.TWO_WINDING_TRANSFORMER && leg.isPresent()) {
+        if (element == TransformerElement.TWO_WINDINGS_TRANSFORMER && leg.isPresent()) {
             LOGGER.warn("TapPositionModification does not need a side for two winding transformers");
         }
 
@@ -74,9 +74,9 @@ public class TapPositionModification extends AbstractNetworkModification {
 
     private void applyPtc(Network network, boolean throwException) {
         PhaseTapChangerHolder transformer = null;
-        if (element == TransformerElement.TWO_WINDING_TRANSFORMER) {
+        if (element == TransformerElement.TWO_WINDINGS_TRANSFORMER) {
             transformer = network.getTwoWindingsTransformer(transfoId);
-        } else if (element == TransformerElement.THREE_WINDING_TRANSFORMER) {
+        } else if (element == TransformerElement.THREE_WINDINGS_TRANSFORMER) {
             transformer = getLeg(network.getThreeWindingsTransformer(transfoId));
         }
 
@@ -99,9 +99,9 @@ public class TapPositionModification extends AbstractNetworkModification {
 
     private void applyRtc(Network network, boolean throwException) {
         RatioTapChangerHolder transformer = null;
-        if (element == TransformerElement.TWO_WINDING_TRANSFORMER) {
+        if (element == TransformerElement.TWO_WINDINGS_TRANSFORMER) {
             transformer = network.getTwoWindingsTransformer(transfoId);
-        } else if (element == TransformerElement.THREE_WINDING_TRANSFORMER) {
+        } else if (element == TransformerElement.THREE_WINDINGS_TRANSFORMER) {
             transformer = getLeg(network.getThreeWindingsTransformer(transfoId));
         }
 
@@ -151,7 +151,7 @@ public class TapPositionModification extends AbstractNetworkModification {
     }
 
     public enum TransformerElement {
-        TWO_WINDING_TRANSFORMER, THREE_WINDING_TRANSFORMER
+        TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER
     }
 
     public enum TapType {
