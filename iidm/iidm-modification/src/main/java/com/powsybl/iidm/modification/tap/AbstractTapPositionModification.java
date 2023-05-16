@@ -54,8 +54,6 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
         }
     }
 
-    public abstract TapType getType();
-
     abstract void apply(Network network, boolean throwException);
 
     @Override
@@ -80,8 +78,12 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
         return tapPosition;
     }
 
-    public OptionalInt getLeg() {
+    public OptionalInt getOptionalLeg() {
         return leg == null ? OptionalInt.empty() : OptionalInt.of(leg);
+    }
+
+    public Integer getLeg() {
+        return leg;
     }
 
     public TransformerType getElement() {

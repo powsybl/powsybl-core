@@ -46,11 +46,6 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
     }
 
     @Override
-    public TapType getType() {
-        return TapType.RATIO;
-    }
-
-    @Override
     public void apply(Network network, boolean throwException) {
         RatioTapChangerHolder transformer = null;
         if (getElement() == TransformerType.TWO_WINDINGS_TRANSFORMER) {

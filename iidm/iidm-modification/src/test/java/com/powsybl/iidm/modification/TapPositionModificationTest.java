@@ -10,7 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.tap.PhaseTapPositionModification;
 import com.powsybl.iidm.modification.tap.RatioTapPositionModification;
-import com.powsybl.iidm.modification.tap.TapType;
 import com.powsybl.iidm.modification.tap.TransformerType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TapChanger;
@@ -199,6 +198,10 @@ class TapPositionModificationTest {
         modif.apply(networkToApply, false, Reporter.NO_OP);
         assertEquals(currentTapPos, tapPositionSupplier.get(),
             "Invalid tap position should not be applied to the network");
+    }
+
+    public enum TapType {
+        PHASE, RATIO
     }
 
 }

@@ -46,11 +46,6 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
     }
 
     @Override
-    public TapType getType() {
-        return TapType.PHASE;
-    }
-
-    @Override
     public void apply(Network network, boolean throwException) {
         PhaseTapChangerHolder transformer = null;
         if (getElement() == TransformerType.TWO_WINDINGS_TRANSFORMER) {
