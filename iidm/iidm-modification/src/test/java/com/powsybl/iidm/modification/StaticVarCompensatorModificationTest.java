@@ -54,6 +54,8 @@ class StaticVarCompensatorModificationTest {
             1., 2.);
         assertThrows(PowsyblException.class, () -> modif1.apply(network, true, Reporter.NO_OP),
             "An invalid ID should fail to apply.");
+        assertDoesNotThrow(() -> modif1.apply(network, false, Reporter.NO_OP),
+            "An invalid ID should not throw if throwException is false.");
 
         StaticVarCompensatorModification modif2 = new StaticVarCompensatorModification(svc.getId(),
             1., 2.);
