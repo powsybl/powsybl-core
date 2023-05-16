@@ -14,8 +14,6 @@ import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.OptionalDouble;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -37,25 +35,25 @@ class VscConverterStationModificationTest {
     void testConstructorCoherence() {
         // Ok
         assertDoesNotThrow(
-            () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.empty(), OptionalDouble.of(10)));
+            () -> new VscConverterStationModification(vsc.getId(), null, 10.));
         assertDoesNotThrow(
-            () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.of(10), OptionalDouble.empty()));
+            () -> new VscConverterStationModification(vsc.getId(), 10., null));
         assertDoesNotThrow(
-            () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.of(10), OptionalDouble.of(10)));
+            () -> new VscConverterStationModification(vsc.getId(), 10., 10.));
         // Warn log but ok
         assertDoesNotThrow(
-            () -> new VscConverterStationModification(vsc.getId(), OptionalDouble.empty(), OptionalDouble.empty()));
+            () -> new VscConverterStationModification(vsc.getId(), null, null));
     }
 
     @Test
     void testApplyChecks() {
-        VscConverterStationModification modif1 = new VscConverterStationModification("UNKNOWN_ID", OptionalDouble.of(1),
-                OptionalDouble.of(2));
+        VscConverterStationModification modif1 = new VscConverterStationModification("UNKNOWN_ID", 1.,
+            2.);
         assertThrows(PowsyblException.class, () -> modif1.apply(network, true, Reporter.NO_OP),
-                "An invalid ID should fail to apply.");
+            "An invalid ID should fail to apply.");
 
-        VscConverterStationModification modif2 = new VscConverterStationModification(vsc.getId(), OptionalDouble.of(1),
-                OptionalDouble.of(2));
+        VscConverterStationModification modif2 = new VscConverterStationModification(vsc.getId(), 1.,
+            2.);
         modif2.apply(network, true, Reporter.NO_OP);
         assertEquals(1, vsc.getVoltageSetpoint(), "Failed to modify network during apply.");
         assertEquals(2, vsc.getReactivePowerSetpoint(), "Failed to modify network during apply.");

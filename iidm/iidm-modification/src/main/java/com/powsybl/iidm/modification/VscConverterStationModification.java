@@ -26,17 +26,17 @@ public class VscConverterStationModification extends AbstractNetworkModification
     private static final Logger LOGGER = LoggerFactory.getLogger(VscConverterStationModification.class);
 
     private final String vscId;
-    private final OptionalDouble voltageSetpoint;
-    private final OptionalDouble reactivePowerSetpoint;
+    private final Double voltageSetpoint;
+    private final Double reactivePowerSetpoint;
 
-    public VscConverterStationModification(String vscId, OptionalDouble voltageSetpoint,
-                                           OptionalDouble reactivePowerSetpoint) {
-        this.vscId = Objects.requireNonNull(vscId);
-        this.voltageSetpoint = Objects.requireNonNull(voltageSetpoint);
-        this.reactivePowerSetpoint = Objects.requireNonNull(reactivePowerSetpoint);
-        if (voltageSetpoint.isEmpty() && reactivePowerSetpoint.isEmpty()) {
+    public VscConverterStationModification(String vscId, Double voltageSetpoint,
+                                           Double reactivePowerSetpoint) {
+        if (voltageSetpoint == null && reactivePowerSetpoint == null) {
             LOGGER.warn("Creating a VscConverterStationModification with no change !");
         }
+        this.vscId = Objects.requireNonNull(vscId);
+        this.voltageSetpoint = voltageSetpoint;
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
     }
 
     @Override
@@ -48,8 +48,12 @@ public class VscConverterStationModification extends AbstractNetworkModification
             logOrThrow(throwException, "VscConverterStation '" + vscId + "' not found");
             return;
         }
-        voltageSetpoint.ifPresent(vsc::setVoltageSetpoint);
-        reactivePowerSetpoint.ifPresent(vsc::setReactivePowerSetpoint);
+        if (voltageSetpoint != null) {
+            vsc.setVoltageSetpoint(voltageSetpoint);
+        }
+        if (reactivePowerSetpoint != null) {
+            vsc.setReactivePowerSetpoint(reactivePowerSetpoint);
+        }
     }
 
     public String getVscId() {
@@ -57,10 +61,10 @@ public class VscConverterStationModification extends AbstractNetworkModification
     }
 
     public OptionalDouble getReactivePowerSetpoint() {
-        return reactivePowerSetpoint;
+        return OptionalDouble.of(reactivePowerSetpoint);
     }
 
     public OptionalDouble getVoltageSetpoint() {
-        return voltageSetpoint;
+        return OptionalDouble.of(voltageSetpoint);
     }
 }

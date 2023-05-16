@@ -26,17 +26,17 @@ public class StaticVarCompensatorModification extends AbstractNetworkModificatio
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticVarCompensatorModification.class);
 
     private final String svcId;
-    private final OptionalDouble voltageSetpoint;
-    private final OptionalDouble reactivePowerSetpoint;
+    private final Double voltageSetpoint;
+    private final Double reactivePowerSetpoint;
 
-    public StaticVarCompensatorModification(String svcId, OptionalDouble voltageSetpoint,
-                                            OptionalDouble reactivePowerSetpoint) {
-        this.svcId = Objects.requireNonNull(svcId);
-        this.voltageSetpoint = Objects.requireNonNull(voltageSetpoint);
-        this.reactivePowerSetpoint = Objects.requireNonNull(reactivePowerSetpoint);
-        if (voltageSetpoint.isEmpty() && reactivePowerSetpoint.isEmpty()) {
-            LOGGER.warn("Creating a StaticVarCompensatorModification with no modification !");
+    public StaticVarCompensatorModification(String svcId, Double voltageSetpoint,
+                                            Double reactivePowerSetpoint) {
+        if (voltageSetpoint == null && reactivePowerSetpoint == null) {
+            LOGGER.warn("Creating a VscConverterStationModification with no change !");
         }
+        this.svcId = Objects.requireNonNull(svcId);
+        this.voltageSetpoint = voltageSetpoint;
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
     }
 
     @Override
@@ -48,8 +48,12 @@ public class StaticVarCompensatorModification extends AbstractNetworkModificatio
             logOrThrow(throwException, "StaticVarcompensator '" + svcId + "' not found");
             return;
         }
-        voltageSetpoint.ifPresent(svc::setVoltageSetpoint);
-        reactivePowerSetpoint.ifPresent(svc::setReactivePowerSetpoint);
+        if (voltageSetpoint != null) {
+            svc.setVoltageSetpoint(voltageSetpoint);
+        }
+        if (reactivePowerSetpoint != null) {
+            svc.setReactivePowerSetpoint(reactivePowerSetpoint);
+        }
     }
 
     public String getSvcId() {
@@ -57,10 +61,10 @@ public class StaticVarCompensatorModification extends AbstractNetworkModificatio
     }
 
     public OptionalDouble getReactivePowerSetpoint() {
-        return reactivePowerSetpoint;
+        return OptionalDouble.of(reactivePowerSetpoint);
     }
 
     public OptionalDouble getVoltageSetpoint() {
-        return voltageSetpoint;
+        return OptionalDouble.of(voltageSetpoint);
     }
 }
