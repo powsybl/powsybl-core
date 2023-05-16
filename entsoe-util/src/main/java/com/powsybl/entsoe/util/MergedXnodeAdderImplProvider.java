@@ -8,13 +8,13 @@ package com.powsybl.entsoe.util;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Identifiable;
 
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class MergedXnodeAdderImplProvider implements ExtensionAdderProvider<Line, MergedXnode, MergedXnodeAdderImpl> {
+public class MergedXnodeAdderImplProvider<T extends Identifiable<T>> implements ExtensionAdderProvider<T, MergedXnode<T>, MergedXnodeAdderImpl<T>> {
 
     @Override
     public String getImplementationName() {
@@ -27,12 +27,12 @@ public class MergedXnodeAdderImplProvider implements ExtensionAdderProvider<Line
     }
 
     @Override
-    public Class<MergedXnodeAdderImpl> getAdderClass() {
+    public Class<? super MergedXnodeAdderImpl<T>> getAdderClass() {
         return MergedXnodeAdderImpl.class;
     }
 
     @Override
-    public MergedXnodeAdderImpl newAdder(Line extendable) {
+    public MergedXnodeAdderImpl<T> newAdder(T extendable) {
         return new MergedXnodeAdderImpl(extendable);
     }
 }

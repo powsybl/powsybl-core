@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
+
 /**
  * A constant power load (fixed p0 and q0).
  * <p>p0 and q0 are given at the nominal voltage of the voltage level to which
@@ -113,4 +115,6 @@ public interface Load extends Injection<Load> {
     default IdentifiableType getType() {
         return IdentifiableType.LOAD;
     }
+
+    Optional<LoadModel> getModel();
 }

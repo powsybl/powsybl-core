@@ -281,6 +281,7 @@ public final class NetworkXml {
         writeSubstations(n, context);
         writeTransformers(n, context);
         writeLines(n, context);
+        writeTieLines(n, context);
         writeHvdcLines(n, context);
     }
 
@@ -324,11 +325,17 @@ public final class NetworkXml {
             if (!filter.test(l)) {
                 continue;
             }
-            if (l.isTieLine()) {
-                TieLineXml.INSTANCE.write((TieLine) l, n, context);
-            } else {
-                LineXml.INSTANCE.write(l, n, context);
+            LineXml.INSTANCE.write(l, n, context);
+        }
+    }
+
+    private static void writeTieLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        BusFilter filter = context.getFilter();
+        for (TieLine l : IidmXmlUtil.sorted(n.getTieLines(), context.getOptions())) {
+            if (!filter.test(l)) {
+                continue;
             }
+            TieLineXml.INSTANCE.write(l, n, context);
         }
     }
 

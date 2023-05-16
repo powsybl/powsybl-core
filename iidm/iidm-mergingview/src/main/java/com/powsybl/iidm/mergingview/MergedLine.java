@@ -6,13 +6,11 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,13 +23,11 @@ import static com.powsybl.iidm.network.util.TieLineUtil.*;
  */
 class MergedLine implements TieLine {
 
-    private static final String UNEXPECTED_SIDE_VALUE = "Unexpected side value: ";
-
     private final MergingViewIndex index;
 
-    private final HalfLineAdapter half1;
+    private final DanglingLineAdapter danglingLine1;
 
-    private final HalfLineAdapter half2;
+    private final DanglingLineAdapter danglingLine2;
 
     private String id;
 
@@ -41,10 +37,10 @@ class MergedLine implements TieLine {
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
-        this.half1 = new HalfLineAdapter(dl1, Side.ONE, index);
+        this.danglingLine1 = index.getDanglingLine(dl1);
         // must be reoriented. TieLine is defined as networkNode1-boundaryNode--boundaryNode-networkNode2
         // and in danglingLines the networkNode is always at end1
-        this.half2 = new HalfLineAdapter(dl2, Side.TWO, index, true);
+        this.danglingLine2 = index.getDanglingLine(dl2);
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildMergedId(dl1.getId(), dl2.getId()), index::contains) : buildMergedId(dl1.getId(), dl2.getId());
         this.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
         mergeProperties(dl1, dl2, properties);
@@ -55,108 +51,8 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public boolean isTieLine() {
-        return true;
-    }
-
-    @Override
     public MergingView getNetwork() {
         return index.getView();
-    }
-
-    DanglingLine getDanglingLine1() {
-        return half1.getDanglingLine();
-    }
-
-    DanglingLine getDanglingLine2() {
-        return half2.getDanglingLine();
-    }
-
-    @Override
-    public Terminal getTerminal(final Side side) {
-        switch (side) {
-            case ONE:
-                return getTerminal1();
-            case TWO:
-                return getTerminal2();
-            default:
-                throw new IllegalStateException(UNEXPECTED_SIDE_VALUE + side);
-        }
-    }
-
-    @Override
-    public Terminal getTerminal1() {
-        return index.getTerminal(half1.getDanglingLine().getTerminal());
-    }
-
-    @Override
-    public Terminal getTerminal2() {
-        return index.getTerminal(half2.getDanglingLine().getTerminal());
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits1() {
-        return getDanglingLine1().newCurrentLimits();
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return getDanglingLine1().newActivePowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return getDanglingLine1().newApparentPowerLimits();
-    }
-
-    @Override
-    public Collection<OperationalLimits> getOperationalLimits2() {
-        return getDanglingLine2().getOperationalLimits();
-    }
-
-    @Override
-    public Optional<CurrentLimits> getCurrentLimits2() {
-        return getDanglingLine2().getCurrentLimits();
-    }
-
-    @Override
-    public CurrentLimits getNullableCurrentLimits2() {
-        return getDanglingLine2().getNullableCurrentLimits();
-    }
-
-    @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits2() {
-        return getDanglingLine2().getActivePowerLimits();
-    }
-
-    @Override
-    public ActivePowerLimits getNullableActivePowerLimits2() {
-        return getDanglingLine2().getNullableActivePowerLimits();
-    }
-
-    @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
-        return getDanglingLine2().getApparentPowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits2() {
-        return getDanglingLine2().getNullableApparentPowerLimits();
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits2() {
-        return getDanglingLine2().newCurrentLimits();
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return getDanglingLine2().newActivePowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return getDanglingLine2().newApparentPowerLimits();
     }
 
     @Override
@@ -172,238 +68,32 @@ class MergedLine implements TieLine {
 
     @Override
     public double getR() {
-        return TieLineUtil.getR(half1, half2);
-    }
-
-    @Override
-    public Line setR(final double r) {
-        throw createNotSupportedForMergedLines();
+        return TieLineUtil.getR(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getX() {
-        return TieLineUtil.getX(half1, half2);
-    }
-
-    @Override
-    public Line setX(final double x) {
-        throw createNotSupportedForMergedLines();
+        return TieLineUtil.getX(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getG1() {
-        return TieLineUtil.getG1(half1, half2);
-    }
-
-    @Override
-    public Line setG1(final double g1) {
-        throw createNotSupportedForMergedLines();
+        return TieLineUtil.getG1(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getG2() {
-        return TieLineUtil.getG2(half1, half2);
-    }
-
-    @Override
-    public Line setG2(final double g2) {
-        throw createNotSupportedForMergedLines();
+        return TieLineUtil.getG2(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getB1() {
-        return TieLineUtil.getB1(half1, half2);
-    }
-
-    @Override
-    public Line setB1(final double b1) {
-        throw createNotSupportedForMergedLines();
+        return TieLineUtil.getB1(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getB2() {
-        return TieLineUtil.getB2(half1, half2);
-    }
-
-    @Override
-    public Line setB2(final double b2) {
-        throw createNotSupportedForMergedLines();
-    }
-
-    @Override
-    public Terminal getTerminal(final String voltageLevelId) {
-        Objects.requireNonNull(voltageLevelId);
-
-        Terminal terminal1 = getDanglingLine1().getTerminal();
-        Terminal terminal2 = getDanglingLine2().getTerminal();
-        if (voltageLevelId.equals(terminal1.getVoltageLevel().getId())) {
-            return terminal1;
-        } else if (voltageLevelId.equals(terminal2.getVoltageLevel().getId())) {
-            return terminal2;
-        } else {
-            throw new PowsyblException("No terminal connected to voltage level " + voltageLevelId);
-        }
-    }
-
-    Side getSide(final DanglingLine dl) {
-        Objects.requireNonNull(dl);
-        return getSide(dl.getTerminal());
-    }
-
-    @Override
-    public Side getSide(final Terminal terminal) {
-        Objects.requireNonNull(terminal);
-
-        Terminal term = terminal;
-        if (term instanceof AbstractAdapter) {
-            term = ((AbstractAdapter<Terminal>) term).getDelegate();
-        }
-        if (term == getDanglingLine1().getTerminal()) {
-            return Side.ONE;
-        } else if (term == getDanglingLine2().getTerminal()) {
-            return Side.TWO;
-        } else {
-            throw new PowsyblException("The terminal is not connected to this branch");
-        }
-    }
-
-    @Override
-    public Collection<OperationalLimits> getOperationalLimits1() {
-        return getDanglingLine1().getOperationalLimits();
-    }
-
-    @Override
-    public Optional<CurrentLimits> getCurrentLimits1() {
-        return getDanglingLine1().getCurrentLimits();
-    }
-
-    @Override
-    public CurrentLimits getNullableCurrentLimits1() {
-        return getDanglingLine1().getNullableCurrentLimits();
-    }
-
-    @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits1() {
-        return getDanglingLine1().getActivePowerLimits();
-    }
-
-    @Override
-    public ActivePowerLimits getNullableActivePowerLimits1() {
-        return getDanglingLine1().getNullableActivePowerLimits();
-    }
-
-    @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
-        return getDanglingLine1().getApparentPowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits1() {
-        return getDanglingLine1().getNullableApparentPowerLimits();
-    }
-
-    @Override
-    public boolean isOverloaded() {
-        return isOverloaded(1.0f);
-    }
-
-    @Override
-    public boolean isOverloaded(final float limitReduction) {
-        return checkPermanentLimit1(limitReduction, LimitType.CURRENT) || checkPermanentLimit2(limitReduction, LimitType.CURRENT);
-    }
-
-    @Override
-    public int getOverloadDuration() {
-        Branch.Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
-        Branch.Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
-        int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
-        return Math.min(duration1, duration2);
-    }
-
-    @Override
-    public boolean checkPermanentLimit(final Side side, final float limitReduction, LimitType type) {
-        Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return checkPermanentLimit1(limitReduction, type);
-
-            case TWO:
-                return checkPermanentLimit2(limitReduction, type);
-
-            default:
-                throw new IllegalStateException(UNEXPECTED_SIDE_VALUE + side);
-        }
-    }
-
-    @Override
-    public boolean checkPermanentLimit(final Side side, LimitType type) {
-        return checkPermanentLimit(side, 1f, type);
-    }
-
-    @Override
-    public boolean checkPermanentLimit1(final float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
-    }
-
-    @Override
-    public boolean checkPermanentLimit1(LimitType type) {
-        return checkPermanentLimit1(1f, type);
-    }
-
-    @Override
-    public boolean checkPermanentLimit2(final float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
-    }
-
-    @Override
-    public boolean checkPermanentLimit2(LimitType type) {
-        return checkPermanentLimit2(1f, type);
-    }
-
-    @Override
-    public Overload checkTemporaryLimits(final Side side, final float limitReduction, LimitType type) {
-        Objects.requireNonNull(side);
-        switch (side) {
-            case ONE:
-                return checkTemporaryLimits1(limitReduction, type);
-
-            case TWO:
-                return checkTemporaryLimits2(limitReduction, type);
-
-            default:
-                throw new IllegalStateException(UNEXPECTED_SIDE_VALUE + side);
-        }
-    }
-
-    @Override
-    public Overload checkTemporaryLimits(final Side side, LimitType type) {
-        return checkTemporaryLimits(side, 1f, type);
-    }
-
-    @Override
-    public Overload checkTemporaryLimits1(final float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
-    }
-
-    @Override
-    public Overload checkTemporaryLimits1(LimitType type) {
-        return checkTemporaryLimits1(1f, type);
-    }
-
-    @Override
-    public Overload checkTemporaryLimits2(final float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
-    }
-
-    @Override
-    public Overload checkTemporaryLimits2(LimitType type) {
-        return checkTemporaryLimits2(1f, type);
-    }
-
-    @Override
-    public List<? extends Terminal> getTerminals() {
-        return Arrays.asList(getTerminal1(), getTerminal2());
+        return TieLineUtil.getB2(danglingLine1, danglingLine2);
     }
 
     @Override
@@ -478,30 +168,30 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public <E extends Extension<Line>> void addExtension(final Class<? super E> type, final E extension) {
+    public <E extends Extension<TieLine>> void addExtension(final Class<? super E> type, final E extension) {
         throw MergingView.createNotImplementedException();
     }
 
     @Override
-    public <E extends Extension<Line>> E getExtension(final Class<? super E> type) {
+    public <E extends Extension<TieLine>> E getExtension(final Class<? super E> type) {
         return null;
         // throw MergingView.createNotImplementedException();
     }
 
     @Override
-    public <E extends Extension<Line>> E getExtensionByName(final String name) {
+    public <E extends Extension<TieLine>> E getExtensionByName(final String name) {
         // TODO(mathbagu): This method is used in the UCTE export so we prefer returning an empty list instead of throwing an exception
         // TODO(mathbagu): is it a good idea to extend AbstractExtendable?
         return null;
     }
 
     @Override
-    public <E extends Extension<Line>> boolean removeExtension(final Class<E> type) {
+    public <E extends Extension<TieLine>> boolean removeExtension(final Class<E> type) {
         throw MergingView.createNotImplementedException();
     }
 
     @Override
-    public <E extends Extension<Line>> Collection<E> getExtensions() {
+    public <E extends Extension<TieLine>> Collection<E> getExtensions() {
         // TODO(mathbagu): This method is used in the UCTE export so we prefer returning an empty list instead of throwing an exception
         // TODO(mathbagu): is it a good idea to extend AbstractExtendable?
         return Collections.emptyList();
@@ -513,7 +203,7 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public <E extends Extension<Line>, B extends ExtensionAdder<Line, E>> B newExtension(Class<B> type) {
+    public <E extends Extension<TieLine>, B extends ExtensionAdder<TieLine, E>> B newExtension(Class<B> type) {
         throw MergingView.createNotImplementedException();
     }
 
@@ -523,42 +213,35 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public HalfLine getHalf1() {
-        return half1;
+    public DanglingLine getDanglingLine1() {
+        return danglingLine1;
     }
 
     @Override
-    public HalfLine getHalf2() {
-        return half2;
+    public DanglingLine getDanglingLine2() {
+        return danglingLine2;
     }
 
     @Override
-    public HalfLine getHalf(Side side) {
+    public DanglingLine getDanglingLine(Branch.Side side) {
         switch (side) {
             case ONE:
-                return half1;
+                return danglingLine1;
             case TWO:
-                return half2;
+                return danglingLine2;
             default:
                 throw new IllegalStateException("Unknown branch side " + side);
         }
     }
 
-    public double getValueForLimit(Terminal t, LimitType type) {
-        switch (type) {
-            case ACTIVE_POWER:
-                return t.getP();
-            case APPARENT_POWER:
-                return Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
-            case CURRENT:
-                return t.getI();
-            case VOLTAGE:
-            default:
-                throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+    @Override
+    public DanglingLine getDanglingLine(String voltageLevelId) {
+        if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine1;
         }
-    }
-
-    private static ValidationException createNotSupportedForMergedLines() {
-        throw new PowsyblException("direct modification of characteristics not supported for MergedLines");
+        if (danglingLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine2;
+        }
+        return null;
     }
 }

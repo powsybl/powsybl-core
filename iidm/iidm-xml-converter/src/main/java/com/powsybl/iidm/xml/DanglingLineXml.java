@@ -12,11 +12,11 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
@@ -46,15 +46,12 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
         return hasValidGeneration(dl, context) || hasValidOperationalLimits(dl, context);
     }
 
-    private static boolean hasValidGeneration(DanglingLine dl, NetworkXmlWriterContext context) {
-        if (dl.getGeneration() != null) {
-            return context.getVersion().compareTo(IidmXmlVersion.V_1_3) > 0;
-        }
-        return false;
+    @Override
+    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel parent, NetworkXmlWriterContext context) throws XMLStreamException {
+        writeRootElementAttributesInternal(dl, dl::getTerminal, context);
     }
 
-    @Override
-    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    static void writeRootElementAttributesInternal(DanglingLine dl, Supplier<Terminal> terminalGetter, NetworkXmlWriterContext context) throws XMLStreamException {
         DanglingLine.Generation generation = dl.getGeneration();
         double[] p0 = new double[1];
         double[] q0 = new double[1];
@@ -90,8 +87,22 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
         if (dl.getUcteXnodeCode() != null) {
             context.getWriter().writeAttribute("ucteXnodeCode", dl.getUcteXnodeCode());
         }
-        writeNodeOrBus(null, dl.getTerminal(), context);
-        writePQ(null, dl.getTerminal(), context.getWriter());
+        Terminal t = terminalGetter.get();
+        writeNodeOrBus(null, t, context);
+        writePQ(null, t, context.getWriter());
+
+    }
+
+    @Override
+    protected DanglingLineAdder createAdder(VoltageLevel parent) {
+        return parent.newDanglingLine();
+    }
+
+    static boolean hasValidGeneration(DanglingLine dl, NetworkXmlWriterContext context) {
+        if (dl.getGeneration() != null) {
+            return context.getVersion().compareTo(IidmXmlVersion.V_1_3) > 0;
+        }
+        return false;
     }
 
     @Override
@@ -117,12 +128,16 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
     }
 
     @Override
-    protected DanglingLineAdder createAdder(VoltageLevel vl) {
-        return vl.newDanglingLine();
+    protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
+        readRootElementAttributesInternal(adder, context);
+        String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
+        adder.setUcteXnodeCode(ucteXnodeCode);
+        DanglingLine dl = adder.add();
+        readPQ(null, dl.getTerminal(), context.getReader());
+        return dl;
     }
 
-    @Override
-    protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, NetworkXmlReaderContext context) {
+    public static void readRootElementAttributesInternal(DanglingLineAdder adder, NetworkXmlReaderContext context) {
         double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");
         double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q0");
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
@@ -148,18 +163,13 @@ class DanglingLineXml extends AbstractSimpleIdentifiableXml<DanglingLine, Dangli
                         .add();
             }
         });
-        String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         readNodeOrBus(adder, context);
-        DanglingLine dl = adder.setP0(p0)
+        adder.setP0(p0)
                 .setQ0(q0)
                 .setR(r)
                 .setX(x)
                 .setG(g)
-                .setB(b)
-                .setUcteXnodeCode(ucteXnodeCode)
-                .add();
-        readPQ(null, dl.getTerminal(), context.getReader());
-        return dl;
+                .setB(b);
     }
 
     @Override

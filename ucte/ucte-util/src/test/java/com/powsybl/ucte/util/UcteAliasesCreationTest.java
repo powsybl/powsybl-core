@@ -31,17 +31,15 @@ class UcteAliasesCreationTest {
     void checkAliasesCreationWhenImportingMergedFile() {
         Network network = loadNetworkFromResourceFile("/uxTestGridForMerging.uct");
 
-        // Merged dangling lines disappeared
-        assertNull(network.getIdentifiable("BBBBBB11 XXXXXX11 1"));
-        assertNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1"));
+        // Dangling lines are there but paired
+        assertNotNull(network.getIdentifiable("BBBBBB11 XXXXXX11 1"));
+        assertTrue(network.getDanglingLine("BBBBBB11 XXXXXX11 1").isPaired());
+        assertNotNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1"));
+        assertTrue(network.getDanglingLine("FFFFFF11 XXXXXX11 1").isPaired());
 
         // No aliases on element name
         assertNull(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
         assertNull(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
-
-        // No aliases on disappeared dangling lines
-        assertNull(network.getIdentifiable("BBBBBB11 XXXXXX11 1"));
-        assertNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         UcteAliasesCreation.createAliases(network);
 
@@ -55,8 +53,8 @@ class UcteAliasesCreationTest {
 
         // They are all referencing the same identifiable
         assertEquals(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
-        assertEquals(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), network.getIdentifiable("BBBBBB11 XXXXXX11 1"));
-        assertEquals(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), network.getIdentifiable("FFFFFF11 XXXXXX11 1"));
+        assertEquals(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), network.getDanglingLine("BBBBBB11 XXXXXX11 1").getTieLine().orElse(null));
+        assertEquals(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), network.getDanglingLine("FFFFFF11 XXXXXX11 1").getTieLine().orElse(null));
     }
 
     @Test
@@ -83,9 +81,8 @@ class UcteAliasesCreationTest {
         assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         // They are all referencing the same identifiable
-        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
-        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
-        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
+        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getDanglingLine("BBBBBB11 XXXXXX11 1"));
+        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getDanglingLine("FFFFFF11 XXXXXX11 1"));
     }
 
     @Test
@@ -102,8 +99,8 @@ class UcteAliasesCreationTest {
         // Aliases on disappeared dangling lines ids are created
         assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
         assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
-        assertNotEquals("BBBBBB11 XXXXXX11 1", merge.getIdentifiable("BBBBBB11 XXXXXX11 1").getId());
-        assertNotEquals("FFFFFF11 XXXXXX11 1", merge.getIdentifiable("FFFFFF11 XXXXXX11 1").getId());
+        assertEquals("BBBBBB11 XXXXXX11 1", merge.getIdentifiable("BBBBBB11 XXXXXX11 1").getId());
+        assertEquals("FFFFFF11 XXXXXX11 1", merge.getIdentifiable("FFFFFF11 XXXXXX11 1").getId());
 
         UcteAliasesCreation.createAliases(merge);
 
@@ -117,8 +114,8 @@ class UcteAliasesCreationTest {
 
         // They are all referencing the same identifiable
         assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
-        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
-        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
+        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getDanglingLine("BBBBBB11 XXXXXX11 1").getTieLine().orElse(null));
+        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getDanglingLine("FFFFFF11 XXXXXX11 1").getTieLine().orElse(null));
     }
 
     @Test
