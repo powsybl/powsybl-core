@@ -10,6 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
@@ -67,22 +69,10 @@ public final class HvdcUtils {
             return station.getHvdcLine().getActivePowerSetpoint();
         } else {
             // the converter station is inverter.
-            HvdcConverterStation<?> otherStation = getOtherConversionStation(station);
-            return getAbsoluteValueInverterPAc(otherStation.getLossFactor(), station.getLossFactor(),
-                station.getHvdcLine());
-        }
-    }
-
-    public static double getActivePowerSetpointMultiplier(HvdcConverterStation<?> station) {
-        // For sensitivity analysis, we need the multiplier by converter station for an increase of 1MW
-        // of the HVDC active power setpoint.
-        // VSC injection follow here a load sign convention as LCC injection.
-        // As a first approximation, we don't take into account the losses due to HVDC line itself.
-        boolean isConverterStationRectifier = isRectifier(station);
-        if (isConverterStationRectifier) {
-            return -1;
-        } else {
-            return 1 - (station.getLossFactor() + getOtherConversionStation(station).getLossFactor()) / 100;
+            AtomicReference<Double> absoluteValueInverterPAc = new AtomicReference<>((double) 0);
+            Optional<? extends HvdcConverterStation<?>> otherStation = station.getOtherConverterStation();
+            otherStation.ifPresent(os -> absoluteValueInverterPAc.set(getAbsoluteValueInverterPAc(os.getLossFactor(), station.getLossFactor(), station.getHvdcLine())));
+            return absoluteValueInverterPAc.get();
         }
     }
 
@@ -105,11 +95,6 @@ public final class HvdcUtils {
         double rectifierPDc = hvdcLine.getActivePowerSetpoint() * (1 - rectifierLossFactor / 100); // rectifierPDc positive.
         double inverterPDc = rectifierPDc - getHvdcLineLosses(rectifierPDc, hvdcLine.getNominalV(), hvdcLine.getR());
         return inverterPDc * (1 - inverterLossFactor / 100); // always positive.
-    }
-
-    private static HvdcConverterStation<?> getOtherConversionStation(HvdcConverterStation<?> station) {
-        HvdcLine line = station.getHvdcLine();
-        return line.getConverterStation1() == station ? line.getConverterStation2() : line.getConverterStation1();
     }
 
     private HvdcUtils() {

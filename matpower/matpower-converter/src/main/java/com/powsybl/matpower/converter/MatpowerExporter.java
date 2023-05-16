@@ -166,6 +166,7 @@ public class MatpowerExporter implements Exporter {
                     qDemand += l.getQ0();
                 }
                 for (Battery battery : bus.getBatteries()) {
+                    // generator convention for batteries
                     pDemand -= battery.getTargetP();
                     qDemand -= battery.getTargetQ();
                 }
@@ -387,24 +388,24 @@ public class MatpowerExporter implements Exporter {
                 double targetQ;
                 if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svc.getRegulationMode())) {
                     targetQ = -svc.getReactivePowerSetpoint();
-                } else {
+                } else { // OFF or VOLTAGE regulation
                     targetQ = 0;
                 }
-                double vSquared = bus.getV() * bus.getV();
+                double vSquared = bus.getVoltageLevel().getNominalV() * bus.getVoltageLevel().getNominalV(); // approximation
                 double minQ = svc.getBmin() * vSquared;
                 double maxQ = svc.getBmax() * vSquared;
                 double targetV = svc.getVoltageSetpoint();
                 Bus regulatedBus = svc.getRegulatingTerminal().getBusView().getBus();
                 boolean voltageRegulation = StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode());
                 addMgen(model, context, bus, vl, id, targetV, 0, 0, 0, targetQ, minQ,
-                    maxQ, regulatedBus,
-                    voltageRegulation);
+                        maxQ, regulatedBus,
+                        voltageRegulation);
             }
         }
         createDanglingLineGenerators(network, model, context);
     }
 
-    private void createVSC(Network network, MatpowerModel model, Context context) {
+    private void createVSCs(Network network, MatpowerModel model, Context context) {
         for (VscConverterStation vsc : network.getVscConverterStations()) {
             Terminal t = vsc.getTerminal();
             Bus bus = t.getBusView().getBus();
@@ -412,13 +413,15 @@ public class MatpowerExporter implements Exporter {
                 VoltageLevel vl = t.getVoltageLevel();
                 String id = vsc.getId();
                 double targetQ = vsc.getReactivePowerSetpoint();
-                double minQ = vsc.getReactiveLimits().getMinQ(0);
-                double maxQ = vsc.getReactiveLimits().getMaxQ(0);
                 double targetV = vsc.getVoltageSetpoint();
                 Bus regulatedBus = vsc.getRegulatingTerminal().getBusView().getBus();
+                double targetP = HvdcUtils.getConverterStationTargetP(vsc);
+                double minQ = vsc.getReactiveLimits().getMinQ(targetP); // approximation
+                double maxQ = vsc.getReactiveLimits().getMaxQ(targetP); // approximation
                 boolean voltageRegulation = vsc.isVoltageRegulatorOn();
-                addMgen(model, context, bus, vl, id, targetV, 0, 0, 0, targetQ, minQ,
-                    maxQ, regulatedBus, voltageRegulation);
+                double maxP = vsc.getHvdcLine().getMaxP();
+                addMgen(model, context, bus, vl, id, targetV, targetP, -maxP, maxP, targetQ, minQ,
+                        maxQ, regulatedBus, voltageRegulation);
             }
         }
         createDanglingLineGenerators(network, model, context);
@@ -502,7 +505,7 @@ public class MatpowerExporter implements Exporter {
         createBranches(network, model, context);
         createGenerators(network, model, context);
         createStaticVarCompensators(network, model, context);
-        createVSC(network, model, context);
+        createVSCs(network, model, context);
 
         try (OutputStream os = dataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
             MatpowerWriter.write(model, os);
