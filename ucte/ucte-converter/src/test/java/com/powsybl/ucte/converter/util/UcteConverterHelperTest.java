@@ -26,10 +26,15 @@ class UcteConverterHelperTest {
 
     private static Network reference;
 
+    private static Network reference2;
+
     @BeforeAll
     static void setup() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("expectedExport", new ResourceSet("/", "expectedExport.uct"));
         reference = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+
+        ReadOnlyDataSource dataSource2 = new ResourceDataSource("expectedExport2", new ResourceSet("/", "expectedExport2.uct"));
+        reference2 = new UcteImporter().importData(dataSource2, NetworkFactory.findDefault(), null);
     }
 
     @Test
@@ -51,5 +56,12 @@ class UcteConverterHelperTest {
     @Test
     void calculateAsymmAngleThetaTest() {
         assertEquals(60.0, calculateAsymmAngleTheta(reference.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.0001);
+    }
+
+    @Test
+    void calculatePhaseDuTest2() {
+        assertNotEquals(-2.0000, calculatePhaseDu(reference2.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")), 0.00001);
+        assertNotEquals(-120.0, calculateAsymmAngleTheta(reference2.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.0001);
+        assertNotEquals(-1.573, calculateSymmAngleDu(reference2.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1")), 0.0001);
     }
 }

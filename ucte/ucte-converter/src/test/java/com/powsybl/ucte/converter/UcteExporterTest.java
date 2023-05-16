@@ -207,4 +207,28 @@ class UcteExporterTest extends AbstractConverterTest {
         testExporter(network, "/phaseShifterActivePowerOn.uct");
     }
 
+    @Test
+    void roundTripOfNetworkWithTapChangers() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport2.uct");
+        testExporter(network, "/expectedExport.uct");
+    }
+
+    @Test
+    void testTapChangers() {
+        Network network = loadNetworkFromResourceFile("/expectedExport2.uct");
+        Network exportedNetwork = loadNetworkFromResourceFile("/expectedExport.uct");
+        String rtcId = "0BBBBB5  0AAAAA2  1";
+        assertNotEquals(network.getTwoWindingsTransformer(rtcId).getRatioTapChanger().getCurrentStep().getRho(),
+                exportedNetwork.getTwoWindingsTransformer(rtcId).getRatioTapChanger().getCurrentStep().getRho());
+        String ptcId = "HDDDDD2  HCCCCC1  1";
+        assertNotEquals(network.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getRho(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getRho());
+        assertNotEquals(network.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getAlpha(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getAlpha());
+        String ptcId2 = "ZABCD221 ZEFGH221 1";
+        assertEquals(network.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getRho(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getRho());
+        assertEquals(network.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getAlpha(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getAlpha());
+    }
 }
