@@ -115,8 +115,8 @@ class EquipmentExportTest extends AbstractConverterTest {
                 .setEnergyIdentificationCodeEic("energyIdentCodeEic")
                 .setNetInterchange(Double.NaN)
                 .add();
-        TieLine tieLine = (TieLine) network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
-        cgmesControlArea.add(tieLine.getHalf2().getBoundary());
+        TieLine tieLine = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        cgmesControlArea.add(tieLine.getDanglingLine2().getBoundary());
 
         // TODO(Luma) updated expected result after halves of tie lines are exported as equipment
         //  instead of an error logged and the tie flow ignored,
@@ -126,7 +126,7 @@ class EquipmentExportTest extends AbstractConverterTest {
         boolean tieFlowsAtTieLinesAreSupported = false;
         if (tieFlowsAtTieLinesAreSupported) {
             assertEquals(1, actualCgmesControlArea.getBoundaries().size());
-            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getConnectable().getId());
+            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getDanglingLine().getId());
         } else {
             assertEquals(0, actualCgmesControlArea.getBoundaries().size());
         }
@@ -145,7 +145,7 @@ class EquipmentExportTest extends AbstractConverterTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         // Remove aliases of equivalent injections, so they will have to be created during export
-        for (DanglingLine danglingLine : expected.getDanglingLines()) {
+        for (DanglingLine danglingLine : expected.getDanglingLines(DanglingLineFilter.ALL)) {
             danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         }
@@ -488,7 +488,7 @@ class EquipmentExportTest extends AbstractConverterTest {
             compareFlowLimits(expectedTwt.getLeg2(), twt.getLeg2());
             compareFlowLimits(expectedTwt.getLeg3(), twt.getLeg3());
         }
-        for (DanglingLine danglingLine : actual.getDanglingLines()) {
+        for (DanglingLine danglingLine : actual.getDanglingLines(DanglingLineFilter.ALL)) {
             compareFlowLimits((FlowsLimitsHolder) expected.getIdentifiable(danglingLine.getId()), danglingLine);
         }
     }

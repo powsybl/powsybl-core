@@ -41,6 +41,16 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-configuration2</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
@@ -49,6 +59,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-extensions</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

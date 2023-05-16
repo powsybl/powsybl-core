@@ -20,10 +20,6 @@ public class LineAdapter extends AbstractBranchAdapter<Line> implements Line {
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
-    @Override
-    public boolean isTieLine() {
-        return getDelegate().isTieLine();
-    }
 
     @Override
     public double getR() {

@@ -251,6 +251,7 @@ class StateVariablesExportTest extends AbstractConverterTest {
                 .filter(c -> c instanceof Injection)
                 .filter(c -> !(c instanceof BusbarSection))
                 .filter(c -> !(c instanceof HvdcConverterStation))
+                .filter(c -> !(c instanceof DanglingLine && ((DanglingLine) c).isPaired()))
                 .map(c -> (Injection<?>) c)
                 .map(Injection::getTerminal)
                 .filter(t -> Double.isNaN(t.getP()) && Double.isNaN(t.getQ()))

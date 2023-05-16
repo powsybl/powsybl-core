@@ -206,14 +206,28 @@ public interface Bus extends Identifiable<Bus> {
     Stream<ShuntCompensator> getShuntCompensatorStream();
 
     /**
-     * Get dangling lines connected to the bus.
+     * Get dangling lines connected to the bus based on given filter.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
 
     /**
-     * Get dangling lines connected to the bus.
+     * Get all dangling lines connected to the bus.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    default Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLines(DanglingLineFilter.ALL);
+    }
+
+    /**
+     * Get dangling lines connected to the bus based on given filter.
+     */
+    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+
+     /**
+     * Get all dangling lines connected to the bus.
+     */
+    default Stream<DanglingLine> getDanglingLineStream() {
+        return getDanglingLineStream(DanglingLineFilter.ALL);
+    }
 
     /**
      * Get static VAR compensators connected to the bus.
