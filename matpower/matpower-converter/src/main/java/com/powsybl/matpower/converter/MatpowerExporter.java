@@ -194,7 +194,7 @@ public class MatpowerExporter implements Exporter {
         for (Line l : network.getLines()) {
             Terminal t1 = l.getTerminal1();
             Terminal t2 = l.getTerminal2();
-            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context).ifPresent(mBranch -> model.addBranch(mBranch));
+            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context).ifPresent(model::addBranch);
         }
     }
 
@@ -230,7 +230,7 @@ public class MatpowerExporter implements Exporter {
         for (TieLine l : network.getTieLines()) {
             Terminal t1 = l.getDanglingLine1().getTerminal();
             Terminal t2 = l.getDanglingLine2().getTerminal();
-            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context).ifPresent(mBranch -> model.addBranch(mBranch));
+            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context).ifPresent(model::addBranch);
         }
     }
 
