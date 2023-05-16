@@ -194,18 +194,7 @@ public class MatpowerExporter implements Exporter {
         for (Line l : network.getLines()) {
             Terminal t1 = l.getTerminal1();
             Terminal t2 = l.getTerminal2();
-            Bus bus1 = t1.getBusView().getBus();
-            Bus bus2 = t2.getBusView().getBus();
-            if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2)) {
-                VoltageLevel vl1 = t1.getVoltageLevel();
-                VoltageLevel vl2 = t2.getVoltageLevel();
-                MBranch mBranch = new MBranch();
-                mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
-                mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
-                mBranch.setStatus(CONNECTED_STATUS);
-                setBranchParameters(vl1, vl2, l.getR(), l.getX(), l.getB1(), l.getB2(), mBranch);
-                model.addBranch(mBranch);
-            }
+            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context).ifPresent(mBranch -> model.addBranch(mBranch));
         }
     }
 
@@ -241,31 +230,33 @@ public class MatpowerExporter implements Exporter {
         for (TieLine l : network.getTieLines()) {
             Terminal t1 = l.getDanglingLine1().getTerminal();
             Terminal t2 = l.getDanglingLine2().getTerminal();
-            Bus bus1 = t1.getBusView().getBus();
-            Bus bus2 = t2.getBusView().getBus();
-            if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2)) {
-                VoltageLevel vl1 = t1.getVoltageLevel();
-                VoltageLevel vl2 = t2.getVoltageLevel();
-                MBranch mBranch = new MBranch();
-                mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
-                mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
-                mBranch.setStatus(CONNECTED_STATUS);
-                setBranchParameters(vl1, vl2, l.getR(), l.getX(), l.getB1(), l.getB2(), mBranch);
-                model.addBranch(mBranch);
-            }
+            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context).ifPresent(mBranch -> model.addBranch(mBranch));
         }
     }
 
-    private static void setBranchParameters(VoltageLevel vl1, VoltageLevel vl2, double r, double x, double b1,
-        double b2, MBranch mBranch) {
-        double rpu = impedanceToPerUnitForLine(r, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-        double xpu = impedanceToPerUnitForLine(x, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-        Complex ytr = impedanceToAdmittance(r, x);
-        double b1pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), b1, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-        double b2pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), b2, vl2.getNominalV(), vl1.getNominalV(), BASE_MVA);
-        mBranch.setR(rpu);
-        mBranch.setX(xpu);
-        mBranch.setB(b1pu + b2pu);
+    private static Optional<MBranch> createMBranch(Terminal t1, Terminal t2, double r, double x, double b1, double b2, Context context) {
+        Bus bus1 = t1.getBusView().getBus();
+        Bus bus2 = t2.getBusView().getBus();
+        if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2)) {
+            VoltageLevel vl1 = t1.getVoltageLevel();
+            VoltageLevel vl2 = t2.getVoltageLevel();
+            MBranch mBranch = new MBranch();
+            mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
+            mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
+            mBranch.setStatus(CONNECTED_STATUS);
+
+            double rpu = impedanceToPerUnitForLine(r, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
+            double xpu = impedanceToPerUnitForLine(x, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
+            Complex ytr = impedanceToAdmittance(r, x);
+            double b1pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), b1, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
+            double b2pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), b2, vl2.getNominalV(), vl1.getNominalV(), BASE_MVA);
+            mBranch.setR(rpu);
+            mBranch.setX(xpu);
+            mBranch.setB(b1pu + b2pu);
+            return Optional.of(mBranch);
+        } else {
+            return Optional.empty();
+        }
     }
 
     // avoid NaN when r and x, both are 0.0
