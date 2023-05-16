@@ -6,10 +6,9 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.powsybl.iidm.network.extensions.util.FortescueUtil;
 import com.powsybl.math.matrix.DenseMatrix;
-import com.powsybl.math.matrix.DenseMatrixFactory;
-import com.powsybl.math.matrix.Matrix;
-import com.powsybl.math.matrix.MatrixFactory;
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D;
 import org.apache.commons.math3.util.Pair;
 
 /**
@@ -113,91 +112,31 @@ public class FortescueValue {
         return negativeAngle;
     }
 
-    public Pair<Double, Double> getCartesianFromPolar(double magnitude, double angle) {
-        double xValue = magnitude * Math.cos(angle);
-        double yValue = magnitude * Math.sin(angle); // TODO : check radians and degrees
-        return new Pair<>(xValue, yValue);
-    }
-
-    public Pair<Double, Double> getPolarFromCartesian(double xValue, double yValue) {
-        double magnitude = Math.sqrt(xValue * xValue + yValue * yValue);
-        double phase = Math.atan2(yValue, xValue); // TODO : check radians and degrees
-        return new Pair<>(magnitude, phase);
-    }
-
     ThreePhaseValue toThreePhaseValue() {
 
         // [G1]   [ 1  1  1 ]   [Gh]
         // [G2] = [ 1  a²  a] * [Gd]
         // [G3]   [ 1  a  a²]   [Gi]
-        MatrixFactory matrixFactory = new DenseMatrixFactory();
 
-        Pair<Double, Double> directComponent = getCartesianFromPolar(positiveMagnitude, positiveAngle);
-        Pair<Double, Double> homopolarComponent = getCartesianFromPolar(zeroMagnitude, zeroAngle);
-        Pair<Double, Double> inversComponent = getCartesianFromPolar(negativeMagnitude, negativeAngle);
+        Vector2D positiveSequence = FortescueUtil.getCartesianFromPolar(positiveMagnitude, positiveAngle);
+        Vector2D zeroSequence = FortescueUtil.getCartesianFromPolar(zeroMagnitude, zeroAngle);
+        Vector2D negativeSequence = FortescueUtil.getCartesianFromPolar(negativeMagnitude, negativeAngle);
 
-        Matrix mGfortescue = matrixFactory.create(6, 1, 6);
-        mGfortescue.add(0, 0, homopolarComponent.getKey());
-        mGfortescue.add(1, 0, homopolarComponent.getValue());
-        mGfortescue.add(2, 0, directComponent.getKey());
-        mGfortescue.add(3, 0, directComponent.getValue());
-        mGfortescue.add(4, 0, inversComponent.getKey());
-        mGfortescue.add(5, 0, inversComponent.getValue());
+        DenseMatrix mGfortescue = new DenseMatrix(6, 1);
+        mGfortescue.add(0, 0, zeroSequence.getX());
+        mGfortescue.add(1, 0, zeroSequence.getY());
+        mGfortescue.add(2, 0, positiveSequence.getX());
+        mGfortescue.add(3, 0, positiveSequence.getY());
+        mGfortescue.add(4, 0, negativeSequence.getX());
+        mGfortescue.add(5, 0, negativeSequence.getY());
 
-        DenseMatrix mGphase = getFortescueMatrix(matrixFactory).times(mGfortescue).toDense();
+        DenseMatrix mGphase = FortescueUtil.getFortescueMatrix().times(mGfortescue).toDense();
 
-        Pair<Double, Double> phase1 = getPolarFromCartesian(mGphase.get(0, 0), mGphase.get(1, 0));
-        Pair<Double, Double> phase2 = getPolarFromCartesian(mGphase.get(2, 0), mGphase.get(3, 0));
-        Pair<Double, Double> phase3 = getPolarFromCartesian(mGphase.get(4, 0), mGphase.get(5, 0));
+        Pair<Double, Double> phaseA = FortescueUtil.getPolarFromCartesian(mGphase.get(0, 0), mGphase.get(1, 0));
+        Pair<Double, Double> phaseB = FortescueUtil.getPolarFromCartesian(mGphase.get(2, 0), mGphase.get(3, 0));
+        Pair<Double, Double> phaseC = FortescueUtil.getPolarFromCartesian(mGphase.get(4, 0), mGphase.get(5, 0));
 
-        return new ThreePhaseValue(phase1.getKey() / Math.sqrt(3), phase2.getKey() / Math.sqrt(3), phase3.getKey() / Math.sqrt(3), phase1.getValue(), phase2.getValue(), phase3.getValue());
-    }
-
-    static Matrix getFortescueMatrix(MatrixFactory matrixFactory) {
-
-        // [G1]   [ 1  1  1 ]   [Gh]
-        // [G2] = [ 1  a²  a] * [Gd]
-        // [G3]   [ 1  a  a²]   [Gi]
-        Matrix mFortescue = matrixFactory.create(6, 6, 6);
-        //column 1
-        mFortescue.add(0, 0, 1.);
-        mFortescue.add(1, 1, 1.);
-
-        mFortescue.add(2, 0, 1.);
-        mFortescue.add(3, 1, 1.);
-
-        mFortescue.add(4, 0, 1.);
-        mFortescue.add(5, 1, 1.);
-
-        //column 2
-        mFortescue.add(0, 2, 1.);
-        mFortescue.add(1, 3, 1.);
-
-        mFortescue.add(2, 2, -1. / 2.);
-        mFortescue.add(2, 3, Math.sqrt(3.) / 2.);
-        mFortescue.add(3, 2, -Math.sqrt(3.) / 2.);
-        mFortescue.add(3, 3, -1. / 2.);
-
-        mFortescue.add(4, 2, -1. / 2.);
-        mFortescue.add(4, 3, -Math.sqrt(3.) / 2.);
-        mFortescue.add(5, 2, Math.sqrt(3.) / 2.);
-        mFortescue.add(5, 3, -1. / 2.);
-
-        //column 3
-        mFortescue.add(0, 4, 1.);
-        mFortescue.add(1, 5, 1.);
-
-        mFortescue.add(2, 4, -1. / 2.);
-        mFortescue.add(2, 5, -Math.sqrt(3.) / 2.);
-        mFortescue.add(3, 4, Math.sqrt(3.) / 2.);
-        mFortescue.add(3, 5, -1. / 2.);
-
-        mFortescue.add(4, 4, -1. / 2.);
-        mFortescue.add(4, 5, Math.sqrt(3.) / 2.);
-        mFortescue.add(5, 4, -Math.sqrt(3.) / 2.);
-        mFortescue.add(5, 5, -1. / 2.);
-
-        return mFortescue;
+        return new ThreePhaseValue(phaseA.getKey() / Math.sqrt(3), phaseB.getKey() / Math.sqrt(3), phaseC.getKey() / Math.sqrt(3), phaseA.getValue(), phaseB.getValue(), phaseC.getValue());
     }
 
 }
