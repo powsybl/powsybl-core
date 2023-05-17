@@ -286,4 +286,9 @@ class PsseImporterTest extends AbstractConverterTest {
         dataSource = new ResourceDataSource("IEEE_14_bus_rev35", new ResourceSet("/", "IEEE_14_bus_rev35.rawx"));
         assertTrue(new PsseImporter().exists(dataSource));
     }
+
+    @Test
+    void importTest14ZipLoad() throws IOException {
+        importTest("IEEE_14_buses_zip_load", "IEEE_14_buses_zip_load.raw", false);
+    }
 }
