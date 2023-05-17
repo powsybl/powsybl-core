@@ -33,17 +33,8 @@ public final class UcteConverterHelper {
      * @return the δu needed to create a {@link UctePhaseRegulation}
      */
     public static double calculatePhaseDu(TwoWindingsTransformer twoWindingsTransformer) {
-        double rhoMin = Double.MAX_VALUE;
-        double rhoMax = -Double.MAX_VALUE;
 
         RatioTapChanger tapChanger = twoWindingsTransformer.getRatioTapChanger();
-        /*for (int i = tapChanger.getLowTapPosition(); i <= tapChanger.getHighTapPosition(); ++i) {
-            rhoMin = Double.min(rhoMin, tapChanger.getStep(i).getRho());
-            rhoMax = Double.max(rhoMax, tapChanger.getStep(i).getRho());
-        }
-
-        double res = 100 * (1 / rhoMin - 1 / rhoMax) / (tapChanger.getStepCount() - 1);*/
-
         // Given the formulas : rho(i) = 1/(1+du.i/100)
         // We have : -n.du = 100.(1/rho(-n) - 1)  and n.du = 100.(1/rho(n) - 1)
         // Which gives n.du - (-n.du) = 100.(1/rho(n) - 1/rho(-n))
@@ -65,19 +56,8 @@ public final class UcteConverterHelper {
      * @return the δu needed to create a {@link UcteAngleRegulation}
      */
     public static double calculateSymmAngleDu(TwoWindingsTransformer twoWindingsTransformer) {
-        double alphaMin = Double.MAX_VALUE;
-        double alphaMax = -Double.MAX_VALUE;
 
         PhaseTapChanger tapChanger = twoWindingsTransformer.getPhaseTapChanger();
-        /*for (int i = tapChanger.getLowTapPosition(); i <= tapChanger.getHighTapPosition(); ++i) {
-            alphaMin = Double.min(alphaMin, tapChanger.getStep(i).getAlpha());
-            alphaMax = Double.max(alphaMax, tapChanger.getStep(i).getAlpha());
-        }
-        alphaMin = Math.toRadians(alphaMin);
-        alphaMax = Math.toRadians(alphaMax);
-
-        return 100 * (2 * (Math.tan(alphaMax / 2) - Math.tan(alphaMin / 2)) / (tapChanger.getStepCount() - 1));*/
-
         // Given the formulas : alpha(i) = 2.Atan(i/100.du/2)
         // We have : -n.du = 200.tan(alpha(-n)/2)  and n.du = 200.tan(alpha(n)/2)
         // Which gives n.du - (-n.du) = 200.(tan(alpha(n)/2) - tan(alpha(-n)/2))
@@ -85,7 +65,9 @@ public final class UcteConverterHelper {
         double alphaStepMax = Math.toRadians(tapChanger.getStep(tapChanger.getHighTapPosition()).getAlpha());
         double alphaStepMin = Math.toRadians(tapChanger.getStep(tapChanger.getLowTapPosition()).getAlpha());
 
-        return 100 * (2 * (Math.tan(alphaStepMax / 2) - Math.tan(alphaStepMin / 2)) / (tapChanger.getStepCount() - 1));
+        // minus sign because in the UCT importer, alpha has sign inverted because in the UCT model PST is on side 2 and side1 on IIDM model
+        // we apply here the same transformation back
+        return -100 * (2 * (Math.tan(alphaStepMax / 2) - Math.tan(alphaStepMin / 2)) / (tapChanger.getStepCount() - 1));
     }
 
     /**

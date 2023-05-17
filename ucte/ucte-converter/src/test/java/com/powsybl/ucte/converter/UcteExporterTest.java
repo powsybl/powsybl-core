@@ -19,11 +19,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-//import java.util.Arrays;
+import java.util.Arrays;
 import java.util.Properties;
 
-//import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -49,7 +50,7 @@ class UcteExporterTest extends AbstractConverterTest {
 
         try (InputStream actual = dataSource.newInputStream(null, "uct");
              InputStream expected = UcteExporterTest.class.getResourceAsStream(reference)) {
-            //compareTxt(expected, actual, Arrays.asList(1, 2));
+            compareTxt(expected, actual, Arrays.asList(1, 2));
         }
     }
 
@@ -210,21 +211,21 @@ class UcteExporterTest extends AbstractConverterTest {
     @Test
     void roundTripOfNetworkWithTapChangers() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport2.uct");
-        //testExporter(network, "/expectedExport.uct");
+        testExporter(network, "/expectedExport3.uct");
     }
 
     @Test
     void testTapChangers() {
         Network network = loadNetworkFromResourceFile("/expectedExport2.uct");
-        Network exportedNetwork = loadNetworkFromResourceFile("/expectedExport.uct");
+        Network exportedNetwork = loadNetworkFromResourceFile("/expectedExport3.uct");
         String rtcId = "0BBBBB5  0AAAAA2  1";
-        assertNotEquals(network.getTwoWindingsTransformer(rtcId).getRatioTapChanger().getCurrentStep().getRho(),
+        assertEquals(network.getTwoWindingsTransformer(rtcId).getRatioTapChanger().getCurrentStep().getRho(),
                 exportedNetwork.getTwoWindingsTransformer(rtcId).getRatioTapChanger().getCurrentStep().getRho());
         String ptcId = "HDDDDD2  HCCCCC1  1";
-        assertNotEquals(network.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getRho(),
-                exportedNetwork.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getRho());
-        assertNotEquals(network.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getAlpha(),
-                exportedNetwork.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getAlpha());
+        assertEquals(network.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getRho(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getRho(), 0.0001);
+        assertEquals(network.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getAlpha(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getAlpha(), 0.0001);
         String ptcId2 = "ZABCD221 ZEFGH221 1";
         assertEquals(network.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getRho(),
                 exportedNetwork.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getRho());

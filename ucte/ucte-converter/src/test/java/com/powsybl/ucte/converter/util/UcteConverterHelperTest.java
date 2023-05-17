@@ -12,6 +12,7 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.ucte.converter.UcteImporter;
+import org.apache.commons.math3.complex.Complex;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +46,7 @@ class UcteConverterHelperTest {
 
     @Test
     void calculateSymmAngleDuTest() {
-        //assertEquals(1.573, calculateSymmAngleDu(reference.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1")), 0.0001);
+        assertEquals(1.573, calculateSymmAngleDu(reference.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1")), 0.0001);
     }
 
     @Test
@@ -61,8 +62,17 @@ class UcteConverterHelperTest {
     @Test
     void calculatePhaseDuTest2() {
         assertEquals(-2.000, calculatePhaseDu(reference2.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")), 0.00001);
-        assertNotEquals(-120.0, calculateAsymmAngleTheta(reference2.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.0001);
-        assertNotEquals(-0.900, calculateAsymmAngleDu(reference2.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.0001);
-        assertEquals(-1.573, calculateSymmAngleDu(reference2.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1")), 0.0001);
+        assertEquals(-1.57, calculateSymmAngleDu(reference2.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1")), 0.00001); // loss of one decimal with sign
+
+        double angleRef2 = Math.toRadians(calculateAsymmAngleTheta(reference2.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")));
+        double moduleRef2 = calculateAsymmAngleDu(reference2.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"));
+        Complex duRef2 = new Complex(Math.cos(angleRef2), Math.sin(angleRef2)).multiply(moduleRef2);
+
+        double angleExpected = Math.toRadians(-120.0);
+        double moduleExpected = -0.900;
+        Complex duExpected = new Complex(Math.cos(angleExpected), Math.sin(angleExpected)).multiply(moduleExpected);
+
+        assertEquals(duExpected.getReal(), duRef2.getReal(), 0.0001);
+        assertEquals(duExpected.getImaginary(), duRef2.getImaginary(), 0.0001);
     }
 }
