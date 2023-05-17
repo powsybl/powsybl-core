@@ -14,8 +14,7 @@ import org.slf4j.Logger;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundIdentifiableReport;
-import static com.powsybl.iidm.modification.topology.ModificationReports.unexpectedIdentifiableType;
+import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -37,7 +36,7 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
 
     protected AbstractLineConnectionModification(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
                                        String line2Id, String line2Name, Line line) {
-        this.positionPercent = checkPositionPercent(positionPercent);
+        this.positionPercent = positionPercent;
         this.bbsOrBusId = Objects.requireNonNull(bbsOrBusId);
         this.line1Id = Objects.requireNonNull(line1Id);
         this.line1Name = line1Name;
@@ -67,7 +66,7 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
     }
 
     public M setPositionPercent(double positionPercent) {
-        this.positionPercent = checkPositionPercent(positionPercent);
+        this.positionPercent = positionPercent;
         return (M) this;
     }
 
@@ -99,16 +98,24 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         return line2Name;
     }
 
-    private static double checkPositionPercent(double positionPercent) {
+    private static boolean checkPositionPercent(double positionPercent, boolean throwException, Reporter reporter, Logger logger) {
         if (Double.isNaN(positionPercent)) {
-            throw new PowsyblException("Percent should not be undefined");
+            logger.error("Percent should not be undefined");
+            undefinedPercent(reporter);
+            if (throwException) {
+                throw new PowsyblException("Percent should not be undefined");
+            }
+            return false;
         }
-        return positionPercent;
+        return true;
     }
 
     protected boolean failChecks(Network network, boolean throwException, Reporter reporter, Logger logger) {
         Identifiable<?> identifiable = checkIdentifiable(bbsOrBusId, network, throwException, reporter, logger);
         if (identifiable == null) {
+            return true;
+        }
+        if (!checkPositionPercent(positionPercent, throwException, reporter, logger)) {
             return true;
         }
         voltageLevel = getVoltageLevel(identifiable, throwException, reporter, logger);

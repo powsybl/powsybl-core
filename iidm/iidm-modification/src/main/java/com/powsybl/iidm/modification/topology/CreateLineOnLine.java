@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.topology.ModificationReports.undefinedFictitiousSubstationId;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
@@ -71,16 +72,20 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
         this.createFictSubstation = createFictSubstation;
-        this.fictitiousSubstationId = checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId);
+        this.fictitiousSubstationId = fictitiousSubstationId;
         this.fictitiousSubstationName = fictitiousSubstationName;
         this.lineAdder = Objects.requireNonNull(lineAdder);
     }
 
-    private static String checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId) {
+    private static boolean checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId, boolean throwException, Reporter reporter) {
         if (createFictSubstation && fictitiousSubstationId == null) {
-            throw new PowsyblException("Fictitious substation ID must be defined if a fictitious substation is to be created");
+            LOG.error("Fictitious substation ID must be defined if a fictitious substation is to be created");
+            undefinedFictitiousSubstationId(reporter);
+            if (throwException) {
+                throw new PowsyblException("Fictitious substation ID must be defined if a fictitious substation is to be created");
+            }
         }
-        return fictitiousSubstationId;
+        return true;
     }
 
     public CreateLineOnLine setFictitiousVlId(String fictitiousVlId) {
@@ -94,13 +99,12 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     }
 
     public CreateLineOnLine setCreateFictSubstation(boolean createFictSubstation) {
-        checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId);
         this.createFictSubstation = createFictSubstation;
         return this;
     }
 
     public CreateLineOnLine setFictitiousSubstationId(String fictitiousSubstationId) {
-        this.fictitiousSubstationId = checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId);
+        this.fictitiousSubstationId = fictitiousSubstationId;
         return this;
     }
 
@@ -114,6 +118,10 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
                       ComputationManager computationManager, Reporter reporter) {
         // Checks
         if (failChecks(network, throwException, reporter, LOG)) {
+            return;
+        }
+
+        if (!checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId, throwException, reporter)) {
             return;
         }
 

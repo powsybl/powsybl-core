@@ -69,7 +69,7 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, null, SwitchKind.DISCONNECTOR)
                 .build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         assertEquals("All switch kinds must be defined", e.getMessage());
     }
 
@@ -82,18 +82,19 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.LOAD_BREAK_SWITCH, SwitchKind.DISCONNECTOR)
                 .build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         assertEquals("Switch kinds must be DISCONNECTOR or BREAKER", e.getMessage());
     }
 
     @Test
     void testWithNegativeCount() {
+        Network network = createNbNetwork();
         CreateVoltageLevelTopologyBuilder modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(-1)
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR);
-        PowsyblException e = assertThrows(PowsyblException.class, modification::build);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.build().apply(network, true, Reporter.NO_OP));
         assertEquals("busBar count must be >= 1", e.getMessage());
     }
 
@@ -133,7 +134,7 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER)
                 .build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         assertEquals("Unexpected switch kinds count (1). Should be 3", e.getMessage());
     }
 
@@ -176,7 +177,7 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
                 .build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         assertEquals("Unexpected switch kinds count (0). Should be 3", e.getMessage());
     }
 }
