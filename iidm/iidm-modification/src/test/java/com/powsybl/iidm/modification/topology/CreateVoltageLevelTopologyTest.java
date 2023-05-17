@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
@@ -89,12 +90,13 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     @Test
     void testWithNegativeCount() {
         Network network = createNbNetwork();
-        CreateVoltageLevelTopologyBuilder modification = new CreateVoltageLevelTopologyBuilder()
+        NetworkModification modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(-1)
                 .withSectionCount(4)
-                .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.build().apply(network, true, Reporter.NO_OP));
+                .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
+                .build();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         assertEquals("busBar count must be >= 1", e.getMessage());
     }
 

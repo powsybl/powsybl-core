@@ -84,6 +84,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
             if (throwException) {
                 throw new PowsyblException("Fictitious substation ID must be defined if a fictitious substation is to be created");
             }
+            return false;
         }
         return true;
     }
