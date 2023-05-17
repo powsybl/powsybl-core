@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion;
 
+import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.DanglingLine;
@@ -32,9 +33,13 @@ public interface NamingStrategy {
     }
 
     default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
-        if (identifiable instanceof DanglingLine) {
-            DanglingLine dl = (DanglingLine) identifiable;
-            return identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+        if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+            // Nothing to do
+        } else {
+            if (identifiable instanceof DanglingLine) {
+                DanglingLine dl = (DanglingLine) identifiable;
+                return identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+            }
         }
         return identifiable.getAliasFromType(aliasType).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
     }

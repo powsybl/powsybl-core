@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.NamingStrategy;
+import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -997,8 +998,12 @@ public final class EquipmentExport {
     private static void writeTerminal(Terminal t, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
                                       String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
-        if (t.getConnectable() instanceof DanglingLine && ((DanglingLine) t.getConnectable()).isPaired()) {
-            equipmentId = context.getNamingStrategy().getCgmesId(((DanglingLine) t.getConnectable()).getTieLine().orElseThrow(IllegalStateException::new));
+        if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+            // Nothing to do
+        } else {
+            if (t.getConnectable() instanceof DanglingLine && ((DanglingLine) t.getConnectable()).isPaired()) {
+                equipmentId = context.getNamingStrategy().getCgmesId(((DanglingLine) t.getConnectable()).getTieLine().orElseThrow(IllegalStateException::new));
+            }
         }
         writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t), CgmesExportUtil.getTerminalSequenceNumber(t), cimNamespace, writer, context);
     }

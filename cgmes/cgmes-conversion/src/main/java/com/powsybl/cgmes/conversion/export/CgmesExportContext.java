@@ -11,6 +11,7 @@ import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.NamingStrategy;
 import com.powsybl.cgmes.conversion.NamingStrategyFactory;
+import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -405,22 +406,7 @@ public class CgmesExportContext {
     private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
         if (c instanceof DanglingLine) {
             DanglingLine dl = (DanglingLine) c;
-            if (dl.isPaired()) {
-                TieLine tl = dl.getTieLine().orElseThrow(IllegalStateException::new);
-                int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
-                String terminalId = tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
-                if (terminalId == null && tl.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber)) { // TODO fix when merging is handled properly
-                    terminalId = tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber);
-                    if (tl.getAliases().contains(terminalId)) {
-                        tl.removeAlias(terminalId);
-                    }
-                    if (dl.getAliases().contains(terminalId)) {
-                        dl.setProperty(dl.getAliasType(terminalId).orElse(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL), terminalId);
-                        dl.removeAlias(terminalId);
-                    }
-                    tl.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber);
-                }
-            } else {
+            if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
                 String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL).orElse(null);
                 if (terminalId == null) {
                     terminalId = CgmesExportUtil.getUniqueId();
@@ -430,6 +416,34 @@ public class CgmesExportContext {
                 if (boundaryId == null) {
                     boundaryId = CgmesExportUtil.getUniqueId();
                     c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
+                }
+            } else {
+                if (dl.isPaired()) {
+                    TieLine tl = dl.getTieLine().orElseThrow(IllegalStateException::new);
+                    int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
+                    String terminalId = tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
+                    if (terminalId == null && tl.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber)) { // TODO fix when merging is handled properly
+                        terminalId = tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber);
+                        if (tl.getAliases().contains(terminalId)) {
+                            tl.removeAlias(terminalId);
+                        }
+                        if (dl.getAliases().contains(terminalId)) {
+                            dl.setProperty(dl.getAliasType(terminalId).orElse(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL), terminalId);
+                            dl.removeAlias(terminalId);
+                        }
+                        tl.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber);
+                    }
+                } else {
+                    String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL).orElse(null);
+                    if (terminalId == null) {
+                        terminalId = CgmesExportUtil.getUniqueId();
+                        c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL);
+                    }
+                    String boundaryId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY).orElse(null);
+                    if (boundaryId == null) {
+                        boundaryId = CgmesExportUtil.getUniqueId();
+                        c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
+                    }
                 }
             }
         } else {

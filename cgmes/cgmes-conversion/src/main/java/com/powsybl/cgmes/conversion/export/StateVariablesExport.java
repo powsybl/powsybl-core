@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
@@ -21,6 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -222,11 +225,20 @@ public final class StateVariablesExport {
             writeOptionalPowerFlowTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2(), cimNamespace, writer, context);
         });
         network.getTieLineStream().forEach(b -> {
-            writePowerFlowTieLineTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getDanglingLine1().getTerminal(), cimNamespace, writer, context);
-            writePowerFlowTieLineTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getDanglingLine2().getTerminal(), cimNamespace, writer, context);
-            if (context.exportBoundaryPowerFlows()) {
-                writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1", b.getDanglingLine1().getBoundary().getP(), b.getDanglingLine1().getBoundary().getQ(), cimNamespace, writer, context);
-                writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2", b.getDanglingLine2().getBoundary().getP(), b.getDanglingLine2().getBoundary().getQ(), cimNamespace, writer, context);
+            if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+                writePowerFlowTieLineTerminalFromAlias(areas, b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL, b.getDanglingLine1().getTerminal(), cimNamespace, writer, context);
+                writePowerFlowTieLineTerminalFromAlias(areas, b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL, b.getDanglingLine2().getTerminal(), cimNamespace, writer, context);
+                if (context.exportBoundaryPowerFlows()) {
+                    writePowerFlowTerminalFromAlias(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", b.getDanglingLine1().getBoundary().getP(), b.getDanglingLine1().getBoundary().getQ(), cimNamespace, writer, context);
+                    writePowerFlowTerminalFromAlias(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", b.getDanglingLine2().getBoundary().getP(), b.getDanglingLine2().getBoundary().getQ(), cimNamespace, writer, context);
+                }
+            } else {
+                writePowerFlowTieLineTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getDanglingLine1().getTerminal(), cimNamespace, writer, context);
+                writePowerFlowTieLineTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getDanglingLine2().getTerminal(), cimNamespace, writer, context);
+                if (context.exportBoundaryPowerFlows()) {
+                    writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1", b.getDanglingLine1().getBoundary().getP(), b.getDanglingLine1().getBoundary().getQ(), cimNamespace, writer, context);
+                    writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2", b.getDanglingLine2().getBoundary().getP(), b.getDanglingLine2().getBoundary().getQ(), cimNamespace, writer, context);
+                }
             }
         });
 
@@ -288,9 +300,20 @@ public final class StateVariablesExport {
         }
     }
 
+    // XXX LUMA ??? only if we have areas and this dangling line boundary is defined at one area ???
     private static void writePowerFlowTieLineTerminalFromAlias(CgmesControlAreas areas, TieLine tieLine, String aliasTypeForTerminalId, Terminal t, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         if (areas != null && areas.getCgmesControlAreas().stream().flatMap(area -> area.getBoundaries().stream()).anyMatch(b -> b == tieLine.getDanglingLine1().getBoundary() || b == tieLine.getDanglingLine2().getBoundary())) {
             writePowerFlowTerminalFromAlias(tieLine, aliasTypeForTerminalId, t.getP(), t.getQ(), cimNamespace, writer, context);
+        }
+    }
+
+    // XXX LUMA ??? only if we have areas and this dangling line boundary is defined at one area ???
+    private static void writePowerFlowTieLineTerminalFromAlias(CgmesControlAreas areas, DanglingLine danglingLine, String aliasTypeForTerminalId, Terminal t, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        TieLine tieLine = danglingLine.getTieLine().orElseThrow();
+        Boundary b1 = tieLine.getDanglingLine1().getBoundary();
+        Boundary b2 = tieLine.getDanglingLine1().getBoundary();
+        if (areas != null && areas.getCgmesControlAreas().stream().flatMap(area -> area.getBoundaries().stream()).anyMatch(b -> b == b1 || b == b2)) {
+            writePowerFlowTerminalFromAlias(danglingLine, aliasTypeForTerminalId, t.getP(), t.getQ(), cimNamespace, writer, context);
         }
     }
 
@@ -299,6 +322,33 @@ public final class StateVariablesExport {
         if (c.getAliasFromType(aliasTypeForTerminalId).isPresent()) {
             String cgmesTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(c, aliasTypeForTerminalId);
             writePowerFlow(cgmesTerminalId, p, q, cimNamespace, writer, context);
+        } else {
+            boolean missingBoundaryFromBeNL = false;
+            // XXX(LUMA) Already known: tie lines from destructive merge do not receive the boundary terminal
+            if (c.getId().equals("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc") ||
+                    c.getId().equals("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4 + a279a3dc-550b-426c-af3a-61b7be508dcc") ||
+                    c.getId().equals("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13") ||
+                    c.getId().equals("dad02278-bd25-476f-8f58-dbe44be72586 + ed0c5d75-4a54-43c8-b782-b20d7431630b") ||
+                    c.getId().equals("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49")) {
+                if (aliasTypeForTerminalId.equals("CGMES.Terminal_Boundary_1") ||
+                        aliasTypeForTerminalId.equals("CGMES.Terminal_Boundary_2")) {
+                    missingBoundaryFromBeNL = true;
+                }
+            }
+            // Only throw exception if we came from a non-controlled test
+            try {
+                throw new Exception("XXX LUMA missing alias for " + c.getType() + " " + c.getId() + ": " + aliasTypeForTerminalId);
+            } catch (Exception x) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                x.printStackTrace(pw);
+                String sStackTrace = sw.toString(); // stack trace as a string
+                if (sStackTrace.contains("microGridBaseCaseBEMergedWithNL")) {
+                    System.err.println(x.getMessage());
+                } else {
+                    throw new RuntimeException(x);
+                }
+            }
         }
     }
 

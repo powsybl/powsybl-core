@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
@@ -208,9 +209,13 @@ public final class CgmesExportUtil {
     public static int getTerminalSequenceNumber(Terminal t) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
-            if (c instanceof DanglingLine) {
-                DanglingLine dl = (DanglingLine) c;
-                return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
+            if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+                // Nothing to do
+            } else {
+                if (c instanceof DanglingLine) {
+                    DanglingLine dl = (DanglingLine) c;
+                    return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
+                }
             }
             return 1;
         } else {
@@ -289,11 +294,23 @@ public final class CgmesExportUtil {
     public static String getTerminalId(Terminal t, CgmesExportContext context) {
         String aliasType;
         Connectable<?> c = t.getConnectable();
-        if (c instanceof DanglingLine && !((DanglingLine) c).isPaired()) {
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL;
+        if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+            if (c instanceof DanglingLine && !((DanglingLine) c).isPaired()) {
+                // The only terminal of the dangling line should follow the same convention
+                // of other connectable with only one terminal, TERMINAL1, not TERMINAL
+                // Doing it this way, we could eliminate this specific processing for dangling lines
+                aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
+            } else {
+                int sequenceNumber = getTerminalSequenceNumber(t);
+                aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
+            }
         } else {
-            int sequenceNumber = getTerminalSequenceNumber(t);
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
+            if (c instanceof DanglingLine && !((DanglingLine) c).isPaired()) {
+                aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL;
+            } else {
+                int sequenceNumber = getTerminalSequenceNumber(t);
+                aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
+            }
         }
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
     }
