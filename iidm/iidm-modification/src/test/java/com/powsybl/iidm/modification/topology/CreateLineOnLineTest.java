@@ -162,6 +162,27 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .build();
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
         assertEquals("Unexpected type of identifiable LOAD: LOAD", exception3.getMessage());
+
+        NetworkModification modification4 = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network1.getLine("CJ"))
+                .withLineAdder(createLineAdder(network1.getLine("CJ"), network1))
+                .withCreateFictitiousSubstation(true)
+                .withFictitiousSubstationId(null)
+                .build();
+        PowsyblException exception4 = assertThrows(PowsyblException.class, () -> modification4.apply(network1, true, Reporter.NO_OP));
+        assertEquals("Fictitious substation ID must be defined if a fictitious substation is to be created", exception4.getMessage());
+
+        NetworkModification modification5 = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network1.getLine("CJ"))
+                .withLineAdder(createLineAdder(network1.getLine("CJ"), network1))
+                .withCreateFictitiousSubstation(true)
+                .withPositionPercent(Double.NaN)
+                .build();
+        PowsyblException exception5 = assertThrows(PowsyblException.class, () -> modification5.apply(network1, true, Reporter.NO_OP));
+        assertEquals("Percent should not be undefined", exception5.getMessage());
+
     }
 
     private static LineAdder createLineAdder(Line line, Network network) {

@@ -72,6 +72,10 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         assertEquals("All switch kinds must be defined", e.getMessage());
+
+        // Check nothing is created if throwException is false
+        modification.apply(network);
+        assertEquals(0, network.getVoltageLevel(VLTEST).getNodeBreakerView().getBusbarSectionCount());
     }
 
     @Test
@@ -85,6 +89,10 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         assertEquals("Switch kinds must be DISCONNECTOR or BREAKER", e.getMessage());
+
+        // Check nothing is created if throwException is false
+        modification.apply(network);
+        assertEquals(0, network.getVoltageLevel(VLTEST).getNodeBreakerView().getBusbarSectionCount());
     }
 
     @Test
@@ -98,6 +106,10 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         assertEquals("busBar count must be >= 1", e.getMessage());
+
+        // Check nothing is created if throwException is false
+        modification.apply(network);
+        assertEquals(0, network.getVoltageLevel(VLTEST).getNodeBreakerView().getBusbarSectionCount());
     }
 
     @Test
@@ -138,6 +150,10 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         assertEquals("Unexpected switch kinds count (1). Should be 3", e.getMessage());
+
+        // Check nothing is created if throwException is false
+        modification.apply(network);
+        assertEquals(0, network.getVoltageLevel(VLTEST).getNodeBreakerView().getBusbarSectionCount());
     }
 
     @Test
