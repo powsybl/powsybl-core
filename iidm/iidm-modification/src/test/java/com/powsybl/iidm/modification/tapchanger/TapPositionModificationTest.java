@@ -4,12 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.modification;
+package com.powsybl.iidm.modification.tapchanger;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.iidm.modification.tapChanger.PhaseTapPositionModification;
-import com.powsybl.iidm.modification.tapChanger.RatioTapPositionModification;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -67,6 +66,22 @@ class TapPositionModificationTest {
     }
 
     @Test
+    void testGetLeg() {
+        RatioTapPositionModification modifRTC = new RatioTapPositionModification("ID", 1, LEG_NUM);
+        assertNull(modifRTC.getLeg(null, leg -> true, true));
+        // defined leg in constructor
+        assertEquals(threeWindingTransformerLeg, modifRTC.getLeg(threeWindingTransformer, leg -> true, true));
+        modifRTC = new RatioTapPositionModification("ID", 1, null);
+        // no match
+        assertNull(modifRTC.getLeg(threeWindingTransformer, leg -> false, false));
+        // mutliple match
+        assertNull(modifRTC.getLeg(threeWindingTransformer, RatioTapChangerHolder::hasRatioTapChanger, false));
+        // single match
+        assertEquals(threeWindingTransformerLeg,
+            modifRTC.getLeg(threeWindingTransformer, leg -> leg.equals(threeWindingTransformerLeg), false));
+    }
+
+    @Test
     void testUnknownId() {
         NetworkModification modif = new PhaseTapPositionModification("UNKNOWN_ID", 5, null);
         assertThrows(PowsyblException.class, () -> modif.apply(network, true, Reporter.NO_OP));
@@ -76,7 +91,6 @@ class TapPositionModificationTest {
         assertThrows(PowsyblException.class, () -> modif2.apply(network, true, Reporter.NO_OP));
         assertDoesNotThrow(() -> modif2.apply(network, false, Reporter.NO_OP),
             "An invalid ID should not throw if throwException is false.");
-
     }
 
     @Test
