@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.Objects;
-import java.util.OptionalInt;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -31,18 +31,19 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
      *
      * @implNote Must NOT be empty if element == TransformerElement.THREE_WINDING_TRANSFORMER
      */
-    private final Integer leg;
+    private final ThreeWindingsTransformer.Side legSide;
 
     /**
      * @param tapPosition the new tap position
-     * @param leg         defines on which leg of the three winding transformer the modification will be done.
+     * @param legSide     defines on which leg of the three winding transformer the modification will be done.
      *                    If <code>null</code> on three windings transformer, {@link AbstractTapPositionModification#apply(Network)} will search for a unique rtc.
      *                    Ignored on two windings transformers.
      */
-    protected AbstractTapPositionModification(String transformerId, int tapPosition, Integer leg) {
+    protected AbstractTapPositionModification(String transformerId, int tapPosition,
+                                              ThreeWindingsTransformer.Side legSide) {
         this.transformerId = Objects.requireNonNull(transformerId);
         this.tapPosition = tapPosition;
-        this.leg = leg;
+        this.legSide = legSide;
     }
 
     abstract void applyTwoWindings(Network network, TwoWindingsTransformer twoWindingsTransformer,
@@ -75,9 +76,9 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
         if (threeWindingsTransformer == null) {
             return null;
         }
-        if (leg != null) {
+        if (legSide != null) {
             // leg was given in the constructor, we return this leg
-            return threeWindingsTransformer.getLegs().get(leg);
+            return threeWindingsTransformer.getLeg(legSide);
         } else {
             // Otherwise we find a unique leg that is the holder
             Set<ThreeWindingsTransformer.Leg> validLegs = threeWindingsTransformer.getLegStream()
@@ -103,12 +104,12 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
         return tapPosition;
     }
 
-    public OptionalInt getOptionalLeg() {
-        return leg == null ? OptionalInt.empty() : OptionalInt.of(leg);
+    public Optional<ThreeWindingsTransformer.Side> getOptionalLeg() {
+        return Optional.ofNullable(legSide);
     }
 
-    public Integer getLeg() {
-        return leg;
+    public ThreeWindingsTransformer.Side getLegSide() {
+        return legSide;
     }
 
 }

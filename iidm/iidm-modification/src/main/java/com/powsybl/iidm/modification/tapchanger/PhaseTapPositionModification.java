@@ -25,22 +25,22 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
     /**
      * @param transfoId   the ID of the three windings transformer, which holds the ptc
      * @param tapPosition the new tap position
-     * @param legNumber   Defines the leg on which to apply the change for three winding tranformers. 0, 1 or 2
+     * @param leg         Defines the leg on which to apply the change for three winding tranformers.
      */
     public static PhaseTapPositionModification createThreeWindingsPtcPositionModification(String transfoId,
                                                                                           int tapPosition,
-                                                                                          int legNumber) {
-        return new PhaseTapPositionModification(transfoId, tapPosition, legNumber);
+                                                                                          ThreeWindingsTransformer.Side leg) {
+        return new PhaseTapPositionModification(transfoId, tapPosition, leg);
     }
 
     /**
      * @param transfoId   the ID of the three windings transformer, which holds the ptc
      * @param tapPosition the new tap position
      * @param leg         defines on which leg of the three winding transformer the modification will be done. null on two windings.
-     * @see PhaseTapPositionModification#createThreeWindingsPtcPositionModification(String, int, int)
+     * @see PhaseTapPositionModification#createThreeWindingsPtcPositionModification(String, int, ThreeWindingsTransformer.Side)
      * @see PhaseTapPositionModification#createTwoWindingsPtcPositionModification(String, int)
      */
-    public PhaseTapPositionModification(String transfoId, int tapPosition, Integer leg) {
+    public PhaseTapPositionModification(String transfoId, int tapPosition, ThreeWindingsTransformer.Side leg) {
         super(transfoId, tapPosition, leg);
     }
 
