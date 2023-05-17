@@ -370,8 +370,8 @@ public class MatpowerExporter implements Exporter {
                 double minQ = g.getReactiveLimits().getMinQ(g.getTargetP());
                 Bus regulatedBus = g.getRegulatingTerminal().getBusView().getBus();
                 boolean voltageRegulation = g.isVoltageRegulatorOn();
-                addMgen(model, context, bus, vl, id, targetV, targetP, minP, maxP, targetQ, minQ, maxQ, regulatedBus,
-                    voltageRegulation);
+                addMgen(model, context, bus, vl, id, targetV, targetP, minP, maxP, targetQ, Math.min(minQ, maxQ), Math.max(minQ, maxQ), regulatedBus,
+                        voltageRegulation);
             }
         }
 
