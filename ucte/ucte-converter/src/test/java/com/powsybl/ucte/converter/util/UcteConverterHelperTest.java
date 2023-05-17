@@ -74,5 +74,19 @@ class UcteConverterHelperTest {
 
         assertEquals(duExpected.getReal(), duRef2.getReal(), 0.0001);
         assertEquals(duExpected.getImaginary(), duRef2.getImaginary(), 0.0001);
+
+        ReadOnlyDataSource dataSource = new ResourceDataSource("expectedExport4", new ResourceSet("/", "expectedExport4.uct"));
+        Network reference4 = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+
+        double angleRef4 = Math.toRadians(calculateAsymmAngleTheta(reference4.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")));
+        double moduleRef4 = calculateAsymmAngleDu(reference4.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"));
+        Complex duRef4 = new Complex(Math.cos(angleRef4), Math.sin(angleRef4)).multiply(moduleRef4);
+
+        double angleExpected4 = Math.toRadians(-120.0);
+        double moduleExpected4 = 1.833;
+        Complex duExpected4 = new Complex(Math.cos(angleExpected4), Math.sin(angleExpected4)).multiply(moduleExpected4);
+
+        assertEquals(duExpected4.getReal(), duRef4.getReal(), 0.0001);
+        assertEquals(duExpected4.getImaginary(), duRef4.getImaginary(), 0.0001);
     }
 }

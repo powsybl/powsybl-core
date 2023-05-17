@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.ucte.network.UcteAngleRegulation;
 import com.powsybl.ucte.network.UctePhaseRegulation;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -79,8 +80,37 @@ public final class UcteConverterHelper {
      * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
      * @return the δu needed to create a {@link UcteAngleRegulation}
      */
-    public static double calculateAsymmAngleDu(TwoWindingsTransformer twoWindingsTransformer) {
+
+    public static Pair<Double, Double> calculateAsymmAngleDuAndAngle(TwoWindingsTransformer twoWindingsTransformer) {
         PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
+        int lowTapPosition = phaseTapChanger.getLowTapPosition();
+        int highTapPosition = phaseTapChanger.getHighTapPosition();
+        double lowPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(lowTapPosition).getAlpha());
+        double lowPositionRho = 1 / phaseTapChanger.getStep(lowTapPosition).getRho();
+        double highPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(highTapPosition).getAlpha());
+        double highPositionRho = 1 / phaseTapChanger.getStep(highTapPosition).getRho();
+        double xa = lowPositionRho * Math.cos(lowPositionAlpha);
+        double ya = lowPositionRho * Math.sin(lowPositionAlpha);
+        double xb = highPositionRho * Math.cos(highPositionAlpha);
+        double yb = highPositionRho * Math.sin(highPositionAlpha);
+        double theta = Math.atan((yb - ya) / (xb - xa));
+        double thetaDegrees = Math.toDegrees(theta);
+        int tapNumber = phaseTapChanger.getStepCount();
+
+        double distance = Math.sqrt((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya));
+
+        double absDu = 100 * distance / (tapNumber - 1);
+
+        // the formula above gives actually the module of du, we need to verify the sign of du
+        if ((yb * highPositionRho - ya * lowPositionRho) / Math.sin(theta) < 0.) {
+            thetaDegrees = Math.toDegrees(theta - Math.PI);
+        }
+
+        return Pair.of(BigDecimal.valueOf(absDu).setScale(4, RoundingMode.HALF_UP).doubleValue(), thetaDegrees);
+    }
+
+    public static double calculateAsymmAngleDu(TwoWindingsTransformer twoWindingsTransformer) {
+        /*PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
         int lowTapPosition = phaseTapChanger.getLowTapPosition();
         int highTapPosition = phaseTapChanger.getHighTapPosition();
         int tapNumber = phaseTapChanger.getStepCount();
@@ -94,7 +124,8 @@ public final class UcteConverterHelper {
         double yb = highPositionRho * Math.sin(highPositionAlpha);
         double distance = Math.sqrt((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya));
         double du = 100 * distance / (tapNumber - 1);
-        return BigDecimal.valueOf(du).setScale(4, RoundingMode.HALF_UP).doubleValue();
+        return BigDecimal.valueOf(du).setScale(4, RoundingMode.HALF_UP).doubleValue();*/
+        return calculateAsymmAngleDuAndAngle(twoWindingsTransformer).getKey();
     }
 
     /**
@@ -106,7 +137,7 @@ public final class UcteConverterHelper {
      * @return the Θ needed to create a {@link UcteAngleRegulation}
      */
     public static double calculateAsymmAngleTheta(TwoWindingsTransformer twoWindingsTransformer) {
-        PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
+        /*PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
         int lowTapPosition = phaseTapChanger.getLowTapPosition();
         int highTapPosition = phaseTapChanger.getHighTapPosition();
         double lowPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(lowTapPosition).getAlpha());
@@ -117,6 +148,7 @@ public final class UcteConverterHelper {
         double ya = lowPositionRho * Math.sin(lowPositionAlpha);
         double xb = highPositionRho * Math.cos(highPositionAlpha);
         double yb = highPositionRho * Math.sin(highPositionAlpha);
-        return Math.toDegrees(Math.atan((yb - ya) / (xb - xa)));
+        return Math.toDegrees(Math.atan((yb - ya) / (xb - xa)));*/
+        return calculateAsymmAngleDuAndAngle(twoWindingsTransformer).getValue();
     }
 }

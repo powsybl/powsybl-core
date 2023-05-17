@@ -211,13 +211,19 @@ class UcteExporterTest extends AbstractConverterTest {
     @Test
     void roundTripOfNetworkWithTapChangers() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport2.uct");
-        testExporter(network, "/expectedExport3.uct");
+        testExporter(network, "/expectedExport3.uct"); // because of asymmetrical phase shifter
     }
+
+    /*@Test
+    void roundTripOfNetworkWithTapChangers2() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport4.uct");
+        testExporter(network, "/expectedExport4.uct");
+    }*/
 
     @Test
     void testTapChangers() {
         Network network = loadNetworkFromResourceFile("/expectedExport2.uct");
-        Network exportedNetwork = loadNetworkFromResourceFile("/expectedExport3.uct");
+        Network exportedNetwork = loadNetworkFromResourceFile("/expectedExport3.uct"); // because of asymmetrical phase shifter
         String rtcId = "0BBBBB5  0AAAAA2  1";
         assertEquals(network.getTwoWindingsTransformer(rtcId).getRatioTapChanger().getCurrentStep().getRho(),
                 exportedNetwork.getTwoWindingsTransformer(rtcId).getRatioTapChanger().getCurrentStep().getRho());
@@ -232,4 +238,15 @@ class UcteExporterTest extends AbstractConverterTest {
         assertEquals(network.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getAlpha(),
                 exportedNetwork.getTwoWindingsTransformer(ptcId2).getPhaseTapChanger().getCurrentStep().getAlpha(), 0.0001);
     }
+
+    /*@Test
+    void testTapChangers2() {
+        Network network = loadNetworkFromResourceFile("/expectedExport4.uct");
+        Network exportedNetwork = loadNetworkFromResourceFile("/expectedExport5.uct"); // because of asymmetrical phase shifter
+        String ptcId = "HDDDDD2  HCCCCC1  1";
+        assertEquals(network.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getRho(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getRho(), 0.0001);
+        assertEquals(network.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getAlpha(),
+                exportedNetwork.getTwoWindingsTransformer(ptcId).getPhaseTapChanger().getCurrentStep().getAlpha(), 0.0001);
+    }*/
 }
