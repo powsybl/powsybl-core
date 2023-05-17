@@ -319,6 +319,19 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      */
     Leg getLeg3();
 
+    default Leg getLeg(Side side) {
+        switch (side) {
+            case ONE:
+                return getLeg1();
+            case TWO:
+                return getLeg2();
+            case THREE:
+                return getLeg3();
+            default:
+                return null;
+        }
+    }
+
     /**
      * Return the legs of this transformer, in the natural order (leg1, leg2 and leg3)
      */
