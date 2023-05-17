@@ -60,6 +60,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
 
         voltageLevel.remove();
         removedVoltageLevelReport(reporter, voltageLevelId);
+        LOGGER.info("Voltage level {}, its equipments and the branches it is connected to have been removed", voltageLevelId);
     }
 
 }
