@@ -11,14 +11,12 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.entsoe.util.MergedXnode;
-import com.powsybl.iidm.network.Exporter;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
@@ -165,12 +163,7 @@ public class UcteExporter implements Exporter {
             convertLine(ucteNetwork, line, context);
         }
         for (TieLine tl : network.getTieLines()) {
-            MergedXnode mergedXnode = tl.getExtension(MergedXnode.class);
-            if (mergedXnode != null) {
-                convertTieLine(ucteNetwork, mergedXnode, context);
-            } else {
-                convertTieLine(ucteNetwork, tl, context);
-            }
+            convertTieLine(ucteNetwork, tl, context);
         }
         for (TwoWindingsTransformer transformer : network.getTwoWindingsTransformers()) {
             convertTwoWindingsTransformer(ucteNetwork, transformer, context);
@@ -351,21 +344,6 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Create a {@link UcteNode} object from a MergedXnode and add it to the {@link UcteNetwork}.
-     *
-     * @param ucteNetwork The target network in ucte
-     * @param mergedXnode The MergedXnode extension used to create the XNode
-     * @param context The context used to store temporary data during the conversion
-     */
-    private static void convertXNode(UcteNetwork ucteNetwork, MergedXnode mergedXnode, UcteExporterContext context) {
-        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(mergedXnode.getCode());
-        String geographicalName = ((Identifiable<?>) mergedXnode.getExtendable()).getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
-
-        UcteNodeStatus xnodeStatus = getXnodeStatus((Identifiable<?>) mergedXnode.getExtendable());
-        convertXNode(ucteNetwork, xnodeCode, geographicalName, xnodeStatus);
-    }
-
-    /**
      * Create a {@link UcteNode} object from a TieLine and add it to the {@link UcteNetwork}.
      *
      * @param ucteNetwork The target network in ucte
@@ -460,50 +438,6 @@ public class UcteExporter implements Exporter {
                 getPermanentLimit(line),
                 elementName);
         ucteNetwork.addLine(ucteLine);
-    }
-
-    /**
-     * Convert a {@link MergedXnode} to two {@link UcteLine} connected by a Xnode. Add the two {@link UcteLine} and the {@link UcteNode} to the network.
-     *
-     * @param ucteNetwork The target UcteNetwork
-     * @param mergedXnode The MergedXnode extension used to create the XNode
-     * @param context The context used to store temporary data during the conversion
-     */
-    private static void convertTieLine(UcteNetwork ucteNetwork, MergedXnode mergedXnode, UcteExporterContext context) {
-        TieLine line = (TieLine) mergedXnode.getExtendable();
-
-        LOGGER.trace("Converting TieLine {}", line.getId());
-
-        // Create XNode
-        convertXNode(ucteNetwork, mergedXnode, context);
-
-        // Create half line 1
-        UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(mergedXnode.getLine1Name());
-        String elementName1 = line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
-        UcteElementStatus status1 = line instanceof TieLine ? getStatusHalf(line, Branch.Side.ONE) : getStatus(line, Branch.Side.ONE);
-        UcteLine ucteLine1 = new UcteLine(
-                ucteElementId1,
-                status1,
-                line.getR() * mergedXnode.getRdp(),
-                line.getX() * mergedXnode.getXdp(),
-                line.getB1(),
-                line.getDanglingLine1().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
-                elementName1);
-        ucteNetwork.addLine(ucteLine1);
-
-        // Create half line2
-        UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(mergedXnode.getLine2Name());
-        String elementName2 = line.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
-        UcteElementStatus status2 = line instanceof TieLine ? getStatusHalf(line, Branch.Side.TWO) : getStatus(line, Branch.Side.TWO);
-        UcteLine ucteLine2 = new UcteLine(
-                ucteElementId2,
-                status2,
-                line.getR() * (1.0d - mergedXnode.getRdp()),
-                line.getX() * (1.0d - mergedXnode.getXdp()),
-                line.getB2(),
-                line.getDanglingLine2().getCurrentLimits().map(l -> (int) l.getPermanentLimit()).orElse(null),
-                elementName2);
-        ucteNetwork.addLine(ucteLine2);
     }
 
     /**
@@ -618,43 +552,6 @@ public class UcteExporter implements Exporter {
                 return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
             }
         }
-    }
-
-    private static UcteElementStatus getStatus(Identifiable<?> identifiable, Branch.Side side) {
-        if (identifiable instanceof Branch) {
-            Branch<?> branch = (Branch<?>) identifiable;
-            if (branch.isFictitious()) {
-                if (branch.getTerminal(side).isConnected()) {
-                    return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
-                } else {
-                    return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
-                }
-            } else {
-                if (branch.getTerminal(side).isConnected()) {
-                    return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
-                } else {
-                    return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
-                }
-            }
-        }
-        if (identifiable instanceof TieLine) {
-            TieLine branch = (TieLine) identifiable;
-            if (branch.isFictitious()) {
-                if (branch.getDanglingLine(side).getTerminal().isConnected()) {
-                    return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
-                } else {
-                    return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
-                }
-            } else {
-                if (branch.getDanglingLine(side).getTerminal().isConnected()) {
-                    return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
-                } else {
-                    return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;
-                }
-            }
-
-        }
-        throw new IllegalStateException();
     }
 
     private static UcteElementStatus getStatusHalf(TieLine tieLine, Branch.Side side) {
