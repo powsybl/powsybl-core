@@ -23,11 +23,11 @@ public class ContingencyJsonModule extends SimpleModule {
         addSerializer(Criterion.class, new CriterionSerializer());
         // criterion lists
         addSerializer(InjectionCriterionContingencyList.class, new InjectionCriterionContingencyListSerializer());
-        addSerializer(HvdcLineCriterionContingencyList.class, new HvdcLineCriterionContingencyListSerializer());
-        addSerializer(LineCriterionContingencyList.class, new LineCriterionContingencyListSerializer());
-        addSerializer(TieLineCriterionContingencyList.class, new TieLineCriterionContingencyListSerializer());
-        addSerializer(TwoWindingsTransformerCriterionContingencyList.class, new TwoWindingsTransformerCriterionContingencyListSerializer());
-        addSerializer(ThreeWindingsTransformerCriterionContingencyList.class, new ThreeWindingsTransformerCriterionContingencyListSerializer());
+        addSerializer(HvdcLineCriterionContingencyList.class, new EquipmentCriterionContingencyListSerializer<>(HvdcLineCriterionContingencyList.class));
+        addSerializer(LineCriterionContingencyList.class, new EquipmentCriterionContingencyListSerializer<>(LineCriterionContingencyList.class));
+        addSerializer(TieLineCriterionContingencyList.class, new EquipmentCriterionContingencyListSerializer<>(TieLineCriterionContingencyList.class));
+        addSerializer(TwoWindingsTransformerCriterionContingencyList.class, new EquipmentCriterionContingencyListSerializer<>(TwoWindingsTransformerCriterionContingencyList.class));
+        addSerializer(ThreeWindingsTransformerCriterionContingencyList.class, new EquipmentCriterionContingencyListSerializer<>(ThreeWindingsTransformerCriterionContingencyList.class));
 
         addSerializer(DefaultContingencyList.class, new DefaultContingencyListSerializer());
         addSerializer(Contingency.class, new ContingencySerializer());
