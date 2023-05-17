@@ -23,14 +23,13 @@ public class GeneratorModification extends AbstractNetworkModification {
     private final Modifs modifs;
 
     public GeneratorModification(String generatorId, Modifs modifs) {
-        super(Reporter.NO_OP);
         this.generatorId = Objects.requireNonNull(generatorId);
         this.modifs = modifs;
     }
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager) {
+                      ComputationManager computationManager, Reporter reporter) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             throw new PowsyblException("Generator '" + generatorId + "' not found");

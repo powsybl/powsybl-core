@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 
@@ -33,12 +32,11 @@ public class CreateLineOnLineBuilder {
     private String line1Name = null;
     private String line2Id = null;
     private String line2Name = null;
-    private Reporter reporter = Reporter.NO_OP;
 
     public CreateLineOnLine build() {
         return new CreateLineOnLine(positionPercent, bbsOrBusId, fictitiousVlId, fictitiousVlName,
                 createFictSubstation, fictitiousSubstationId, fictitiousSubstationName,
-                line1Id, line1Name, line2Id, line2Name, line, lineAdder, reporter);
+                line1Id, line1Name, line2Id, line2Name, line, lineAdder);
     }
 
     public CreateLineOnLineBuilder withPositionPercent(double positionPercent) {
@@ -115,11 +113,6 @@ public class CreateLineOnLineBuilder {
 
     public CreateLineOnLineBuilder withLineAdder(LineAdder lineAdder) {
         this.lineAdder = lineAdder;
-        return this;
-    }
-
-    public CreateLineOnLineBuilder withReporter(Reporter reporter) {
-        this.reporter = reporter;
         return this;
     }
 }

@@ -43,13 +43,13 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
      * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     ConnectVoltageLevelOnLine(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
-                              String line2Id, String line2Name, Line line, Reporter reporter) {
-        super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line, reporter);
+                              String line2Id, String line2Name, Line line) {
+        super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
     }
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager) {
+                      ComputationManager computationManager, Reporter reporter) {
         // Checks
         if (failChecks(network, throwException, reporter, LOG)) {
             return;

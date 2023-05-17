@@ -57,8 +57,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
      * <p>
      * NB: This constructor is package-private, Please use {@link RevertCreateLineOnLineBuilder} instead.
      */
-    RevertCreateLineOnLine(String lineToBeMerged1Id, String lineToBeMerged2Id, String lineToBeDeletedId, String mergedLineId, String mergedLineName, Reporter reporter) {
-        super(reporter);
+    RevertCreateLineOnLine(String lineToBeMerged1Id, String lineToBeMerged2Id, String lineToBeDeletedId, String mergedLineId, String mergedLineName) {
         this.lineToBeMerged1Id = Objects.requireNonNull(lineToBeMerged1Id);
         this.lineToBeMerged2Id = Objects.requireNonNull(lineToBeMerged2Id);
         this.lineToBeDeletedId = Objects.requireNonNull(lineToBeDeletedId);
@@ -105,7 +104,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager) {
+                      ComputationManager computationManager, Reporter reporter) {
         Line lineToBeMerged1 = checkAndGetLine(network, lineToBeMerged1Id, reporter, throwException);
         Line lineToBeMerged2 = checkAndGetLine(network, lineToBeMerged2Id, reporter, throwException);
         Line lineToBeDeleted = checkAndGetLine(network, lineToBeDeletedId, reporter, throwException);

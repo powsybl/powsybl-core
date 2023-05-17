@@ -33,14 +33,13 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
     private final String hvdcLineId;
     private final List<String> shuntCompensatorIds;
 
-    RemoveHvdcLine(String hvdcLineId, List<String> shuntCompensatorIds, Reporter reporter) {
-        super(reporter);
+    RemoveHvdcLine(String hvdcLineId, List<String> shuntCompensatorIds) {
         this.hvdcLineId = Objects.requireNonNull(hvdcLineId);
         this.shuntCompensatorIds = Objects.requireNonNull(shuntCompensatorIds);
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager) {
+    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
         if (hvdcLine != null) {
             HvdcConverterStation<?> hvdcConverterStation1 = hvdcLine.getConverterStation1();
@@ -96,7 +95,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             VoltageLevel shuntVl = shuntCompensator.getTerminal().getVoltageLevel();
             // check whether the shunt compensator is connected to the same voltage level as the lcc
             if (vl1 == shuntVl || vl2 == shuntVl) {
-                new RemoveFeederBay(shuntCompensator.getId(), reporter).apply(network, throwException, computationManager);
+                new RemoveFeederBay(shuntCompensator.getId()).apply(network, throwException, computationManager, reporter);
                 removedShuntCompensatorReport(reporter, shuntCompensator.getId());
                 LOGGER.info("Shunt compensator {} has been removed", shuntCompensator.getId());
             } else {

@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.topology.ModificationReports.notFoundVoltageLevelReport;
+import static com.powsybl.iidm.modification.topology.ModificationReports.removedVoltageLevelReport;
 
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
@@ -27,13 +28,12 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
 
     private final String voltageLevelId;
 
-    public RemoveVoltageLevel(String voltageLevelId, Reporter reporter) {
-        super(reporter);
+    public RemoveVoltageLevel(String voltageLevelId) {
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager) {
+    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             LOGGER.error("Voltage level {} not found", voltageLevelId);
@@ -46,7 +46,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
 
         voltageLevel.getConnectables(HvdcConverterStation.class).forEach(hcs -> {
             if (hcs.getHvdcLine() != null) {
-                new RemoveHvdcLineBuilder().withHvdcLineId(hcs.getHvdcLine().getId()).withReporter(reporter).build().apply(network, throwException, computationManager);
+                new RemoveHvdcLineBuilder().withHvdcLineId(hcs.getHvdcLine().getId()).build().apply(network, throwException, computationManager, reporter);
             }
         });
 
@@ -54,7 +54,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
             if (connectable instanceof Injection) {
                 connectable.remove();
             } else {
-                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).withReporter(reporter).build().apply(network, throwException, computationManager);
+                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, reporter);
             }
         });
 

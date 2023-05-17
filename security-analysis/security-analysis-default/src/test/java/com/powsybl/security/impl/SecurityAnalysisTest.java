@@ -58,12 +58,8 @@ import java.util.stream.Collectors;
 class SecurityAnalysisTest {
 
     private static class SecurityAnalysisModificationTest extends AbstractNetworkModification {
-        protected SecurityAnalysisModificationTest(Reporter reporter) {
-            super(reporter);
-        }
-
         @Override
-        public void apply(Network network, boolean throwException, ComputationManager computationManager) {
+        public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
             network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
             network.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
             network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
@@ -109,7 +105,7 @@ class SecurityAnalysisTest {
                                              .build();
         Contingency contingencyMock = Mockito.spy(contingency);
 
-        Mockito.when(contingencyMock.toModification()).thenReturn(new SecurityAnalysisModificationTest(Reporter.NO_OP));
+        Mockito.when(contingencyMock.toModification()).thenReturn(new SecurityAnalysisModificationTest());
         ContingenciesProvider contingenciesProvider = n -> Collections.singletonList(contingencyMock);
 
         LimitViolationFilter filter = new LimitViolationFilter();

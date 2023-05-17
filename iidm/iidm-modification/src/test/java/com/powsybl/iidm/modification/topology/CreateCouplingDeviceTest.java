@@ -7,6 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
@@ -64,21 +65,21 @@ class CreateCouplingDeviceTest extends AbstractConverterTest {
                 .withBusOrBusbarSectionId1("bbs")
                 .withBusOrBusbarSectionId2("bbs2")
                 .build();
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> couplingDeviceModifWrongBbs.apply(network, true));
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> couplingDeviceModifWrongBbs.apply(network, true, Reporter.NO_OP));
         assertEquals("Identifiable bbs not found.", e0.getMessage());
 
         NetworkModification couplingDeviceModifBbsInDifferentVl = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs5")
                 .build();
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> couplingDeviceModifBbsInDifferentVl.apply(network, true));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> couplingDeviceModifBbsInDifferentVl.apply(network, true, Reporter.NO_OP));
         assertEquals("bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
 
         NetworkModification sameBusbarSection = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs1")
                 .build();
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> sameBusbarSection.apply(network, true));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> sameBusbarSection.apply(network, true, Reporter.NO_OP));
         assertEquals("No coupling device can be created on a same bus or busbar section (bbs1)", e2.getMessage());
     }
 
@@ -127,7 +128,7 @@ class CreateCouplingDeviceTest extends AbstractConverterTest {
                 .withBusOrBusbarSectionId1(bbs1)
                 .withBusOrBusbarSectionId2(bbs2)
                 .build();
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         assertEquals(message, e2.getMessage());
     }
 

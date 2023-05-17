@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
@@ -35,8 +34,8 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     private final ConnectablePosition.Direction direction2;
 
     CreateBranchFeederBays(BranchAdder<?, ?> branchAdder, String busOrBbsId1, String busOrBbsId2, Integer positionOrder1, Integer positionOrder2,
-                           String feederName1, String feederName2, ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2, Reporter reporter) {
-        super(reporter, 1, 2);
+                           String feederName1, String feederName2, ConnectablePosition.Direction direction1, ConnectablePosition.Direction direction2) {
+        super(1, 2);
         this.branchAdder = Objects.requireNonNull(branchAdder);
         this.busOrBbsId1 = Objects.requireNonNull(busOrBbsId1);
         this.busOrBbsId2 = Objects.requireNonNull(busOrBbsId2);

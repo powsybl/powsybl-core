@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.reporter.Reporter;
-
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
@@ -21,11 +19,10 @@ public class ReplaceTeePointByVoltageLevelOnLineBuilder {
     private String newLine1Name = null;
     private String newLine2Id = null;
     private String newLine2Name = null;
-    private Reporter reporter = Reporter.NO_OP;
 
     public ReplaceTeePointByVoltageLevelOnLine build() {
         return new ReplaceTeePointByVoltageLevelOnLine(teePointLine1, teePointLine2, teePointLineToRemove, bbsOrBusId,
-                newLine1Id, newLine1Name, newLine2Id, newLine2Name, reporter);
+                newLine1Id, newLine1Name, newLine2Id, newLine2Name);
     }
 
     public ReplaceTeePointByVoltageLevelOnLineBuilder withTeePointLine1(String teePointLine1) {
@@ -71,11 +68,6 @@ public class ReplaceTeePointByVoltageLevelOnLineBuilder {
 
     public ReplaceTeePointByVoltageLevelOnLineBuilder withNewLine2Name(String newLine2Name) {
         this.newLine2Name = newLine2Name;
-        return this;
-    }
-
-    public ReplaceTeePointByVoltageLevelOnLineBuilder withReporter(Reporter reporter) {
-        this.reporter = reporter;
         return this;
     }
 }

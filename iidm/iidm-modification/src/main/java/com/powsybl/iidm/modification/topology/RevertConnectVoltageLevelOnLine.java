@@ -63,8 +63,7 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
      * <p>
      * NB: This constructor is package-private, Please use {@link RevertConnectVoltageLevelOnLineBuilder} instead.
      */
-    RevertConnectVoltageLevelOnLine(String line1Id, String line2Id, String lineId, String lineName, Reporter reporter) {
-        super(reporter);
+    RevertConnectVoltageLevelOnLine(String line1Id, String line2Id, String lineId, String lineName) {
         this.line1Id = Objects.requireNonNull(line1Id);
         this.line2Id = Objects.requireNonNull(line2Id);
         this.lineId = Objects.requireNonNull(lineId);
@@ -85,7 +84,7 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager) {
+                      ComputationManager computationManager, Reporter reporter) {
         Line line1 = checkAndGetLine(network, line1Id, reporter, throwException);
         Line line2 = checkAndGetLine(network, line2Id, reporter, throwException);
         if (line1 == null || line2 == null) {

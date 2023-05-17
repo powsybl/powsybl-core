@@ -7,17 +7,14 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.reporter.Reporter;
-
 /**
  * @author Etienne Homer <etienne.homer at rte-france.com>
  */
 public class RemoveVoltageLevelBuilder {
     private String voltageLevelId = null;
-    private Reporter reporter = Reporter.NO_OP;
 
     public RemoveVoltageLevel build() {
-        return new RemoveVoltageLevel(voltageLevelId, reporter);
+        return new RemoveVoltageLevel(voltageLevelId);
     }
 
     /**
@@ -25,11 +22,6 @@ public class RemoveVoltageLevelBuilder {
      */
     public RemoveVoltageLevelBuilder withVoltageLevelId(String voltageLevelId) {
         this.voltageLevelId = voltageLevelId;
-        return this;
-    }
-
-    public RemoveVoltageLevelBuilder withReporter(Reporter reporter) {
-        this.reporter = reporter;
         return this;
     }
 }

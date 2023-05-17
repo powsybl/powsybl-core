@@ -21,13 +21,12 @@ public class CloseSwitch extends AbstractNetworkModification {
     private final String switchId;
 
     CloseSwitch(String switchId) {
-        super(Reporter.NO_OP);
         this.switchId = Objects.requireNonNull(switchId);
     }
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager) {
+                      ComputationManager computationManager, Reporter reporter) {
         Switch sw = network.getSwitch(switchId);
         if (sw == null) {
             throw new PowsyblException("Switch '" + switchId + "' not found");

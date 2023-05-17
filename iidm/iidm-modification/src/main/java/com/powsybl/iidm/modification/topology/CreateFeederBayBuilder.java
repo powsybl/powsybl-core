@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.InjectionAdder;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 
@@ -20,10 +19,9 @@ public class CreateFeederBayBuilder {
     private Integer injectionPositionOrder = null;
     private String injectionFeederName = null;
     private ConnectablePosition.Direction injectionDirection = ConnectablePosition.Direction.BOTTOM;
-    private Reporter reporter = Reporter.NO_OP;
 
     public CreateFeederBay build() {
-        return new CreateFeederBay(injectionAdder, busOrBusbarSection, injectionPositionOrder, injectionFeederName, injectionDirection, reporter);
+        return new CreateFeederBay(injectionAdder, busOrBusbarSection, injectionPositionOrder, injectionFeederName, injectionDirection);
     }
 
     public CreateFeederBayBuilder withInjectionAdder(InjectionAdder<?, ?> injectionAdder) {
@@ -61,11 +59,6 @@ public class CreateFeederBayBuilder {
 
     public CreateFeederBayBuilder withInjectionDirection(ConnectablePosition.Direction injectionDirection) {
         this.injectionDirection = injectionDirection;
-        return this;
-    }
-
-    public CreateFeederBayBuilder withReporter(Reporter reporter) {
-        this.reporter = reporter;
         return this;
     }
 

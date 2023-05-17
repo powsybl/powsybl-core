@@ -7,6 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
@@ -141,7 +142,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true));
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> modification0.apply(network1, true, Reporter.NO_OP));
         assertEquals("Network given in parameters and in connectableAdder are different. Connectable was added then removed", e0.getMessage());
 
         // not found id
@@ -151,7 +152,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
         assertEquals("Identifiable bbs not found.", e1.getMessage());
 
         // wrong identifiable type
@@ -161,7 +162,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionPositionOrder(115)
                 .withInjectionDirection(BOTTOM)
                 .build();
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification2.apply(network, true, Reporter.NO_OP));
         assertEquals("Unsupported type GENERATOR for identifiable gen1", e2.getMessage());
     }
 
@@ -322,7 +323,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withBusOrBusbarSectionId("bbs4")
                 .withInjectionPositionOrder(115)
                 .build()
-                .apply(network, true);
+                .apply(network, true, Reporter.NO_OP);
 
         Load load = network.getLoad("newLoad");
         assertNotNull(load);
@@ -351,7 +352,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withBusOrBusbarSectionId("VLTEST12")
                 .withInjectionPositionOrder(10)
                 .build()
-                .apply(network, true);
+                .apply(network, true, Reporter.NO_OP);
 
         Load load = network.getLoad("newLoad");
         assertNotNull(load);

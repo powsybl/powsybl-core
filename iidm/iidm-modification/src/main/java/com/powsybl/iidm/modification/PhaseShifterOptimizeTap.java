@@ -20,13 +20,12 @@ public class PhaseShifterOptimizeTap extends AbstractNetworkModification {
     private final String phaseShifterId;
 
     public PhaseShifterOptimizeTap(String phaseShifterId) {
-        super(Reporter.NO_OP);
         this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
     }
 
     @Override
     public void apply(Network network, boolean throwException,
-                      ComputationManager computationManager) {
+                      ComputationManager computationManager, Reporter reporter) {
         new LoadFlowBasedPhaseShifterOptimizer(computationManager)
                 .findMaximalFlowTap(network, phaseShifterId);
     }

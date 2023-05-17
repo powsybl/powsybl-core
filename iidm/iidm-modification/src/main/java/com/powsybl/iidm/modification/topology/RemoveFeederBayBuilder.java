@@ -6,18 +6,15 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.reporter.Reporter;
-
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public class RemoveFeederBayBuilder {
 
     private String connectableId = null;
-    private Reporter reporter = Reporter.NO_OP;
 
     public RemoveFeederBay build() {
-        return new RemoveFeederBay(connectableId, reporter);
+        return new RemoveFeederBay(connectableId);
     }
 
     /**
@@ -25,11 +22,6 @@ public class RemoveFeederBayBuilder {
      */
     public RemoveFeederBayBuilder withConnectableId(String connectableId) {
         this.connectableId = connectableId;
-        return this;
-    }
-
-    public RemoveFeederBayBuilder withReporter(Reporter reporter) {
-        this.reporter = reporter;
         return this;
     }
 }

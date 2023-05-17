@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
@@ -39,8 +38,8 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
     CreateFeederBay(InjectionAdder<?, ?> injectionAdder, String busOrBbsId, Integer injectionPositionOrder,
-                    String injectionFeederName, ConnectablePosition.Direction injectionDirection, Reporter reporter) {
-        super(reporter, 0);
+                    String injectionFeederName, ConnectablePosition.Direction injectionDirection) {
+        super(0);
         this.injectionAdder = Objects.requireNonNull(injectionAdder);
         this.busOrBbsId = Objects.requireNonNull(busOrBbsId);
         this.injectionPositionOrder = injectionPositionOrder;

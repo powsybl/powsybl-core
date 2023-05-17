@@ -38,13 +38,12 @@ public class RemoveFeederBay extends AbstractNetworkModification {
      * Constructor
      * @param connectableId non-null id of the connectable whose feeder bay will be removed (busbar section are not accepted)
      */
-    public RemoveFeederBay(String connectableId, Reporter reporter) {
-        super(reporter);
+    public RemoveFeederBay(String connectableId) {
         this.connectableId = Objects.requireNonNull(connectableId);
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager) {
+    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         Connectable<?> connectable = network.getConnectable(connectableId);
         if (!checkConnectable(throwException, reporter, connectable)) {
             return;

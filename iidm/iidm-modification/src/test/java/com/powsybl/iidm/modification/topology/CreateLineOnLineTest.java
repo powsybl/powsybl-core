@@ -7,6 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
@@ -140,7 +141,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLine(line1)
                 .withLineAdder(adder1)
                 .build();
-        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true));
+        PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
         assertEquals("Identifiable NOT_EXISTING not found", exception1.getMessage());
 
         Network network2 = createBbNetwork();
@@ -151,7 +152,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLine(line2)
                 .withLineAdder(adder2)
                 .build();
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true));
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true, Reporter.NO_OP));
         assertEquals("Identifiable NOT_EXISTING not found", exception2.getMessage());
 
         NetworkModification modification3 = new CreateLineOnLineBuilder()
@@ -159,7 +160,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLine(line2)
                 .withLineAdder(adder2)
                 .build();
-        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true));
+        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
         assertEquals("Unexpected type of identifiable LOAD: LOAD", exception3.getMessage());
     }
 

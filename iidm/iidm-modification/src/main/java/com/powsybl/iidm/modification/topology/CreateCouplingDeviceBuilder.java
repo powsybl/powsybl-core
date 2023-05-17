@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.reporter.Reporter;
-
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
@@ -19,10 +17,8 @@ public class CreateCouplingDeviceBuilder {
 
     private String switchPrefixId = null;
 
-    private Reporter reporter = Reporter.NO_OP;
-
     public CreateCouplingDevice build() {
-        return new CreateCouplingDevice(busOrBbsId1, busOrBbsId2, switchPrefixId, reporter);
+        return new CreateCouplingDevice(busOrBbsId1, busOrBbsId2, switchPrefixId);
     }
 
     public CreateCouplingDeviceBuilder withBusOrBusbarSectionId1(String busOrBbsId1) {
@@ -53,11 +49,6 @@ public class CreateCouplingDeviceBuilder {
 
     public CreateCouplingDeviceBuilder withSwitchPrefixId(String switchPrefixId) {
         this.switchPrefixId = switchPrefixId;
-        return this;
-    }
-
-    public CreateCouplingDeviceBuilder withReporter(Reporter reporter) {
-        this.reporter = reporter;
         return this;
     }
 }

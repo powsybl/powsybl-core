@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
@@ -70,7 +71,7 @@ class RemoveHvdcLineTest extends AbstractConverterTest {
     void testRemoveHvdcLineUnknownShunt() {
         Network network = HvdcTestNetwork.createLcc();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds("UnknownShunt").build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, Reporter.NO_OP));
         assertEquals("Shunt UnknownShunt not found", e.getMessage());
     }
 
@@ -78,7 +79,7 @@ class RemoveHvdcLineTest extends AbstractConverterTest {
     void testRemoveHvdcLineUnknownLine() {
         Network network = Network.create("empty", "test");
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, Reporter.NO_OP));
         assertEquals("Hvdc Line L not found", e.getMessage());
     }
 

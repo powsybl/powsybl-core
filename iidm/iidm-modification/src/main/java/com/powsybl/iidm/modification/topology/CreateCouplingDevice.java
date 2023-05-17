@@ -40,8 +40,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
 
     private String switchPrefixId;
 
-    CreateCouplingDevice(String busOrBbsId1, String busOrBbsId2, String switchPrefixId, Reporter reporter) {
-        super(reporter);
+    CreateCouplingDevice(String busOrBbsId1, String busOrBbsId2, String switchPrefixId) {
         this.busOrBbsId1 = Objects.requireNonNull(busOrBbsId1, "Busbar section 1 not defined");
         this.busOrBbsId2 = Objects.requireNonNull(busOrBbsId2, "Busbar section 2 not defined");
         this.switchPrefixId = switchPrefixId;
@@ -76,7 +75,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager) {
+    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         Identifiable<?> busOrBbs1 = network.getIdentifiable(busOrBbsId1);
         Identifiable<?> busOrBbs2 = network.getIdentifiable(busOrBbsId2);
         if (failBbs(busOrBbs1, busOrBbs2, reporter, throwException)) {

@@ -16,24 +16,28 @@ import com.powsybl.iidm.network.Network;
  */
 public abstract class AbstractNetworkModification implements NetworkModification {
 
-    protected Reporter reporter;
-
-    protected AbstractNetworkModification(Reporter reporter) {
-        this.reporter = reporter;
-    }
-
     @Override
     public void apply(Network network) {
-        apply(network, false, LocalComputationManager.getDefault());
+        apply(network, false, LocalComputationManager.getDefault(), Reporter.NO_OP);
     }
 
     @Override
     public void apply(Network network, ComputationManager computationManager) {
-        apply(network, false, computationManager);
+        apply(network, false, computationManager, Reporter.NO_OP);
     }
 
     @Override
-    public void apply(Network network, boolean throwException) {
-        apply(network, throwException, LocalComputationManager.getDefault());
+    public void apply(Network network, ComputationManager computationManager, Reporter reporter) {
+        apply(network, false, computationManager, reporter);
+    }
+
+    @Override
+    public void apply(Network network, Reporter reporter) {
+        apply(network, false, LocalComputationManager.getDefault(), reporter);
+    }
+
+    @Override
+    public void apply(Network network, boolean throwException, Reporter reporter) {
+        apply(network, throwException, LocalComputationManager.getDefault(), reporter);
     }
 }

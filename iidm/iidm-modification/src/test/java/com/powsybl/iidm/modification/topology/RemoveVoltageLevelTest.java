@@ -23,8 +23,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createBbNetwork;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -76,9 +75,9 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
         assertNull(network.getHvdcLine("HVDC1"));
         assertNull(network.getVscConverterStation("VSC2"));
 
-        RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN", Reporter.NO_OP);
-        removeUnknown.apply(network, false);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true));
+        RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN");
+        removeUnknown.apply(network, false, Reporter.NO_OP);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, Reporter.NO_OP));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
     }
 
