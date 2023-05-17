@@ -45,7 +45,7 @@ class UcteConverterHelperTest {
 
     @Test
     void calculateSymmAngleDuTest() {
-        //assertEquals(1.573, calculateSymmAngleDu(reference.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1")), 0.0001);
+        // assertEquals(1.573, calculateSymmAngleDu(reference.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1")), 0.0001);
     }
 
     @Test
