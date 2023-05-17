@@ -199,7 +199,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                             .add();
                     createConnectablePosition = true;
                 } else {
-                    LOGGER.warn("PositionOrder {} already taken. No position extension created.", positionOrder);
+                    LOGGER.warn("PositionOrder {} too low, too high or already taken. No position extension created.", positionOrder);
                     positionOrderAlreadyTakenReport(reporter, positionOrder);
                 }
             } else {

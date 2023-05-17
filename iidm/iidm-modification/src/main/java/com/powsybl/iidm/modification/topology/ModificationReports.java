@@ -246,7 +246,7 @@ final class ModificationReports {
     static void positionOrderAlreadyTakenReport(Reporter reporter, int positionOrder) {
         reporter.report(Report.builder()
                 .withKey("positionOrderAlreadyTaken")
-                .withDefaultMessage("PositionOrder ${positionOrder} already taken. No position extension created.")
+                .withDefaultMessage("PositionOrder ${positionOrder} too low, too high or already taken. No position extension created.")
                 .withValue("positionOrder", positionOrder)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
