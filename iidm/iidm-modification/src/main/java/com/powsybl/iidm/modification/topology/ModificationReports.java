@@ -482,6 +482,58 @@ final class ModificationReports {
                 .build());
     }
 
+    static void countLowerThanMin(Reporter reporter, String type, int min) {
+        reporter.report(Report.builder()
+                .withKey("countLowerThanMin")
+                .withDefaultMessage("${type} must be >= ${min}")
+                .withValue("type", type)
+                .withValue("min", min)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void unexpectedSwitchKindsCount(Reporter reporter, int switchKindsCount, int expectedSwitchKindsCount) {
+        reporter.report(Report.builder()
+                .withKey("unexpectedSwitchKindsCount")
+                .withDefaultMessage("Unexpected switch kinds count (${switchKindsCount}). Should be ${expectedSwitchKindsCount}")
+                .withValue("switchKindsCount", switchKindsCount)
+                .withValue("expectedSwitchKindsCount", expectedSwitchKindsCount)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void undefinedSwitchKind(Reporter reporter) {
+        reporter.report(Report.builder()
+                .withKey("undefinedSwitchKind")
+                .withDefaultMessage("All switch kinds must be defined")
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void wrongSwitchKind(Reporter reporter) {
+        reporter.report(Report.builder()
+                .withKey("wrongSwitchKind")
+                .withDefaultMessage("Switch kinds must be DISCONNECTOR or BREAKER")
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void undefinedFictitiousSubstationId(Reporter reporter) {
+        reporter.report(Report.builder()
+                .withKey("undefinedFictitiousSubstationId")
+                .withDefaultMessage("Fictitious substation ID must be defined if a fictitious substation is to be created")
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void undefinedPercent(Reporter reporter) {
+        reporter.report(Report.builder()
+                .withKey("undefinedPercent")
+                .withDefaultMessage("Percent should not be undefined")
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
     private ModificationReports() {
     }
 }
