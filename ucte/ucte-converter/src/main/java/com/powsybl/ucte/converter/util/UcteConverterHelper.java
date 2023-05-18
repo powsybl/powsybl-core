@@ -93,7 +93,15 @@ public final class UcteConverterHelper {
         double ya = lowPositionRho * Math.sin(lowPositionAlpha);
         double xb = highPositionRho * Math.cos(highPositionAlpha);
         double yb = highPositionRho * Math.sin(highPositionAlpha);
-        double theta = Math.atan((yb - ya) / (xb - xa));
+
+        double theta;
+        if (Math.abs(xb - xa) < 0.000000001) {
+            // we suppose that theta is equal to Pi/2 in this case
+            theta = Math.PI / 2.;
+        } else {
+            theta = Math.atan((yb - ya) / (xb - xa));
+        }
+
         double thetaDegrees = Math.toDegrees(theta);
         int tapNumber = phaseTapChanger.getStepCount();
 

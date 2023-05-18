@@ -221,6 +221,12 @@ class UcteExporterTest extends AbstractConverterTest {
     }*/
 
     @Test
+    void roundTripOfNetworkWithTapChangers3() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport6.uct");
+        testExporter(network, "/expectedExport6.uct");
+    }
+
+    @Test
     void testTapChangers() {
         Network network = loadNetworkFromResourceFile("/expectedExport2.uct");
         Network exportedNetwork = loadNetworkFromResourceFile("/expectedExport3.uct"); // because of asymmetrical phase shifter
