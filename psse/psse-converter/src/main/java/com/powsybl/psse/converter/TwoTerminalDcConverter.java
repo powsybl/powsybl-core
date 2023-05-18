@@ -83,9 +83,9 @@ class TwoTerminalDcConverter extends AbstractConverter {
         return getTwoTerminalDcActivePowerSetpoint(psseTwoTerminalDc) * DEFAULT_MAXP_FACTOR;
     }
 
-    // It is assumed that the maximum overlap angle is 60 degree (see Kimbark's book)
+    // power factor calculated under assumption that that the maximum overlap angle is 60 degree (see Kimbark's book)
     private static double getLccConverterPowerFactor(PsseTwoTerminalDcConverter converter) {
-        return Math.acos(0.5 * (Math.cos(Math.toRadians(converter.getAnmx())) + Math.cos(Math.toRadians(60.0))));
+        return 0.5 * (Math.cos(Math.toRadians(converter.getAnmx())) + Math.cos(Math.toRadians(60.0)));
     }
 
     private String getLccConverterId(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, PsseTwoTerminalDcConverter converter) {
