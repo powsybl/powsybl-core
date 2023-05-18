@@ -83,6 +83,9 @@ public class MatpowerImporter implements Importer {
     }
 
     private static boolean isLine(MatpowerModel model, MBranch branch) {
+        if (branch.getPhaseShiftAngle() != 0) {
+            return false;
+        }
         if (branch.getRatio() == 0) {
             return true;
         }
