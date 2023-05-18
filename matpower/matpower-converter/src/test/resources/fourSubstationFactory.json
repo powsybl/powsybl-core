@@ -15,8 +15,8 @@
     "voltageAngle" : 2.2822,
     "baseVoltage" : 225.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 240.0,
-    "minimumVoltageMagnitude" : 220.0
+    "maximumVoltageMagnitude" : 1.0666666666666667,
+    "minimumVoltageMagnitude" : 0.9777777777777777
   }, {
     "number" : 2,
     "type" : "PV",
@@ -30,8 +30,8 @@
     "voltageAngle" : 0.0,
     "baseVoltage" : 400.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 440.0,
-    "minimumVoltageMagnitude" : 390.0
+    "maximumVoltageMagnitude" : 1.1,
+    "minimumVoltageMagnitude" : 0.975
   }, {
     "number" : 3,
     "type" : "PQ",
@@ -45,8 +45,8 @@
     "voltageAngle" : 0.7347,
     "baseVoltage" : 400.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 440.0,
-    "minimumVoltageMagnitude" : 390.0
+    "maximumVoltageMagnitude" : 1.1,
+    "minimumVoltageMagnitude" : 0.975
   }, {
     "number" : 4,
     "type" : "REF",
@@ -60,8 +60,8 @@
     "voltageAngle" : 0.0,
     "baseVoltage" : 400.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 440.0,
-    "minimumVoltageMagnitude" : 390.0
+    "maximumVoltageMagnitude" : 1.1,
+    "minimumVoltageMagnitude" : 0.975
   }, {
     "number" : 5,
     "type" : "PQ",
@@ -75,8 +75,8 @@
     "voltageAngle" : -1.1259,
     "baseVoltage" : 400.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 440.0,
-    "minimumVoltageMagnitude" : 390.0
+    "maximumVoltageMagnitude" : 1.1,
+    "minimumVoltageMagnitude" : 0.975
   } ],
   "generators" : [ {
     "number" : 2,

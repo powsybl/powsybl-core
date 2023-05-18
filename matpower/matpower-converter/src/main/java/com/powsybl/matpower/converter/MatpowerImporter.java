@@ -140,14 +140,23 @@ public class MatpowerImporter implements Importer {
             double lowVoltageLimit = e.getValue().getFirst();
             double highVoltageLimit = e.getValue().getSecond();
             VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-            if (highVoltageLimit >= lowVoltageLimit) {
-                voltageLevel.setLowVoltageLimit(lowVoltageLimit)
-                        .setHighVoltageLimit(highVoltageLimit);
+            if (!Double.isNaN(lowVoltageLimit) && !Double.isNaN(highVoltageLimit)) {
+                if (highVoltageLimit >= lowVoltageLimit) {
+                    voltageLevel.setLowVoltageLimit(lowVoltageLimit)
+                            .setHighVoltageLimit(highVoltageLimit);
+                } else {
+                    LOGGER.warn("Invalid voltage limits [{}, {}] for voltage level {}",
+                            lowVoltageLimit, highVoltageLimit, voltageLevelId);
+                    voltageLevel.setLowVoltageLimit(highVoltageLimit)
+                            .setHighVoltageLimit(lowVoltageLimit);
+                }
             } else {
-                LOGGER.warn("Invalid voltage limits [{}, {}] for voltage level {}",
-                        lowVoltageLimit, highVoltageLimit, voltageLevelId);
-                voltageLevel.setLowVoltageLimit(highVoltageLimit)
-                        .setHighVoltageLimit(lowVoltageLimit);
+                if (!Double.isNaN(lowVoltageLimit)) {
+                    voltageLevel.setLowVoltageLimit(lowVoltageLimit);
+                }
+                if (!Double.isNaN(highVoltageLimit)) {
+                    voltageLevel.setHighVoltageLimit(highVoltageLimit);
+                }
             }
         }
     }

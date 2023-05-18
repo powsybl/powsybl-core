@@ -157,8 +157,6 @@ public class MatpowerExporter implements Exporter {
                 mBus.setAreaNumber(AREA_NUMBER);
                 mBus.setLossZone(LOSS_ZONE);
                 mBus.setBaseVoltage(vl.getNominalV());
-                mBus.setMinimumVoltageMagnitude(vl.getLowVoltageLimit());
-                mBus.setMaximumVoltageMagnitude(vl.getHighVoltageLimit());
                 double pDemand = 0;
                 double qDemand = 0;
                 for (Load l : bus.getLoads()) {
@@ -185,8 +183,8 @@ public class MatpowerExporter implements Exporter {
                 mBus.setShuntSusceptance(bSum);
                 mBus.setVoltageMagnitude(Double.isNaN(bus.getV()) ? 1 : bus.getV() / vl.getNominalV());
                 mBus.setVoltageAngle(Double.isNaN(bus.getAngle()) ? 0 : bus.getAngle());
-                mBus.setMinimumVoltageMagnitude(Double.isNaN(vl.getLowVoltageLimit()) ? 0 : vl.getLowVoltageLimit());
-                mBus.setMaximumVoltageMagnitude(Double.isNaN(vl.getHighVoltageLimit()) ? 0 : vl.getHighVoltageLimit());
+                mBus.setMinimumVoltageMagnitude(Double.isNaN(vl.getLowVoltageLimit()) ? 0 : vl.getLowVoltageLimit() / vl.getNominalV());
+                mBus.setMaximumVoltageMagnitude(Double.isNaN(vl.getHighVoltageLimit()) ? 0 : vl.getHighVoltageLimit() / vl.getNominalV());
                 model.addBus(mBus);
                 context.mBusesNumbersByIds.put(bus.getId(), mBus.getNumber());
             }
