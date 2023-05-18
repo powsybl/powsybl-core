@@ -7,13 +7,12 @@
 package com.powsybl.matpower.converter;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.matpower.model.*;
 
 import org.apache.commons.math3.complex.Complex;
@@ -167,6 +166,15 @@ public class MatpowerExporter implements Exporter {
                 for (Load l : bus.getLoads()) {
                     pDemand += l.getP0();
                     qDemand += l.getQ0();
+                }
+                for (Battery battery : bus.getBatteries()) {
+                    // generator convention for batteries
+                    pDemand -= battery.getTargetP();
+                    qDemand -= battery.getTargetQ();
+                }
+                for (LccConverterStation lcc : bus.getLccConverterStations()) {
+                    pDemand += HvdcUtils.getConverterStationTargetP(lcc);
+                    qDemand += HvdcUtils.getLccConverterStationLoadTargetQ(lcc);
                 }
                 mBus.setRealPowerDemand(pDemand);
                 mBus.setReactivePowerDemand(qDemand);
@@ -372,33 +380,99 @@ public class MatpowerExporter implements Exporter {
             Bus bus = t.getBusView().getBus();
             if (isConnectedToMainCc(bus)) {
                 VoltageLevel vl = t.getVoltageLevel();
-                MGen mGen = new MGen();
-                mGen.setNumber(context.mBusesNumbersByIds.get(bus.getId()));
-                mGen.setStatus(CONNECTED_STATUS);
-                mGen.setRealPowerOutput(g.getTargetP());
-                mGen.setReactivePowerOutput(g.getTargetQ());
+                String id = g.getId();
+                double targetP = g.getTargetP();
+                double targetQ = g.getTargetQ();
+                double targetV = g.getTargetV();
+                double minP = g.getMinP();
+                double maxP = g.getMaxP();
+                double maxQ = g.getReactiveLimits().getMaxQ(g.getTargetP());
+                double minQ = g.getReactiveLimits().getMinQ(g.getTargetP());
                 Bus regulatedBus = g.getRegulatingTerminal().getBusView().getBus();
-                if (g.isVoltageRegulatorOn() && regulatedBus != null) {
-                    double targetV = g.getTargetV() / vl.getNominalV();
-                    if (!regulatedBus.getId().equals(bus.getId())) {
-                        double oldTargetV = targetV;
-                        targetV *= vl.getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
-                        LOGGER.warn("Generator remote voltage control not supported in Matpower model, rescale targetV of '{}' from {} to {}",
-                                g.getId(), oldTargetV, targetV);
-                    }
-                    mGen.setVoltageMagnitudeSetpoint(targetV);
-                } else {
-                    mGen.setVoltageMagnitudeSetpoint(0);
-                }
-                mGen.setMinimumRealPowerOutput(g.getMinP());
-                mGen.setMaximumRealPowerOutput(g.getMaxP());
-                mGen.setMinimumReactivePowerOutput(g.getReactiveLimits().getMinQ(g.getTargetP()));
-                mGen.setMaximumReactivePowerOutput(g.getReactiveLimits().getMaxQ(g.getTargetP()));
-                model.addGenerator(mGen);
+                boolean voltageRegulation = g.isVoltageRegulatorOn();
+                addMgen(model, context, bus, vl, id, targetV, targetP, minP, maxP, targetQ, Math.min(minQ, maxQ), Math.max(minQ, maxQ), regulatedBus,
+                        voltageRegulation);
             }
         }
 
         createDanglingLineGenerators(network, model, context);
+    }
+
+    private void createStaticVarCompensators(Network network, MatpowerModel model, Context context) {
+        for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
+            Terminal t = svc.getTerminal();
+            Bus bus = t.getBusView().getBus();
+            if (isConnectedToMainCc(bus)) {
+                VoltageLevel vl = t.getVoltageLevel();
+                String id = svc.getId();
+                double targetQ;
+                if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svc.getRegulationMode())) {
+                    targetQ = -svc.getReactivePowerSetpoint();
+                } else { // OFF or VOLTAGE regulation
+                    targetQ = 0;
+                }
+                double vSquared = bus.getVoltageLevel().getNominalV() * bus.getVoltageLevel().getNominalV(); // approximation
+                double minQ = svc.getBmin() * vSquared;
+                double maxQ = svc.getBmax() * vSquared;
+                double targetV = svc.getVoltageSetpoint();
+                Bus regulatedBus = svc.getRegulatingTerminal().getBusView().getBus();
+                boolean voltageRegulation = StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode());
+                addMgen(model, context, bus, vl, id, targetV, 0, 0, 0, targetQ, minQ,
+                        maxQ, regulatedBus,
+                        voltageRegulation);
+            }
+        }
+        createDanglingLineGenerators(network, model, context);
+    }
+
+    private void createVSCs(Network network, MatpowerModel model, Context context) {
+        for (VscConverterStation vsc : network.getVscConverterStations()) {
+            Terminal t = vsc.getTerminal();
+            Bus bus = t.getBusView().getBus();
+            if (isConnectedToMainCc(bus)) {
+                VoltageLevel vl = t.getVoltageLevel();
+                String id = vsc.getId();
+                double targetQ = vsc.getReactivePowerSetpoint();
+                double targetV = vsc.getVoltageSetpoint();
+                Bus regulatedBus = vsc.getRegulatingTerminal().getBusView().getBus();
+                double targetP = HvdcUtils.getConverterStationTargetP(vsc);
+                double minQ = vsc.getReactiveLimits().getMinQ(targetP); // approximation
+                double maxQ = vsc.getReactiveLimits().getMaxQ(targetP); // approximation
+                boolean voltageRegulation = vsc.isVoltageRegulatorOn();
+                double maxP = vsc.getHvdcLine().getMaxP();
+                addMgen(model, context, bus, vl, id, targetV, targetP, -maxP, maxP, targetQ, minQ,
+                        maxQ, regulatedBus, voltageRegulation);
+            }
+        }
+        createDanglingLineGenerators(network, model, context);
+    }
+
+    private static void addMgen(MatpowerModel model, Context context, Bus bus, VoltageLevel vl,
+                                String id, double targetV, double targetP, double minP, double maxP, double targetQ,
+                                double minQ, double maxQ, Bus regulatedBus, boolean voltageRegulation) {
+        MGen mGen = new MGen();
+        mGen.setNumber(context.mBusesNumbersByIds.get(bus.getId()));
+        mGen.setStatus(CONNECTED_STATUS);
+        mGen.setRealPowerOutput(targetP);
+        mGen.setReactivePowerOutput(targetQ);
+        if (voltageRegulation && regulatedBus != null) {
+            double targetVpu = targetV / vl.getNominalV();
+            if (!regulatedBus.getId().equals(bus.getId())) {
+                double oldTargetV = targetVpu;
+                targetVpu *= vl.getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
+                LOGGER.warn(
+                    "Generator remote voltage control not supported in Matpower model, rescale targetV of '{}' from {} to {}",
+                    id, oldTargetV, targetVpu);
+            }
+            mGen.setVoltageMagnitudeSetpoint(targetVpu);
+        } else {
+            mGen.setVoltageMagnitudeSetpoint(0);
+        }
+        mGen.setMinimumRealPowerOutput(minP);
+        mGen.setMaximumRealPowerOutput(maxP);
+        mGen.setMinimumReactivePowerOutput(minQ);
+        mGen.setMaximumReactivePowerOutput(maxQ);
+        model.addGenerator(mGen);
     }
 
     private static int getBranchCount(Bus bus) {
@@ -432,15 +506,6 @@ public class MatpowerExporter implements Exporter {
         Objects.requireNonNull(network);
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(reporter);
-        if (network.getHvdcLineCount() > 0) {
-            throw new PowsyblException("HVDC line conversion not supported");
-        }
-        if (network.getStaticVarCompensatorCount() > 0) {
-            throw new PowsyblException("Static var compensator conversion not supported");
-        }
-        if (network.getBatteryCount() > 0) {
-            throw new PowsyblException("Battery conversion not supported");
-        }
 
         MatpowerModel model = new MatpowerModel(network.getId());
         model.setBaseMva(BASE_MVA);
@@ -459,6 +524,8 @@ public class MatpowerExporter implements Exporter {
         createBuses(network, model, context);
         createBranches(network, model, context);
         createGenerators(network, model, context);
+        createStaticVarCompensators(network, model, context);
+        createVSCs(network, model, context);
 
         try (OutputStream os = dataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
             MatpowerWriter.write(model, os);

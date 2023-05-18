@@ -10,22 +10,22 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.contingency.contingency.list.AbstractEquipmentCriterionContingencyList;
 import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.contingency.contingency.list.TieLineCriterionContingencyList;
 
 import java.io.IOException;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class TieLineCriterionContingencyListSerializer extends StdSerializer<TieLineCriterionContingencyList> {
+public class EquipmentCriterionContingencyListSerializer<T extends AbstractEquipmentCriterionContingencyList> extends StdSerializer<T> {
 
-    public TieLineCriterionContingencyListSerializer() {
-        super(TieLineCriterionContingencyList.class);
+    public EquipmentCriterionContingencyListSerializer(Class<T> t) {
+        super(t);
     }
 
     @Override
-    public void serialize(TieLineCriterionContingencyList criterionContingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(T criterionContingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", criterionContingencyList.getType());
         jsonGenerator.writeStringField("version", ContingencyList.getVersion());
