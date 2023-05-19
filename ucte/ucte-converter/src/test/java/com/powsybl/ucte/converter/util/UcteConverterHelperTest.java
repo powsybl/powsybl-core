@@ -95,7 +95,7 @@ class UcteConverterHelperTest {
         //double angleRef6 = Math.toRadians(calculateAsymmAngleTheta(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")));
         //double moduleRef6 = calculateAsymmAngleDu(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"));
 
-        assertEquals(0.990 , calculateAsymmAngleDu(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.00001);
+        assertEquals(0.990, calculateAsymmAngleDu(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.00001);
         assertEquals(90.00, calculateAsymmAngleTheta(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.00001); // loss of one decimal with sign
 
     }
