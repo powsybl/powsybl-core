@@ -196,6 +196,7 @@ public class MatpowerImporter implements Importer {
                     .setVoltageRegulatorOn(mGen.getVoltageMagnitudeSetpoint() != 0)
                     .setMaxP(mGen.getMaximumRealPowerOutput())
                     .setMinP(mGen.getMinimumRealPowerOutput())
+                    .setRatedS(mGen.getTotalMbase() != 0 ? mGen.getTotalMbase() : Double.NaN)
                     .add();
 
             if ((mGen.getPc1() != 0) || (mGen.getPc2() != 0)) {

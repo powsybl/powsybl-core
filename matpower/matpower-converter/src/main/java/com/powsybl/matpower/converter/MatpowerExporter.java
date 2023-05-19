@@ -232,12 +232,17 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setR(twt.getR() / zb);
                 mBranch.setX(twt.getX() / zb);
                 mBranch.setB(twt.getB() * zb);
+                double rho = (twt.getRatedU2() / vl2.getNominalV()) / (twt.getRatedU1() / vl1.getNominalV());
                 var rtc = twt.getRatioTapChanger();
-                double rho = (twt.getRatedU2() / vl2.getNominalV()) / (twt.getRatedU1() / vl1.getNominalV())
-                        * (1 + (rtc != null ? rtc.getCurrentStep().getRho() / 100 : 0));
-                mBranch.setRatio(1d / rho);
+                if (rtc != null) {
+                    rho *= 1 + rtc.getCurrentStep().getRho() / 100;
+                }
                 var ptc = twt.getPhaseTapChanger();
-                mBranch.setPhaseShiftAngle(ptc != null ? -ptc.getCurrentStep().getAlpha() : 0);
+                if (ptc != null) {
+                    mBranch.setPhaseShiftAngle(-ptc.getCurrentStep().getAlpha());
+                    rho *= 1 + ptc.getCurrentStep().getRho() / 100;
+                }
+                mBranch.setRatio(1d / rho);
                 model.addBranch(mBranch);
             }
         }
@@ -312,11 +317,16 @@ public class MatpowerExporter implements Exporter {
         mBranch.setX(leg.getX() / zb);
         mBranch.setB(leg.getB() * zb);
         var rtc = leg.getRatioTapChanger();
-        double rho = 1d / (leg.getRatedU() / leg.getTerminal().getVoltageLevel().getNominalV())
-                * (1d + (rtc != null ? rtc.getCurrentStep().getRho() / 100 : 0));
-        mBranch.setRatio(1d / rho);
+        double rho = 1d / (leg.getRatedU() / leg.getTerminal().getVoltageLevel().getNominalV());
+        if (rtc != null) {
+            rho *= 1d + rtc.getCurrentStep().getRho() / 100;
+        }
         var ptc = leg.getPhaseTapChanger();
-        mBranch.setPhaseShiftAngle(ptc != null ? -ptc.getCurrentStep().getAlpha() : 0);
+        if (ptc != null) {
+            mBranch.setPhaseShiftAngle(-ptc.getCurrentStep().getAlpha());
+            rho *= 1 + ptc.getCurrentStep().getRho() / 100;
+        }
+        mBranch.setRatio(1d / rho);
         return mBranch;
     }
 
@@ -368,8 +378,9 @@ public class MatpowerExporter implements Exporter {
                 double minQ = g.getReactiveLimits().getMinQ(g.getTargetP());
                 Bus regulatedBus = g.getRegulatingTerminal().getBusView().getBus();
                 boolean voltageRegulation = g.isVoltageRegulatorOn();
+                double ratedS = g.getRatedS();
                 addMgen(model, context, bus, vl, id, targetV, targetP, minP, maxP, targetQ, Math.min(minQ, maxQ), Math.max(minQ, maxQ), regulatedBus,
-                        voltageRegulation);
+                        voltageRegulation, ratedS);
             }
         }
 
@@ -396,8 +407,7 @@ public class MatpowerExporter implements Exporter {
                 Bus regulatedBus = svc.getRegulatingTerminal().getBusView().getBus();
                 boolean voltageRegulation = StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode());
                 addMgen(model, context, bus, vl, id, targetV, 0, 0, 0, targetQ, minQ,
-                        maxQ, regulatedBus,
-                        voltageRegulation);
+                        maxQ, regulatedBus, voltageRegulation, Double.NaN);
             }
         }
         createDanglingLineGenerators(network, model, context);
@@ -419,7 +429,7 @@ public class MatpowerExporter implements Exporter {
                 boolean voltageRegulation = vsc.isVoltageRegulatorOn();
                 double maxP = vsc.getHvdcLine().getMaxP();
                 addMgen(model, context, bus, vl, id, targetV, targetP, -maxP, maxP, targetQ, minQ,
-                        maxQ, regulatedBus, voltageRegulation);
+                        maxQ, regulatedBus, voltageRegulation, Double.NaN);
             }
         }
         createDanglingLineGenerators(network, model, context);
@@ -427,7 +437,7 @@ public class MatpowerExporter implements Exporter {
 
     private static void addMgen(MatpowerModel model, Context context, Bus bus, VoltageLevel vl,
                                 String id, double targetV, double targetP, double minP, double maxP, double targetQ,
-                                double minQ, double maxQ, Bus regulatedBus, boolean voltageRegulation) {
+                                double minQ, double maxQ, Bus regulatedBus, boolean voltageRegulation, double ratedS) {
         MGen mGen = new MGen();
         mGen.setNumber(context.mBusesNumbersByIds.get(bus.getId()));
         mGen.setStatus(CONNECTED_STATUS);
@@ -450,6 +460,7 @@ public class MatpowerExporter implements Exporter {
         mGen.setMaximumRealPowerOutput(maxP);
         mGen.setMinimumReactivePowerOutput(minQ);
         mGen.setMaximumReactivePowerOutput(maxQ);
+        mGen.setTotalMbase(Double.isNaN(ratedS) ? 0 : ratedS);
         model.addGenerator(mGen);
     }
 
