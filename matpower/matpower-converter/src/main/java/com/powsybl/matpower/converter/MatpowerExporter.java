@@ -235,12 +235,12 @@ public class MatpowerExporter implements Exporter {
                 double rho = (twt.getRatedU2() / vl2.getNominalV()) / (twt.getRatedU1() / vl1.getNominalV());
                 var rtc = twt.getRatioTapChanger();
                 if (rtc != null) {
-                    rho *= 1 + rtc.getCurrentStep().getRho() / 100;
+                    rho *= rtc.getCurrentStep().getRho();
                 }
                 var ptc = twt.getPhaseTapChanger();
                 if (ptc != null) {
                     mBranch.setPhaseShiftAngle(-ptc.getCurrentStep().getAlpha());
-                    rho *= 1 + ptc.getCurrentStep().getRho() / 100;
+                    rho *= ptc.getCurrentStep().getRho();
                 }
                 mBranch.setRatio(1d / rho);
                 model.addBranch(mBranch);
@@ -319,12 +319,12 @@ public class MatpowerExporter implements Exporter {
         var rtc = leg.getRatioTapChanger();
         double rho = 1d / (leg.getRatedU() / leg.getTerminal().getVoltageLevel().getNominalV());
         if (rtc != null) {
-            rho *= 1d + rtc.getCurrentStep().getRho() / 100;
+            rho *= rtc.getCurrentStep().getRho();
         }
         var ptc = leg.getPhaseTapChanger();
         if (ptc != null) {
             mBranch.setPhaseShiftAngle(-ptc.getCurrentStep().getAlpha());
-            rho *= 1 + ptc.getCurrentStep().getRho() / 100;
+            rho *= ptc.getCurrentStep().getRho();
         }
         mBranch.setRatio(1d / rho);
         return mBranch;
