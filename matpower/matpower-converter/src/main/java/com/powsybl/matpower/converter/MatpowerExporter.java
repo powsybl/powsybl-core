@@ -86,8 +86,11 @@ public class MatpowerExporter implements Exporter {
         final Map<String, Integer> mBusesNumbersByIds = new HashMap<>();
     }
 
-    private static boolean isConnectedToMainCc(Bus bus) {
-        return bus != null && bus.isInMainConnectedComponent();
+    private static boolean isExported(Bus bus) {
+        // TODO replace by isInMainConnectedComponent when supporting HVDC lines
+        // in the meantime, we should only get main synchronous component to avoid
+        // multiple components, that are not supported by Matpower power flow
+        return bus != null && bus.isInMainSynchronousComponent();
     }
 
     private static void createTransformerStarBuses(Network network, MatpowerModel model, Context context) {
@@ -95,7 +98,7 @@ public class MatpowerExporter implements Exporter {
             Bus bus1 = twt.getLeg1().getTerminal().getBusView().getBus();
             Bus bus2 = twt.getLeg2().getTerminal().getBusView().getBus();
             Bus bus3 = twt.getLeg3().getTerminal().getBusView().getBus();
-            if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2) && isConnectedToMainCc(bus3)) {
+            if (isExported(bus1) && isExported(bus2) && isExported(bus3)) {
                 MBus mBus = new MBus();
                 mBus.setNumber(context.num++);
                 mBus.setName(twt.getNameOrId());
@@ -123,7 +126,7 @@ public class MatpowerExporter implements Exporter {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
-            if (isConnectedToMainCc(bus)) {
+            if (isExported(bus)) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBus mBus = new MBus();
                 mBus.setNumber(context.num++);
@@ -150,7 +153,7 @@ public class MatpowerExporter implements Exporter {
 
     private static void createBuses(Network network, MatpowerModel model, Context context) {
         for (Bus bus : network.getBusView().getBuses()) {
-            if (bus.isInMainConnectedComponent()) {
+            if (isExported(bus)) {
                 VoltageLevel vl = bus.getVoltageLevel();
                 MBus mBus = new MBus();
                 mBus.setNumber(context.num++);
@@ -210,7 +213,7 @@ public class MatpowerExporter implements Exporter {
             Terminal t2 = twt.getTerminal2();
             Bus bus1 = t1.getBusView().getBus();
             Bus bus2 = t2.getBusView().getBus();
-            if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2)) {
+            if (isExported(bus1) && isExported(bus2)) {
                 VoltageLevel vl1 = t1.getVoltageLevel();
                 VoltageLevel vl2 = t2.getVoltageLevel();
                 MBranch mBranch = new MBranch();
@@ -257,7 +260,7 @@ public class MatpowerExporter implements Exporter {
     private static Optional<MBranch> createMBranch(Terminal t1, Terminal t2, double r, double x, double b1, double b2, Context context) {
         Bus bus1 = t1.getBusView().getBus();
         Bus bus2 = t2.getBusView().getBus();
-        if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2)) {
+        if (isExported(bus1) && isExported(bus2)) {
             VoltageLevel vl1 = t1.getVoltageLevel();
             VoltageLevel vl2 = t2.getVoltageLevel();
             MBranch mBranch = new MBranch();
@@ -302,7 +305,7 @@ public class MatpowerExporter implements Exporter {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
-            if (isConnectedToMainCc(bus)) {
+            if (isExported(bus)) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBranch mBranch = new MBranch();
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus.getId()));
@@ -328,7 +331,7 @@ public class MatpowerExporter implements Exporter {
             Bus bus1 = t1.getBusView().getBus();
             Bus bus2 = t2.getBusView().getBus();
             Bus bus3 = t3.getBusView().getBus();
-            if (isConnectedToMainCc(bus1) && isConnectedToMainCc(bus2) && isConnectedToMainCc(bus3)) {
+            if (isExported(bus1) && isExported(bus2) && isExported(bus3)) {
                 model.addBranch(createTransformerLeg(twt, leg1, bus1, context));
                 model.addBranch(createTransformerLeg(twt, leg2, bus2, context));
                 model.addBranch(createTransformerLeg(twt, leg3, bus3, context));
@@ -380,7 +383,7 @@ public class MatpowerExporter implements Exporter {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
-            if (isConnectedToMainCc(bus)) {
+            if (isExported(bus)) {
                 var g = dl.getGeneration();
                 if (g != null) {
                     VoltageLevel vl = t.getVoltageLevel();
@@ -404,7 +407,7 @@ public class MatpowerExporter implements Exporter {
         for (Generator g : network.getGenerators()) {
             Terminal t = g.getTerminal();
             Bus bus = t.getBusView().getBus();
-            if (isConnectedToMainCc(bus)) {
+            if (isExported(bus)) {
                 VoltageLevel vl = t.getVoltageLevel();
                 String id = g.getId();
                 double targetP = g.getTargetP();
@@ -429,7 +432,7 @@ public class MatpowerExporter implements Exporter {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
             Terminal t = svc.getTerminal();
             Bus bus = t.getBusView().getBus();
-            if (isConnectedToMainCc(bus)) {
+            if (isExported(bus)) {
                 VoltageLevel vl = t.getVoltageLevel();
                 String id = svc.getId();
                 double targetQ;
@@ -455,7 +458,7 @@ public class MatpowerExporter implements Exporter {
         for (VscConverterStation vsc : network.getVscConverterStations()) {
             Terminal t = vsc.getTerminal();
             Bus bus = t.getBusView().getBus();
-            if (isConnectedToMainCc(bus)) {
+            if (isExported(bus)) {
                 VoltageLevel vl = t.getVoltageLevel();
                 String id = vsc.getId();
                 double targetQ = vsc.getReactivePowerSetpoint();
@@ -542,7 +545,7 @@ public class MatpowerExporter implements Exporter {
         boolean hasSlack = network.getBusView().getBusStream().anyMatch(MatpowerExporter::hasSlackExtension);
         if (!hasSlack) {
             context.refBusId = network.getBusView().getBusStream()
-                    .filter(Bus::isInMainConnectedComponent)
+                    .filter(MatpowerExporter::isExported)
                     .max(Comparator.comparingInt(MatpowerExporter::getBranchCount))
                     .orElseThrow()
                     .getId();
