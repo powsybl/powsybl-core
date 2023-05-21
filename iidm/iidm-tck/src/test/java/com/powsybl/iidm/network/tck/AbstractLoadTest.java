@@ -346,8 +346,8 @@ public abstract class AbstractLoadTest {
         assertEquals(0.11, loadModel.getC0q(), 0);
         assertEquals(0.21, loadModel.getC1q(), 0);
         assertEquals(0.71, loadModel.getC2q(), 0);
-        ValidationException e = assertThrows(ValidationException.class, () -> loadModel.setC0p(-2));
-        assertEquals("Load 'newZipLoad': Invalid zip load model coefficient: -2.0", e.getMessage());
+        ValidationException e = assertThrows(ValidationException.class, () -> loadModel.setC0p(Double.NaN));
+        assertEquals("Load 'newZipLoad': Invalid zip load model coefficient: NaN", e.getMessage());
     }
 
     @Test
