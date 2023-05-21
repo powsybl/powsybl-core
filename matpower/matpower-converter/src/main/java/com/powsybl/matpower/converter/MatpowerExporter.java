@@ -228,21 +228,30 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
                 mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
                 mBranch.setStatus(CONNECTED_STATUS);
-                double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
-                mBranch.setR(twt.getR() / zb);
-                mBranch.setX(twt.getX() / zb);
-                mBranch.setB(twt.getB() * zb);
+                double r = twt.getR();
+                double x = twt.getX();
+                double b = twt.getB();
                 double rho = (twt.getRatedU2() / vl2.getNominalV()) / (twt.getRatedU1() / vl1.getNominalV());
                 var rtc = twt.getRatioTapChanger();
                 if (rtc != null) {
                     rho *= rtc.getCurrentStep().getRho();
+                    r *= 1 + rtc.getCurrentStep().getR() / 100;
+                    x *= 1 + rtc.getCurrentStep().getX() / 100;
+                    b *= 1 + rtc.getCurrentStep().getB() / 100;
                 }
                 var ptc = twt.getPhaseTapChanger();
                 if (ptc != null) {
                     mBranch.setPhaseShiftAngle(-ptc.getCurrentStep().getAlpha());
                     rho *= ptc.getCurrentStep().getRho();
+                    r *= 1 + ptc.getCurrentStep().getR() / 100;
+                    x *= 1 + ptc.getCurrentStep().getX() / 100;
+                    b *= 1 + ptc.getCurrentStep().getB() / 100;
                 }
                 mBranch.setRatio(1d / rho);
+                double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
+                mBranch.setR(r / zb);
+                mBranch.setX(x / zb);
+                mBranch.setB(b * zb);
                 model.addBranch(mBranch);
             }
         }
@@ -312,20 +321,29 @@ public class MatpowerExporter implements Exporter {
         mBranch.setFrom(context.mBusesNumbersByIds.get(bus.getId()));
         mBranch.setTo(context.mBusesNumbersByIds.get(twt.getId()));
         mBranch.setStatus(CONNECTED_STATUS);
-        double zb = Math.pow(twt.getRatedU0(), 2) / BASE_MVA;
-        mBranch.setR(leg.getR() / zb);
-        mBranch.setX(leg.getX() / zb);
-        mBranch.setB(leg.getB() * zb);
-        var rtc = leg.getRatioTapChanger();
         double rho = 1d / (leg.getRatedU() / leg.getTerminal().getVoltageLevel().getNominalV());
+        double r = leg.getR();
+        double x = leg.getX();
+        double b = leg.getB();
+        var rtc = leg.getRatioTapChanger();
         if (rtc != null) {
             rho *= rtc.getCurrentStep().getRho();
+            r *= 1 + rtc.getCurrentStep().getR() / 100;
+            x *= 1 + rtc.getCurrentStep().getX() / 100;
+            b *= 1 + rtc.getCurrentStep().getB() / 100;
         }
         var ptc = leg.getPhaseTapChanger();
         if (ptc != null) {
             mBranch.setPhaseShiftAngle(-ptc.getCurrentStep().getAlpha());
             rho *= ptc.getCurrentStep().getRho();
+            r *= 1 + ptc.getCurrentStep().getR() / 100;
+            x *= 1 + ptc.getCurrentStep().getX() / 100;
+            b *= 1 + ptc.getCurrentStep().getB() / 100;
         }
+        double zb = Math.pow(twt.getRatedU0(), 2) / BASE_MVA;
+        mBranch.setR(r / zb);
+        mBranch.setX(x / zb);
+        mBranch.setB(b * zb);
         mBranch.setRatio(1d / rho);
         return mBranch;
     }
