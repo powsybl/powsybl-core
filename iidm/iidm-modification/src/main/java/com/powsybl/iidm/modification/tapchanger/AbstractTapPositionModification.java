@@ -85,7 +85,7 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
                 .filter(isTapHolder)
                 .collect(Collectors.toSet());
             if (validLegs.size() > 1) {
-                logOrThrow(throwException, "Mutliple valid legs found.");
+                logOrThrow(throwException, "Multiple valid legs found.");
                 return null;
             } else if (validLegs.isEmpty()) {
                 logOrThrow(throwException, "No valid legs found.");
