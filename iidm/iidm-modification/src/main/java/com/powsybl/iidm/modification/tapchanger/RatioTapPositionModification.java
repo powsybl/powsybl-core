@@ -8,40 +8,32 @@ package com.powsybl.iidm.modification.tapchanger;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Objects;
+
 /**
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
 public class RatioTapPositionModification extends AbstractTapPositionModification {
 
     /**
-     * @param transfoId   the ID of the two windings transformer, which holds the rtc
-     * @param tapPosition the new tap position
+     * Creates a RTC tap modification for two windings transformers, or three windings transformer with a single RTC.
+     *
+     * @param transformerId the ID of the three windings transformer, which holds the rtc
+     * @param tapPosition   the new tap position
      */
-    public static RatioTapPositionModification createTwoWindingsRtcPositionModification(String transfoId,
-                                                                                        int tapPosition) {
-        return new RatioTapPositionModification(transfoId, tapPosition, null);
+    public RatioTapPositionModification(String transformerId, int tapPosition) {
+        super(transformerId, tapPosition, null);
     }
 
     /**
-     * @param transfoId   the ID of the three windings transformer, which holds the rtc
-     * @param tapPosition the new tap position
-     * @param leg         Defines the leg on which to apply the change for three winding tranformers. 0, 1 or 2
+     * Creates a RTC tap modification for three windings transformers on the given leg.
+     *
+     * @param transformerId the ID of the three windings transformer, which holds the rtc
+     * @param tapPosition   the new tap position
+     * @param leg           defines on which leg of the three winding transformer the modification will be done.
      */
-    public static RatioTapPositionModification createThreeWindingsRtcPositionModification(String transfoId,
-                                                                                          int tapPosition,
-                                                                                          ThreeWindingsTransformer.Side leg) {
-        return new RatioTapPositionModification(transfoId, tapPosition, leg);
-    }
-
-    /**
-     * @param transfoId   the ID of the three windings transformer, which holds the rtc
-     * @param tapPosition the new tap position
-     * @param leg         defines on which leg of the three winding transformer the modification will be done. null on two windings.
-     * @see RatioTapPositionModification#createThreeWindingsRtcPositionModification(String, int, ThreeWindingsTransformer.Side)
-     * @see RatioTapPositionModification#createTwoWindingsRtcPositionModification(String, int)
-     */
-    public RatioTapPositionModification(String transfoId, int tapPosition, ThreeWindingsTransformer.Side leg) {
-        super(transfoId, tapPosition, leg);
+    public RatioTapPositionModification(String transformerId, int tapPosition, ThreeWindingsTransformer.Side leg) {
+        super(transformerId, tapPosition, Objects.requireNonNull(leg));
     }
 
     @Override

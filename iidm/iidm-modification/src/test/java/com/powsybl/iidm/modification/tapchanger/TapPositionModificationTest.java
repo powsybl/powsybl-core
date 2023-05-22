@@ -49,19 +49,19 @@ class TapPositionModificationTest {
     void testArgumentCoherence() {
         // Good
         String id = twoWindingsTransformer.getId();
-        ThreeWindingsTransformer.Side optionalLeg = ThreeWindingsTransformer.Side.TWO;
-        assertDoesNotThrow(() -> PhaseTapPositionModification.createTwoWindingsPtcPositionModification(id, 0));
+        ThreeWindingsTransformer.Side leg = ThreeWindingsTransformer.Side.TWO;
+        assertDoesNotThrow(() -> new PhaseTapPositionModification(id, 0));
         // Log warning, but good, Leg value is ignored
-        assertDoesNotThrow(() -> PhaseTapPositionModification.createTwoWindingsPtcPositionModification(id, 0));
+        assertDoesNotThrow(() -> new PhaseTapPositionModification(id, 0));
         // good
         assertDoesNotThrow(
-            () -> PhaseTapPositionModification.createThreeWindingsPtcPositionModification(id, 0, optionalLeg));
-        assertDoesNotThrow(() -> RatioTapPositionModification.createTwoWindingsRtcPositionModification(id, 0));
+            () -> new PhaseTapPositionModification(id, 0, leg));
+        assertDoesNotThrow(() -> new RatioTapPositionModification(id, 0));
         // Log warning, but good, Leg value is ignored
-        assertDoesNotThrow(() -> RatioTapPositionModification.createTwoWindingsRtcPositionModification(id, 0));
+        assertDoesNotThrow(() -> new RatioTapPositionModification(id, 0));
         // good
         assertDoesNotThrow(
-            () -> RatioTapPositionModification.createThreeWindingsRtcPositionModification(id, 0, optionalLeg));
+            () -> new RatioTapPositionModification(id, 0, leg));
     }
 
     @Test
@@ -70,7 +70,7 @@ class TapPositionModificationTest {
         assertNull(modifRTC.getLeg(null, leg -> true, true));
         // defined leg in constructor
         assertEquals(threeWindingTransformerLeg, modifRTC.getLeg(threeWindingTransformer, leg -> true, true));
-        modifRTC = new RatioTapPositionModification("ID", 1, null);
+        modifRTC = new RatioTapPositionModification("ID", 1);
         // no match
         assertNull(modifRTC.getLeg(threeWindingTransformer, leg -> false, false));
         // mutliple match
@@ -82,11 +82,11 @@ class TapPositionModificationTest {
 
     @Test
     void testUnknownId() {
-        NetworkModification modif = new PhaseTapPositionModification("UNKNOWN_ID", 5, null);
+        NetworkModification modif = new PhaseTapPositionModification("UNKNOWN_ID", 5);
         assertThrows(PowsyblException.class, () -> modif.apply(network, true, Reporter.NO_OP));
         assertDoesNotThrow(() -> modif.apply(network, false, Reporter.NO_OP),
             "An invalid ID should not throw if throwException is false.");
-        NetworkModification modif2 = new RatioTapPositionModification("UNKNOWN_ID", 5, null);
+        NetworkModification modif2 = new RatioTapPositionModification("UNKNOWN_ID", 5);
         assertThrows(PowsyblException.class, () -> modif2.apply(network, true, Reporter.NO_OP));
         assertDoesNotThrow(() -> modif2.apply(network, false, Reporter.NO_OP),
             "An invalid ID should not throw if throwException is false.");
@@ -174,13 +174,28 @@ class TapPositionModificationTest {
             leg = LEG_NUM;
             networkToApply = threeWindingNetwork;
         }
-        if (TapType.RATIO.equals(type)) {
-            modif = new RatioTapPositionModification(transformerId, tapPos, leg);
-        } else { // type ==  TapType.Phase
-            modif = new PhaseTapPositionModification(transformerId, tapPos, leg);
-        }
+        modif = getNetworkModification(type, tapPos, transformerId, leg);
         modif.apply(networkToApply);
         assertEquals(tapPos, tapPositionSupplier.get(), "Tap Modification did not change the network");
+    }
+
+    private static NetworkModification getNetworkModification(TapType type, int tapPos, String transformerId,
+                                                              ThreeWindingsTransformer.Side leg) {
+        NetworkModification modif;
+        if (TapType.RATIO.equals(type)) {
+            if (leg != null) {
+                modif = new RatioTapPositionModification(transformerId, tapPos, leg);
+            } else {
+                modif = new RatioTapPositionModification(transformerId, tapPos);
+            }
+        } else { // type ==  TapType.Phase
+            if (leg != null) {
+                modif = new PhaseTapPositionModification(transformerId, tapPos, leg);
+            } else {
+                modif = new PhaseTapPositionModification(transformerId, tapPos);
+            }
+        }
+        return modif;
     }
 
     private void testInvalidTapPosition(int currentTapPos, final TapType type, IdentifiableType element,
@@ -196,11 +211,7 @@ class TapPositionModificationTest {
             leg = LEG_NUM;
             networkToApply = threeWindingNetwork;
         }
-        if (TapType.RATIO.equals(type)) {
-            modif = new RatioTapPositionModification(transformerId, invalidTapPos, leg);
-        } else { // type ==  TapType.Phase
-            modif = new PhaseTapPositionModification(transformerId, invalidTapPos, leg);
-        }
+        modif = getNetworkModification(type, invalidTapPos, transformerId, leg);
         assertThrows(PowsyblException.class, () -> modif.apply(networkToApply, true, Reporter.NO_OP));
         assertEquals(currentTapPos, tapPositionSupplier.get(),
             "Invalid tap position should not be applied to the network");
