@@ -8,19 +8,24 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.xml.XMLExporter;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
+import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -60,6 +65,49 @@ class StateVariablesExportTest extends AbstractConverterTest {
                 2,
                 true,
                 StateVariablesExportTest::addRepackagerFiles);
+    }
+
+    @Test
+    void minimalNodeBreakerFlowsForSwitches() {
+        Network n = Network.create("minimal", "iidm");
+        Substation s1 = n.newSubstation().setId("S1").add();
+        Substation s2 = n.newSubstation().setId("S2").add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(100).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        Load load = vl1.newLoad().setId("LOAD").setNode(0)
+                .setP0(10).setQ0(1).add();
+        vl1.getNodeBreakerView().newBreaker().setId("BK11").setNode1(0).setNode2(1).add();
+        vl1.getNodeBreakerView().newBusbarSection().setId("BBS1").setNode(1).add();
+        vl1.getNodeBreakerView().newBreaker().setId("BK12").setNode1(1).setNode2(2).add();
+        VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setNominalV(100).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        Generator gen = vl2.newGenerator().setId("GEN").setNode(0)
+                .setTargetP(10.01).setTargetQ(1.10)
+                .setMinP(0).setMaxP(20)
+                .setVoltageRegulatorOn(false).add();
+        vl2.getNodeBreakerView().newBreaker().setId("BK21").setNode1(0).setNode2(1).add();
+        vl2.getNodeBreakerView().newBusbarSection().setId("BBS2").setNode(1).add();
+        vl2.getNodeBreakerView().newBreaker().setId("BK22").setNode1(1).setNode2(2).add();
+        Line line = n.newLine().setId("LINE1").setVoltageLevel1("VL1").setVoltageLevel2("VL2").setNode1(2).setNode2(2)
+                .setR(1).setX(10).add();
+
+        Bus b1 = vl1.getBusView().getBuses().iterator().next();
+        Bus b2 = vl2.getBusView().getBuses().iterator().next();
+        b2.setV(100.0).setAngle(0);
+        b1.setV(99.7946677).setAngle(-0.568404640);
+
+        new LoadFlowResultsCompletion(new LoadFlowResultsCompletionParameters(), new LoadFlowParameters()).run(n, null);
+        Properties writeParams = new Properties();
+        writeParams.setProperty(XMLExporter.VERSION, "1.9");
+        n.write("XIIDM", writeParams, tmpDir.resolve("minimal.xiidm"));
+        System.out.printf("GEN  : %.2f %.2f%n", gen.getTerminal().getP(), gen.getTerminal().getQ());
+        System.out.printf("LOAD : %.2f %.2f%n", load.getTerminal().getP(), load.getTerminal().getQ());
+        System.out.printf("LINE : %.2f %.2f   %.2f %.2f%n",
+                line.getTerminal1().getP(), line.getTerminal1().getQ(),
+                line.getTerminal2().getP(), line.getTerminal2().getQ());
+
+        Properties exportParams = new Properties();
+        exportParams.setProperty(CgmesExport.EXPORT_POWER_FLOWS_FOR_SWITCHES, "true");
+        n.write("CGMES", exportParams, tmpDir.resolve("exported"));
+        // FIXME(Luma) check the flows on terminals of switches
     }
 
     @Test

@@ -175,8 +175,8 @@ public class SwitchesFlow {
             int node = nodes[i];
             Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
             if (terminal != null) {
-                double p = getTerminalP(terminal);
-                double q = getTerminalQ(terminal);
+                double p = -getTerminalP(terminal);
+                double q = -getTerminalQ(terminal);
                 swNodeInjection.computeIfPresent(getKey(node), (key, value) -> value.addPQ(p, q));
             }
         }
@@ -185,8 +185,8 @@ public class SwitchesFlow {
     private static void calculateInjectionsBusBreaker(VoltageLevel voltageLevel, Map<String, SwNode> swNodeInjection) {
         voltageLevel.getBusBreakerView().getBuses().forEach(bus ->
             bus.getConnectedTerminals().forEach(terminal -> {
-                double p = getTerminalP(terminal);
-                double q = getTerminalQ(terminal);
+                double p = -getTerminalP(terminal);
+                double q = -getTerminalQ(terminal);
                 swNodeInjection.computeIfPresent(getKey(bus), (key, value) -> value.addPQ(p, q));
             }));
     }
