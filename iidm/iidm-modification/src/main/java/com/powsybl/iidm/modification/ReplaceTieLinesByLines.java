@@ -36,7 +36,7 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
 
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
-        for (TieLine tl : network.getTieLines()) {
+        for (TieLine tl : network.getTieLineStream().collect(Collectors.toList())) {
             DanglingLine dl1 = tl.getDanglingLine1();
             DanglingLine dl2 = tl.getDanglingLine2();
             String dl1Id = dl1.getId();
@@ -68,26 +68,16 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
                                 .map(Identifiable::getId)
                                 .orElse(null));
             }
-            if (!dl1.getExtensions().isEmpty()) {
-                String extensions = dl1.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
-                LOG.warn("Extension [{}] of dangling line {} will be lost", extensions, dl1Id);
-                lostDanglingLineExtensions(reporter, extensions, dl1Id);
-            }
-            if (!dl2.getExtensions().isEmpty()) {
-                String extensions = dl2.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
-                LOG.warn("Extension [{}] of dangling line {} will be lost", extensions, dl2Id);
-                lostDanglingLineExtensions(reporter, extensions, dl2Id);
-            }
-            if (!tl.getExtensions().isEmpty()) {
-                String extensions = tl.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
-                LOG.warn("Extension [{}] of tie line {} will be lost", extensions, tl.getId());
-                lostTieLineExtensions(reporter, extensions, tl.getId());
-            }
+            warningAboutExtensions(dl1, dl2, tl, reporter);
             TopologyModificationUtils.LoadingLimitsBags limits1 = new TopologyModificationUtils.LoadingLimitsBags(dl1::getActivePowerLimits,
                     dl1::getApparentPowerLimits, dl1::getCurrentLimits);
             TopologyModificationUtils.LoadingLimitsBags limits2 = new TopologyModificationUtils.LoadingLimitsBags(dl2::getActivePowerLimits,
                     dl2::getApparentPowerLimits, dl2::getCurrentLimits);
             String xNode = tl.getUcteXnodeCode();
+            double sumR = dl1.getR() + dl2.getR();
+            double sumX = dl1.getX() + dl2.getX();
+            double rdp = sumR != 0.0 ? dl1.getR() / sumR : 0.5;
+            double xdp = sumX != 0.0 ? dl1.getX() / sumX : 0.5;
             double p1 = dl1.getTerminal().getP();
             double xNodeP1 = dl1.getBoundary().getP();
             double q1 = dl1.getTerminal().getQ();
@@ -121,6 +111,12 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             line.newExtension(MergedXnodeAdder.class)
                     .withLine1Name(dl1Id)
                     .withLine2Name(dl2Id)
+                    .withRdp(rdp)
+                    .withXdp(xdp)
+                    .withG1dp(1.0) // g1 is on side 1
+                    .withG2dp(0.0) // g2 is on side 2
+                    .withB1dp(1.0) // b1 is on side 1
+                    .withB2dp(0.0) // b2 is on side 2
                     .withXnodeP1(xNodeP1)
                     .withXnodeP2(xNodeP2)
                     .withXnodeQ1(xNodeQ1)
@@ -130,6 +126,26 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             LOG.info("Removed tie line {} and associated dangling lines {} and {} at X-node {}. Created line {}", line.getId(), dl1Id, dl2Id, xNode, line.getId());
             removedTieLineAndAssociatedDanglingLines(reporter, line.getId(), dl1Id, dl2Id, xNode);
             createdLineReport(reporter, line.getId());
+        }
+    }
+
+    private static void warningAboutExtensions(DanglingLine dl1, DanglingLine dl2, TieLine tl, Reporter reporter) {
+        String dl1Id = dl1.getId();
+        String dl2Id = dl2.getId();
+        if (!dl1.getExtensions().isEmpty()) {
+            String extensions = dl1.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
+            LOG.warn("Extension [{}] of dangling line {} will be lost", extensions, dl1Id);
+            lostDanglingLineExtensions(reporter, extensions, dl1Id);
+        }
+        if (!dl2.getExtensions().isEmpty()) {
+            String extensions = dl2.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
+            LOG.warn("Extension [{}] of dangling line {} will be lost", extensions, dl2Id);
+            lostDanglingLineExtensions(reporter, extensions, dl2Id);
+        }
+        if (!tl.getExtensions().isEmpty()) {
+            String extensions = tl.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
+            LOG.warn("Extension [{}] of tie line {} will be lost", extensions, tl.getId());
+            lostTieLineExtensions(reporter, extensions, tl.getId());
         }
     }
 }
