@@ -10,7 +10,6 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.entsoe.util.MergedXnodeAdder;
 import com.powsybl.iidm.modification.topology.TopologyModificationUtils;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -74,18 +73,10 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             TopologyModificationUtils.LoadingLimitsBags limits2 = new TopologyModificationUtils.LoadingLimitsBags(dl2::getActivePowerLimits,
                     dl2::getApparentPowerLimits, dl2::getCurrentLimits);
             String xNode = tl.getUcteXnodeCode();
-            double sumR = dl1.getR() + dl2.getR();
-            double sumX = dl1.getX() + dl2.getX();
-            double rdp = sumR != 0.0 ? dl1.getR() / sumR : 0.5;
-            double xdp = sumX != 0.0 ? dl1.getX() / sumX : 0.5;
             double p1 = dl1.getTerminal().getP();
-            double xNodeP1 = dl1.getBoundary().getP();
             double q1 = dl1.getTerminal().getQ();
-            double xNodeQ1 = dl1.getBoundary().getQ();
             double p2 = dl2.getTerminal().getP();
-            double xNodeP2 = dl2.getBoundary().getP();
             double q2 = dl2.getTerminal().getQ();
-            double xNodeQ2 = dl2.getBoundary().getQ();
             Properties properties = new Properties();
             tl.getPropertyNames().forEach(pn -> properties.put(pn, tl.getProperty(pn)));
             mergeProperties(dl1, dl2, properties, reporter);
@@ -108,21 +99,10 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             line.getTerminal2().setP(p2).setQ(q2);
             addLoadingLimits(line, limits1, Branch.Side.ONE);
             addLoadingLimits(line, limits2, Branch.Side.TWO);
-            line.newExtension(MergedXnodeAdder.class)
-                    .withLine1Name(dl1Id)
-                    .withLine2Name(dl2Id)
-                    .withRdp(rdp)
-                    .withXdp(xdp)
-                    .withG1dp(1.0) // g1 is on side 1
-                    .withG2dp(0.0) // g2 is on side 2
-                    .withB1dp(1.0) // b1 is on side 1
-                    .withB2dp(0.0) // b2 is on side 2
-                    .withXnodeP1(xNodeP1)
-                    .withXnodeP2(xNodeP2)
-                    .withXnodeQ1(xNodeQ1)
-                    .withXnodeQ2(xNodeQ2)
-                    .withCode(xNode)
-                    .add();
+            // Add previous dangling lines ID and xnode
+            line.addAlias(dl1Id, "danglingLine1Id");
+            line.addAlias(dl2Id, "danglingLine2Id");
+            line.addAlias(xNode, "xNode");
             LOG.info("Removed tie line {} and associated dangling lines {} and {} at X-node {}. Created line {}", line.getId(), dl1Id, dl2Id, xNode, line.getId());
             removedTieLineAndAssociatedDanglingLines(reporter, line.getId(), dl1Id, dl2Id, xNode);
             createdLineReport(reporter, line.getId());

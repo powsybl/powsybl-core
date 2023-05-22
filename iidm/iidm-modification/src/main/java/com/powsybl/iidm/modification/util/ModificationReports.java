@@ -550,7 +550,7 @@ public final class ModificationReports {
                 .build());
     }
 
-    static void undefinedFictitiousSubstationId(Reporter reporter) {
+    public static void undefinedFictitiousSubstationId(Reporter reporter) {
         reporter.report(Report.builder()
                 .withKey("undefinedFictitiousSubstationId")
                 .withDefaultMessage("Fictitious substation ID must be defined if a fictitious substation is to be created")
@@ -558,7 +558,7 @@ public final class ModificationReports {
                 .build());
     }
 
-    static void undefinedPercent(Reporter reporter) {
+    public static void undefinedPercent(Reporter reporter) {
         reporter.report(Report.builder()
                 .withKey("undefinedPercent")
                 .withDefaultMessage("Percent should not be undefined")
