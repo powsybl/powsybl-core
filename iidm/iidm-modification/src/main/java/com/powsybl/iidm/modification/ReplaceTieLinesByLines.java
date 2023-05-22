@@ -23,8 +23,7 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.addLoadingLimits;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
-import static com.powsybl.iidm.network.util.TieLineUtil.mergeIdenticalAliases;
-import static com.powsybl.iidm.network.util.TieLineUtil.mergeProperties;
+import static com.powsybl.iidm.network.util.TieLineUtil.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -83,6 +82,7 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             Map<String, String> aliases = new HashMap<>();
             tl.getAliases().forEach(alias -> aliases.put(alias, tl.getAliasType(alias).orElse("")));
             mergeIdenticalAliases(dl1, dl2, aliases, reporter);
+            mergeDifferentAliases(dl1, dl2, aliases, reporter);
             tl.remove();
             dl1.remove();
             dl2.remove();

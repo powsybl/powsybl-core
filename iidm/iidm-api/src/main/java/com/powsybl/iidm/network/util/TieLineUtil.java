@@ -125,6 +125,37 @@ public final class TieLineUtil {
         });
     }
 
+    public static void mergeDifferentAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases, Reporter reporter) {
+        for (String alias : dl1.getAliases()) {
+            if (!dl2.getAliases().contains(alias)) {
+                aliases.put(alias, dl1.getAliasType(alias).orElse(""));
+            }
+        }
+        for (String alias : dl2.getAliases()) {
+            if (!dl1.getAliases().contains(alias)) {
+                String type = dl2.getAliasType(alias).orElse("");
+                if (!type.isEmpty() && aliases.containsValue(type)) {
+                    String tmpType = type;
+                    String alias1 = aliases.entrySet().stream().filter(e -> tmpType.equals(e.getValue())).map(Map.Entry::getKey).findFirst().orElseThrow(IllegalStateException::new);
+                    aliases.put(alias1, type + "_1");
+                    LOGGER.warn("Inconsistencies found for alias type '{}'('{}' for '{}' and '{}' for '{}'). " +
+                            "Types are respectively renamed as '{}_1' and '{}_2'.", type, alias1, dl1.getId(), alias, dl2.getId(), type, type);
+                    inconsistentAliasValues(reporter, alias1, alias, type, dl1.getId(), dl2.getId());
+                    type += "_2";
+                }
+                aliases.put(alias, type);
+            }
+        }
+        aliases.keySet().forEach(alias -> {
+            if (dl1.getAliases().contains(alias)) {
+                dl1.removeAlias(alias);
+            }
+            if (dl2.getAliases().contains(alias)) {
+                dl2.removeAlias(alias);
+            }
+        });
+    }
+
     /**
      * If it exists, find the dangling line in the merging network that should be associated to a candidate dangling line in the network to be merged.
      * Two dangling lines in different IGM should be associated if:

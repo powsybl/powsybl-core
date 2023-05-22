@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -25,7 +26,7 @@ class ReplaceTieLinesByLinesTest extends AbstractConverterTest {
 
     @Test
     void roundTrip() throws IOException {
-        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        Network network = create();
         new ReplaceTieLinesByLines().apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-replace-tl.xml");
@@ -33,11 +34,26 @@ class ReplaceTieLinesByLinesTest extends AbstractConverterTest {
 
     @Test
     void postProcessor() throws IOException {
-        Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        NetworkXml.write(network, tmpDir.resolve("tl-test.xml"));
+        NetworkXml.write(create(), tmpDir.resolve("tl-test.xml"));
         Network read = Network.read(tmpDir.resolve("tl-test.xml"), LocalComputationManager.getDefault(),
                 new ImportConfig("replaceTieLinesByLines"), new Properties());
         roundTripXmlTest(read, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-replace-tl.xml");
+    }
+
+    private static Network create() {
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        DanglingLine dl1 = network.getDanglingLine("NHV1_XNODE1");
+        dl1.addAlias("test1");
+        dl1.addAlias("test2", "same");
+        dl1.setProperty("key1", "value1");
+        dl1.setProperty("key2", "value2");
+        dl1.setProperty("key3", "value4");
+        DanglingLine dl2 = network.getDanglingLine("XNODE1_NHV2");
+        dl2.addAlias("test3");
+        dl2.addAlias("test4", "same");
+        dl2.setProperty("key1", "value1");
+        dl2.setProperty("key2", "value3");
+        return network;
     }
 }

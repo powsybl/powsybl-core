@@ -72,6 +72,20 @@ final class TieLineReports {
                 .build());
     }
 
+    static void inconsistentAliasValues(Reporter reporter, String alias1, String alias2, String type, String danglingLineId1, String danglingLineId2) {
+        reporter.report(Report.builder()
+                .withKey("InconsistentAliasValues")
+                .withDefaultMessage("Inconsistencies found for alias type '${type}'('${alias1}' for '${danglingLineId1}' and '${alias2}' for '${danglingLineId2}'). " +
+                        "Types are respectively renamed as '${type}_1' and '${type}_2'.")
+                .withValue("alias1", alias1)
+                .withValue("alias2", alias2)
+                .withValue(DANGLING_LINE_ID_1, danglingLineId1)
+                .withValue(DANGLING_LINE_ID_2, danglingLineId2)
+                .withValue("type", type)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
     private TieLineReports() {
     }
 }
