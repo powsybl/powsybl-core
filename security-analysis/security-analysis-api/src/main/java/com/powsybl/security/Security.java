@@ -73,6 +73,19 @@ public final class Security {
         return violations;
     }
 
+    public static List<LimitViolation> checkLimitsDc(Network network, float limitReduction, double dcPowerFactor) {
+        Objects.requireNonNull(network);
+        if (limitReduction <= 0) {
+            throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
+        }
+        if (dcPowerFactor <= 0 || dcPowerFactor > 1) {
+            throw new IllegalArgumentException("Bad power factor " + dcPowerFactor);
+        }
+        List<LimitViolation> violations = new ArrayList<>();
+        new DefaultLimitViolationDetector(limitReduction, EnumSet.allOf(LoadingLimitType.class)).checkAllDc(network, dcPowerFactor, violations::add);
+        return violations;
+    }
+
     public static String printLimitsViolations(Network network) {
         return printLimitsViolations(network, LimitViolationFilter.load());
     }

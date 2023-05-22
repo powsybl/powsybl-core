@@ -32,6 +32,19 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     }
 
     /**
+     * This implementation computes the current value from the power value, if current is not provided (NaN).
+     */
+    @Override
+    public void checkCurrentDc(Branch branch, Branch.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
+        // DC power flow mode: if I is Nan, we assume we are in DC mode and compute the intensity from the active Power
+        // cf P = sqrt(3)xUxIxcosphi
+        double i = Double.isNaN(branch.getTerminal(side).getI()) ?
+                (branch.getTerminal(side).getP() * 1000.) / (branch.getTerminal(side).getVoltageLevel().getNominalV() * Math.sqrt(3) * dcPowerFactor)
+                : branch.getTerminal(side).getI();
+        checkCurrent(branch, side, i, consumer);
+    }
+
+    /**
      * This implementation takes the voltage value to be checked from the Network.
      */
     @Override
@@ -51,8 +64,24 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     }
 
     @Override
+    public void checkCurrentDc(Branch branch, double dcPowerFactor, Consumer<LimitViolation> consumer) {
+        checkCurrentDc(branch, Branch.Side.ONE, dcPowerFactor, consumer);
+        checkCurrentDc(branch, Branch.Side.TWO, dcPowerFactor, consumer);
+    }
+
+    @Override
     public void checkAll(Network network, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrent(b, consumer));
+        checkVoltageLevels(network, consumer);
+    }
+
+    @Override
+    public void checkAllDc(Network network, double dcPowerFactor, Consumer<LimitViolation> consumer) {
+        network.getBranchStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, consumer));
+        checkVoltageLevels(network, consumer);
+    }
+
+    private void checkVoltageLevels(Network network, Consumer<LimitViolation> consumer) {
         network.getVoltageLevelStream()
                 .flatMap(v -> v.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(b, consumer));
