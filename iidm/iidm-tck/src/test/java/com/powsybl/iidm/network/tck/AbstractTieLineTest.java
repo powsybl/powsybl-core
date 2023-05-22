@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.util.SV;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -79,16 +81,27 @@ public abstract class AbstractTieLineTest {
                 .setB(hl2b1 + hl2b2)
                 .setG(hl2g1 + hl2g2)
                 .add();
+
+        assertEquals(List.of(dl1, dl2), network.getDanglingLines(DanglingLineFilter.UNPAIRED));
+        assertFalse(network.getDanglingLines(DanglingLineFilter.PAIRED).iterator().hasNext());
+
         TieLineAdder adder = network.newTieLine().setId("testTie")
                 .setName("testNameTie")
                 .setDanglingLine1(dl1.getId())
                 .setDanglingLine2(dl2.getId());
         TieLine tieLine = adder.add();
+
+        assertEquals(List.of(dl1, dl2), network.getDanglingLines(DanglingLineFilter.PAIRED));
+        assertFalse(network.getDanglingLines(DanglingLineFilter.UNPAIRED).iterator().hasNext());
+
         assertEquals(IdentifiableType.TIE_LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
         assertEquals("hl1", tieLine.getDanglingLine1().getId());
         assertEquals(DANGLING1_NAME, tieLine.getDanglingLine1().getOptionalName().orElse(null));
         assertEquals("hl2", tieLine.getDanglingLine2().getId());
+        assertEquals("hl1", tieLine.getDanglingLine(voltageLevelA.getId()).getId());
+        assertEquals("hl2", tieLine.getDanglingLine(voltageLevelB.getId()).getId());
+        assertNull(tieLine.getDanglingLine("UnknownVoltageLevelId"));
         assertEquals(11.0, tieLine.getR(), tol);
         assertEquals(22.0, tieLine.getX(), tol);
         assertEquals(0.065, tieLine.getG1(), tol);
