@@ -53,7 +53,7 @@ public class SubNetworkImpl extends AbstractNetwork {
                 .filter(s -> s.getClosestNetwork() == this)
                 .map(s -> s.getCountry().orElse(null))
                 .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override
@@ -72,7 +72,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Substation> getSubstations() {
-        return getSubstationStream().collect(Collectors.toSet());
+        return getSubstationStream().collect(Collectors.toList());
     }
 
     @Override
@@ -89,14 +89,14 @@ public class SubNetworkImpl extends AbstractNetwork {
     public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
         return StreamSupport.stream(parent.getSubstations(country, tsoId, geographicalTags).spliterator(), false)
                 .filter(s -> s.getClosestNetwork() == this)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     @Override
     public Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags) {
         return StreamSupport.stream(parent.getSubstations(country, tsoId, geographicalTags).spliterator(), false)
                 .filter(s -> s.getClosestNetwork() == this)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -115,7 +115,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return getVoltageLevelStream().collect(Collectors.toSet());
+        return getVoltageLevelStream().collect(Collectors.toList());
     }
 
     @Override
@@ -144,7 +144,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Line> getLines() {
-        return getLineStream().collect(Collectors.toSet());
+        return getLineStream().collect(Collectors.toList());
     }
 
     @Override
@@ -158,7 +158,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Branch> getBranches() {
-        return getBranchStream().collect(Collectors.toSet());
+        return getBranchStream().collect(Collectors.toList());
     }
 
     @Override
@@ -224,7 +224,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return getTwoWindingsTransformerStream().collect(Collectors.toSet());
+        return getTwoWindingsTransformerStream().collect(Collectors.toList());
     }
 
     @Override
@@ -254,7 +254,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return getThreeWindingsTransformerStream().collect(Collectors.toSet());
+        return getThreeWindingsTransformerStream().collect(Collectors.toList());
     }
 
     @Override
@@ -279,7 +279,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return getGeneratorStream().collect(Collectors.toSet());
+        return getGeneratorStream().collect(Collectors.toList());
     }
 
     @Override
@@ -303,7 +303,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Battery> getBatteries() {
-        return getBatteryStream().collect(Collectors.toSet());
+        return getBatteryStream().collect(Collectors.toList());
     }
 
     @Override
@@ -327,7 +327,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Load> getLoads() {
-        return getLoadStream().collect(Collectors.toSet());
+        return getLoadStream().collect(Collectors.toList());
     }
 
     @Override
@@ -351,7 +351,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
-        return getShuntCompensatorStream().collect(Collectors.toSet());
+        return getShuntCompensatorStream().collect(Collectors.toList());
     }
 
     @Override
@@ -413,7 +413,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        return getStaticVarCompensatorStream().collect(Collectors.toSet());
+        return getStaticVarCompensatorStream().collect(Collectors.toList());
     }
 
     @Override
@@ -446,7 +446,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Switch> getSwitches() {
-        return getSwitchStream().collect(Collectors.toSet());
+        return getSwitchStream().collect(Collectors.toList());
     }
 
     @Override
@@ -470,7 +470,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<BusbarSection> getBusbarSections() {
-        return getBusbarSectionStream().collect(Collectors.toSet());
+        return getBusbarSectionStream().collect(Collectors.toList());
     }
 
     @Override
@@ -485,7 +485,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<HvdcConverterStation<?>> getHvdcConverterStations() {
-        return getHvdcConverterStationStream().collect(Collectors.toSet());
+        return getHvdcConverterStationStream().collect(Collectors.toList());
     }
 
     @Override
@@ -509,7 +509,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return getLccConverterStationStream().collect(Collectors.toSet());
+        return getLccConverterStationStream().collect(Collectors.toList());
     }
 
     @Override
@@ -533,7 +533,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        return getVscConverterStationStream().collect(Collectors.toSet());
+        return getVscConverterStationStream().collect(Collectors.toList());
     }
 
     @Override
@@ -557,7 +557,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<HvdcLine> getHvdcLines() {
-        return getHvdcLineStream().collect(Collectors.toSet());
+        return getHvdcLineStream().collect(Collectors.toList());
     }
 
     @Override
@@ -606,12 +606,12 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Collection<Identifiable<?>> getIdentifiables() {
-        return parent.getIdentifiables().stream().filter(i -> i.getClosestNetwork() == this).collect(Collectors.toSet());
+        return parent.getIdentifiables().stream().filter(i -> i.getClosestNetwork() == this).collect(Collectors.toList());
     }
 
     @Override
     public <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz) {
-        return getConnectableStream(clazz).collect(Collectors.toSet());
+        return getConnectableStream(clazz).collect(Collectors.toList());
     }
 
     @Override
@@ -626,7 +626,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Connectable> getConnectables() {
-        return getConnectableStream().collect(Collectors.toSet());
+        return getConnectableStream().collect(Collectors.toList());
     }
 
     @Override
@@ -652,7 +652,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return getBusStream().collect(Collectors.toSet());
+            return getBusStream().collect(Collectors.toList());
         }
 
         @Override
@@ -662,7 +662,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
         @Override
         public Iterable<Switch> getSwitches() {
-            return getSwitchStream().collect(Collectors.toSet());
+            return getSwitchStream().collect(Collectors.toList());
         }
 
         @Override
@@ -696,7 +696,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return getBusStream().collect(Collectors.toSet());
+            return getBusStream().collect(Collectors.toList());
         }
 
         @Override
@@ -718,7 +718,7 @@ public class SubNetworkImpl extends AbstractNetwork {
             return parent.getBusView().getConnectedComponents().stream()
                     .filter(c -> c.getBusStream().anyMatch(b -> b.getClosestNetwork() == SubNetworkImpl.this))
                     .map(c -> new SubComponent(c, SubNetworkImpl.this))
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
         }
 
         @Override
@@ -726,7 +726,7 @@ public class SubNetworkImpl extends AbstractNetwork {
             return parent.getBusView().getSynchronousComponents().stream()
                     .filter(c -> c.getBusStream().anyMatch(b -> b.getClosestNetwork() == SubNetworkImpl.this))
                     .map(c -> new SubComponent(c, SubNetworkImpl.this))
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
         }
     }
 
