@@ -18,7 +18,7 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
     /**
      * Creates a RTC tap modification for two windings transformers, or three windings transformer with a single RTC.
      *
-     * @param transformerId the ID of the three windings transformer, which holds the rtc
+     * @param transformerId the ID of the transformer, which holds the rtc
      * @param tapPosition   the new tap position
      */
     public RatioTapPositionModification(String transformerId, int tapPosition) {

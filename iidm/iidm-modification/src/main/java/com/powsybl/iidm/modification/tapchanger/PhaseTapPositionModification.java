@@ -18,7 +18,7 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
     /**
      * Creates a PTC tap modification for two windings transformers, or three windings transformer with a single PTC.
      *
-     * @param transformerId the ID of the three windings transformer, which holds the PTC
+     * @param transformerId the ID of the transformer, which holds the PTC
      * @param tapPosition   the new tap position
      */
     public PhaseTapPositionModification(String transformerId, int tapPosition) {
