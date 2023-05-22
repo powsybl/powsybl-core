@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -328,7 +330,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
             case THREE:
                 return getLeg3();
             default:
-                return null;
+                throw new PowsyblException("Can't get leg from side. Unsupported Side \"" + side + "\"");
         }
     }
 
