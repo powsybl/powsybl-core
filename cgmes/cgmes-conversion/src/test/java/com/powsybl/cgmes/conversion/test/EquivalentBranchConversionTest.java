@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.networkModel;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,11 +19,6 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.GridModelReference;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -67,18 +63,5 @@ class EquivalentBranchConversionTest {
 
         Switch sw = n.getSwitch("b58bf21a-096a-4dae-9a01-3f03b60c24c7");
         assertTrue(sw.isFictitious());
-    }
-
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
-
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
-        Conversion c = new Conversion(cgmes, config);
-        Network n = c.convert();
-
-        return n;
     }
 }

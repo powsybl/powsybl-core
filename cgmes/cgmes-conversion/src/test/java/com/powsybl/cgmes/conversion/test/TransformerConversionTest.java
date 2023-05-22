@@ -13,22 +13,19 @@ import com.powsybl.cgmes.conversion.CgmesImportPostProcessor;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.Conversion.*;
 import com.powsybl.cgmes.conversion.PhaseAngleClock;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -433,34 +430,13 @@ class TransformerConversionTest {
         return ok;
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
-
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
-        config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config);
-        Network n = c.convert();
-
-        double threshold = 0.01;
-        ValidationConfig vconfig = loadFlowValidationConfig(threshold);
-        LoadFlowParameters lfParameters = defineLoadflowParameters(vconfig.getLoadFlowParameters(), config);
-        ConversionTester.computeMissingFlows(n, lfParameters);
-
-        return n;
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
+        return networkModel(testGridModel, config, Collections.emptyList());
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) throws IOException {
-
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
         config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config, postProcessors);
-        Network n = c.convert();
+        Network n = ConversionUtil.networkModel(testGridModel, config, postProcessors);
 
         double threshold = 0.01;
         ValidationConfig vconfig = loadFlowValidationConfig(threshold);
