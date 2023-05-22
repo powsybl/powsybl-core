@@ -28,12 +28,12 @@ public class SubNetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public Collection<Network> getSubNetworks() {
+    public final Collection<Network> getSubNetworks() {
         return Collections.emptyList();
     }
 
     @Override
-    public Network getSubNetwork(String id) {
+    public final Network getSubNetwork(String id) {
         return null;
     }
 
