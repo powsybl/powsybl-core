@@ -46,11 +46,11 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
         this.legSide = legSide;
     }
 
-    abstract void applyTwoWindings(Network network, TwoWindingsTransformer twoWindingsTransformer,
-                                   boolean throwException);
+    abstract void applyTwoWindingsTransformer(Network network, TwoWindingsTransformer twoWindingsTransformer,
+                                              boolean throwException);
 
-    abstract void applyThreeWindings(Network network, ThreeWindingsTransformer threeWindingsTransformer,
-                                     boolean throwException);
+    abstract void applyThreeWindingsTransformer(Network network, ThreeWindingsTransformer threeWindingsTransformer,
+                                                boolean throwException);
 
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager,
@@ -58,9 +58,9 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(getTransformerId());
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(getTransformerId());
         if (threeWindingsTransformer != null) {
-            applyThreeWindings(network, threeWindingsTransformer, throwException);
+            applyThreeWindingsTransformer(network, threeWindingsTransformer, throwException);
         } else if (twoWindingsTransformer != null) {
-            applyTwoWindings(network, twoWindingsTransformer, throwException);
+            applyTwoWindingsTransformer(network, twoWindingsTransformer, throwException);
         } else {
             logOrThrow(throwException, "No matching transformer found with ID:" + getTransformerId());
         }

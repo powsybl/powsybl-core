@@ -37,14 +37,14 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
     }
 
     @Override
-    protected void applyTwoWindings(Network network, TwoWindingsTransformer twoWindingsTransformer,
-                                    boolean throwException) {
+    protected void applyTwoWindingsTransformer(Network network, TwoWindingsTransformer twoWindingsTransformer,
+                                               boolean throwException) {
         apply(twoWindingsTransformer, throwException);
     }
 
     @Override
-    protected void applyThreeWindings(Network network, ThreeWindingsTransformer threeWindingsTransformer,
-                                      boolean throwException) {
+    protected void applyThreeWindingsTransformer(Network network, ThreeWindingsTransformer threeWindingsTransformer,
+                                                 boolean throwException) {
         apply(getLeg(threeWindingsTransformer, RatioTapChangerHolder::hasRatioTapChanger, throwException),
             throwException);
     }
