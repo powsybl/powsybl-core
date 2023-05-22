@@ -16,9 +16,6 @@ import java.util.stream.Collectors;
 
 /**
  * Scalable that divides scale proportionally between multiple scalable.
- * Scale may be iterative or not.
- * If the iterative mode is activated, the residues due to scalable saturation is divided between the
- * other scalable composing the ProportionalScalable.
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -64,19 +61,12 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     private final List<ScalablePercentage> scalablePercentageList;
 
-    private final boolean iterative;
-
     ProportionalScalable(List<Float> percentages, List<Scalable> scalables) {
-        this(percentages, scalables, false);
-    }
-
-    ProportionalScalable(List<Float> percentages, List<Scalable> scalables, boolean iterative) {
         checkPercentages(percentages, scalables);
         this.scalablePercentageList = new ArrayList<>();
         for (int i = 0; i < scalables.size(); i++) {
             this.scalablePercentageList.add(new ScalablePercentage(scalables.get(i), percentages.get(i)));
         }
-        this.iterative = iterative;
     }
 
     Collection<Scalable> getScalables() {
@@ -109,7 +99,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
     private void checkIterationPercentages() {
         double iterationPercentagesSum = scalablePercentageList.stream().mapToDouble(ScalablePercentage::getIterationPercentage).sum();
         if (Math.abs(100 - iterationPercentagesSum) > EPSILON) {
-            throw new AssertionError(String.format("Error in proportional scalable ventilation. Sum of percentages must be equals to 100 (%.2f)", iterationPercentagesSum));
+            throw new IllegalStateException(String.format("Error in proportional scalable ventilation. Sum of percentages must be equals to 100 (%.2f)", iterationPercentagesSum));
         }
     }
 
@@ -122,28 +112,24 @@ class ProportionalScalable extends AbstractCompoundScalable {
         });
     }
 
-    private double iterativeScale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
+    private double iterativeScale(Network n, double asked, ScalingParameters parameters) {
         double done = 0;
         while (Math.abs(asked - done) > EPSILON && notSaturated()) {
             checkIterationPercentages();
-            done += scaleIteration(n, asked - done, scalingConvention, constantPowerFactor);
+            done += scaleIteration(n, asked - done, parameters);
             updateIterationPercentages();
         }
         return done;
     }
 
-    private double scaleIteration(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
+    private double scaleIteration(Network n, double asked, ScalingParameters parameters) {
         double done = 0;
         for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             Scalable s = scalablePercentage.getScalable();
             double iterationPercentage = scalablePercentage.getIterationPercentage();
             double askedOnScalable = iterationPercentage / 100 * asked;
             double doneOnScalable = 0;
-            if (constantPowerFactor) {
-                doneOnScalable = s.scaleWithConstantPowerFactor(n, askedOnScalable);
-            } else {
-                doneOnScalable = s.scale(n, askedOnScalable, scalingConvention);
-            }
+            doneOnScalable = s.scale(n, askedOnScalable, parameters);
             if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
                 scalablePercentage.setIterationPercentage(0);
             }
@@ -153,31 +139,14 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
-    }
-
-    @Override
-    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
+    public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
-        Objects.requireNonNull(scalingConvention);
+        Objects.requireNonNull(parameters);
         reinitIterationPercentage();
-        if (iterative) {
-            return iterativeScale(n, asked, scalingConvention, true);
+        if (parameters.isIterative()) {
+            return iterativeScale(n, asked, parameters);
         } else {
-            return scaleIteration(n, asked, scalingConvention, true);
-        }
-    }
-
-    @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
-        Objects.requireNonNull(n);
-        Objects.requireNonNull(scalingConvention);
-        reinitIterationPercentage();
-        if (iterative) {
-            return iterativeScale(n, asked, scalingConvention, false);
-        } else {
-            return scaleIteration(n, asked, scalingConvention, false);
+            return scaleIteration(n, asked, parameters);
         }
     }
 

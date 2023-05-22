@@ -21,7 +21,7 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -35,16 +35,15 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class StateVariablesExportTest extends AbstractConverterTest {
+class StateVariablesExportTest extends AbstractConverterTest {
 
     @Test
-    public void microGridBE() throws IOException, XMLStreamException {
+    void microGridBE() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(),
                 false,
                 2,
@@ -53,7 +52,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void microGridBEFlowsForSwitches() throws IOException, XMLStreamException {
+    void microGridBEFlowsForSwitches() throws IOException, XMLStreamException {
         // Activate export of flows for switches on a small network with few switches,
         // Writing flows for all switches has impact on performance
         test(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(),
@@ -64,7 +63,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void microGridAssembled() throws IOException, XMLStreamException {
+    void microGridAssembled() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(),
                 false,
                 4,
@@ -76,7 +75,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void smallGridBusBranch() throws IOException, XMLStreamException {
+    void smallGridBusBranch() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallBusBranch().dataSource(),
                 false,
                 4,
@@ -85,7 +84,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void smallGridNodeBreakerHVDC() throws IOException, XMLStreamException {
+    void smallGridNodeBreakerHVDC() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(),
                 true,
                 4,
@@ -94,7 +93,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void smallGridNodeBreaker() throws IOException, XMLStreamException {
+    void smallGridNodeBreaker() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(),
                 true,
                 4,
@@ -103,7 +102,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void miniBusBranchWithSvInjection() throws IOException, XMLStreamException {
+    void miniBusBranchWithSvInjection() throws IOException, XMLStreamException {
         test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource(),
                 false,
                 4,
@@ -112,7 +111,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void miniBusBranchWithSvInjectionExportPQ() throws XMLStreamException {
+    void miniBusBranchWithSvInjectionExportPQ() throws XMLStreamException {
 
         Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource());
         String loadId = "0448d86a-c766-11e1-8775-005056c00008";
@@ -135,15 +134,10 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         load.getTerminal().setQ(Double.NaN);
         String sv2 = exportSvAsString(network, 4);
         assertTrue(sv2.contains(cgmesTerminal));
-
-        load.getTerminal().setP(Double.NaN);
-        load.getTerminal().setQ(Double.NaN);
-        String sv3 = exportSvAsString(network, 4);
-        assertFalse(sv3.contains(cgmesTerminal));
     }
 
     @Test
-    public void miniBusBranchWithSvInjectionExportQ() throws XMLStreamException {
+    void miniBusBranchWithSvInjectionExportQ() throws XMLStreamException {
 
         Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource());
         String shuntCompensatorId = "04553478-c766-11e1-8775-005056c00008";
@@ -155,15 +149,10 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         shuntCompensator.getTerminal().setQ(-13.03);
         String sv = exportSvAsString(network, 4);
         assertTrue(sv.contains(cgmesTerminal));
-
-        shuntCompensator.getTerminal().setQ(Double.NaN);
-        shuntCompensator.getTerminal().setP(Double.NaN);
-        String sv1 = exportSvAsString(network, 4);
-        assertFalse(sv1.contains(cgmesTerminal));
     }
 
     @Test
-    public void microGridBEWithHiddenTapChangers() throws XMLStreamException {
+    void microGridBEWithHiddenTapChangers() throws XMLStreamException {
         Network network = importNetwork(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource());
         String sv = exportSvAsString(network, 2);
         String hiddenTapChangerId = "_6ebbef67-3061-4236-a6fd-6ccc4595f6c3-x";
@@ -256,6 +245,17 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         // Import with new SV
         Network actual = Network.read(repackaged,
                 DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+
+        // Before comparison, set undefined p/q in expected network at 0.0
+        expected.getConnectableStream()
+                .filter(c -> c instanceof Injection)
+                .filter(c -> !(c instanceof BusbarSection))
+                .filter(c -> !(c instanceof HvdcConverterStation))
+                .filter(c -> !(c instanceof DanglingLine && ((DanglingLine) c).isPaired()))
+                .map(c -> (Injection<?>) c)
+                .map(Injection::getTerminal)
+                .filter(t -> Double.isNaN(t.getP()) && Double.isNaN(t.getQ()))
+                .forEach(t -> t.setP(0.0).setQ(0.0));
 
         // Export original and with new SV
         // comparison without extensions, only Networks

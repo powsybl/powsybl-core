@@ -7,9 +7,9 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -73,9 +73,10 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
         assertEquals(0, n2.getLineCount());
         assertEquals(1, n2.getDanglingLineCount());
         n1.merge(n2);
-        assertEquals(1, n1.getLineCount());
-        assertEquals(0, n1.getDanglingLineCount());
-        n1.getLine("dl1 + dl2").remove();
+        assertEquals(1, n1.getTieLineCount());
+        assertEquals(2, n1.getDanglingLineCount());
+        n1.getTieLine("dl1 + dl2").remove();
+        assertEquals(2, n1.getDanglingLineCount());
         for (Bus b : n1.getBusBreakerView().getBuses()) {
             // throws an exception if bug already present
             b.isInMainConnectedComponent();

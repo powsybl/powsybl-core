@@ -196,7 +196,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
                 return cc;
             }
         }
-        throw new AssertionError("Should not happen");
+        throw new IllegalStateException("Should not happen");
     }
 
     @Override
@@ -216,7 +216,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
                 return sc;
             }
         }
-        throw new AssertionError("Should not happen");
+        throw new IllegalStateException("Should not happen");
     }
 
     @Override
@@ -332,19 +332,19 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
         checkValidity();
         List<Iterable<DanglingLine>> iterables = new ArrayList<>(buses.size());
         for (ConfiguredBus bus : buses) {
-            iterables.add(bus.getDanglingLines());
+            iterables.add(bus.getDanglingLines(danglingLineFilter));
         }
         return Iterables.concat(iterables);
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getDanglingLineStream);
+        return buses.stream().flatMap(configuredBus -> configuredBus.getDanglingLineStream(danglingLineFilter));
     }
 
     @Override

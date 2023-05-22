@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -18,7 +17,7 @@ import com.powsybl.iidm.network.test.BusbarSectionExt;
 import com.powsybl.iidm.network.test.ScadaNetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.ByteArrayInputStream;
@@ -30,12 +29,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkXmlTest extends AbstractXmlConverterTest {
+class NetworkXmlTest extends AbstractXmlConverterTest {
 
     static Network createEurostagTutorialExample1() {
         Network network = EurostagTutorialExample1Factory.create();
@@ -44,7 +43,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripXmlTest(createEurostagTutorialExample1(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
@@ -55,7 +54,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testValidationIssueWithProperties() {
+    void testValidationIssueWithProperties() {
         Network network = createEurostagTutorialExample1();
         network.getGenerator("GEN").setProperty("test", "foo");
         Path xmlFile = tmpDir.resolve("n.xml");
@@ -65,7 +64,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testGzipGunzip() throws IOException {
+    void testGzipGunzip() throws IOException {
         Network network = createEurostagTutorialExample1();
         Path file1 = tmpDir.resolve("n.xml");
         NetworkXml.write(network, file1);
@@ -104,7 +103,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void busBreakerExtensions() throws IOException {
+    void busBreakerExtensions() throws IOException {
         Network network = NetworkTest1Factory.create();
         BusbarSection bb = network.getBusbarSection("voltageLevel1BusbarSection1");
         bb.addExtension(BusbarSectionExt.class, new BusbarSectionExt(bb));
@@ -126,7 +125,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testOptionalSubstation() throws IOException {
+    void testOptionalSubstation() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2021-08-20T12:02:48.504+02:00"));
         String vlId = "ADDITIONAL_VL";
@@ -198,7 +197,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testScada() throws IOException {
+    void testScada() throws IOException {
         Network network = ScadaNetworkFactory.create();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
         roundTripTest(network,
@@ -207,20 +206,11 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
                 getVersionedNetworkPath("scadaNetwork.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmXmlVersion.V_1_8);
-
-        Path path = tmpDir.resolve("test");
-        NetworkXml.write(network, path);
-        try {
-            NetworkXml.validate(path);
-            fail();
-        } catch (UncheckedSaxException e) {
-            // ignore
-        }
+        roundTripVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmXmlVersion.V_1_7);
     }
 
     @Test
-    public void checkWithSpecificEncoding() throws IOException {
+    void checkWithSpecificEncoding() throws IOException {
         Network network = NetworkTest1Factory.create();
         BusbarSection bb = network.getBusbarSection("voltageLevel1BusbarSection1");
         bb.addExtension(BusbarSectionExt.class, new BusbarSectionExt(bb));

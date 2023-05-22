@@ -12,31 +12,26 @@ import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class HvdcLineAdapterTest {
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+class HvdcLineAdapterTest {
 
     private MergingView mergingView;
 
     private Network networkRef;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         mergingView = MergingView.create("HvdcLineAdapterTest", "iidm");
         networkRef = HvdcTestNetwork.createLcc();
         mergingView.merge(networkRef);
     }
 
     @Test
-    public void baseTests() {
+    void baseTests() {
         final HvdcLine expectedLine = networkRef.getHvdcLine("L");
         final HvdcLine lineAdapted = mergingView.getHvdcLine("L");
         assertTrue(lineAdapted instanceof HvdcLineAdapter);
@@ -88,7 +83,7 @@ public class HvdcLineAdapterTest {
     }
 
     @Test
-    public void testAdder() {
+    void testAdder() {
         final HvdcLine hvdcLine = mergingView.newHvdcLine()
                                                 .setId("hvdc_line")
                                                 .setName("hvdcLine")
@@ -106,11 +101,9 @@ public class HvdcLineAdapterTest {
     }
 
     @Test
-    public void testAdderWithoutConverterStationId1() {
+    void testAdderWithoutConverterStationId1() {
         // Test not allowed HvdcLine creation
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Side 1 converter station is not set");
-        mergingView.newHvdcLine()
+        PowsyblException e = assertThrows(PowsyblException.class, () -> mergingView.newHvdcLine()
                 .setId("NotAllowed")
                 .setName("NotAllowed")
                 .setEnsureIdUnicity(false)
@@ -119,14 +112,13 @@ public class HvdcLineAdapterTest {
                 .setNominalV(440.0)
                 .setMaxP(-50.0)
                 .setActivePowerSetpoint(20.0)
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("Side 1 converter station is not set"));
     }
 
     @Test
-    public void testAdderWithoutConverterStationId2() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Side 2 converter station is not set");
-        mergingView.newHvdcLine()
+    void testAdderWithoutConverterStationId2() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> mergingView.newHvdcLine()
                 .setId("NotAllowed")
                 .setName("NotAllowed")
                 .setEnsureIdUnicity(false)
@@ -136,14 +128,13 @@ public class HvdcLineAdapterTest {
                 .setMaxP(-50.0)
                 .setActivePowerSetpoint(20.0)
                 .setConverterStationId1("C1")
-                .add();
+                .add());
+        assertTrue(e.getMessage().contains("Side 2 converter station is not set"));
     }
 
     @Test
-    public void testAdderWithUnknownConverterStationId1() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Side 1 converter station 'C1_' not found");
-        mergingView.newHvdcLine()
+    void testAdderWithUnknownConverterStationId1() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> mergingView.newHvdcLine()
                        .setId("NotAllowed")
                        .setName("NotAllowed")
                        .setEnsureIdUnicity(false)
@@ -153,14 +144,13 @@ public class HvdcLineAdapterTest {
                        .setMaxP(-50.0)
                        .setActivePowerSetpoint(20.0)
                        .setConverterStationId1("C1_")
-                   .add();
+                   .add());
+        assertTrue(e.getMessage().contains("Side 1 converter station 'C1_' not found"));
     }
 
     @Test
-    public void testAdderWithUnknownConverterStationId2() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Side 2 converter station 'C2_' not found");
-        mergingView.newHvdcLine()
+    void testAdderWithUnknownConverterStationId2() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> mergingView.newHvdcLine()
                        .setId("NotAllowed")
                        .setName("NotAllowed")
                        .setEnsureIdUnicity(false)
@@ -172,11 +162,12 @@ public class HvdcLineAdapterTest {
                        .setActivePowerSetpoint(20.0)
                        .setConverterStationId1("C1")
                        .setConverterStationId2("C2_")
-                   .add();
+                   .add());
+        assertTrue(e.getMessage().contains("Side 2 converter station 'C2_' not found"));
     }
 
     @Test
-    public void testAdderNotAllowed() {
+    void testAdderNotAllowed() {
         mergingView.merge(NoEquipmentNetworkFactory.create());
         mergingView.getVoltageLevel("vl1").newLccConverterStation()
                                                   .setId("C3")
@@ -184,9 +175,7 @@ public class HvdcLineAdapterTest {
                                                   .setLossFactor(0.011f)
                                                   .setPowerFactor(0.5f)
                                               .add();
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("HvdcLine creation between two networks is not allowed");
-        mergingView.newHvdcLine()
+        PowsyblException e = assertThrows(PowsyblException.class, () -> mergingView.newHvdcLine()
                        .setId("NotAllowed")
                        .setName("NotAllowed")
                        .setEnsureIdUnicity(false)
@@ -197,6 +186,7 @@ public class HvdcLineAdapterTest {
                        .setActivePowerSetpoint(20.0)
                        .setConverterStationId1("C1")
                        .setConverterStationId2("C3")
-                   .add();
+                   .add());
+        assertTrue(e.getMessage().contains("HvdcLine creation between two networks is not allowed"));
     }
 }

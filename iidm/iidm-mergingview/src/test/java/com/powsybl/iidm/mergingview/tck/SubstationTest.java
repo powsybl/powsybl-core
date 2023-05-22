@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractSubstationTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class SubstationTest extends AbstractSubstationTest { }
+class SubstationTest extends AbstractSubstationTest { }

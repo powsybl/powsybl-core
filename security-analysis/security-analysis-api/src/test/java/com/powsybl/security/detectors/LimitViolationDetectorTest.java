@@ -13,19 +13,19 @@ import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.LimitViolations;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class LimitViolationDetectorTest {
+class LimitViolationDetectorTest {
 
     private Network network;
     private Branch line1;
@@ -141,14 +141,14 @@ public class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkPermanentLimit(Branch<?> branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+            public void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
 
             }
         };
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = EurostagTutorialExample1Factory.create();
         line1 = network.getBranch("NHV1_NHV2_1");
         line2 = network.getBranch("NHV1_NHV2_2");
@@ -163,7 +163,7 @@ public class LimitViolationDetectorTest {
     }
 
     @Test
-    public void networkHas5Violations() {
+    void networkHas5Violations() {
         contingencyBasedDetector().checkAll(network, collectedViolations::add);
         assertEquals(5, collectedViolations.size());
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
@@ -173,33 +173,33 @@ public class LimitViolationDetectorTest {
     }
 
     @Test
-    public void branch1Has2Violations() {
+    void branch1Has2Violations() {
         contingencyBasedDetector().checkCurrent(network.getLine("NHV1_NHV2_1"), collectedViolations::add);
         assertEquals(2, collectedViolations.size());
     }
 
     @Test
-    public void branch2Has1Violation() {
+    void branch2Has1Violation() {
         contingencyBasedDetector().checkCurrent(network.getLine("NHV1_NHV2_2"), collectedViolations::add);
         assertEquals(1, collectedViolations.size());
     }
 
     @Test
-    public void voltageLevel1Has1Violation() {
+    void voltageLevel1Has1Violation() {
         contingencyBasedDetector().checkVoltage(network.getVoltageLevel("VLHV1"), collectedViolations::add);
         assertEquals(1, collectedViolations.size());
         assertSame(LimitViolationType.HIGH_VOLTAGE, collectedViolations.get(0).getLimitType());
     }
 
     @Test
-    public void voltageLevelGenHas1Violation() {
+    void voltageLevelGenHas1Violation() {
         contingencyBasedDetector().checkVoltage(network.getVoltageLevel("VLGEN"), collectedViolations::add);
         assertEquals(1, collectedViolations.size());
         assertSame(LimitViolationType.LOW_VOLTAGE, collectedViolations.get(0).getLimitType());
     }
 
     @Test
-    public void networkHas7ViolationsOnContingency1() {
+    void networkHas7ViolationsOnContingency1() {
         contingencyBasedDetector().checkAll(contingency1, network, collectedViolations::add);
         assertEquals(7, collectedViolations.size());
         assertEquals(4, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
@@ -208,7 +208,7 @@ public class LimitViolationDetectorTest {
     }
 
     @Test
-    public void networkHas5ViolationsOnContingency2() {
+    void networkHas5ViolationsOnContingency2() {
         contingencyBasedDetector().checkAll(contingency2, network, collectedViolations::add);
         assertEquals(5, collectedViolations.size());
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
@@ -217,7 +217,7 @@ public class LimitViolationDetectorTest {
     }
 
     @Test
-    public void networkHas5ViolationsOnContingency1WithContingencyBlindDetector() {
+    void networkHas5ViolationsOnContingency1WithContingencyBlindDetector() {
         contingencyBlindDetector().checkAll(contingency1, network, collectedViolations::add);
         assertEquals(5, collectedViolations.size());
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
@@ -226,13 +226,13 @@ public class LimitViolationDetectorTest {
     }
 
     @Test
-    public void transformerHas1ViolationOnContingency1() {
+    void transformerHas1ViolationOnContingency1() {
         contingencyBasedDetector().checkCurrent(contingency1, transformer, collectedViolations::add);
         assertEquals(1, collectedViolations.size());
     }
 
     @Test
-    public void transformerHasNoViolationOnContingency1WithContingencyBlindDetector() {
+    void transformerHasNoViolationOnContingency1WithContingencyBlindDetector() {
         LimitViolationDetector detector = contingencyBlindDetector();
         detector.checkCurrent(contingency1, transformer, collectedViolations::add);
         detector.checkCurrent(contingency1, transformer, Branch.Side.ONE, collectedViolations::add);
@@ -241,10 +241,10 @@ public class LimitViolationDetectorTest {
     }
 
     @Test
-    public void loadVoltageLevelHasNoViolationOnContingency1WithContingencyBlindDetector() {
+    void loadVoltageLevelHasNoViolationOnContingency1WithContingencyBlindDetector() {
         LimitViolationDetector detector = contingencyBlindDetector();
         detector.checkVoltage(contingency1, loadVoltageLevel, collectedViolations::add);
-        Bus loadBus = loadVoltageLevel.getBusView().getBusStream().findFirst().orElseThrow(AssertionError::new);
+        Bus loadBus = loadVoltageLevel.getBusView().getBusStream().findFirst().orElseThrow(IllegalStateException::new);
         detector.checkVoltage(contingency1, loadBus, collectedViolations::add);
         detector.checkVoltage(contingency1, loadBus, 500, collectedViolations::add);
         assertEquals(0, collectedViolations.size());

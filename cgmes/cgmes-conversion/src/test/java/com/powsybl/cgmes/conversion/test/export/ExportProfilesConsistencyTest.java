@@ -18,21 +18,21 @@ import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.ExportersServiceLoader;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class ExportProfilesConsistencyTest extends AbstractConverterTest {
+class ExportProfilesConsistencyTest extends AbstractConverterTest {
 
     @Test
-    public void testSVSmallGridNodeBreaker() {
+    void testSVSmallGridNodeBreaker() {
         Network network = importNetwork(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
 
         ReporterModel reporterOnlySv = new ReporterModel("onlySV", "");
@@ -52,7 +52,7 @@ public class ExportProfilesConsistencyTest extends AbstractConverterTest {
 
     private Network importNetwork(ReadOnlyDataSource dataSource) {
         Properties params = new Properties();
-        params.put(CgmesImport.ID_MAPPING_FILE_NAMING_STRATEGY, NamingStrategyFactory.CGMES);
+        params.put(CgmesImport.NAMING_STRATEGY, NamingStrategyFactory.CGMES);
         return Importers.importData("CGMES", dataSource, params);
     }
 

@@ -14,6 +14,8 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 import java.util.Optional;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -37,7 +39,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected boolean hasSubElements(ThreeWindingsTransformer twt) {
-        throw new AssertionError("Should not be called");
+        throw new IllegalStateException("Should not be called");
     }
 
     @Override
@@ -143,11 +145,11 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         if (c instanceof Substation) {
             return ((Substation) c).newThreeWindingsTransformer();
         }
-        throw new AssertionError();
+        throw new IllegalStateException();
     }
 
     @Override
-    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
+    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, Container<? extends Identifiable<?>> c, NetworkXmlReaderContext context) {
         double r1 = XmlUtil.readDoubleAttribute(context.getReader(), "r1");
         double x1 = XmlUtil.readDoubleAttribute(context.getReader(), "x1");
         double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");

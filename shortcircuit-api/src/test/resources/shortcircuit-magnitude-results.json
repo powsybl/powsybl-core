@@ -1,0 +1,45 @@
+{
+  "version" : "1.1",
+  "faultResults" : [ {
+    "status" : "SUCCESS",
+    "fault" : {
+      "type" : "BUS",
+      "id" : "id",
+      "elementId" : "busId",
+      "r" : 0.0,
+      "x" : 0.0,
+      "connection" : "SERIES",
+      "faultType" : "THREE_PHASE"
+    },
+    "shortCircuitPower" : 1.0,
+    "timeConstant" : "PT1S",
+    "feederResult" : [ {
+      "connectableId" : "id2",
+      "currentMagnitude" : 1.0
+    } ],
+    "currentMagnitude" : 1.0,
+    "limitViolations" : [ {
+      "subjectId" : "vlId",
+      "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
+      "limit" : 2000.0,
+      "limitReduction" : 1.0,
+      "value" : 2500.0,
+      "extensions" : {
+        "DummyLimitViolationExtension" : { }
+      }
+    } ],
+    "shortCircuitBusResults" : [ {
+      "voltageLevelId" : "vlId",
+      "busId" : "busId",
+      "initialVoltageMagnitude" : 2000.0,
+      "voltageMagnitude" : 2004.0,
+      "voltageDropProportional" : 100.0
+    } ],
+    "extensions" : {
+      "DummyFaultResultExtension" : { }
+    }
+  } ],
+  "extensions" : {
+    "DummyShortCircuitAnalysisResultExtension" : { }
+  }
+}

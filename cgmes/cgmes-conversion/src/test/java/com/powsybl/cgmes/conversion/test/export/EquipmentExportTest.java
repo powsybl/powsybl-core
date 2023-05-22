@@ -27,7 +27,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.stream.XMLStreamException;
@@ -38,91 +38,74 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class EquipmentExportTest extends AbstractConverterTest {
+class EquipmentExportTest extends AbstractConverterTest {
 
     @Test
-    public void smallGridHvdc() throws IOException, XMLStreamException {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+    void smallGridHvdc() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportNodeBreaker(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
 
     @Test
-    public void smallNodeBreaker() throws IOException, XMLStreamException {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+    void smallNodeBreaker() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallNodeBreaker().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportNodeBreaker(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
 
     @Test
-    public void smallBusBranch() throws IOException, XMLStreamException {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+    void smallBusBranch() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.smallBusBranch().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportBusBranch(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
 
     @Test
-    public void smallGridHvdcWithCapabilityCurve() throws IOException, XMLStreamException {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+    void smallGridHvdcWithCapabilityCurve() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportNodeBreaker(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
 
     @Test
-    public void miniNodeBreaker() throws IOException, XMLStreamException {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+    void miniNodeBreaker() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniNodeBreaker().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportNodeBreaker(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
 
     @Test
-    public void miniBusBranch() throws IOException, XMLStreamException {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+    void miniBusBranch() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniBusBranch().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportBusBranchNoBoundaries(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
 
     @Test
-    public void microGridWithTieFlowMappedToEquivalentInjection() throws IOException, XMLStreamException {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+    void microGridWithTieFlowMappedToEquivalentInjection() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportBusBranch(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
 
     @Test
-    public void microGridBaseCaseAssembledSwitchAtBoundary() throws XMLStreamException, IOException {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+    void microGridBaseCaseAssembledSwitchAtBoundary() throws XMLStreamException, IOException {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource();
-        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
 
         network.newExtension(CgmesControlAreasAdder.class).add();
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
@@ -132,8 +115,8 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 .setEnergyIdentificationCodeEic("energyIdentCodeEic")
                 .setNetInterchange(Double.NaN)
                 .add();
-        TieLine tieLine = (TieLine) network.getLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
-        cgmesControlArea.add(tieLine.getHalf2().getBoundary());
+        TieLine tieLine = network.getTieLine("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49");
+        cgmesControlArea.add(tieLine.getDanglingLine2().getBoundary());
 
         // TODO(Luma) updated expected result after halves of tie lines are exported as equipment
         //  instead of an error logged and the tie flow ignored,
@@ -143,30 +126,26 @@ public class EquipmentExportTest extends AbstractConverterTest {
         boolean tieFlowsAtTieLinesAreSupported = false;
         if (tieFlowsAtTieLinesAreSupported) {
             assertEquals(1, actualCgmesControlArea.getBoundaries().size());
-            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getConnectable().getId());
+            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getDanglingLine().getId());
         } else {
             assertEquals(0, actualCgmesControlArea.getBoundaries().size());
         }
     }
 
     @Test
-    public void microGrid() throws IOException, XMLStreamException {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+    void microGrid() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridType4BE().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportBusBranch(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
 
     @Test
-    public void microGridCreateEquivalentInjectionAliases() throws IOException, XMLStreamException {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+    void microGridCreateEquivalentInjectionAliases() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         // Remove aliases of equivalent injections, so they will have to be created during export
-        for (DanglingLine danglingLine : expected.getDanglingLines()) {
+        for (DanglingLine danglingLine : expected.getDanglingLines(DanglingLineFilter.ALL)) {
             danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             danglingLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         }
@@ -175,7 +154,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void nordic32() throws IOException, XMLStreamException {
+    void nordic32() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         exportToCgmesEQ(network);
@@ -187,12 +166,10 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void bPerSectionTest() throws IOException, XMLStreamException {
+    void bPerSectionTest() throws IOException, XMLStreamException {
         ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridType4BE().dataSource();
 
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
         ShuntCompensatorLinearModel sh = (ShuntCompensatorLinearModel) network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da").getModel();
         assertEquals(0.024793, sh.getBPerSection(), 0.0);
 
@@ -204,7 +181,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void threeWindingsTransformerTest() throws IOException, XMLStreamException {
+    void threeWindingsTransformerTest() throws IOException, XMLStreamException {
         Network network = createThreeWindingTransformerNetwork();
         String t3id = "threeWindingsTransformer1";
 
@@ -246,11 +223,9 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testLoadGroups() throws XMLStreamException, IOException {
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+    void testLoadGroups() throws XMLStreamException, IOException {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportBusBranch(expected, dataSource);
         compareNetworksEQdata(expected, actual);
     }
@@ -513,7 +488,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
             compareFlowLimits(expectedTwt.getLeg2(), twt.getLeg2());
             compareFlowLimits(expectedTwt.getLeg3(), twt.getLeg3());
         }
-        for (DanglingLine danglingLine : actual.getDanglingLines()) {
+        for (DanglingLine danglingLine : actual.getDanglingLines(DanglingLineFilter.ALL)) {
             compareFlowLimits((FlowsLimitsHolder) expected.getIdentifiable(danglingLine.getId()), danglingLine);
         }
     }

@@ -9,7 +9,6 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Supplier;
@@ -66,29 +65,27 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
                 case "network":
                     parser.nextToken();
-                    networkMetadata = parser.readValueAs(NetworkMetadata.class);
+                    networkMetadata = JsonUtil.readValue(ctx, parser, NetworkMetadata.class);
                     break;
 
                 case "preContingencyResult":
                     parser.nextToken();
                     if (version != null && version.equals("1.0")) {
-                        limitViolationsResult = ctx.readValue(parser, LimitViolationsResult.class);
+                        limitViolationsResult = JsonUtil.readValue(ctx, parser, LimitViolationsResult.class);
                     } else {
-                        preContingencyResult = ctx.readValue(parser, PreContingencyResult.class);
+                        preContingencyResult = JsonUtil.readValue(ctx, parser, PreContingencyResult.class);
                     }
                     break;
 
                 case "postContingencyResults":
                     parser.nextToken();
-                    JavaType postContingencyResultsCollection = ctx.getTypeFactory().constructCollectionType(List.class, PostContingencyResult.class);
-                    postContingencyResults = ctx.readValue(parser, postContingencyResultsCollection);
+                    postContingencyResults = JsonUtil.readList(ctx, parser, PostContingencyResult.class);
                     break;
 
                 case "operatorStrategyResults":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: operatorStrategyResults", version, "1.2");
                     parser.nextToken();
-                    JavaType operatorStrategyResultsCollection = ctx.getTypeFactory().constructCollectionType(List.class, OperatorStrategyResult.class);
-                    operatorStrategyResults = ctx.readValue(parser, operatorStrategyResultsCollection);
+                    operatorStrategyResults = JsonUtil.readList(ctx, parser, OperatorStrategyResult.class);
                     break;
 
                 case "extensions":
@@ -97,7 +94,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         SecurityAnalysisResult result = null;

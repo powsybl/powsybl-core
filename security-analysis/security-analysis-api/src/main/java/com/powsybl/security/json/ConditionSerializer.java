@@ -28,17 +28,27 @@ public class ConditionSerializer extends StdSerializer<Condition> {
         jsonGenerator.writeStringField("type", condition.getType());
         switch (condition.getType()) {
             case AllViolationCondition.NAME:
-                jsonGenerator.writeObjectField("violationIds", ((AllViolationCondition) condition).getViolationIds());
+                serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializerProvider);
+                serializerProvider.defaultSerializeField("violationIds", ((AllViolationCondition) condition).getViolationIds(), jsonGenerator);
                 break;
             case AtLeastOneViolationCondition.NAME:
-                jsonGenerator.writeObjectField("violationIds", ((AtLeastOneViolationCondition) condition).getViolationIds());
+                serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializerProvider);
+                serializerProvider.defaultSerializeField("violationIds", ((AtLeastOneViolationCondition) condition).getViolationIds(), jsonGenerator);
                 break;
             case TrueCondition.NAME:
+                break;
             case AnyViolationCondition.NAME:
+                serializeFilters((AbstractFilteredCondition) condition, jsonGenerator, serializerProvider);
                 break;
             default:
                 throw new IllegalArgumentException("condition type \'" + condition.getType() + "\' does not exist");
         }
         jsonGenerator.writeEndObject();
+    }
+
+    public void serializeFilters(AbstractFilteredCondition filteredCondition, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        if (!filteredCondition.getFilters().isEmpty()) {
+            serializerProvider.defaultSerializeField("filters", filteredCondition.getFilters(), jsonGenerator);
+        }
     }
 }

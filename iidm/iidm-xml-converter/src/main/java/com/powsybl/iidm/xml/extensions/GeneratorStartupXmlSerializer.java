@@ -47,6 +47,8 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
                         .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
                         .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
                         .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put(ITESLA_1_0, "http://www.itesla_project.eu/schema/iidm/ext/generator_startup/1_0")
@@ -99,7 +101,7 @@ public class GeneratorStartupXmlSerializer extends AbstractVersionableNetworkExt
         double plannedActivePowerSetpoint;
         double startUpCost;
         NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
-        String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(AssertionError::new);
+        String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
         switch (extensionVersionStr) {
             case ITESLA_1_0:
             case V_1_0:

@@ -1,7 +1,7 @@
 {
-  "version" : "1.0",
+  "version" : "1.1",
   "load-flow-parameters" : {
-    "version" : "1.8",
+    "version" : "1.9",
     "voltageInitMode" : "UNIFORM_VALUES",
     "transformerVoltageControlOn" : false,
     "phaseShifterRegulationOn" : false,
@@ -16,8 +16,13 @@
     "dcUseTransformerRatio" : true,
     "countriesToBalance" : [ ],
     "connectedComponentMode" : "MAIN",
-    "hvdcAcEmulation" : true
+    "hvdcAcEmulation" : true,
+    "dcPowerFactor" : 1.0
   },
+  "flow-flow-sensitivity-value-threshold" : 0.0,
+  "voltage-voltage-sensitivity-value-threshold" : 0.0,
+  "flow-voltage-sensitivity-value-threshold" : 0.0,
+  "angle-flow-sensitivity-value-threshold" : 0.0,
   "extensions" : {
     "dummy-extension" : { }
   }

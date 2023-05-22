@@ -122,11 +122,6 @@ class LineImpl extends AbstractBranch<Line> implements Line {
     }
 
     @Override
-    public boolean isTieLine() {
-        return false;
-    }
-
-    @Override
     protected String getTypeDescription() {
         return "AC line";
     }

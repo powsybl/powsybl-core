@@ -156,7 +156,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
             case TWO:
                 return voltage * nextRatio / ratio;
             default:
-                throw new AssertionError("Unexpected Side value: " + regulatedSide);
+                throw new IllegalStateException("Unexpected Side value: " + regulatedSide);
         }
     }
 

@@ -13,23 +13,21 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class DynamicSimulationToolTest extends AbstractToolTest {
+class DynamicSimulationToolTest extends AbstractToolTest {
 
     @AutoService(DynamicSimulationProvider.class)
     public static class DynamicSimulationProviderMock implements DynamicSimulationProvider {
@@ -49,9 +47,6 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
             return null;
         }
     }
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private final DynamicSimulationTool tool = new DynamicSimulationTool();
 
@@ -75,7 +70,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "output-file", false, true);
     }
 
-    @Before
+    @BeforeEach
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -88,7 +83,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void testDynamicSimulation() throws IOException {
+    void testDynamicSimulation() throws IOException {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
                 "dynamic simulation results:",
@@ -104,7 +99,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void testDynamicSimulationWithEvents() throws IOException {
+    void testDynamicSimulationWithEvents() throws IOException {
         // Run with events in groovy
         assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--event-models-file", "/eventModels.groovy"}, 0, null, "");
 
@@ -113,7 +108,7 @@ public class DynamicSimulationToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void testDynamicSimulationWithCurves() throws IOException {
+    void testDynamicSimulationWithCurves() throws IOException {
         // Run with curves in groovy
         assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--curves-file", "/curves.groovy"}, 0, null, "");
 

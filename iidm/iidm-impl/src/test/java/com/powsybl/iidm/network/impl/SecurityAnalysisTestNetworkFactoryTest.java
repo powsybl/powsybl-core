@@ -9,18 +9,18 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.SecurityAnalysisTestNetworkFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class SecurityAnalysisTestNetworkFactoryTest {
+class SecurityAnalysisTestNetworkFactoryTest {
 
     private final double threshold = 0.0001;
     private final String lineS1S2V11Str = "LINE_S1S2V1_1";
@@ -30,7 +30,7 @@ public class SecurityAnalysisTestNetworkFactoryTest {
     private final String twt2Str = "TWT2";
 
     @Test
-    public void testCreate() {
+    void testCreate() {
         Network network = SecurityAnalysisTestNetworkFactory.create();
         Line lineS1S2V11 = network.getLine(lineS1S2V11Str);
         assertEquals(0.01, lineS1S2V11.getR(), threshold);
@@ -98,7 +98,7 @@ public class SecurityAnalysisTestNetworkFactoryTest {
     }
 
     @Test
-    public void testCurrentLimits() {
+    void testCurrentLimits() {
         Network network = SecurityAnalysisTestNetworkFactory.createWithFixedCurrentLimits();
         assertTrue(network.getLine(lineS1S2V11Str).getCurrentLimits1().isPresent());
         assertEquals(75, network.getLine(lineS1S2V11Str).getCurrentLimits1().get().getPermanentLimit(), threshold);
@@ -110,7 +110,7 @@ public class SecurityAnalysisTestNetworkFactoryTest {
         assertEquals("1'", temporaryLimits.get(1).getName());
         assertEquals(60, temporaryLimits.get(1).getAcceptableDuration(), threshold);
         assertEquals(85, temporaryLimits.get(1).getValue(), threshold);
-        assertEquals("N/A", temporaryLimits.get(2).getName());
+        assertEquals("Undefined", temporaryLimits.get(2).getName());
         assertEquals(0, temporaryLimits.get(2).getAcceptableDuration(), threshold);
         assertEquals(Double.MAX_VALUE, temporaryLimits.get(2).getValue(), threshold);
 
@@ -127,7 +127,7 @@ public class SecurityAnalysisTestNetworkFactoryTest {
         assertEquals("1'", temporaryLimits.get(1).getName());
         assertEquals(60, temporaryLimits.get(1).getAcceptableDuration(), threshold);
         assertEquals(85, temporaryLimits.get(1).getValue(), threshold);
-        assertEquals("N/A", temporaryLimits.get(2).getName());
+        assertEquals("Undefined", temporaryLimits.get(2).getName());
         assertEquals(0, temporaryLimits.get(2).getAcceptableDuration(), threshold);
         assertEquals(Double.MAX_VALUE, temporaryLimits.get(2).getValue(), threshold);
 
@@ -166,7 +166,7 @@ public class SecurityAnalysisTestNetworkFactoryTest {
     }
 
     @Test
-    public void testPowerLimits() {
+    void testPowerLimits() {
         Network network = SecurityAnalysisTestNetworkFactory.createWithFixedPowerLimits();
         assertTrue(network.getLine(lineS1S2V11Str).getActivePowerLimits1().isPresent());
         assertEquals(55, network.getLine(lineS1S2V11Str).getActivePowerLimits1().get().getPermanentLimit(), threshold);

@@ -33,8 +33,8 @@ public class OperatorStrategySerializer extends StdSerializer<OperatorStrategy> 
         if (contingencyContext.getContingencyId() != null) {
             jsonGenerator.writeStringField("contingencyId", contingencyContext.getContingencyId());
         }
-        jsonGenerator.writeObjectField("condition", operatorStrategy.getCondition());
-        jsonGenerator.writeObjectField("actionIds", operatorStrategy.getActionIds());
+        serializerProvider.defaultSerializeField("condition", operatorStrategy.getCondition(), jsonGenerator);
+        serializerProvider.defaultSerializeField("actionIds", operatorStrategy.getActionIds(), jsonGenerator);
         JsonUtil.writeExtensions(operatorStrategy, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }

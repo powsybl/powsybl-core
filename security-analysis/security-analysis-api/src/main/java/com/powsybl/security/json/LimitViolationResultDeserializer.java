@@ -8,14 +8,13 @@ package com.powsybl.security.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -30,34 +29,31 @@ class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsRe
 
     @Override
     public LimitViolationsResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        boolean comutationOk = false;
+        boolean computationOk = false;
         List<LimitViolation> limitViolations = Collections.emptyList();
         List<String> actionsTaken = Collections.emptyList();
-
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "computationOk":
                     parser.nextToken();
-                    comutationOk = parser.readValueAs(Boolean.class);
+                    computationOk = parser.readValueAs(Boolean.class);
                     break;
 
                 case "limitViolations":
                     parser.nextToken();
-                    limitViolations = parser.readValueAs(new TypeReference<ArrayList<LimitViolation>>() {
-                    });
+                    limitViolations = JsonUtil.readList(deserializationContext, parser, LimitViolation.class);
                     break;
 
                 case "actionsTaken":
                     parser.nextToken();
-                    actionsTaken = parser.readValueAs(new TypeReference<ArrayList<String>>() {
-                    });
+                    actionsTaken = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 
-        return new LimitViolationsResult(comutationOk, limitViolations, actionsTaken);
+        return new LimitViolationsResult(computationOk, limitViolations, actionsTaken);
     }
 }

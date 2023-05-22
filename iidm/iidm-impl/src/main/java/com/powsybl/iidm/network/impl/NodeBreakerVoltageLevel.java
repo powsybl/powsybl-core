@@ -52,6 +52,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerVoltageLevel.class);
 
+    private static final String WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE = "Given TerminalExt not supported: ";
+
     private static final boolean DRAW_SWITCH_ID = true;
 
     private static final BusChecker CALCULATED_BUS_CHECKER = new CalculatedBusChecker();
@@ -474,7 +476,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                             break;
 
                         default:
-                            throw new AssertionError();
+                            throw new IllegalStateException();
                     }
                 }
             }
@@ -909,7 +911,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public BusbarSection getBusbarSection(String id) {
-            return getNetwork().getIndex().get(id, BusbarSection.class);
+            BusbarSection bbs = getNetwork().getIndex().get(id, BusbarSection.class);
+            if (bbs != null && bbs.getTerminal().getVoltageLevel() != NodeBreakerVoltageLevel.this) {
+                return null;
+            }
+            return bbs;
         }
 
         private com.powsybl.math.graph.Traverser adapt(TopologyTraverser t) {
@@ -1160,8 +1166,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public boolean connect(TerminalExt terminal) {
-        assert terminal instanceof NodeTerminal;
-
+        if (!(terminal instanceof NodeTerminal)) {
+            throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
+        }
         // already connected?
         if (terminal.isConnected()) {
             return false;
@@ -1189,8 +1196,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public boolean disconnect(TerminalExt terminal) {
-        assert terminal instanceof NodeTerminal;
-
+        if (!(terminal instanceof NodeTerminal)) {
+            throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
+        }
         // already disconnected?
         if (!terminal.isConnected()) {
             return false;
@@ -1226,8 +1234,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     boolean isConnected(TerminalExt terminal) {
-        assert terminal instanceof NodeTerminal;
-
+        if (!(terminal instanceof NodeTerminal)) {
+            throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
+        }
         return terminal.getBusView().getBus() != null;
     }
 

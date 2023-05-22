@@ -8,16 +8,16 @@ package com.powsybl.security.impl.results;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.security.results.BranchResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static junit.framework.TestCase.assertEquals;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class BranchResultTest {
+class BranchResultTest {
     @Test
-    public void test() {
+    void test() {
         BranchResult branchResult = new BranchResult("id1", 500, 200, 300, -500, 300, -300, 0.0);
         assertEquals("id1", branchResult.getBranchId());
         assertEquals(300.0, branchResult.getI1());

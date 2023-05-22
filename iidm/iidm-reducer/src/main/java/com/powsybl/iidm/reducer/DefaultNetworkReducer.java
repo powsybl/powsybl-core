@@ -56,9 +56,9 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl1 = terminal1.getVoltageLevel();
         VoltageLevel vl2 = terminal2.getVoltageLevel();
 
-        if (getPredicate().test(vl1)) {
+        if (test(vl1)) {
             reduce(line, vl1, terminal1);
-        } else if (getPredicate().test(vl2)) {
+        } else if (test(vl2)) {
             reduce(line, vl2, terminal2);
         } else {
             line.remove();
@@ -74,9 +74,9 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl1 = terminal1.getVoltageLevel();
         VoltageLevel vl2 = terminal2.getVoltageLevel();
 
-        if (getPredicate().test(vl1)) {
+        if (test(vl1)) {
             replaceTransformerByLoad(transformer, vl1, terminal1);
-        } else if (getPredicate().test(vl2)) {
+        } else if (test(vl2)) {
             replaceTransformerByLoad(transformer, vl2, terminal2);
         } else {
             transformer.remove();
@@ -88,13 +88,29 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     @Override
     protected void reduce(ThreeWindingsTransformer transformer) {
-        VoltageLevel vl1 = transformer.getLeg1().getTerminal().getVoltageLevel();
-        VoltageLevel vl2 = transformer.getLeg2().getTerminal().getVoltageLevel();
-        VoltageLevel vl3 = transformer.getLeg3().getTerminal().getVoltageLevel();
-        if (getPredicate().test(vl1) || getPredicate().test(vl2) || getPredicate().test(vl3)) {
-            throw new UnsupportedOperationException("Reduction of three-windings transformers is not supported");
-        } else {
+        Terminal terminal1 = transformer.getLeg1().getTerminal();
+        Terminal terminal2 = transformer.getLeg2().getTerminal();
+        Terminal terminal3 = transformer.getLeg3().getTerminal();
+        VoltageLevel vl1 = terminal1.getVoltageLevel();
+        VoltageLevel vl2 = terminal2.getVoltageLevel();
+        VoltageLevel vl3 = terminal3.getVoltageLevel();
+
+        if (test(vl1) ^ test(vl2) ^ test(vl3)) {
+            VoltageLevel vlToKeep;
+            Terminal terminal;
+            if (test(vl1)) {
+                vlToKeep = vl1;
+                terminal = terminal1;
+            } else {
+                vlToKeep = test(vl2) ? vl2 : vl3;
+                terminal = test(vl2) ? terminal2 : terminal3;
+            }
+            replaceTransformerByLoad(transformer, vlToKeep, terminal);
+        } else if (!(test(vl1) || test(vl2) || test(vl3))) {
             transformer.remove();
+        } else {
+            throw new UnsupportedOperationException("Keeping only 2 legs of the 3 windings transformer " + transformer.getId() +
+                    " is not possible : the third one should have also been kept by reduction.");
         }
         observers.forEach(o -> o.transformerRemoved(transformer));
     }
@@ -107,9 +123,9 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl2 = terminal2.getVoltageLevel();
         HvdcConverterStation<?> station1 = hvdcLine.getConverterStation1();
         HvdcConverterStation<?> station2 = hvdcLine.getConverterStation2();
-        if (getPredicate().test(vl1)) {
+        if (test(vl1)) {
             replaceHvdcLine(hvdcLine, vl1, terminal1, station1);
-        } else if (getPredicate().test(vl2)) {
+        } else if (test(vl2)) {
             replaceHvdcLine(hvdcLine, vl2, terminal2, station2);
         } else {
             hvdcLine.remove();
@@ -126,7 +142,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceLineByLoad(Line line, VoltageLevel vl, Terminal terminal) {
-        Load load = replaceBranchByLoad(line, vl, terminal);
+        Load load = replaceConnectableByLoad(line, vl, terminal);
         observers.forEach(o -> o.lineReplaced(line, load));
     }
 
@@ -157,14 +173,19 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceTransformerByLoad(TwoWindingsTransformer transformer, VoltageLevel vl, Terminal terminal) {
-        Load load = replaceBranchByLoad(transformer, vl, terminal);
+        Load load = replaceConnectableByLoad(transformer, vl, terminal);
         observers.forEach(o -> o.transformerReplaced(transformer, load));
     }
 
-    private Load replaceBranchByLoad(Branch<?> branch, VoltageLevel vl, Terminal terminal) {
+    private void replaceTransformerByLoad(ThreeWindingsTransformer transformer, VoltageLevel vl, Terminal terminal) {
+        Load load = replaceConnectableByLoad(transformer, vl, terminal);
+        observers.forEach(o -> o.transformerReplaced(transformer, load));
+    }
+
+    private Load replaceConnectableByLoad(Connectable<?> connectable, VoltageLevel vl, Terminal terminal) {
         LoadAdder loadAdder = vl.newLoad()
-                .setId(branch.getId())
-                .setName(branch.getOptionalName().orElse(null))
+                .setId(connectable.getId())
+                .setName(connectable.getOptionalName().orElse(null))
                 .setLoadType(LoadType.FICTITIOUS)
                 .setP0(checkP(terminal))
                 .setQ0(checkQ(terminal));
@@ -172,7 +193,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
         double p = terminal.getP();
         double q = terminal.getQ();
-        branch.remove();
+        connectable.remove();
 
         Load load = loadAdder.add();
         load.getTerminal()
@@ -218,13 +239,14 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void replaceHvdcLineByGenerator(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal) {
+        double maxP = hvdcLine.getMaxP();
         GeneratorAdder genAdder = vl.newGenerator()
                 .setId(hvdcLine.getId())
                 .setName(hvdcLine.getOptionalName().orElse(null))
                 .setEnergySource(EnergySource.OTHER)
                 .setVoltageRegulatorOn(false)
-                .setMaxP(checkP(terminal))
-                .setMinP(0)
+                .setMaxP(maxP)
+                .setMinP(-maxP)
                 .setTargetP(checkP(terminal))
                 .setTargetQ(checkQ(terminal));
         fillNodeOrBus(genAdder, terminal);
@@ -244,7 +266,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
     }
 
-    private static void fillNodeOrBus(InjectionAdder<?> adder, Terminal terminal) {
+    private static void fillNodeOrBus(InjectionAdder<?, ?> adder, Terminal terminal) {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             adder.setNode(terminal.getNodeBreakerView().getNode());
         } else {

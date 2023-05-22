@@ -98,10 +98,21 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
                 new MultipleActionsActionSerializer(), new MultipleActionsActionDeserializer());
         registerActionType(PhaseTapChangerTapPositionAction.class, PhaseTapChangerTapPositionAction.NAME,
                 new PhaseTapChangerTapPositionActionSerializer(), new PhaseTapChangerTapPositionActionDeserializer());
+        registerActionType(RatioTapChangerTapPositionAction.class, RatioTapChangerTapPositionAction.NAME,
+                new RatioTapChangerTapPositionActionSerializer(), new RatioTapChangerTapPositionActionDeserializer());
+        registerActionType(PhaseTapChangerRegulationAction.class, PhaseTapChangerRegulationAction.NAME,
+                new PhaseTapChangerRegulationActionSerializer(), new PhaseTapChangerRegulationActionDeserializer());
+        registerActionType(RatioTapChangerRegulationAction.class, RatioTapChangerRegulationAction.NAME,
+                new RatioTapChangerRegulationActionSerializer(), new RatioTapChangerRegulationActionDeserializer());
+        registerActionType(GeneratorAction.class, GeneratorAction.NAME, new GeneratorActionSerializer(), new GeneratorActionDeserializer());
+        registerActionType(LoadAction.class, LoadAction.NAME, new LoadActionSerializer(), new LoadActionDeserializer());
+        registerActionType(HvdcAction.class, HvdcAction.NAME, new HvdcActionSerializer(), new HvdcActionDeserializer());
         registerActionType(GeneratorAction.class, GeneratorAction.NAME,
                 new GeneratorActionSerializer(), new GeneratorActionDeserializer());
         registerActionType(LoadAction.class, LoadAction.NAME,
                 new LoadActionSerializer(), new LoadActionDeserializer());
+        registerActionType(ShuntCompensatorPositionAction.class, ShuntCompensatorPositionAction.NAME,
+                new ShuntCompensatorPositionActionSerializer(), new ShuntCompensatorPositionActionDeserializer());
     }
 
     private <T> void registerActionType(Class<T> actionClass, String typeName, JsonSerializer<T> serializer, JsonDeserializer<T> deserializer) {

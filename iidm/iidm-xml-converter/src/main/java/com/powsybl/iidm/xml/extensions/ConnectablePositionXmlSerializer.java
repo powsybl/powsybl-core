@@ -48,6 +48,8 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
                         .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put(V_1_0, "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0")
@@ -111,7 +113,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
             adder.withName(name);
         } else {
             NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
-            String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(AssertionError::new);
+            String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
             if (V_1_1.compareTo(extensionVersionStr) > 0) {
                 throw new PowsyblException("Feeder name is mandatory for version < 1.1");
             }
@@ -141,7 +143,7 @@ public class ConnectablePositionXmlSerializer<C extends Connectable<C>> extends 
                     break;
 
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         });
         return adder.add();

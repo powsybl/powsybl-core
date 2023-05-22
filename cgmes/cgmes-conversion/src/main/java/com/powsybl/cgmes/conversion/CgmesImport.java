@@ -16,11 +16,11 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterScope;
 import com.powsybl.commons.parameters.ParameterType;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
@@ -46,8 +46,16 @@ import java.util.stream.Collectors;
 @AutoService(Importer.class)
 public class CgmesImport implements Importer {
 
-    public CgmesImport(PlatformConfig platformConfig, List<CgmesImportPostProcessor> postProcessors) {
+    enum FictitiousSwitchesCreationMode {
+        ALWAYS,
+        ALWAYS_EXCEPT_SWITCHES,
+        NEVER;
+    }
+
+    public CgmesImport(PlatformConfig platformConfig, List<CgmesImportPreProcessor> preProcessors, List<CgmesImportPostProcessor> postProcessors) {
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+        this.preProcessors = Objects.requireNonNull(preProcessors).stream()
+                .collect(Collectors.toMap(CgmesImportPreProcessor::getName, e -> e));
         this.postProcessors = Objects.requireNonNull(postProcessors).stream()
                 .collect(Collectors.toMap(CgmesImportPostProcessor::getName, e -> e));
         String boundaryPath = platformConfig.getConfigDir()
@@ -64,6 +72,12 @@ public class CgmesImport implements Importer {
                 boundaryPath,
                 null,
                 ParameterScope.TECHNICAL);
+        preProcessorsParameter = new Parameter(
+                PRE_PROCESSORS,
+                ParameterType.STRING_LIST,
+                "Pre processors",
+                Collections.emptyList(),
+                preProcessors.stream().map(CgmesImportPreProcessor::getName).collect(Collectors.toList()));
         postProcessorsParameter = new Parameter(
                 POST_PROCESSORS,
                 ParameterType.STRING_LIST,
@@ -73,11 +87,13 @@ public class CgmesImport implements Importer {
     }
 
     public CgmesImport(PlatformConfig platformConfig) {
-        this(platformConfig, new ServiceLoaderCache<>(CgmesImportPostProcessor.class).getServices());
+        this(platformConfig,
+                new ServiceLoaderCache<>(CgmesImportPreProcessor.class).getServices(),
+                new ServiceLoaderCache<>(CgmesImportPostProcessor.class).getServices());
     }
 
-    public CgmesImport(List<CgmesImportPostProcessor> postProcessors) {
-        this(PlatformConfig.defaultConfig(), postProcessors);
+    public CgmesImport(List<CgmesImportPreProcessor> preProcessors, List<CgmesImportPostProcessor> postProcessors) {
+        this(PlatformConfig.defaultConfig(), preProcessors, postProcessors);
     }
 
     public CgmesImport() {
@@ -125,10 +141,11 @@ public class CgmesImport implements Importer {
         } else if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_RDFID)) {
             options.setRemoveInitialUnderscoreForIdentifiers(false);
         }
+        options.decodeEscapedIdentifiers(Parameter.readBoolean(getFormat(), p, DECODE_ESCAPED_IDENTIFIERS_PARAMETER, defaultValueConfig));
         Reporter tripleStoreReporter = reporter.createSubReporter("CGMESTriplestore", "Reading CGMES Triplestore");
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReporter, options);
         Reporter conversionReporter = reporter.createSubReporter("CGMESConversion", "Importing CGMES file(s)");
-        return new Conversion(cgmes, config(ds, p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
+        return new Conversion(cgmes, config(ds, p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
     }
 
     @Override
@@ -209,12 +226,6 @@ public class CgmesImport implements Importer {
                                 p,
                                 CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
                                 defaultValueConfig))
-                .setCreateCgmesExportMapping(
-                        Parameter.readBoolean(
-                                getFormat(),
-                                p,
-                                CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
-                                defaultValueConfig))
                 .setEnsureIdAliasUnicity(
                         Parameter.readBoolean(
                                 getFormat(),
@@ -244,8 +255,20 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
-                                defaultValueConfig));
-        String namingStrategy = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER, defaultValueConfig);
+                                defaultValueConfig))
+                .setCreateActivePowerControlExtension(
+                        Parameter.readBoolean(
+                                getFormat(),
+                                p,
+                                CREATE_ACTIVE_POWER_CONTROL_EXTENSION_PARAMETER,
+                                defaultValueConfig))
+                .createFictitiousSwitchesForDisconnectedTerminalsMode(FictitiousSwitchesCreationMode.valueOf(
+                        Parameter.readString(
+                                getFormat(),
+                                p,
+                                CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER,
+                                defaultValueConfig)));
+        String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
         if (idMappingFilePath == null) {
             config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv"));
@@ -253,6 +276,21 @@ public class CgmesImport implements Importer {
             config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
         }
         return config;
+    }
+
+    private List<CgmesImportPreProcessor> activatedPreProcessors(Properties p) {
+        return Parameter
+                .readStringList(getFormat(), p, preProcessorsParameter, defaultValueConfig)
+                .stream()
+                .filter(name -> {
+                    boolean found = preProcessors.containsKey(name);
+                    if (!found) {
+                        LOGGER.warn("CGMES pre processor {} not found", name);
+                    }
+                    return found;
+                })
+                .map(preProcessors::get)
+                .collect(Collectors.toList());
     }
 
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {
@@ -286,12 +324,15 @@ public class CgmesImport implements Importer {
     public static final String CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE = "iidm.import.cgmes.change-sign-for-shunt-reactive-power-flow-initial-state";
     public static final String CONVERT_BOUNDARY = "iidm.import.cgmes.convert-boundary";
     public static final String CONVERT_SV_INJECTIONS = "iidm.import.cgmes.convert-sv-injections";
+    public static final String CREATE_ACTIVE_POWER_CONTROL_EXTENSION = "iidm.import.cgmes.create-active-power-control-extension";
     public static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
-    public static final String CREATE_CGMES_EXPORT_MAPPING = "iidm.import.cgmes.create-cgmes-export-mapping";
+    public static final String CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE = "iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode";
+    public static final String DECODE_ESCAPED_IDENTIFIERS = "iidm.import.cgmes.decode-escaped-identifiers";
     public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
     public static final String ID_MAPPING_FILE_PATH = "iidm.import.cgmes.id-mapping-file-path";
-    public static final String ID_MAPPING_FILE_NAMING_STRATEGY = "iidm.import.cgmes.id-mapping-file-naming-strategy";
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
+    public static final String NAMING_STRATEGY = "iidm.import.cgmes.naming-strategy";
+    public static final String PRE_PROCESSORS = "iidm.import.cgmes.pre-processors";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
     public static final String PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS = "iidm.import.cgmes.profile-for-initial-values-shunt-sections-tap-positions";
@@ -330,11 +371,6 @@ public class CgmesImport implements Importer {
             "Create busbar section for every connectivity node",
             Boolean.FALSE)
             .addAdditionalNames("createBusbarSectionForEveryConnectivityNode");
-    private static final Parameter CREATE_CGMES_EXPORT_MAPPING_PARAMETER = new Parameter(
-            CREATE_CGMES_EXPORT_MAPPING,
-            ParameterType.BOOLEAN,
-            "Create CGMES context for export",
-            Boolean.FALSE);
     private static final Parameter ENSURE_ID_ALIAS_UNICITY_PARAMETER = new Parameter(
             ENSURE_ID_ALIAS_UNICITY,
             ParameterType.BOOLEAN,
@@ -347,11 +383,12 @@ public class CgmesImport implements Importer {
             null,
             null,
             ParameterScope.TECHNICAL);
-    private static final Parameter ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER = new Parameter(
-            ID_MAPPING_FILE_NAMING_STRATEGY,
+    private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(
+            NAMING_STRATEGY,
             ParameterType.STRING,
             "Configure what type of naming strategy you want to use for the provided ID mapping file",
-            NamingStrategyFactory.IDENTITY);
+            NamingStrategyFactory.IDENTITY)
+            .addAdditionalNames("iidm.import.cgmes.id-mapping-file-naming-strategy");
     private static final Parameter IMPORT_CONTROL_AREAS_PARAMETER = new Parameter(
             IMPORT_CONTROL_AREAS,
             ParameterType.BOOLEAN,
@@ -366,17 +403,28 @@ public class CgmesImport implements Importer {
             ParameterScope.TECHNICAL)
             .addAdditionalNames("powsyblTripleStore");
     private static final Parameter PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER = new Parameter(
-        PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
-        ParameterType.STRING,
-        "Profile used for initial state values",
-        "SSH",
+            PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS,
+            ParameterType.STRING,
+            "Profile used for initial state values",
+            "SSH",
             List.of("SSH", "SV"))
-        .addAdditionalNames("iidm.import.cgmes.profile-used-for-initial-state-values");
+            .addAdditionalNames("iidm.import.cgmes.profile-used-for-initial-state-values");
     private static final Parameter STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
             "Store the CGMES-IIDM terminal mapping as a network extension",
             Boolean.FALSE);
+    private static final Parameter CREATE_ACTIVE_POWER_CONTROL_EXTENSION_PARAMETER = new Parameter(
+            CREATE_ACTIVE_POWER_CONTROL_EXTENSION,
+            ParameterType.BOOLEAN,
+            "Create active power control extension during import",
+            Boolean.FALSE);
+    private static final Parameter CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER = new Parameter(
+            CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE,
+            ParameterType.STRING,
+            "Defines in which case fictitious switches for disconnected terminals are created (relevant for node-breaker models only): always, always except for switches or never",
+            FictitiousSwitchesCreationMode.ALWAYS.name(),
+            Arrays.stream(FictitiousSwitchesCreationMode.values()).map(Enum::name).collect(Collectors.toList()));
     private static final Parameter STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
             ParameterType.BOOLEAN,
@@ -389,6 +437,11 @@ public class CgmesImport implements Importer {
             "Source for IIDM identifiers",
             SOURCE_FOR_IIDM_ID_MRID,
             List.of(SOURCE_FOR_IIDM_ID_MRID, SOURCE_FOR_IIDM_ID_RDFID));
+    private static final Parameter DECODE_ESCAPED_IDENTIFIERS_PARAMETER = new Parameter(
+            DECODE_ESCAPED_IDENTIFIERS,
+            ParameterType.BOOLEAN,
+            "Decode escaped special characters in IDs",
+            Boolean.TRUE);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
@@ -396,20 +449,24 @@ public class CgmesImport implements Importer {
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
-            CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
             ENSURE_ID_ALIAS_UNICITY_PARAMETER,
             ID_MAPPING_FILE_PATH_PARAMETER,
-            ID_MAPPING_FILE_NAMING_STRATEGY_PARAMETER,
+            NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
             PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS_PARAMETER,
             SOURCE_FOR_IIDM_ID_PARAMETER,
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,
-            STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER);
+            STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
+            CREATE_ACTIVE_POWER_CONTROL_EXTENSION_PARAMETER,
+            DECODE_ESCAPED_IDENTIFIERS_PARAMETER,
+            CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
+    private final Parameter preProcessorsParameter;
     private final Parameter postProcessorsParameter;
     private final Map<String, CgmesImportPostProcessor> postProcessors;
+    private final Map<String, CgmesImportPreProcessor> preProcessors;
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CgmesImport.class);

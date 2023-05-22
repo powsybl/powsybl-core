@@ -9,25 +9,20 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractMergeNetworkTest {
 
     private static final String MERGE2 = "merge";
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     Network merge;
     Network n1;
     Network n2;
 
-    @Before
+    @BeforeEach
     public void setup() {
         merge = Network.create(MERGE2, "asdf");
         n1 = Network.create("n1", "asdf");
@@ -37,9 +32,8 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void failMergeIfMultiVariants() {
         n1.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "Totest");
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Merging of multi-variants network is not supported");
-        merge.merge(n1);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n1));
+        assertTrue(e.getMessage().contains("Merging of multi-variants network is not supported"));
     }
 
     @Test
@@ -47,9 +41,8 @@ public abstract class AbstractMergeNetworkTest {
         addSubstation(n1, "P1");
         addSubstation(n2, "P1");
         merge.merge(n1);
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The following object(s) of type SubstationImpl exist(s) in both networks: [P1]");
-        merge.merge(n2);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n2));
+        assertTrue(e.getMessage().contains("The following object(s) of type SubstationImpl exist(s) in both networks: [P1]"));
     }
 
     @Test
@@ -57,9 +50,8 @@ public abstract class AbstractMergeNetworkTest {
         addSubstationAndVoltageLevel();
         addDanglingLines("dl", "code", "dl", "deco");
         merge.merge(n1);
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Dangling line couple dl have inconsistent Xnodes (code!=deco)");
-        merge.merge(n2);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n2));
+        assertTrue(e.getMessage().contains("Dangling line couple dl have inconsistent Xnodes (code!=deco)"));
     }
 
     @Test
@@ -67,9 +59,9 @@ public abstract class AbstractMergeNetworkTest {
         addSubstationAndVoltageLevel();
         addDanglingLines("dl1", "code", "dl2", "code");
         merge.merge(n1, n2);
-        assertNotNull(merge.getLine("dl1 + dl2"));
-        assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getOptionalName().orElse(null));
-        assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getNameOrId());
+        assertNotNull(merge.getTieLine("dl1 + dl2"));
+        assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
+        assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getNameOrId());
     }
 
     @Test
@@ -77,10 +69,10 @@ public abstract class AbstractMergeNetworkTest {
         addSubstationAndVoltageLevel();
         addDanglingLines("dl", null, "dl", "code");
         merge.merge(n1, n2);
-        assertNotNull(merge.getLine("dl"));
-        assertEquals("dl", merge.getLine("dl").getId());
-        assertEquals("dl_name", merge.getLine("dl").getOptionalName().orElse(null));
-        assertEquals("dl_name", merge.getLine("dl").getNameOrId());
+        assertNotNull(merge.getTieLine("dl"));
+        assertEquals("dl", merge.getTieLine("dl").getId());
+        assertEquals("dl_name", merge.getTieLine("dl").getOptionalName().orElse(null));
+        assertEquals("dl_name", merge.getTieLine("dl").getNameOrId());
     }
 
     private void addSubstation(Network network, String substationId) {
@@ -255,9 +247,9 @@ public abstract class AbstractMergeNetworkTest {
         addDanglingLines("dl1", "code", "dl2", "code");
         addDanglingLine(n2, "vl2", "dl3", "code", "b2", null);
         n1.merge(n2);
-        assertNotNull(n1.getLine("dl1 + dl2"));
-        assertEquals("dl1_name + dl2_name", n1.getLine("dl1 + dl2").getOptionalName().orElse(null));
-        assertEquals("dl1_name + dl2_name", n1.getLine("dl1 + dl2").getNameOrId());
+        assertNotNull(n1.getTieLine("dl1 + dl2"));
+        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
+        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getNameOrId());
     }
 
     @Test
@@ -266,8 +258,8 @@ public abstract class AbstractMergeNetworkTest {
         addDanglingLines("dl1", "code", "dl2", "code");
         addDanglingLine(n1, "vl1", "dl3", "code", "b1", null);
         n1.merge(n2);
-        assertNotNull(n1.getLine("dl1 + dl2"));
-        assertEquals("dl1_name + dl2_name", n1.getLine("dl1 + dl2").getOptionalName().orElse(null));
-        assertEquals("dl1_name + dl2_name", n1.getLine("dl1 + dl2").getNameOrId());
+        assertNotNull(n1.getTieLine("dl1 + dl2"));
+        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
+        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getNameOrId());
     }
 }

@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-time-series</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>5.1.0-SNAPSHOT</version>
+        <version>5.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-time-series-dsl</artifactId>
@@ -60,8 +60,8 @@
 
         <!-- Test dependencies -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

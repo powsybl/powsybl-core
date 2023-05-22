@@ -20,9 +20,9 @@ import java.util.Optional;
  */
 abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I> implements Branch<I> {
 
-    private final OperationalLimitsHolderImpl operationalLimitsHolder1;
+    protected final OperationalLimitsHolderImpl operationalLimitsHolder1;
 
-    private final OperationalLimitsHolderImpl operationalLimitsHolder2;
+    protected final OperationalLimitsHolderImpl operationalLimitsHolder2;
 
     AbstractBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
         super(network, id, name, fictitious);
@@ -50,7 +50,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
                 return getTerminal2();
 
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
@@ -78,7 +78,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
         } else if (terminals.get(1) == terminal) {
             return Side.TWO;
         } else {
-            throw new AssertionError("The terminal is not connected to this branch");
+            throw new IllegalStateException("The terminal is not connected to this branch");
         }
     }
 
@@ -189,7 +189,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
         } else if (side == Branch.Side.TWO) {
             return getCurrentLimits2();
         }
-        throw new AssertionError("Unexpected side: " + side);
+        throw new IllegalStateException("Unexpected side: " + side);
     }
 
     @Override
@@ -199,7 +199,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
         } else if (side == Branch.Side.TWO) {
             return getActivePowerLimits2();
         }
-        throw new AssertionError("Unexpected side: " + side);
+        throw new IllegalStateException("Unexpected side: " + side);
     }
 
     @Override
@@ -209,7 +209,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
         } else if (side == Branch.Side.TWO) {
             return getApparentPowerLimits2();
         }
-        throw new AssertionError("Unexpected side: " + side);
+        throw new IllegalStateException("Unexpected side: " + side);
     }
 
     OperationalLimitsHolderImpl getLimitsHolder1() {
@@ -250,7 +250,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
                 return checkPermanentLimit2(limitReduction, type);
 
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
@@ -290,7 +290,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
                 return checkTemporaryLimits2(limitReduction, type);
 
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 

@@ -411,7 +411,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             return this;
         }
 
-        interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
+        interface SwitchAdder extends IdentifiableAdder<Switch, SwitchAdder> {
 
             SwitchAdder setNode1(int node1);
 
@@ -425,6 +425,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
             SwitchAdder setRetained(boolean retained);
 
+            @Override
             Switch add();
         }
 
@@ -685,7 +686,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     interface BusBreakerView {
 
-        interface SwitchAdder extends IdentifiableAdder<SwitchAdder> {
+        interface SwitchAdder extends IdentifiableAdder<Switch, SwitchAdder> {
 
             SwitchAdder setBus1(String bus1);
 
@@ -693,6 +694,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
             SwitchAdder setOpen(boolean open);
 
+            @Override
             Switch add();
 
         }
@@ -1081,14 +1083,28 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     DanglingLineAdder newDanglingLine();
 
     /**
-     * Get dangling lines.
+     * Get the dangling lines in this voltage level which correspond to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
 
     /**
-     * Get dangling lines.
+     * Get all dangling lines in this voltage level.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    default Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLines(DanglingLineFilter.ALL);
+    }
+
+    /**
+     * Get the dangling lines in this voltage level which correspond to given filter.
+     */
+    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+
+   /**
+     * Get all dangling lines in this voltage level.
+     */
+    default Stream<DanglingLine> getDanglingLineStream() {
+        return getDanglingLineStream(DanglingLineFilter.ALL);
+    }
 
     /**
      * Get dangling line count.

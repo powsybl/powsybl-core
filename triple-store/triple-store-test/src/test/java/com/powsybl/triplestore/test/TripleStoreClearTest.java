@@ -7,8 +7,8 @@
 
 package com.powsybl.triplestore.test;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -17,10 +17,10 @@ import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class TripleStoreClearTest {
+class TripleStoreClearTest {
 
-    @BeforeClass
-    public static void setUp() {
+    @BeforeAll
+    static void setUp() {
         queries = new QueryCatalog("cgmes-rtcs/cgmes-rtcs.sparql");
         String base = "foo:cgmes-rtcs";
         String[] inputs = {"cgmes-rtcs/rtc-EQ.xml", "cgmes-rtcs/rtc-SSH.xml"};
@@ -33,7 +33,7 @@ public class TripleStoreClearTest {
     }
 
     @Test
-    public void testClearSubset() {
+    void testClearSubset() {
         tester.load();
         tester.testQuery(queries.get("tapChangerControls"), expectedTapChangerControls);
         tester.clear("contexts:cgmes-rtcs/rtc-EQ.xml", "");
@@ -41,7 +41,7 @@ public class TripleStoreClearTest {
     }
 
     @Test
-    public void testClearSubsetLocalName() {
+    void testClearSubsetLocalName() {
         tester.load();
         tester.testQuery(queries.get("tapChangerControls"), expectedTapChangerControls);
         tester.clear("cgmes-rtcs/rtc-EQ.xml", "contexts:");

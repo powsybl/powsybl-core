@@ -10,19 +10,19 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CgmesLineBoundaryNodeXmlSerializerTest extends AbstractConverterTest {
+class CgmesLineBoundaryNodeXmlSerializerTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        network.getLine("NHV1_NHV2_1").newExtension(CgmesLineBoundaryNodeAdder.class)
+        network.getTieLine("NHV1_NHV2_1").newExtension(CgmesLineBoundaryNodeAdder.class)
                 .setHvdc(true)
                 .setLineEnergyIdentificationCodeEic("EIC_CODE")
                 .add();

@@ -60,7 +60,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 case "limitType":
                     parser.nextToken();
-                    limitType = parser.readValueAs(LimitViolationType.class);
+                    limitType = JsonUtil.readValue(deserializationContext, parser, LimitViolationType.class);
                     break;
 
                 case "limitName":
@@ -89,7 +89,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 case "side":
                     parser.nextToken();
-                    side = parser.readValueAs(Branch.Side.class);
+                    side = JsonUtil.readValue(deserializationContext, parser, Branch.Side.class);
                     break;
 
                 case "extensions":
@@ -98,7 +98,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 

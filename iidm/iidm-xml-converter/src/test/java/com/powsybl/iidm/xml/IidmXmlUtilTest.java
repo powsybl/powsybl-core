@@ -8,22 +8,22 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class IidmXmlUtilTest {
+class IidmXmlUtilTest {
 
     private static final String ROOT = "root";
     private static final String ELEMENT = "element";
 
     @Test
-    public void testReadMaximumVersion() {
+    void testReadMaximumVersion() {
         NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
         Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_1);
 
@@ -43,7 +43,7 @@ public class IidmXmlUtilTest {
     }
 
     @Test
-    public void testWriteAssertMaximumVersion() {
+    void testWriteAssertMaximumVersion() {
         NetworkXmlWriterContext context = Mockito.mock(NetworkXmlWriterContext.class);
         Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_1);
         ExportOptions options = new ExportOptions();
@@ -69,7 +69,7 @@ public class IidmXmlUtilTest {
     }
 
     @Test
-    public void testMinimumVersion() {
+    void testMinimumVersion() {
         NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
         Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_0);
 
@@ -89,7 +89,7 @@ public class IidmXmlUtilTest {
     }
 
     @Test
-    public void testReadStrictMaximumVersion() {
+    void testReadStrictMaximumVersion() {
         NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
         Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_1);
 
@@ -101,7 +101,7 @@ public class IidmXmlUtilTest {
     }
 
     @Test
-    public void testWriteStrictMaximumVersion() {
+    void testWriteStrictMaximumVersion() {
         NetworkXmlWriterContext context = Mockito.mock(NetworkXmlWriterContext.class);
         Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_1);
         ExportOptions options = new ExportOptions();

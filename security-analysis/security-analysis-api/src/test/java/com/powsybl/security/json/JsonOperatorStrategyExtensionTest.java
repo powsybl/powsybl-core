@@ -25,7 +25,7 @@ import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,10 +34,10 @@ import java.util.Collections;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class JsonOperatorStrategyExtensionTest extends AbstractConverterTest {
+class JsonOperatorStrategyExtensionTest extends AbstractConverterTest {
 
     @Test
-    public void testWrite() throws IOException {
+    void testWrite() throws IOException {
         OperatorStrategy operatorStrategy = new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"),
                 new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3"));
         operatorStrategy.addExtension(DummyExtension.class, new DummyExtension());
@@ -47,7 +47,7 @@ public class JsonOperatorStrategyExtensionTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testRoundTrip() throws IOException {
+    void testRoundTrip() throws IOException {
         OperatorStrategy operatorStrategy = new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"),
                 new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3"));
         operatorStrategy.addExtension(DummyExtension.class, new DummyExtension());
@@ -59,45 +59,45 @@ public class JsonOperatorStrategyExtensionTest extends AbstractConverterTest {
                 "/OperatorStrategyFileExtensionsTest2.json");
     }
 
-    public static class DummyExtension extends AbstractExtension<OperatorStrategy> {
-        public double parameterDouble;
-        public boolean parameterBoolean;
-        public String parameterString;
+    static class DummyExtension extends AbstractExtension<OperatorStrategy> {
+        double parameterDouble;
+        boolean parameterBoolean;
+        String parameterString;
 
-        public DummyExtension() {
+        DummyExtension() {
             super();
             this.parameterDouble = 20.0;
             this.parameterBoolean = true;
             this.parameterString = "Hello";
         }
 
-        public DummyExtension(DummyExtension another) {
+        DummyExtension(DummyExtension another) {
             this.parameterDouble = another.parameterDouble;
             this.parameterBoolean = another.parameterBoolean;
             this.parameterString = another.parameterString;
         }
 
-        public boolean isParameterBoolean() {
+        boolean isParameterBoolean() {
             return parameterBoolean;
         }
 
-        public double getParameterDouble() {
+        double getParameterDouble() {
             return parameterDouble;
         }
 
-        public String getParameterString() {
+        String getParameterString() {
             return parameterString;
         }
 
-        public void setParameterBoolean(boolean parameterBoolean) {
+        void setParameterBoolean(boolean parameterBoolean) {
             this.parameterBoolean = parameterBoolean;
         }
 
-        public void setParameterString(String parameterString) {
+        void setParameterString(String parameterString) {
             this.parameterString = parameterString;
         }
 
-        public void setParameterDouble(double parameterDouble) {
+        void setParameterDouble(double parameterDouble) {
             this.parameterDouble = parameterDouble;
         }
 

@@ -81,23 +81,23 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return MergingViewUtil.getDanglingLines(getDelegate().getDanglingLines(), getIndex());
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return Iterables.transform(getDelegate().getDanglingLines(danglingLineFilter), getIndex()::getDanglingLine);
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return MergingViewUtil.getDanglingLineStream(getDelegate().getDanglingLineStream(), getIndex());
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return getDelegate().getDanglingLineStream(danglingLineFilter).map(getIndex()::getDanglingLine);
     }
 
     @Override
     public Iterable<Line> getLines() {
-        return MergingViewUtil.getLines(getDelegate().getLines(), getDelegate().getDanglingLines(), getIndex());
+        return Iterables.transform(getDelegate().getLines(), getIndex()::getLine);
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        return MergingViewUtil.getLineStream(getDelegate().getLineStream(), getDelegate().getDanglingLineStream(), getIndex());
+        return getDelegate().getLineStream().map(getIndex()::getLine);
     }
 
     @Override

@@ -198,6 +198,26 @@ public class SubNetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public Iterable<TieLine> getTieLines() {
+        return getTieLineStream().collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<TieLine> getTieLineStream() {
+        return parent.getTieLineStream().filter(l -> l.getClosestNetwork() == this);
+    }
+
+    @Override
+    public int getTieLineCount() {
+        return (int) getTieLineStream().count();
+    }
+
+    @Override
+    public TieLine getTieLine(String id) {
+        return parent.getTieLine(id);
+    }
+
+    @Override
     public TwoWindingsTransformerAdder newTwoWindingsTransformer() {
         return parent.newTwoWindingsTransformer(id);
     }
@@ -354,13 +374,23 @@ public class SubNetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return parent.getDanglingLineStream(danglingLineFilter).filter(dl -> dl.getClosestNetwork() == this);
+    }
+
+    @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return getDanglingLineStream().collect(Collectors.toSet());
+        return getDanglingLines(DanglingLineFilter.ALL);
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return parent.getDanglingLineStream().filter(dl -> dl.getClosestNetwork() == this); // TODO add split tie line / line
+        return getDanglingLineStream(DanglingLineFilter.ALL);
     }
 
     @Override
@@ -753,7 +783,7 @@ public class SubNetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public <I extends Identifiable<I>> Stream<I> getIdentifiableStream(IdentifiableType identifiableType) {
-        return (Stream<I>) parent.getIdentifiableStream(identifiableType).filter(i -> i.getClosestNetwork() == this);
+    public Stream<Identifiable<?>> getIdentifiableStream(IdentifiableType identifiableType) {
+        return parent.getIdentifiableStream(identifiableType).filter(i -> i.getClosestNetwork() == this);
     }
 }

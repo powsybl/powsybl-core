@@ -11,19 +11,19 @@ import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.timeseries.RegularTimeSeriesIndex;
 import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class DynamicSimulationResultJsonTest extends AbstractConverterTest {
+class DynamicSimulationResultJsonTest extends AbstractConverterTest {
 
     private static DynamicSimulationResult create() {
         return new DynamicSimulationResult() {
@@ -55,14 +55,14 @@ public class DynamicSimulationResultJsonTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripTest(create(), DynamicSimulationResultSerializer::write, DynamicSimulationResultDeserializer::read, "/DynamicSimulationResult.json");
     }
 
     @Test
-    public void handleErrorTest() throws IOException {
+    void handleErrorTest() throws IOException {
         try (var is = getClass().getResourceAsStream("/DynamicSimulationResultError.json")) {
-            AssertionError e = assertThrows(AssertionError.class, () -> DynamicSimulationResultDeserializer.read(is));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> DynamicSimulationResultDeserializer.read(is));
             assertEquals("Unexpected field: metrics", e.getMessage());
         }
     }

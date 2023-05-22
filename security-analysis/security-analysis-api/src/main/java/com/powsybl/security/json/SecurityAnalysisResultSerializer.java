@@ -34,11 +34,11 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
         if (result.getNetworkMetadata() != null) {
-            jsonGenerator.writeObjectField("network", result.getNetworkMetadata());
+            serializerProvider.defaultSerializeField("network", result.getNetworkMetadata(), jsonGenerator);
         }
-        jsonGenerator.writeObjectField("preContingencyResult", result.getPreContingencyResult());
-        jsonGenerator.writeObjectField("postContingencyResults", result.getPostContingencyResults());
-        jsonGenerator.writeObjectField("operatorStrategyResults", result.getOperatorStrategyResults());
+        serializerProvider.defaultSerializeField("preContingencyResult", result.getPreContingencyResult(), jsonGenerator);
+        serializerProvider.defaultSerializeField("postContingencyResults", result.getPostContingencyResults(), jsonGenerator);
+        serializerProvider.defaultSerializeField("operatorStrategyResults", result.getOperatorStrategyResults(), jsonGenerator);
         JsonUtil.writeExtensions(result, jsonGenerator, serializerProvider);
 
         jsonGenerator.writeEndObject();

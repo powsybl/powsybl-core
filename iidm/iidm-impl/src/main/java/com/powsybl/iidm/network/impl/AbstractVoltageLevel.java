@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -171,7 +172,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
                     || ((ThreeWindingsTransformer) connectable).getLeg3().getTerminal().getVoltageLevel() == this
                     ? connectable : null;
         } else {
-            throw new AssertionError();
+            throw new IllegalStateException();
         }
     }
 
@@ -303,13 +304,13 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return getConnectables(DanglingLine.class);
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getConnectableStream(DanglingLine.class);
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return getConnectableStream(DanglingLine.class).filter(danglingLineFilter.getPredicate());
     }
 
     @Override
@@ -447,7 +448,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             } else if (branch.getTerminal2() == otherTerminal) {
                 nextTerminals.add((TerminalExt) branch.getTerminal1());
             } else {
-                throw new AssertionError();
+                throw new IllegalStateException();
             }
         } else if (otherConnectable instanceof ThreeWindingsTransformer) {
             ThreeWindingsTransformer ttc = (ThreeWindingsTransformer) otherConnectable;
@@ -461,7 +462,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
                 nextTerminals.add((TerminalExt) ttc.getLeg1().getTerminal());
                 nextTerminals.add((TerminalExt) ttc.getLeg2().getTerminal());
             } else {
-                throw new AssertionError();
+                throw new IllegalStateException();
             }
         }
     }

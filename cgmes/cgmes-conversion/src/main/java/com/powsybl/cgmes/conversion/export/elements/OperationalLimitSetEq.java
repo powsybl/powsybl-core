@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 
 import javax.xml.stream.XMLStreamException;
@@ -16,9 +17,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class OperationalLimitSetEq {
 
-    public static void write(String id, String name, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("OperationalLimitSet", id, name, cimNamespace, writer);
-        CgmesExportUtil.writeReference("OperationalLimitSet.Terminal", terminalId, cimNamespace, writer);
+    public static void write(String id, String name, String terminalId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("OperationalLimitSet", id, name, cimNamespace, writer, context);
+        CgmesExportUtil.writeReference("OperationalLimitSet.Terminal", terminalId, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 

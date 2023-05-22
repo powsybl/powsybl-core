@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -92,7 +93,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     }
                     break;
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
         return p;
@@ -125,7 +126,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     }
                     break;
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
         return q;
@@ -222,13 +223,13 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return getConnectables(DanglingLine.class);
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getConnectableStream(DanglingLine.class);
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return getConnectableStream(DanglingLine.class).filter(danglingLineFilter.getPredicate());
     }
 
     @Override
@@ -283,7 +284,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     break;
 
                 case LINE:
-                    LineImpl line = (LineImpl) connectable;
+                    Line line = (Line) connectable;
                     visitor.visitLine(line, line.getTerminal1() == terminal ? Branch.Side.ONE
                                                                             : Branch.Side.TWO);
                     break;
@@ -338,7 +339,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     break;
 
                 default:
-                    throw new AssertionError();
+                    throw new IllegalStateException();
             }
         }
     }

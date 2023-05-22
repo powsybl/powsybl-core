@@ -8,25 +8,25 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class LccConverterStationAdapterTest {
+class LccConverterStationAdapterTest {
     private MergingView mergingView;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("LccConverterStationAdapterTest", "iidm");
         mergingView.merge(HvdcTestNetwork.createLcc());
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         final LccConverterStation lcc = mergingView.getLccConverterStation("C1");
         assertNotNull(lcc);
         assertSame(lcc, mergingView.getHvdcConverterStation("C1"));

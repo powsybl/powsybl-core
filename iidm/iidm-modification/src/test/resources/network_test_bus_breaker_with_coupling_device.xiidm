@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_10" id="network" caseDate="2016-06-27T12:27:58.535+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:voltageLevel id="VLTEST" nominalV="400.0" topologyKind="BUS_BREAKER">
+        <iidm:busBreakerTopology>
+            <iidm:bus id="bus_1_1"/>
+            <iidm:bus id="bus_1_2"/>
+            <iidm:bus id="bus_2_1"/>
+            <iidm:bus id="bus_2_2"/>
+            <iidm:switch id="switch_1" kind="BREAKER" retained="true" open="false" bus1="bus_1_1" bus2="bus_1_2"/>
+            <iidm:switch id="switch_2" kind="BREAKER" retained="true" open="false" bus1="bus_2_1" bus2="bus_2_2"/>
+            <iidm:switch id="VLTEST_SW" kind="BREAKER" retained="true" open="false" bus1="bus_1_1" bus2="bus_2_2"/>
+        </iidm:busBreakerTopology>
+    </iidm:voltageLevel>
+</iidm:network>

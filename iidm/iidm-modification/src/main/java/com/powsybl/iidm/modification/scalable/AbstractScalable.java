@@ -85,9 +85,4 @@ abstract class AbstractScalable implements Scalable {
         return minimumValue(n, ScalingConvention.GENERATOR);
     }
 
-    @Override
-    public double scale(Network n, double asked) {
-        return scale(n, asked, ScalingConvention.GENERATOR);
-    }
-
 }

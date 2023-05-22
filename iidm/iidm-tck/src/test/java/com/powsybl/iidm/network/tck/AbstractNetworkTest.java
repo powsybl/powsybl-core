@@ -15,16 +15,14 @@ import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
 import org.joda.time.DateTime;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -48,8 +46,6 @@ public abstract class AbstractNetworkTest {
     private static final String VLHV1 = "VLHV1";
     private static final String VLGEN = "VLGEN";
     private static final String VLBAT = "VLBAT";
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void testNetwork1() {
@@ -112,6 +108,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(VOLTAGE_LEVEL1_BUSBAR_SECTION2, voltageLevel1BusbarSection2.getId());
         assertEquals(5, Iterables.size(topology1.getSwitches()));
         assertEquals(5, topology1.getSwitchCount());
+
+        VoltageLevel voltageLevel2 = substation1.newVoltageLevel().setId("VL2").setNominalV(320).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        assertNull(voltageLevel2.getNodeBreakerView().getBusbarSection(VOLTAGE_LEVEL1_BUSBAR_SECTION1));
 
         assertEquals(Arrays.asList(network.getSwitch("generator1Disconnector1"), network.getSwitch("generator1Breaker1")),
             topology1.getSwitches(6));
@@ -434,9 +433,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P1").getThreeWindingsTransformerStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P2").getThreeWindingsTransformerStream()));
 
-        assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLineStream()));
-        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getDanglingLineStream()));
-        assertEquals(network.getDanglingLineCount(), network.getDanglingLineStream().count());
+        assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLineStream(DanglingLineFilter.ALL)));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getDanglingLineStream(DanglingLineFilter.ALL)));
+        assertEquals(network.getDanglingLineCount(), network.getDanglingLineStream(DanglingLineFilter.ALL).count());
         assertEquals(Collections.emptyList(), mapper.apply(network.getShuntCompensatorStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV2).getShuntCompensatorStream()));
         assertEquals(network.getShuntCompensatorCount(), network.getShuntCompensatorStream().count());
@@ -462,7 +461,7 @@ public abstract class AbstractNetworkTest {
 
         // Connectables
         assertEquals(Arrays.asList("LOAD", NHV1_NHV2_2, NGEN_NHV1, NHV1_NHV2_1, NHV2_NLOAD, "GEN", "NHV1_NHV1"), mapper.apply(network.getConnectableStream()));
-        assertEquals(Iterables.toArray(network.getConnectables(), Connectable.class), network.getConnectableStream().toArray());
+        assertArrayEquals(Iterables.toArray(network.getConnectables(), Connectable.class), network.getConnectableStream().toArray());
         assertEquals(network.getConnectableCount(), network.getConnectableStream().count());
 
         // SVC
@@ -473,7 +472,7 @@ public abstract class AbstractNetworkTest {
         bus = network.getVoltageLevel("VL2").getBusView().getBus(VL2_0);
         assertEquals(Collections.singletonList("SVC2"), mapper.apply(bus.getStaticVarCompensatorStream()));
         assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getConnectableStream(StaticVarCompensator.class)));
-        assertEquals(Iterables.toArray(network.getConnectables(StaticVarCompensator.class), StaticVarCompensator.class),
+        assertArrayEquals(Iterables.toArray(network.getConnectables(StaticVarCompensator.class), StaticVarCompensator.class),
                 network.getConnectableStream(StaticVarCompensator.class).toArray());
         assertEquals(network.getConnectableCount(StaticVarCompensator.class), network.getConnectableStream(StaticVarCompensator.class).count());
 
@@ -556,18 +555,16 @@ public abstract class AbstractNetworkTest {
     public void testExceptionGetSwitchTerminal1() {
         Network busViewNetwork = EurostagTutorialExample1Factory.create();
         VoltageLevel voltageLevel = busViewNetwork.getVoltageLevel(VLGEN);
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Not supported in a bus breaker topology");
-        voltageLevel.getNodeBreakerView().getTerminal1("fictitiousSwitchId");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> voltageLevel.getNodeBreakerView().getTerminal1("fictitiousSwitchId"));
+        assertTrue(e.getMessage().contains("Not supported in a bus breaker topology"));
     }
 
     @Test
     public void testExceptionGetSwitchTerminal2() {
         Network busViewNetwork = EurostagTutorialExample1Factory.create();
         VoltageLevel voltageLevel = busViewNetwork.getVoltageLevel(VLGEN);
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Not supported in a bus breaker topology");
-        voltageLevel.getNodeBreakerView().getTerminal2("fictitiousSwitchId");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> voltageLevel.getNodeBreakerView().getTerminal2("fictitiousSwitchId"));
+        assertTrue(e.getMessage().contains("Not supported in a bus breaker topology"));
     }
 
     @Test

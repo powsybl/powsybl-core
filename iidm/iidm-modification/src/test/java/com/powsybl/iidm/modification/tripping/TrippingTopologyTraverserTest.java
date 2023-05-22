@@ -7,20 +7,20 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TrippingTopologyTraverserTest {
+class TrippingTopologyTraverserTest {
 
     @Test
-    public void test() {
+    void test() {
         Network network = Network.create("test", "");
         Substation s1 = network.newSubstation()
                 .setId("s1")

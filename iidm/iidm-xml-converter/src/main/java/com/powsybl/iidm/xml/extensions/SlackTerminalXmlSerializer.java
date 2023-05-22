@@ -42,6 +42,8 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
                 .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.3"))
                 .put(IidmXmlVersion.V_1_7, ImmutableSortedSet.of("1.4"))
                 .put(IidmXmlVersion.V_1_8, ImmutableSortedSet.of("1.5"))
+                .put(IidmXmlVersion.V_1_9, ImmutableSortedSet.of("1.5"))
+                .put(IidmXmlVersion.V_1_10, ImmutableSortedSet.of("1.5"))
                 .build(),
             new ImmutableMap.Builder<String, String>()
                 .put("1.0", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0")

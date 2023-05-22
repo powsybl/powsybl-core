@@ -164,7 +164,7 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
             }
             index += stepLengths[step];
         }
-        throw new AssertionError("Should not happen");
+        throw new IllegalStateException("Should not happen");
     }
 
     @Override

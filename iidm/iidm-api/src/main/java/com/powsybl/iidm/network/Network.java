@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 /**
@@ -630,6 +631,11 @@ public interface Network extends Container<Network> {
     Iterable<Line> getLines();
 
     /**
+     * Get all tie lines.
+     */
+    Iterable<TieLine> getTieLines();
+
+    /**
      * Get a branch
      * @param branchId the id of the branch
      */
@@ -656,9 +662,19 @@ public interface Network extends Container<Network> {
     Stream<Line> getLineStream();
 
     /**
+     * Get all tie lines.
+     */
+    Stream<TieLine> getTieLineStream();
+
+    /**
      * Get the AC line count.
      */
     int getLineCount();
+
+    /**
+     * Get the tie line count.
+     */
+    int getTieLineCount();
 
     /**
      * Get a AC line.
@@ -666,6 +682,13 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the AC line
      */
     Line getLine(String id);
+
+    /**
+     * Get a tie line.
+     *
+     * @param id the id or an alias of the AC line
+     */
+    TieLine getTieLine(String id);
 
     /**
      * Get a builder to create a new AC tie line.
@@ -835,14 +858,28 @@ public interface Network extends Container<Network> {
     ShuntCompensator getShuntCompensator(String id);
 
     /**
-     * Get all dangling lines.
+     * Get all dangling lines corresponding to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
 
     /**
      * Get all dangling lines.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    default Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLines(DanglingLineFilter.ALL);
+    }
+
+    /**
+     * Get the dangling lines corresponding to given filter.
+     */
+    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+
+    /**
+     * Get all the dangling lines.
+     */
+    default Stream<DanglingLine> getDanglingLineStream() {
+        return getDanglingLineStream(DanglingLineFilter.ALL);
+    }
 
     /**
      * Get the dangling line count.
@@ -1200,38 +1237,40 @@ public interface Network extends Container<Network> {
         return this;
     }
 
-    default <I extends Identifiable<I>> Stream<I> getIdentifiableStream(IdentifiableType identifiableType) {
+    default Stream<Identifiable<?>> getIdentifiableStream(IdentifiableType identifiableType) {
         switch (identifiableType) {
             case SWITCH:
-                return (Stream<I>) getSwitchStream();
+                return getSwitchStream().map(Function.identity());
             case TWO_WINDINGS_TRANSFORMER:
-                return (Stream<I>) getTwoWindingsTransformerStream();
+                return getTwoWindingsTransformerStream().map(Function.identity());
             case THREE_WINDINGS_TRANSFORMER:
-                return (Stream<I>) getThreeWindingsTransformerStream();
+                return getThreeWindingsTransformerStream().map(Function.identity());
             case DANGLING_LINE:
-                return (Stream<I>) getDanglingLineStream();
+                return getDanglingLineStream(DanglingLineFilter.ALL).map(Function.identity());
             case LINE:
-                return (Stream<I>) getLineStream();
+                return getLineStream().map(Function.identity());
+            case TIE_LINE:
+                return getTieLineStream().map(Function.identity());
             case LOAD:
-                return (Stream<I>) getLoadStream();
+                return getLoadStream().map(Function.identity());
             case BATTERY:
-                return (Stream<I>) getBatteries();
+                return getBatteryStream().map(Function.identity());
             case GENERATOR:
-                return (Stream<I>) getGeneratorStream();
+                return getGeneratorStream().map(Function.identity());
             case HVDC_LINE:
-                return (Stream<I>) getHvdcLineStream();
+                return getHvdcLineStream().map(Function.identity());
             case SUBSTATION:
-                return (Stream<I>) getSubstationStream();
+                return getSubstationStream().map(Function.identity());
             case VOLTAGE_LEVEL:
-                return (Stream<I>) getVoltageLevelStream();
+                return getVoltageLevelStream().map(Function.identity());
             case BUSBAR_SECTION:
-                return (Stream<I>) getBusbarSectionStream();
+                return getBusbarSectionStream().map(Function.identity());
             case SHUNT_COMPENSATOR:
-                return (Stream<I>) getShuntCompensatorStream();
+                return getShuntCompensatorStream().map(Function.identity());
             case HVDC_CONVERTER_STATION:
-                return (Stream<I>) getHvdcConverterStationStream();
+                return getHvdcConverterStationStream().map(Function.identity());
             case STATIC_VAR_COMPENSATOR:
-                return (Stream<I>) getStaticVarCompensatorStream();
+                return getStaticVarCompensatorStream().map(Function.identity());
             default:
                 throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
         }

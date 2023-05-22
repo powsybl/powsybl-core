@@ -72,6 +72,7 @@ public class CgmesExport implements Exporter {
                 NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)))
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
+                .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER))
                 .setReporter(reporter);
@@ -168,13 +169,14 @@ public class CgmesExport implements Exporter {
     }
 
     public static final String BASE_NAME = "iidm.export.cgmes.base-name";
+    public static final String BOUNDARY_EQ_ID = "iidm.export.cgmes.boundary-EQ-identifier";
+    public static final String BOUNDARY_TP_ID = "iidm.export.cgmes.boundary-TP-identifier";
     public static final String CIM_VERSION = "iidm.export.cgmes.cim-version";
+    private static final String ENCODE_IDS = "iidm.export.cgmes.encode-ids";
     public static final String EXPORT_BOUNDARY_POWER_FLOWS = "iidm.export.cgmes.export-boundary-power-flows";
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
-    public static final String BOUNDARY_EQ_ID = "iidm.export.cgmes.boundary-EQ-identifier";
-    public static final String BOUNDARY_TP_ID = "iidm.export.cgmes.boundary-TP-identifier";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -187,6 +189,11 @@ public class CgmesExport implements Exporter {
             "CIM version to export",
             null,
             CgmesNamespace.CIM_LIST.stream().map(cim -> Integer.toString(cim.getVersion())).collect(Collectors.toList()));
+    private static final Parameter ENCODE_IDS_PARAMETERS = new Parameter(
+            ENCODE_IDS,
+            ParameterType.BOOLEAN,
+            "Encode IDs as valid URI",
+            Boolean.TRUE);
     private static final Parameter EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER = new Parameter(
             EXPORT_BOUNDARY_POWER_FLOWS,
             ParameterType.BOOLEAN,

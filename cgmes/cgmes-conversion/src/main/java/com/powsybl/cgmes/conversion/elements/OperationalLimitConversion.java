@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
@@ -81,7 +82,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             case CURRENT_LIMIT:
                 return holder::newCurrentLimits;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
@@ -97,7 +98,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             case CURRENT_LIMIT:
                 return b::newCurrentLimits1;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
@@ -113,7 +114,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             case CURRENT_LIMIT:
                 return b::newCurrentLimits2;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
     }
 
@@ -311,14 +312,15 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
         // if there is no direction, the limit is considered as absoluteValue (cf. CGMES specification)
         if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
+            String name = Optional.ofNullable(p.getId("shortName")).orElse(p.getId("name"));
             if (loadingLimitsAdder != null) {
-                addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder);
+                addTatl(name, value, acceptableDuration, loadingLimitsAdder);
             } else {
                 if (loadingLimitsAdder1 != null) {
-                    addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder1);
+                    addTatl(name, value, acceptableDuration, loadingLimitsAdder1);
                 }
                 if (loadingLimitsAdder2 != null) {
-                    addTatl(context.namingStrategy().getIidmId("TATL", id), value, acceptableDuration, loadingLimitsAdder2);
+                    addTatl(name, value, acceptableDuration, loadingLimitsAdder2);
                 }
             }
         } else if (direction.endsWith("low")) {

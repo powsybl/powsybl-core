@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractNetworksTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class NetworksTest extends AbstractNetworksTest { }
+class NetworksTest extends AbstractNetworksTest { }

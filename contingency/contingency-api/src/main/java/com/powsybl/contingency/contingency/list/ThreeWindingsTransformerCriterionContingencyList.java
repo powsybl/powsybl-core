@@ -6,17 +6,13 @@
  */
 package com.powsybl.contingency.contingency.list;
 
-import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
 import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
 import com.powsybl.contingency.contingency.list.criterion.SingleCountryCriterion;
 import com.powsybl.contingency.contingency.list.criterion.ThreeNominalVoltageCriterion;
 import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Network;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -38,17 +34,6 @@ public class ThreeWindingsTransformerCriterionContingencyList extends AbstractEq
     @Override
     public String getType() {
         return "threeWindingsTransformerCriterion";
-    }
-
-    @Override
-    public List<Contingency> getContingencies(Network network) {
-        return network.getIdentifiableStream(getIdentifiableType())
-                .filter(identifiable -> singleCountryCriterion == null || singleCountryCriterion.filter(identifiable, getIdentifiableType()))
-                .filter(identifiable -> threeNominalVoltageCriterion == null || threeNominalVoltageCriterion.filter(identifiable, getIdentifiableType()))
-                .filter(identifiable -> getPropertyCriteria().stream().allMatch(propertyCriterion -> propertyCriterion.filter(identifiable, getIdentifiableType())))
-                .filter(identifiable -> getRegexCriterion() == null || getRegexCriterion().filter(identifiable, getIdentifiableType()))
-                .map(identifiable -> new Contingency(identifiable.getId(), ContingencyElement.of(identifiable)))
-                .collect(Collectors.toList());
     }
 
     @Override

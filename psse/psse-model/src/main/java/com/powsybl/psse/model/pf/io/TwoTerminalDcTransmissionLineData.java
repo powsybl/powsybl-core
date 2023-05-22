@@ -6,11 +6,12 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V32;
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER;
+import com.powsybl.psse.model.io.AbstractRecordGroup;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
+import com.powsybl.psse.model.pf.PsseTwoTerminalDcConverter;
+import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,12 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.powsybl.psse.model.io.AbstractRecordGroup;
-import com.powsybl.psse.model.io.Context;
-import com.powsybl.psse.model.io.FileFormat;
-import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
-import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
-import com.powsybl.psse.model.pf.PsseTwoTerminalDcConverter;
+import static com.powsybl.psse.model.PsseVersion.Major.*;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE;
 
 /**
  *
@@ -60,12 +58,14 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
         public List<PsseTwoTerminalDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
             List<String> mainRecords = new ArrayList<>();
             List<String> converterRecords = new ArrayList<>();
-            String line = readRecordLine(reader);
-            while (!endOfBlock(line)) {
-                mainRecords.add(line);
-                converterRecords.add(readRecordLine(reader));
-                converterRecords.add(readRecordLine(reader));
-                line = readRecordLine(reader);
+            if (!isQRecordFound()) {
+                String line = readRecordLine(reader);
+                while (!endOfBlock(line)) {
+                    mainRecords.add(line);
+                    converterRecords.add(readRecordLine(reader));
+                    converterRecords.add(readRecordLine(reader));
+                    line = readRecordLine(reader);
+                }
             }
 
             List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcList = super.recordGroup.readFromStrings(mainRecords, context);

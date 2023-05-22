@@ -14,7 +14,7 @@ import com.powsybl.contingency.contingency.list.*;
 import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +28,7 @@ import java.util.Objects;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class CriterionContingencyListJsonTest extends AbstractConverterTest {
+class CriterionContingencyListJsonTest extends AbstractConverterTest {
 
     private static HvdcLineCriterionContingencyList createHvdcLineCriterionContingencyList() {
         TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.ES),
@@ -51,6 +51,17 @@ public class CriterionContingencyListJsonTest extends AbstractConverterTest {
                 PropertyCriterion.EquipmentToCheck.VOLTAGE_LEVEL, PropertyCriterion.SideToCheck.BOTH);
         RegexCriterion regexCriterion = new RegexCriterion("regex");
         return new LineCriterionContingencyList("list2", countriesCriterion, nominalVoltageCriterion, Collections.singletonList(propertyCriterion), regexCriterion);
+    }
+
+    private static TieLineCriterionContingencyList createTieLineCriterionContingencyList() {
+        TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.IT),
+                Collections.singletonList(Country.FR));
+        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
+                .VoltageInterval(200.0, 230.0, true, true));
+        PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"),
+                PropertyCriterion.EquipmentToCheck.VOLTAGE_LEVEL, PropertyCriterion.SideToCheck.BOTH);
+        RegexCriterion regexCriterion = new RegexCriterion("regex");
+        return new TieLineCriterionContingencyList("list2a", countriesCriterion, nominalVoltageCriterion, Collections.singletonList(propertyCriterion), regexCriterion);
     }
 
     private static InjectionCriterionContingencyList createInjectionCriterionContingencyList() {
@@ -95,34 +106,40 @@ public class CriterionContingencyListJsonTest extends AbstractConverterTest {
     }
 
     @Test
-    public void lineCriterionContingencyListRoundTripTest() throws IOException {
+    void lineCriterionContingencyListRoundTripTest() throws IOException {
         roundTripTest(createLineCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readLineCriterionContingencyList, "/lineCriterionContingencyList.json");
     }
 
     @Test
-    public void injectionCriterionContingencyListRoundTripTest() throws IOException {
+    void tieLineCriterionContingencyListRoundTripTest() throws IOException {
+        roundTripTest(createTieLineCriterionContingencyList(), CriterionContingencyListJsonTest::write,
+                CriterionContingencyListJsonTest::readTieLineCriterionContingencyList, "/tieLineCriterionContingencyList.json");
+    }
+
+    @Test
+    void injectionCriterionContingencyListRoundTripTest() throws IOException {
         roundTripTest(createInjectionCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readInjectionCriterionContingencyList,
                 "/injectionCriterionContingencyList.json");
     }
 
     @Test
-    public void hvdcLineCriterionContingencyListRoundTripTest() throws IOException {
+    void hvdcLineCriterionContingencyListRoundTripTest() throws IOException {
         roundTripTest(createHvdcLineCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readHvdcLineCriterionContingencyList,
                 "/hvdclineCriterionContingencyList.json");
     }
 
     @Test
-    public void twoWindingsTransformerCriterionContingencyListRoundTripTest() throws IOException {
+    void twoWindingsTransformerCriterionContingencyListRoundTripTest() throws IOException {
         roundTripTest(createTwoWindingsTransformerCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readTwoWindingsTransformerCriterionContingencyList,
                 "/twoWindingsTransformerCriterionContingencyList.json");
     }
 
     @Test
-    public void threeWindingsTransformerCriterionContingencyListRoundTripTest() throws IOException {
+    void threeWindingsTransformerCriterionContingencyListRoundTripTest() throws IOException {
         roundTripTest(createThreeWindingsTransformerCriterionContingencyList(), CriterionContingencyListJsonTest::write,
                 CriterionContingencyListJsonTest::readThreeWindingsTransformerCriterionContingencyList,
                 "/threeWindingsTransformerCriterionContingencyList.json");
@@ -130,6 +147,10 @@ public class CriterionContingencyListJsonTest extends AbstractConverterTest {
 
     private static LineCriterionContingencyList readLineCriterionContingencyList(Path jsonFile) {
         return read(jsonFile, LineCriterionContingencyList.class);
+    }
+
+    private static TieLineCriterionContingencyList readTieLineCriterionContingencyList(Path jsonFile) {
+        return read(jsonFile, TieLineCriterionContingencyList.class);
     }
 
     private static HvdcLineCriterionContingencyList readHvdcLineCriterionContingencyList(Path jsonFile) {

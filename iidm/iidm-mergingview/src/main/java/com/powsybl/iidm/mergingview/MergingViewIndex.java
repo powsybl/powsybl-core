@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
@@ -73,7 +72,7 @@ class MergingViewIndex {
         // Local storage for mergeable network
         networks.add(other);
         // Manage DanglingLines
-        other.getDanglingLineStream().forEach(this::checkNewDanglingLine);
+        other.getDanglingLineStream(DanglingLineFilter.ALL).forEach(this::checkNewDanglingLine);
     }
 
     void checkNewDanglingLine(DanglingLine dl2) {
@@ -88,21 +87,21 @@ class MergingViewIndex {
                 .filter(d -> d.getNetwork() != dl2.getNetwork())
                 .distinct()
                 .collect(Collectors.toList());
-        BiConsumer<DanglingLine, DanglingLine> mergeDanglingLines = (dll1, dll2) -> {
+        BiConsumer<DanglingLine, DanglingLine> pairDanglingLines = (dll1, dll2) -> {
             String key = dll1.getId();
             if (dll1.getUcteXnodeCode() != null && dll2.getUcteXnodeCode() != null) {
                 key = dll1.getUcteXnodeCode();
             }
             mergedLineCached.computeIfAbsent(key, k -> new MergedLine(this, dll1, dll2));
         };
-        findAndAssociateDanglingLines(dl2, dl1, getDanglingLinesByXnodeCode, mergeDanglingLines);
+        findAndAssociateDanglingLines(dl2, dl1, getDanglingLinesByXnodeCode, pairDanglingLines);
     }
 
     MergedLine getMergedLineByCode(final String ucteXnodeCode) {
         return mergedLineCached.get(ucteXnodeCode);
     }
 
-    Line getMergedLine(final String id) {
+    TieLine getMergedLine(final String id) {
         return mergedLineCached.values().stream()
                 .filter(l -> l.getId().equals(id))
                 .findFirst()
@@ -151,7 +150,7 @@ class MergingViewIndex {
         if (clazz == Line.class) {
             return getLineStream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
         } else if (clazz == DanglingLine.class) {
-            return getDanglingLineStream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+            return getDanglingLineStream(DanglingLineFilter.ALL).filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
         } else {
             return getNetworkStream()
                     .flatMap(n -> n.getConnectableStream(clazz))
@@ -285,10 +284,8 @@ class MergingViewIndex {
 
     Collection<Branch> getBranches() {
         // Search Branch into merging & working networks, and MergedLines
-        return Stream.concat(getNetworkStream().flatMap(Network::getBranchStream)
-                        .map(this::getBranch),
-                mergedLineCached.values().stream())
-                .collect(Collectors.toList());
+        return getNetworkStream().flatMap(Network::getBranchStream)
+                        .map(this::getBranch).collect(Collectors.toList());
     }
 
     Collection<ThreeWindingsTransformer> getThreeWindingsTransformers() {
@@ -299,45 +296,49 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
-    Collection<Bus> getBuses() {
-        // Search ThreeWindingsTransformer into merging & working networks
-        return getNetworkStream()
-                .map(Network::getBusBreakerView)
-                .flatMap(Network.BusBreakerView::getBusStream)
-                .map(this::getBus)
-                .collect(Collectors.toList());
-    }
-
     Stream<Line> getLineStream() {
         // Search Line into merging & working networks, and MergedLines
-        return Stream.concat(getNetworkStream().flatMap(Network::getLineStream)
-                        .map(this::getLine),
-                mergedLineCached.values().stream());
+        return getNetworkStream().flatMap(Network::getLineStream)
+                        .map(this::getLine);
+    }
+
+    Stream<TieLine> getTieLineStream() {
+        // Search Line into merging & working networks, and MergedLines
+        return Stream.concat(getNetworkStream().flatMap(Network::getTieLineStream)
+                .map(this::getTieLine), mergedLineCached.values().stream());
     }
 
     Iterable<Line> getLines() {
-        return Iterables.concat(Iterables.concat(Iterables.concat(Iterables.transform(networks, Network::getLines)), mergedLineCached.values()));
+        return getNetworkStream().flatMap(Network::getLineStream).map(this::getLine).collect(Collectors.toList());
+    }
+
+    Iterable<TieLine> getTieLines() {
+        return Stream.concat(getNetworkStream().flatMap(Network::getTieLineStream)
+                .map(this::getTieLine), mergedLineCached.values().stream()).collect(Collectors.toList());
     }
 
     int getLineCount() {
-        return getNetworkStream().mapToInt(Network::getLineCount).sum() + mergedLineCached.size();
+        return getNetworkStream().mapToInt(Network::getLineCount).sum();
+    }
+
+    int getTieLineCount() {
+        return getNetworkStream().mapToInt(Network::getTieLineCount).sum() + mergedLineCached.size();
     }
 
     boolean isMerged(final DanglingLine dl) {
         return mergedLineCached.containsKey(dl.getUcteXnodeCode()) || mergedLineCached.containsKey(dl.getId());
     }
 
-    Stream<DanglingLine> getDanglingLineStream() {
-        return MergingViewUtil.getDanglingLineStream(getNetworkStream().flatMap(Network::getDanglingLineStream), this);
+    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return getNetworkStream().flatMap(n -> n.getDanglingLineStream(danglingLineFilter)).map(this::getDanglingLine);
     }
 
-    Iterable<DanglingLine> getDanglingLines() {
-        // Search DanglingLine into merging & working networks
-        return MergingViewUtil.getDanglingLines(Iterables.concat(Iterables.transform(networks, Network::getDanglingLines)), this);
+    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getNetworkStream().flatMap(n -> n.getDanglingLineStream(danglingLineFilter)).map(this::getDanglingLine).collect(Collectors.toList());
     }
 
     int getDanglingLineCount() {
-        return getNetworkStream().mapToInt(Network::getDanglingLineCount).sum() - 2 * mergedLineCached.size();
+        return getNetworkStream().mapToInt(Network::getDanglingLineCount).sum();
     }
 
     Collection<HvdcLine> getHvdcLines() {
@@ -423,18 +424,12 @@ class MergingViewIndex {
         return boundary == null ? null : (BoundaryAdapter) boundaryCached.computeIfAbsent(boundary, key -> new BoundaryAdapter(boundary, this));
     }
 
-    BoundaryAdapter getBoundary(final Boundary boundary, final Branch.Side mergedSide) {
-        return boundary == null ? null : (BoundaryAdapter) boundaryCached.computeIfAbsent(boundary, key -> new BoundaryAdapter(boundary, mergedSide, this));
+    Line getLine(final Line line) {
+        return line == null ? null : (Line) identifiableCached.computeIfAbsent(line, k -> new LineAdapter(line, this));
     }
 
-    Line getLine(final Line line) {
-        return line == null ? null : (Line) identifiableCached.computeIfAbsent(line, k -> {
-            if (line.isTieLine()) {
-                return new TieLineAdapter((TieLine) line, this);
-            } else {
-                return new LineAdapter(line, this);
-            }
-        });
+    TieLine getTieLine(final TieLine tieLine) {
+        return tieLine == null ? null : (TieLine) identifiableCached.computeIfAbsent(tieLine, k -> new TieLineAdapter(tieLine, this));
     }
 
     HvdcConverterStation<?> getHvdcConverterStation(final HvdcConverterStation<?> cs) {
@@ -492,15 +487,13 @@ class MergingViewIndex {
             case SHUNT_COMPENSATOR:
                 return getShuntCompensator((ShuntCompensator) connectable);
             case DANGLING_LINE:
-                final DanglingLine danglingLine = (DanglingLine) connectable;
-                final Line mergedLine = getMergedLineByCode(danglingLine.getUcteXnodeCode());
-                return Objects.nonNull(mergedLine) ? mergedLine : getDanglingLine(danglingLine);
+                return getDanglingLine((DanglingLine) connectable);
             case STATIC_VAR_COMPENSATOR:
                 return getStaticVarCompensator((StaticVarCompensator) connectable);
             case HVDC_CONVERTER_STATION:
                 return getHvdcConverterStation((HvdcConverterStation) connectable);
             default:
-                throw new AssertionError(connectable.getType().name() + " is not valid to be adapted to connectable");
+                throw new IllegalStateException(connectable.getType().name() + " is not valid to be adapted to connectable");
         }
     }
 
@@ -514,7 +507,7 @@ class MergingViewIndex {
             case TWO_WINDINGS_TRANSFORMER:
                 return getTwoWindingsTransformer((TwoWindingsTransformer) b);
             default:
-                throw new AssertionError(b.getType().name() + " is not valid to be adapted to branch");
+                throw new IllegalStateException(b.getType().name() + " is not valid to be adapted to branch");
         }
     }
 

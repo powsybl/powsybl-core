@@ -9,24 +9,24 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class ShuntCompensatorAdapterTest {
+class ShuntCompensatorAdapterTest {
     private MergingView mergingView;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         mergingView = MergingView.create("ShuntCompensatorAdapterTest", "iidm");
     }
 
     @Test
-    public void testSetterGetter() {
+    void testSetterGetter() {
         Network networkRef = HvdcTestNetwork.createLcc();
         mergingView.merge(networkRef);
 
@@ -84,7 +84,7 @@ public class ShuntCompensatorAdapterTest {
     }
 
     @Test
-    public void testCreateLinear() {
+    void testCreateLinear() {
         createNetwork();
 
         // Linear shunt
@@ -118,7 +118,7 @@ public class ShuntCompensatorAdapterTest {
     }
 
     @Test
-    public void testCreateNonLinear() {
+    void testCreateNonLinear() {
         createNetwork();
 
         // Non linear shunt

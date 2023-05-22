@@ -14,7 +14,7 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -22,7 +22,7 @@ import java.util.Arrays;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CommandLineToolsTest extends AbstractToolTest {
+class CommandLineToolsTest extends AbstractToolTest {
 
     private class Tool1 implements Tool {
 
@@ -134,7 +134,7 @@ public class CommandLineToolsTest extends AbstractToolTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         String scriptOptions = "Available options are:" + System.lineSeparator() +
             "    --config-name <CONFIG_NAME>   Override configuration file name" + System.lineSeparator();
 

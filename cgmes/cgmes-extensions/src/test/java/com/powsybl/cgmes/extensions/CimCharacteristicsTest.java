@@ -9,23 +9,17 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CimCharacteristicsTest {
-
-    @Rule
-    public final ExpectedException expected = ExpectedException.none();
+class CimCharacteristicsTest {
 
     @Test
-    public void test() {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(CimCharacteristicsAdder.class)
                 .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
@@ -38,9 +32,8 @@ public class CimCharacteristicsTest {
     }
 
     @Test
-    public void invalid() {
-        expected.expect(PowsyblException.class);
-        expected.expectMessage("CimCharacteristics.topologyKind is undefined");
-        EurostagTutorialExample1Factory.create().newExtension(CimCharacteristicsAdder.class).add();
+    void invalid() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> EurostagTutorialExample1Factory.create().newExtension(CimCharacteristicsAdder.class).add());
+        assertTrue(e.getMessage().contains("CimCharacteristics.topologyKind is undefined"));
     }
 }

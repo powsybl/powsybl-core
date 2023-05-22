@@ -12,7 +12,7 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -20,10 +20,10 @@ import java.util.Properties;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BusBreakerAnonymiserBugTest extends AbstractXmlConverterTest {
+class BusBreakerAnonymiserBugTest extends AbstractXmlConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = NetworkXmlTest.createEurostagTutorialExample1();
         // add a switch
         VoltageLevel vlgen = network.getVoltageLevel("VLGEN");

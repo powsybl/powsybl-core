@@ -92,8 +92,8 @@ public class UcteElementId implements Comparable<UcteElementId> {
     public static Optional<UcteElementId> parseUcteElementId(String id) {
         UcteElementId elementId = null;
         if (isUcteElementId(id)) {
-            UcteNodeCode node1 = UcteNodeCode.parseUcteNodeCode(id.substring(0, 8)).orElseThrow(AssertionError::new);
-            UcteNodeCode node2 = UcteNodeCode.parseUcteNodeCode(id.substring(9, 17)).orElseThrow(AssertionError::new);
+            UcteNodeCode node1 = UcteNodeCode.parseUcteNodeCode(id.substring(0, 8)).orElseThrow(IllegalStateException::new);
+            UcteNodeCode node2 = UcteNodeCode.parseUcteNodeCode(id.substring(9, 17)).orElseThrow(IllegalStateException::new);
 
             elementId = new UcteElementId(node1, node2, id.charAt(18));
         }

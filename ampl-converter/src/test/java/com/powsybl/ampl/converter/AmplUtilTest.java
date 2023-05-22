@@ -10,20 +10,20 @@ import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class AmplUtilTest {
+class AmplUtilTest {
 
     @Test
-    public void test() {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create();
 
         StringToIntMapper<AmplSubset> mapper = new StringToIntMapper<>(AmplSubset.class);
@@ -40,7 +40,7 @@ public class AmplUtilTest {
     }
 
     @Test
-    public void testBattery() {
+    void testBattery() {
         Network network = BatteryNetworkFactory.create();
 
         StringToIntMapper<AmplSubset> mapper = new StringToIntMapper<>(AmplSubset.class);

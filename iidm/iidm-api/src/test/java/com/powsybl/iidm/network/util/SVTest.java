@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.network.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Branch;
@@ -18,7 +18,6 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
@@ -26,10 +25,10 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class SVTest {
+class SVTest {
 
     @Test
-    public void testLine() {
+    void testLine() {
         Line line = new LineTestData().getLine();
 
         double tol = 0.0001;
@@ -59,7 +58,7 @@ public class SVTest {
     }
 
     @Test
-    public void testDanglingLine() {
+    void testDanglingLine() {
         DanglingLine dl = new DanglingLineTestData().getDanglingLine();
 
         double tol = 0.0001;
@@ -109,7 +108,7 @@ public class SVTest {
     }
 
     @Test
-    public void testTwoWindingsTransformer() {
+    void testTwoWindingsTransformer() {
         TwoWindingsTransformer twt = new TwoWindingsTransformerTestData().getTwoWindingsTransformer();
 
         double tol = 0.0001;
@@ -139,7 +138,7 @@ public class SVTest {
     }
 
     @Test
-    public void testTwoWindingsTransformerWithoutRtc() {
+    void testTwoWindingsTransformerWithoutRtc() {
         TwoWindingsTransformer twt = new TwoWindingsTransformerWithoutRtcTestData().getTwoWindingsTransformer();
 
         double tol = 0.0001;
@@ -169,7 +168,7 @@ public class SVTest {
     }
 
     @Test
-    public void testTwoWindingsTransformerWithoutPtc() {
+    void testTwoWindingsTransformerWithoutPtc() {
         TwoWindingsTransformer twt = new TwoWindingsTransformerWithoutPtcTestData().getTwoWindingsTransformer();
 
         double tol = 0.0001;
@@ -196,35 +195,6 @@ public class SVTest {
         assertEquals(q1, svB1.getQ(), tol);
         assertEquals(v1, svB1.getU(), tol);
         assertEquals(a1, svB1.getA(), tol);
-    }
-
-    @Test
-    public void testHalfLine() {
-        TieLine.HalfLine halfLine = new HalfLineTestData().getHalfLine();
-
-        double tol = 0.0001;
-        double p1 = 485.306701;
-        double q1 = 48.537745;
-        double v1 = 138.0;
-        double a1 = 0.0;
-
-        double p2 = -104.996276;
-        double q2 = -123.211145;
-        double v2 = 137.5232696533203;
-        double a2 = -0.18332427740097046;
-
-        SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
-        SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
-
-        assertEquals(p2, svA1.otherSideP(halfLine), tol);
-        assertEquals(q2, svA1.otherSideQ(halfLine), tol);
-        assertEquals(v2, svA1.otherSideU(halfLine), tol);
-        assertEquals(a2, svA1.otherSideA(halfLine), tol);
-
-        assertEquals(p1, svB2.otherSideP(halfLine), tol);
-        assertEquals(q1, svB2.otherSideQ(halfLine), tol);
-        assertEquals(v1, svB2.otherSideU(halfLine), tol);
-        assertEquals(a1, svB2.otherSideA(halfLine), tol);
     }
 
     private static final class LineTestData {
@@ -422,30 +392,6 @@ public class SVTest {
 
         private TwoWindingsTransformer getTwoWindingsTransformer() {
             return twt;
-        }
-    }
-
-    private static final class HalfLineTestData {
-        private static double R = 0.15;
-        private static double X = 0.25;
-        private static double G1 = 0.01;
-        private static double B1 = 0.0020;
-        private static double G2 = 0.01;
-        private static double B2 = 0.0020;
-        private TieLine.HalfLine halfLine;
-
-        private HalfLineTestData() {
-            halfLine = Mockito.mock(TieLine.HalfLine.class);
-            Mockito.when(halfLine.getR()).thenReturn(R);
-            Mockito.when(halfLine.getX()).thenReturn(X);
-            Mockito.when(halfLine.getG1()).thenReturn(G1);
-            Mockito.when(halfLine.getB1()).thenReturn(B1);
-            Mockito.when(halfLine.getG2()).thenReturn(G2);
-            Mockito.when(halfLine.getB2()).thenReturn(B2);
-        }
-
-        private TieLine.HalfLine getHalfLine() {
-            return halfLine;
         }
     }
 }

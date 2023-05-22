@@ -73,7 +73,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // It is assumed the property bags are already sorted
         this.numTerminals = ps.size();
         terminals = new TerminalData[] {null, null, null};
-        assert numTerminals <= 3;
+        if (numTerminals > 3) {
+            throw new IllegalStateException("numTerminals should be less or equal to 3 but is " + numTerminals);
+        }
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
             terminals[k0] = new TerminalData(CgmesNames.TERMINAL, ps.get(k0), context);
@@ -248,12 +250,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
         context.terminalMapping().add(terminalId(boundarySide), dl.getBoundary(), 2);
         dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + ".Terminal_Boundary", terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
-        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + ".Terminal_Network", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
-        Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
+        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal");
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
+        Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
         Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn ->
-            dl.addAlias(cn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY)
+            dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn)
         );
         context.namingStrategy().readIdMapping(dl, type);
         setBoundaryNodeInfo(boundaryNode, dl);
@@ -363,7 +365,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
         VoltageLevel vl = terminals[n - 1].voltageLevel;
         CgmesTerminal t = terminals[n - 1].t;
-        return context.nodeMapping().iidmNodeForTerminal(t, vl, equipmentIsConnected);
+        return context.nodeMapping().iidmNodeForTerminal(t, type.equals("Switch"), vl, equipmentIsConnected);
     }
 
     String busId() {
@@ -464,7 +466,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     // Terminals
 
     protected void convertedTerminals(Terminal... ts) {
-        assert ts.length == numTerminals;
+        if (ts.length != numTerminals) {
+            throw new IllegalStateException();
+        }
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;
             Terminal t = ts[k];
@@ -512,7 +516,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     // Connections
 
-    public void connect(InjectionAdder<?> adder) {
+    public void connect(InjectionAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
             adder.setNode(iidmNode());
         } else {
@@ -520,7 +524,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(InjectionAdder<?> adder, int terminal) {
+    public void connect(InjectionAdder<?, ?> adder, int terminal) {
         if (context.nodeBreaker()) {
             adder.setNode(iidmNode(terminal));
         } else {
@@ -528,7 +532,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(BranchAdder<?> adder) {
+    public void connect(BranchAdder<?, ?> adder) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel1(iidmVoltageLevelId(1))
@@ -548,13 +552,23 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(BranchAdder<?> adder,
+    public static void connect(Context context, InjectionAdder<?, ?> adder, String busId, boolean connected, int node) {
+        if (context.nodeBreaker()) {
+            adder.setNode(node);
+        } else {
+            adder
+                    .setBus(connected ? busId : null)
+                    .setConnectableBus(busId);
+        }
+    }
+
+    public void connect(BranchAdder<?, ?> adder,
         String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
         String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
         connect(context, adder, iidmVoltageLevelId1, busId1, t1Connected, node1, iidmVoltageLevelId2, busId2, t2Connected, node2);
     }
 
-    public static void connect(Context context, BranchAdder<?> adder,
+    public static void connect(Context context, BranchAdder<?, ?> adder,
         String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
         String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
         if (context.nodeBreaker()) {
@@ -574,11 +588,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public void connect(BranchAdder<?> adder, boolean t1Connected, boolean t2Connected) {
+    public void connect(BranchAdder<?, ?> adder, boolean t1Connected, boolean t2Connected) {
         connect(adder, t1Connected, t2Connected, true);
     }
 
-    public void connect(BranchAdder<?> adder, boolean t1Connected, boolean t2Connected, boolean branchIsClosed) {
+    public void connect(BranchAdder<?, ?> adder, boolean t1Connected, boolean t2Connected, boolean branchIsClosed) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel1(iidmVoltageLevelId(1))

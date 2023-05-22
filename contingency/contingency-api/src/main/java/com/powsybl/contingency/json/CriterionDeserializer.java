@@ -8,14 +8,13 @@ package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.iidm.network.Country;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -51,38 +50,35 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                     break;
                 case "voltageInterval":
                     parser.nextToken();
-                    voltageInterval = parser.readValueAs(new TypeReference<SingleNominalVoltageCriterion.VoltageInterval>() {
-                    });
+                    voltageInterval = JsonUtil.readValue(deserializationContext, parser,
+                            SingleNominalVoltageCriterion.VoltageInterval.class);
                     break;
                 case "voltageInterval1":
                     parser.nextToken();
-                    voltageInterval1 = parser.readValueAs(new TypeReference<SingleNominalVoltageCriterion.VoltageInterval>() {
-                    });
+                    voltageInterval1 = JsonUtil.readValue(deserializationContext, parser,
+                            SingleNominalVoltageCriterion.VoltageInterval.class);
                     break;
                 case "voltageInterval2":
                     parser.nextToken();
-                    voltageInterval2 = parser.readValueAs(new TypeReference<SingleNominalVoltageCriterion.VoltageInterval>() {
-                    });
+                    voltageInterval2 = JsonUtil.readValue(deserializationContext, parser,
+                            SingleNominalVoltageCriterion.VoltageInterval.class);
                     break;
                 case "voltageInterval3":
                     parser.nextToken();
-                    voltageInterval3 = parser.readValueAs(new TypeReference<SingleNominalVoltageCriterion.VoltageInterval>() {
-                    });
+                    voltageInterval3 = JsonUtil.readValue(deserializationContext, parser,
+                            SingleNominalVoltageCriterion.VoltageInterval.class);
                     break;
                 case "countries":
                     parser.nextToken();
-                    countries = parser.readValueAs(new TypeReference<ArrayList<String>>() {
-                    });
+                    countries = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
                 case "countries1":
                     parser.nextToken();
-                    countries1 = parser.readValueAs(new TypeReference<ArrayList<String>>() {
-                    });
+                    countries1 = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
                 case "countries2":
                     parser.nextToken();
-                    countries2 = parser.readValueAs(new TypeReference<ArrayList<String>>() {
-                    });
+                    countries2 = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
                 case "propertyKey":
                     propertyKey = parser.nextTextValue();
@@ -92,8 +88,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                     break;
                 case "propertyValue":
                     parser.nextToken();
-                    propertyValues = parser.readValueAs(new TypeReference<ArrayList<String>>() {
-                    });
+                    propertyValues = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
                 case "equipmentToCheck":
                     equipmentToCheck = PropertyCriterion.EquipmentToCheck.valueOf(parser.nextTextValue());
@@ -102,7 +97,7 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                     sideToCheck = PropertyCriterion.SideToCheck.valueOf(parser.nextTextValue());
                     break;
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         if (type == null) {

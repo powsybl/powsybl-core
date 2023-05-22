@@ -7,7 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -16,9 +16,9 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseShifterXmlTest extends AbstractXmlConverterTest {
+class PhaseShifterXmlTest extends AbstractXmlConverterTest {
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         // backward compatibility
         roundTripAllPreviousVersionedXmlTest("phaseShifterRoundTripRef.xml");
 

@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractShuntCompensatorTest;
 
-public class ShuntCompensatorTest extends AbstractShuntCompensatorTest { }
+class ShuntCompensatorTest extends AbstractShuntCompensatorTest { }

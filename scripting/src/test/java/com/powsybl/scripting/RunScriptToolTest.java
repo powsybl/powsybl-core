@@ -9,20 +9,20 @@ package com.powsybl.scripting;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RunScriptToolTest extends AbstractToolTest {
+class RunScriptToolTest extends AbstractToolTest {
 
     private RunScriptTool tool;
 
     @Override
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         tool = new RunScriptTool();
         super.setUp();
@@ -40,7 +40,7 @@ public class RunScriptToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void run() throws Exception {
+    void run() throws Exception {
         String helloFile = "/hello.groovy";
         createFile(helloFile, "print 'hello'");
 
@@ -48,7 +48,7 @@ public class RunScriptToolTest extends AbstractToolTest {
     }
 
     @Test
-    public void runWithParameters() throws Exception {
+    void runWithParameters() throws Exception {
         String helloFile = "/hello.groovy";
         createFile(helloFile, "print 'hello ' + args[0]");
 

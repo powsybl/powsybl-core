@@ -13,11 +13,13 @@ import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class LccConverterStationXml extends AbstractConnectableXml<LccConverterStation, LccConverterStationAdder, VoltageLevel> {
+public class LccConverterStationXml extends AbstractSimpleIdentifiableXml<LccConverterStation, LccConverterStationAdder, VoltageLevel> {
 
     static final LccConverterStationXml INSTANCE = new LccConverterStationXml();
 
@@ -47,7 +49,7 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
     }
 
     @Override
-    protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, NetworkXmlReaderContext context) {
+    protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
         float powerFactor = XmlUtil.readOptionalFloatAttribute(context.getReader(), "powerFactor");
         readNodeOrBus(adder, context);

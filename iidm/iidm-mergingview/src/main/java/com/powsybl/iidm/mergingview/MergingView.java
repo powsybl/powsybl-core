@@ -40,7 +40,7 @@ public final class MergingView implements Network, MultiVariantObject {
     private final Map<String, SynchronousComponentsManager> synchronousComponentsManager = new HashMap<>();
 
     /** To listen events from merging network */
-    private final NetworkListener mergeDanglingLineListener;
+    private final NetworkListener pairDanglingLineListener;
     private final TopologyListener topologyListener;
 
     static PowsyblException createNotImplementedException() {
@@ -164,7 +164,7 @@ public final class MergingView implements Network, MultiVariantObject {
         synchronousComponentsManager.put(VariantManagerConstants.INITIAL_VARIANT_ID, new SynchronousComponentsManager(this));
 
         // Listeners creation
-        mergeDanglingLineListener = new MergingLineListener(index);
+        pairDanglingLineListener = new MergingLineListener(index);
         topologyListener = new TopologyListener(index);
         busBreakerView = new BusBreakerViewAdapter(index);
         busView = new BusViewAdapter(index);
@@ -736,8 +736,18 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
+    public Iterable<TieLine> getTieLines() {
+        return index.getTieLines();
+    }
+
+    @Override
     public Stream<Line> getLineStream() {
         return index.getLineStream();
+    }
+
+    @Override
+    public Stream<TieLine> getTieLineStream() {
+        return index.getTieLineStream();
     }
 
     @Override
@@ -746,19 +756,29 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
+    public int getTieLineCount() {
+        return index.getTieLineCount();
+    }
+
+    @Override
     public Line getLine(final String id) {
-        return Optional.ofNullable(index.getMergedLine(id)).orElse(index.get(n -> n.getLine(id), index::getLine));
+        return index.get(n -> n.getLine(id), index::getLine);
+    }
+
+    @Override
+    public TieLine getTieLine(String id) {
+        return Optional.ofNullable(index.getMergedLine(id)).orElse(index.get(n -> n.getTieLine(id), index::getTieLine));
     }
 
     // DanglingLines
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return index.getDanglingLines();
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return index.getDanglingLines(danglingLineFilter);
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return index.getDanglingLineStream();
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return index.getDanglingLineStream(danglingLineFilter);
     }
 
     @Override
@@ -768,8 +788,7 @@ public final class MergingView implements Network, MultiVariantObject {
 
     @Override
     public DanglingLine getDanglingLine(final String id) {
-        final DanglingLine dl = index.get(n -> n.getDanglingLine(id), index::getDanglingLine);
-        return dl == null || index.isMerged(dl) ? null : dl;
+        return index.get(n -> n.getDanglingLine(id), index::getDanglingLine);
     }
 
     // HvdcLines
@@ -866,7 +885,7 @@ public final class MergingView implements Network, MultiVariantObject {
 
     private void addInternalListeners(Network network) {
         // Attach all custom listeners
-        network.addListener(mergeDanglingLineListener);
+        network.addListener(pairDanglingLineListener);
         network.addListener(topologyListener);
     }
 
@@ -916,6 +935,6 @@ public final class MergingView implements Network, MultiVariantObject {
 
     @Override
     public ValidationLevel getValidationLevel() {
-        return index.getNetworkStream().map(Network::getValidationLevel).min(ValidationLevel::compareTo).orElseThrow(AssertionError::new);
+        return index.getNetworkStream().map(Network::getValidationLevel).min(ValidationLevel::compareTo).orElseThrow(IllegalStateException::new);
     }
 }
