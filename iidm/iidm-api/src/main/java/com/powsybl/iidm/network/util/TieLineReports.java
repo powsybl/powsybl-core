@@ -47,7 +47,8 @@ final class TieLineReports {
     static void propertyOnlyOnOneSide(Reporter reporter, String propertyName, String propertyValue, int emptySide, String danglingLineId1, String danglingLineId2) {
         reporter.report(Report.builder()
                 .withKey("PropertyOnlyOnOneSide")
-                .withDefaultMessage("Inconsistencies of property ${propertyName} between both sides of merged line. Side ${side} with ${danglingLineId1} has no value. Keeping ${danglingLineId2} value ${propertyValue}")
+                .withDefaultMessage("Inconsistencies of property ${propertyName} between both sides (${danglingLineId1) on side 1 and ${danglingLineId2} on side2) of merged line. " +
+                        "Side ${side} has no value. Value on other side is kept.")
                 .withValue("propertyName", propertyName)
                 .withValue("side", emptySide)
                 .withValue(DANGLING_LINE_ID_1, danglingLineId1)
