@@ -210,7 +210,14 @@ public final class CgmesExportUtil {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
             if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
-                // Nothing to do
+                if (c instanceof DanglingLine) {
+                    DanglingLine dl = (DanglingLine) c;
+                    if (dl.isPaired()) {
+                        return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
+                    } else {
+                        return 1;
+                    }
+                }
             } else {
                 if (c instanceof DanglingLine) {
                     DanglingLine dl = (DanglingLine) c;
@@ -295,10 +302,8 @@ public final class CgmesExportUtil {
         String aliasType;
         Connectable<?> c = t.getConnectable();
         if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
-            if (c instanceof DanglingLine && !((DanglingLine) c).isPaired()) {
-                // The only terminal of the dangling line should follow the same convention
-                // of other connectable with only one terminal, TERMINAL1, not TERMINAL
-                // Doing it this way, we could eliminate this specific processing for dangling lines
+            // For dangling lines terminal id always at TERMINAL1 alias, no matter if it is paired or not
+            if (c instanceof DanglingLine) {
                 aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
             } else {
                 int sequenceNumber = getTerminalSequenceNumber(t);

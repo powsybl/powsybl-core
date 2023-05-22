@@ -77,7 +77,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         return terminalConnected(1) && terminalConnected(2);
     }
 
-    public static final boolean DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES = false;
+    public static final boolean DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES = true;
 
     public static void convertBoundaryLines(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
 
