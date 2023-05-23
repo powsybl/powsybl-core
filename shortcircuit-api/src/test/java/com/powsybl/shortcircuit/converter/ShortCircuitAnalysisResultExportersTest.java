@@ -98,6 +98,22 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
     }
 
     @Test
+    void readJsonFailedFaultResultVersion11() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+                .read(getClass().getResourceAsStream("/shortcircuit-results-failed-version11.json"));
+        assertEquals(1, result.getFaultResults().size());
+        assertEquals(FaultResult.Status.FAILURE, result.getGlobalStatus());
+    }
+
+    @Test
+    void readJsonSolverFailureDataFaultResultVersion11() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+                .read(getClass().getResourceAsStream("/shortcircuit-results-solver-failure-version11.json"));
+        assertEquals(2, result.getFaultResults().size());
+        assertEquals(FaultResult.Status.SOLVER_FAILURE, result.getGlobalStatus());
+    }
+
+    @Test
     void readJsonFaultResultVersion12() {
         ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
                 .read(getClass().getResourceAsStream("/shortcircuit-results-version12.json"));
