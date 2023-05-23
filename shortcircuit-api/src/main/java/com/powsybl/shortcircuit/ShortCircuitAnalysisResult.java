@@ -64,6 +64,9 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
         return resultByElementId.getOrDefault(elementId, Collections.emptyList());
     }
 
+    /**
+     * Get the global status of the analysis, summing up of the statuses of each fault computation.
+     */
     public FaultResult.Status getGlobalStatus() {
         return globalStatus;
     }
