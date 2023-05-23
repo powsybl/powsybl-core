@@ -72,18 +72,13 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     @Override
     public void checkAll(Network network, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrent(b, consumer));
-        checkVoltageLevels(network, consumer);
+        network.getVoltageLevelStream()
+                .flatMap(v -> v.getBusView().getBusStream())
+                .forEach(b -> checkVoltage(b, consumer));
     }
 
     @Override
     public void checkAllDc(Network network, double dcPowerFactor, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, consumer));
-        checkVoltageLevels(network, consumer);
-    }
-
-    private void checkVoltageLevels(Network network, Consumer<LimitViolation> consumer) {
-        network.getVoltageLevelStream()
-                .flatMap(v -> v.getBusView().getBusStream())
-                .forEach(b -> checkVoltage(b, consumer));
     }
 }

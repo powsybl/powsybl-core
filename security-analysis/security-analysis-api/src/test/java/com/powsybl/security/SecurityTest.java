@@ -142,7 +142,7 @@ class SecurityTest {
         assertEquals("Bad power factor 1.2", eHighCosPhi.getMessage());
 
         List<LimitViolation> violations = Security.checkLimitsDc(network, 1, 0.95);
-        assertViolations(violations);
+        assertCurrentViolations(violations);
     }
 
     private static void assertViolations(List<LimitViolation> violations) {
@@ -154,6 +154,14 @@ class SecurityTest {
             } else {
                 assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
             }
+        });
+    }
+
+    private static void assertCurrentViolations(List<LimitViolation> violations) {
+        assertEquals(4, violations.size());
+        violations.forEach(violation -> {
+            assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
+            assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
         });
     }
 }
