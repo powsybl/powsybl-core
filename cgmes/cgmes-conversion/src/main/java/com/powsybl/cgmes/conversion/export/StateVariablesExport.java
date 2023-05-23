@@ -81,6 +81,9 @@ public final class StateVariablesExport {
             for (String tn : island.getValue()) {
                 CgmesExportUtil.writeReference("TopologicalIsland.TopologicalNodes", tn, cimNamespace, writer, context);
             }
+            writer.writeStartElement(cimNamespace, "IdentifiedObject.description");
+            writer.writeCharacters("converged");
+            writer.writeEndElement();
             writer.writeEndElement();
         }
     }
