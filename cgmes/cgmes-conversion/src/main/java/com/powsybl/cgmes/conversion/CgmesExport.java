@@ -203,7 +203,7 @@ public class CgmesExport implements Exporter {
             EXPORT_POWER_FLOWS_FOR_SWITCHES,
             ParameterType.BOOLEAN,
             "Export power flows for switches",
-            Boolean.FALSE);
+            Boolean.TRUE);
     private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(
             NAMING_STRATEGY,
             ParameterType.STRING,

@@ -56,7 +56,7 @@ public class CgmesExportContext {
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
     private boolean exportBoundaryPowerFlows = true;
-    private boolean exportFlowsForSwitches = false;
+    private boolean exportFlowsForSwitches = true;
     private boolean exportEquipment = false;
     private boolean encodeIds = true;
 
