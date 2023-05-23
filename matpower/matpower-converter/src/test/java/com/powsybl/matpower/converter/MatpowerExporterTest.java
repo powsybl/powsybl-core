@@ -50,7 +50,7 @@ class MatpowerExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    void testEsgTutu1() throws IOException {
+    void testEsgTuto1() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
         exportToMatAndCompareTo(network, "/sim1.json");
     }
