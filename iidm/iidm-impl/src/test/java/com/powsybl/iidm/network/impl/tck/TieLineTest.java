@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.tck.AbstractLineTest;
+import com.powsybl.iidm.network.tck.AbstractTieLineTest;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-class TieLineTest extends AbstractLineTest { }
+class TieLineTest extends AbstractTieLineTest { }
