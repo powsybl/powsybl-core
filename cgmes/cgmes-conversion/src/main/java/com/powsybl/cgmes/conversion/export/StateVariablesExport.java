@@ -22,8 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -327,32 +325,8 @@ public final class StateVariablesExport {
             String cgmesTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(c, aliasTypeForTerminalId);
             writePowerFlow(cgmesTerminalId, p, q, cimNamespace, writer, context);
         } else {
-            boolean missingBoundaryFromBeNL = false;
-            // XXX(LUMA) Already known: tie lines from destructive merge do not receive the boundary terminal
-            if (c.getId().equals("b18cd1aa-7808-49b9-a7cf-605eaf07b006 + e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc") ||
-                    c.getId().equals("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4 + a279a3dc-550b-426c-af3a-61b7be508dcc") ||
-                    c.getId().equals("17086487-56ba-4979-b8de-064025a6b4da + 8fdc7abd-3746-481a-a65e-3df56acd8b13") ||
-                    c.getId().equals("dad02278-bd25-476f-8f58-dbe44be72586 + ed0c5d75-4a54-43c8-b782-b20d7431630b") ||
-                    c.getId().equals("78736387-5f60-4832-b3fe-d50daf81b0a6 + 7f43f508-2496-4b64-9146-0a40406cbe49")) {
-                if (aliasTypeForTerminalId.equals("CGMES.Terminal_Boundary_1") ||
-                        aliasTypeForTerminalId.equals("CGMES.Terminal_Boundary_2")) {
-                    missingBoundaryFromBeNL = true;
-                }
-            }
-            // Only throw exception if we came from a non-controlled test
-            try {
-                throw new Exception("XXX LUMA missing alias for " + c.getType() + " " + c.getId() + ": " + aliasTypeForTerminalId);
-            } catch (Exception x) {
-                StringWriter sw = new StringWriter();
-                PrintWriter pw = new PrintWriter(sw);
-                x.printStackTrace(pw);
-                String sStackTrace = sw.toString(); // stack trace as a string
-                if (sStackTrace.contains("microGridBaseCaseBEMergedWithNL")) {
-                    System.err.println(x.getMessage());
-                } else {
-                    throw new RuntimeException(x);
-                }
-            }
+            // XXX LUMA review for IOP, EMF. We previously returned silently if no terminal was found
+            throw new PowsyblException("Exporting CGMES SvPowerFlow. Missing alias for " + c.getType() + " " + c.getId() + ": " + aliasTypeForTerminalId);
         }
     }
 

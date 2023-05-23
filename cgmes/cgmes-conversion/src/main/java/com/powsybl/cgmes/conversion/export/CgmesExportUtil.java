@@ -213,6 +213,10 @@ public final class CgmesExportUtil {
                 if (c instanceof DanglingLine) {
                     DanglingLine dl = (DanglingLine) c;
                     if (dl.isPaired()) {
+                        // If this dangling line is part of a tie line we will be exporting the tie line as a single element
+                        // We need to return the proper terminal of the single tie line that will be exported
+                        // If we change the export and write the two dangling lines as separate equipment,
+                        // then we should always return 1 and forget about special case
                         return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
                     } else {
                         return 1;
@@ -302,7 +306,8 @@ public final class CgmesExportUtil {
         String aliasType;
         Connectable<?> c = t.getConnectable();
         if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
-            // For dangling lines terminal id always at TERMINAL1 alias, no matter if it is paired or not
+            // For dangling lines terminal id is always stored at TERMINAL1 alias,
+            // it doesn't matter if it is paired or not
             if (c instanceof DanglingLine) {
                 aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
             } else {
