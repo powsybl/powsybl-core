@@ -175,8 +175,8 @@ public class SwitchesFlow {
             int node = nodes[i];
             Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
             if (terminal != null) {
-                double p = -getTerminalP(terminal);
-                double q = -getTerminalQ(terminal);
+                double p = getTerminalP(terminal);
+                double q = getTerminalQ(terminal);
                 swNodeInjection.computeIfPresent(getKey(node), (key, value) -> value.addPQ(p, q));
             }
         }
@@ -185,8 +185,8 @@ public class SwitchesFlow {
     private static void calculateInjectionsBusBreaker(VoltageLevel voltageLevel, Map<String, SwNode> swNodeInjection) {
         voltageLevel.getBusBreakerView().getBuses().forEach(bus ->
             bus.getConnectedTerminals().forEach(terminal -> {
-                double p = -getTerminalP(terminal);
-                double q = -getTerminalQ(terminal);
+                double p = getTerminalP(terminal);
+                double q = getTerminalQ(terminal);
                 swNodeInjection.computeIfPresent(getKey(bus), (key, value) -> value.addPQ(p, q));
             }));
     }
@@ -280,11 +280,11 @@ public class SwitchesFlow {
         });
     }
 
-    private static SwFlow calculateSwFlow(SwEdge swEdge, SwNode swNode, double p, double q) {
+    private static SwFlow calculateSwFlow(SwEdge swEdge, SwNode swNode, double pOtherNode, double qOtherNode) {
         if (swEdge.swNode1 == swNode) {
-            return new SwFlow(p, q, -p, -q);
+            return new SwFlow(-pOtherNode, -qOtherNode, pOtherNode, qOtherNode);
         } else {
-            return new SwFlow(-p, -q, p, q);
+            return new SwFlow(pOtherNode, qOtherNode, -pOtherNode, -qOtherNode);
         }
     }
 
