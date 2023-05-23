@@ -81,10 +81,7 @@ public final class UcteConverterHelper {
      * @return the δu needed to create a {@link UcteAngleRegulation}
      */
 
-    public static Pair<Double, Double> calculateAsymmAngleDuAndAngle(TwoWindingsTransformer twoWindingsTransformer) {
-
-        // option to put in parameter if OK
-        boolean useCombinedRtcPtc = true;
+    public static Pair<Double, Double> calculateAsymmAngleDuAndAngle(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
 
         PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
         int lowTapPosition = phaseTapChanger.getLowTapPosition();
@@ -118,35 +115,20 @@ public final class UcteConverterHelper {
             thetaDegrees = Math.toDegrees(theta - Math.PI);
         }
 
-        if (useCombinedRtcPtc) {
-
-            // test for combined ratio and phase tap changer
+        if (combinePhaseAngleRegulation) {
             double r0Rtc = 1.0;
             if (twoWindingsTransformer.getRatioTapChanger() != null) {
                 RatioTapChanger ratioTapChanger = twoWindingsTransformer.getRatioTapChanger();
                 int r0TapPosition = ratioTapChanger.getTapPosition();
                 r0Rtc = ratioTapChanger.getStep(r0TapPosition).getRho();
             }
-
-            //System.out.println("NEW>>>>>>>> absDu Init = " + absDu);
             absDu = absDu / r0Rtc; // in the case of a combined RTC and PTC absDu includes rho0 of RTC
-
-            /*System.out.println("NEW>>>>>>>> rho = " + r0Rtc);
-
-            double dy = absDu * Math.sin(Math.toRadians(thetaDegrees));
-            System.out.println("NEW>>>>>>>> dy = " + dy);
-            double dxeq = absDu * Math.cos(Math.toRadians(thetaDegrees));
-            System.out.println("NEW>>>>>>>> dxeq = " + dxeq);
-            double dx = dxeq + 1. - 1. / r0Rtc;
-            System.out.println("NEW>>>>>>>> dx = " + dx);
-            thetaDegrees = Math.toDegrees(Math.atan2(dy, dx));
-            absDu = Math.sqrt(dx * dx + dy * dy);*/
         }
 
         return Pair.of(BigDecimal.valueOf(absDu).setScale(4, RoundingMode.HALF_UP).doubleValue(), thetaDegrees);
     }
 
-    public static double calculateAsymmAngleDu(TwoWindingsTransformer twoWindingsTransformer) {
+    public static double calculateAsymmAngleDu(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
         /*PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
         int lowTapPosition = phaseTapChanger.getLowTapPosition();
         int highTapPosition = phaseTapChanger.getHighTapPosition();
@@ -162,7 +144,7 @@ public final class UcteConverterHelper {
         double distance = Math.sqrt((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya));
         double du = 100 * distance / (tapNumber - 1);
         return BigDecimal.valueOf(du).setScale(4, RoundingMode.HALF_UP).doubleValue();*/
-        return calculateAsymmAngleDuAndAngle(twoWindingsTransformer).getKey();
+        return calculateAsymmAngleDuAndAngle(twoWindingsTransformer, combinePhaseAngleRegulation).getKey();
     }
 
     /**
@@ -173,7 +155,7 @@ public final class UcteConverterHelper {
      * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
      * @return the Θ needed to create a {@link UcteAngleRegulation}
      */
-    public static double calculateAsymmAngleTheta(TwoWindingsTransformer twoWindingsTransformer) {
+    public static double calculateAsymmAngleTheta(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
         /*PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
         int lowTapPosition = phaseTapChanger.getLowTapPosition();
         int highTapPosition = phaseTapChanger.getHighTapPosition();
@@ -186,6 +168,6 @@ public final class UcteConverterHelper {
         double xb = highPositionRho * Math.cos(highPositionAlpha);
         double yb = highPositionRho * Math.sin(highPositionAlpha);
         return Math.toDegrees(Math.atan((yb - ya) / (xb - xa)));*/
-        return calculateAsymmAngleDuAndAngle(twoWindingsTransformer).getValue();
+        return calculateAsymmAngleDuAndAngle(twoWindingsTransformer, combinePhaseAngleRegulation).getValue();
     }
 }

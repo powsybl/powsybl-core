@@ -51,12 +51,12 @@ class UcteConverterHelperTest {
 
     @Test
     void calculateAsymmAngleDuTest() {
-        assertEquals(0.9, calculateAsymmAngleDu(reference.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.0001);
+        assertEquals(0.9, calculateAsymmAngleDu(reference.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false), 0.0001);
     }
 
     @Test
     void calculateAsymmAngleThetaTest() {
-        assertEquals(60.0, calculateAsymmAngleTheta(reference.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.0001);
+        assertEquals(60.0, calculateAsymmAngleTheta(reference.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false), 0.0001);
     }
 
     @Test
@@ -64,8 +64,8 @@ class UcteConverterHelperTest {
         assertEquals(-2.000, calculatePhaseDu(reference2.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")), 0.00001);
         assertEquals(-1.57, calculateSymmAngleDu(reference2.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1")), 0.00001); // loss of one decimal with sign
 
-        double angleRef2 = Math.toRadians(calculateAsymmAngleTheta(reference2.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")));
-        double moduleRef2 = calculateAsymmAngleDu(reference2.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"));
+        double angleRef2 = Math.toRadians(calculateAsymmAngleTheta(reference2.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false));
+        double moduleRef2 = calculateAsymmAngleDu(reference2.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false);
         Complex duRef2 = new Complex(Math.cos(angleRef2), Math.sin(angleRef2)).multiply(moduleRef2);
 
         double angleExpected = Math.toRadians(-120.0);
@@ -78,8 +78,8 @@ class UcteConverterHelperTest {
         ReadOnlyDataSource dataSource = new ResourceDataSource("expectedExport4", new ResourceSet("/", "expectedExport4.uct"));
         Network reference4 = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
 
-        double angleRef4 = Math.toRadians(calculateAsymmAngleTheta(reference4.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")));
-        double moduleRef4 = calculateAsymmAngleDu(reference4.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"));
+        double angleRef4 = Math.toRadians(calculateAsymmAngleTheta(reference4.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false));
+        double moduleRef4 = calculateAsymmAngleDu(reference4.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false);
         Complex duRef4 = new Complex(Math.cos(angleRef4), Math.sin(angleRef4)).multiply(moduleRef4);
 
         double angleExpected4 = Math.toRadians(-120.0);
@@ -89,11 +89,10 @@ class UcteConverterHelperTest {
         assertEquals(duExpected4.getReal(), duRef4.getReal(), 0.0001);
         assertEquals(duExpected4.getImaginary(), duRef4.getImaginary(), 0.0001);
 
-        ReadOnlyDataSource dataSource6 = new ResourceDataSource("expectedExport6", new ResourceSet("/", "expectedExport6.uct"));
+        ReadOnlyDataSource dataSource6 = new ResourceDataSource("expectedExport5", new ResourceSet("/", "expectedExport5.uct"));
         Network reference6 = new UcteImporter().importData(dataSource6, NetworkFactory.findDefault(), null);
 
-        assertEquals(0.990, calculateAsymmAngleDu(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.00001);
-        assertEquals(90.00, calculateAsymmAngleTheta(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.00001); // loss of one decimal with sign
-
+        assertEquals(0.990, calculateAsymmAngleDu(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false), 0.00001);
+        assertEquals(90.00, calculateAsymmAngleTheta(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"), false), 0.00001); // loss of one decimal with sign
     }
 }
