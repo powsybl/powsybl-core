@@ -329,7 +329,8 @@ class CgmesMappingTest extends AbstractConverterTest {
                 ExportXmlCompare::ignoringFullModelAbout,
                 ExportXmlCompare::ignoringFullModelDependentOn,
                 ExportXmlCompare::ignoringOperationalLimitIds,
-                ExportXmlCompare::ignoringSVIds);
+                ExportXmlCompare::ignoringSVIds,
+                ExportXmlCompare::ignoringLoadAreaIds);
         for (Path file : files) {
             ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs);
         }

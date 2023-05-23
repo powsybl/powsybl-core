@@ -76,7 +76,7 @@ public final class EquipmentExport {
             writeVoltageLevels(network, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
             writeBusbarSections(network, cimNamespace, writer, context);
             writeLoads(network, loadGroups, cimNamespace, writer, context);
-            writeLoadGroups(loadGroups.found(), cimNamespace, writer, context);
+            String loadAreaId = writeLoadGroups(network.getId(), loadGroups.found(), cimNamespace, writer, context);
             writeGenerators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writeInitialP, writer, context);
             writeBatteries(network, cimNamespace, writeInitialP, writer, context);
             writeShuntCompensators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writer, context);
@@ -256,14 +256,19 @@ public final class EquipmentExport {
 
     // We may receive a warning if we define an empty load group,
     // So we will output only the load groups that have been found during export of loads
-    private static void writeLoadGroups(Collection<LoadGroup> foundLoadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    // one load area and one sub load area is created in any case
+    private static String writeLoadGroups(String networkId, Collection<LoadGroup> foundLoadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        // Write one load area and one sub load area for the whole network
+        String loadAreaId = CgmesExportUtil.getUniqueId();
+        LoadAreaEq.write(loadAreaId, networkId, cimNamespace, writer, context);
+        String subLoadAreaId = CgmesExportUtil.getUniqueId();
+        LoadAreaEq.writeSubArea(subLoadAreaId, loadAreaId, networkId, cimNamespace, writer, context);
         for (LoadGroup loadGroup : foundLoadGroups) {
             CgmesExportUtil.writeStartIdName(loadGroup.className, loadGroup.id, loadGroup.name, cimNamespace, writer, context);
-            // LoadArea and SubLoadArea are inside the Operation profile
-            // In principle they are not required, but we may have to add them
-            // and write here a reference to "LoadGroup.SubLoadArea"
+            CgmesExportUtil.writeReference("LoadGroup.SubLoadArea", subLoadAreaId, cimNamespace, writer, context);
             writer.writeEndElement();
         }
+        return loadAreaId;
     }
 
     private static void writeLoads(Network network, LoadGroups loadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

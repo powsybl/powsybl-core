@@ -578,6 +578,31 @@ final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringLoadAreaIds(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Comparison.Detail control = comparison.getControlDetails();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (control.getXPath().contains("SubLoadArea")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("LoadArea")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SubLoadArea.LoadArea")
+                        && control.getTarget().getLocalName().equals("resource")) {
+                    return ComparisonResult.EQUAL;
+                }
+            } else if (comparison.getType() == ComparisonType.TEXT_VALUE) {
+                if (control.getXPath().contains("SubLoadArea") || control.getXPath().contains("LoadArea")) {
+                    if (control.getTarget().getParentNode().getLocalName().endsWith(".mRID")) {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringSVIds(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             if (comparison.getType() == ComparisonType.ATTR_VALUE) {
