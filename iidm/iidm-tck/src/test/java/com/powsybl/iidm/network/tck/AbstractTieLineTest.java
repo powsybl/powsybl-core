@@ -84,6 +84,7 @@ public abstract class AbstractTieLineTest {
 
         assertEquals(List.of(dl1, dl2), network.getDanglingLines(DanglingLineFilter.UNPAIRED));
         assertFalse(network.getDanglingLines(DanglingLineFilter.PAIRED).iterator().hasNext());
+        assertEquals(List.of(dl1, dl2), network.getDanglingLines());
 
         TieLineAdder adder = network.newTieLine().setId("testTie")
                 .setName("testNameTie")
