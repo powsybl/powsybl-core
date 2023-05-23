@@ -7,11 +7,11 @@
 
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 
 import java.nio.file.Path;
 
@@ -33,7 +33,7 @@ public interface NamingStrategy {
     }
 
     default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
-        if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+        if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
             // Nothing to do
         } else {
             if (identifiable instanceof DanglingLine) {

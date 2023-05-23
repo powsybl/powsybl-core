@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
@@ -209,13 +208,14 @@ public final class CgmesExportUtil {
     public static int getTerminalSequenceNumber(Terminal t) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
-            if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+            if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
                 if (c instanceof DanglingLine) {
                     DanglingLine dl = (DanglingLine) c;
                     if (dl.isPaired()) {
-                        // If this dangling line is part of a tie line we will be exporting the tie line as a single element
+                        // TODO(Luma) Export tie line components instead of single equipment
+                        // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
                         // We need to return the proper terminal of the single tie line that will be exported
-                        // If we change the export and write the two dangling lines as separate equipment,
+                        // When we change the export and write the two dangling lines as separate equipment,
                         // then we should always return 1 and forget about special case
                         return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
                     } else {
@@ -305,7 +305,7 @@ public final class CgmesExportUtil {
     public static String getTerminalId(Terminal t, CgmesExportContext context) {
         String aliasType;
         Connectable<?> c = t.getConnectable();
-        if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+        if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
             // For dangling lines terminal id is always stored at TERMINAL1 alias,
             // it doesn't matter if it is paired or not
             if (c instanceof DanglingLine) {

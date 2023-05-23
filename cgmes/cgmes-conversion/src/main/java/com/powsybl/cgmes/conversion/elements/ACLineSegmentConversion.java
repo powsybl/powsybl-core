@@ -77,13 +77,11 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         return terminalConnected(1) && terminalConnected(2);
     }
 
-    public static final boolean DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES = true;
-
     public static void convertBoundaryLines(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
 
         TieLine mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
 
-        if (DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+        if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
             // We should leave the standard mechanism for attaching alias of terminal to the dangling line
             // With FLorian: all this specific treatment should be gone,
             // it should be handled by the dangling line created in a standard ways

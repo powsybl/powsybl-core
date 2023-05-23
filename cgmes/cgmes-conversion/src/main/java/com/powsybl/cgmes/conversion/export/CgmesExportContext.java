@@ -11,7 +11,6 @@ import com.google.common.collect.HashBiMap;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.NamingStrategy;
 import com.powsybl.cgmes.conversion.NamingStrategyFactory;
-import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -406,7 +405,7 @@ public class CgmesExportContext {
     private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
         if (c instanceof DanglingLine) {
             DanglingLine dl = (DanglingLine) c;
-            if (ACLineSegmentConversion.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+            if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
                 String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
                 if (terminalId == null) {
                     terminalId = CgmesExportUtil.getUniqueId();

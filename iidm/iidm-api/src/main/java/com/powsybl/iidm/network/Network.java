@@ -100,6 +100,8 @@ import java.util.stream.Stream;
  */
 public interface Network extends Container<Network> {
 
+    boolean DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES = true;
+
     /**
      * Read a network from the specified file, trying to guess its format.
      *
