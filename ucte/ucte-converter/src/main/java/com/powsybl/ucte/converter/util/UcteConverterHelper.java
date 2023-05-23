@@ -82,6 +82,10 @@ public final class UcteConverterHelper {
      */
 
     public static Pair<Double, Double> calculateAsymmAngleDuAndAngle(TwoWindingsTransformer twoWindingsTransformer) {
+
+        // option to put in parameter if OK
+        boolean useCombinedRtcPtc = true;
+
         PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
         int lowTapPosition = phaseTapChanger.getLowTapPosition();
         int highTapPosition = phaseTapChanger.getHighTapPosition();
@@ -112,6 +116,31 @@ public final class UcteConverterHelper {
         // the formula above gives actually the module of du, we need to verify the sign of du
         if ((yb * highPositionRho - ya * lowPositionRho) / Math.sin(theta) < 0.) {
             thetaDegrees = Math.toDegrees(theta - Math.PI);
+        }
+
+        if (useCombinedRtcPtc) {
+
+            // test for combined ratio and phase tap changer
+            double r0Rtc = 1.0;
+            if (twoWindingsTransformer.getRatioTapChanger() != null) {
+                RatioTapChanger ratioTapChanger = twoWindingsTransformer.getRatioTapChanger();
+                int r0TapPosition = ratioTapChanger.getTapPosition();
+                r0Rtc = ratioTapChanger.getStep(r0TapPosition).getRho();
+            }
+
+            //System.out.println("NEW>>>>>>>> absDu Init = " + absDu);
+            absDu = absDu / r0Rtc; // in the case of a combined RTC and PTC absDu includes rho0 of RTC
+
+            /*System.out.println("NEW>>>>>>>> rho = " + r0Rtc);
+
+            double dy = absDu * Math.sin(Math.toRadians(thetaDegrees));
+            System.out.println("NEW>>>>>>>> dy = " + dy);
+            double dxeq = absDu * Math.cos(Math.toRadians(thetaDegrees));
+            System.out.println("NEW>>>>>>>> dxeq = " + dxeq);
+            double dx = dxeq + 1. - 1. / r0Rtc;
+            System.out.println("NEW>>>>>>>> dx = " + dx);
+            thetaDegrees = Math.toDegrees(Math.atan2(dy, dx));
+            absDu = Math.sqrt(dx * dx + dy * dy);*/
         }
 
         return Pair.of(BigDecimal.valueOf(absDu).setScale(4, RoundingMode.HALF_UP).doubleValue(), thetaDegrees);

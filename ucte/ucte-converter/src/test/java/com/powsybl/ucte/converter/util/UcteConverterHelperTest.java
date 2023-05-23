@@ -92,9 +92,6 @@ class UcteConverterHelperTest {
         ReadOnlyDataSource dataSource6 = new ResourceDataSource("expectedExport6", new ResourceSet("/", "expectedExport6.uct"));
         Network reference6 = new UcteImporter().importData(dataSource6, NetworkFactory.findDefault(), null);
 
-        //double angleRef6 = Math.toRadians(calculateAsymmAngleTheta(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")));
-        //double moduleRef6 = calculateAsymmAngleDu(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1"));
-
         assertEquals(0.990, calculateAsymmAngleDu(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.00001);
         assertEquals(90.00, calculateAsymmAngleTheta(reference6.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1")), 0.00001); // loss of one decimal with sign
 
