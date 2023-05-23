@@ -19,18 +19,22 @@ import java.util.*;
 public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitAnalysisResult> {
 
     // VERSION = 1.0 faultResults
-    // VERSION = 1.0 status in faultResult
-    public static final String VERSION = "1.1";
+    // VERSION = 1.1 status in faultResult
+    // VERSION = 1.2 globalStatus
+    public static final String VERSION = "1.2";
+
+    private final FaultResult.Status globalStatus;
 
     private final Map<String, FaultResult> resultByFaultId = new TreeMap<>();
     private final Map<String, List<FaultResult>> resultByElementId = new TreeMap<>();
 
-    public ShortCircuitAnalysisResult(List<FaultResult> faultResults) {
+    public ShortCircuitAnalysisResult(List<FaultResult> faultResults, FaultResult.Status globalStatus) {
         Objects.requireNonNull(faultResults);
         faultResults.forEach(r -> {
             this.resultByFaultId.put(r.getFault().getId(), r);
             this.resultByElementId.computeIfAbsent(r.getFault().getElementId(), k -> new ArrayList<>()).add(r);
         });
+        this.globalStatus = Objects.requireNonNull(globalStatus);
     }
 
     /**
@@ -58,5 +62,9 @@ public class ShortCircuitAnalysisResult extends AbstractExtendable<ShortCircuitA
      */
     public List<FaultResult> getFaultResults(String elementId) {
         return resultByElementId.getOrDefault(elementId, Collections.emptyList());
+    }
+
+    public FaultResult.Status getGlobalStatus() {
+        return globalStatus;
     }
 }

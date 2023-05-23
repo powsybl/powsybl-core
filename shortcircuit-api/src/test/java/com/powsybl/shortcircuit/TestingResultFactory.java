@@ -37,7 +37,7 @@ public final class TestingResultFactory {
         faultResults.add(faultResult1);
         faultResults.add(faultResult2);
         faultResults.add(faultResult3);
-        return new ShortCircuitAnalysisResult(faultResults);
+        return new ShortCircuitAnalysisResult(faultResults, SUCCESS);
     }
 
     public static FortescueFaultResult createFaultResult(String faultId, LimitViolationType limitType, float limit, float value) {
@@ -66,7 +66,7 @@ public final class TestingResultFactory {
         MagnitudeFaultResult faultResult = new MagnitudeFaultResult(fault, 0.1, Collections.singletonList(feederResult), limitViolations,
                 1.0, Collections.emptyList(), Duration.ofSeconds(1), FortescueFaultResult.Status.SUCCESS);
         faultResults.add(faultResult);
-        return new ShortCircuitAnalysisResult(faultResults);
+        return new ShortCircuitAnalysisResult(faultResults, SUCCESS);
     }
 
     public static ShortCircuitAnalysisResult createResultWithExtension() {
@@ -86,7 +86,7 @@ public final class TestingResultFactory {
         MagnitudeFaultResult faultResult = new MagnitudeFaultResult(fault, 1.0, Collections.emptyList(), limitViolations, 1.0, busResults, null, SUCCESS);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults, SUCCESS);
         shortCircuitAnalysisResult.addExtension(DummyShortCircuitAnalysisResultExtension.class, new DummyShortCircuitAnalysisResultExtension());
         return shortCircuitAnalysisResult;
     }
@@ -110,7 +110,7 @@ public final class TestingResultFactory {
         faultResults.add(faultResult1);
         MagnitudeFaultResult faultResult2 = new MagnitudeFaultResult(fault2, 1.0, Collections.emptyList(), Collections.emptyList(), 10, null, SUCCESS);
         faultResults.add(faultResult2);
-        return new ShortCircuitAnalysisResult(faultResults);
+        return new ShortCircuitAnalysisResult(faultResults, SUCCESS);
     }
 
     public static ShortCircuitAnalysisResult createMagnitudeResult() {
@@ -133,7 +133,7 @@ public final class TestingResultFactory {
         MagnitudeFaultResult faultResult = new MagnitudeFaultResult(fault, 1.0, feederResults, limitViolations, 1.0, busResults, Duration.ofSeconds(1), SUCCESS);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults, SUCCESS);
         shortCircuitAnalysisResult.addExtension(DummyShortCircuitAnalysisResultExtension.class, new DummyShortCircuitAnalysisResultExtension());
         return shortCircuitAnalysisResult;
     }
@@ -158,7 +158,7 @@ public final class TestingResultFactory {
         FortescueFaultResult faultResult = new FortescueFaultResult(fault, 1.0, feederResults, limitViolations, new FortescueValue(1.0, 10), new FortescueValue(50, 50), busResults, Duration.ofSeconds(1), SUCCESS);
         faultResult.addExtension(DummyFaultResultExtension.class, new DummyFaultResultExtension());
         faultResults.add(faultResult);
-        ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults);
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults, SUCCESS);
         shortCircuitAnalysisResult.addExtension(DummyShortCircuitAnalysisResultExtension.class, new DummyShortCircuitAnalysisResultExtension());
         return shortCircuitAnalysisResult;
     }

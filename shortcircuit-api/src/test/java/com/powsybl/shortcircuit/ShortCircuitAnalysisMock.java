@@ -45,7 +45,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
                                                              ShortCircuitParameters parameters,
                                                              ComputationManager computationManager,
                                                              List<FaultParameters> faultParameters) {
-        return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>()));
+        return CompletableFuture.completedFuture(new ShortCircuitAnalysisResult(new ArrayList<>(), FaultResult.Status.SUCCESS));
     }
 
     @Override
@@ -65,7 +65,7 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
         LimitViolation limitViolation = new LimitViolation("VLGEN", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 0, 0, 0);
         FortescueFaultResult faultResult = new FortescueFaultResult(fault, 10.0, Collections.singletonList(feederResult), Collections.singletonList(limitViolation),
                 new FortescueValue(10.0), null, Collections.emptyList(), Duration.ofSeconds(1), FortescueFaultResult.Status.SUCCESS);
-        return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
+        return new ShortCircuitAnalysisResult(Collections.singletonList(faultResult), FaultResult.Status.SUCCESS);
     }
 
     @Override

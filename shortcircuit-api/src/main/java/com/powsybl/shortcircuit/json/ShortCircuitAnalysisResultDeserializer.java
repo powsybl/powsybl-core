@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
@@ -35,6 +36,8 @@ import java.util.function.Supplier;
  */
 public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<ShortCircuitAnalysisResult> {
 
+    private static final String CONTEXT_NAME = "ShortCircuitAnalysisResult";
+
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "short-circuit-analysis"));
 
@@ -47,6 +50,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
         String version = null;
         List<FaultResult> faultResults = null;
         List<Extension<ShortCircuitAnalysisResult>> extensions = Collections.emptyList();
+        FaultResult.Status globalStatus = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -59,6 +63,12 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
                     faultResults = new FaultResultDeserializer().deserialize(parser, ctx, version);
                     break;
 
+                case "globalStatus":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.2");
+                    parser.nextToken();
+                    globalStatus = FaultResult.Status.valueOf(parser.getValueAsString());
+                    break;
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, ctx, SUPPLIER.get());
@@ -68,11 +78,40 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
                     throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
-        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults);
 
-        SUPPLIER.get().addExtensions(result, extensions);
+        ShortCircuitAnalysisResult shortCircuitAnalysisResult = null;
+        if (globalStatus == null) {
+            JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "No status", version, "1.1");
+            if (faultResults != null) {
+                boolean solverFailure = false;
+                boolean noShortCircuitData = false;
+                for (FaultResult result : faultResults) {
+                    if (result.getStatus() == FaultResult.Status.FAILURE) {
+                        shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults, FaultResult.Status.FAILURE);
+                        break;
+                    } else if (result.getStatus() == FaultResult.Status.SOLVER_FAILURE) {
+                        solverFailure = true;
+                    } else if (result.getStatus() == FaultResult.Status.NO_SHORT_CIRCUIT_DATA) {
+                        noShortCircuitData = true;
+                    }
+                    if (solverFailure) {
+                        shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults, FaultResult.Status.SOLVER_FAILURE);
+                    } else if (noShortCircuitData) {
+                        shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults, FaultResult.Status.NO_SHORT_CIRCUIT_DATA);
+                    } else {
+                        shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults, FaultResult.Status.SUCCESS);
+                    }
+                }
+            } else {
+                throw new PowsyblException("Fault result is null.");
+            }
+        } else {
+            shortCircuitAnalysisResult = new ShortCircuitAnalysisResult(faultResults, globalStatus);
+        }
 
-        return result;
+        SUPPLIER.get().addExtensions(shortCircuitAnalysisResult, extensions);
+
+        return shortCircuitAnalysisResult;
     }
 
     public static ShortCircuitAnalysisResult read(Path jsonFile) {

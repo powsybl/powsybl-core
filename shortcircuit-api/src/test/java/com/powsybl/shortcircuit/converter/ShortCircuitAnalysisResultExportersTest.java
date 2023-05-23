@@ -81,6 +81,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
         assertEquals(1.0, faultResult.getCurrent().getPositiveMagnitude(), 0);
         assertEquals(1, faultResult.getLimitViolations().size());
         assertEquals(1, faultResult.getFeederResults().size());
+        assertEquals(FaultResult.Status.SUCCESS, result.getGlobalStatus());
     }
 
     @Test
@@ -93,6 +94,20 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
         assertEquals(1, faultResult.getLimitViolations().size());
         assertEquals(1, faultResult.getFeederResults().size());
         assertEquals(2.0, faultResult.getVoltage(), 0);
+        assertEquals(FaultResult.Status.SUCCESS, result.getGlobalStatus());
+    }
+
+    @Test
+    void readJsonFaultResultVersion12() {
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysisResultDeserializer
+                .read(getClass().getResourceAsStream("/shortcircuit-results-version12.json"));
+        assertEquals(1, result.getFaultResults().size());
+        MagnitudeFaultResult faultResult = (MagnitudeFaultResult) result.getFaultResult("id");
+        assertEquals(1.0, faultResult.getCurrent(), 0);
+        assertEquals(1, faultResult.getLimitViolations().size());
+        assertEquals(1, faultResult.getFeederResults().size());
+        assertEquals(2.0, faultResult.getVoltage(), 0);
+        assertEquals(FaultResult.Status.SUCCESS, result.getGlobalStatus());
     }
 
     void writeCsv(ShortCircuitAnalysisResult result, Path path) {
@@ -126,7 +141,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
 
     @Test
     void roundTripJsonFailedResults() throws IOException {
-        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(new FailedFaultResult(new BusFault("id", "elementId"), FaultResult.Status.FAILURE)));
+        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(new FailedFaultResult(new BusFault("id", "elementId"), FaultResult.Status.FAILURE)), FaultResult.Status.FAILURE);
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-failed-result.json");
     }
 }

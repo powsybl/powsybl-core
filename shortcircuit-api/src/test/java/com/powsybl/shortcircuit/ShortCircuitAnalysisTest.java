@@ -47,7 +47,7 @@ class ShortCircuitAnalysisTest {
                                                                      ComputationManager computationManager,
                                                                      List<FaultParameters> faultParameters) {
 
-                return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList()));
+                return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList(), FaultResult.Status.SUCCESS));
             }
         };
 

@@ -12,12 +12,13 @@
       "faultType" : "THREE_PHASE"
     },
     "shortCircuitPower" : 0.1,
+    "currentMagnitude" : 1.0,
+    "voltageMagnitude" : 2.0,
     "timeConstant" : "PT1S",
     "feederResult" : [ {
       "connectableId" : "connectableId",
       "currentMagnitude" : 1.0
     } ],
-    "currentMagnitude" : 1.0,
     "limitViolations" : [ {
       "subjectId" : "id",
       "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
@@ -26,5 +27,5 @@
       "value" : 2500.0
     } ]
   } ],
-  "globalStatus" : "SUCCESS"
+  "globalStatus": "SUCCESS"
 }
