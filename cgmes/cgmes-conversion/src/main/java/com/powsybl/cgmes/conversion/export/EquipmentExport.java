@@ -316,53 +316,20 @@ public final class EquipmentExport {
                                                 XMLStreamWriter writer, CgmesExportContext context, Set<String> generatingUnitsWritten) throws XMLStreamException {
         String generatingUnit = context.getNamingStrategy().getCgmesIdFromProperty(i, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
         String reactiveLimitsId = null;
-        double minQ;
-        double maxQ;
+        double minQ = 0.0;
+        double maxQ = 0.0;
         switch (i.getReactiveLimits().getKind()) {
             case CURVE:
-                ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
-                minQ = Double.min(curve.getMinQ(curve.getMinP()), curve.getMinQ(curve.getMaxP()));
-                maxQ = Double.max(curve.getMaxQ(curve.getMinP()), curve.getMaxQ(curve.getMaxP()));
-
-                if (curve.getMinP() >= 0 && curve.getMaxP() >= 0) {
-                    kind = "generator";
-                } else if (curve.getMinP() <= 0 && curve.getMaxP() >= 0) {
-                    kind = "generatorOrMotor";
-                } else if (curve.getMinP() <= 0 && curve.getMaxP() <= 0) {
-                    kind = "motor";
-                } // other case not possible
-                if (minQ == maxQ) {
-                    break;
-                }
-
                 reactiveLimitsId = CgmesExportUtil.getUniqueId();
-                if (curve.getPointCount() == 2) {
-                    double minPCurve = curve.getMinP();
-                    double maxPCurve = curve.getMaxP();
-                    double minQminP = Double.min(curve.getMinQ(minPCurve), curve.getMaxQ(minPCurve));
-                    double maxQminP = Double.max(curve.getMinQ(minPCurve), curve.getMaxQ(minPCurve));
-                    double minQmaxP = Double.min(curve.getMinQ(maxPCurve), curve.getMaxQ(maxPCurve));
-                    double maxQmaxP = Double.max(curve.getMinQ(maxPCurve), curve.getMaxQ(maxPCurve));
-                    CurveDataEq.write(CgmesExportUtil.getUniqueId(), minPCurve, minQminP, maxQminP, reactiveLimitsId, cimNamespace, writer, context);
-                    if (minPCurve == 0 || maxPCurve == 0) {
-                        CurveDataEq.write(CgmesExportUtil.getUniqueId(), (maxPCurve + minPCurve) / 2, (minQmaxP + minQminP) / 2, (maxQmaxP + maxQminP) / 2, reactiveLimitsId, cimNamespace, writer, context);
-                    } else {
-                        CurveDataEq.write(CgmesExportUtil.getUniqueId(), 0, minQminP - (minQmaxP - minQminP) / (maxPCurve - minPCurve) * minPCurve,
-                                maxQminP - (maxQmaxP - maxQminP) / (maxPCurve - minPCurve) * minPCurve, reactiveLimitsId, cimNamespace, writer, context);
-                    }
-                    CurveDataEq.write(CgmesExportUtil.getUniqueId(), maxPCurve, minQmaxP, maxQmaxP, reactiveLimitsId, cimNamespace, writer, context);
-                } else {
-                    for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
-                        CurveDataEq.write(CgmesExportUtil.getUniqueId(), point.getP(), Double.min(point.getMinQ(), point.getMaxQ()),
-                                Double.max(point.getMinQ(), point.getMaxQ()), reactiveLimitsId, cimNamespace, writer, context);
-                    }
+                ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
+                for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
+                    CurveDataEq.write(CgmesExportUtil.getUniqueId(), point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context);
                 }
                 String reactiveCapabilityCurveName = "RCC_" + i.getNameOrId();
                 ReactiveCapabilityCurveEq.write(reactiveLimitsId, reactiveCapabilityCurveName, i, cimNamespace, writer, context);
                 break;
 
             case MIN_MAX:
-                kind = "generatorOrMotor";
                 minQ = i.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ();
                 maxQ = i.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ();
                 break;

@@ -242,18 +242,8 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(isInSlackBus(g) ? "1" : "0");
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
-            String mode = "generator";
-            if (g.getTargetP() == 0) {
-                if (g.getReactiveLimits().getKind() == ReactiveLimitsKind.CURVE) {
-                    ReactiveCapabilityCurve curve = g.getReactiveLimits(ReactiveCapabilityCurve.class);
-                    if (curve.getMinP() < 0) {
-                        mode = "motor";
-                    }
-                }
-            } else if (g.getTargetP() < 0) {
-                mode = "motor";
-            }
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode);
+            // All generators in PowSyBl are considered as generator, not motor
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode.generator");
             writer.writeEndElement();
 
             addRegulatingControlView(g, regulatingControlViews, context);
