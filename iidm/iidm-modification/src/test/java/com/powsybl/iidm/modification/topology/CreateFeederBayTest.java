@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -369,7 +370,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .setLoadType(LoadType.UNDEFINED)
                 .setP0(0)
                 .setQ0(0);
-        System.out.println(getFeederPositionsByConnectable(network.getVoltageLevel("vl1")));
+
         // order position is too high
         new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
@@ -389,12 +390,13 @@ class CreateFeederBayTest extends AbstractConverterTest {
 
         //negative order position
         loadAdder.setId("newLoad3");
-        CreateFeederBayBuilder builder = new CreateFeederBayBuilder()
+        CreateFeederBay modif = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId("bbs1")
-                .withInjectionPositionOrder(-2);
-        PowsyblException e = assertThrows(PowsyblException.class, builder::build);
-        assertEquals("Position order should be positive", e.getMessage());
+                .withInjectionPositionOrder(-2)
+                .build();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modif.apply(network, true, LocalComputationManager.getDefault(), Reporter.NO_OP));
+        assertEquals("Position order is negative for attachment in node-breaker voltage level vl1: -2", e.getMessage());
 
         //no space on bbs1
         new CreateFeederBayBuilder()
