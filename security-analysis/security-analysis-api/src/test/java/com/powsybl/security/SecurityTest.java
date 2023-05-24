@@ -24,8 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -125,12 +124,25 @@ class SecurityTest {
     @Test
     void checkLimits() {
         List<LimitViolation> violations = Security.checkLimits(network);
-
-        assertEquals(5, violations.size());
         assertViolations(violations);
 
         violations = Security.checkLimits(network, 1);
         assertViolations(violations);
+    }
+
+    @Test
+    void checkLimitsDC() {
+        var eBadLimit = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0, 0.95));
+        assertEquals("Bad limit reduction 0.0", eBadLimit.getMessage());
+
+        var eLowCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0.7f, -0.1));
+        assertEquals("Invalid DC power factor -0.1", eLowCosPhi.getMessage());
+
+        var eHighCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0.7f, 1.2));
+        assertEquals("Invalid DC power factor 1.2", eHighCosPhi.getMessage());
+
+        List<LimitViolation> violations = Security.checkLimitsDc(network, 1, 0.95);
+        assertCurrentViolations(violations);
     }
 
     private static void assertViolations(List<LimitViolation> violations) {
@@ -142,6 +154,14 @@ class SecurityTest {
             } else {
                 assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
             }
+        });
+    }
+
+    private static void assertCurrentViolations(List<LimitViolation> violations) {
+        assertEquals(4, violations.size());
+        violations.forEach(violation -> {
+            assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
+            assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
         });
     }
 }
