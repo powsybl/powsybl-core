@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * This modification removes the whole feeder bay related to a given feeder connectable.

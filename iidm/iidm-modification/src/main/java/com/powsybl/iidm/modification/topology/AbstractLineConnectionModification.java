@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>

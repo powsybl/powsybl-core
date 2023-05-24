@@ -17,8 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.undefinedFictitiousSubstationId;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFictitiousSubstationId;
 
 /**
  * Connect an existing voltage level (in practice a voltage level where we have some loads or generations) to an
