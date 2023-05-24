@@ -22,7 +22,7 @@ public class ScalingParameters {
     public static final boolean DEFAULT_CONSTANT_POWER_FACTOR = false;
     public static final boolean DEFAULT_RECONNECT = false;
     public static final boolean DEFAULT_ITERATIVE = false;
-    public static final boolean DEFAULT_ALLOW_OUT_OF_BOUNDS_GENERATOR_TARGETP = false;
+    public static final boolean DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS = false;
 
     private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
 
@@ -32,18 +32,18 @@ public class ScalingParameters {
 
     private boolean iterative = DEFAULT_ITERATIVE;
 
-    private boolean allowOutOfBoundsGeneratorTargetP = DEFAULT_ALLOW_OUT_OF_BOUNDS_GENERATOR_TARGETP;
+    private boolean allowsGeneratorOutOfActivePowerLimits = DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS;
 
     public ScalingParameters() {
     }
 
     public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,
-                             boolean iterative, boolean allowOutOfBoundsGeneratorTargetP) {
+                             boolean iterative, boolean allowsGeneratorOutOfActivePowerLimits) {
         this.scalingConvention = scalingConvention;
         this.reconnect = reconnect;
         this.constantPowerFactor = constantPowerFactor;
         this.iterative = iterative;
-        this.allowOutOfBoundsGeneratorTargetP = allowOutOfBoundsGeneratorTargetP;
+        this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
     }
 
     /**
@@ -99,12 +99,12 @@ public class ScalingParameters {
     /**
      * @return a boolean indicating if the scaling allow a generator with an initial targetP outside the [min - max] range values
      */
-    public boolean isAllowOutOfBoundsGeneratorTargetP() {
-        return allowOutOfBoundsGeneratorTargetP;
+    public boolean isAllowsGeneratorOutOfActivePowerLimits() {
+        return allowsGeneratorOutOfActivePowerLimits;
     }
 
-    public ScalingParameters setAllowOutOfBoundsGeneratorTargetP(boolean allowOutOfBoundsGeneratorTargetP) {
-        this.allowOutOfBoundsGeneratorTargetP = allowOutOfBoundsGeneratorTargetP;
+    public ScalingParameters setAllowsGeneratorOutOfActivePowerLimits(boolean allowsGeneratorOutOfActivePowerLimits) {
+        this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
         return this;
     }
 
@@ -120,8 +120,7 @@ public class ScalingParameters {
             scalingParameters.setConstantPowerFactor(config.getBooleanProperty("constantPowerFactor", DEFAULT_CONSTANT_POWER_FACTOR));
             scalingParameters.setReconnect(config.getBooleanProperty("reconnect", DEFAULT_RECONNECT));
             scalingParameters.setIterative(config.getBooleanProperty("iterative", DEFAULT_ITERATIVE));
-            scalingParameters.setAllowOutOfBoundsGeneratorTargetP(config.getBooleanProperty("allowOutOfBoundsGeneratorTargetP", DEFAULT_ALLOW_OUT_OF_BOUNDS_GENERATOR_TARGETP));
-
+            scalingParameters.setAllowsGeneratorOutOfActivePowerLimits(config.getBooleanProperty("allowsGeneratorOutOfActivePowerLimits", DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS));
         });
         return scalingParameters;
     }
