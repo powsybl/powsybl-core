@@ -13,6 +13,7 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
+import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -29,6 +30,14 @@ class ReplaceTieLinesByLinesTest extends AbstractConverterTest {
         new ReplaceTieLinesByLines().apply(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-replace-tl.xml");
+    }
+
+    @Test
+    void roundTripNodeBreaker() throws IOException {
+        Network network = createDummyNodeBreakerNetwork();
+        new ReplaceTieLinesByLines().apply(network);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+                "/replace-tl-nb.xml");
     }
 
     @Test
@@ -61,5 +70,25 @@ class ReplaceTieLinesByLinesTest extends AbstractConverterTest {
         network.getTieLine("NHV1_NHV2_1").addExtension(DummyIdentifiableExtension.class, new DummyIdentifiableExtension<>());
 
         return network;
+    }
+
+    private static Network createDummyNodeBreakerNetwork() {
+        Network network = Network.create("test", "test");
+        network.setCaseDate(DateTime.parse("2023-04-29T14:52:01.427+02:00"));
+        Substation s1 = network.newSubstation().setId("S1").add();
+        Substation s2 = network.newSubstation().setId("S2").add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        DanglingLine dl1 = vl1.newDanglingLine().setId("DL1").setNode(0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        DanglingLine dl2 = vl2.newDanglingLine().setId("DL2").setNode(0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        network.newTieLine().setId("TL").setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId()).add();
+        return network;
+    }
+
+    private static class DummyIdentifiableExtension<T extends Identifiable<T>> extends AbstractExtension<T> {
+        @Override
+        public String getName() {
+            return "foo";
+        }
     }
 }
