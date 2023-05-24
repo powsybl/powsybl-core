@@ -57,13 +57,6 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         this.sides = Arrays.copyOf(sides, sides.length);
     }
 
-    protected static int checkPositionOrderPositive(int positionOrder) {
-        if (positionOrder < 0) {
-            throw new PowsyblException("Position order should be non-negative");
-        }
-        return positionOrder;
-    }
-
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         if (!setAdderConnectivity(network, reporter, throwException)) {
@@ -83,13 +76,23 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     private boolean checkOrders(int side, VoltageLevel voltageLevel, Reporter reporter, boolean throwException) {
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         Integer positionOrder = getPositionOrder(side);
-        if (topologyKind == TopologyKind.NODE_BREAKER && positionOrder == null) {
-            unexpectedNullPositionOrder(reporter, voltageLevel);
-            LOGGER.error("Position order is null for attachment in node-breaker voltage level {}", voltageLevel.getId());
-            if (throwException) {
-                throw new PowsyblException("Position order is null for attachment in node-breaker voltage level " + voltageLevel.getId());
+        if (topologyKind == TopologyKind.NODE_BREAKER) {
+            if (positionOrder == null) {
+                unexpectedNullPositionOrder(reporter, voltageLevel.getId());
+                LOGGER.error("Position order is null for attachment in node-breaker voltage level {}", voltageLevel.getId());
+                if (throwException) {
+                    throw new PowsyblException("Position order is null for attachment in node-breaker voltage level " + voltageLevel.getId());
+                }
+                return false;
             }
-            return false;
+            if (positionOrder < 0) {
+                unexpectedNegativePositionOrder(reporter, positionOrder, voltageLevel.getId());
+                LOGGER.error("Position order is negative ({}) for attachment in node-breaker voltage level {}", positionOrder, voltageLevel.getId());
+                if (throwException) {
+                    throw new PowsyblException("Position order is negative for attachment in node-breaker voltage level " + voltageLevel.getId() + ": " + positionOrder);
+                }
+                return false;
+            }
         }
         if (positionOrder != null && topologyKind == TopologyKind.BUS_BREAKER) {
             ignoredPositionOrder(reporter, positionOrder, voltageLevel);

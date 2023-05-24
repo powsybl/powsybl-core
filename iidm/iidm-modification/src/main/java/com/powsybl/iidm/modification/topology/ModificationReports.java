@@ -463,11 +463,21 @@ final class ModificationReports {
                 .build());
     }
 
-    static void unexpectedNullPositionOrder(Reporter reporter, VoltageLevel voltageLevel) {
+    static void unexpectedNullPositionOrder(Reporter reporter, String voltageLevelId) {
         reporter.report(Report.builder()
                 .withKey("unexpectedNullPositionOrder")
                 .withDefaultMessage("Position order is null for attachment in node-breaker voltage level ${voltageLevelId}")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    static void unexpectedNegativePositionOrder(Reporter reporter, int positionOrder, String voltageLevelId) {
+        reporter.report(Report.builder()
+                .withKey("unexpectedNegativePositionOrder")
+                .withDefaultMessage("Position order is negative (${positionOrder}) for attachment in voltage level ${voltageLevelId}")
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withValue("positionOrder", positionOrder)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
