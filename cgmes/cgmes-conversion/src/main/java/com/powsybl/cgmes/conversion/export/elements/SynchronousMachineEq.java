@@ -37,9 +37,11 @@ public final class SynchronousMachineEq {
         writer.writeStartElement(cimNamespace, "SynchronousMachine.maxQ");
         writer.writeCharacters(CgmesExportUtil.format(maxQ, context));
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, "RotatingMachine.ratedS");
-        writer.writeCharacters(CgmesExportUtil.format(Double.isNaN(ratedS) || ratedS == 0 ? Double.MAX_VALUE : ratedS, context));
-        writer.writeEndElement();
+        if (!Double.isNaN(ratedS)) {
+            writer.writeStartElement(cimNamespace, "RotatingMachine.ratedS");
+            writer.writeCharacters(CgmesExportUtil.format(ratedS, context));
+            writer.writeEndElement();
+        }
         writer.writeEmptyElement(cimNamespace, "SynchronousMachine.type");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", cimNamespace, "SynchronousMachineKind", kind)); // all generators are considered generators
         writer.writeEndElement();
