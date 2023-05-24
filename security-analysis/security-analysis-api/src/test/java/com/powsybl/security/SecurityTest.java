@@ -136,10 +136,10 @@ class SecurityTest {
         assertEquals("Bad limit reduction 0.0", eBadLimit.getMessage());
 
         var eLowCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0.7f, -0.1));
-        assertEquals("Bad power factor -0.1", eLowCosPhi.getMessage());
+        assertEquals("Invalid DC power factor -0.1", eLowCosPhi.getMessage());
 
         var eHighCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0.7f, 1.2));
-        assertEquals("Bad power factor 1.2", eHighCosPhi.getMessage());
+        assertEquals("Invalid DC power factor 1.2", eHighCosPhi.getMessage());
 
         List<LimitViolation> violations = Security.checkLimitsDc(network, 1, 0.95);
         assertCurrentViolations(violations);

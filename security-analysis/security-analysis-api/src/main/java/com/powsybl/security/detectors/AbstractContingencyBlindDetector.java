@@ -36,10 +36,11 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
      */
     @Override
     public void checkCurrentDc(Branch branch, Branch.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer) {
-        // DC power flow mode: if I is Nan, we assume we are in DC mode and compute the intensity from the active Power
-        // cf P = sqrt(3)xUxIxcosphi
+        // After a DC load flow, the current at terminal can be undefined (NaN). In that case, we use the DC power factor,
+        // the nominal voltage and the active power at terminal in order to approximate the current following formula
+        // P = sqrt(3) x Vnom x I x dcPowerFactor
         double i = Double.isNaN(branch.getTerminal(side).getI()) ?
-                (branch.getTerminal(side).getP() * 1000.) / (branch.getTerminal(side).getVoltageLevel().getNominalV() * Math.sqrt(3) * dcPowerFactor)
+                (1000. * branch.getTerminal(side).getP()) / (branch.getTerminal(side).getVoltageLevel().getNominalV() * Math.sqrt(3) * dcPowerFactor)
                 : branch.getTerminal(side).getI();
         checkCurrent(branch, side, i, consumer);
     }

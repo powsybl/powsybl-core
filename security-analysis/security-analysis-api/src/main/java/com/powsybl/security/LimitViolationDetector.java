@@ -167,11 +167,11 @@ public interface LimitViolationDetector {
      * Checks whether the current value on the specified side
      * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
      * In case it should, feeds the consumer with it.
-     * In this DC power flow mode, the current is computed from the power if necessary.
+     * In this DC power flow mode, the current is computed using the DC power factor if necessary.
      *
      * @param branch        The branch on which the current must be checked.
      * @param side          The side of the branch on which the current must be checked.
-     * @param dcPowerFactor The power factor used to convert the power into current.
+     * @param dcPowerFactor The DC power factor used to convert the active power into current.
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkCurrentDc(Branch branch, Branch.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer);
@@ -221,10 +221,10 @@ public interface LimitViolationDetector {
      * Checks whether the current value on both sides of the specified {@link Branch}
      * should be considered as {@link LimitViolation}(s).
      * In case it should, feeds the consumer with it.
-     * In this DC power flow mode, the current is computed from the power if necessary.
+     * In this DC power flow mode, the current is computed using the DC power factor if necessary.
      *
      * @param branch        The branch on which the current must be checked.
-     * @param dcPowerFactor The power factor used to convert the power into current.
+     * @param dcPowerFactor The DC power factor used to convert the active power into current.
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkCurrentDc(Branch branch, double dcPowerFactor, Consumer<LimitViolation> consumer);
@@ -243,10 +243,10 @@ public interface LimitViolationDetector {
      * Checks whether the current and voltage values on all equipments
      * of the specified {@link Network} should be considered as {@link LimitViolation}s.
      * In case it should, feeds the consumer with it.
-     * In this DC power flow mode, the current is computed from the power if necessary.
+     * In this DC power flow mode, the current is computed using the DC power factor if necessary.
      *
      * @param network       The network on which physical values must be checked.
-     * @param dcPowerFactor The power factor used to convert the power into current.
+     * @param dcPowerFactor The DC power factor used to convert the active power into current.
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkAllDc(Network network, double dcPowerFactor, Consumer<LimitViolation> consumer);
