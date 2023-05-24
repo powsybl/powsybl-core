@@ -31,7 +31,6 @@ class GeneratorScalableTest {
     private Scalable g3;
     private Scalable g4;
     private Scalable g5;
-    private Scalable g6;
     private Scalable unknownGeneratorScalable;
 
     @BeforeEach
@@ -45,7 +44,6 @@ class GeneratorScalableTest {
 
         g4 = Scalable.onGenerator("g2", 0., 80);
         g5 = Scalable.onGenerator("g2", 20., 100);
-        g6 = Scalable.onGenerator("g2", 20., 100, true);
     }
 
     @Test
@@ -171,9 +169,9 @@ class GeneratorScalableTest {
         assertEquals(0, g5.scale(network, 50), 1e-3);
 
         //Case 5 : generator.getTargetP() not in interval, but allowed
-        g6.reset(network);
+        g5.reset(network);
         assertEquals(0, generator2.getTargetP(), 1e-3);
-        assertEquals(50, g6.scale(network, 50), 1e-3);
+        assertEquals(50, g5.scale(network, 50, new ScalingParameters().setAllowOutOfBoundsGeneratorTargetP(true)), 1e-3);
     }
 
     @Test

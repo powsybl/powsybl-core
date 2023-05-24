@@ -46,16 +46,18 @@ class ScalingParametersTest {
         assertEquals(ScalingParameters.DEFAULT_CONSTANT_POWER_FACTOR, parameters.isConstantPowerFactor());
         assertEquals(ScalingParameters.DEFAULT_ITERATIVE, parameters.isIterative());
         assertEquals(ScalingParameters.DEFAULT_RECONNECT, parameters.isReconnect());
+        assertEquals(ScalingParameters.DEFAULT_ALLOW_OUT_OF_BOUNDS_GENERATOR_TARGETP, parameters.isAllowOutOfBoundsGeneratorTargetP());
     }
 
     @Test
     void fullConstructorTest() {
         ScalingParameters parameters = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-                true, true, true);
+                true, true, true, true);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertTrue(parameters.isConstantPowerFactor());
         assertTrue(parameters.isIterative());
         assertTrue(parameters.isReconnect());
+        assertTrue(parameters.isAllowOutOfBoundsGeneratorTargetP());
     }
 
     @Test
@@ -64,11 +66,13 @@ class ScalingParametersTest {
                 .setScalingConvention(Scalable.ScalingConvention.LOAD)
                 .setConstantPowerFactor(true)
                 .setIterative(true)
-                .setReconnect(true);
+                .setReconnect(true)
+                .setAllowOutOfBoundsGeneratorTargetP(true);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertTrue(parameters.isConstantPowerFactor());
         assertTrue(parameters.isIterative());
         assertTrue(parameters.isReconnect());
+        assertTrue(parameters.isAllowOutOfBoundsGeneratorTargetP());
     }
 
     @Test
@@ -78,6 +82,7 @@ class ScalingParametersTest {
         assertEquals(ScalingParameters.DEFAULT_CONSTANT_POWER_FACTOR, parameters.isConstantPowerFactor());
         assertEquals(ScalingParameters.DEFAULT_ITERATIVE, parameters.isIterative());
         assertEquals(ScalingParameters.DEFAULT_RECONNECT, parameters.isReconnect());
+        assertEquals(ScalingParameters.DEFAULT_ALLOW_OUT_OF_BOUNDS_GENERATOR_TARGETP, parameters.isAllowOutOfBoundsGeneratorTargetP());
     }
 
     @Test
@@ -87,11 +92,13 @@ class ScalingParametersTest {
         moduleConfig.setStringProperty("constantPowerFactor", "true");
         moduleConfig.setStringProperty("iterative", "true");
         moduleConfig.setStringProperty("reconnect", "true");
+        moduleConfig.setStringProperty("allowOutOfBoundsGeneratorTargetP", "true");
 
         ScalingParameters parameters = ScalingParameters.load(platformConfig);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertTrue(parameters.isConstantPowerFactor());
         assertTrue(parameters.isIterative());
         assertTrue(parameters.isReconnect());
+        assertTrue(parameters.isAllowOutOfBoundsGeneratorTargetP());
     }
 }
