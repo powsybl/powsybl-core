@@ -89,7 +89,7 @@ public final class EquipmentExport {
             writeDanglingLines(network, mapTerminal2Id, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context, exportedBaseVoltagesByNominalV);
             writeHvdcLines(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
 
-            writeControlAreas(network, mapTerminal2Id, cimNamespace, euNamespace, writer, context);
+            writeControlAreas(loadAreaId, network, mapTerminal2Id, cimNamespace, euNamespace, writer, context);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -926,18 +926,18 @@ public final class EquipmentExport {
         DCTerminalEq.write(AC_DC_CONVERTER_DC_TERMINAL, id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
     }
 
-    private static void writeControlAreas(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeControlAreas(String energyAreaId, Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
         for (CgmesControlArea cgmesControlArea : cgmesControlAreas.getCgmesControlAreas()) {
-            writeControlArea(cgmesControlArea, mapTerminal2Id, cimNamespace, euNamespace, writer, context);
+            writeControlArea(cgmesControlArea, energyAreaId, mapTerminal2Id, cimNamespace, euNamespace, writer, context);
         }
     }
 
-    private static void writeControlArea(CgmesControlArea cgmesControlArea, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeControlArea(CgmesControlArea cgmesControlArea, String energyAreaId, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Original control area identifiers may not respect mRID rules, so we pass it through naming strategy
         // to obtain always valid mRID identifiers
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(cgmesControlArea.getId());
-        ControlAreaEq.write(controlAreaCgmesId, cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), cimNamespace, euNamespace, writer, context);
+        ControlAreaEq.write(controlAreaCgmesId, cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), energyAreaId, cimNamespace, euNamespace, writer, context);
         for (Terminal terminal : cgmesControlArea.getTerminals()) {
             TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId, exportedTerminalId(mapTerminal2Id, terminal), cimNamespace, writer, context);
         }

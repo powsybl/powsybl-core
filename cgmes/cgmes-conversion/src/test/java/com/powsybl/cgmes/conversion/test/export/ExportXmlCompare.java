@@ -603,6 +603,19 @@ final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringEnergyAreaIdOfControlArea(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Comparison.Detail control = comparison.getControlDetails();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (control.getXPath().contains("ControlArea.EnergyArea")
+                        && control.getTarget().getLocalName().equals("resource")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringSVIds(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             if (comparison.getType() == ComparisonType.ATTR_VALUE) {
