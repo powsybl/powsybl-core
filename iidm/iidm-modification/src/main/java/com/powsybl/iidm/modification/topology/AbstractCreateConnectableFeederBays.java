@@ -59,7 +59,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     protected static int checkPositionOrderPositive(int positionOrder) {
         if (positionOrder < 0) {
-            throw new PowsyblException("Position order should be positive");
+            throw new PowsyblException("Position order should be non-negative");
         }
         return positionOrder;
     }
