@@ -101,44 +101,36 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         return true;
     }
 
-    private boolean checkOrderValue(int side, BusbarSection busbarSection, Reporter reporter) {
-        VoltageLevel voltageLevel = busbarSection.getTerminal().getVoltageLevel();
+    private boolean checkOrderValue(int side, BusbarSection busbarSection, Set<Integer> takenFeederPositions, Reporter reporter) {
         Integer positionOrder = getPositionOrder(side);
-        BusbarSectionPosition positionExtension = busbarSection.getExtension(BusbarSectionPosition.class);
-        if (positionExtension != null) {
-            Optional<Range<Integer>> unusedOrderPositionsAfter = getUnusedOrderPositionsAfter(busbarSection);
-            Optional<Range<Integer>> unusedOrderPositionsBefore = getUnusedOrderPositionsBefore(busbarSection);
-            int maxValue;
-            if (unusedOrderPositionsAfter.isEmpty()) {
-                maxValue = getMaxOrderPositionSlice(busbarSection).orElse(Integer.MAX_VALUE);
-            } else {
-                maxValue = unusedOrderPositionsAfter.get().getMaximum();
-            }
-            int minValue;
-            if (unusedOrderPositionsBefore.isEmpty()) {
-                minValue = getMinOrderPositionSlice(busbarSection).orElse(0);
-            } else {
-                minValue = unusedOrderPositionsBefore.get().getMinimum();
-            }
 
-            Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
-
-            if (positionOrder < minValue) {
-                LOGGER.warn("PositionOrder {} too low (<{}). No position extension created.", minValue, positionOrder);
-                positionOrderTooLowReport(reporter, minValue, positionOrder);
-                return false;
-            }
-            if (positionOrder > maxValue) {
-                LOGGER.warn("PositionOrder {} too high (>{}). No position extension created.", maxValue, positionOrder);
-                positionOrderTooHighReport(reporter, maxValue, positionOrder);
-                return false;
-            }
-            if (takenFeederPositions.contains(positionOrder)) {
-                LOGGER.warn("PositionOrder {} already taken. No position extension created.", positionOrder);
-                positionOrderAlreadyTakenReport(reporter, positionOrder);
-                return false;
-            }
+        if (takenFeederPositions.contains(positionOrder)) {
+            LOGGER.warn("PositionOrder {} already taken. No position extension created.", positionOrder);
+            positionOrderAlreadyTakenReport(reporter, positionOrder);
+            return false;
         }
+
+        Optional<Range<Integer>> positionRangeForSection = getPositionRange(busbarSection);
+        if (positionRangeForSection.isEmpty()) {
+            LOGGER.warn("Positions of adjacent busbar sections are incoherent: max order on the left is greater than min order on the right. No position extension created.");
+            positionAdjacentBbsIncoherentReport(reporter);
+            return false;
+        }
+
+        int minValue = positionRangeForSection.get().getMinimum();
+        if (positionOrder < minValue) {
+            LOGGER.warn("PositionOrder {} too low (<{}). No position extension created.", minValue, positionOrder);
+            positionOrderTooLowReport(reporter, minValue, positionOrder);
+            return false;
+        }
+
+        int maxValue = positionRangeForSection.get().getMaximum();
+        if (positionOrder > maxValue) {
+            LOGGER.warn("PositionOrder {} too high (>{}). No position extension created.", maxValue, positionOrder);
+            positionOrderTooHighReport(reporter, maxValue, positionOrder);
+            return false;
+        }
+
         return true;
     }
 
@@ -208,7 +200,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             int positionOrder = getPositionOrder(side);
             if (!takenFeederPositions.isEmpty() || voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).count() == 1) {
                 // check that there is only one connectable (that we added) or there are existing position extensions on other connectables
-                if (checkOrderValue(side, (BusbarSection) busOrBusbarSection, reporter)) { // BusbarSection as voltage level is NODE_BREAKER
+                if (checkOrderValue(side, (BusbarSection) busOrBusbarSection, takenFeederPositions, reporter)) { // BusbarSection as voltage level is NODE_BREAKER
                     getFeederAdder(side, connectablePositionAdder)
                             .withDirection(getDirection(side))
                             .withOrder(positionOrder)

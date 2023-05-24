@@ -252,6 +252,14 @@ final class ModificationReports {
                 .build());
     }
 
+    static void positionAdjacentBbsIncoherentReport(Reporter reporter) {
+        reporter.report(Report.builder()
+                .withKey("positionAdjacentBbsIncoherent")
+                .withDefaultMessage("Positions of adjacent busbar sections are incoherent: max order on the left is greater than min order on the right. No position extension created.")
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
     static void positionOrderTooLowReport(Reporter reporter, int minValue, int positionOrder) {
         reporter.report(Report.builder()
                 .withKey("positionOrderTooLow")

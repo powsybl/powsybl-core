@@ -26,6 +26,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getMaxOrderUsedBefore;
+import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getMinOrderUsedAfter;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -351,38 +353,6 @@ public final class TopologyModificationUtils {
     }
 
     /**
-     * Get the maximum order position between the maximum for the given busbar section and the maximum for all the
-     * busbar sections that have the same index.
-     */
-    public static Optional<Integer> getMaxOrderPositionSlice(BusbarSection bbs) {
-        BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
-        if (busbarSectionPosition == null) {
-            throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
-        }
-        VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
-        NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
-
-        int sectionIndex = busbarSectionPosition.getSectionIndex();
-        return allOrders.get(sectionIndex).stream().max(Comparator.naturalOrder());
-    }
-
-    /**
-     * Get the minimum order position between the minimum for the given busbar section and the minimum for all the
-     * busbar sections that have the same index.
-     */
-    public static Optional<Integer> getMinOrderPositionSlice(BusbarSection bbs) {
-        BusbarSectionPosition busbarSectionPosition = bbs.getExtension(BusbarSectionPosition.class);
-        if (busbarSectionPosition == null) {
-            throw new PowsyblException("busbarSection has no BusbarSectionPosition extension");
-        }
-        VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
-        NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
-
-        int sectionIndex = busbarSectionPosition.getSectionIndex();
-        return allOrders.get(sectionIndex).stream().min(Comparator.naturalOrder());
-    }
-
-    /**
      * Get all the unused positions before the lowest used position on the busbar section bbs.
      * It is a range between the maximum used position on the busbar section with the highest section index lower than the section
      * index of the given busbar section and the minimum position on the given busbar section.
@@ -428,12 +398,27 @@ public final class TopologyModificationUtils {
         return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
 
+    public static Optional<Range<Integer>> getPositionRange(BusbarSection bbs) {
+        BusbarSectionPosition positionExtension = bbs.getExtension(BusbarSectionPosition.class);
+        if (positionExtension != null) {
+            VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
+            NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+
+            int sectionIndex = positionExtension.getSectionIndex();
+            int max = getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE);
+            int min = getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o - 1).orElse(0);
+
+            return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+        }
+        return Optional.of(Range.between(0, Integer.MAX_VALUE));
+    }
+
     /**
      * Method returning the maximum order in the slice with the highest section index lower to the given section.
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS2 will return 3.
      */
-    private static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+    public static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         int s = section;
         Map.Entry<Integer, List<Integer>> lowerEntry;
         do {
@@ -453,7 +438,7 @@ public final class TopologyModificationUtils {
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS1 will return 7.
      */
-    private static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+    public static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         int s = section;
         Map.Entry<Integer, List<Integer>> higherEntry;
         do {
