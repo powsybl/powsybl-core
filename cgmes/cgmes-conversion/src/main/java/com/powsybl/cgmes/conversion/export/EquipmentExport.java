@@ -344,7 +344,7 @@ public final class EquipmentExport {
             // We have not preserved the names of generating units
             // We name generating units based on the first machine found
             String generatingUnitName = "GU_" + i.getNameOrId();
-            GeneratingUnitEq.write(generatingUnit, generatingUnitName, energySource, Double.min(0.0, minP), Double.max(0.0, maxP), targetP, cimNamespace, writeInitialP,
+            GeneratingUnitEq.write(generatingUnit, generatingUnitName, energySource, minP, maxP, targetP, cimNamespace, writeInitialP,
                     i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), writer, context);
             generatingUnitsWritten.add(generatingUnit);
         }
