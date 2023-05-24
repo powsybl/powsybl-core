@@ -99,7 +99,7 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             line.getTerminal2().setP(p2).setQ(q2);
             addLoadingLimits(line, limits1, Branch.Side.ONE);
             addLoadingLimits(line, limits2, Branch.Side.TWO);
-            // Add previous dangling lines ID and xnode
+            // Add previous dangling lines ID and Xnode
             line.addAlias(dl1Id, "danglingLine1Id");
             line.addAlias(dl2Id, "danglingLine2Id");
             line.addAlias(xNode, "xNode");
