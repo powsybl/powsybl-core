@@ -81,7 +81,6 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             mergeProperties(dl1, dl2, properties, reporter);
             Map<String, String> aliases = new HashMap<>();
             tl.getAliases().forEach(alias -> aliases.put(alias, tl.getAliasType(alias).orElse("")));
-            mergeIdenticalAliases(dl1, dl2, aliases, reporter);
             mergeDifferentAliases(dl1, dl2, aliases, reporter);
             tl.remove();
             dl1.remove();
