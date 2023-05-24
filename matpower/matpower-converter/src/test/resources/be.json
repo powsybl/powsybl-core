@@ -15,8 +15,8 @@
     "voltageAngle" : -7.05718,
     "baseVoltage" : 10.5,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 11.55,
-    "minimumVoltageMagnitude" : 9.45
+    "maximumVoltageMagnitude" : 1.1,
+    "minimumVoltageMagnitude" : 0.8999999999999999
   }, {
     "number" : 2,
     "type" : "PQ",
@@ -30,8 +30,8 @@
     "voltageAngle" : -9.39133,
     "baseVoltage" : 110.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 121.0,
-    "minimumVoltageMagnitude" : 99.0
+    "maximumVoltageMagnitude" : 1.1,
+    "minimumVoltageMagnitude" : 0.9
   }, {
     "number" : 3,
     "type" : "PV",
@@ -45,8 +45,8 @@
     "voltageAngle" : -6.6508,
     "baseVoltage" : 21.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 23.1,
-    "minimumVoltageMagnitude" : 18.9
+    "maximumVoltageMagnitude" : 1.1,
+    "minimumVoltageMagnitude" : 0.8999999999999999
   }, {
     "number" : 4,
     "type" : "PQ",
@@ -60,8 +60,8 @@
     "voltageAngle" : -7.6249,
     "baseVoltage" : 225.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 247.5,
-    "minimumVoltageMagnitude" : 202.5
+    "maximumVoltageMagnitude" : 1.1,
+    "minimumVoltageMagnitude" : 0.9
   }, {
     "number" : 5,
     "type" : "PQ",
@@ -75,8 +75,8 @@
     "voltageAngle" : -8.77012,
     "baseVoltage" : 225.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 247.5,
-    "minimumVoltageMagnitude" : 202.5
+    "maximumVoltageMagnitude" : 1.1,
+    "minimumVoltageMagnitude" : 0.9
   }, {
     "number" : 6,
     "type" : "REF",
@@ -90,8 +90,8 @@
     "voltageAngle" : -6.78071,
     "baseVoltage" : 380.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 418.0,
-    "minimumVoltageMagnitude" : 342.0
+    "maximumVoltageMagnitude" : 1.1,
+    "minimumVoltageMagnitude" : 0.9
   }, {
     "number" : 7,
     "type" : "PQ",
@@ -190,7 +190,7 @@
     "maximumReactivePowerOutput" : 210.0,
     "minimumReactivePowerOutput" : -210.0,
     "voltageMagnitudeSetpoint" : 1.05,
-    "totalMbase" : 0.0,
+    "totalMbase" : 300.0,
     "status" : 1,
     "maximumRealPowerOutput" : 200.0,
     "minimumRealPowerOutput" : 50.0,
@@ -212,7 +212,7 @@
     "maximumReactivePowerOutput" : 200.0,
     "minimumReactivePowerOutput" : -200.0,
     "voltageMagnitudeSetpoint" : 1.047,
-    "totalMbase" : 0.0,
+    "totalMbase" : 300.0,
     "status" : 1,
     "maximumRealPowerOutput" : 200.0,
     "minimumRealPowerOutput" : 50.0,
@@ -231,7 +231,7 @@
   "branches" : [ {
     "from" : 5,
     "to" : 4,
-    "r" : 0.0038222222222222225,
+    "r" : 0.003822222222222222,
     "x" : 0.06755555555555556,
     "b" : 0.021470821875,
     "rateA" : 0.0,
@@ -245,9 +245,9 @@
   }, {
     "from" : 5,
     "to" : 4,
-    "r" : 0.010277530864197531,
+    "r" : 0.010277530864197533,
     "x" : 0.1402469135802469,
-    "b" : 0.010131024375,
+    "b" : 0.010131024374999999,
     "rateA" : 0.0,
     "rateB" : 0.0,
     "rateC" : 0.0,
@@ -259,13 +259,13 @@
   }, {
     "from" : 2,
     "to" : 1,
-    "r" : 8.599967869646046E-4,
-    "x" : 0.04799229846804942,
-    "b" : -0.010109994403104491,
+    "r" : 8.192122993395951E-4,
+    "x" : 0.04571631170550064,
+    "b" : -0.010613320515218202,
     "rateA" : 0.0,
     "rateB" : 0.0,
     "rateC" : 0.0,
-    "ratio" : 0.9934291316748534,
+    "ratio" : 1.0277920081967213,
     "phaseShiftAngle" : 0.0,
     "status" : 1.0,
     "angMin" : 0.0,
@@ -273,13 +273,13 @@
   }, {
     "from" : 5,
     "to" : 2,
-    "r" : 0.0017,
-    "x" : 0.023014221074380167,
+    "r" : 0.0018325490000000002,
+    "x" : 0.021670694575077892,
     "b" : 0.0,
     "rateA" : 0.0,
     "rateB" : 0.0,
     "rateC" : 0.0,
-    "ratio" : 0.967768420423434,
+    "ratio" : 0.9453778319888644,
     "phaseShiftAngle" : 0.0,
     "status" : 1.0,
     "angMin" : 0.0,
@@ -391,7 +391,7 @@
     "rateA" : 0.0,
     "rateB" : 0.0,
     "rateC" : 0.0,
-    "ratio" : 0.9680968096809681,
+    "ratio" : 0.9777777777777777,
     "phaseShiftAngle" : 0.0,
     "status" : 1.0,
     "angMin" : 0.0,
