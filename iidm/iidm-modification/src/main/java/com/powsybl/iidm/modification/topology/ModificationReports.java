@@ -246,8 +246,28 @@ final class ModificationReports {
     static void positionOrderAlreadyTakenReport(Reporter reporter, int positionOrder) {
         reporter.report(Report.builder()
                 .withKey("positionOrderAlreadyTaken")
-                .withDefaultMessage("PositionOrder ${positionOrder} too low, too high or already taken. No position extension created.")
+                .withDefaultMessage("PositionOrder ${positionOrder} already taken. No position extension created.")
                 .withValue("positionOrder", positionOrder)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
+    static void positionOrderTooLowReport(Reporter reporter, int minValue, int positionOrder) {
+        reporter.report(Report.builder()
+                .withKey("positionOrderTooLow")
+                .withDefaultMessage("PositionOrder ${positionOrder} too low (<${minValue}), too high or already taken. No position extension created.")
+                .withValue("positionOrder", positionOrder)
+                .withValue("minValue", minValue)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
+    static void positionOrderTooHighReport(Reporter reporter, int maxValue, int positionOrder) {
+        reporter.report(Report.builder()
+                .withKey("positionOrderTooHigh")
+                .withDefaultMessage("PositionOrder ${positionOrder} too high (>${minValue}). No position extension created.")
+                .withValue("positionOrder", positionOrder)
+                .withValue("maxValue", maxValue)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
     }

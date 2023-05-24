@@ -101,7 +101,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         return true;
     }
 
-    private boolean checkOrderValue(int side, BusbarSection busbarSection) {
+    private boolean checkOrderValue(int side, BusbarSection busbarSection, Reporter reporter) {
         VoltageLevel voltageLevel = busbarSection.getTerminal().getVoltageLevel();
         Integer positionOrder = getPositionOrder(side);
         BusbarSectionPosition positionExtension = busbarSection.getExtension(BusbarSectionPosition.class);
@@ -123,7 +123,21 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
             Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
 
-            return positionOrder >= minValue && positionOrder <= maxValue && !takenFeederPositions.contains(positionOrder);
+            if (positionOrder < minValue) {
+                LOGGER.warn("PositionOrder {} too low (<{}). No position extension created.", minValue, positionOrder);
+                positionOrderTooLowReport(reporter, minValue, positionOrder);
+                return false;
+            }
+            if (positionOrder > maxValue) {
+                LOGGER.warn("PositionOrder {} too high (>{}). No position extension created.", maxValue, positionOrder);
+                positionOrderTooHighReport(reporter, maxValue, positionOrder);
+                return false;
+            }
+            if (takenFeederPositions.contains(positionOrder)) {
+                LOGGER.warn("PositionOrder {} already taken. No position extension created.", positionOrder);
+                positionOrderAlreadyTakenReport(reporter, positionOrder);
+                return false;
+            }
         }
         return true;
     }
@@ -194,16 +208,13 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             int positionOrder = getPositionOrder(side);
             if (!takenFeederPositions.isEmpty() || voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).count() == 1) {
                 // check that there is only one connectable (that we added) or there are existing position extensions on other connectables
-                if (checkOrderValue(side, (BusbarSection) busOrBusbarSection)) { // BusbarSection as voltage level is NODE_BREAKER
+                if (checkOrderValue(side, (BusbarSection) busOrBusbarSection, reporter)) { // BusbarSection as voltage level is NODE_BREAKER
                     getFeederAdder(side, connectablePositionAdder)
                             .withDirection(getDirection(side))
                             .withOrder(positionOrder)
                             .withName(getFeederName(side).orElse(connectableId))
                             .add();
                     createConnectablePosition = true;
-                } else {
-                    LOGGER.warn("PositionOrder {} too low, too high or already taken. No position extension created.", positionOrder);
-                    positionOrderAlreadyTakenReport(reporter, positionOrder);
                 }
             } else {
                 LOGGER.warn("No order positions found on voltageLevel {}. The extension is not created.", voltageLevel.getId());
