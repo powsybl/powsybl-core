@@ -97,7 +97,7 @@ public class ScalingParameters {
     }
 
     /**
-     * @return a boolean indicating if the scaling allow a generator with an initial targetP outside the [min - max] range values
+     * @return a boolean indicating if the scaling allows generators with an initial targetP outside the [Pmin - Pmax] range values
      */
     public boolean isAllowsGeneratorOutOfActivePowerLimits() {
         return allowsGeneratorOutOfActivePowerLimits;
