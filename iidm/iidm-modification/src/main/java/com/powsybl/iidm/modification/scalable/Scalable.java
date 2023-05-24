@@ -164,6 +164,13 @@ public interface Scalable {
     }
 
     /**
+     * create GeneratorScalable with id, min and max power values for scaling and allowing or not targetP to be outside the [min - max] range
+     */
+    static GeneratorScalable onGenerator(String id, double minValue, double maxValue, boolean allowOutOfBoundsTargetP) {
+        return new GeneratorScalable(id, minValue, maxValue, allowOutOfBoundsTargetP);
+    }
+
+    /**
      * create LoadScalable with id
      */
     static LoadScalable onLoad(String id) {

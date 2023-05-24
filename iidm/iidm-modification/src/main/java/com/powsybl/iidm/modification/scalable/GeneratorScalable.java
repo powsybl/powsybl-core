@@ -24,12 +24,19 @@ class GeneratorScalable extends AbstractInjectionScalable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorScalable.class);
 
+    private boolean allowOutOfBoundsTargetP = false;
+
     GeneratorScalable(String id) {
         super(id);
     }
 
     GeneratorScalable(String id, double minValue, double maxValue) {
         super(id, minValue, maxValue);
+    }
+
+    GeneratorScalable(String id, double minValue, double maxValue, boolean allowOutOfBoundsTargetP) {
+        super(id, minValue, maxValue);
+        this.allowOutOfBoundsTargetP = allowOutOfBoundsTargetP;
     }
 
     @Override
@@ -126,7 +133,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
         double oldTargetP = g.getTargetP();
         double minimumTargetP = minimumTargetP(g);
         double maximumTargetP = maximumTargetP(g);
-        if (oldTargetP < minimumTargetP || oldTargetP > maximumTargetP) {
+        if (!allowOutOfBoundsTargetP && (oldTargetP < minimumTargetP || oldTargetP > maximumTargetP)) {
             LOGGER.error("Error scaling GeneratorScalable {}: Initial P is not in the range [Pmin, Pmax], skipped", id);
             return 0.;
         }
