@@ -195,8 +195,8 @@ public final class CgmesExportUtil {
                 return CgmesNames.NONCONFORM_LOAD;
             }
         }
-        LOG.warn("It is not possible to determine the type of load, non conform load by default");
-        return CgmesNames.NONCONFORM_LOAD;
+        LOG.warn("It is not possible to determine the type of load");
+        return CgmesNames.ENERGY_CONSUMER;
     }
 
     /**
