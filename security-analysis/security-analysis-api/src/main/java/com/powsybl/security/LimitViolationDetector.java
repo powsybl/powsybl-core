@@ -11,7 +11,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**

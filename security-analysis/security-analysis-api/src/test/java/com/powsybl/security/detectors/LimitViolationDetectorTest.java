@@ -126,6 +126,7 @@ class LimitViolationDetectorTest {
             public void checkCurrent(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
                 doCheckCurrent(null, branch, side, consumer);
             }
+
             @Override
             public void checkCurrent(TieLine tieLine, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
                 doCheckCurrent(null, tieLine, side, consumer);
@@ -160,6 +161,7 @@ class LimitViolationDetectorTest {
             public void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
                 doCheckCurrent(contingency, branch, side, consumer);
             }
+
             @Override
             public void checkCurrent(Contingency contingency, TieLine tieLine, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
                 doCheckCurrent(contingency, tieLine, side, consumer);
