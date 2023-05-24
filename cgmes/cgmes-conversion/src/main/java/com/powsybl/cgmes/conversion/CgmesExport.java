@@ -76,6 +76,10 @@ public class CgmesExport implements Exporter {
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER))
                 .setReporter(reporter);
+        context.getEqModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
+        context.getTpModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
+        context.getSshModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
+        context.getSvModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
         String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
@@ -177,6 +181,7 @@ public class CgmesExport implements Exporter {
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
+    public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -227,6 +232,12 @@ public class CgmesExport implements Exporter {
             "Boundary TP model identifier",
             null);
 
+    private static final Parameter MODELING_AUTHORITY_SET_PARAMETER = new Parameter(
+            MODELING_AUTHORITY_SET,
+            ParameterType.STRING,
+            "Modeling authority set",
+            "powsybl.org");
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
             CIM_VERSION_PARAMETER,
@@ -235,7 +246,8 @@ public class CgmesExport implements Exporter {
             NAMING_STRATEGY_PARAMETER,
             PROFILES_PARAMETER,
             BOUNDARY_EQ_ID_PARAMETER,
-            BOUNDARY_TP_ID_PARAMETER);
+            BOUNDARY_TP_ID_PARAMETER,
+            MODELING_AUTHORITY_SET_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }
