@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
