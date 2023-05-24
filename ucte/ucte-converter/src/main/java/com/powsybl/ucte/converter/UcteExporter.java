@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
+import org.apache.commons.math3.complex.Complex;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -721,8 +722,9 @@ public class UcteExporter implements Exporter {
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         } else {
-            return new UcteAngleRegulation(calculateAsymmAngleDu(twoWindingsTransformer, combinePhaseAngleRegulation),
-                    calculateAsymmAngleTheta(twoWindingsTransformer, combinePhaseAngleRegulation),
+            Complex duAndAngle = calculateAsymmAngleDuAndAngle(twoWindingsTransformer, combinePhaseAngleRegulation);
+            return new UcteAngleRegulation(duAndAngle.abs(),
+                    Math.toDegrees(duAndAngle.getArgument()),
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
                     twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
                     calculateAngleP(twoWindingsTransformer),

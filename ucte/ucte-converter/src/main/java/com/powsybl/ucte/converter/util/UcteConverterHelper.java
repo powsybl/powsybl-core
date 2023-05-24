@@ -11,7 +11,8 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.ucte.network.UcteAngleRegulation;
 import com.powsybl.ucte.network.UctePhaseRegulation;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -34,7 +35,6 @@ public final class UcteConverterHelper {
      * @return the δu needed to create a {@link UctePhaseRegulation}
      */
     public static double calculatePhaseDu(TwoWindingsTransformer twoWindingsTransformer) {
-
         RatioTapChanger tapChanger = twoWindingsTransformer.getRatioTapChanger();
         // Given the formulas : rho(i) = 1/(1+du.i/100)
         // We have : -n.du = 100.(1/rho(-n) - 1)  and n.du = 100.(1/rho(n) - 1)
@@ -57,7 +57,6 @@ public final class UcteConverterHelper {
      * @return the δu needed to create a {@link UcteAngleRegulation}
      */
     public static double calculateSymmAngleDu(TwoWindingsTransformer twoWindingsTransformer) {
-
         PhaseTapChanger tapChanger = twoWindingsTransformer.getPhaseTapChanger();
         // Given the formulas : alpha(i) = 2.Atan(i/100.du/2)
         // We have : -n.du = 200.tan(alpha(-n)/2)  and n.du = 200.tan(alpha(n)/2)
@@ -81,8 +80,7 @@ public final class UcteConverterHelper {
      * @return the δu needed to create a {@link UcteAngleRegulation}
      */
 
-    public static Pair<Double, Double> calculateAsymmAngleDuAndAngle(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
-
+    public static Complex calculateAsymmAngleDuAndAngle(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
         PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
         int lowTapPosition = phaseTapChanger.getLowTapPosition();
         int highTapPosition = phaseTapChanger.getHighTapPosition();
@@ -120,22 +118,7 @@ public final class UcteConverterHelper {
             absDu = absDu / r0Rtc; // in the case of a combined RTC and PTC absDu includes rho0 of RTC
         }
 
-        return Pair.of(BigDecimal.valueOf(absDu).setScale(4, RoundingMode.HALF_UP).doubleValue(), Math.toDegrees(theta));
-    }
-
-    public static double calculateAsymmAngleDu(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
-        return calculateAsymmAngleDuAndAngle(twoWindingsTransformer, combinePhaseAngleRegulation).getKey();
-    }
-
-    /**
-     * Calculate the Θ for the angle regulation of the two windings transformer
-     *
-     * Theta is the angle between the line (created by the 2 points Alpha and rho) and the abscissa line
-     *
-     * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
-     * @return the Θ needed to create a {@link UcteAngleRegulation}
-     */
-    public static double calculateAsymmAngleTheta(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
-        return calculateAsymmAngleDuAndAngle(twoWindingsTransformer, combinePhaseAngleRegulation).getValue();
+        return ComplexUtils.polar2Complex(BigDecimal.valueOf(absDu).setScale(4, RoundingMode.HALF_UP).doubleValue(),
+                                          theta);
     }
 }
