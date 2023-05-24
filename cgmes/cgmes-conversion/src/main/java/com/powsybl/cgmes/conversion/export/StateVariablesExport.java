@@ -325,7 +325,11 @@ public final class StateVariablesExport {
             writePowerFlow(cgmesTerminalId, p, q, cimNamespace, writer, context);
         } else {
             // XXX LUMA review for IOP, EMF. We previously returned silently if no terminal was found
-            throw new PowsyblException("Exporting CGMES SvPowerFlow. Missing alias for " + c.getType() + " " + c.getId() + ": " + aliasTypeForTerminalId);
+            if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+                throw new PowsyblException("Exporting CGMES SvPowerFlow. Missing alias for " + c.getType() + " " + c.getId() + ": " + aliasTypeForTerminalId);
+            } else {
+                // Nothing to do
+            }
         }
     }
 
@@ -445,13 +449,22 @@ public final class StateVariablesExport {
 
     private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         if (connectable instanceof DanglingLine) {
-            TieLine tl = ((DanglingLine) connectable).getTieLine().orElse(null);
-            // XXX(LUMA) Now tie lines do not have properties ...
-            if (tl != null && tl.hasProperty()
-                    && tl.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1")
-                    && tl.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2")) {
-                // TODO check aliases when merging of aliases is handled
-                return; // FIXME ignore tie lines from CGMES for now. Will export as two AC line segments later
+            if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
+                // TODO(Luma) Export tie line components instead of a single equipment
+                // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
+                // We ignore tie lines for now
+                if (((DanglingLine) connectable).isPaired()) {
+                    return;
+                }
+            } else {
+                TieLine tl = ((DanglingLine) connectable).getTieLine().orElse(null);
+                // XXX(LUMA) Now tie lines do not have properties ...
+                if (tl != null && tl.hasProperty()
+                        && tl.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1")
+                        && tl.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2")) {
+                    // TODO check aliases when merging of aliases is handled
+                    return; // FIXME ignore tie lines from CGMES for now. Will export as two AC line segments later
+                }
             }
         }
         writeStatus(Boolean.toString(connectable.getTerminals().stream().anyMatch(Terminal::isConnected)), context.getNamingStrategy().getCgmesId(connectable), cimNamespace, writer, context);

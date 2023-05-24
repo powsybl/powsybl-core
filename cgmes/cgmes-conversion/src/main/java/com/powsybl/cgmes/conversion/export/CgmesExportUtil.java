@@ -212,7 +212,7 @@ public final class CgmesExportUtil {
                 if (c instanceof DanglingLine) {
                     DanglingLine dl = (DanglingLine) c;
                     if (dl.isPaired()) {
-                        // TODO(Luma) Export tie line components instead of single equipment
+                        // TODO(Luma) Export tie line components instead of a single equipment
                         // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
                         // We need to return the proper terminal of the single tie line that will be exported
                         // When we change the export and write the two dangling lines as separate equipment,
