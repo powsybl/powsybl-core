@@ -280,11 +280,11 @@ public class SwitchesFlow {
         });
     }
 
-    private static SwFlow calculateSwFlow(SwEdge swEdge, SwNode swNode, double p, double q) {
+    private static SwFlow calculateSwFlow(SwEdge swEdge, SwNode swNode, double pOtherNode, double qOtherNode) {
         if (swEdge.swNode1 == swNode) {
-            return new SwFlow(p, q, -p, -q);
+            return new SwFlow(-pOtherNode, -qOtherNode, pOtherNode, qOtherNode);
         } else {
-            return new SwFlow(-p, -q, p, q);
+            return new SwFlow(pOtherNode, qOtherNode, -pOtherNode, -qOtherNode);
         }
     }
 
