@@ -65,7 +65,7 @@ public final class ModificationReports {
                 .withValue("tieLineId", tieLineId)
                 .withValue("danglingLineId1", danglingLineId1)
                 .withValue("danglingLineId2", danglingLineId2)
-                .withValue("xnode", xnode)
+                .withValue("xnode", xnode == null ? "" : xnode)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }

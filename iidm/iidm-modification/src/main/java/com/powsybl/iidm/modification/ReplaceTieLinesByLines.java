@@ -102,7 +102,9 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             // Add previous dangling lines ID and Xnode
             line.addAlias(dl1Id, "danglingLine1Id");
             line.addAlias(dl2Id, "danglingLine2Id");
-            line.addAlias(xNode, "xNode");
+            if (xNode != null) {
+                line.addAlias(xNode, "xNode");
+            }
             LOG.info("Removed tie line {} and associated dangling lines {} and {} at X-node {}. Created line {}", line.getId(), dl1Id, dl2Id, xNode, line.getId());
             removedTieLineAndAssociatedDanglingLines(reporter, line.getId(), dl1Id, dl2Id, xNode);
             createdLineReport(reporter, line.getId());
