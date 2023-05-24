@@ -56,11 +56,9 @@ public final class PowerTransformerEq {
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_B);
         writer.writeCharacters(CgmesExportUtil.format(b, context));
         writer.writeEndElement();
-        if (!Double.isNaN(ratedS)) {
-            writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDS);
-            writer.writeCharacters(CgmesExportUtil.format(ratedS, context));
-            writer.writeEndElement();
-        }
+        writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDS);
+        writer.writeCharacters(CgmesExportUtil.format(Double.isNaN(ratedS) ? 100 : ratedS, context)); //RatedS by default to 100, needed for SUV
+        writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDU);
         writer.writeCharacters(CgmesExportUtil.format(ratedU, context));
         writer.writeEndElement();

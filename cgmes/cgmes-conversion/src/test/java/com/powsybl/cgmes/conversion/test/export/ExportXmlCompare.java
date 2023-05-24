@@ -130,6 +130,8 @@ final class ExportXmlCompare {
             } else if (elementName.contains("TapChanger")) {
                 ignored = attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
                         || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
+            } else if (elementName.startsWith("generator")) {
+                ignored = attr.getLocalName().equals("ratedS");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
