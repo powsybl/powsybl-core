@@ -179,10 +179,10 @@ public final class StateVariablesExport {
     private static void writeVoltage(String topologicalNode, double v, double angle, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartId("SvVoltage", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, SV_VOLTAGE_ANGLE);
-        writer.writeCharacters(CgmesExportUtil.format(angle));
+        writer.writeCharacters(CgmesExportUtil.format(angle, context));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, SV_VOLTAGE_V);
-        writer.writeCharacters(CgmesExportUtil.format(v));
+        writer.writeCharacters(CgmesExportUtil.format(v, context));
         writer.writeEndElement();
         CgmesExportUtil.writeReference(SV_VOLTAGE_TOPOLOGICAL_NODE, topologicalNode, cimNamespace, writer, context);
         writer.writeEndElement();
@@ -306,10 +306,10 @@ public final class StateVariablesExport {
         try {
             CgmesExportUtil.writeStartId("SvPowerFlow", CgmesExportUtil.getUniqueId(), false, cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "SvPowerFlow.p");
-            writer.writeCharacters(CgmesExportUtil.format(p));
+            writer.writeCharacters(CgmesExportUtil.format(p, context));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SvPowerFlow.q");
-            writer.writeCharacters(CgmesExportUtil.format(q));
+            writer.writeCharacters(CgmesExportUtil.format(q, context));
             writer.writeEndElement();
             CgmesExportUtil.writeReference("SvPowerFlow.Terminal", cgmesTerminalId, cimNamespace, writer, context);
             writer.writeEndElement();
@@ -322,10 +322,10 @@ public final class StateVariablesExport {
         try {
             CgmesExportUtil.writeStartId("SvInjection", context.getNamingStrategy().getCgmesId(svInjection), false, cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "SvInjection.pInjection");
-            writer.writeCharacters(CgmesExportUtil.format(svInjection.getP0()));
+            writer.writeCharacters(CgmesExportUtil.format(svInjection.getP0(), context));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SvInjection.qInjection");
-            writer.writeCharacters(CgmesExportUtil.format(svInjection.getQ0()));
+            writer.writeCharacters(CgmesExportUtil.format(svInjection.getQ0(), context));
             writer.writeEndElement();
             CgmesExportUtil.writeReference("SvInjection.TopologicalNode", topologicalNode, cimNamespace, writer, context);
             writer.writeEndElement();
@@ -446,7 +446,7 @@ public final class StateVariablesExport {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
             CgmesExportUtil.writeStartAbout(CgmesExportUtil.converterClassName(converterStation), context.getNamingStrategy().getCgmesId(converterStation), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "ACDCConverter.poleLossP");
-            writer.writeCharacters(CgmesExportUtil.format(getPoleLossP(converterStation)));
+            writer.writeCharacters(CgmesExportUtil.format(getPoleLossP(converterStation), context));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "ACDCConverter.idc");
             writer.writeCharacters(CgmesExportUtil.format(0));

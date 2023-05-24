@@ -232,10 +232,10 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "RotatingMachine.p");
-            writer.writeCharacters(CgmesExportUtil.format(-g.getTargetP()));
+            writer.writeCharacters(CgmesExportUtil.format(-g.getTargetP(), context));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "RotatingMachine.q");
-            writer.writeCharacters(CgmesExportUtil.format(-g.getTargetQ()));
+            writer.writeCharacters(CgmesExportUtil.format(-g.getTargetQ(), context));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
             // reference priority is used for angle reference selection (slack)
@@ -254,10 +254,10 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters("false"); // TODO handle battery regulation
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "RotatingMachine.p");
-            writer.writeCharacters(CgmesExportUtil.format(-b.getTargetP()));
+            writer.writeCharacters(CgmesExportUtil.format(-b.getTargetP(), context));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "RotatingMachine.q");
-            writer.writeCharacters(CgmesExportUtil.format(-b.getTargetQ()));
+            writer.writeCharacters(CgmesExportUtil.format(-b.getTargetQ(), context));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
             // reference priority is used for angle reference selection (slack)
@@ -293,7 +293,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "StaticVarCompensator.q");
-            writer.writeCharacters(CgmesExportUtil.format(svc.getTerminal().getQ()));
+            writer.writeCharacters(CgmesExportUtil.format(svc.getTerminal().getQ(), context));
             writer.writeEndElement();
             writer.writeEndElement();
 
@@ -439,10 +439,10 @@ public final class SteadyStateHypothesisExport {
         writer.writeCharacters(Boolean.toString(rc.controlEnabled));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "RegulatingControl.targetDeadband");
-        writer.writeCharacters(CgmesExportUtil.format(rc.targetDeadband));
+        writer.writeCharacters(CgmesExportUtil.format(rc.targetDeadband, context));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "RegulatingControl.targetValue");
-        writer.writeCharacters(CgmesExportUtil.format(rc.targetValue));
+        writer.writeCharacters(CgmesExportUtil.format(rc.targetValue, context));
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, "RegulatingControl.targetValueUnitMultiplier");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "UnitMultiplier." + rc.targetValueUnitMultiplier);
@@ -508,10 +508,10 @@ public final class SteadyStateHypothesisExport {
             String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             CgmesExportUtil.writeStartAbout("EquivalentInjection", cgmesId, cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
-            writer.writeCharacters(CgmesExportUtil.format(dl.getP0()));
+            writer.writeCharacters(CgmesExportUtil.format(dl.getP0(), context));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "EquivalentInjection.q");
-            writer.writeCharacters(CgmesExportUtil.format(dl.getQ0()));
+            writer.writeCharacters(CgmesExportUtil.format(dl.getQ0(), context));
             writer.writeEndElement();
             // regulationStatus and regulationTarget are optional,
             // but test cases contain the attributes with disabled and 0
@@ -525,7 +525,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(Boolean.toString(regulationStatus));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationTarget");
-            writer.writeCharacters(CgmesExportUtil.format(regulationTarget));
+            writer.writeCharacters(CgmesExportUtil.format(regulationTarget, context));
             writer.writeEndElement();
             writer.writeEndElement();
             exported.add(ei);
@@ -543,10 +543,10 @@ public final class SteadyStateHypothesisExport {
     private static void writeSshEnergyConsumer(String id, double p, double q, LoadDetail loadDetail, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(CgmesExportUtil.loadClassName(loadDetail), id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "EnergyConsumer.p");
-        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeCharacters(CgmesExportUtil.format(p, context));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "EnergyConsumer.q");
-        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeCharacters(CgmesExportUtil.format(q, context));
         writer.writeEndElement();
         writer.writeEndElement();
     }
@@ -564,15 +564,15 @@ public final class SteadyStateHypothesisExport {
                 ppcc = -(pDCInverter - poleLoss);
             }
             writer.writeStartElement(cimNamespace, "ACDCConverter.targetPpcc");
-            writer.writeCharacters(CgmesExportUtil.format(ppcc));
+            writer.writeCharacters(CgmesExportUtil.format(ppcc, context));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "ACDCConverter.targetUdc");
-            writer.writeCharacters(CgmesExportUtil.format(0.0));
+            writer.writeCharacters(CgmesExportUtil.format(0.0, context));
             writer.writeEndElement();
             if (converterStation instanceof LccConverterStation) {
                 LccConverterStation lccConverterStation = (LccConverterStation) converterStation;
 
-                writePandQ(cimNamespace, ppcc, getQfromPowerFactor(ppcc, lccConverterStation.getPowerFactor()), writer);
+                writePandQ(cimNamespace, ppcc, getQfromPowerFactor(ppcc, lccConverterStation.getPowerFactor()), writer, context);
                 writer.writeStartElement(cimNamespace, "CsConverter.targetAlpha");
                 writer.writeCharacters(CgmesExportUtil.format(0));
                 writer.writeEndElement();
@@ -589,7 +589,7 @@ public final class SteadyStateHypothesisExport {
             } else if (converterStation instanceof VscConverterStation) {
                 VscConverterStation vscConverterStation = (VscConverterStation) converterStation;
 
-                writePandQ(cimNamespace, ppcc, vscConverterStation.getReactivePowerSetpoint(), writer);
+                writePandQ(cimNamespace, ppcc, vscConverterStation.getReactivePowerSetpoint(), writer, context);
                 writer.writeStartElement(cimNamespace, "VsConverter.droop");
                 writer.writeCharacters(CgmesExportUtil.format(0));
                 writer.writeEndElement();
@@ -600,10 +600,10 @@ public final class SteadyStateHypothesisExport {
                 writer.writeCharacters(CgmesExportUtil.format(0));
                 writer.writeEndElement();
                 writer.writeStartElement(cimNamespace, "VsConverter.targetQpcc");
-                writer.writeCharacters(CgmesExportUtil.format(vscConverterStation.getReactivePowerSetpoint()));
+                writer.writeCharacters(CgmesExportUtil.format(vscConverterStation.getReactivePowerSetpoint(), context));
                 writer.writeEndElement();
                 writer.writeStartElement(cimNamespace, "VsConverter.targetUpcc");
-                writer.writeCharacters(CgmesExportUtil.format(vscConverterStation.getVoltageSetpoint()));
+                writer.writeCharacters(CgmesExportUtil.format(vscConverterStation.getVoltageSetpoint(), context));
                 writer.writeEndElement();
                 writer.writeEmptyElement(cimNamespace, "VsConverter.pPccControl");
                 writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterOperatingMode(converterStation));
@@ -614,12 +614,12 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writePandQ(String cimNamespace, double p, double q, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writePandQ(String cimNamespace, double p, double q, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "ACDCConverter.p");
-        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeCharacters(CgmesExportUtil.format(p, context));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "ACDCConverter.q");
-        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeCharacters(CgmesExportUtil.format(q, context));
         writer.writeEndElement();
     }
 
@@ -696,7 +696,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeGeneratingUnitParticipationFactor(GeneratingUnit gu, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartAbout(gu.className, gu.id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "GeneratingUnit.normalPF");
-        writer.writeCharacters(CgmesExportUtil.format(gu.participationFactor));
+        writer.writeCharacters(CgmesExportUtil.format(gu.participationFactor, context));
         writer.writeEndElement();
         writer.writeEndElement();
     }
@@ -735,7 +735,7 @@ public final class SteadyStateHypothesisExport {
         String areaId = context.getNamingStrategy().getCgmesId(area.getId());
         CgmesExportUtil.writeStartAbout("ControlArea", areaId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ControlArea.netInterchange");
-        writer.writeCharacters(CgmesExportUtil.format(area.getNetInterchange()));
+        writer.writeCharacters(CgmesExportUtil.format(area.getNetInterchange(), context));
         writer.writeEndElement();
         writer.writeEndElement();
     }

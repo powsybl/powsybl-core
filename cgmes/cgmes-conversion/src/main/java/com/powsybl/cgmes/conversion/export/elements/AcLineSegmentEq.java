@@ -25,18 +25,18 @@ public final class AcLineSegmentEq {
     public static void write(String id, String lineSegmentName, String baseVoltage, double r, double x, double gch, double bch, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("ACLineSegment", id, lineSegmentName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_R);
-        writer.writeCharacters(CgmesExportUtil.format(r));
+        writer.writeCharacters(CgmesExportUtil.format(r, context));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_X);
-        writer.writeCharacters(CgmesExportUtil.format(x));
+        writer.writeCharacters(CgmesExportUtil.format(x, context));
         writer.writeEndElement();
         if (gch != 0.0) {
             writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_GCH);
-            writer.writeCharacters(CgmesExportUtil.format(gch));
+            writer.writeCharacters(CgmesExportUtil.format(gch, context));
             writer.writeEndElement();
         }
         writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_BCH);
-        writer.writeCharacters(CgmesExportUtil.format(bch));
+        writer.writeCharacters(CgmesExportUtil.format(bch, context));
         writer.writeEndElement();
         if (baseVoltage != null) {
             CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltage, cimNamespace, writer, context);

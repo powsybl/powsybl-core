@@ -45,24 +45,24 @@ public final class PowerTransformerEq {
         writer.writeCharacters(CgmesExportUtil.format(endNumber));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_R);
-        writer.writeCharacters(CgmesExportUtil.format(r));
+        writer.writeCharacters(CgmesExportUtil.format(r, context));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_X);
-        writer.writeCharacters(CgmesExportUtil.format(x));
+        writer.writeCharacters(CgmesExportUtil.format(x, context));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_G);
-        writer.writeCharacters(CgmesExportUtil.format(g));
+        writer.writeCharacters(CgmesExportUtil.format(g, context));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_B);
-        writer.writeCharacters(CgmesExportUtil.format(b));
+        writer.writeCharacters(CgmesExportUtil.format(b, context));
         writer.writeEndElement();
         if (!Double.isNaN(ratedS)) {
             writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDS);
-            writer.writeCharacters(CgmesExportUtil.format(ratedS));
+            writer.writeCharacters(CgmesExportUtil.format(ratedS, context));
             writer.writeEndElement();
         }
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDU);
-        writer.writeCharacters(CgmesExportUtil.format(ratedU));
+        writer.writeCharacters(CgmesExportUtil.format(ratedU, context));
         writer.writeEndElement();
         CgmesExportUtil.writeReference(EQ_POWERTRANSFORMEREND_POWERTRANSFORMER, transformerId, cimNamespace, writer, context);
         CgmesExportUtil.writeReference(EQ_TRANSFORMEREND_TERMINAL, terminalId, cimNamespace, writer, context);

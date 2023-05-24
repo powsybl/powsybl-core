@@ -32,14 +32,14 @@ public final class SynchronousMachineEq {
             CgmesExportUtil.writeReference("SynchronousMachine.InitialReactiveCapabilityCurve", reactiveCapabilityCurveId, cimNamespace, writer, context);
         }
         writer.writeStartElement(cimNamespace, "SynchronousMachine.minQ");
-        writer.writeCharacters(CgmesExportUtil.format(minQ));
+        writer.writeCharacters(CgmesExportUtil.format(minQ, context));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "SynchronousMachine.maxQ");
-        writer.writeCharacters(CgmesExportUtil.format(maxQ));
+        writer.writeCharacters(CgmesExportUtil.format(maxQ, context));
         writer.writeEndElement();
         if (!Double.isNaN(ratedS)) {
             writer.writeStartElement(cimNamespace, "RotatingMachine.ratedS");
-            writer.writeCharacters(CgmesExportUtil.format(ratedS));
+            writer.writeCharacters(CgmesExportUtil.format(ratedS, context));
             writer.writeEndElement();
         }
         writer.writeEmptyElement(cimNamespace, "SynchronousMachine.type");

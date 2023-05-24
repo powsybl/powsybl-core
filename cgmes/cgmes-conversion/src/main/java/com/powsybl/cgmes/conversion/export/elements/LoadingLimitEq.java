@@ -25,7 +25,7 @@ public final class LoadingLimitEq {
                              String operationalLimitTypeId, String operationalLimitSetId, String cimNamespace, String valueAttributeName, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(loadingLimitClassName(loadingLimitClass), id, name, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, loadingLimitClassName(loadingLimitClass) + "." + valueAttributeName);
-        writer.writeCharacters(CgmesExportUtil.format(value));
+        writer.writeCharacters(CgmesExportUtil.format(value, context));
         writer.writeEndElement();
         CgmesExportUtil.writeReference("OperationalLimit.OperationalLimitSet", operationalLimitSetId, cimNamespace, writer, context);
         CgmesExportUtil.writeReference("OperationalLimit.OperationalLimitType", operationalLimitTypeId, cimNamespace, writer, context);

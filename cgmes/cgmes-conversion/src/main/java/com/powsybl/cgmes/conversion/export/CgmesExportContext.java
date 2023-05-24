@@ -59,6 +59,7 @@ public class CgmesExportContext {
     private boolean exportFlowsForSwitches = true;
     private boolean exportEquipment = false;
     private boolean encodeIds = true;
+    private double maximumDoubleValue = Double.MAX_VALUE;
 
     private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
 
@@ -714,6 +715,15 @@ public class CgmesExportContext {
             return network.getBusBreakerView().getBusStream().collect(Collectors.toMap(b -> namingStrategy.getCgmesId(b), b -> b));
         }
         return Collections.unmodifiableMap(topologicalNodes);
+    }
+
+    public CgmesExportContext setMaximumDoubleValue(double maximumDoubleValue) {
+        this.maximumDoubleValue = maximumDoubleValue;
+        return this;
+    }
+
+    public double getMaximumDoubleValue() {
+        return maximumDoubleValue;
     }
 }
 

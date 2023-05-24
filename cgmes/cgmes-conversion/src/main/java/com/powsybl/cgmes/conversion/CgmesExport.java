@@ -75,6 +75,7 @@ public class CgmesExport implements Exporter {
                 .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER))
+                .setMaximumDoubleValue(Parameter.readDouble(getFormat(), params, MAXIMUM_DOUBLE_VALUE_PARAMETER, defaultValueConfig))
                 .setReporter(reporter);
         context.getEqModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
         context.getTpModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
@@ -182,6 +183,7 @@ public class CgmesExport implements Exporter {
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
     public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
+    public static final String MAXIMUM_DOUBLE_VALUE = "iidm.export.cgmes.maximum-double-value";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -238,6 +240,12 @@ public class CgmesExport implements Exporter {
             "Modeling authority set",
             "powsybl.org");
 
+    private static final Parameter MAXIMUM_DOUBLE_VALUE_PARAMETER = new Parameter(
+            MAXIMUM_DOUBLE_VALUE,
+            ParameterType.DOUBLE,
+            "Maximum double value",
+            Double.MAX_VALUE);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
             CIM_VERSION_PARAMETER,
@@ -247,7 +255,8 @@ public class CgmesExport implements Exporter {
             PROFILES_PARAMETER,
             BOUNDARY_EQ_ID_PARAMETER,
             BOUNDARY_TP_ID_PARAMETER,
-            MODELING_AUTHORITY_SET_PARAMETER);
+            MODELING_AUTHORITY_SET_PARAMETER,
+            MAXIMUM_DOUBLE_VALUE_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }

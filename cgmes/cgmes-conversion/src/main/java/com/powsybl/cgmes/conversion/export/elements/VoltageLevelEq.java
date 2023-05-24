@@ -22,12 +22,12 @@ public final class VoltageLevelEq {
         CgmesExportUtil.writeStartIdName("VoltageLevel", id, voltageLevelName, cimNamespace, writer, context);
         if (!Double.isNaN(lowVoltageLimit)) {
             writer.writeStartElement(cimNamespace, "VoltageLevel.lowVoltageLimit");
-            writer.writeCharacters(CgmesExportUtil.format(lowVoltageLimit));
+            writer.writeCharacters(CgmesExportUtil.format(lowVoltageLimit, context));
             writer.writeEndElement();
         }
         if (!Double.isNaN(highVoltageLimit)) {
             writer.writeStartElement(cimNamespace, "VoltageLevel.highVoltageLimit");
-            writer.writeCharacters(CgmesExportUtil.format(highVoltageLimit));
+            writer.writeCharacters(CgmesExportUtil.format(highVoltageLimit, context));
             writer.writeEndElement();
         }
         CgmesExportUtil.writeReference("VoltageLevel.Substation", substationId, cimNamespace, writer, context);
