@@ -32,7 +32,7 @@ public final class GeneratingUnitEq {
         writer.writeCharacters(CgmesExportUtil.format(minP, context));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MAXP);
-        writer.writeCharacters(CgmesExportUtil.format(maxP == 0 ? Double.MAX_VALUE : maxP, context));
+        writer.writeCharacters(CgmesExportUtil.format(maxP, context));
         writer.writeEndElement();
         if (writeInitialP) {
             writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_INITIALP);
