@@ -396,6 +396,11 @@ public final class TopologyModificationUtils {
         return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
     }
 
+    /**
+     * Get the range of connectable positions delimited by neighbouring busbar sections, for a given busbar section.
+     * If the range is empty (for instance if positions max on left side is above position min on right side), the range returned is empty.
+     * Note that the connectable positions needs to be in ascending order in the voltage level for ascending busbar section index positions.
+     */
     public static Optional<Range<Integer>> getPositionRange(BusbarSection bbs) {
         BusbarSectionPosition positionExtension = bbs.getExtension(BusbarSectionPosition.class);
         if (positionExtension != null) {
