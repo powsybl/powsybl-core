@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static com.powsybl.iidm.network.IdentifiableType.HVDC_LINE;
-import static com.powsybl.iidm.network.IdentifiableType.TWO_WINDINGS_TRANSFORMER;
+import static com.powsybl.iidm.network.IdentifiableType.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -49,8 +48,8 @@ public class TwoNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        if (type == TWO_WINDINGS_TRANSFORMER) {
-            return filter(((TwoWindingsTransformer) identifiable).getTerminal1(), ((TwoWindingsTransformer) identifiable).getTerminal2());
+        if (type == TWO_WINDINGS_TRANSFORMER || type == LINE) {
+            return filter(((Branch<?>) identifiable).getTerminal1(), ((Branch<?>) identifiable).getTerminal2());
         } else if (type == HVDC_LINE) {
             return filter(((HvdcLine) identifiable).getConverterStation1().getTerminal(),
                     ((HvdcLine) identifiable).getConverterStation2().getTerminal());

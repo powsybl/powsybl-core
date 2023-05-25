@@ -9,8 +9,7 @@ package com.powsybl.contingency.contingency.list.identifier;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -18,14 +17,21 @@ import java.util.Optional;
 public class IdBasedNetworkElementIdentifier implements NetworkElementIdentifier {
 
     private final String identifier;
+    private final String contingencyId;
 
     public IdBasedNetworkElementIdentifier(String identifier) {
+        this(identifier, null);
+    }
+
+    public IdBasedNetworkElementIdentifier(String identifier, String contingencyId) {
         this.identifier = Objects.requireNonNull(identifier);
+        this.contingencyId = contingencyId;
     }
 
     @Override
-    public Optional<Identifiable> filterIdentifiable(Network network) {
-        return Optional.ofNullable(network.getIdentifiable(identifier));
+    public Set<Identifiable<?>> filterIdentifiable(Network network) {
+        Identifiable<?> identifiable = network.getIdentifiable(identifier);
+        return identifiable == null ? Collections.emptySet() : Collections.singleton(identifiable);
     }
 
     public String getIdentifier() {
@@ -35,5 +41,10 @@ public class IdBasedNetworkElementIdentifier implements NetworkElementIdentifier
     @Override
     public IdentifierType getType() {
         return IdentifierType.ID_BASED;
+    }
+
+    @Override
+    public Optional<String> getContingencyId() {
+        return Optional.ofNullable(contingencyId);
     }
 }
