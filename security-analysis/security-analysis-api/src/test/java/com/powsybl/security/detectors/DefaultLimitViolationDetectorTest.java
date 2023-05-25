@@ -124,7 +124,6 @@ class DefaultLimitViolationDetectorTest {
                 });
     }
 
-
     @Test
     void detectPermanentLimitOverloadOnSide2OfTieLine1() {
         TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
