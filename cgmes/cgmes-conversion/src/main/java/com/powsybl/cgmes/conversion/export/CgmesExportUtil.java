@@ -188,10 +188,10 @@ public final class CgmesExportUtil {
             if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
                     && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
                 return CgmesNames.CONFORM_LOAD;
-            }
-            // NonConform load if fixed part is non-zero and variable part is all zero
-            if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
-                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {
+            } else if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
+                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {  // NonConform load if fixed part is non-zero and variable part is all zero
+                return CgmesNames.NONCONFORM_LOAD;
+            } else {
                 return CgmesNames.NONCONFORM_LOAD;
             }
         }
