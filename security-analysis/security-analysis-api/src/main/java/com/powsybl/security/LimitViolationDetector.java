@@ -400,15 +400,8 @@ public interface LimitViolationDetector {
      */
     default void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
-            consumer.accept(new LimitViolation(branch.getId(),
-                    ((Branch<?>) branch).getOptionalName().orElse(null),
-                    toLimitViolationType(type),
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    Integer.MAX_VALUE,
-                    branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new),
-                    limitReduction,
-                    value,
-                    side));
+            double limits = branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new),
+            addPermanent(branch, side, limitReduction, value, consumer, type, limits);
         }
     }
 
@@ -417,22 +410,15 @@ public interface LimitViolationDetector {
      */
     default void checkPermanentLimit(TieLine tieLine, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         if (LimitViolationUtils.checkPermanentLimit(tieLine, side, limitReduction, value, type)) {
-            consumer.accept(new LimitViolation(tieLine.getId(),
-                    tieLine.getOptionalName().orElse(null),
-                    toLimitViolationType(type),
-                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
-                    Integer.MAX_VALUE,
-                    LimitViolationUtils.getLimits(tieLine, type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new),
-                    limitReduction,
-                    value,
-                    side));
+            double limits = LimitViolationUtils.getLimits(tieLine, type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
+            addPermanent(tieLine, side, limitReduction, value, consumer, type, limits);
         }
     }
 
     /**
      * Generic implementation for temporary limit checks
      */
-    default void checkTemporary(Branch branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+    default void checkTemporary(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
         if (overload != null) {
             addTemporaryOverload(branch, side, limitReduction, value, consumer, type, overload);
@@ -447,6 +433,18 @@ public interface LimitViolationDetector {
         if (overload != null) {
             addTemporaryOverload(tieLine, side, limitReduction, value, consumer, type, overload);
         }
+    }
+
+    private void addPermanent(Identifiable<?> identifiable, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type, double limit) {
+        consumer.accept(new LimitViolation(identifiable.getId(),
+                identifiable.getOptionalName().orElse(null),
+                toLimitViolationType(type),
+                LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                Integer.MAX_VALUE,
+                limit,
+                limitReduction,
+                value,
+                side));
     }
 
     private void addTemporaryOverload(Identifiable<?> identifiable, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type, Branch.Overload overload) {
