@@ -15,6 +15,8 @@ import org.assertj.core.api.Assertions;
 
 import static com.powsybl.iidm.network.util.LimitViolationUtils.PERMANENT_LIMIT_NAME;
 import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -29,27 +31,26 @@ import java.util.Optional;
  */
 class DefaultLimitViolationDetectorTest {
 
-    private Network network;
-    private Line line1;
-    private Line line2;
-    private VoltageLevel voltageLevelHv1;
+    private static Network networkWithFixedCurrentLimits;
+    private static Network networkWithFixedLimits;
     private LimitViolationDetector detector;
     private List<LimitViolation> violationsCollector;
 
+    @BeforeAll
+    static void setUpClass() {
+        networkWithFixedCurrentLimits = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        networkWithFixedLimits = EurostagTutorialExample1Factory.createWithFixedLimits();
+    }
+
     @BeforeEach
     void setUp() {
-        network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        line1 = network.getLine("NHV1_NHV2_1");
-        line2 = network.getLine("NHV1_NHV2_2");
-        voltageLevelHv1 = network.getVoltageLevel("VLHV1");
-
         detector = new DefaultLimitViolationDetector();
         violationsCollector = new ArrayList<>();
     }
 
     @Test
     void detectPermanentLimitOverloadOnSide2OfLine1() {
-
+        Line line1 = networkWithFixedCurrentLimits.getLine("NHV1_NHV2_1");
         detector.checkCurrent(line1, Branch.Side.TWO, 1101, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -66,6 +67,7 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void testLimitReductionOnCurrentPermanentLimit() {
         final double i = 460;
+        Line line1 = networkWithFixedCurrentLimits.getLine("NHV1_NHV2_1");
         Optional<? extends LoadingLimits> line1Limits = line1.getLimits(LimitType.CURRENT, Branch.Side.ONE);
         assertTrue(line1Limits.isPresent()
             && line1Limits.get().getTemporaryLimits().isEmpty()
@@ -91,7 +93,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectTemporaryLimitOverloadOnSide2OfLine1() {
-
+        Line line1 = networkWithFixedCurrentLimits.getLine("NHV1_NHV2_1");
         detector.checkCurrent(line1, Branch.Side.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -106,7 +108,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectHighestTemporaryLimitOverloadOnSide1OfLine2() {
-
+        Line line2 = networkWithFixedCurrentLimits.getLine("NHV1_NHV2_2");
         detector.checkCurrent(line2, Branch.Side.ONE, 1250, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
@@ -120,7 +122,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectHighVoltageViolation() {
-
+        VoltageLevel voltageLevelHv1 = networkWithFixedCurrentLimits.getVoltageLevel("VLHV1");
         voltageLevelHv1.getBusView().getBusStream()
                 .forEach(b -> detector.checkVoltage(b, 520, violationsCollector::add));
 
@@ -137,7 +139,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectLowVoltageViolation() {
-
+        VoltageLevel voltageLevelHv1 = networkWithFixedCurrentLimits.getVoltageLevel("VLHV1");
         voltageLevelHv1.getBusView().getBusStream()
                 .forEach(b -> detector.checkVoltage(b, 380, violationsCollector::add));
 
@@ -154,11 +156,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectPermanentActivePowerLimitOnSide2OfLine1() {
-
-        network = EurostagTutorialExample1Factory.createWithFixedLimits();
-        line1 = network.getLine("NHV1_NHV2_1");
-        line2 = network.getLine("NHV1_NHV2_2");
-
+        Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
         detector.checkPermanentLimit(line1, Branch.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
@@ -173,11 +171,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectPermanentApparentPowerLimitOnSide2OfLine1() {
-
-        network = EurostagTutorialExample1Factory.createWithFixedLimits();
-        line1 = network.getLine("NHV1_NHV2_1");
-        line2 = network.getLine("NHV1_NHV2_2");
-
+        Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
         detector.checkPermanentLimit(line1, Branch.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
@@ -193,10 +187,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectTemporaryActivePowerLimitOnSide2OfLine1() {
-
-        network = EurostagTutorialExample1Factory.createWithFixedLimits();
-        line1 = network.getLine("NHV1_NHV2_1");
-
+        Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
         detector.checkTemporary(line1, Branch.Side.TWO, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
@@ -211,9 +202,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectTemporaryApparentPowerLimitOnSide2OfLine1() {
-
-        network = EurostagTutorialExample1Factory.createWithFixedLimits();
-        line1 = network.getLine("NHV1_NHV2_1");
+        Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
 
         detector.checkTemporary(line1, Branch.Side.TWO, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
 
@@ -229,9 +218,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectAllActivePowerLimitOnSide2OfLine1() {
-
-        network = EurostagTutorialExample1Factory.createWithFixedLimits();
-        line1 = network.getLine("NHV1_NHV2_1");
+        Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
         cdetector.checkActivePower(line1, Branch.Side.TWO, 1201, violationsCollector::add);
@@ -247,9 +234,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectAllApparentPowerLimitOnSide2OfLine1() {
-
-        network = EurostagTutorialExample1Factory.createWithFixedLimits();
-        line1 = network.getLine("NHV1_NHV2_1");
+        Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
         cdetector.checkApparentPower(line1, Branch.Side.TWO, 1201, violationsCollector::add);
@@ -267,8 +252,7 @@ class DefaultLimitViolationDetectorTest {
     void testCheckLimitViolationUnsupportedVoltage() {
 
         assertThrows(UnsupportedOperationException.class, () -> {
-            network = EurostagTutorialExample1Factory.createWithFixedLimits();
-            line1 = network.getLine("NHV1_NHV2_1");
+            Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
 
             DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
             cdetector.checkLimitViolation(line1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE);
