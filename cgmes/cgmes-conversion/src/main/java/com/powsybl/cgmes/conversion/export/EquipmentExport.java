@@ -997,19 +997,13 @@ public final class EquipmentExport {
     private static void writeTerminal(Terminal t, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
                                       String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
-        if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
-            // TODO(Luma) Export tie line components instead of a single equipment
-            // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
-            // We need to write the proper terminal of the single tie line that will be exported
-            // When we change the export and write the two dangling lines as separate equipment,
-            // then we should always return 1 and forget about this special case
-            if (t.getConnectable() instanceof DanglingLine && ((DanglingLine) t.getConnectable()).isPaired()) {
-                equipmentId = context.getNamingStrategy().getCgmesId(((DanglingLine) t.getConnectable()).getTieLine().orElseThrow(IllegalStateException::new));
-            }
-        } else {
-            if (t.getConnectable() instanceof DanglingLine && ((DanglingLine) t.getConnectable()).isPaired()) {
-                equipmentId = context.getNamingStrategy().getCgmesId(((DanglingLine) t.getConnectable()).getTieLine().orElseThrow(IllegalStateException::new));
-            }
+        // TODO(Luma) Export tie line components instead of a single equipment
+        // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
+        // We need to write the proper terminal of the single tie line that will be exported
+        // When we change the export and write the two dangling lines as separate equipment,
+        // then we should always return 1 and forget about this special case
+        if (t.getConnectable() instanceof DanglingLine && ((DanglingLine) t.getConnectable()).isPaired()) {
+            equipmentId = context.getNamingStrategy().getCgmesId(((DanglingLine) t.getConnectable()).getTieLine().orElseThrow(IllegalStateException::new));
         }
         writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t), CgmesExportUtil.getTerminalSequenceNumber(t), cimNamespace, writer, context);
     }

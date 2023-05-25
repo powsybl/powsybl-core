@@ -360,15 +360,9 @@ public class UcteExporter implements Exporter {
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getUcteXnodeCode());
-        if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
-            String geographicalName = mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
-            UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), STATUS_PROPERTY_KEY + "_XNode"));
-            convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
-        } else {
-            String geographicalName = tieLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
-            UcteNodeStatus ucteNodeStatus = getXnodeStatus(tieLine);
-            convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
-        }
+        String geographicalName = mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
+        UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), STATUS_PROPERTY_KEY + "_XNode"));
+        convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
     }
 
     /**
@@ -470,12 +464,7 @@ public class UcteExporter implements Exporter {
         // Create half line 1
         DanglingLine danglingLine1 = tieLine.getDanglingLine1();
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(danglingLine1.getId());
-        String elementName1;
-        if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
-            elementName1 = danglingLine1.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        } else {
-            elementName1 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
-        }
+        String elementName1 = danglingLine1.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status1 = getStatusHalf(tieLine, Branch.Side.ONE);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
@@ -490,12 +479,7 @@ public class UcteExporter implements Exporter {
         // Create half line2
         DanglingLine danglingLine2 = tieLine.getDanglingLine2();
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(danglingLine2.getId());
-        String elementName2;
-        if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
-            elementName2 = danglingLine2.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        } else {
-            elementName2 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
-        }
+        String elementName2 = danglingLine2.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status2 = getStatusHalf(tieLine, Branch.Side.TWO);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,

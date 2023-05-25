@@ -62,23 +62,12 @@ class CgmesConformity3ConversionTest {
 
         // For all tie lines we have exported the power flows with the right terminal identifiers
         for (TieLine tieLine : network.getTieLines()) {
-            if (Network.DRAFT_LUMA_REMOVE_TIE_LINE_PROPERTIES_ALIASES) {
-                String terminal1 = tieLine.getDanglingLine1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
-                String terminal2 = tieLine.getDanglingLine2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
-                String terminal1Resource = "#_" + terminal1;
-                String terminal2Resource = "#_" + terminal2;
-                assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
-                assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
-            } else {
-                String terminal1 = tieLine.getAliasFromType("CGMES.Terminal1").orElseThrow();
-                String terminal2 = tieLine.getAliasFromType("CGMES.Terminal2").orElseThrow();
-                assertEquals(tieLine.getProperty("CGMES.Terminal_1"), terminal1);
-                assertEquals(tieLine.getProperty("CGMES.Terminal_2"), terminal2);
-                String terminal1Resource = "#_" + terminal1;
-                String terminal2Resource = "#_" + terminal2;
-                assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
-                assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
-            }
+            String terminal1 = tieLine.getDanglingLine1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
+            String terminal2 = tieLine.getDanglingLine2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
+            String terminal1Resource = "#_" + terminal1;
+            String terminal2Resource = "#_" + terminal2;
+            assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));
+            assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal2Resource));
         }
     }
 
