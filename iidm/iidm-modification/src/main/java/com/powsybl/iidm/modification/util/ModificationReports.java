@@ -295,7 +295,7 @@ public final class ModificationReports {
     public static void positionOrderTooLowReport(Reporter reporter, int minValue, int positionOrder) {
         reporter.report(Report.builder()
                 .withKey("positionOrderTooLow")
-                .withDefaultMessage("PositionOrder ${positionOrder} too low (<${minValue}), too high or already taken. No position extension created.")
+                .withDefaultMessage("PositionOrder ${positionOrder} too low (<${minValue}). No position extension created.")
                 .withValue("positionOrder", positionOrder)
                 .withValue("minValue", minValue)
                 .withSeverity(TypedValue.WARN_SEVERITY)

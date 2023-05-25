@@ -119,14 +119,14 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
         int minValue = positionRangeForSection.get().getMinimum();
         if (positionOrder < minValue) {
-            LOGGER.warn("PositionOrder {} too low (<{}). No position extension created.", minValue, positionOrder);
+            LOGGER.warn("PositionOrder {} too low (<{}). No position extension created.", positionOrder, minValue);
             positionOrderTooLowReport(reporter, minValue, positionOrder);
             return false;
         }
 
         int maxValue = positionRangeForSection.get().getMaximum();
         if (positionOrder > maxValue) {
-            LOGGER.warn("PositionOrder {} too high (>{}). No position extension created.", maxValue, positionOrder);
+            LOGGER.warn("PositionOrder {} too high (>{}). No position extension created.", positionOrder, maxValue);
             positionOrderTooHighReport(reporter, maxValue, positionOrder);
             return false;
         }
