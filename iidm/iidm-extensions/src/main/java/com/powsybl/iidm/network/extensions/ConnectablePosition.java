@@ -31,7 +31,7 @@ public interface ConnectablePosition<C extends Connectable<C>> extends Extension
 
     String NAME = "position";
 
-    public enum Direction {
+    enum Direction {
         TOP,
         BOTTOM,
         UNDEFINED
@@ -42,7 +42,7 @@ public interface ConnectablePosition<C extends Connectable<C>> extends Extension
         return NAME;
     }
 
-    public interface Feeder {
+    interface Feeder {
         Optional<String> getName();
 
         Feeder setName(String name);
@@ -61,24 +61,24 @@ public interface ConnectablePosition<C extends Connectable<C>> extends Extension
     /**
      * Feeder in case the connectable has only one (injections)
      */
-    public Feeder getFeeder();
+    Feeder getFeeder();
 
     /**
      * First feeder in case the connectable has two or three
      */
-    public Feeder getFeeder1();
+    Feeder getFeeder1();
 
     /**
      * Second feeder in case the connectable has two or three
      */
-    public Feeder getFeeder2();
+    Feeder getFeeder2();
 
     /**
      * Third feeder in case the connectable has three (three windings transformers)
      */
-    public Feeder getFeeder3();
+    Feeder getFeeder3();
 
-    public static void check(Feeder feeder, Feeder feeder1, Feeder feeder2, Feeder feeder3) {
+    static void check(Feeder feeder, Feeder feeder1, Feeder feeder2, Feeder feeder3) {
         if (feeder == null && feeder1 == null && feeder2 == null && feeder3 == null) {
             throw new IllegalArgumentException("invalid feeder");
         }
