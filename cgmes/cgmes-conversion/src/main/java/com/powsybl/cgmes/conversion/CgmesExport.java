@@ -200,17 +200,17 @@ public class CgmesExport implements Exporter {
             ENCODE_IDS,
             ParameterType.BOOLEAN,
             "Encode IDs as valid URI",
-            Boolean.TRUE);
+            CgmesExportContext.ENCODE_IDS_DEFAULT_VALUE);
     private static final Parameter EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER = new Parameter(
             EXPORT_BOUNDARY_POWER_FLOWS,
             ParameterType.BOOLEAN,
             "Export boundaries' power flows",
-            Boolean.TRUE);
+            CgmesExportContext.EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE);
     private static final Parameter EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER = new Parameter(
             EXPORT_POWER_FLOWS_FOR_SWITCHES,
             ParameterType.BOOLEAN,
             "Export power flows for switches",
-            Boolean.TRUE);
+            CgmesExportContext.EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE);
     private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(
             NAMING_STRATEGY,
             ParameterType.STRING,
@@ -244,7 +244,7 @@ public class CgmesExport implements Exporter {
             MAXIMUM_DOUBLE_VALUE,
             ParameterType.DOUBLE,
             "Maximum double value",
-            Double.MAX_VALUE);
+            CgmesExportContext.MAXIMUM_DOUBLE_DEFAULT_VALUE);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,

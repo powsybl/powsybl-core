@@ -55,11 +55,19 @@ public class CgmesExportContext {
 
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
-    private boolean exportBoundaryPowerFlows = true;
-    private boolean exportFlowsForSwitches = true;
+    public static final boolean EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE = true;
+    public static final boolean EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE = true;
+    public static final boolean ENCODE_IDS_DEFAULT_VALUE = true;
+    public static final double MAXIMUM_DOUBLE_DEFAULT_VALUE = Double.MAX_VALUE;
+
+    private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
+    private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
-    private boolean encodeIds = true;
-    private double maximumDoubleValue = Double.MAX_VALUE;
+    private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
+    // FIXME
+    // following parameter is linked to the tool (SUV) that makes the quality checks on CIM-CGMES files
+    // for ENTSOE processes. It seems that we have to adapt to an external limitation.
+    private double maximumDoubleValue = MAXIMUM_DOUBLE_DEFAULT_VALUE;
 
     private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
 

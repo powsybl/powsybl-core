@@ -54,7 +54,7 @@ public final class CgmesExportUtil {
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
 
     private static double fixValue(double value, CgmesExportContext context) {
-        double fixedValue = Double.isNaN(value) ? 0.0 : value;
+        double fixedValue = Double.isNaN(value) ? 0.0 : value; // disconnected equipment in general, a bit dangerous.
         fixedValue = fixedValue == Double.MAX_VALUE ? context.getMaximumDoubleValue() : fixedValue;
         return fixedValue;
     }
