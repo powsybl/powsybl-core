@@ -133,8 +133,8 @@ public final class AmplUtil {
             mapper.newInt(AmplSubset.BRANCH, dl2.getId());
 
             // limits
-            dl1.getCurrentLimits().ifPresent(l -> createLimitsIds(mapper, l, dl1.getId(), ""));
-            dl2.getCurrentLimits().ifPresent(l -> createLimitsIds(mapper, l, dl2.getId(), ""));
+            tl.getDanglingLine1().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_1_"));
+            tl.getDanglingLine2().getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_2_"));
         }
     }
 

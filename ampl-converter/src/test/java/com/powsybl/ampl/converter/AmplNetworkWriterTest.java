@@ -194,7 +194,7 @@ class AmplNetworkWriterTest extends AbstractConverterTest {
     void writeTieLine() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         for (DanglingLine danglingLine : network.getDanglingLines()) {
-                danglingLine.newCurrentLimits()
+            danglingLine.newCurrentLimits()
                     .setPermanentLimit(100.0)
                     .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
                     .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
