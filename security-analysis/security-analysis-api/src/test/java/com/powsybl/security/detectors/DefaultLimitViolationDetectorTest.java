@@ -431,12 +431,8 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void testCheckLimitViolationUnsupportedVoltageOnTieLine() {
-
-        assertThrows(UnsupportedOperationException.class, () -> {
-            TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
-
-            DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-            cdetector.checkLimitViolation(tieLine1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE);
-        });
+        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
+        assertThrows(UnsupportedOperationException.class, () -> cdetector.checkLimitViolation(tieLine1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE));
     }
 }

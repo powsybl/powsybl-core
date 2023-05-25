@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.TieLine;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  *
@@ -85,14 +86,14 @@ public final class LimitViolationUtils {
      * @param side    The side of the dangling line which limits will be returned.
      * @return The matching LimitViolationTYpe
      */
-    public static Optional<? extends LoadingLimits> getLimits(TieLine tieLine, LimitType type, Branch.Side side) {
+    public static Optional<LoadingLimits> getLimits(TieLine tieLine, LimitType type, Branch.Side side) {
         switch (type) {
             case CURRENT:
-                return tieLine.getDanglingLine(side).getCurrentLimits();
+                return tieLine.getDanglingLine(side).getCurrentLimits().map(Function.identity());
             case ACTIVE_POWER:
-                return tieLine.getDanglingLine(side).getActivePowerLimits();
+                return tieLine.getDanglingLine(side).getActivePowerLimits().map(Function.identity());
             case APPARENT_POWER:
-                return tieLine.getDanglingLine(side).getApparentPowerLimits();
+                return tieLine.getDanglingLine(side).getApparentPowerLimits().map(Function.identity());
             default:
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         }
