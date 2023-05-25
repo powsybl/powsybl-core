@@ -375,7 +375,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
         new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId("bbs1")
-                .withInjectionPositionOrder(100)
+                .withInjectionPositionOrder(101)
                 .build().apply(network);
         assertNull(network.getLoad("newLoad").getExtension(ConnectablePosition.class));
 
@@ -384,7 +384,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
         new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId("bbs4")
-                .withInjectionPositionOrder(60)
+                .withInjectionPositionOrder(61)
                 .build().apply(network);
         assertNull(network.getLoad("newLoad2").getExtension(ConnectablePosition.class));
 
@@ -410,7 +410,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
         new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId("bbs3")
-                .withInjectionPositionOrder(100)
+                .withInjectionPositionOrder(101)
                 .build().apply(network);
         assertNull(network.getLoad("newLoad4").getExtension(ConnectablePosition.class));
     }
