@@ -94,38 +94,18 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     public void checkLimitViolation(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-
         Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
-
         if (currentLimitTypes.contains(LoadingLimitType.TATL) && (overload != null)) {
-            consumer.accept(new LimitViolation(branch.getId(),
-                    ((Branch<?>) branch).getOptionalName().orElse(null),
-                    toLimitViolationType(type),
-                    overload.getPreviousLimitName(),
-                    overload.getTemporaryLimit().getAcceptableDuration(),
-                    overload.getPreviousLimit(),
-                    limitReduction,
-                    value,
-                    side));
+            checkTemporary(branch, side, limitReduction, value, consumer, type);
         } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
             checkPermanentLimit(branch, side, limitReduction, value, consumer, type);
         }
     }
 
     public void checkLimitViolation(TieLine tieLine, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-
         Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(tieLine, side, limitReduction, value, type);
-
         if (currentLimitTypes.contains(LoadingLimitType.TATL) && (overload != null)) {
-            consumer.accept(new LimitViolation(tieLine.getId(),
-                    tieLine.getOptionalName().orElse(null),
-                    toLimitViolationType(type),
-                    overload.getPreviousLimitName(),
-                    overload.getTemporaryLimit().getAcceptableDuration(),
-                    overload.getPreviousLimit(),
-                    limitReduction,
-                    value,
-                    side));
+            checkTemporary(tieLine, side, limitReduction, value, consumer, type);
         } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
             checkPermanentLimit(tieLine, side, limitReduction, value, consumer, type);
         }

@@ -397,12 +397,6 @@ public interface LimitViolationDetector {
 
     /**
      * Generic implementation for permanent limit checks
-     * @param branch
-     * @param side
-     * @param limitReduction
-     * @param value
-     * @param consumer
-     * @param type
      */
     default void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
@@ -420,12 +414,6 @@ public interface LimitViolationDetector {
 
     /**
      * Generic implementation for permanent limit checks
-     * @param tieLine
-     * @param side
-     * @param limitReduction
-     * @param value
-     * @param consumer
-     * @param type
      */
     default void checkPermanentLimit(TieLine tieLine, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         if (LimitViolationUtils.checkPermanentLimit(tieLine, side, limitReduction, value, type)) {
@@ -443,42 +431,32 @@ public interface LimitViolationDetector {
 
     /**
      * Generic implementation for temporary limit checks
-     * @param branch
-     * @param side
-     * @param value
-     * @param consumer
-     * @param type
      */
-    default void checkTemporary(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, 1.0f, value, type);
+    default void checkTemporary(Branch branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
         if (overload != null) {
-            addTemporaryOverload(branch, side, value, consumer, type, overload);
+            addTemporaryOverload(branch, side, limitReduction, value, consumer, type, overload);
         }
     }
 
     /**
      * Generic implementation for temporary limit checks
-     * @param tieLine
-     * @param side
-     * @param value
-     * @param consumer
-     * @param type
      */
-    default void checkTemporary(TieLine tieLine, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+    default void checkTemporary(TieLine tieLine, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(tieLine, side, 1.0f, value, type);
         if (overload != null) {
-            addTemporaryOverload(tieLine, side, value, consumer, type, overload);
+            addTemporaryOverload(tieLine, side, limitReduction, value, consumer, type, overload);
         }
     }
 
-    private void addTemporaryOverload(Identifiable<?> identifiable, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type, Branch.Overload overload) {
+    private void addTemporaryOverload(Identifiable<?> identifiable, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type, Branch.Overload overload) {
         consumer.accept(new LimitViolation(identifiable.getId(),
                 identifiable.getOptionalName().orElse(null),
                 toLimitViolationType(type),
                 overload.getPreviousLimitName(),
                 overload.getTemporaryLimit().getAcceptableDuration(),
                 overload.getPreviousLimit(),
-                1.0f,
+                limitReduction,
                 value,
                 side));
     }

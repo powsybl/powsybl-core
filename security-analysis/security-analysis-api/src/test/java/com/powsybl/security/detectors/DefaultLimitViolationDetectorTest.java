@@ -264,7 +264,7 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectTemporaryActivePowerLimitOnSide2OfLine1() {
         Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
-        detector.checkTemporary(line1, Branch.Side.TWO, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
+        detector.checkTemporary(line1, Branch.Side.TWO, 1.0f, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
@@ -280,7 +280,7 @@ class DefaultLimitViolationDetectorTest {
     void detectTemporaryApparentPowerLimitOnSide2OfLine1() {
         Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
 
-        detector.checkTemporary(line1, Branch.Side.TWO, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
+        detector.checkTemporary(line1, Branch.Side.TWO, 1.0f, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
@@ -369,7 +369,7 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void detectTemporaryActivePowerLimitOnSide2OfTieLine1() {
         TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
-        detector.checkTemporary(tieLine1, Branch.Side.TWO, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
+        detector.checkTemporary(tieLine1, Branch.Side.TWO, 1.0f, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
@@ -385,7 +385,7 @@ class DefaultLimitViolationDetectorTest {
     void detectTemporaryApparentPowerLimitOnSide2OfTieLine1() {
         TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
 
-        detector.checkTemporary(tieLine1, Branch.Side.TWO, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
+        detector.checkTemporary(tieLine1, Branch.Side.TWO, 1.0f, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
