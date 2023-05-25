@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.TieLine;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -42,18 +43,7 @@ public final class LimitViolationUtils {
         if (!Double.isNaN(i)) {
             return branch.getLimits(type, side)
                     .filter(l -> !Double.isNaN(l.getPermanentLimit()))
-                    .map(limits -> {
-                        String previousLimitName = PERMANENT_LIMIT_NAME;
-                        double previousLimit = limits.getPermanentLimit();
-                        for (LoadingLimits.TemporaryLimit tl : limits.getTemporaryLimits()) { // iterate in ascending order
-                            if (i >= previousLimit * limitReduction && i < tl.getValue() * limitReduction) {
-                                return new OverloadImpl(tl, previousLimitName, previousLimit);
-                            }
-                            previousLimitName = tl.getName();
-                            previousLimit = tl.getValue();
-                        }
-                        return null;
-                    })
+                    .map(limits -> getOverload(limits, i, limitReduction))
                     .orElse(null);
         }
         return null;
@@ -66,19 +56,23 @@ public final class LimitViolationUtils {
         if (!Double.isNaN(i)) {
             return getLimits(tieLine, type, side)
                     .filter(l -> !Double.isNaN(l.getPermanentLimit()))
-                    .map(limits -> {
-                        String previousLimitName = PERMANENT_LIMIT_NAME;
-                        double previousLimit = limits.getPermanentLimit();
-                        for (LoadingLimits.TemporaryLimit tl : limits.getTemporaryLimits()) { // iterate in ascending order
-                            if (i >= previousLimit * limitReduction && i < tl.getValue() * limitReduction) {
-                                return new OverloadImpl(tl, previousLimitName, previousLimit);
-                            }
-                            previousLimitName = tl.getName();
-                            previousLimit = tl.getValue();
-                        }
-                        return null;
-                    })
+                    .map(limits -> getOverload(limits, i, limitReduction))
                     .orElse(null);
+        }
+        return null;
+    }
+
+    private static OverloadImpl getOverload(LoadingLimits limits, double i, float limitReduction) {
+        double permanentLimit = limits.getPermanentLimit();
+        Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limits.getTemporaryLimits();
+        String previousLimitName = PERMANENT_LIMIT_NAME;
+        double previousLimit = permanentLimit;
+        for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
+            if (i >= previousLimit * limitReduction && i < tl.getValue() * limitReduction) {
+                return new OverloadImpl(tl, previousLimitName, previousLimit);
+            }
+            previousLimitName = tl.getName();
+            previousLimit = tl.getValue();
         }
         return null;
     }
