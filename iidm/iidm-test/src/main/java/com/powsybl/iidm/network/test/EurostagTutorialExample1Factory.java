@@ -568,6 +568,185 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    public static Network createWithFixedCurrentLimitsOnDanglingLines() {
+        return createWithFixedCurrentLimitsOnDanglingLines(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithFixedCurrentLimitsOnDanglingLines(NetworkFactory networkFactory) {
+        Network network = createWithTieLines(networkFactory);
+
+        network.setCaseDate(DateTime.parse("2018-01-01T11:00:00+01:00"));
+
+        network.getSubstation("P2").setCountry(Country.BE);
+
+        network.getVoltageLevel(VLGEN).newGenerator()
+                .setId("GEN2")
+                .setBus("NGEN")
+                .setConnectableBus("NGEN")
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
+                .setTargetP(607.0)
+                .setTargetQ(301.0)
+                .add();
+
+        ((Bus) network.getIdentifiable("NHV1")).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
+        ((Bus) network.getIdentifiable("NHV2")).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
+
+        DanglingLine danglingLine1 = network.getDanglingLine("NHV1_XNODE1");
+        DanglingLine danglingLine2 = network.getDanglingLine("XNODE1_NHV2");
+        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
+        danglingLine2.getTerminal().setP(-560.0).setQ(-550.0);
+        danglingLine1.newCurrentLimits().setPermanentLimit(500).add();
+        danglingLine2.newCurrentLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(1500)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+
+        danglingLine1 = network.getDanglingLine("NVH1_XNODE2");
+        danglingLine2 = network.getDanglingLine("XNODE2_NHV2");
+        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
+        danglingLine2.getTerminal().setP(-560.0).setQ(-550.0);
+        danglingLine1.newCurrentLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(60)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+        danglingLine2.newCurrentLimits().setPermanentLimit(500).add();
+
+        return network;
+    }
+
+    public static Network createWithFixedLimitsOnDanglingLines() {
+        return createWithFixedLimitsOnDanglingLines(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithFixedLimitsOnDanglingLines(NetworkFactory networkFactory) {
+        Network network = createWithTieLines(networkFactory);
+
+        network.setCaseDate(DateTime.parse("2018-01-01T11:00:00+01:00"));
+
+        network.getSubstation("P2").setCountry(Country.BE);
+
+        network.getVoltageLevel(VLGEN).newGenerator()
+                .setId("GEN2")
+                .setBus("NGEN")
+                .setConnectableBus("NGEN")
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
+                .setTargetP(607.0)
+                .setTargetQ(301.0)
+                .add();
+
+        ((Bus) network.getIdentifiable("NHV1")).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
+        ((Bus) network.getIdentifiable("NHV2")).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
+
+        DanglingLine danglingLine1 = network.getDanglingLine("NHV1_XNODE1");
+        DanglingLine danglingLine2 = network.getDanglingLine("XNODE1_NHV2");
+        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
+        danglingLine2.getTerminal().setP(560.0).setQ(550.0);
+        danglingLine1.newActivePowerLimits().setPermanentLimit(500).add();
+        danglingLine2.newActivePowerLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(1500)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+
+        danglingLine1.newApparentPowerLimits().setPermanentLimit(500).add();
+        danglingLine2.newApparentPowerLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(1500)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+
+        danglingLine1 = network.getDanglingLine("NVH1_XNODE2");
+        danglingLine2 = network.getDanglingLine("XNODE2_NHV2");
+        danglingLine1.getTerminal().setP(560.0).setQ(550.0);
+        danglingLine2.getTerminal().setP(560.0).setQ(550.0);
+        danglingLine1.newActivePowerLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(60)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+        danglingLine2.newActivePowerLimits().setPermanentLimit(500).add();
+
+        danglingLine1.newApparentPowerLimits()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(60)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+        danglingLine2.newApparentPowerLimits().setPermanentLimit(500).add();
+
+        return network;
+    }
+
     public static Network createWithMultipleConnectedComponents() {
         return createWithMultipleConnectedComponents(NetworkFactory.findDefault());
     }
