@@ -1,8 +1,9 @@
 /**
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.contingency.list;
 
@@ -17,16 +18,25 @@ import java.util.List;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class HvdcLineCriterionContingencyList extends AbstractLineCriterionContingencyList {
+public abstract class AbstractLineCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
+    private final TwoCountriesCriterion twoCountriesCriterion;
+    private final TwoNominalVoltageCriterion twoNominalVoltageCriterion;
 
-    public HvdcLineCriterionContingencyList(String name, TwoCountriesCriterion twoCountriesCriterion,
+    protected AbstractLineCriterionContingencyList(String name, IdentifiableType type, TwoCountriesCriterion twoCountriesCriterion,
                                             TwoNominalVoltageCriterion twoNominalVoltageCriterion,
                                             List<PropertyCriterion> propertyCriteria, RegexCriterion regexCriterion) {
-        super(name, IdentifiableType.HVDC_LINE, twoCountriesCriterion, twoNominalVoltageCriterion, propertyCriteria, regexCriterion);
+        super(name, type, propertyCriteria, regexCriterion);
+        this.twoCountriesCriterion = twoCountriesCriterion;
+        this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;
     }
 
     @Override
-    public String getType() {
-        return "hvdcCriterion";
+    public TwoCountriesCriterion getCountryCriterion() {
+        return twoCountriesCriterion;
+    }
+
+    @Override
+    public TwoNominalVoltageCriterion getNominalVoltageCriterion() {
+        return twoNominalVoltageCriterion;
     }
 }

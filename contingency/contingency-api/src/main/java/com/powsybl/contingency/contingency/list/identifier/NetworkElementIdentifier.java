@@ -10,12 +10,13 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public interface NetworkElementIdentifier {
-    Optional<Identifiable> filterIdentifiable(Network network);
+    Set<Identifiable<?>> filterIdentifiable(Network network);
 
     enum IdentifierType {
         ID_BASED,
@@ -24,4 +25,6 @@ public interface NetworkElementIdentifier {
     }
 
     IdentifierType getType();
+
+    Optional<String> getContingencyId();
 }
