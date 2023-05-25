@@ -27,6 +27,11 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     @Override
+    public void checkCurrent(TieLine tieLine, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+        checkCurrent(null, tieLine, side, currentValue, consumer);
+    }
+
+    @Override
     public void checkVoltage(Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
         checkVoltage(null, bus, voltageValue, consumer);
     }
@@ -37,6 +42,14 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     @Override
     public void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
         checkCurrent(contingency, branch, side, branch.getTerminal(side).getI(), consumer);
+    }
+
+    /**
+     * This implementation takes the current value to be checked from the Network.
+     */
+    @Override
+    public void checkCurrent(Contingency contingency, TieLine tieLine, Branch.Side side, Consumer<LimitViolation> consumer) {
+        checkCurrent(contingency, tieLine, side, tieLine.getDanglingLine(side).getTerminal().getI(), consumer);
     }
 
     /**
@@ -59,10 +72,17 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     @Override
+    public void checkCurrent(Contingency contingency, TieLine tieLine, Consumer<LimitViolation> consumer) {
+        checkCurrent(contingency, tieLine, Branch.Side.ONE, consumer);
+        checkCurrent(contingency, tieLine, Branch.Side.TWO, consumer);
+    }
+
+    @Override
     public void checkAll(Contingency contingency, Network network, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrent(contingency, b, consumer));
         network.getVoltageLevelStream()
                 .flatMap(v -> v.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(contingency, b, consumer));
+        network.getTieLineStream().forEach(t -> checkCurrent(contingency, t, consumer));
     }
 }
