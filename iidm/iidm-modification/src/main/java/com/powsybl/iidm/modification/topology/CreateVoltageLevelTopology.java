@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * Creates symmetrical matrix topology in a given voltage level,
