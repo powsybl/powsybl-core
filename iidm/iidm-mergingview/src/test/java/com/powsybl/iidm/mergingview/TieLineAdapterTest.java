@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -28,44 +27,37 @@ class TieLineAdapterTest {
 
     @Test
     void testSetterGetter() {
-        final TieLine tieLine = (TieLineAdapter) network.getLine("l1 + l2");
-        assertTrue(tieLine.isTieLine());
+        final TieLine tieLine = network.getTieLine("l1 + l2");
 
         assertEquals("XNODE", tieLine.getUcteXnodeCode());
-        assertNotNull(tieLine.getHalf1());
-        assertNotNull(tieLine.getHalf2());
+        assertNotNull(tieLine.getDanglingLine1());
+        assertNotNull(tieLine.getDanglingLine2());
 
-        assertEquals(Branch.Side.ONE, tieLine.getHalf1().getBoundary().getSide());
-        assertSame(tieLine, tieLine.getHalf1().getBoundary().getConnectable());
-        assertSame(tieLine.getTerminal1().getVoltageLevel(), tieLine.getHalf1().getBoundary().getNetworkSideVoltageLevel());
+        assertSame(tieLine.getDanglingLine1(), tieLine.getDanglingLine1().getBoundary().getDanglingLine());
+        assertSame(tieLine.getDanglingLine1(), tieLine.getDanglingLine1().getBoundary().getDanglingLine());
+        assertSame(tieLine.getDanglingLine1().getTerminal().getVoltageLevel(), tieLine.getDanglingLine1().getBoundary().getNetworkSideVoltageLevel());
 
-        assertEquals(Branch.Side.TWO, tieLine.getHalf2().getBoundary().getSide());
-        assertSame(tieLine, tieLine.getHalf2().getBoundary().getConnectable());
-        assertSame(tieLine.getTerminal2().getVoltageLevel(), tieLine.getHalf2().getBoundary().getNetworkSideVoltageLevel());
+        assertSame(tieLine.getDanglingLine2(), tieLine.getDanglingLine2().getBoundary().getDanglingLine());
+        assertSame(tieLine.getDanglingLine2(), tieLine.getDanglingLine2().getBoundary().getDanglingLine());
+        assertSame(tieLine.getDanglingLine2().getTerminal().getVoltageLevel(), tieLine.getDanglingLine2().getBoundary().getNetworkSideVoltageLevel());
 
-        checkHalfLine(tieLine.getHalf1());
-        checkHalfLine(tieLine.getHalf2());
+        checkDanglingLine(tieLine.getDanglingLine1());
+        checkDanglingLine(tieLine.getDanglingLine2());
     }
 
-    private static void checkHalfLine(TieLine.HalfLine half) {
-        assertEquals(1.0, half.getR(), 0.0);
-        half.setR(2.0);
-        assertEquals(2.0, half.getR(), 0.0);
-        assertEquals(1.0, half.getX(), 0.0);
-        half.setX(2.0);
-        assertEquals(2.0, half.getX(), 0.0);
-        assertEquals(0.0, half.getG1(), 0.0);
-        half.setG1(0.5);
-        assertEquals(0.5, half.getG1(), 0.0);
-        assertEquals(0.0, half.getG2(), 0.0);
-        half.setG2(0.5);
-        assertEquals(0.5, half.getG2(), 0.0);
-        assertEquals(0.0, half.getB1(), 0.0);
-        half.setB1(0.5);
-        assertEquals(0.5, half.getB1(), 0.0);
-        assertEquals(0.0, half.getB2(), 0.0);
-        half.setB2(0.5);
-        assertEquals(0.5, half.getB2(), 0.0);
+    private static void checkDanglingLine(DanglingLine danglingLine) {
+        assertEquals(1.0, danglingLine.getR(), 0.0);
+        danglingLine.setR(2.0);
+        assertEquals(2.0, danglingLine.getR(), 0.0);
+        assertEquals(1.0, danglingLine.getX(), 0.0);
+        danglingLine.setX(2.0);
+        assertEquals(2.0, danglingLine.getX(), 0.0);
+        assertEquals(0.0, danglingLine.getG(), 0.0);
+        danglingLine.setG(0.5);
+        assertEquals(0.5, danglingLine.getG(), 0.0);
+        assertEquals(0.0, danglingLine.getB(), 0.0);
+        danglingLine.setB(0.5);
+        assertEquals(0.5, danglingLine.getB(), 0.0);
     }
 
     private static Network createNetwork() {
@@ -111,33 +103,24 @@ class TieLineAdapterTest {
                 .setP0(0.0)
                 .setQ0(0.0)
                 .add();
+        DanglingLine dl1 = vl1.newDanglingLine()
+                .setBus("b1")
+                .setId("l1")
+                .setR(1.0)
+                .setX(1.0)
+                .setUcteXnodeCode("XNODE")
+                .add();
+        DanglingLine dl2 = vl2.newDanglingLine()
+                .setBus("b2")
+                .setId("l2")
+                .setR(1.0)
+                .setX(1.0)
+                .setUcteXnodeCode("XNODE")
+                .add();
         n.newTieLine()
                 .setId("l1 + l2")
-                .setVoltageLevel1("vl1")
-                .setConnectableBus1("b1")
-                .setBus1("b1")
-                .setVoltageLevel2("vl2")
-                .setConnectableBus2("b2")
-                .setBus2("b2")
-                .newHalfLine1()
-                    .setId("l1")
-                    .setR(1.0)
-                    .setX(1.0)
-                    .setG1(0.0)
-                    .setG2(0.0)
-                    .setB1(0.0)
-                    .setB2(0.0)
-                    .add()
-                .newHalfLine2()
-                    .setId("l2")
-                    .setR(1.0)
-                    .setX(1.0)
-                    .setG1(0.0)
-                    .setG2(0.0)
-                    .setB1(0.0)
-                    .setB2(0.0)
-                    .add()
-                .setUcteXnodeCode("XNODE")
+                .setDanglingLine1(dl1.getId())
+                .setDanglingLine2(dl2.getId())
                 .add();
         return n;
     }

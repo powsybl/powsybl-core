@@ -62,16 +62,18 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             List<String> mainRecords = new ArrayList<>();
             List<String> impedanceRecords = new ArrayList<>();
             List<String> windingRecords = new ArrayList<>();
-            String line = readRecordLine(reader);
-            while (!endOfBlock(line)) {
-                mainRecords.add(line);
-                impedanceRecords.add(readRecordLine(reader));
-                windingRecords.add(readRecordLine(reader));
-                windingRecords.add(readRecordLine(reader));
-                if (is3Winding(line)) {
+            if (!isQRecordFound()) {
+                String line = readRecordLine(reader);
+                while (!endOfBlock(line)) {
+                    mainRecords.add(line);
+                    impedanceRecords.add(readRecordLine(reader));
                     windingRecords.add(readRecordLine(reader));
+                    windingRecords.add(readRecordLine(reader));
+                    if (is3Winding(line)) {
+                        windingRecords.add(readRecordLine(reader));
+                    }
+                    line = readRecordLine(reader);
                 }
-                line = readRecordLine(reader);
             }
 
             List<PsseTransformer> transformerList = super.recordGroup.readFromStrings(mainRecords, context);

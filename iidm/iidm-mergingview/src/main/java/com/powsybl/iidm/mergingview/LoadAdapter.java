@@ -7,7 +7,10 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadModel;
 import com.powsybl.iidm.network.LoadType;
+
+import java.util.Optional;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -46,6 +49,11 @@ public class LoadAdapter extends AbstractInjectionAdapter<Load> implements Load 
     @Override
     public double getQ0() {
         return getDelegate().getQ0();
+    }
+
+    @Override
+    public Optional<LoadModel> getModel() {
+        return getDelegate().getModel();
     }
 
     @Override

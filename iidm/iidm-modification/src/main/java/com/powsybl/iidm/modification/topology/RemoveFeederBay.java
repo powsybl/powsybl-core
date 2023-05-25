@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * This modification removes the whole feeder bay related to a given feeder connectable.
@@ -58,6 +58,7 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         }
         connectable.remove();
         removedConnectableReport(reporter, connectableId);
+        LOGGER.info("Connectable {} removed", connectableId);
     }
 
     private Graph<Integer, Object> createGraphFromTerminal(Terminal terminal) {
@@ -108,7 +109,9 @@ public class RemoveFeederBay extends AbstractNetworkModification {
             } else if (connectables.stream().noneMatch(BusbarSection.class::isInstance)) {
                 // the edge is only linked to other non-busbarSection connectables, no further cleaning can be done
                 // Note that connectables cannot be empty because of previous if
-                removeFeederBayAborted(reporter, connectableId, node, connectables.stream().map(Connectable::getId).findFirst().orElse("none"));
+                String otherConnectableId = connectables.stream().map(Connectable::getId).findFirst().orElse("none");
+                removeFeederBayAborted(reporter, connectableId, node, otherConnectableId);
+                LOGGER.info("Remove feeder bay of {} cannot go further node {}, as it is connected to {}", connectableId, node, otherConnectableId);
                 return;
             } else {
                 // the edge is linked to busbarSections and non-busbarSection connectables, some further cleaning can be done if there's only one edge of that type
@@ -177,10 +180,12 @@ public class RemoveFeederBay extends AbstractNetworkModification {
             String switchId = ((Switch) edge).getId();
             nbv.removeSwitch(switchId);
             removedSwitchReport(reporter, switchId);
+            LOGGER.info("Switch {} removed", switchId);
         } else {
             Pair<Integer, Integer> ic = (Pair<Integer, Integer>) edge;
             nbv.removeInternalConnections(ic.getFirst(), ic.getSecond());
             removedInternalConnectionReport(reporter, ic.getFirst(), ic.getSecond());
+            LOGGER.info("Internal connection between {} and {} removed", ic.getFirst(), ic.getSecond());
         }
         graph.removeEdge(edge);
     }

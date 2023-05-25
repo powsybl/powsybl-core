@@ -104,8 +104,8 @@ public class Comparison {
                 actual.getThreeWindingsTransformerStream(),
                 this::compareThreeWindingsTransformers);
         compare(
-                expected.getDanglingLineStream(),
-                actual.getDanglingLineStream(),
+                expected.getDanglingLineStream(DanglingLineFilter.ALL).filter(dl -> !dl.isPaired()),
+                actual.getDanglingLineStream(DanglingLineFilter.ALL).filter(dl -> !dl.isPaired()),
                 this::compareDanglingLines);
         diff.end();
     }

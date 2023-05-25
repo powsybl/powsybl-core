@@ -10,6 +10,7 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.ReactiveLimitsHolder;
 import com.powsybl.iidm.network.VscConverterStation;
@@ -42,7 +43,7 @@ public final class ReactiveCapabilityCurveEq {
     }
 
     private static String holderClassName(ReactiveLimitsHolder holder) {
-        if (holder instanceof Generator) {
+        if (holder instanceof Generator || holder instanceof Battery) {
             return "ReactiveCapabilityCurve";
         } else if (holder instanceof VscConverterStation) {
             return "VsCapabilityCurve";

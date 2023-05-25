@@ -20,9 +20,9 @@ import java.util.Optional;
  */
 abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I> implements Branch<I> {
 
-    private final OperationalLimitsHolderImpl operationalLimitsHolder1;
+    protected final OperationalLimitsHolderImpl operationalLimitsHolder1;
 
-    private final OperationalLimitsHolderImpl operationalLimitsHolder2;
+    protected final OperationalLimitsHolderImpl operationalLimitsHolder2;
 
     AbstractBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
         super(network, id, name, fictitious);

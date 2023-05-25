@@ -58,9 +58,9 @@ public abstract class AbstractMergeNetworkTest {
         addSubstationAndVoltageLevel();
         addDanglingLines("dl1", "code", "dl2", "code");
         merge.merge(n1, n2);
-        assertNotNull(merge.getLine("dl1 + dl2"));
-        assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getOptionalName().orElse(null));
-        assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getNameOrId());
+        assertNotNull(merge.getTieLine("dl1 + dl2"));
+        assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
+        assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getNameOrId());
     }
 
     @Test
@@ -68,10 +68,10 @@ public abstract class AbstractMergeNetworkTest {
         addSubstationAndVoltageLevel();
         addDanglingLines("dl", null, "dl", "code");
         merge.merge(n1, n2);
-        assertNotNull(merge.getLine("dl"));
-        assertEquals("dl", merge.getLine("dl").getId());
-        assertEquals("dl_name", merge.getLine("dl").getOptionalName().orElse(null));
-        assertEquals("dl_name", merge.getLine("dl").getNameOrId());
+        assertNotNull(merge.getTieLine("dl"));
+        assertEquals("dl", merge.getTieLine("dl").getId());
+        assertEquals("dl_name", merge.getTieLine("dl").getOptionalName().orElse(null));
+        assertEquals("dl_name", merge.getTieLine("dl").getNameOrId());
     }
 
     private void addSubstation(Network network, String substationId) {
@@ -178,9 +178,9 @@ public abstract class AbstractMergeNetworkTest {
         addDanglingLines("dl1", "code", "dl2", "code");
         addDanglingLine(n2, "vl2", "dl3", "code", "b2", null);
         n1.merge(n2);
-        assertNotNull(n1.getLine("dl1 + dl2"));
-        assertEquals("dl1_name + dl2_name", n1.getLine("dl1 + dl2").getOptionalName().orElse(null));
-        assertEquals("dl1_name + dl2_name", n1.getLine("dl1 + dl2").getNameOrId());
+        assertNotNull(n1.getTieLine("dl1 + dl2"));
+        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
+        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getNameOrId());
     }
 
     @Test
@@ -189,8 +189,8 @@ public abstract class AbstractMergeNetworkTest {
         addDanglingLines("dl1", "code", "dl2", "code");
         addDanglingLine(n1, "vl1", "dl3", "code", "b1", null);
         n1.merge(n2);
-        assertNotNull(n1.getLine("dl1 + dl2"));
-        assertEquals("dl1_name + dl2_name", n1.getLine("dl1 + dl2").getOptionalName().orElse(null));
-        assertEquals("dl1_name + dl2_name", n1.getLine("dl1 + dl2").getNameOrId());
+        assertNotNull(n1.getTieLine("dl1 + dl2"));
+        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
+        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getNameOrId());
     }
 }

@@ -8,16 +8,8 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -83,6 +75,9 @@ public final class AmplUtil {
         // Lines
         fillLines(mapper, network);
 
+        // Tie lines
+        fillTieLines(mapper, network);
+
         // Two windings transformers
         fillTwoWindingsTransformers(mapper, network);
 
@@ -119,17 +114,27 @@ public final class AmplUtil {
     private static void fillLines(StringToIntMapper<AmplSubset> mapper, Network network) {
         for (Line l : network.getLines()) {
             mapper.newInt(AmplSubset.BRANCH, l.getId());
-            if (l.isTieLine()) {
-                TieLine tl = (TieLine) l;
-                mapper.newInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tl));
-                mapper.newInt(AmplSubset.BUS, AmplUtil.getXnodeBusId(tl));
-                mapper.newInt(AmplSubset.BRANCH, tl.getHalf1().getId());
-                mapper.newInt(AmplSubset.BRANCH, tl.getHalf2().getId());
-            }
 
             // limits
             l.getCurrentLimits1().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, l.getId(), "_1_"));
             l.getCurrentLimits2().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, l.getId(), "_2_"));
+        }
+    }
+
+    public static void fillTieLines(StringToIntMapper<AmplSubset> mapper, Network network) {
+        for (TieLine tl : network.getTieLines()) {
+            mapper.newInt(AmplSubset.BRANCH, tl.getId());
+            mapper.newInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tl));
+            mapper.newInt(AmplSubset.BUS, AmplUtil.getXnodeBusId(tl));
+
+            DanglingLine dl1 = tl.getDanglingLine1();
+            DanglingLine dl2 = tl.getDanglingLine2();
+            mapper.newInt(AmplSubset.BRANCH, dl1.getId());
+            mapper.newInt(AmplSubset.BRANCH, dl2.getId());
+
+            // limits
+            dl1.getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_1_"));
+            dl2.getCurrentLimits().ifPresent(currentLimits -> createLimitsIds(mapper, currentLimits, tl.getId(), "_2_"));
         }
     }
 
@@ -192,7 +197,7 @@ public final class AmplUtil {
     }
 
     private static void fillDanglingLines(StringToIntMapper<AmplSubset> mapper, Network network) {
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             mapper.newInt(AmplSubset.VOLTAGE_LEVEL, dl.getId());
             mapper.newInt(AmplSubset.BUS, dl.getId());
             mapper.newInt(AmplSubset.BRANCH, dl.getId());

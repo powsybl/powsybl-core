@@ -35,4 +35,16 @@ public interface LineFortescue extends Extension<Line> {
     double getXz();
 
     void setXz(double xz);
+
+    boolean isOpenPhaseA();
+
+    void setOpenPhaseA(boolean openPhaseA);
+
+    boolean isOpenPhaseB();
+
+    void setOpenPhaseB(boolean openPhaseB);
+
+    boolean isOpenPhaseC();
+
+    void setOpenPhaseC(boolean openPhaseC);
 }
