@@ -409,7 +409,7 @@ public final class TopologyModificationUtils {
 
             int sectionIndex = positionExtension.getSectionIndex();
             int max = getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE);
-            int min = getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o - 1).orElse(0);
+            int min = getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(0);
 
             return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
         }
