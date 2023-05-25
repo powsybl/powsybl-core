@@ -23,6 +23,7 @@ public final class ModificationReports {
     private static final String IDENTIFIABLE_ID = "identifiableId";
     private static final String IDENTIFIABLE_TYPE = "identifiableType";
     private static final String HVDC_LINE_ID = "hvdcLineId";
+    public static final String POSITION_ORDER = "positionOrder";
 
     // INFO
     public static void createdConnectable(Reporter reporter, Connectable<?> connectable) {
@@ -241,7 +242,7 @@ public final class ModificationReports {
                 .withKey("ignoredPositionOrder")
                 .withDefaultMessage("Voltage level ${voltageLevelId} is BUS_BREAKER. Position order ${positionOrder} is ignored.")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
-                .withValue("positionOrder", positionOrder)
+                .withValue(POSITION_ORDER, positionOrder)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
     }
@@ -279,7 +280,36 @@ public final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("positionOrderAlreadyTaken")
                 .withDefaultMessage("PositionOrder ${positionOrder} already taken. No position extension created.")
-                .withValue("positionOrder", positionOrder)
+                .withValue(POSITION_ORDER, positionOrder)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
+    public static void positionNoSlotLeftByAdjacentBbsReport(Reporter reporter, String bbsId) {
+        reporter.report(Report.builder()
+                .withKey("positionAdjacentBbsIncoherent")
+                .withDefaultMessage("Positions of adjacent busbar sections do not leave slots for new positions on busbar section ${bbsId}")
+                .withValue(BBS_ID, bbsId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
+    public static void positionOrderTooLowReport(Reporter reporter, int minValue, int positionOrder) {
+        reporter.report(Report.builder()
+                .withKey("positionOrderTooLow")
+                .withDefaultMessage("PositionOrder ${positionOrder} too low (<${minValue}). No position extension created.")
+                .withValue(POSITION_ORDER, positionOrder)
+                .withValue("minValue", minValue)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .build());
+    }
+
+    public static void positionOrderTooHighReport(Reporter reporter, int maxValue, int positionOrder) {
+        reporter.report(Report.builder()
+                .withKey("positionOrderTooHigh")
+                .withDefaultMessage("PositionOrder ${positionOrder} too high (>${minValue}). No position extension created.")
+                .withValue(POSITION_ORDER, positionOrder)
+                .withValue("maxValue", maxValue)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
     }
@@ -495,11 +525,21 @@ public final class ModificationReports {
                 .build());
     }
 
-    public static void unexpectedNullPositionOrder(Reporter reporter, VoltageLevel voltageLevel) {
+    public static void unexpectedNullPositionOrder(Reporter reporter, String voltageLevelId) {
         reporter.report(Report.builder()
                 .withKey("unexpectedNullPositionOrder")
                 .withDefaultMessage("Position order is null for attachment in node-breaker voltage level ${voltageLevelId}")
-                .withValue(VOLTAGE_LEVEL_ID, voltageLevel.getId())
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    public static void unexpectedNegativePositionOrder(Reporter reporter, int positionOrder, String voltageLevelId) {
+        reporter.report(Report.builder()
+                .withKey("unexpectedNegativePositionOrder")
+                .withDefaultMessage("Position order is negative (${positionOrder}) for attachment in voltage level ${voltageLevelId}")
+                .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withValue(POSITION_ORDER, positionOrder)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
