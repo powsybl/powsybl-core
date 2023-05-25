@@ -400,7 +400,7 @@ public interface LimitViolationDetector {
      */
     default void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
-            double limits = branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new),
+            double limits = branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
             addPermanent(branch, side, limitReduction, value, consumer, type, limits);
         }
     }
