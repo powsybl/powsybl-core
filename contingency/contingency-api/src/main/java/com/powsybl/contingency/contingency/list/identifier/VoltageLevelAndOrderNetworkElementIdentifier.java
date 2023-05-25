@@ -13,9 +13,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -27,19 +25,25 @@ public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElem
     private final String voltageLevelId1;
     private final String voltageLevelId2;
     private final char order;
+    private final String contingencyId;
 
     public VoltageLevelAndOrderNetworkElementIdentifier(String voltageLevelId1, String voltageLevelId2, char order) {
+        this(voltageLevelId1, voltageLevelId2, order, null);
+    }
+
+    public VoltageLevelAndOrderNetworkElementIdentifier(String voltageLevelId1, String voltageLevelId2, char order, String contingencyId) {
         this.voltageLevelId1 = Objects.requireNonNull(voltageLevelId1);
         this.voltageLevelId2 = Objects.requireNonNull(voltageLevelId2);
-        this.order = Objects.requireNonNull(order);
+        this.order = order;
+        this.contingencyId = contingencyId;
     }
 
     @Override
-    public Optional<Identifiable> filterIdentifiable(Network network) {
+    public Set<Identifiable<?>> filterIdentifiable(Network network) {
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevelId1);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevelId2);
         if (voltageLevel1 == null || voltageLevel2 == null) {
-            return Optional.empty();
+            return Collections.emptySet();
         } else {
             List<Connectable> connectablesVoltageLevel2 = voltageLevel2.getConnectableStream().collect(Collectors.toList());
             List<Connectable> foundConnectables = voltageLevel1.getConnectableStream()
@@ -47,11 +51,11 @@ public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElem
                     .filter(connectablesVoltageLevel2::contains)
                     .collect(Collectors.toList());
             if (foundConnectables.size() == 1) {
-                return Optional.ofNullable(foundConnectables.get(0));
+                return Collections.singleton(foundConnectables.get(0));
             } else {
                 LOG.warn("found several connectables between voltage levels {} and {} with order {}",
                         order, voltageLevel1.getId(), voltageLevel2.getId());
-                return Optional.empty();
+                return Collections.emptySet();
             }
         }
     }
@@ -59,6 +63,11 @@ public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElem
     @Override
     public IdentifierType getType() {
         return IdentifierType.VOLTAGE_LEVELS_AND_ORDER;
+    }
+
+    @Override
+    public Optional<String> getContingencyId() {
+        return Optional.ofNullable(contingencyId);
     }
 
     public String getVoltageLevelId1() {

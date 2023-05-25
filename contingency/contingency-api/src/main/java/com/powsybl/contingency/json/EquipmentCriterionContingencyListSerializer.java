@@ -11,7 +11,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.contingency.contingency.list.AbstractEquipmentCriterionContingencyList;
-import com.powsybl.contingency.contingency.list.ContingencyList;
 
 import java.io.IOException;
 
@@ -27,21 +26,8 @@ public class EquipmentCriterionContingencyListSerializer<T extends AbstractEquip
     @Override
     public void serialize(T criterionContingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("type", criterionContingencyList.getType());
-        jsonGenerator.writeStringField("version", ContingencyList.getVersion());
-        jsonGenerator.writeStringField("name", criterionContingencyList.getName());
-        serializerProvider.defaultSerializeField("countryCriterion",
-                criterionContingencyList.getCountryCriterion(),
-                jsonGenerator);
-        serializerProvider.defaultSerializeField("nominalVoltageCriterion",
-                criterionContingencyList.getNominalVoltageCriterion(),
-                jsonGenerator);
-        serializerProvider.defaultSerializeField("propertyCriteria",
-                criterionContingencyList.getPropertyCriteria(),
-                jsonGenerator);
-        serializerProvider.defaultSerializeField("regexCriterion",
-                criterionContingencyList.getRegexCriterion(),
-                jsonGenerator);
+        CriterionContingencyListSerializer.serializeCommonHeadAttributes(criterionContingencyList, jsonGenerator);
+        CriterionContingencyListSerializer.serializeCommonCriterionAttributes(criterionContingencyList, jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }
 }
