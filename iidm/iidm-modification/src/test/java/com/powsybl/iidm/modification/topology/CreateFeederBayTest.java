@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
@@ -425,6 +426,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
 
     @Test
     void testExceptionInvalidValue() {
+        ComputationManager computationManager = LocalComputationManager.getDefault();
         Network network = Network.create("test", "test");
         VoltageLevel vl = network.newVoltageLevel().setId("vl").setNominalV(1.0).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         BusbarSection bbs = vl.getNodeBreakerView().newBusbarSection().setId("bbs").setNode(0).add();
@@ -440,7 +442,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withBusOrBusbarSectionId(bbs.getId())
                 .withInjectionPositionOrder(-2)
                 .build();
-        PowsyblException eNeg = assertThrows(PowsyblException.class, () -> negativeOrderCreate.apply(network, true, LocalComputationManager.getDefault(), Reporter.NO_OP));
+        PowsyblException eNeg = assertThrows(PowsyblException.class, () -> negativeOrderCreate.apply(network, true, computationManager, Reporter.NO_OP));
         assertEquals("Position order is negative for attachment in node-breaker voltage level vl: -2", eNeg.getMessage());
 
         //null order position
@@ -448,7 +450,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId(bbs.getId())
                 .build();
-        PowsyblException eNull = assertThrows(PowsyblException.class, () -> nullOrderCreate.apply(network, true, LocalComputationManager.getDefault(), Reporter.NO_OP));
+        PowsyblException eNull = assertThrows(PowsyblException.class, () -> nullOrderCreate.apply(network, true, computationManager, Reporter.NO_OP));
         assertEquals("Position order is null for attachment in node-breaker voltage level vl", eNull.getMessage());
     }
 }
