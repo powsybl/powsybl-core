@@ -273,7 +273,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withDirection2(TOP)
                 .build();
         modification.apply(nbNetwork);
-        roundTripTest(nbNetwork, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
+        roundTripXmlTest(nbNetwork, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/network-node-breaker-with-new-twt-feeders-bbs.xml");
     }
 
