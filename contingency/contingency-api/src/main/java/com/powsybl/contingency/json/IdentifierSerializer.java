@@ -14,6 +14,7 @@ import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentif
 import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -28,14 +29,13 @@ public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier
     public void serialize(NetworkElementIdentifier networkElementIdentifier, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", networkElementIdentifier.getType().toString());
-        if (networkElementIdentifier.getContingencyId().isPresent()) {
-            jsonGenerator.writeStringField("contingencyId", networkElementIdentifier.getContingencyId().get());
+        Optional<String> optionalContingencyId = networkElementIdentifier.getContingencyId();
+        if (optionalContingencyId.isPresent()) {
+            jsonGenerator.writeStringField("contingencyId", optionalContingencyId.get());
         }
         switch (networkElementIdentifier.getType()) {
             case ID_BASED:
-                serializerProvider.defaultSerializeField("identifiers",
-                        ((IdBasedNetworkElementIdentifier) networkElementIdentifier).getIdentifiers(),
-                        jsonGenerator);
+                jsonGenerator.writeStringField("identifier", ((IdBasedNetworkElementIdentifier) networkElementIdentifier).getIdentifier());
                 break;
             case LIST:
                 serializerProvider.defaultSerializeField("identifierList",

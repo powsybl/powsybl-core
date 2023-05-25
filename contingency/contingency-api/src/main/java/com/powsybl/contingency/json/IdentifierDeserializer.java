@@ -17,9 +17,7 @@ import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderN
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -35,7 +33,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
     @Override
     public NetworkElementIdentifier deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         NetworkElementIdentifier.IdentifierType type = null;
-        Set<String> identifiers = null;
+        String identifier = null;
         String voltageLevelId1 = null;
         String voltageLevelId2 = null;
         String contingencyId = null;
@@ -48,16 +46,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                     type = NetworkElementIdentifier.IdentifierType.valueOf(parser.nextTextValue());
                     break;
                 case "identifier":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifier", version, "1.1");
-                    String contingencyElement = parser.nextTextValue();
-                    identifiers = Collections.singleton(contingencyElement);
-                    contingencyId = contingencyElement;
-                    break;
-                case "identifiers":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "identifiers", version, "1.2");
-                    parser.nextToken();
-                    identifiers = new HashSet<>(JsonUtil.readList(deserializationContext,
-                            parser, String.class));
+                    identifier = parser.nextTextValue();
                     break;
                 case CONTINGENCY_ID:
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, CONTINGENCY_ID, version, "1.2");
@@ -91,7 +80,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         }
         switch (type) {
             case ID_BASED:
-                return new IdBasedNetworkElementIdentifier(identifiers, contingencyId);
+                return new IdBasedNetworkElementIdentifier(identifier, contingencyId);
             case LIST:
                 return new NetworkElementIdentifierList(networkElementIdentifierList, contingencyId);
             case VOLTAGE_LEVELS_AND_ORDER:

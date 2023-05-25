@@ -4,8 +4,7 @@
   "name" : "list1",
   "identifiers" : [ {
     "type" : "ID_BASED",
-    "contingencyId" : "identifier",
-    "identifiers" : [ "identifier" ]
+    "identifier" : "identifier"
   }, {
     "type" : "VOLTAGE_LEVELS_AND_ORDER",
     "voltageLevelId1" : "vl1",
@@ -15,8 +14,7 @@
     "type" : "LIST",
     "identifierList" : [ {
       "type" : "ID_BASED",
-      "contingencyId" : "identifier",
-      "identifiers" : [ "identifier" ]
+      "identifier" : "identifier"
     } ]
   } ]
 }
