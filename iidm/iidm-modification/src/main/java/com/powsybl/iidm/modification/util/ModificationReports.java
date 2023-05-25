@@ -284,10 +284,11 @@ public final class ModificationReports {
                 .build());
     }
 
-    public static void positionAdjacentBbsIncoherentReport(Reporter reporter) {
+    public static void positionNoSlotLeftByAdjacentBbsReport(Reporter reporter, String bbsId) {
         reporter.report(Report.builder()
                 .withKey("positionAdjacentBbsIncoherent")
-                .withDefaultMessage("Positions of adjacent busbar sections are incoherent: max order on the left is greater than min order on the right. No position extension created.")
+                .withDefaultMessage("Positions of adjacent busbar sections do not leave slots for new positions on busbar section ${bbsId}")
+                .withValue(BBS_ID, bbsId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
     }

@@ -112,8 +112,8 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
         Optional<Range<Integer>> positionRangeForSection = getPositionRange(busbarSection);
         if (positionRangeForSection.isEmpty()) {
-            LOGGER.warn("Positions of adjacent busbar sections are incoherent: max order on the left is greater than min order on the right. No position extension created.");
-            positionAdjacentBbsIncoherentReport(reporter);
+            LOGGER.warn("Positions of adjacent busbar sections do not leave slots for new positions on busbar section '{}'. No position extension created.", busbarSection.getId());
+            positionNoSlotLeftByAdjacentBbsReport(reporter, busbarSection.getId());
             return false;
         }
 
