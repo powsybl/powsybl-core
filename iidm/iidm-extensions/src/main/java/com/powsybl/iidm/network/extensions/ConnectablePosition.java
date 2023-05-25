@@ -14,14 +14,17 @@ import java.util.Optional;
 /**
  * This class gives some information for visualization tools, for a given connectable:
  * <ul>
- *     <li>its position relative to other equipments in the voltage level,</li>
- *     <li>its direction relative to the corresponding busbar section (top or bottom - as the busbar section is usually displayed horizontally - or undefined),</li>
- *     <li>its display name.</li>
+ *     <li>its position relative to other equipments in its voltage level(s),</li>
+ *     <li>its direction relative to the corresponding busbar section(s) (top or bottom - as the busbar section is usually displayed horizontally - or undefined),</li>
+ *     <li>its display name(s).</li>
  * </ul>
  * This gives visualization tools suggestions for displaying the equipments within a voltage level.
+ * The information is given through one, two or three {@link ConnectablePosition.Feeder} objects, as the connectable
+ * might be between two or three busbar sections (which may or may not be in the same voltage level).
  * <p>
  * Note that, when this class is used in conjunction with {@link com.powsybl.iidm.network.extensions.BusbarSectionPosition},
- * the connectable positions should be in ascending order for ascending busbar section index positions.
+ * the connectable positions should be in ascending order for ascending busbar section indices.
+ * That is, the connectable positions should be in ascending order on a given physical busbar.
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ConnectablePosition<C extends Connectable<C>> extends Extension<C> {
