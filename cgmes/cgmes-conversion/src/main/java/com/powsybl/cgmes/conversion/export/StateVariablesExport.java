@@ -221,16 +221,11 @@ public final class StateVariablesExport {
             writeOptionalPowerFlowTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getTerminal1(), cimNamespace, writer, context);
             writeOptionalPowerFlowTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2(), cimNamespace, writer, context);
         });
-        network.getTieLineStream().forEach(b -> {
-            DanglingLine dl1 = b.getDanglingLine1();
-            DanglingLine dl2 = b.getDanglingLine2();
-            CgmesControlAreas areas1 = dl1.getClosestNetwork().getExtension(CgmesControlAreas.class);
-            CgmesControlAreas areas2 = dl2.getClosestNetwork().getExtension(CgmesControlAreas.class);
-            writePowerFlowTieLineTerminalFromAlias(areas1, dl1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, dl1.getTerminal(), cimNamespace, writer, context);
-            writePowerFlowTieLineTerminalFromAlias(areas2, dl2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, dl2.getTerminal(), cimNamespace, writer, context);
+        network.getDanglingLineStream(DanglingLineFilter.PAIRED).forEach(dl -> {
+            CgmesControlAreas areas1 = dl.getClosestNetwork().getExtension(CgmesControlAreas.class);
+            writePowerFlowTieLineTerminalFromAlias(areas1, dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, dl.getTerminal(), cimNamespace, writer, context);
             if (context.exportBoundaryPowerFlows()) {
-                writePowerFlowTerminalFromAlias(dl1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", dl1.getBoundary().getP(), dl1.getBoundary().getQ(), cimNamespace, writer, context);
-                writePowerFlowTerminalFromAlias(dl2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", dl2.getBoundary().getP(), dl2.getBoundary().getQ(), cimNamespace, writer, context);
+                writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer, context);
             }
         });
 
