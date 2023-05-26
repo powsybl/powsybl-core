@@ -997,6 +997,11 @@ public final class EquipmentExport {
     private static void writeTerminal(Terminal t, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
                                       String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
+        // TODO(Luma) Export tie line components instead of a single equipment
+        // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
+        // We need to write the proper terminal of the single tie line that will be exported
+        // When we change the export and write the two dangling lines as separate equipment,
+        // then we should always return 1 and forget about this special case
         if (t.getConnectable() instanceof DanglingLine && ((DanglingLine) t.getConnectable()).isPaired()) {
             equipmentId = context.getNamingStrategy().getCgmesId(((DanglingLine) t.getConnectable()).getTieLine().orElseThrow(IllegalStateException::new));
         }

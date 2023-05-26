@@ -16,11 +16,18 @@ public class UcteExporterContext {
 
     private final NamingStrategy namingStrategy;
 
-    public UcteExporterContext(NamingStrategy namingStrategy) {
+    private final boolean combinePhaseAngleRegulation;
+
+    public UcteExporterContext(NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation) {
         this.namingStrategy = Objects.requireNonNull(namingStrategy);
+        this.combinePhaseAngleRegulation = Objects.requireNonNull(combinePhaseAngleRegulation);
     }
 
     public NamingStrategy getNamingStrategy() {
         return namingStrategy;
+    }
+
+    public boolean withCombinePhaseAngleRegulation() {
+        return combinePhaseAngleRegulation;
     }
 }

@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
+import org.apache.commons.math3.complex.Complex;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +48,15 @@ public class UcteExporter implements Exporter {
 
     public static final String NAMING_STRATEGY = "ucte.export.naming-strategy";
 
-    private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
+    public static final String COMBINE_PHASE_ANGLE_REGULATION = "ucte.export.combine-phase-angle-regulation";
 
-    private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER);
+    private static final Parameter NAMING_STRATEGY_PARAMETER
+            = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
+
+    private static final Parameter COMBINE_PHASE_ANGLE_REGULATION_PARAMETER
+            = new Parameter(COMBINE_PHASE_ANGLE_REGULATION, ParameterType.BOOLEAN, "Combine phase and angle regulation", false);
+
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER);
 
     private static final Supplier<List<NamingStrategy>> NAMING_STRATEGY_SUPPLIERS
             = Suppliers.memoize(() -> new ServiceLoaderCache<>(NamingStrategy.class).getServices());
@@ -82,8 +89,9 @@ public class UcteExporter implements Exporter {
 
         String namingStrategyName = Parameter.readString(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
         NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, NAMING_STRATEGY_SUPPLIERS.get());
+        boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
-        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy);
+        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy, combinePhaseAngleRegulation);
 
         try (OutputStream os = dataSource.newOutputStream(null, "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
@@ -124,7 +132,7 @@ public class UcteExporter implements Exporter {
      * @param namingStrategy the naming strategy to generate UCTE nodes name and elements name
      * @return the UcteNetwork corresponding to the IIDM network
      */
-    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy) {
+    private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy, boolean combinePhaseAngleRegulation) {
 
         if (network.getShuntCompensatorCount() > 0 ||
             network.getStaticVarCompensatorCount() > 0 ||
@@ -137,7 +145,7 @@ public class UcteExporter implements Exporter {
             throw new UcteException("This network contains unsupported equipments");
         }
 
-        UcteExporterContext context = new UcteExporterContext(namingStrategy);
+        UcteExporterContext context = new UcteExporterContext(namingStrategy, combinePhaseAngleRegulation);
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
         ucteNetwork.setVersion(UcteFormatVersion.SECOND);
@@ -352,8 +360,8 @@ public class UcteExporter implements Exporter {
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getUcteXnodeCode());
-        String geographicalName = tieLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
-        UcteNodeStatus ucteNodeStatus = getXnodeStatus(tieLine);
+        String geographicalName = mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
+        UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), STATUS_PROPERTY_KEY + "_XNode"));
         convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
     }
 
@@ -456,7 +464,7 @@ public class UcteExporter implements Exporter {
         // Create half line 1
         DanglingLine danglingLine1 = tieLine.getDanglingLine1();
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(danglingLine1.getId());
-        String elementName1 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
+        String elementName1 = danglingLine1.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status1 = getStatusHalf(tieLine, Branch.Side.ONE);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
@@ -471,7 +479,7 @@ public class UcteExporter implements Exporter {
         // Create half line2
         DanglingLine danglingLine2 = tieLine.getDanglingLine2();
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(danglingLine2.getId());
-        String elementName2 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
+        String elementName2 = danglingLine2.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status2 = getStatusHalf(tieLine, Branch.Side.TWO);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
@@ -521,8 +529,34 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addLine(ucteLine);
     }
 
+    private static String mergedProperty(Identifiable<?> identifiable1, Identifiable<?> identifiable2, String key) {
+        String value;
+        String value1 = identifiable1.getProperty(key, "");
+        String value2 = identifiable2.getProperty(key, "");
+        if (value1.equals(value2)) {
+            value = value1;
+        } else if (value1.isEmpty()) {
+            value = value2;
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", key, value2);
+        } else if (value2.isEmpty()) {
+            value = value1;
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", key, value1);
+        } else {
+            // Inconsistent values, declare the result value empty
+            value = "";
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Ignoring the property on the merged line",
+                    key,
+                    value1,
+                    value2);
+        }
+        return value;
+    }
+
     private static UcteNodeStatus getXnodeStatus(Identifiable<?> identifiable) {
-        String statusNode = identifiable.getProperty(STATUS_PROPERTY_KEY + "_XNode");
+        return getXnodeStatus(identifiable.getProperty(STATUS_PROPERTY_KEY + "_XNode"));
+    }
+
+    private static UcteNodeStatus getXnodeStatus(String statusNode) {
         UcteNodeStatus ucteNodeStatus = UcteNodeStatus.REAL;
         if (statusNode != null && statusNode.equals(UcteNodeStatus.EQUIVALENT.toString())) {
             ucteNodeStatus = UcteNodeStatus.EQUIVALENT;
@@ -619,7 +653,6 @@ public class UcteExporter implements Exporter {
      * @param ucteNetwork The target UcteNetwork
      * @param twoWindingsTransformer The two windings transformer we want to convert
      * @param context The context used to store temporary data during the conversion
-     * @see UcteExporter#convertRegulation(UcteNetwork, UcteElementId, TwoWindingsTransformer)
      */
     private static void convertTwoWindingsTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer, UcteExporterContext context) {
         if (isTransformerYNode(twoWindingsTransformer)) {
@@ -651,7 +684,7 @@ public class UcteExporter implements Exporter {
                 twoWindingsTransformer.getG());
         ucteNetwork.addTransformer(ucteTransformer);
 
-        convertRegulation(ucteNetwork, elementId, twoWindingsTransformer);
+        convertRegulation(ucteNetwork, elementId, twoWindingsTransformer, context.withCombinePhaseAngleRegulation());
     }
 
     /**
@@ -663,12 +696,12 @@ public class UcteExporter implements Exporter {
      * @param ucteElementId The UcteElementId corresponding to the TwoWindingsTransformer
      * @param twoWindingsTransformer The TwoWindingTransformer we want to convert
      */
-    private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer) {
+    private static void convertRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
         if (twoWindingsTransformer.hasRatioTapChanger() || twoWindingsTransformer.hasPhaseTapChanger()) {
             UctePhaseRegulation uctePhaseRegulation = twoWindingsTransformer.getOptionalRatioTapChanger()
                     .map(rtc -> convertRatioTapChanger(twoWindingsTransformer)).orElse(null);
             UcteAngleRegulation ucteAngleRegulation = twoWindingsTransformer.getOptionalPhaseTapChanger()
-                    .map(ptc -> convertPhaseTapChanger(twoWindingsTransformer)).orElse(null);
+                    .map(ptc -> convertPhaseTapChanger(twoWindingsTransformer, combinePhaseAngleRegulation)).orElse(null);
             UcteRegulation ucteRegulation = new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation);
             ucteNetwork.addRegulation(ucteRegulation);
         }
@@ -704,7 +737,7 @@ public class UcteExporter implements Exporter {
      * @see UcteAngleRegulation
      * @see UcteExporter#findRegulationType(TwoWindingsTransformer)
      */
-    private static UcteAngleRegulation convertPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
+    private static UcteAngleRegulation convertPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
         LOGGER.trace("Converting iidm Phase tap changer of transformer {}", twoWindingsTransformer.getId());
         UcteAngleRegulationType ucteAngleRegulationType = findRegulationType(twoWindingsTransformer);
         if (ucteAngleRegulationType == UcteAngleRegulationType.SYMM) {
@@ -715,8 +748,9 @@ public class UcteExporter implements Exporter {
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         } else {
-            return new UcteAngleRegulation(calculateAsymmAngleDu(twoWindingsTransformer),
-                    calculateAsymmAngleTheta(twoWindingsTransformer),
+            Complex duAndAngle = calculateAsymmAngleDuAndAngle(twoWindingsTransformer, combinePhaseAngleRegulation);
+            return new UcteAngleRegulation(duAndAngle.abs(),
+                    Math.toDegrees(duAndAngle.getArgument()),
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
                     twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
                     calculateAngleP(twoWindingsTransformer),

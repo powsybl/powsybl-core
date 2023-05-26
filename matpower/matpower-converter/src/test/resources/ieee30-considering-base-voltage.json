@@ -15,8 +15,8 @@
     "voltageAngle" : 0.0,
     "baseVoltage" : 132.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 139.92000000000002,
-    "minimumVoltageMagnitude" : 124.08
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 2,
     "type" : "PV",
@@ -30,8 +30,8 @@
     "voltageAngle" : -5.48,
     "baseVoltage" : 132.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 139.92000000000002,
-    "minimumVoltageMagnitude" : 124.08
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 3,
     "type" : "PQ",
@@ -45,8 +45,8 @@
     "voltageAngle" : -7.96,
     "baseVoltage" : 132.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 139.92000000000002,
-    "minimumVoltageMagnitude" : 124.08
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 4,
     "type" : "PQ",
@@ -60,8 +60,8 @@
     "voltageAngle" : -9.62,
     "baseVoltage" : 132.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 139.92000000000002,
-    "minimumVoltageMagnitude" : 124.08
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 5,
     "type" : "PV",
@@ -75,8 +75,8 @@
     "voltageAngle" : -14.37,
     "baseVoltage" : 132.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 139.92000000000002,
-    "minimumVoltageMagnitude" : 124.08
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 6,
     "type" : "PQ",
@@ -90,8 +90,8 @@
     "voltageAngle" : -11.34,
     "baseVoltage" : 132.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 139.92000000000002,
-    "minimumVoltageMagnitude" : 124.08
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 7,
     "type" : "PQ",
@@ -105,8 +105,8 @@
     "voltageAngle" : -13.12,
     "baseVoltage" : 132.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 139.92000000000002,
-    "minimumVoltageMagnitude" : 124.08
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 8,
     "type" : "PV",
@@ -120,8 +120,8 @@
     "voltageAngle" : -12.1,
     "baseVoltage" : 132.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 139.92000000000002,
-    "minimumVoltageMagnitude" : 124.08
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 9,
     "type" : "PQ",
@@ -150,8 +150,8 @@
     "voltageAngle" : -15.97,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 11,
     "type" : "PV",
@@ -165,8 +165,8 @@
     "voltageAngle" : -14.39,
     "baseVoltage" : 11.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 11.66,
-    "minimumVoltageMagnitude" : 10.34
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 12,
     "type" : "PQ",
@@ -180,8 +180,8 @@
     "voltageAngle" : -15.24,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 13,
     "type" : "PV",
@@ -195,8 +195,8 @@
     "voltageAngle" : -15.24,
     "baseVoltage" : 11.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 11.66,
-    "minimumVoltageMagnitude" : 10.34
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 14,
     "type" : "PQ",
@@ -210,8 +210,8 @@
     "voltageAngle" : -16.13,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 15,
     "type" : "PQ",
@@ -225,8 +225,8 @@
     "voltageAngle" : -16.22,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 16,
     "type" : "PQ",
@@ -240,8 +240,8 @@
     "voltageAngle" : -15.83,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 17,
     "type" : "PQ",
@@ -255,8 +255,8 @@
     "voltageAngle" : -16.14,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 18,
     "type" : "PQ",
@@ -270,8 +270,8 @@
     "voltageAngle" : -16.82,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 19,
     "type" : "PQ",
@@ -285,8 +285,8 @@
     "voltageAngle" : -17.0,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 20,
     "type" : "PQ",
@@ -300,8 +300,8 @@
     "voltageAngle" : -16.8,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 21,
     "type" : "PQ",
@@ -315,8 +315,8 @@
     "voltageAngle" : -16.42,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 22,
     "type" : "PQ",
@@ -330,8 +330,8 @@
     "voltageAngle" : -16.41,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 23,
     "type" : "PQ",
@@ -345,8 +345,8 @@
     "voltageAngle" : -16.61,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 24,
     "type" : "PQ",
@@ -360,8 +360,8 @@
     "voltageAngle" : -16.78,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 25,
     "type" : "PQ",
@@ -375,8 +375,8 @@
     "voltageAngle" : -16.35,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 26,
     "type" : "PQ",
@@ -390,8 +390,8 @@
     "voltageAngle" : -16.77,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 27,
     "type" : "PQ",
@@ -405,8 +405,8 @@
     "voltageAngle" : -15.82,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 28,
     "type" : "PQ",
@@ -420,8 +420,8 @@
     "voltageAngle" : -11.97,
     "baseVoltage" : 132.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 139.92000000000002,
-    "minimumVoltageMagnitude" : 124.08
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 29,
     "type" : "PQ",
@@ -435,8 +435,8 @@
     "voltageAngle" : -17.06,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   }, {
     "number" : 30,
     "type" : "PQ",
@@ -450,8 +450,8 @@
     "voltageAngle" : -17.94,
     "baseVoltage" : 33.0,
     "lossZone" : 1,
-    "maximumVoltageMagnitude" : 34.980000000000004,
-    "minimumVoltageMagnitude" : 31.02
+    "maximumVoltageMagnitude" : 1.06,
+    "minimumVoltageMagnitude" : 0.94
   } ],
   "generators" : [ {
     "number" : 1,
@@ -460,7 +460,7 @@
     "maximumReactivePowerOutput" : 10.0,
     "minimumReactivePowerOutput" : 0.0,
     "voltageMagnitudeSetpoint" : 1.06,
-    "totalMbase" : 0.0,
+    "totalMbase" : 100.0,
     "status" : 1,
     "maximumRealPowerOutput" : 360.2,
     "minimumRealPowerOutput" : 0.0,
@@ -482,7 +482,7 @@
     "maximumReactivePowerOutput" : 50.0,
     "minimumReactivePowerOutput" : -40.0,
     "voltageMagnitudeSetpoint" : 1.045,
-    "totalMbase" : 0.0,
+    "totalMbase" : 100.0,
     "status" : 1,
     "maximumRealPowerOutput" : 140.0,
     "minimumRealPowerOutput" : 0.0,
@@ -504,7 +504,7 @@
     "maximumReactivePowerOutput" : 40.0,
     "minimumReactivePowerOutput" : -40.0,
     "voltageMagnitudeSetpoint" : 1.01,
-    "totalMbase" : 0.0,
+    "totalMbase" : 100.0,
     "status" : 1,
     "maximumRealPowerOutput" : 100.0,
     "minimumRealPowerOutput" : 0.0,
@@ -526,7 +526,7 @@
     "maximumReactivePowerOutput" : 40.0,
     "minimumReactivePowerOutput" : -10.0,
     "voltageMagnitudeSetpoint" : 1.01,
-    "totalMbase" : 0.0,
+    "totalMbase" : 100.0,
     "status" : 1,
     "maximumRealPowerOutput" : 100.0,
     "minimumRealPowerOutput" : 0.0,
@@ -548,7 +548,7 @@
     "maximumReactivePowerOutput" : 24.0,
     "minimumReactivePowerOutput" : -6.0,
     "voltageMagnitudeSetpoint" : 1.082,
-    "totalMbase" : 0.0,
+    "totalMbase" : 100.0,
     "status" : 1,
     "maximumRealPowerOutput" : 100.0,
     "minimumRealPowerOutput" : 0.0,
@@ -570,7 +570,7 @@
     "maximumReactivePowerOutput" : 24.0,
     "minimumReactivePowerOutput" : -6.0,
     "voltageMagnitudeSetpoint" : 1.071,
-    "totalMbase" : 0.0,
+    "totalMbase" : 100.0,
     "status" : 1,
     "maximumRealPowerOutput" : 100.0,
     "minimumRealPowerOutput" : 0.0,

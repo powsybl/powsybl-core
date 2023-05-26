@@ -7,6 +7,8 @@
 package com.powsybl.action.dsl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -32,10 +34,15 @@ class GeneratorModificationActionTest {
 
     @Test
     void testExceptionOnWrongGeneratorId() {
-        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
+        ActionDb actionDb = new ActionDslLoader(
+                new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("unknown generator");
-        PowsyblException e = assertThrows(PowsyblException.class, () -> action.run(network));
+        NetworkModification genModif = action.getModifications().get(0);
+        // should throw with ThrowException = true
+        PowsyblException e = assertThrows(PowsyblException.class, () -> genModif.apply(network, true, Reporter.NO_OP));
         assertTrue(e.getMessage().contains("Generator 'UNKNOWN' not found"));
+        // should not throw with ThrowException = false (default)
+        assertDoesNotThrow(() -> genModif.apply(network));
     }
 
     @Test

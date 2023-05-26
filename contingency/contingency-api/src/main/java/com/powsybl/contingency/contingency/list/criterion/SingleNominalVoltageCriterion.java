@@ -52,8 +52,8 @@ public class SingleNominalVoltageCriterion implements Criterion {
         if (voltageLevel == null) {
             return false;
         }
-        double injectionNomialVoltage = voltageLevel.getNominalV();
-        return voltageInterval.isNull() || voltageInterval.checkIsBetweenBound(injectionNomialVoltage);
+        double injectionNominalVoltage = voltageLevel.getNominalV();
+        return voltageInterval.isNull() || voltageInterval.checkIsBetweenBound(injectionNominalVoltage);
     }
 
     public VoltageInterval getVoltageInterval() {

@@ -43,7 +43,7 @@ class MergedLine implements TieLine {
         this.danglingLine2 = index.getDanglingLine(dl2);
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildMergedId(dl1.getId(), dl2.getId()), index::contains) : buildMergedId(dl1.getId(), dl2.getId());
         this.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
-        mergeProperties(dl1, dl2, properties);
+        // No need to merge properties of inner dangling lines
     }
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2) {
