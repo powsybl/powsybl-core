@@ -8,7 +8,6 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
@@ -38,12 +37,7 @@ public class ConnectionShuntModification extends AbstractNetworkModification {
                       Reporter reporter) {
         Terminal t = network.getShuntCompensator(shuntId).getTerminal();
         if (connect) {
-            Bus connectable = t.getBusView().getConnectableBus();
-            if (connectable != null) {
-                t.connect();
-            } else {
-                logOrThrow(throwException, "The shunt '" + shuntId + "' has no connectable bus.");
-            }
+            t.connect();
         } else {
             t.disconnect();
         }

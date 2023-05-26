@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author Nicolas Pierre <nicolas.pierre at artelys.com>
  */
-public class ConnectionShuntModificationTest {
+class ConnectionShuntModificationTest {
     private String shuntId;
     private Network network;
 
