@@ -242,8 +242,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(isInSlackBus(g) ? "1" : "0");
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
-            // All generators in PowSyBl are considered as generator, not motor
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode.generator");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(g.getTargetP(), g.getMinP(), g.getReactiveLimits()));
             writer.writeEndElement();
 
             addRegulatingControlView(g, regulatingControlViews, context);
@@ -264,9 +263,27 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(isInSlackBus(b) ? "1" : "0");
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
-            String mode = b.getTargetP() > 0 ? "generator" : "motor";
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode);
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(b.getTargetP(), b.getMinP(), b.getReactiveLimits()));
             writer.writeEndElement();
+        }
+    }
+
+    private static String mode(double targetP, double minP, ReactiveLimits reactiveLimits) {
+        if (targetP < 0) {
+            return "motor";
+        } else if (targetP > 0) {
+            return "generator";
+        } else { // targetP == 0, mode can be motor or generator: we look at constructor reactive capability curve to decide the mode
+            return isMotor(minP, reactiveLimits) ? "motor" : "generator";
+        }
+    }
+
+    private static boolean isMotor(double minP, ReactiveLimits l) {
+        if (l instanceof ReactiveCapabilityCurve) {
+            ReactiveCapabilityCurve curve = (ReactiveCapabilityCurve) l;
+            return curve.getMinP() < 0;
+        } else {
+            return minP < 0;
         }
     }
 
