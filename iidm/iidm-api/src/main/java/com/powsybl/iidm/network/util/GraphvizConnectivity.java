@@ -85,19 +85,28 @@ public class GraphvizConnectivity {
                         .add(node));
             }
         }
-        for (Branch branch : network.getBranches()) {
+        for (Branch<?> branch : network.getBranches()) {
             Bus b1 = branch.getTerminal1().getBusView().getBus();
             Bus b2 = branch.getTerminal2().getBusView().getBus();
-            if (b1 != null && b2 != null) {
-                GraphVizEdge edge = graph.edge(scope, getBusId(b1), getBusId(b2));
-                // to workaround the multigraph lack of support, we add one line to the label per branch
-                edge.label().append(branch.getId()).append(System.lineSeparator());
-            }
+            addEdge(b1, b2, graph, scope, branch.getId());
+        }
+        for (TieLine tieLine : network.getTieLines()) {
+            Bus b1 = tieLine.getDanglingLine1().getTerminal().getBusView().getBus();
+            Bus b2 = tieLine.getDanglingLine2().getTerminal().getBusView().getBus();
+            addEdge(b1, b2, graph, scope, tieLine.getId());
         }
         try {
             graph.writeTo(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private static void addEdge(Bus b1, Bus b2, GraphVizGraph graph, GraphVizScope scope, String lineId) {
+        if (b1 != null && b2 != null) {
+            GraphVizEdge edge = graph.edge(scope, getBusId(b1), getBusId(b2));
+            // to workaround the multigraph lack of support, we add one line to the label per branch
+            edge.label().append(lineId).append(System.lineSeparator());
         }
     }
 }
