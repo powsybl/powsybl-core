@@ -43,18 +43,6 @@ public class SV {
         this.side = side;
     }
 
-    /**
-     * @deprecated Not used anymore. The end associated to the voltage and flow must be defined. Use {@link #SV(double, double, double, double, Branch.Side)} instead.
-     */
-    @Deprecated(since = "4.3.0")
-    public SV(double p, double q, double u, double a) {
-        this.p = p;
-        this.q = q;
-        this.u = u;
-        this.a = a;
-        this.side = Branch.Side.ONE;
-    }
-
     private final double p;
 
     private final double q;
@@ -85,26 +73,6 @@ public class SV {
         return side;
     }
 
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSide(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public SV otherSide(double r, double x, double g, double b, double rho) {
-        return otherSide(r, x, g / 2, b / 2, g / 2, b / 2, rho, 0.0);
-    }
-
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSide(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        return otherSide(r, x, g1, b1, g2, b2, rho, 0.0);
-    }
-
     public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
         LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
             new Complex(g1, b1), new Complex(g2, b2));
@@ -117,14 +85,6 @@ public class SV {
 
     public SV otherSide(TieLine l) {
         return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0);
-    }
-
-    /**
-     * @deprecated Should not be used anymore. Use {@link SV#otherSide(Line)} instead.
-     */
-    @Deprecated(since = "4.3.0")
-    public SV otherSideY1Y2(Line l) {
-        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1, 0.0);
     }
 
     public SV otherSide(TwoWindingsTransformer twt) {
@@ -151,16 +111,6 @@ public class SV {
         }
     }
 
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSideP(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        return otherSideP(r, x, g1, b1, g2, b2, rho, 0.0);
-    }
-
     public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
         LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
             new Complex(g1, b1), new Complex(g2, b2));
@@ -177,16 +127,6 @@ public class SV {
         } else {
             return otherSideP(dl);
         }
-    }
-
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSideQ(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        return otherSideQ(r, x, g1, b1, g2, b2, rho, 0.0);
     }
 
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
@@ -207,16 +147,6 @@ public class SV {
         }
     }
 
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSideU(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public double otherSideU(double r, double x, double g1, double b1, double rho) {
-        return otherSideU(r, x, g1, b1, 0.0, 0.0, rho, 0.0);
-    }
-
     public double otherSideU(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
         LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
             new Complex(g1, b1), new Complex(g2, b2));
@@ -233,16 +163,6 @@ public class SV {
         } else {
             return otherSideU(dl);
         }
-    }
-
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSideA(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public double otherSideA(double r, double x, double g1, double b1, double rho) {
-        return otherSideA(r, x, g1, b1, 0.0, 0.0, rho, 0.0);
     }
 
     public double otherSideA(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
@@ -347,6 +267,9 @@ public class SV {
             v = voltageAtEnd1(adm, v2, s2);
             s = flowAtEnd1(adm, v, v2);
             otherSide = Branch.Side.ONE;
+        }
+        if (Double.isNaN(q) || Double.isNaN(u)) { // DC approximation
+            return new SV(-p, Double.NaN, Double.NaN, a, otherSide);
         }
         return new SV(s.getReal(), s.getImaginary(), v.abs(), Math.toDegrees(v.getArgument()), otherSide);
     }
