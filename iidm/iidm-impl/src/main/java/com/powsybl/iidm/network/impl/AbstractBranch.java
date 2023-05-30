@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I> implements Branch<I> {
+abstract class AbstractBranch<I extends Branch<I> & Connectable<I>> extends AbstractConnectable<I> implements Branch<I> {
 
     protected final OperationalLimitsHolderImpl operationalLimitsHolder1;
 

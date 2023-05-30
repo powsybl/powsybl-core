@@ -98,7 +98,7 @@ import java.util.Optional;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Branch<I extends Branch<I>> extends Connectable<I> {
+public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     enum Side {
         ONE,
