@@ -299,102 +299,102 @@ class MergedLine implements TieLine {
 
     @Override
     public Collection<OperationalLimits> getOperationalLimits1() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine1.getOperationalLimits();
     }
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits1() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine1.getCurrentLimits();
     }
 
     @Override
     public CurrentLimits getNullableCurrentLimits1() {
-        throw MergingView.createNotImplementedException();
+        return getCurrentLimits1().orElse(null);
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine1.newCurrentLimits();
     }
 
     @Override
     public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine1.getApparentPowerLimits();
     }
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits1() {
-        throw MergingView.createNotImplementedException();
+        return getApparentPowerLimits1().orElse(null);
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine1.newApparentPowerLimits();
     }
 
     @Override
     public Collection<OperationalLimits> getOperationalLimits2() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine2.getOperationalLimits();
     }
 
     @Override
     public Optional<ActivePowerLimits> getActivePowerLimits1() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine1.getActivePowerLimits();
     }
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits1() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine1.getNullableActivePowerLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine1.newActivePowerLimits();
     }
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits2() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine2.getCurrentLimits();
     }
 
     @Override
     public CurrentLimits getNullableCurrentLimits2() {
-        throw MergingView.createNotImplementedException();
+        return getCurrentLimits2().orElse(null);
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine2.newCurrentLimits();
     }
 
     @Override
     public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine2.getApparentPowerLimits();
     }
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits2() {
-        throw MergingView.createNotImplementedException();
+        return getApparentPowerLimits2().orElse(null);
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine2.newApparentPowerLimits();
     }
 
     @Override
     public Optional<ActivePowerLimits> getActivePowerLimits2() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine2.getActivePowerLimits();
     }
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits2() {
-        throw MergingView.createNotImplementedException();
+        return getActivePowerLimits2().orElse(null);
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        throw MergingView.createNotImplementedException();
+        return danglingLine2.newActivePowerLimits();
     }
 
     @Override
