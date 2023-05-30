@@ -336,7 +336,7 @@ public final class ModificationReports {
     public static void notFoundIdentifiableReport(Reporter reporter, String identifiableId) {
         reporter.report(Report.builder()
                 .withKey("notFoundIdentifiable")
-                .withDefaultMessage("Identifiable ${identifiableId} not found")
+                .withDefaultMessage("Section identifiable ${identifiableId} not found. Bus-tie or omnibus not created.")
                 .withValue(IDENTIFIABLE_ID, identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
