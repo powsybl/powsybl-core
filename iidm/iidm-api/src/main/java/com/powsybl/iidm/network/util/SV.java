@@ -74,9 +74,16 @@ public class SV {
     }
 
     public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
-            new Complex(g1, b1), new Complex(g2, b2));
-        return otherSide(adm);
+        if (isAllDataForCalculatingOtherSide()) {
+            LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
+                new Complex(g1, b1), new Complex(g2, b2));
+            return otherSide(adm);
+        } else if (isAllDataForCalculatingOtherSideDcApproximation()) {
+            return otherSideDcApproximation(x, 1 / rho, -alpha, true); // we always consider useRatio true
+        } else {
+            Branch.Side otherSide = (side == Branch.Side.ONE) ? Branch.Side.TWO : Branch.Side.ONE;
+            return new SV(Double.NaN, Double.NaN, Double.NaN, Double.NaN, otherSide);
+        }
     }
 
     public SV otherSide(Line l) {
@@ -251,6 +258,14 @@ public class SV {
         return "p=" + p + ", q=" + q + ", u=" + u + ", a=" + a + ", end=" + side;
     }
 
+    private boolean isAllDataForCalculatingOtherSide() {
+        return !(Double.isNaN(p) || Double.isNaN(q) || Double.isNaN(u) || Double.isNaN(a));
+    }
+
+    private boolean isAllDataForCalculatingOtherSideDcApproximation() {
+        return !(Double.isNaN(p) || Double.isNaN(a));
+    }
+
     private SV otherSide(LinkData.BranchAdmittanceMatrix adm) {
         Complex v;
         Complex s;
@@ -268,10 +283,23 @@ public class SV {
             s = flowAtEnd1(adm, v, v2);
             otherSide = Branch.Side.ONE;
         }
-        if (Double.isNaN(q) || Double.isNaN(u)) { // DC approximation
-            return new SV(-p, Double.NaN, Double.NaN, a, otherSide);
-        }
         return new SV(s.getReal(), s.getImaginary(), v.abs(), Math.toDegrees(v.getArgument()), otherSide);
+    }
+
+    private SV otherSideDcApproximation(double x, double ratio, double angle, boolean useRatio) {
+        double pOtherSide = -p;
+        double b = useRatio ? 1 / (x * ratio) : 1 / x;
+        double aOtherSide;
+        Branch.Side otherSide;
+        if (side == Branch.Side.ONE) {
+            aOtherSide = Math.toDegrees(Math.toRadians(a) - angle - p / b);
+            otherSide = Branch.Side.TWO;
+        } else {
+            aOtherSide = Math.toDegrees(Math.toRadians(a) + angle - p / b);
+            otherSide = Branch.Side.ONE;
+        }
+
+        return new SV(pOtherSide, Double.NaN, Double.NaN, aOtherSide, otherSide);
     }
 
     private double otherSideP(LinkData.BranchAdmittanceMatrix adm) {
