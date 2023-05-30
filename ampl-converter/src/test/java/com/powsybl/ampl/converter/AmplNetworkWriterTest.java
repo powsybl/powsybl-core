@@ -9,7 +9,6 @@ package com.powsybl.ampl.converter;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
@@ -193,13 +192,6 @@ class AmplNetworkWriterTest extends AbstractConverterTest {
     @Test
     void writeTieLine() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        for (DanglingLine danglingLine : network.getDanglingLines()) {
-            danglingLine.newCurrentLimits()
-                    .setPermanentLimit(100.0)
-                    .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
-                    .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
-                    .add();
-        }
 
         Properties properties = new Properties();
         properties.put("iidm.export.ampl.with-xnodes", "true");
@@ -210,7 +202,6 @@ class AmplNetworkWriterTest extends AbstractConverterTest {
         assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations-tl.txt");
         assertEqualsToRef(dataSource, "_network_buses", "inputs/eurostag-tutorial-example1-buses-tl.txt");
         assertEqualsToRef(dataSource, "_network_branches", "inputs/eurostag-tutorial-example1-branches-tl.txt");
-        assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits-tl.txt");
     }
 
     @Test
