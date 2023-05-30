@@ -6,9 +6,11 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.iidm.network.util.Identifiables;
 
@@ -243,5 +245,294 @@ class MergedLine implements TieLine {
             return danglingLine2;
         }
         return null;
+    }
+
+    @Override
+    public Terminal getTerminal1() {
+        return danglingLine1.getTerminal();
+    }
+
+    @Override
+    public Terminal getTerminal2() {
+        return danglingLine2.getTerminal();
+    }
+
+    @Override
+    public Terminal getTerminal(Side side) {
+        switch (side) {
+            case ONE:
+                return getTerminal1();
+            case TWO:
+                return getTerminal2();
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    @Override
+    public Terminal getTerminal(String voltageLevelId) {
+        Objects.requireNonNull(voltageLevelId);
+        boolean side1 = getTerminal1().getVoltageLevel().getId().equals(voltageLevelId);
+        boolean side2 = getTerminal2().getVoltageLevel().getId().equals(voltageLevelId);
+        if (side1 && side2) {
+            throw new PowsyblException("Both terminals are connected to voltage level " + voltageLevelId);
+        } else if (side1) {
+            return getTerminal1();
+        } else if (side2) {
+            return getTerminal2();
+        } else {
+            throw new PowsyblException("No terminal connected to voltage level " + voltageLevelId);
+        }
+    }
+
+    public Side getSide(Terminal terminal) {
+        Objects.requireNonNull(terminal);
+
+        if (danglingLine1.getTerminal() == terminal) {
+            return Side.ONE;
+        } else if (danglingLine2.getTerminal() == terminal) {
+            return Side.TWO;
+        } else {
+            throw new IllegalStateException("The terminal is not connected to this branch");
+        }
+    }
+
+    @Override
+    public Collection<OperationalLimits> getOperationalLimits1() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits1() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits1() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits1() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits1() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public Collection<OperationalLimits> getOperationalLimits2() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits1() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits1() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits2() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits2() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits2() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits2() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits2() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getCurrentLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getCurrentLimits2();
+        }
+        throw new IllegalStateException("Unexpected side: " + side);
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getActivePowerLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getActivePowerLimits2();
+        }
+        throw new IllegalStateException("Unexpected side: " + side);
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getApparentPowerLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getApparentPowerLimits2();
+        }
+        throw new IllegalStateException("Unexpected side: " + side);
+    }
+
+    @Override
+    public boolean isOverloaded() {
+        return isOverloaded(1.0f);
+    }
+
+    @Override
+    public boolean isOverloaded(float limitReduction) {
+        return checkPermanentLimit1(limitReduction, LimitType.CURRENT) || checkPermanentLimit2(limitReduction, LimitType.CURRENT);
+    }
+
+    @Override
+    public int getOverloadDuration() {
+        Branch.Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
+        Branch.Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
+        int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
+        int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
+        return Math.min(duration1, duration2);
+    }
+
+    @Override
+    public boolean checkPermanentLimit(Side side, float limitReduction, LimitType type) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return checkPermanentLimit1(limitReduction, type);
+            case TWO:
+                return checkPermanentLimit2(limitReduction, type);
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    @Override
+    public boolean checkPermanentLimit(Side side, LimitType type) {
+        return checkPermanentLimit(side, 1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(LimitType type) {
+        return checkPermanentLimit1(1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(LimitType type) {
+        return checkPermanentLimit2(1f, type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return checkTemporaryLimits1(limitReduction, type);
+            case TWO:
+                return checkTemporaryLimits2(limitReduction, type);
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits(Side side, LimitType type) {
+        return checkTemporaryLimits(side, 1f, type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits1(LimitType type) {
+        return checkTemporaryLimits1(1f, type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits2(LimitType type) {
+        return checkTemporaryLimits2(1f, type);
+    }
+
+    public double getValueForLimit(Terminal t, LimitType type) {
+        switch (type) {
+            case ACTIVE_POWER:
+                return t.getP();
+            case APPARENT_POWER:
+                return Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
+            case CURRENT:
+                return t.getI();
+            case VOLTAGE:
+            default:
+                throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+        }
     }
 }

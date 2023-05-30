@@ -13,13 +13,13 @@ import java.util.*;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
+public class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
 
     private final EnumMap<LimitType, OperationalLimits> operationalLimits = new EnumMap<>(LimitType.class);
     private final AbstractIdentifiable<?> identifiable;
     private final String attributeName;
 
-    OperationalLimitsHolderImpl(AbstractIdentifiable<?> identifiable, String attributeName) {
+    public OperationalLimitsHolderImpl(AbstractIdentifiable<?> identifiable, String attributeName) {
         this.identifiable = Objects.requireNonNull(identifiable);
         this.attributeName = Objects.requireNonNull(attributeName);
     }
