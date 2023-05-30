@@ -45,15 +45,9 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     private boolean removed = false;
 
-    private final OperationalLimitsHolderImpl operationalLimitsHolder1;
-
-    private final OperationalLimitsHolderImpl operationalLimitsHolder2;
-
     TieLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
         super(id, name, fictitious);
         this.networkRef = network;
-        this.operationalLimitsHolder1 = new OperationalLimitsHolderImpl(this, "limits1");
-        this.operationalLimitsHolder2 = new OperationalLimitsHolderImpl(this, "limits2");
     }
 
     void attachDanglingLines(DanglingLineImpl dl1, DanglingLineImpl dl2) {
@@ -201,102 +195,102 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public Collection<OperationalLimits> getOperationalLimits1() {
-        return operationalLimitsHolder1.getOperationalLimits();
+        return danglingLine1.getOperationalLimits();
     }
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits1() {
-        return operationalLimitsHolder1.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+        return danglingLine1.getCurrentLimits();
     }
 
     @Override
     public CurrentLimits getNullableCurrentLimits1() {
-        return operationalLimitsHolder1.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+        return getCurrentLimits1().orElse(null);
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return operationalLimitsHolder1.newCurrentLimits();
+        return danglingLine1.newCurrentLimits();
     }
 
     @Override
     public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
-        return operationalLimitsHolder1.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+        return danglingLine1.getApparentPowerLimits();
     }
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits1() {
-        return operationalLimitsHolder1.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+        return getApparentPowerLimits1().orElse(null);
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return operationalLimitsHolder1.newApparentPowerLimits();
+        return danglingLine1.newApparentPowerLimits();
     }
 
     @Override
     public Collection<OperationalLimits> getOperationalLimits2() {
-        return operationalLimitsHolder2.getOperationalLimits();
+        return danglingLine2.getOperationalLimits();
     }
 
     @Override
     public Optional<ActivePowerLimits> getActivePowerLimits1() {
-        return operationalLimitsHolder1.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+        return danglingLine1.getActivePowerLimits();
     }
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits1() {
-        return operationalLimitsHolder1.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+        return getActivePowerLimits1().orElse(null);
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return operationalLimitsHolder1.newActivePowerLimits();
+        return danglingLine1.newActivePowerLimits();
     }
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits2() {
-        return operationalLimitsHolder2.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+        return danglingLine2.getCurrentLimits();
     }
 
     @Override
     public CurrentLimits getNullableCurrentLimits2() {
-        return operationalLimitsHolder2.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+        return getCurrentLimits2().orElse(null);
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return operationalLimitsHolder2.newCurrentLimits();
+        return danglingLine2.newCurrentLimits();
     }
 
     @Override
     public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
-        return operationalLimitsHolder2.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+        return danglingLine2.getApparentPowerLimits();
     }
 
     @Override
     public ApparentPowerLimits getNullableApparentPowerLimits2() {
-        return operationalLimitsHolder2.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+        return getApparentPowerLimits2().orElse(null);
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return operationalLimitsHolder2.newApparentPowerLimits();
+        return danglingLine2.newApparentPowerLimits();
     }
 
     @Override
     public Optional<ActivePowerLimits> getActivePowerLimits2() {
-        return operationalLimitsHolder2.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+        return danglingLine2.getActivePowerLimits();
     }
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits2() {
-        return operationalLimitsHolder2.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+        return getActivePowerLimits2().orElse(null);
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return operationalLimitsHolder2.newActivePowerLimits();
+        return danglingLine2.newActivePowerLimits();
     }
 
     @Override
