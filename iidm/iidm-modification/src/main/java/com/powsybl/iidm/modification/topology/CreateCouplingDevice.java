@@ -176,7 +176,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     }
 
     private static void busOrBbsDoesNotExist(String bbsId, Reporter reporter, boolean throwException) {
-        LOGGER.error("Section identifiable {} not found. Bus-tie or omnibus not created.", bbsId);
+        LOGGER.error("Bus or busbar section ID {} not found. Coupler was not created.", bbsId);
         notFoundIdentifiableReport(reporter, bbsId);
         if (throwException) {
             throw new PowsyblException(String.format("Identifiable %s not found.", bbsId));
