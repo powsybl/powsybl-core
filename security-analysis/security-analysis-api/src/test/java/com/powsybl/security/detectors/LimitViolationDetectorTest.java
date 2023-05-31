@@ -72,28 +72,6 @@ class LimitViolationDetectorTest {
         }
     }
 
-    private void doCheckCurrent(Contingency contingency, TieLine tieLine, Branch.Side side, Consumer<LimitViolation> consumer) {
-        if (side == Branch.Side.TWO) {
-            consumer.accept(LimitViolations.current()
-                    .subject(tieLine.getId())
-                    .duration(1200)
-                    .side(side)
-                    .value(1500)
-                    .limit(1200)
-                    .build());
-        }
-
-        if (contingency == contingency1 && side == Branch.Side.ONE) {
-            consumer.accept(LimitViolations.current()
-                    .subject(tieLine.getId())
-                    .duration(1200)
-                    .side(side)
-                    .value(1500)
-                    .limit(1200)
-                    .build());
-        }
-    }
-
     private void doCheckVoltage(Contingency contingency, Bus bus, Consumer<LimitViolation> consumer) {
         if (bus.getVoltageLevel() == voltageLevel1) {
             consumer.accept(LimitViolations.highVoltage()
@@ -128,11 +106,6 @@ class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkCurrent(TieLine tieLine, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
-                doCheckCurrent(null, tieLine, side, consumer);
-            }
-
-            @Override
             public void checkVoltage(Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
                 doCheckVoltage(null, bus, consumer);
             }
@@ -142,15 +115,7 @@ class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkActivePower(TieLine tieLine, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
-            }
-
-            @Override
             public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
-            }
-
-            @Override
-            public void checkApparentPower(TieLine tieLine, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
             }
         };
     }
@@ -163,11 +128,6 @@ class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkCurrent(Contingency contingency, TieLine tieLine, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
-                doCheckCurrent(contingency, tieLine, side, consumer);
-            }
-
-            @Override
             public void checkVoltage(Contingency contingency, Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
                 doCheckVoltage(contingency, bus, consumer);
             }
@@ -177,15 +137,12 @@ class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkActivePower(TieLine tieLine, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
-            }
-
-            @Override
             public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
             }
 
             @Override
-            public void checkApparentPower(TieLine tieLine, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            public void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+
             }
         };
     }
