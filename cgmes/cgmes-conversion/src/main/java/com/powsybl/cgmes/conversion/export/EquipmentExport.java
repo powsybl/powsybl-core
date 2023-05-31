@@ -319,7 +319,7 @@ public final class EquipmentExport {
         String reactiveLimitsId = null;
         double minQ;
         double maxQ;
-        String kind = "generatorOrMotor";
+        String kind = CgmesNames.GENERATOR_OR_MOTOR;
         switch (i.getReactiveLimits().getKind()) {
             case CURVE:
                 ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
@@ -330,7 +330,7 @@ public final class EquipmentExport {
                 if (curve.getMinP() >= 0 && curve.getMaxP() >= 0) {
                     kind = "generator";
                 } else if (curve.getMinP() <= 0 && curve.getMaxP() >= 0) {
-                    kind = "generatorOrMotor";
+                    kind = CgmesNames.GENERATOR_OR_MOTOR;
                 } else if (curve.getMinP() <= 0 && curve.getMaxP() <= 0) {
                     kind = "motor";
                 } // other case not possible
@@ -349,6 +349,16 @@ public final class EquipmentExport {
             case MIN_MAX:
                 minQ = i.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ();
                 maxQ = i.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ();
+
+                // We can use the P limits from the equipment if we do not have a curve
+                if (minP >= 0 && maxP >= 0) {
+                    kind = "generator";
+                } else if (minP <= 0 && maxP >= 0) {
+                    kind = CgmesNames.GENERATOR_OR_MOTOR;
+                } else if (minP <= 0 && maxP <= 0) {
+                    kind = "motor";
+                } // other case not possible
+
                 break;
 
             default:
