@@ -44,6 +44,8 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         if (connect != null) {
             Terminal t = shuntCompensator.getTerminal();
             if (connect.booleanValue()) {
+                // FIXME just as for generators, when reconnecting a shunt with voltage regulation on,
+                // the voltage setpoint must be set
                 t.connect();
             } else {
                 t.disconnect();
