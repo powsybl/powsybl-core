@@ -29,14 +29,14 @@ public final class GeneratingUnitEq {
                              String equipmentContainer, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(generatingUnitClassName(energySource), id, generatingUnitName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MINP);
-        writer.writeCharacters(CgmesExportUtil.format(minP, context));
+        writer.writeCharacters(CgmesExportUtil.format(minP));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MAXP);
-        writer.writeCharacters(CgmesExportUtil.format(maxP, context));
+        writer.writeCharacters(CgmesExportUtil.format(maxP));
         writer.writeEndElement();
         if (writeInitialP) {
             writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_INITIALP);
-            writer.writeCharacters(CgmesExportUtil.format(initialP, context));
+            writer.writeCharacters(CgmesExportUtil.format(initialP));
             writer.writeEndElement();
         }
         if (equipmentContainer != null) {

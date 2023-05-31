@@ -20,10 +20,10 @@ public final class BaseVoltageEq {
     private static final String EQ_BASEVOLTAGE_NOMINALV = "BaseVoltage.nominalVoltage";
 
     public static void write(String id, double nominalV, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String name = CgmesExportUtil.format(nominalV, context);
+        String name = CgmesExportUtil.format(nominalV);
         CgmesExportUtil.writeStartIdName("BaseVoltage", id, name, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_BASEVOLTAGE_NOMINALV);
-        writer.writeCharacters(CgmesExportUtil.format(nominalV, context));
+        writer.writeCharacters(CgmesExportUtil.format(nominalV));
         writer.writeEndElement();
         writer.writeEndElement();
     }

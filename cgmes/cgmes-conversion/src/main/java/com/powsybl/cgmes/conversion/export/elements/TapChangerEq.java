@@ -69,7 +69,7 @@ public final class TapChangerEq {
         CgmesExportUtil.writeStartId("PhaseTapChangerTablePoint", id, false, cimNamespace, writer, context);
         writeTablePoint(r, x, g, b, ratio, step, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_PHASETAPCHANGERTABLEPOINT_ANGLE);
-        writer.writeCharacters(CgmesExportUtil.format(angle, context));
+        writer.writeCharacters(CgmesExportUtil.format(angle));
         writer.writeEndElement();
         CgmesExportUtil.writeReference(EQ_PHASETAPCHANGERTABLEPOINT_PHASETAPCHANGERTABLE, phaseTapChangerTableId, cimNamespace, writer, context);
         writer.writeEndElement();
@@ -81,7 +81,7 @@ public final class TapChangerEq {
         CgmesExportUtil.writeStartIdName("RatioTapChanger", id, tapChangerName, cimNamespace, writer, context);
         CgmesExportUtil.writeReference(EQ_RATIOTAPCHANGER_TRANSFORMEREND, transformerEndId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_RATIOTAPCHANGER_SVI);
-        writer.writeCharacters(CgmesExportUtil.format(stepVoltageIncrement, context));
+        writer.writeCharacters(CgmesExportUtil.format(stepVoltageIncrement));
         writer.writeEndElement();
         writeSteps(lowStep, highStep, neutralStep, normalStep, neutralU, ltcFlag, cimNamespace, writer, context);
         writer.writeEmptyElement(cimNamespace, "RatioTapChanger.tculControlMode");
@@ -103,19 +103,19 @@ public final class TapChangerEq {
 
     public static void writeSteps(double lowStep, double highStep, double neutralStep, double normalStep, double neutralU, boolean ltcFlag, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGER_LOWSTEP);
-        writer.writeCharacters(CgmesExportUtil.format(lowStep, context));
+        writer.writeCharacters(CgmesExportUtil.format(lowStep));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGER_HIGHSTEP);
-        writer.writeCharacters(CgmesExportUtil.format(highStep, context));
+        writer.writeCharacters(CgmesExportUtil.format(highStep));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGER_NORMALSTEP);
-        writer.writeCharacters(CgmesExportUtil.format(normalStep, context));
+        writer.writeCharacters(CgmesExportUtil.format(normalStep));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGER_NEUTRALSTEP);
-        writer.writeCharacters(CgmesExportUtil.format(neutralStep, context));
+        writer.writeCharacters(CgmesExportUtil.format(neutralStep));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGER_NEUTRALU);
-        writer.writeCharacters(CgmesExportUtil.format(neutralU, context));
+        writer.writeCharacters(CgmesExportUtil.format(neutralU));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGER_LTCFLAG);
         writer.writeCharacters(CgmesExportUtil.format(ltcFlag));
@@ -137,22 +137,22 @@ public final class TapChangerEq {
 
     public static void writeTablePoint(double r, double x, double g, double b, double ratio, Integer step, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_R);
-        writer.writeCharacters(CgmesExportUtil.format(r, context));
+        writer.writeCharacters(CgmesExportUtil.format(r));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_X);
-        writer.writeCharacters(CgmesExportUtil.format(x, context));
+        writer.writeCharacters(CgmesExportUtil.format(x));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_G);
-        writer.writeCharacters(CgmesExportUtil.format(g, context));
+        writer.writeCharacters(CgmesExportUtil.format(g));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_B);
-        writer.writeCharacters(CgmesExportUtil.format(b, context));
+        writer.writeCharacters(CgmesExportUtil.format(b));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_STEP);
         writer.writeCharacters(CgmesExportUtil.format(step));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_RATIO);
-        writer.writeCharacters(CgmesExportUtil.format(ratio, context));
+        writer.writeCharacters(CgmesExportUtil.format(ratio));
         writer.writeEndElement();
     }
 

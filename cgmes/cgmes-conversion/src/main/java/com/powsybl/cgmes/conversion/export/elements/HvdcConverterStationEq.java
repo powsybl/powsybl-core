@@ -22,7 +22,7 @@ public final class HvdcConverterStationEq {
                              String capabilityCurveId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName(converterClassName(converterType), id, converterName, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ACDCConverter.ratedUdc");
-        writer.writeCharacters(CgmesExportUtil.format(ratedUdc, context));
+        writer.writeCharacters(CgmesExportUtil.format(ratedUdc));
         writer.writeEndElement();
         CgmesExportUtil.writeReference("Equipment.EquipmentContainer", dcEquipmentContainerId, cimNamespace, writer, context);
         if (pccTerminal != null) {

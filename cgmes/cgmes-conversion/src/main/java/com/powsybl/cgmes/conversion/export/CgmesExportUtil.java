@@ -53,18 +53,17 @@ public final class CgmesExportUtil {
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
 
-    private static double fixValue(double value, CgmesExportContext context) {
+    private static double fixValue(double value) {
         double fixedValue = Double.isNaN(value) ? 0.0 : value; // disconnected equipment in general, a bit dangerous.
-        fixedValue = fixedValue == Double.MAX_VALUE ? context.getMaximumDoubleValue() : fixedValue;
         return fixedValue;
     }
 
-    public static String format(double value, CgmesExportContext context) {
-        return DOUBLE_FORMAT.format(fixValue(value, context));
+    public static String format(double value) {
+        return DOUBLE_FORMAT.format(fixValue(value));
     }
 
-    public static String scientificFormat(double value, CgmesExportContext context) {
-        return SCIENTIFIC_FORMAT.format(fixValue(value, context));
+    public static String scientificFormat(double value) {
+        return SCIENTIFIC_FORMAT.format(fixValue(value));
     }
 
     public static String format(int value) {

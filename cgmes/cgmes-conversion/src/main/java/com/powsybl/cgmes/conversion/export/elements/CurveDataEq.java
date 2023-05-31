@@ -20,13 +20,13 @@ public final class CurveDataEq {
     public static void write(String id, double p, double minQ, double maxQ, String reactiveLimitsId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartId("CurveData", id, false, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "CurveData.xvalue");
-        writer.writeCharacters(CgmesExportUtil.format(p, context));
+        writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "CurveData.y1value");
-        writer.writeCharacters(CgmesExportUtil.format(minQ, context));
+        writer.writeCharacters(CgmesExportUtil.format(minQ));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "CurveData.y2value");
-        writer.writeCharacters(CgmesExportUtil.format(maxQ, context));
+        writer.writeCharacters(CgmesExportUtil.format(maxQ));
         writer.writeEndElement();
         CgmesExportUtil.writeReference("CurveData.Curve", reactiveLimitsId, cimNamespace, writer, context);
         writer.writeEndElement();

@@ -64,10 +64,6 @@ public class CgmesExportContext {
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
-    // FIXME
-    // following parameter is linked to the tool (SUV) that makes the quality checks on CIM-CGMES files
-    // for ENTSOE processes. It seems that we have to adapt to an external limitation.
-    private double maximumDoubleValue = MAXIMUM_DOUBLE_DEFAULT_VALUE;
 
     private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
 
@@ -730,15 +726,6 @@ public class CgmesExportContext {
             return network.getBusBreakerView().getBusStream().collect(Collectors.toMap(b -> namingStrategy.getCgmesId(b), b -> b));
         }
         return Collections.unmodifiableMap(topologicalNodes);
-    }
-
-    public CgmesExportContext setMaximumDoubleValue(double maximumDoubleValue) {
-        this.maximumDoubleValue = maximumDoubleValue;
-        return this;
-    }
-
-    public double getMaximumDoubleValue() {
-        return maximumDoubleValue;
     }
 }
 

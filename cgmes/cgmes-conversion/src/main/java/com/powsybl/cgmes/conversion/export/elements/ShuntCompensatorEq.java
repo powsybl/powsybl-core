@@ -42,19 +42,19 @@ public final class ShuntCompensatorEq {
         writer.writeCharacters(CgmesExportUtil.format(maximumSections));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_SHUNTCOMPENSATOR_NOMU);
-        writer.writeCharacters(CgmesExportUtil.format(nomU, context));
+        writer.writeCharacters(CgmesExportUtil.format(nomU));
         writer.writeEndElement();
         if (modelType.equals(ShuntCompensatorModelType.LINEAR)) {
             writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_BPERSECTION);
             if (Math.abs(bPerSection) < BPERSECTION_FORMAT_THRESHOLD) {
-                writer.writeCharacters(CgmesExportUtil.scientificFormat(bPerSection, context));
+                writer.writeCharacters(CgmesExportUtil.scientificFormat(bPerSection));
             } else {
-                writer.writeCharacters(CgmesExportUtil.format(bPerSection, context));
+                writer.writeCharacters(CgmesExportUtil.format(bPerSection));
             }
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_GPERSECTION);
             if (!Double.isNaN(gPerSection)) {
-                writer.writeCharacters(CgmesExportUtil.format(gPerSection, context));
+                writer.writeCharacters(CgmesExportUtil.format(gPerSection));
             } else {
                 writer.writeCharacters("0");
             }
@@ -74,10 +74,10 @@ public final class ShuntCompensatorEq {
         writer.writeCharacters(CgmesExportUtil.format(sectionNumber));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_NONLINEARSHUNTCOMPENSATOR_B);
-        writer.writeCharacters(CgmesExportUtil.format(b, context));
+        writer.writeCharacters(CgmesExportUtil.format(b));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_NONLINEARSHUNTCOMPENSATOR_G);
-        writer.writeCharacters(CgmesExportUtil.format(g, context));
+        writer.writeCharacters(CgmesExportUtil.format(g));
         writer.writeEndElement();
         writer.writeEndElement();
     }

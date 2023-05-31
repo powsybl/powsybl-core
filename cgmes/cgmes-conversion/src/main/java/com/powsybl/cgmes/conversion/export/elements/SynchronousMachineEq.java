@@ -32,13 +32,13 @@ public final class SynchronousMachineEq {
             CgmesExportUtil.writeReference("SynchronousMachine.InitialReactiveCapabilityCurve", reactiveCapabilityCurveId, cimNamespace, writer, context);
         }
         writer.writeStartElement(cimNamespace, "SynchronousMachine.minQ");
-        writer.writeCharacters(CgmesExportUtil.format(minQ, context));
+        writer.writeCharacters(CgmesExportUtil.format(minQ));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "SynchronousMachine.maxQ");
-        writer.writeCharacters(CgmesExportUtil.format(maxQ, context));
+        writer.writeCharacters(CgmesExportUtil.format(maxQ));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "RotatingMachine.ratedS");
-        writer.writeCharacters(CgmesExportUtil.format(Double.isNaN(ratedS) ? 100 : ratedS, context)); //RatedS by default to 100, needed for SUV
+        writer.writeCharacters(CgmesExportUtil.format(Double.isNaN(ratedS) ? 100 : ratedS)); //RatedS by default to 100, needed for SUV
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, "SynchronousMachine.type");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", cimNamespace, "SynchronousMachineKind", kind)); // all generators are considered generators
