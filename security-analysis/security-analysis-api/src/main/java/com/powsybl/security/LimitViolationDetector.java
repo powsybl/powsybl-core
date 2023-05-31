@@ -273,21 +273,16 @@ public interface LimitViolationDetector {
 
     /**
      * Generic implementation for permanent limit checks
-     * @param branch
-     * @param side
-     * @param limitReduction
-     * @param value
-     * @param consumer
-     * @param type
      */
     default void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
         if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
+            double limit = branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
             consumer.accept(new LimitViolation(branch.getId(),
-                    ((Branch<?>) branch).getOptionalName().orElse(null),
+                    branch.getOptionalName().orElse(null),
                     toLimitViolationType(type),
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
                     Integer.MAX_VALUE,
-                    branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new),
+                    limit,
                     limitReduction,
                     value,
                     side));
@@ -296,22 +291,17 @@ public interface LimitViolationDetector {
 
     /**
      * Generic implementation for temporary limit checks
-     * @param branch
-     * @param side
-     * @param value
-     * @param consumer
-     * @param type
      */
-    default void checkTemporary(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, 1.0f, value, type);
+    default void checkTemporary(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
         if (overload != null) {
             consumer.accept(new LimitViolation(branch.getId(),
-                    ((Branch<?>) branch).getOptionalName().orElse(null),
+                    branch.getOptionalName().orElse(null),
                     toLimitViolationType(type),
                     overload.getPreviousLimitName(),
                     overload.getTemporaryLimit().getAcceptableDuration(),
                     overload.getPreviousLimit(),
-                    1.0f,
+                    limitReduction,
                     value,
                     side));
         }
