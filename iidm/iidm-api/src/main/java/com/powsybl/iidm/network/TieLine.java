@@ -183,7 +183,7 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     /**
      * Get the dangling line of this tie line corresponding to the given side
      */
-    DanglingLine getDanglingLine(Branch.Side side);
+    DanglingLine getDanglingLine(Side side);
 
     /**
      * Get the dangling line of this tie line corresponding to the given voltage level

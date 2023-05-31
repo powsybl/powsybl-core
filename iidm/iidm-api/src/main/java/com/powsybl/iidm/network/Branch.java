@@ -192,7 +192,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     ApparentPowerLimitsAdder newApparentPowerLimits2();
 
-    default Optional<CurrentLimits> getCurrentLimits(Branch.Side side) {
+    default Optional<CurrentLimits> getCurrentLimits(Side side) {
         switch (side) {
             case ONE:
                 return getCurrentLimits1();
@@ -203,7 +203,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default Optional<ActivePowerLimits> getActivePowerLimits(Branch.Side side) {
+    default Optional<ActivePowerLimits> getActivePowerLimits(Side side) {
         switch (side) {
             case ONE:
                 return getActivePowerLimits1();
@@ -214,7 +214,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default Optional<ApparentPowerLimits> getApparentPowerLimits(Branch.Side side) {
+    default Optional<ApparentPowerLimits> getApparentPowerLimits(Side side) {
         switch (side) {
             case ONE:
                 return getApparentPowerLimits1();
@@ -225,7 +225,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default Optional<? extends LoadingLimits> getLimits(LimitType type, Branch.Side side) {
+    default Optional<? extends LoadingLimits> getLimits(LimitType type, Side side) {
         switch (type) {
             case CURRENT:
                 return getCurrentLimits(side);
@@ -238,7 +238,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default CurrentLimits getNullableCurrentLimits(Branch.Side side) {
+    default CurrentLimits getNullableCurrentLimits(Side side) {
         switch (side) {
             case ONE:
                 return getNullableCurrentLimits1();
@@ -249,7 +249,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default ActivePowerLimits getNullableActivePowerLimits(Branch.Side side) {
+    default ActivePowerLimits getNullableActivePowerLimits(Side side) {
         switch (side) {
             case ONE:
                 return getNullableActivePowerLimits1();
@@ -260,7 +260,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default ApparentPowerLimits getNullableApparentPowerLimits(Branch.Side side) {
+    default ApparentPowerLimits getNullableApparentPowerLimits(Side side) {
         switch (side) {
             case ONE:
                 return getNullableApparentPowerLimits1();
@@ -271,7 +271,7 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
         }
     }
 
-    default LoadingLimits getNullableLimits(LimitType type, Branch.Side side) {
+    default LoadingLimits getNullableLimits(LimitType type, Side side) {
         switch (type) {
             case CURRENT:
                 return getNullableCurrentLimits(side);
