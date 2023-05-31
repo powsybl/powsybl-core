@@ -11,6 +11,8 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,39 +21,65 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-class ShuntCompensatorPositionModificationTest {
+class ShuntCompensatorModificationTest {
 
-    private Network network;
-    private ShuntCompensator shunt;
+    private static Network network;
+    private static ShuntCompensator shunt;
 
-    @BeforeEach
-    public void setUp() {
+    @BeforeAll
+    static void setUpInit() {
         network = FourSubstationsNodeBreakerFactory.create();
         assertTrue(network.getShuntCompensatorCount() > 0);
         shunt = network.getShuntCompensators().iterator().next();
+    }
+
+    @BeforeEach
+    public void setUp() {
         shunt.setSectionCount(0);
     }
 
     @Test
     void testConstructorCoherence() {
-        assertThrows(NullPointerException.class, () -> new ShuntCompensatorPositionModification(null, 1),
+        assertThrows(NullPointerException.class, () -> new ShuntCompensatorModification(null, null, 1),
             "Null id value should not be accepted.");
     }
 
     @Test
     void testApplyChecks() {
-        ShuntCompensatorPositionModification modif = new ShuntCompensatorPositionModification(shunt.getId(), 1);
+        ShuntCompensatorModification modif = new ShuntCompensatorModification(shunt.getId(), null, 1);
         assertDoesNotThrow(() -> modif.apply(network, true, Reporter.NO_OP));
         assertEquals(1, shunt.getSectionCount(), "A valid apply should modify the value");
-        ShuntCompensatorPositionModification modif1 = new ShuntCompensatorPositionModification("UNKNOWN_ID", 0);
+        ShuntCompensatorModification modif1 = new ShuntCompensatorModification("UNKNOWN_ID", null, 0);
         assertThrows(PowsyblException.class, () -> modif1.apply(network, true, Reporter.NO_OP),
             "An invalid ID should fail to apply.");
         assertDoesNotThrow(() -> modif1.apply(network, false, Reporter.NO_OP),
             "An invalid ID should not throw if throwException is false.");
-        ShuntCompensatorPositionModification modif2 = new ShuntCompensatorPositionModification(shunt.getId(),
-            shunt.getMaximumSectionCount() + 1);
+        ShuntCompensatorModification modif2 = new ShuntCompensatorModification(shunt.getId(),
+            null, shunt.getMaximumSectionCount() + 1);
         assertThrows(PowsyblException.class, () -> modif2.apply(network, true, Reporter.NO_OP),
             "Trying to set the number of section outside of range should not be accepted.");
         assertEquals(1, shunt.getSectionCount(), "Failed applies should not modify the value");
     }
+
+    @Test
+    void testReconnection() {
+        shunt.getTerminal().disconnect();
+        new ShuntCompensatorModification(shunt.getId(), true, null).apply(network);
+        Assertions.assertTrue(shunt.getTerminal().isConnected());
+    }
+
+    @Test
+    void testDisconnection() {
+        new ShuntCompensatorModification(shunt.getId(), false, null).apply(network);
+        Assertions.assertFalse(shunt.getTerminal().isConnected());
+    }
+
+    @Test
+    void testConnectionAndPositionChange() {
+        shunt.getTerminal().disconnect();
+        new ShuntCompensatorModification(shunt.getId(), true, 1).apply(network);
+        Assertions.assertTrue(shunt.getTerminal().isConnected());
+        Assertions.assertEquals(1, shunt.getSectionCount());
+    }
+
 }
