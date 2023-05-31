@@ -119,9 +119,7 @@ public class SV {
     }
 
     public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
-            new Complex(g1, b1), new Complex(g2, b2));
-        return otherSideP(adm);
+        return otherSide(r, x, g1, b1, g2, b2, 1 / rho, -alpha).getP();
     }
 
     public double otherSideP(DanglingLine dl) {
@@ -137,9 +135,7 @@ public class SV {
     }
 
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
-            new Complex(g1, b1), new Complex(g2, b2));
-        return otherSideQ(adm);
+        return otherSide(r, x, g1, b1, g2, b2, 1 / rho, -alpha).getQ();
     }
 
     public double otherSideQ(DanglingLine dl) {
@@ -155,9 +151,7 @@ public class SV {
     }
 
     public double otherSideU(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
-            new Complex(g1, b1), new Complex(g2, b2));
-        return otherSideU(adm);
+        return otherSide(r, x, g1, b1, g2, b2, 1 / rho, -alpha).getU();
     }
 
     public double otherSideU(DanglingLine dl) {
@@ -173,9 +167,7 @@ public class SV {
     }
 
     public double otherSideA(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
-            new Complex(g1, b1), new Complex(g2, b2));
-        return otherSideA(adm);
+        return otherSide(r, x, g1, b1, g2, b2, 1 / rho, -alpha).getA();
     }
 
     public double otherSideA(DanglingLine dl) {
@@ -300,36 +292,6 @@ public class SV {
         }
 
         return new SV(pOtherSide, Double.NaN, Double.NaN, aOtherSide, otherSide);
-    }
-
-    private double otherSideP(LinkData.BranchAdmittanceMatrix adm) {
-        return otherSide(adm).getP();
-    }
-
-    private double otherSideQ(LinkData.BranchAdmittanceMatrix adm) {
-        return otherSide(adm).getQ();
-    }
-
-    private Complex otherSideV(LinkData.BranchAdmittanceMatrix adm) {
-        Complex v;
-        if (side == Branch.Side.ONE) {
-            Complex v1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
-            Complex s1 = new Complex(p, q);
-            v = voltageAtEnd2(adm, v1, s1);
-        } else {
-            Complex v2 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
-            Complex s2 = new Complex(p, q);
-            v = voltageAtEnd1(adm, v2, s2);
-        }
-        return v;
-    }
-
-    private double otherSideU(LinkData.BranchAdmittanceMatrix adm) {
-        return otherSideV(adm).abs();
-    }
-
-    private double otherSideA(LinkData.BranchAdmittanceMatrix adm) {
-        return Math.toDegrees(otherSideV(adm).getArgument());
     }
 
     // Get V2 from Y11.V1 + Y12.V2 = S1* / V1*
