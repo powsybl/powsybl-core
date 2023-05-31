@@ -131,6 +131,9 @@ final class ExportXmlCompare {
                 ignored = attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
                         || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
             } else if (elementName.startsWith("generator")) {
+                // ratedS is optional for generators,
+                // but we always export it to keep up with the quality of datasets rules.
+                // So we do not enforce this attribute to be equal in the original and exported network
                 ignored = attr.getLocalName().equals("ratedS");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
