@@ -10,21 +10,24 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
 
 /**
- * Simple {@link NetworkModification} to change the section of a shunt compensator.
+ * Simple {@link NetworkModification} to (dis)connect a shunt compensator and/or change its section.
  *
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-public class ShuntCompensatorPositionModification extends AbstractNetworkModification {
+public class ShuntCompensatorModification extends AbstractNetworkModification {
 
     private final String shuntCompensatorId;
-    private final int sectionCount;
+    private final Boolean connect;
+    private final Integer sectionCount;
 
-    public ShuntCompensatorPositionModification(String shuntCompensatorId, int sectionCount) {
+    public ShuntCompensatorModification(String shuntCompensatorId, Boolean connect, Integer sectionCount) {
         this.shuntCompensatorId = Objects.requireNonNull(shuntCompensatorId);
+        this.connect = connect;
         this.sectionCount = sectionCount;
     }
 
@@ -32,14 +35,30 @@ public class ShuntCompensatorPositionModification extends AbstractNetworkModific
     public void apply(Network network, boolean throwException, ComputationManager computationManager,
                       Reporter reporter) {
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
+
         if (shuntCompensator == null) {
             logOrThrow(throwException, "Shunt Compensator '" + shuntCompensatorId + "' not found");
             return;
         }
-        shuntCompensator.setSectionCount(sectionCount);
+
+        if (connect != null) {
+            Terminal t = shuntCompensator.getTerminal();
+            if (connect.booleanValue()) {
+                t.connect();
+            } else {
+                t.disconnect();
+            }
+        }
+        if (sectionCount != null) {
+            shuntCompensator.setSectionCount(sectionCount);
+        }
     }
 
-    public int getSectionCount() {
+    public Boolean getConnect() {
+        return connect;
+    }
+
+    public Integer getSectionCount() {
         return sectionCount;
     }
 
