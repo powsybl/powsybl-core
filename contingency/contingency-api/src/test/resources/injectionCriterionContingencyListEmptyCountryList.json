@@ -1,0 +1,10 @@
+{
+  "type" : "injectionCriterion",
+  "version" : "1.0",
+  "name" : "list2",
+  "identifiableType" : "LINE",
+  "countryCriterion" : {
+    "type" : "SINGLE_COUNTRY",
+    "countries" : [ ]
+  }
+}

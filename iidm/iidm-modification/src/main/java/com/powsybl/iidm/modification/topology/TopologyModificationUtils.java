@@ -397,11 +397,31 @@ public final class TopologyModificationUtils {
     }
 
     /**
+     * Get the range of connectable positions delimited by neighbouring busbar sections, for a given busbar section.
+     * If the range is empty (for instance if positions max on left side is above position min on right side), the range returned is empty.
+     * Note that the connectable positions needs to be in ascending order in the voltage level for ascending busbar section index positions.
+     */
+    public static Optional<Range<Integer>> getPositionRange(BusbarSection bbs) {
+        BusbarSectionPosition positionExtension = bbs.getExtension(BusbarSectionPosition.class);
+        if (positionExtension != null) {
+            VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
+            NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+
+            int sectionIndex = positionExtension.getSectionIndex();
+            int max = getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE);
+            int min = getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(0);
+
+            return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+        }
+        return Optional.of(Range.between(0, Integer.MAX_VALUE));
+    }
+
+    /**
      * Method returning the maximum order in the slice with the highest section index lower to the given section.
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS2 will return 3.
      */
-    private static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+    public static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         int s = section;
         Map.Entry<Integer, List<Integer>> lowerEntry;
         do {
@@ -421,7 +441,7 @@ public final class TopologyModificationUtils {
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS1 will return 7.
      */
-    private static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+    public static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         int s = section;
         Map.Entry<Integer, List<Integer>> higherEntry;
         do {

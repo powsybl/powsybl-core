@@ -17,6 +17,7 @@ import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
 import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,10 +31,10 @@ public abstract class AbstractEquipmentCriterionContingencyListDeserializer<T ex
 
     protected static class ParsingContext {
         String name;
-        Criterion countryCriterion;
-        Criterion nominalVoltageCriterion;
-        List<PropertyCriterion> propertyCriteria;
-        RegexCriterion regexCriterion;
+        Criterion countryCriterion = null;
+        Criterion nominalVoltageCriterion = null;
+        List<PropertyCriterion> propertyCriteria = Collections.emptyList();
+        RegexCriterion regexCriterion = null;
     }
 
     protected boolean deserializeCommonAttributes(JsonParser parser, DeserializationContext ctx,

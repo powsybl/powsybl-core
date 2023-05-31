@@ -37,9 +37,11 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractConverterT
 
     private static IdentifierContingencyList create() {
         List<NetworkElementIdentifier> networkElementIdentifiers = new ArrayList<>();
-        networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier"));
-        networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("vl1", "vl2", '1'));
-        networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections.singletonList(new IdBasedNetworkElementIdentifier("identifier1"))));
+        networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier", "contingencyId1"));
+        networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier2"));
+        networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("vl1", "vl2", '1', "contingencyId2"));
+        networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections.singletonList(new IdBasedNetworkElementIdentifier("identifier")),
+                "contingencyId3"));
         return new IdentifierContingencyList("list1", networkElementIdentifiers);
     }
 
@@ -50,13 +52,26 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractConverterT
     }
 
     @Test
+    void readVersion11() {
+        ContingencyList contingencyList = NetworkElementIdentifierContingencyListJsonTest
+                .readJsonInputStream(Objects.requireNonNull(getClass()
+                        .getResourceAsStream("/identifierContingencyListv1_1.json")));
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            WRITER.writeValue(bos, contingencyList);
+            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
     void readVersion10() {
         ContingencyList contingencyList = NetworkElementIdentifierContingencyListJsonTest
                 .readJsonInputStream(Objects.requireNonNull(getClass()
                         .getResourceAsStream("/identifierContingencyListv1_0.json")));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             WRITER.writeValue(bos, contingencyList);
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/identifierContingencyList.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

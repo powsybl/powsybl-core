@@ -138,7 +138,7 @@
     </iidm:extension>
     <iidm:extension id="newGenerator">
         <cp:position>
-            <cp:feeder name="newGenerator" order="115" direction="BOTTOM"/>
+            <cp:feeder name="newGenerator" order="71" direction="BOTTOM"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="load1">
