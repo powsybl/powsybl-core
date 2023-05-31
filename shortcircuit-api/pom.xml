@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-core</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>5.3.0-alpha-1</version>
+        <version>5.3.0-alpha-2</version>
     </parent>
 
     <artifactId>powsybl-shortcircuit-api</artifactId>
