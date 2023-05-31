@@ -18,13 +18,13 @@ import java.util.Optional;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractBranch<I extends Branch<I> & Connectable<I>> extends AbstractConnectable<I> implements Branch<I> {
+abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> extends AbstractConnectable<I> implements Branch<I> {
 
     protected final OperationalLimitsHolderImpl operationalLimitsHolder1;
 
     protected final OperationalLimitsHolderImpl operationalLimitsHolder2;
 
-    AbstractBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
+    AbstractConnectableBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
         super(network, id, name, fictitious);
         operationalLimitsHolder1 = new OperationalLimitsHolderImpl(this, "limits1");
         operationalLimitsHolder2 = new OperationalLimitsHolderImpl(this, "limits2");
