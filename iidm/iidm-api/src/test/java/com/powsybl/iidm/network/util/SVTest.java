@@ -414,11 +414,16 @@ class SVTest {
         SV svA2 = svA1.otherSide(line);
         assertEquals(p2, svA2.getP(), tol);
         assertEquals(a2, svA2.getA(), tol);
+        assertEquals(p2, svA1.otherSideP(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
+        assertEquals(a2, svA1.otherSideA(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
 
         SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
         SV svB1 = svB2.otherSide(line);
         assertEquals(p1, svB1.getP(), tol);
         assertEquals(a1, svB1.getA(), tol);
+        assertEquals(p1, svB2.otherSideP(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
+        assertEquals(a1, svB2.otherSideA(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
+
     }
 
     @Test
