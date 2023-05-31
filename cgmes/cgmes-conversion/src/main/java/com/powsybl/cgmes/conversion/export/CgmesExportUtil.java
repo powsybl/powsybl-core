@@ -54,11 +54,14 @@ public final class CgmesExportUtil {
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
 
     private static double fixValue(double value) {
-        double fixedValue = Double.isNaN(value) ? 0.0 : value; // disconnected equipment in general, a bit dangerous.
-        return fixedValue;
+        return Double.isNaN(value) ? 0.0 : value; // disconnected equipment in general, a bit dangerous.
     }
 
     public static String format(double value) {
+        // Always use scientific format for extreme values
+        if (value == Double.MAX_VALUE || value == -Double.MAX_VALUE) {
+            return scientificFormat(value);
+        }
         return DOUBLE_FORMAT.format(fixValue(value));
     }
 
