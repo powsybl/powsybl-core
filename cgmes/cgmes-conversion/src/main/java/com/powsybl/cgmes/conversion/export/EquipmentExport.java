@@ -329,8 +329,6 @@ public final class EquipmentExport {
 
                 if (curve.getMinP() >= 0 && curve.getMaxP() >= 0) {
                     kind = "generator";
-                } else if (curve.getMinP() <= 0 && curve.getMaxP() >= 0) {
-                    kind = CgmesNames.GENERATOR_OR_MOTOR;
                 } else if (curve.getMinP() <= 0 && curve.getMaxP() <= 0) {
                     kind = "motor";
                 } // other case not possible
@@ -353,8 +351,6 @@ public final class EquipmentExport {
                 // We can use the P limits from the equipment if we do not have a curve
                 if (minP >= 0 && maxP >= 0) {
                     kind = "generator";
-                } else if (minP <= 0 && maxP >= 0) {
-                    kind = CgmesNames.GENERATOR_OR_MOTOR;
                 } else if (minP <= 0 && maxP <= 0) {
                     kind = "motor";
                 } // other case not possible
