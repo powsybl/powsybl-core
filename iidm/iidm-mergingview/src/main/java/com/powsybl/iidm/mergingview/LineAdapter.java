@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Line;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class LineAdapter extends AbstractBranchAdapter<Line> implements Line {
+public class LineAdapter extends AbstractConnectableBranchAdapter<Line> implements Line {
 
     LineAdapter(final Line delegate, final MergingViewIndex index) {
         super(delegate, index);
