@@ -14,9 +14,9 @@ import java.util.Optional;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnectableAdapter<I> implements Branch<I> {
+abstract class AbstractConnectableBranchAdapter<I extends Branch<I> & Connectable<I>> extends AbstractConnectableAdapter<I> implements Branch<I> {
 
-    protected AbstractBranchAdapter(I delegate, MergingViewIndex index) {
+    protected AbstractConnectableBranchAdapter(I delegate, MergingViewIndex index) {
         super(delegate, index);
     }
 

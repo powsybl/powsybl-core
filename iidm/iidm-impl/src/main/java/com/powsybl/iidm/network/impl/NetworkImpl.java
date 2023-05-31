@@ -299,23 +299,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         Branch branch = getLine(branchId);
         if (branch == null) {
             branch = getTwoWindingsTransformer(branchId);
+            if (branch == null) {
+                branch = getTieLine(branchId);
+            }
         }
         return branch;
     }
 
     @Override
     public Iterable<Branch> getBranches() {
-        return Iterables.concat(getLines(), getTwoWindingsTransformers());
+        return Iterables.concat(getLines(), getTwoWindingsTransformers(), getTieLines());
     }
 
     @Override
     public Stream<Branch> getBranchStream() {
-        return Stream.concat(getLineStream(), getTwoWindingsTransformerStream());
+        return Stream.of(getLineStream(), getTwoWindingsTransformerStream(), getTieLineStream()).flatMap(Function.identity());
     }
 
     @Override
     public int getBranchCount() {
-        return getLineCount() + getTwoWindingsTransformerCount();
+        return getLineCount() + getTwoWindingsTransformerCount() + getTieLineCount();
     }
 
     @Override

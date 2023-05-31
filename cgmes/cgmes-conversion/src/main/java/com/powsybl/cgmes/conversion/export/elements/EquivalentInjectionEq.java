@@ -18,20 +18,16 @@ import javax.xml.stream.XMLStreamWriter;
 public final class EquivalentInjectionEq {
 
     private static final String EQ_EQUIVALENTINJECTION_REGULATIONCAPABILITY = "EquivalentInjection.regulationCapability";
-    private static final String EQ_EQUIVALENTINJECTION_REGULATIONSTATUS = "EquivalentInjection.regulationStatus";
     private static final String EQ_EQUIVALENTINJECTION_MINP = "EquivalentInjection.minP";
     private static final String EQ_EQUIVALENTINJECTION_MAXP = "EquivalentInjection.maxP";
     private static final String EQ_EQUIVALENTINJECTION_MINQ = "EquivalentInjection.minQ";
     private static final String EQ_EQUIVALENTINJECTION_MAXQ = "EquivalentInjection.maxQ";
 
-    public static void write(String id, String name, boolean regulationCapability, boolean regulationStatus, double minP, double maxP, double minQ, double maxQ,
+    public static void write(String id, String name, boolean regulationCapability, double minP, double maxP, double minQ, double maxQ,
                              String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("EquivalentInjection", id, name, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_REGULATIONCAPABILITY);
         writer.writeCharacters(CgmesExportUtil.format(regulationCapability));
-        writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_REGULATIONSTATUS);
-        writer.writeCharacters(CgmesExportUtil.format(regulationStatus));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MINP);
         writer.writeCharacters(CgmesExportUtil.format(minP));
