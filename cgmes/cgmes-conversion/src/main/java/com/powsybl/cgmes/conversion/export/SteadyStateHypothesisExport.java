@@ -589,7 +589,7 @@ public final class SteadyStateHypothesisExport {
             if (converterStation instanceof LccConverterStation) {
                 LccConverterStation lccConverterStation = (LccConverterStation) converterStation;
 
-                writePandQ(cimNamespace, ppcc, getQfromPowerFactor(ppcc, lccConverterStation.getPowerFactor()), writer, context);
+                writePandQ(cimNamespace, ppcc, getQfromPowerFactor(ppcc, lccConverterStation.getPowerFactor()), writer);
                 writer.writeStartElement(cimNamespace, "CsConverter.targetAlpha");
                 writer.writeCharacters(CgmesExportUtil.format(0));
                 writer.writeEndElement();
@@ -606,7 +606,7 @@ public final class SteadyStateHypothesisExport {
             } else if (converterStation instanceof VscConverterStation) {
                 VscConverterStation vscConverterStation = (VscConverterStation) converterStation;
 
-                writePandQ(cimNamespace, ppcc, vscConverterStation.getReactivePowerSetpoint(), writer, context);
+                writePandQ(cimNamespace, ppcc, vscConverterStation.getReactivePowerSetpoint(), writer);
                 writer.writeStartElement(cimNamespace, "VsConverter.droop");
                 writer.writeCharacters(CgmesExportUtil.format(0));
                 writer.writeEndElement();
@@ -631,7 +631,7 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writePandQ(String cimNamespace, double p, double q, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writePandQ(String cimNamespace, double p, double q, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "ACDCConverter.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
