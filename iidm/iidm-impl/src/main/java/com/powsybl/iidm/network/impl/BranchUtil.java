@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class BranchUtil {
+public final class BranchUtil {
 
     private BranchUtil() {
     }
