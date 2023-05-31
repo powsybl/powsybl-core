@@ -193,8 +193,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     @Override
     public boolean checkPermanentLimit(Side side, float limitReduction, LimitType type) {
         return BranchUtil.getFromSide(side,
-                () -> checkPermanentLimit1(limitReduction, type),
-                () -> checkPermanentLimit2(limitReduction, type));
+            () -> checkPermanentLimit1(limitReduction, type),
+            () -> checkPermanentLimit2(limitReduction, type));
     }
 
     @Override
@@ -225,8 +225,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     @Override
     public Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
         return BranchUtil.getFromSide(side,
-                () -> checkTemporaryLimits1(limitReduction, type),
-                () -> checkTemporaryLimits2(limitReduction, type));
+            () -> checkTemporaryLimits1(limitReduction, type),
+            () -> checkTemporaryLimits2(limitReduction, type));
     }
 
     @Override

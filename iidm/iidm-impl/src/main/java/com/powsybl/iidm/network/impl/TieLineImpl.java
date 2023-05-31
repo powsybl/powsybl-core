@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.TieLineUtil;
 
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -296,8 +295,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Override
     public boolean checkPermanentLimit(Side side, float limitReduction, LimitType type) {
         return BranchUtil.getFromSide(side,
-                () -> checkPermanentLimit1(limitReduction, type),
-                () -> checkPermanentLimit2(limitReduction, type));
+            () -> checkPermanentLimit1(limitReduction, type),
+            () -> checkPermanentLimit2(limitReduction, type));
     }
 
     @Override
@@ -328,8 +327,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Override
     public Branch.Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
         return BranchUtil.getFromSide(side,
-                () -> checkTemporaryLimits1(limitReduction, type),
-                () -> checkTemporaryLimits2(limitReduction, type));
+            () -> checkTemporaryLimits1(limitReduction, type),
+            () -> checkTemporaryLimits2(limitReduction, type));
     }
 
     @Override

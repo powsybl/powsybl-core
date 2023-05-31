@@ -20,6 +20,9 @@ import java.util.function.Supplier;
  */
 public class BranchUtil {
 
+    private BranchUtil() {
+    }
+
     static Terminal getTerminal(String voltageLevelId, Terminal terminal1, Terminal terminal2) {
         Objects.requireNonNull(voltageLevelId);
         boolean side1 = terminal1.getVoltageLevel().getId().equals(voltageLevelId);
