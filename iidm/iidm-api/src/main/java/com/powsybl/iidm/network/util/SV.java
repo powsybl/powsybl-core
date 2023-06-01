@@ -119,7 +119,7 @@ public class SV {
     }
 
     public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        return otherSide(r, x, g1, b1, g2, b2, 1 / rho, -alpha).getP();
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha).getP();
     }
 
     public double otherSideP(DanglingLine dl) {
@@ -135,7 +135,7 @@ public class SV {
     }
 
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        return otherSide(r, x, g1, b1, g2, b2, 1 / rho, -alpha).getQ();
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha).getQ();
     }
 
     public double otherSideQ(DanglingLine dl) {
@@ -151,7 +151,7 @@ public class SV {
     }
 
     public double otherSideU(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        return otherSide(r, x, g1, b1, g2, b2, 1 / rho, -alpha).getU();
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha).getU();
     }
 
     public double otherSideU(DanglingLine dl) {
@@ -167,7 +167,7 @@ public class SV {
     }
 
     public double otherSideA(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        return otherSide(r, x, g1, b1, g2, b2, 1 / rho, -alpha).getA();
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha).getA();
     }
 
     public double otherSideA(DanglingLine dl) {
