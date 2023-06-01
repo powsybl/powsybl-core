@@ -10,7 +10,7 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.joda.time.DateTime;
@@ -187,11 +187,11 @@ class MergingNetworkTest {
         assertEquals(0, mergingView.getConnectableStream(Line.class).count());
         assertEquals(0, mergingView.getConnectableCount(Line.class));
 
-        // DanglingLines
-        assertFalse(mergingView.getBoundaryLines(DanglingLineFilter.ALL).iterator().hasNext());
-        assertEquals(0, mergingView.getDanglingLineStream(DanglingLineFilter.ALL).count());
-        assertEquals(0, mergingView.getDanglingLineCount());
-        assertArrayEquals(Iterables.toArray(mergingView.getBoundaryLines(DanglingLineFilter.ALL), BoundaryLine.class), Iterables.toArray(mergingView.getConnectables(BoundaryLine.class), BoundaryLine.class));
+        // BoundaryLines
+        assertFalse(mergingView.getBoundaryLines(BoundaryLineFilter.ALL).iterator().hasNext());
+        assertEquals(0, mergingView.getBoundaryLineStream(BoundaryLineFilter.ALL).count());
+        assertEquals(0, mergingView.getBoundaryLineCount());
+        assertArrayEquals(Iterables.toArray(mergingView.getBoundaryLines(BoundaryLineFilter.ALL), BoundaryLine.class), Iterables.toArray(mergingView.getConnectables(BoundaryLine.class), BoundaryLine.class));
         assertEquals(0, mergingView.getConnectableStream(BoundaryLine.class).count());
         assertEquals(0, mergingView.getConnectableCount(BoundaryLine.class));
 
@@ -232,7 +232,7 @@ class MergingNetworkTest {
         // Init networks
         n1 = EurostagTutorialExample1Factory.create();
         n1.getLine("NHV1_NHV2_1").remove();
-        n1.getVoltageLevel("VLHV1").newDanglingLine()
+        n1.getVoltageLevel("VLHV1").newBoundaryLine()
                 .setId("DL1")
                 .setConnectableBus("NHV1")
                 .setBus("NHV1")
@@ -244,10 +244,10 @@ class MergingNetworkTest {
                 .setB(5.0)
                 .setUcteXnodeCode("code")
                 .add();
-        n2 = DanglingLineNetworkFactory.create();
-        n2.getDanglingLine("DL").remove();
+        n2 = BoundaryLineNetworkFactory.create();
+        n2.getBoundaryLine("DL").remove();
         VoltageLevel vl = n2.getVoltageLevel("VL");
-        vl.newDanglingLine()
+        vl.newBoundaryLine()
                 .setId("DL")
                 .setBus("BUS")
                 .setR(10.0)
@@ -259,7 +259,7 @@ class MergingNetworkTest {
                 .setUcteXnodeCode("code2")
                 .add();
         vl.getBusBreakerView().newBus().setId("BUS1").add();
-        vl.newDanglingLine()
+        vl.newBoundaryLine()
                 .setId("DL2")
                 .setConnectableBus("BUS1")
                 .setBus("BUS1")
@@ -300,8 +300,8 @@ class MergingNetworkTest {
         assertEquals(1, mergingView.getConnectableCount(Line.class));
         assertEquals(1, mergingView.getTieLineCount());
 
-        // DanglingLines
-        assertEquals(Collections.singletonList("DL"), mergingView.getConnectableStream(BoundaryLine.class).filter(dl -> !dl.isPaired()).map(BoundaryLine::getId).collect(Collectors.toList()));
+        // BoundaryLines
+        assertEquals(Collections.singletonList("DL"), mergingView.getConnectableStream(BoundaryLine.class).filter(bl -> !bl.isPaired()).map(BoundaryLine::getId).collect(Collectors.toList()));
         assertArrayEquals(Iterables.toArray(mergingView.getConnectables(BoundaryLine.class), BoundaryLine.class),
                 mergingView.getConnectableStream(BoundaryLine.class).toArray());
         assertEquals(3, mergingView.getConnectableCount(BoundaryLine.class));

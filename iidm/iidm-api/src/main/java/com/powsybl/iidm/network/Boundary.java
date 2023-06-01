@@ -32,14 +32,14 @@ public interface Boundary {
     double getQ();
 
     /**
-     * Get the danglingLine the boundary is associated to.
+     * Get the boundaryLine the boundary is associated to.
      */
-    BoundaryLine getDanglingLine();
+    BoundaryLine getBoundaryLine();
 
     /**
      * Get the voltage level at network side.
      */
     default VoltageLevel getNetworkSideVoltageLevel() {
-        return getDanglingLine().getTerminal().getVoltageLevel();
+        return getBoundaryLine().getTerminal().getVoltageLevel();
     }
 }

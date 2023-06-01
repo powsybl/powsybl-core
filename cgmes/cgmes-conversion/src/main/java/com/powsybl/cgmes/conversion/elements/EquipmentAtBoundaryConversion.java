@@ -13,5 +13,5 @@ package com.powsybl.cgmes.conversion.elements;
 public interface EquipmentAtBoundaryConversion {
     void convertAtBoundary();
 
-    BoundaryLine asBoundaryLine(String node);
+    CgmesBoundaryLine asBoundaryLine(String node);
 }

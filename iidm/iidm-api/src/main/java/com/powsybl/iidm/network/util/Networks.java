@@ -114,7 +114,7 @@ public final class Networks {
 
         addBuses(network, balanceMainCC, balanceOtherCC);
         addLoads(network, balanceMainCC, balanceOtherCC);
-        addDanglingLines(network, balanceMainCC, balanceOtherCC);
+        addBoundaryLines(network, balanceMainCC, balanceOtherCC);
         addGenerators(network, balanceMainCC, balanceOtherCC);
         addShuntCompensators(network, balanceMainCC, balanceOtherCC);
 
@@ -154,24 +154,24 @@ public final class Networks {
         }
     }
 
-    private static void addDanglingLines(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-            Terminal.BusBreakerView view = dl.getTerminal().getBusBreakerView();
+    private static void addBoundaryLines(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            Terminal.BusBreakerView view = bl.getTerminal().getBusBreakerView();
             if (view.getBus() != null) {
                 if (view.getBus().isInMainConnectedComponent()) {
-                    balanceMainCC.connectedLoads.add(dl.getId());
-                    balanceMainCC.connectedLoadVolume += dl.getP0();
+                    balanceMainCC.connectedLoads.add(bl.getId());
+                    balanceMainCC.connectedLoadVolume += bl.getP0();
                 } else {
-                    balanceOtherCC.connectedLoads.add(dl.getId());
-                    balanceOtherCC.connectedLoadVolume += dl.getP0();
+                    balanceOtherCC.connectedLoads.add(bl.getId());
+                    balanceOtherCC.connectedLoadVolume += bl.getP0();
                 }
             } else {
                 if (view.getConnectableBus().isInMainConnectedComponent()) {
-                    balanceMainCC.disconnectedLoads.add(dl.getId());
-                    balanceMainCC.disconnectedLoadVolume += dl.getP0();
+                    balanceMainCC.disconnectedLoads.add(bl.getId());
+                    balanceMainCC.disconnectedLoadVolume += bl.getP0();
                 } else {
-                    balanceOtherCC.disconnectedLoads.add(dl.getId());
-                    balanceOtherCC.disconnectedLoadVolume += dl.getP0();
+                    balanceOtherCC.disconnectedLoads.add(bl.getId());
+                    balanceOtherCC.disconnectedLoadVolume += bl.getP0();
                 }
             }
         }

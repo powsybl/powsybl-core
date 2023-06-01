@@ -104,7 +104,7 @@
                         <xs:element name="battery" type="iidm:Battery"/>
                         <xs:element name="load" type="iidm:Load"/>
                         <xs:element name="shunt" type="iidm:ShuntCompensator"/>
-                        <xs:element name="boundaryLine" type="iidm:DanglingLine"/>
+                        <xs:element name="boundaryLine" type="iidm:BoundaryLine"/>
                         <xs:element name="staticVarCompensator" type="iidm:StaticVarCompensator"/>
                         <xs:element name="vscConverterStation" type="iidm:VscConverterStation"/>
                         <xs:element name="lccConverterStation" type="iidm:LccConverterStation"/>
@@ -345,7 +345,7 @@
         </xs:sequence>
         <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
     </xs:complexType>
-    <xs:complexType name="DanglingLine">
+    <xs:complexType name="BoundaryLine">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
@@ -575,8 +575,8 @@
     <xs:complexType name="TieLine">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
-                <xs:attribute name="danglingLineId1" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="danglingLineId2" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="boundaryLineId1" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="boundaryLineId2" use="required" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

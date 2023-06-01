@@ -18,7 +18,7 @@ import java.util.List;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.GENERATOR;
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.LOAD;
-import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkWithDanglingLine;
+import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkWithBoundaryLine;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -36,24 +36,24 @@ class BoundaryLineScalableTest {
 
     @BeforeEach
     void setUp() {
-        network = createNetworkWithDanglingLine();
-        dl2 = Scalable.onDanglingLine("dl2");
+        network = createNetworkWithBoundaryLine();
+        dl2 = Scalable.onBoundaryLine("dl2");
 
-        dl3 = new DanglingLineScalable("dl2", 20, 100);
-        dl4 = new DanglingLineScalable("dl2", -10, 100);
+        dl3 = new BoundaryLineScalable("dl2", 20, 100);
+        dl4 = new BoundaryLineScalable("dl2", -10, 100);
 
-        dl5 = Scalable.onDanglingLine("dl2", ScalingConvention.LOAD);
-        dl6 = Scalable.onDanglingLine("dl2", 20, 100, ScalingConvention.LOAD);
+        dl5 = Scalable.onBoundaryLine("dl2", ScalingConvention.LOAD);
+        dl6 = Scalable.onBoundaryLine("dl2", 20, 100, ScalingConvention.LOAD);
     }
 
     @Test
     void testConstructorThrowWhenIdIsNull() {
-        assertThrows(NullPointerException.class, () -> new DanglingLineScalable(null));
+        assertThrows(NullPointerException.class, () -> new BoundaryLineScalable(null));
     }
 
     @Test
     void testConstructorInvalidP() {
-        assertThrows(PowsyblException.class, () -> new DanglingLineScalable("dl2", 10, 0));
+        assertThrows(PowsyblException.class, () -> new BoundaryLineScalable("dl2", 10, 0));
     }
 
     @Test
@@ -82,13 +82,13 @@ class BoundaryLineScalableTest {
     }
 
     @Test
-    void testDanglingLineScaleLoadConvention() {
+    void testBoundaryLineScaleLoadConvention() {
         //test with ScalingConvention.LOAD
         convention = LOAD;
         ScalingParameters parameters = new ScalingParameters().setScalingConvention(convention);
 
         //test with default maxValue = Double.MAX_VALUE and minValue = Double.MIN_VALUE
-        BoundaryLine boundaryLine = network.getDanglingLine("dl2");
+        BoundaryLine boundaryLine = network.getBoundaryLine("dl2");
         assertEquals(50, boundaryLine.getP0(), 1e-3);
         assertEquals(20, dl2.scale(network, 20, parameters), 1e-3);
         assertEquals(70, boundaryLine.getP0(), 1e-3);
@@ -97,10 +97,10 @@ class BoundaryLineScalableTest {
     }
 
     @Test
-    void testDanglingLineScaleGeneratorConvention() {
+    void testBoundaryLineScaleGeneratorConvention() {
         //test with ScalingConvention.GENERATOR
         //test with default maxValue = Double.MAX_VALUE and minValue = -Double.MAX_VALUE
-        BoundaryLine boundaryLine = network.getDanglingLine("dl2");
+        BoundaryLine boundaryLine = network.getBoundaryLine("dl2");
         assertEquals(50.0, boundaryLine.getP0(), 1e-3);
         assertEquals(20, dl2.scale(network, 20), 1e-3);
         assertEquals(30.0, boundaryLine.getP0(), 1e-3);
@@ -137,15 +137,15 @@ class BoundaryLineScalableTest {
 
     @Test
     void testFilterInjections() {
-        BoundaryLine boundaryLine = network.getDanglingLine("dl2");
+        BoundaryLine boundaryLine = network.getBoundaryLine("dl2");
         List<Injection> injections = dl2.filterInjections(network);
         assertEquals(1, injections.size());
         assertSame(boundaryLine, injections.get(0));
     }
 
     @Test
-    void testReconnectDanglingLine() {
-        BoundaryLine boundaryLine = network.getDanglingLine("dl2");
+    void testReconnectBoundaryLine() {
+        BoundaryLine boundaryLine = network.getBoundaryLine("dl2");
         boundaryLine.getTerminal().disconnect();
         assertFalse(boundaryLine.getTerminal().isConnected());
 

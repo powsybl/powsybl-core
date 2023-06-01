@@ -6,25 +6,25 @@
  */
 package com.powsybl.contingency;
 
-import com.powsybl.iidm.modification.tripping.DanglingLineTripping;
+import com.powsybl.iidm.modification.tripping.BoundaryLineTripping;
 import com.powsybl.iidm.modification.tripping.Tripping;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class DanglingLineContingency extends AbstractContingency {
+public class BoundaryLineContingency extends AbstractContingency {
 
-    public DanglingLineContingency(String id) {
+    public BoundaryLineContingency(String id) {
         super(id);
     }
 
     @Override
     public ContingencyElementType getType() {
-        return ContingencyElementType.DANGLING_LINE;
+        return ContingencyElementType.BOUNDARY_LINE;
     }
 
     @Override
     public Tripping toModification() {
-        return new DanglingLineTripping(id);
+        return new BoundaryLineTripping(id);
     }
 }

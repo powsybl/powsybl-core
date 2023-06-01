@@ -27,9 +27,9 @@ class MergedLine implements TieLine {
 
     private final MergingViewIndex index;
 
-    private final BoundaryLineAdapter danglingLine1;
+    private final BoundaryLineAdapter boundaryLine1;
 
-    private final BoundaryLineAdapter danglingLine2;
+    private final BoundaryLineAdapter boundaryLine2;
 
     private String id;
 
@@ -37,19 +37,19 @@ class MergedLine implements TieLine {
 
     private final Properties properties = new Properties();
 
-    MergedLine(final MergingViewIndex index, final BoundaryLine dl1, final BoundaryLine dl2, boolean ensureIdUnicity) {
+    MergedLine(final MergingViewIndex index, final BoundaryLine bl1, final BoundaryLine bl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
-        this.danglingLine1 = index.getDanglingLine(dl1);
+        this.boundaryLine1 = index.getBoundaryLine(bl1);
         // must be reoriented. TieLine is defined as networkNode1-boundaryNode--boundaryNode-networkNode2
-        // and in danglingLines the networkNode is always at end1
-        this.danglingLine2 = index.getDanglingLine(dl2);
-        this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildMergedId(dl1.getId(), dl2.getId()), index::contains) : buildMergedId(dl1.getId(), dl2.getId());
-        this.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
-        mergeProperties(dl1, dl2, properties);
+        // and in boundaryLines the networkNode is always at end1
+        this.boundaryLine2 = index.getBoundaryLine(bl2);
+        this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildMergedId(bl1.getId(), bl2.getId()), index::contains) : buildMergedId(bl1.getId(), bl2.getId());
+        this.name = buildMergedName(bl1.getId(), bl2.getId(), bl1.getOptionalName().orElse(null), bl2.getOptionalName().orElse(null));
+        mergeProperties(bl1, bl2, properties);
     }
 
-    MergedLine(final MergingViewIndex index, final BoundaryLine dl1, final BoundaryLine dl2) {
-        this(index, dl1, dl2, false);
+    MergedLine(final MergingViewIndex index, final BoundaryLine bl1, final BoundaryLine bl2) {
+        this(index, bl1, bl2, false);
     }
 
     @Override
@@ -70,32 +70,32 @@ class MergedLine implements TieLine {
 
     @Override
     public double getR() {
-        return TieLineUtil.getR(danglingLine1, danglingLine2);
+        return TieLineUtil.getR(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getX() {
-        return TieLineUtil.getX(danglingLine1, danglingLine2);
+        return TieLineUtil.getX(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getG1() {
-        return TieLineUtil.getG1(danglingLine1, danglingLine2);
+        return TieLineUtil.getG1(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getG2() {
-        return TieLineUtil.getG2(danglingLine1, danglingLine2);
+        return TieLineUtil.getG2(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getB1() {
-        return TieLineUtil.getB1(danglingLine1, danglingLine2);
+        return TieLineUtil.getB1(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getB2() {
-        return TieLineUtil.getB2(danglingLine1, danglingLine2);
+        return TieLineUtil.getB2(boundaryLine1, boundaryLine2);
     }
 
     @Override
@@ -216,45 +216,45 @@ class MergedLine implements TieLine {
 
     @Override
     public BoundaryLine getBoundaryLine1() {
-        return danglingLine1;
+        return boundaryLine1;
     }
 
     @Override
     public BoundaryLine getBoundaryLine2() {
-        return danglingLine2;
+        return boundaryLine2;
     }
 
     @Override
-    public BoundaryLine getDanglingLine(Branch.Side side) {
+    public BoundaryLine getBoundaryLine(Branch.Side side) {
         switch (side) {
             case ONE:
-                return danglingLine1;
+                return boundaryLine1;
             case TWO:
-                return danglingLine2;
+                return boundaryLine2;
             default:
                 throw new IllegalStateException("Unknown branch side " + side);
         }
     }
 
     @Override
-    public BoundaryLine getDanglingLine(String voltageLevelId) {
-        if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return danglingLine1;
+    public BoundaryLine getBoundaryLine(String voltageLevelId) {
+        if (boundaryLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return boundaryLine1;
         }
-        if (danglingLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return danglingLine2;
+        if (boundaryLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return boundaryLine2;
         }
         return null;
     }
 
     @Override
     public Terminal getTerminal1() {
-        return danglingLine1.getTerminal();
+        return boundaryLine1.getTerminal();
     }
 
     @Override
     public Terminal getTerminal2() {
-        return danglingLine2.getTerminal();
+        return boundaryLine2.getTerminal();
     }
 
     @Override
@@ -288,9 +288,9 @@ class MergedLine implements TieLine {
     public Side getSide(Terminal terminal) {
         Objects.requireNonNull(terminal);
 
-        if (danglingLine1.getTerminal() == terminal) {
+        if (boundaryLine1.getTerminal() == terminal) {
             return Side.ONE;
-        } else if (danglingLine2.getTerminal() == terminal) {
+        } else if (boundaryLine2.getTerminal() == terminal) {
             return Side.TWO;
         } else {
             throw new IllegalStateException("The terminal is not connected to this branch");
@@ -299,12 +299,12 @@ class MergedLine implements TieLine {
 
     @Override
     public Collection<OperationalLimits> getOperationalLimits1() {
-        return danglingLine1.getOperationalLimits();
+        return boundaryLine1.getOperationalLimits();
     }
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits1() {
-        return danglingLine1.getCurrentLimits();
+        return boundaryLine1.getCurrentLimits();
     }
 
     @Override
@@ -314,12 +314,12 @@ class MergedLine implements TieLine {
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return danglingLine1.newCurrentLimits();
+        return boundaryLine1.newCurrentLimits();
     }
 
     @Override
     public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
-        return danglingLine1.getApparentPowerLimits();
+        return boundaryLine1.getApparentPowerLimits();
     }
 
     @Override
@@ -329,32 +329,32 @@ class MergedLine implements TieLine {
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return danglingLine1.newApparentPowerLimits();
+        return boundaryLine1.newApparentPowerLimits();
     }
 
     @Override
     public Collection<OperationalLimits> getOperationalLimits2() {
-        return danglingLine2.getOperationalLimits();
+        return boundaryLine2.getOperationalLimits();
     }
 
     @Override
     public Optional<ActivePowerLimits> getActivePowerLimits1() {
-        return danglingLine1.getActivePowerLimits();
+        return boundaryLine1.getActivePowerLimits();
     }
 
     @Override
     public ActivePowerLimits getNullableActivePowerLimits1() {
-        return danglingLine1.getNullableActivePowerLimits();
+        return boundaryLine1.getNullableActivePowerLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return danglingLine1.newActivePowerLimits();
+        return boundaryLine1.newActivePowerLimits();
     }
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits2() {
-        return danglingLine2.getCurrentLimits();
+        return boundaryLine2.getCurrentLimits();
     }
 
     @Override
@@ -364,12 +364,12 @@ class MergedLine implements TieLine {
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return danglingLine2.newCurrentLimits();
+        return boundaryLine2.newCurrentLimits();
     }
 
     @Override
     public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
-        return danglingLine2.getApparentPowerLimits();
+        return boundaryLine2.getApparentPowerLimits();
     }
 
     @Override
@@ -379,12 +379,12 @@ class MergedLine implements TieLine {
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return danglingLine2.newApparentPowerLimits();
+        return boundaryLine2.newApparentPowerLimits();
     }
 
     @Override
     public Optional<ActivePowerLimits> getActivePowerLimits2() {
-        return danglingLine2.getActivePowerLimits();
+        return boundaryLine2.getActivePowerLimits();
     }
 
     @Override
@@ -394,7 +394,7 @@ class MergedLine implements TieLine {
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return danglingLine2.newActivePowerLimits();
+        return boundaryLine2.newActivePowerLimits();
     }
 
     @Override

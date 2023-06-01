@@ -231,22 +231,22 @@ abstract class AbstractVoltageLevelAdapter extends AbstractIdentifiableAdapter<V
     }
 
     @Override
-    public DanglingLineAdder newDanglingLine() {
-        return new DanglingLineAdderAdapter(getDelegate().newDanglingLine(), getIndex());
+    public BoundaryLineAdder newBoundaryLine() {
+        return new BoundaryLineAdderAdapter(getDelegate().newBoundaryLine(), getIndex());
     }
 
     @Override
-    public Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return getConnectableStream(BoundaryLine.class).filter(danglingLineFilter.getPredicate());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return getConnectableStream(BoundaryLine.class).filter(boundaryLineFilter.getPredicate());
     }
 
     @Override
-    public int getDanglingLineCount() {
+    public int getBoundaryLineCount() {
         return Ints.checkedCast(getConnectableStream(BoundaryLine.class).count());
     }
 

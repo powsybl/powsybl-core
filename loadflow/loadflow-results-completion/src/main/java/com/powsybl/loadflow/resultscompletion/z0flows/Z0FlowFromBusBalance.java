@@ -133,7 +133,7 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
     }
 
     @Override
-    public void visitDanglingLine(BoundaryLine boundaryLine) {
+    public void visitBoundaryLine(BoundaryLine boundaryLine) {
         addFlow(boundaryLine.getTerminal());
     }
 

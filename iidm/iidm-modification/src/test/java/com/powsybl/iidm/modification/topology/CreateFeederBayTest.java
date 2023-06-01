@@ -212,8 +212,8 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         addBatteryModification.apply(network);
-        DanglingLineAdder danglingLineAdder = network.getVoltageLevel("vl2").newDanglingLine()
-                        .setId("newDanglingLine")
+        BoundaryLineAdder boundaryLineAdder = network.getVoltageLevel("vl2").newBoundaryLine()
+                        .setId("newBoundaryLine")
                         .setR(10)
                         .setX(20)
                         .setG(30)
@@ -225,14 +225,14 @@ class CreateFeederBayTest extends AbstractConverterTest {
         assertTrue(unusedOrderPositionsAfter0.isPresent());
         assertEquals(81, (int) unusedOrderPositionsAfter0.get().getMinimum());
         assertEquals(Integer.MAX_VALUE, (int) unusedOrderPositionsAfter0.get().getMaximum());
-        int danglingLinePositionOrder = unusedOrderPositionsAfter0.get().getMinimum();
-        NetworkModification addDanglingLineModification = new CreateFeederBayBuilder()
-                .withInjectionAdder(danglingLineAdder)
+        int boundaryLinePositionOrder = unusedOrderPositionsAfter0.get().getMinimum();
+        NetworkModification addBoundaryLineModification = new CreateFeederBayBuilder()
+                .withInjectionAdder(boundaryLineAdder)
                 .withBusOrBusbarSectionId("bbs5")
-                .withInjectionPositionOrder(danglingLinePositionOrder)
+                .withInjectionPositionOrder(boundaryLinePositionOrder)
                 .withInjectionDirection(BOTTOM)
                 .build();
-        addDanglingLineModification.apply(network);
+        addBoundaryLineModification.apply(network);
 
         ShuntCompensatorAdder shuntCompensatorAdder = network.getVoltageLevel("vl2").newShuntCompensator()
                         .setId("newShuntCompensator")

@@ -29,7 +29,7 @@ public interface RemoteReactivePowerControl extends Extension<Generator> {
 
     /**
      * Get the regulating terminal where the reactive power should be controlled. The regulating terminal should be the
-     * terminal of a branch or the terminal of a dangling line that will be merged later. It is not the regulating terminal
+     * terminal of a branch or the terminal of a boundary line that will be merged later. It is not the regulating terminal
      * of the generator used for voltage control that is less restrictive.
      */
     Terminal getRegulatingTerminal();

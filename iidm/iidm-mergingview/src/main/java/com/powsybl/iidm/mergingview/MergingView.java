@@ -40,7 +40,7 @@ public final class MergingView implements Network, MultiVariantObject {
     private final Map<String, SynchronousComponentsManager> synchronousComponentsManager = new HashMap<>();
 
     /** To listen events from merging network */
-    private final NetworkListener pairDanglingLineListener;
+    private final NetworkListener pairBoundaryLineListener;
     private final TopologyListener topologyListener;
 
     static PowsyblException createNotImplementedException() {
@@ -154,7 +154,7 @@ public final class MergingView implements Network, MultiVariantObject {
         synchronousComponentsManager.put(VariantManagerConstants.INITIAL_VARIANT_ID, new SynchronousComponentsManager(this));
 
         // Listeners creation
-        pairDanglingLineListener = new MergingLineListener(index);
+        pairBoundaryLineListener = new MergingLineListener(index);
         topologyListener = new TopologyListener(index);
         busBreakerView = new BusBreakerViewAdapter(index);
         busView = new BusViewAdapter(index);
@@ -760,25 +760,25 @@ public final class MergingView implements Network, MultiVariantObject {
         return Optional.ofNullable(index.getMergedLine(id)).orElse(index.get(n -> n.getTieLine(id), index::getTieLine));
     }
 
-    // DanglingLines
+    // BoundaryLines
     @Override
-    public Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter) {
-        return index.getBoundaryLines(danglingLineFilter);
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return index.getBoundaryLines(boundaryLineFilter);
     }
 
     @Override
-    public Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return index.getDanglingLineStream(danglingLineFilter);
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return index.getBoundaryLineStream(boundaryLineFilter);
     }
 
     @Override
-    public int getDanglingLineCount() {
-        return index.getDanglingLineCount();
+    public int getBoundaryLineCount() {
+        return index.getBoundaryLineCount();
     }
 
     @Override
-    public BoundaryLine getDanglingLine(final String id) {
-        return index.get(n -> n.getDanglingLine(id), index::getDanglingLine);
+    public BoundaryLine getBoundaryLine(final String id) {
+        return index.get(n -> n.getBoundaryLine(id), index::getBoundaryLine);
     }
 
     // HvdcLines
@@ -875,7 +875,7 @@ public final class MergingView implements Network, MultiVariantObject {
 
     private void addInternalListeners(Network network) {
         // Attach all custom listeners
-        network.addListener(pairDanglingLineListener);
+        network.addListener(pairBoundaryLineListener);
         network.addListener(topologyListener);
     }
 

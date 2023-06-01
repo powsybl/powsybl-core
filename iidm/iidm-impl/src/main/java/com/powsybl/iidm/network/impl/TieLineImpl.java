@@ -36,9 +36,9 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         return "Tie Line";
     }
 
-    private BoundaryLineImpl danglingLine1;
+    private BoundaryLineImpl boundaryLine1;
 
-    private BoundaryLineImpl danglingLine2;
+    private BoundaryLineImpl boundaryLine2;
 
     private final Ref<NetworkImpl> networkRef;
 
@@ -49,77 +49,77 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         this.networkRef = network;
     }
 
-    void attachDanglingLines(BoundaryLineImpl dl1, BoundaryLineImpl dl2) {
-        this.danglingLine1 = attach(dl1);
-        this.danglingLine2 = attach(dl2);
+    void attachBoundaryLines(BoundaryLineImpl bl1, BoundaryLineImpl bl2) {
+        this.boundaryLine1 = attach(bl1);
+        this.boundaryLine2 = attach(bl2);
     }
 
-    private BoundaryLineImpl attach(BoundaryLineImpl danglingLine) {
-        danglingLine.setTieLine(this);
-        return danglingLine;
+    private BoundaryLineImpl attach(BoundaryLineImpl boundaryLine) {
+        boundaryLine.setTieLine(this);
+        return boundaryLine;
     }
 
     @Override
     public String getUcteXnodeCode() {
-        return Optional.ofNullable(danglingLine1.getUcteXnodeCode()).orElseGet(() -> danglingLine2.getUcteXnodeCode());
+        return Optional.ofNullable(boundaryLine1.getUcteXnodeCode()).orElseGet(() -> boundaryLine2.getUcteXnodeCode());
     }
 
     @Override
     public BoundaryLineImpl getBoundaryLine1() {
-        return danglingLine1;
+        return boundaryLine1;
     }
 
     @Override
     public BoundaryLineImpl getBoundaryLine2() {
-        return danglingLine2;
+        return boundaryLine2;
     }
 
     @Override
-    public BoundaryLineImpl getDanglingLine(Side side) {
+    public BoundaryLineImpl getBoundaryLine(Side side) {
         return BranchUtil.getFromSide(side, this::getBoundaryLine1, this::getBoundaryLine2);
     }
 
     @Override
-    public BoundaryLine getDanglingLine(String voltageLevelId) {
-        if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return danglingLine1;
+    public BoundaryLine getBoundaryLine(String voltageLevelId) {
+        if (boundaryLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return boundaryLine1;
         }
-        if (danglingLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
-            return danglingLine2;
+        if (boundaryLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return boundaryLine2;
         }
         return null;
     }
 
-    // danglingLine1 and danglingLine2 are dangling lines, so the transmission impedance of the equivalent branch is symmetric
+    // boundaryLine1 and boundaryLine2 are boundary lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getR() {
-        return TieLineUtil.getR(danglingLine1, danglingLine2);
+        return TieLineUtil.getR(boundaryLine1, boundaryLine2);
     }
 
-    // danglingLine1 and danglingLine2 are dangling lines, so the transmission impedance of the equivalent branch is symmetric
+    // boundaryLine1 and boundaryLine2 are boundary lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getX() {
-        return TieLineUtil.getX(danglingLine1, danglingLine2);
+        return TieLineUtil.getX(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getG1() {
-        return TieLineUtil.getG1(danglingLine1, danglingLine2);
+        return TieLineUtil.getG1(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getB1() {
-        return TieLineUtil.getB1(danglingLine1, danglingLine2);
+        return TieLineUtil.getB1(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getG2() {
-        return TieLineUtil.getG2(danglingLine1, danglingLine2);
+        return TieLineUtil.getG2(boundaryLine1, boundaryLine2);
     }
 
     @Override
     public double getB2() {
-        return TieLineUtil.getB2(danglingLine1, danglingLine2);
+        return TieLineUtil.getB2(boundaryLine1, boundaryLine2);
     }
 
     @Override
@@ -127,9 +127,9 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         NetworkImpl network = getNetwork();
         network.getListeners().notifyBeforeRemoval(this);
 
-        // Remove dangling lines
-        danglingLine1.removeTieLine();
-        danglingLine2.removeTieLine();
+        // Remove boundary lines
+        boundaryLine1.removeTieLine();
+        boundaryLine2.removeTieLine();
 
         // Remove this tie line from the network
         network.getIndex().remove(this);
@@ -140,12 +140,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public TerminalExt getTerminal1() {
-        return danglingLine1.getTerminal();
+        return boundaryLine1.getTerminal();
     }
 
     @Override
     public TerminalExt getTerminal2() {
-        return danglingLine2.getTerminal();
+        return boundaryLine2.getTerminal();
     }
 
     @Override
@@ -164,12 +164,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public Collection<OperationalLimits> getOperationalLimits1() {
-        return danglingLine1.getOperationalLimits();
+        return boundaryLine1.getOperationalLimits();
     }
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits1() {
-        return danglingLine1.getCurrentLimits();
+        return boundaryLine1.getCurrentLimits();
     }
 
     @Override
@@ -179,12 +179,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return danglingLine1.newCurrentLimits();
+        return boundaryLine1.newCurrentLimits();
     }
 
     @Override
     public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
-        return danglingLine1.getApparentPowerLimits();
+        return boundaryLine1.getApparentPowerLimits();
     }
 
     @Override
@@ -194,17 +194,17 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return danglingLine1.newApparentPowerLimits();
+        return boundaryLine1.newApparentPowerLimits();
     }
 
     @Override
     public Collection<OperationalLimits> getOperationalLimits2() {
-        return danglingLine2.getOperationalLimits();
+        return boundaryLine2.getOperationalLimits();
     }
 
     @Override
     public Optional<ActivePowerLimits> getActivePowerLimits1() {
-        return danglingLine1.getActivePowerLimits();
+        return boundaryLine1.getActivePowerLimits();
     }
 
     @Override
@@ -214,12 +214,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return danglingLine1.newActivePowerLimits();
+        return boundaryLine1.newActivePowerLimits();
     }
 
     @Override
     public Optional<CurrentLimits> getCurrentLimits2() {
-        return danglingLine2.getCurrentLimits();
+        return boundaryLine2.getCurrentLimits();
     }
 
     @Override
@@ -229,12 +229,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return danglingLine2.newCurrentLimits();
+        return boundaryLine2.newCurrentLimits();
     }
 
     @Override
     public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
-        return danglingLine2.getApparentPowerLimits();
+        return boundaryLine2.getApparentPowerLimits();
     }
 
     @Override
@@ -244,12 +244,12 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return danglingLine2.newApparentPowerLimits();
+        return boundaryLine2.newApparentPowerLimits();
     }
 
     @Override
     public Optional<ActivePowerLimits> getActivePowerLimits2() {
-        return danglingLine2.getActivePowerLimits();
+        return boundaryLine2.getActivePowerLimits();
     }
 
     @Override
@@ -259,7 +259,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return danglingLine2.newActivePowerLimits();
+        return boundaryLine2.newActivePowerLimits();
     }
 
     @Override

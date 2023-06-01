@@ -11,14 +11,14 @@ package com.powsybl.iidm.reducer;
  */
 public class ReductionOptions {
 
-    private boolean withDanglingLines = false;
+    private boolean withBoundaryLines = false;
 
-    public boolean isWithDanglingLines() {
-        return withDanglingLines;
+    public boolean isWithBoundaryLines() {
+        return withBoundaryLines;
     }
 
-    public ReductionOptions withDanglingLlines(boolean withDanglingLines) {
-        this.withDanglingLines = withDanglingLines;
+    public ReductionOptions withDanglingLlines(boolean withBoundaryLines) {
+        this.withBoundaryLines = withBoundaryLines;
         return this;
     }
 

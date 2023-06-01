@@ -21,9 +21,9 @@ public class MergingLineListener extends DefaultMergingViewListener {
     @Override
     public void onCreation(final Identifiable identifiable) {
         if (identifiable instanceof BoundaryLine) {
-            // Check DanglingLine creation from Network merged into MergingView
+            // Check BoundaryLine creation from Network merged into MergingView
             // in order to create a new MergedLine if it's needed
-            index.checkNewDanglingLine((BoundaryLine) identifiable);
+            index.checkNewBoundaryLine((BoundaryLine) identifiable);
         }
     }
 }

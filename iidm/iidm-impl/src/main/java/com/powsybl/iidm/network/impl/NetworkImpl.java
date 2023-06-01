@@ -492,22 +492,22 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return index.getAll(BoundaryLineImpl.class).stream().filter(danglingLineFilter.getPredicate()).map(Function.identity());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return index.getAll(BoundaryLineImpl.class).stream().filter(boundaryLineFilter.getPredicate()).map(Function.identity());
     }
 
     @Override
-    public int getDanglingLineCount() {
+    public int getBoundaryLineCount() {
         return index.getAll(BoundaryLineImpl.class).size();
     }
 
     @Override
-    public BoundaryLineImpl getDanglingLine(String id) {
+    public BoundaryLineImpl getBoundaryLine(String id) {
         return index.get(id, BoundaryLineImpl.class);
     }
 
@@ -891,7 +891,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
-            if (clazz == BoundaryLineImpl.class) { // fine for dangling lines
+            if (clazz == BoundaryLineImpl.class) { // fine for boundary lines
                 continue;
             }
             Collection<String> objs = entry.getValue();
@@ -902,17 +902,17 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             }
         }
 
-        // try to find dangling lines couples
-        List<DanglingLinePair> lines = new ArrayList<>();
-        Map<String, List<BoundaryLine>> dl1byXnodeCode = new HashMap<>();
+        // try to find boundary lines couples
+        List<BoundaryLinePair> lines = new ArrayList<>();
+        Map<String, List<BoundaryLine>> bl1byXnodeCode = new HashMap<>();
 
-        for (BoundaryLine dl1 : getBoundaryLines(DanglingLineFilter.ALL)) {
-            if (dl1.getUcteXnodeCode() != null) {
-                dl1byXnodeCode.computeIfAbsent(dl1.getUcteXnodeCode(), k -> new ArrayList<>()).add(dl1);
+        for (BoundaryLine bl1 : getBoundaryLines(BoundaryLineFilter.ALL)) {
+            if (bl1.getUcteXnodeCode() != null) {
+                bl1byXnodeCode.computeIfAbsent(bl1.getUcteXnodeCode(), k -> new ArrayList<>()).add(bl1);
             }
         }
-        for (BoundaryLine dl2 : Lists.newArrayList(other.getBoundaryLines(DanglingLineFilter.ALL))) {
-            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
+        for (BoundaryLine bl2 : Lists.newArrayList(other.getBoundaryLines(BoundaryLineFilter.ALL))) {
+            findAndAssociateBoundaryLines(bl2, getBoundaryLine(bl2.getId()), bl1byXnodeCode::get, (bll1, bll2) -> pairBoundaryLines(lines, bll1, bll2, bl1byXnodeCode));
         }
 
         // do not forget to remove the other network from its index!!!
@@ -924,7 +924,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         // fix network back reference of the other network objects
         otherNetwork.ref.setRef(ref);
 
-        replaceDanglingLineByLine(lines);
+        replaceBoundaryLineByLine(lines);
 
         // update the source format
         if (!sourceFormat.equals(otherNetwork.sourceFormat)) {
@@ -934,43 +934,43 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, BoundaryLine dl1, BoundaryLine dl2, Map<String, List<BoundaryLine>> dl1byXnodeCode) {
-        if (dl1 != null) {
-            if (dl1.getUcteXnodeCode() != null) {
-                dl1byXnodeCode.get(dl1.getUcteXnodeCode()).remove(dl1);
+    private void pairBoundaryLines(List<BoundaryLinePair> boundaryLinePairs, BoundaryLine bl1, BoundaryLine bl2, Map<String, List<BoundaryLine>> bl1byXnodeCode) {
+        if (bl1 != null) {
+            if (bl1.getUcteXnodeCode() != null) {
+                bl1byXnodeCode.get(bl1.getUcteXnodeCode()).remove(bl1);
             }
-            DanglingLinePair l = new DanglingLinePair();
-            l.id = buildMergedId(dl1.getId(), dl2.getId());
-            l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
-            l.dl1Id = dl1.getId();
-            l.dl2Id = dl2.getId();
+            BoundaryLinePair l = new BoundaryLinePair();
+            l.id = buildMergedId(bl1.getId(), bl2.getId());
+            l.name = buildMergedName(bl1.getId(), bl2.getId(), bl1.getOptionalName().orElse(null), bl2.getOptionalName().orElse(null));
+            l.bl1Id = bl1.getId();
+            l.bl2Id = bl2.getId();
             l.aliases = new HashMap<>();
-            mergeProperties(dl1, dl2, l.properties);
-            danglingLinePairs.add(l);
+            mergeProperties(bl1, bl2, l.properties);
+            boundaryLinePairs.add(l);
 
-            if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
-                ((BoundaryLineImpl) dl1).replaceId(l.dl1Id + "_1");
-                ((BoundaryLineImpl) dl2).replaceId(l.dl2Id + "_2");
-                l.dl1Id = dl1.getId();
-                l.dl2Id = dl2.getId();
+            if (bl1.getId().equals(bl2.getId())) { // if identical IDs, rename boundary lines
+                ((BoundaryLineImpl) bl1).replaceId(l.bl1Id + "_1");
+                ((BoundaryLineImpl) bl2).replaceId(l.bl2Id + "_2");
+                l.bl1Id = bl1.getId();
+                l.bl2Id = bl2.getId();
             }
-            mergeIdenticalAliases(dl1, dl2, l.aliases);
+            mergeIdenticalAliases(bl1, bl2, l.aliases);
         }
     }
 
-    private void replaceDanglingLineByLine(List<DanglingLinePair> lines) {
-        for (DanglingLinePair danglingLinePair : lines) {
-            LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
-                    danglingLinePair.id, danglingLinePair.dl1Id, danglingLinePair.dl2Id);
+    private void replaceBoundaryLineByLine(List<BoundaryLinePair> lines) {
+        for (BoundaryLinePair boundaryLinePair : lines) {
+            LOGGER.debug("Creating tie line '{}' between boundary line couple '{}' and '{}",
+                    boundaryLinePair.id, boundaryLinePair.bl1Id, boundaryLinePair.bl2Id);
             TieLineImpl l = newTieLine()
-                    .setId(danglingLinePair.id)
+                    .setId(boundaryLinePair.id)
                     .setEnsureIdUnicity(true)
-                    .setName(danglingLinePair.name)
-                    .setDanglingLine1(danglingLinePair.dl1Id)
-                    .setDanglingLine2(danglingLinePair.dl2Id)
+                    .setName(boundaryLinePair.name)
+                    .setBoundaryLine1(boundaryLinePair.bl1Id)
+                    .setBoundaryLine2(boundaryLinePair.bl2Id)
                     .add();
-            danglingLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-            danglingLinePair.aliases.forEach((alias, type) -> {
+            boundaryLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
+            boundaryLinePair.aliases.forEach((alias, type) -> {
                 if (type.isEmpty()) {
                     l.addAlias(alias);
                 } else {
@@ -980,11 +980,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
-    class DanglingLinePair {
+    class BoundaryLinePair {
         String id;
         String name;
-        String dl1Id;
-        String dl2Id;
+        String bl1Id;
+        String bl2Id;
         Map<String, String> aliases;
         Properties properties = new Properties();
     }

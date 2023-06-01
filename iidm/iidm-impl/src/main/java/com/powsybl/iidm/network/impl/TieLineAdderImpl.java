@@ -16,8 +16,8 @@ import java.util.Objects;
 class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> implements TieLineAdder {
 
     private final NetworkImpl network;
-    private String dl1Id;
-    private String dl2Id;
+    private String bl1Id;
+    private String bl2Id;
 
     TieLineAdderImpl(NetworkImpl network) {
         this.network = network;
@@ -34,40 +34,40 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
     }
 
     @Override
-    public TieLineAdderImpl setDanglingLine1(String dl1Id) {
-        this.dl1Id = dl1Id;
+    public TieLineAdderImpl setBoundaryLine1(String bl1Id) {
+        this.bl1Id = bl1Id;
         return this;
     }
 
     @Override
-    public TieLineAdderImpl setDanglingLine2(String dl2Id) {
-        this.dl2Id = dl2Id;
+    public TieLineAdderImpl setBoundaryLine2(String bl2Id) {
+        this.bl2Id = bl2Id;
         return this;
     }
 
     @Override
     public TieLineImpl add() {
         String id = checkAndGetUniqueId();
-        if (dl1Id == null || dl2Id == null) {
-            throw new ValidationException(this, "undefined dangling line");
+        if (bl1Id == null || bl2Id == null) {
+            throw new ValidationException(this, "undefined boundary line");
         }
-        BoundaryLineImpl dl1 = network.getDanglingLine(dl1Id);
-        BoundaryLineImpl dl2 = network.getDanglingLine(dl2Id);
-        if (dl1 == null || dl2 == null) {
-            throw new ValidationException(this, dl1Id + " and/or " + dl2Id + " are not dangling lines in the network");
+        BoundaryLineImpl bl1 = network.getBoundaryLine(bl1Id);
+        BoundaryLineImpl bl2 = network.getBoundaryLine(bl2Id);
+        if (bl1 == null || bl2 == null) {
+            throw new ValidationException(this, bl1Id + " and/or " + bl2Id + " are not boundary lines in the network");
         }
-        if (dl1 == dl2) {
-            throw new ValidationException(this, "danglingLine1 and danglingLine2 are identical (" + dl1.getId() + ")");
+        if (bl1 == bl2) {
+            throw new ValidationException(this, "boundaryLine1 and boundaryLine2 are identical (" + bl1.getId() + ")");
         }
-        if (dl1.getTieLine().isPresent() || dl2.getTieLine().isPresent()) {
-            throw new ValidationException(this, "danglingLine1 (" + dl1Id + ") and/or danglingLine2 (" + dl2Id + ") already has a tie line");
+        if (bl1.getTieLine().isPresent() || bl2.getTieLine().isPresent()) {
+            throw new ValidationException(this, "boundaryLine1 (" + bl1Id + ") and/or boundaryLine2 (" + bl2Id + ") already has a tie line");
         }
-        if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null && !Objects.equals(dl1.getUcteXnodeCode(), dl2.getUcteXnodeCode())) {
+        if (bl1.getUcteXnodeCode() != null && bl2.getUcteXnodeCode() != null && !Objects.equals(bl1.getUcteXnodeCode(), bl2.getUcteXnodeCode())) {
             throw new ValidationException(this, "ucteXnodeCode is not consistent");
         }
 
         TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious());
-        line.attachDanglingLines(dl1, dl2);
+        line.attachBoundaryLines(bl1, bl2);
         network.getIndex().checkAndAdd(line);
         network.getListeners().notifyCreation(line);
         return line;

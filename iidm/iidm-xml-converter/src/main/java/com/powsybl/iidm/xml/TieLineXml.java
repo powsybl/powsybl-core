@@ -44,7 +44,7 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
         return (hasValidOperationalLimits(tl.getBoundaryLine1(), context) || hasValidOperationalLimits(tl.getBoundaryLine2(), context)) && context.getVersion().compareTo(IidmXmlVersion.V_1_10) < 0;
     }
 
-    private static void writeDanglingLine(BoundaryLine boundaryLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
+    private static void writeBoundaryLine(BoundaryLine boundaryLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
         Boundary boundary = boundaryLine.getBoundary();
         context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(boundaryLine.getId()));
         boundaryLine.getOptionalName().ifPresent(name -> {
@@ -72,8 +72,8 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
     @Override
     protected void writeRootElementAttributes(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
-            context.getWriter().writeAttribute("danglingLineId1", context.getAnonymizer().anonymizeString(tl.getBoundaryLine1().getId()));
-            context.getWriter().writeAttribute("danglingLineId2", context.getAnonymizer().anonymizeString(tl.getBoundaryLine2().getId()));
+            context.getWriter().writeAttribute("boundaryLineId1", context.getAnonymizer().anonymizeString(tl.getBoundaryLine1().getId()));
+            context.getWriter().writeAttribute("boundaryLineId2", context.getAnonymizer().anonymizeString(tl.getBoundaryLine2().getId()));
         });
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
             if (tl.getUcteXnodeCode() != null) {
@@ -85,8 +85,8 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
                 writePQ(1, tl.getBoundaryLine1().getTerminal(), context.getWriter());
                 writePQ(2, tl.getBoundaryLine2().getTerminal(), context.getWriter());
             }
-            writeDanglingLine(tl.getBoundaryLine1(), context, 1);
-            writeDanglingLine(tl.getBoundaryLine2(), context, 2);
+            writeBoundaryLine(tl.getBoundaryLine1(), context, 1);
+            writeBoundaryLine(tl.getBoundaryLine2(), context, 2);
         });
     }
 
@@ -133,22 +133,22 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
 
     @Override
     protected TieLine readRootElementAttributes(TieLineAdder adder, Network network, NetworkXmlReaderContext context) {
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> adder.setDanglingLine1(readDanglingLine(network, context, 1)).setDanglingLine2(readDanglingLine(network, context, 2)));
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> adder.setBoundaryLine1(readBoundaryLine(network, context, 1)).setBoundaryLine2(readBoundaryLine(network, context, 2)));
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
-            String dl1Id = context.getReader().getAttributeValue(null, "danglingLineId1");
-            String dl2Id = context.getReader().getAttributeValue(null, "danglingLineId2");
-            adder.setDanglingLine1(dl1Id).setDanglingLine2(dl2Id);
+            String bl1Id = context.getReader().getAttributeValue(null, "boundaryLineId1");
+            String bl2Id = context.getReader().getAttributeValue(null, "boundaryLineId2");
+            adder.setBoundaryLine1(bl1Id).setBoundaryLine2(bl2Id);
         });
         TieLine tl = adder.add();
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
-            double dl1BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
-            double dl2BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
-            double dl1BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
-            double dl2BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
-            checkBoundaryValue(dl1BoundaryP, tl.getBoundaryLine1().getBoundary().getP(), "xnodeP_1", tl.getId());
-            checkBoundaryValue(dl2BoundaryP, tl.getBoundaryLine2().getBoundary().getP(), "xnodeP_2", tl.getId());
-            checkBoundaryValue(dl1BoundaryQ, tl.getBoundaryLine1().getBoundary().getQ(), "xnodeQ_1", tl.getId());
-            checkBoundaryValue(dl2BoundaryQ, tl.getBoundaryLine2().getBoundary().getQ(), "xnodeQ_2", tl.getId());
+            double bl1BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
+            double bl2BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
+            double bl1BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
+            double bl2BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
+            checkBoundaryValue(bl1BoundaryP, tl.getBoundaryLine1().getBoundary().getP(), "xnodeP_1", tl.getId());
+            checkBoundaryValue(bl2BoundaryP, tl.getBoundaryLine2().getBoundary().getP(), "xnodeP_2", tl.getId());
+            checkBoundaryValue(bl1BoundaryQ, tl.getBoundaryLine1().getBoundary().getQ(), "xnodeQ_1", tl.getId());
+            checkBoundaryValue(bl2BoundaryQ, tl.getBoundaryLine2().getBoundary().getQ(), "xnodeQ_2", tl.getId());
         });
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_9, context, () -> {
             double p1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p1");
@@ -161,7 +161,7 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
         return tl;
     }
 
-    private static String readDanglingLine(Network network, NetworkXmlReaderContext context, int side) {
+    private static String readBoundaryLine(Network network, NetworkXmlReaderContext context, int side) {
         String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId" + side));
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id_" + side));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name_" + side));
@@ -172,7 +172,7 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
         double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2_" + side);
         double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2_" + side);
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
-        DanglingLineAdder adder = network.getVoltageLevel(voltageLevelId).newDanglingLine().setId(id)
+        BoundaryLineAdder adder = network.getVoltageLevel(voltageLevelId).newBoundaryLine().setId(id)
                 .setName(name)
                 .setR(r)
                 .setX(x)
@@ -187,8 +187,8 @@ class TieLineXml extends AbstractSimpleIdentifiableXml<TieLine, TieLineAdder, Ne
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
             adder.setFictitious(fictitious);
         });
-        BoundaryLine dl = adder.add();
-        return dl.getId();
+        BoundaryLine bl = adder.add();
+        return bl.getId();
     }
 
     @Override

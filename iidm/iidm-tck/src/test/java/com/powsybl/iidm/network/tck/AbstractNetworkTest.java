@@ -433,9 +433,9 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P1").getThreeWindingsTransformerStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P2").getThreeWindingsTransformerStream()));
 
-        assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLineStream(DanglingLineFilter.ALL)));
-        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getDanglingLineStream(DanglingLineFilter.ALL)));
-        assertEquals(network.getDanglingLineCount(), network.getDanglingLineStream(DanglingLineFilter.ALL).count());
+        assertEquals(Collections.emptyList(), mapper.apply(network.getBoundaryLineStream(BoundaryLineFilter.ALL)));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV1).getBoundaryLineStream(BoundaryLineFilter.ALL)));
+        assertEquals(network.getBoundaryLineCount(), network.getBoundaryLineStream(BoundaryLineFilter.ALL).count());
         assertEquals(Collections.emptyList(), mapper.apply(network.getShuntCompensatorStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel(VLHV2).getShuntCompensatorStream()));
         assertEquals(network.getShuntCompensatorCount(), network.getShuntCompensatorStream().count());

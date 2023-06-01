@@ -44,7 +44,7 @@ public final class ScadaNetworkFactory {
                 .setMaxP(100.0)
                 .setBus(busId)
                 .add();
-        BoundaryLine dl = vl.newDanglingLine()
+        BoundaryLine bl = vl.newBoundaryLine()
                 .setId("dl")
                 .setBus(busId)
                 .setR(1.0)
@@ -56,7 +56,7 @@ public final class ScadaNetworkFactory {
                 .setMaxP(200.0)
                 .add()
                 .add();
-        dl.getGeneration().newMinMaxReactiveLimits()
+        bl.getGeneration().newMinMaxReactiveLimits()
                 .setMinQ(100)
                 .setMaxQ(200)
                 .add();

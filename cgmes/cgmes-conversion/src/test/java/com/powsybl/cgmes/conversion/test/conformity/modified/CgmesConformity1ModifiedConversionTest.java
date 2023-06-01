@@ -66,9 +66,9 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUnmergedXnode().dataSource(),
                         NetworkFactory.findDefault(), null);
-        BoundaryLine dl = network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
-        assertNotNull(dl);
-        BoundaryLine test = network.getDanglingLine("test");
+        BoundaryLine bl = network.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        assertNotNull(bl);
+        BoundaryLine test = network.getBoundaryLine("test");
         assertNotNull(test);
     }
 
@@ -375,12 +375,12 @@ class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentInjectionRegulatingVoltage().dataSource(),
                 NetworkFactory.findDefault(), null);
 
-        BoundaryLine boundaryLineRegulating = network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        BoundaryLine boundaryLineRegulating = network.getBoundaryLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
         assertNotNull(boundaryLineRegulating);
         assertTrue(boundaryLineRegulating.getGeneration().isVoltageRegulationOn());
         assertEquals(220.1234, boundaryLineRegulating.getGeneration().getTargetV(), 0.0);
 
-        BoundaryLine boundaryLineNotRegulating = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
+        BoundaryLine boundaryLineNotRegulating = network.getBoundaryLine("17086487-56ba-4979-b8de-064025a6b4da");
         assertNotNull(boundaryLineNotRegulating);
         assertEquals(-27.365225, boundaryLineNotRegulating.getP0(), 0.0);
         assertEquals(0.425626, boundaryLineNotRegulating.getQ0(), 0.0);
@@ -410,32 +410,32 @@ class CgmesConformity1ModifiedConversionTest {
     void microBESwitchAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESwitchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        BoundaryLine dl = network.getDanglingLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
-        assertEquals(0.0, dl.getR(), 0.0);
-        assertEquals(0.0, dl.getX(), 0.0);
-        assertEquals(0.0, dl.getG(), 0.0);
-        assertEquals(0.0, dl.getB(), 0.0);
+        BoundaryLine bl = network.getBoundaryLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(0.0, bl.getR(), 0.0);
+        assertEquals(0.0, bl.getX(), 0.0);
+        assertEquals(0.0, bl.getG(), 0.0);
+        assertEquals(0.0, bl.getB(), 0.0);
     }
 
     @Test
     void microBETransformerAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBETransformerAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        BoundaryLine dl = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
+        BoundaryLine bl = network.getBoundaryLine("17086487-56ba-4979-b8de-064025a6b4da");
 
-        assertEquals(2.588687265185185, dl.getR(), 0.0);
-        assertEquals(13.880789206913578, dl.getX(), 0.0);
-        assertEquals(0.0, dl.getG(), 0.0);
-        assertEquals(0.0, dl.getB(), 0.0);
+        assertEquals(2.588687265185185, bl.getR(), 0.0);
+        assertEquals(13.880789206913578, bl.getX(), 0.0);
+        assertEquals(0.0, bl.getG(), 0.0);
+        assertEquals(0.0, bl.getB(), 0.0);
     }
 
     @Test
     void microBEEquivalentBranchAtBoundary() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranchAtBoundary().dataSource(),
             NetworkFactory.findDefault(), null);
-        BoundaryLine dl = network.getDanglingLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
-        assertEquals(1.0, dl.getR(), 0.0);
-        assertEquals(10.0, dl.getX(), 0.0);
+        BoundaryLine bl = network.getBoundaryLine("78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(1.0, bl.getR(), 0.0);
+        assertEquals(10.0, bl.getX(), 0.0);
     }
 
     @Test
@@ -493,7 +493,7 @@ class CgmesConformity1ModifiedConversionTest {
     void microBEMissingLimitValue() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEMissingLimitValue().dataSource(),
                 NetworkFactory.findDefault(), null);
-        BoundaryLine line = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
+        BoundaryLine line = network.getBoundaryLine("17086487-56ba-4979-b8de-064025a6b4da");
         CurrentLimits limits = line.getCurrentLimits().orElse(null);
         assertNotNull(limits);
         assertNull(limits.getTemporaryLimit(10));
@@ -788,14 +788,14 @@ class CgmesConformity1ModifiedConversionTest {
         assertEquals(525, l1.getCurrentLimits2().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
 
         // 2 - PATL Current defined for an ACTransmissionLine
-        // that will be mapped to a DanglingLine in IIDM
-        BoundaryLine dl0 = network0.getDanglingLine("f32baf36-7ea3-4b6a-9452-71e7f18779f8");
-        BoundaryLine dl1 = network1.getDanglingLine("f32baf36-7ea3-4b6a-9452-71e7f18779f8");
+        // that will be mapped to a BoundaryLine in IIDM
+        BoundaryLine bl0 = network0.getBoundaryLine("f32baf36-7ea3-4b6a-9452-71e7f18779f8");
+        BoundaryLine bl1 = network1.getBoundaryLine("f32baf36-7ea3-4b6a-9452-71e7f18779f8");
         // In network0 limit is defined for the Terminal
         // In network1 limit is defined for the Equipment
         // In both cases the limit should be mapped to IIDM
-        assertEquals(1000, dl0.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
-        assertEquals(1000, dl1.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertEquals(1000, bl0.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
+        assertEquals(1000, bl1.getCurrentLimits().map(LoadingLimits::getPermanentLimit).orElse(0.0), tol);
 
         // 3 - PATL Current defined for a PowerTransformer, should be rejected
         TwoWindingsTransformer tx0 = network0.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
@@ -1004,7 +1004,7 @@ class CgmesConformity1ModifiedConversionTest {
     void microGridBaseCaseBESingleFile() {
         Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), null);
         assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
-        assertEquals(5, network.getDanglingLineCount());
+        assertEquals(5, network.getBoundaryLineCount());
     }
 
     @Test

@@ -33,8 +33,8 @@ public interface NamingStrategy {
 
     default String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
         if (identifiable instanceof BoundaryLine) {
-            BoundaryLine dl = (BoundaryLine) identifiable;
-            return identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+            BoundaryLine bl = (BoundaryLine) identifiable;
+            return identifiable.getAliasFromType(aliasType).or(() -> bl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
         }
         return identifiable.getAliasFromType(aliasType).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
     }

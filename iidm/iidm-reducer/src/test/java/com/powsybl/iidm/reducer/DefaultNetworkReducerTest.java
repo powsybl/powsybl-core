@@ -44,7 +44,7 @@ class DefaultNetworkReducerTest {
         assertEquals(0, network.getLineCount());
         assertEquals(1, network.getGeneratorCount());
         assertEquals(2, network.getLoadCount());
-        assertEquals(0, network.getDanglingLineCount());
+        assertEquals(0, network.getBoundaryLineCount());
 
         Load load1 = network.getLoad(NHV1_NHV2_1);
         assertNotNull(load1);
@@ -92,7 +92,7 @@ class DefaultNetworkReducerTest {
         assertEquals(2, network.getLineCount());
         assertEquals(0, network.getGeneratorCount());
         assertEquals(2, network.getLoadCount());
-        assertEquals(0, network.getDanglingLineCount());
+        assertEquals(0, network.getBoundaryLineCount());
 
         Load load1 = network.getLoad("NGEN_NHV1");
         assertNotNull(load1);
@@ -123,12 +123,12 @@ class DefaultNetworkReducerTest {
     }
 
     @Test
-    void testDanglingLine() {
+    void testBoundaryLine() {
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
 
         NetworkReducer reducer = NetworkReducer.builder()
                 .withNetworkPredicate(IdentifierNetworkPredicate.of("P2"))
-                .withDanglingLines(true)
+                .withBoundaryLines(true)
                 .build();
 
         reducer.reduce(network);
@@ -139,29 +139,29 @@ class DefaultNetworkReducerTest {
         assertEquals(0, network.getLineCount());
         assertEquals(0, network.getGeneratorCount());
         assertEquals(1, network.getLoadCount());
-        assertEquals(2, network.getDanglingLineCount());
+        assertEquals(2, network.getBoundaryLineCount());
 
-        BoundaryLine dl1 = network.getDanglingLine(NHV1_NHV2_1);
-        assertNotNull(dl1);
-        assertEquals(1.5, dl1.getR(), 0.0);
-        assertEquals(16.5, dl1.getX(), 0.0);
-        assertEquals(0.0, dl1.getG(), 0.0);
-        assertEquals(1.93e-4, dl1.getB(), 0.0);
-        assertEquals(-300.43389892578125, dl1.getP0(), 0.0);
-        assertEquals(-137.18849182128906, dl1.getQ0(), 0.0);
-        assertEquals(-300.43389892578125, dl1.getTerminal().getP(), 0.0);
-        assertEquals(-137.18849182128906, dl1.getTerminal().getQ(), 0.0);
+        BoundaryLine bl1 = network.getBoundaryLine(NHV1_NHV2_1);
+        assertNotNull(bl1);
+        assertEquals(1.5, bl1.getR(), 0.0);
+        assertEquals(16.5, bl1.getX(), 0.0);
+        assertEquals(0.0, bl1.getG(), 0.0);
+        assertEquals(1.93e-4, bl1.getB(), 0.0);
+        assertEquals(-300.43389892578125, bl1.getP0(), 0.0);
+        assertEquals(-137.18849182128906, bl1.getQ0(), 0.0);
+        assertEquals(-300.43389892578125, bl1.getTerminal().getP(), 0.0);
+        assertEquals(-137.18849182128906, bl1.getTerminal().getQ(), 0.0);
 
-        BoundaryLine dl2 = network.getDanglingLine(NHV1_NHV2_2);
-        assertNotNull(dl2);
-        assertEquals(1.5, dl2.getR(), 0.0);
-        assertEquals(16.5, dl2.getX(), 0.0);
-        assertEquals(0.0, dl2.getG(), 0.0);
-        assertEquals(1.93e-4, dl2.getB(), 0.0);
-        assertEquals(-300.43389892578125, dl2.getP0(), 0.0);
-        assertEquals(-137.18849182128906, dl2.getQ0(), 0.0);
-        assertEquals(-300.43389892578125, dl2.getTerminal().getP(), 0.0);
-        assertEquals(-137.18849182128906, dl2.getTerminal().getQ(), 0.0);
+        BoundaryLine bl2 = network.getBoundaryLine(NHV1_NHV2_2);
+        assertNotNull(bl2);
+        assertEquals(1.5, bl2.getR(), 0.0);
+        assertEquals(16.5, bl2.getX(), 0.0);
+        assertEquals(0.0, bl2.getG(), 0.0);
+        assertEquals(1.93e-4, bl2.getB(), 0.0);
+        assertEquals(-300.43389892578125, bl2.getP0(), 0.0);
+        assertEquals(-137.18849182128906, bl2.getQ0(), 0.0);
+        assertEquals(-300.43389892578125, bl2.getTerminal().getP(), 0.0);
+        assertEquals(-137.18849182128906, bl2.getTerminal().getQ(), 0.0);
     }
 
     @Test
@@ -355,7 +355,7 @@ class DefaultNetworkReducerTest {
         assertEquals(0, network.getLineCount());
         assertEquals(0, network.getGeneratorCount());
         assertEquals(2, network.getLoadCount());
-        assertEquals(0, network.getDanglingLineCount());
+        assertEquals(0, network.getBoundaryLineCount());
         assertEquals(4, network.getSwitchCount());
         assertEquals(1, network.getBusbarSectionCount());
     }

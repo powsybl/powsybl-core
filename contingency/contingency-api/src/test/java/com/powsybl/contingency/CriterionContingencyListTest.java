@@ -11,7 +11,7 @@ import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -460,9 +460,9 @@ class CriterionContingencyListTest {
     }
 
     @Test
-    void testDanglingLines() {
-        // dangling lines
-        Network network = DanglingLineNetworkFactory.create();
+    void testBoundaryLines() {
+        // boundary lines
+        Network network = BoundaryLineNetworkFactory.create();
         SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
         SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(90.0, 130.0, true, false));
@@ -471,7 +471,7 @@ class CriterionContingencyListTest {
                 Collections.emptyList(), null);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
-        assertEquals(new Contingency("DL", new DanglingLineContingency("DL")), contingencies.get(0));
+        assertEquals(new Contingency("DL", new BoundaryLineContingency("DL")), contingencies.get(0));
     }
 
     @Test

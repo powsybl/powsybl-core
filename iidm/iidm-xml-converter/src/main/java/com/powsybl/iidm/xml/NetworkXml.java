@@ -617,7 +617,7 @@ public final class NetworkXml {
                     case BatteryXml.ROOT_ELEMENT_NAME:
                     case LoadXml.ROOT_ELEMENT_NAME:
                     case ShuntXml.ROOT_ELEMENT_NAME:
-                    case DanglingLineXml.ROOT_ELEMENT_NAME:
+                    case BoundaryLineXml.ROOT_ELEMENT_NAME:
                     case LccConverterStationXml.ROOT_ELEMENT_NAME:
                     case VscConverterStationXml.ROOT_ELEMENT_NAME:
                         updateInjection(reader, network);

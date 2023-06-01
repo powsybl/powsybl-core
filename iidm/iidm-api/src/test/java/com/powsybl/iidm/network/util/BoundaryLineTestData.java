@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.Terminal.BusView;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class DanglingLineTestData {
+class BoundaryLineTestData {
 
     static double r = 0.05;
     static double x = 0.2;
@@ -40,7 +40,7 @@ class DanglingLineTestData {
     private Terminal terminal;
     private BoundaryLine boundaryLine;
 
-    DanglingLineTestData() {
+    BoundaryLineTestData() {
         bus = Mockito.mock(Bus.class);
         Mockito.when(bus.getV()).thenReturn(U);
         Mockito.when(bus.getAngle()).thenReturn(ANGLE);
@@ -51,7 +51,7 @@ class DanglingLineTestData {
         Mockito.when(busBreakerView.getBus()).thenReturn(bus);
 
         boundaryLine = Mockito.mock(BoundaryLine.class);
-        Mockito.when(boundaryLine.getId()).thenReturn("DanglingLineTest");
+        Mockito.when(boundaryLine.getId()).thenReturn("BoundaryLineTest");
         terminal = Mockito.mock(Terminal.class);
         Mockito.when(boundaryLine.getTerminal()).thenReturn(terminal);
         Mockito.when(terminal.isConnected()).thenReturn(true);
@@ -66,7 +66,7 @@ class DanglingLineTestData {
         Mockito.when(boundaryLine.getQ0()).thenReturn(Q0);
     }
 
-    BoundaryLine getDanglingLine() {
+    BoundaryLine getBoundaryLine() {
         return boundaryLine;
     }
 

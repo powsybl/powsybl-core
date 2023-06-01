@@ -70,8 +70,8 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case BUSBAR_SECTION:
                     return new BusbarSectionContingency(id);
 
-                case DANGLING_LINE:
-                    return new DanglingLineContingency(id);
+                case BOUNDARY_LINE:
+                    return new BoundaryLineContingency(id);
 
                 case LINE:
                     return new LineContingency(id, voltageLevelId);

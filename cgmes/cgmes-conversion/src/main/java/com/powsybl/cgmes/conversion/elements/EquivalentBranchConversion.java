@@ -66,12 +66,12 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
     }
 
     @Override
-    public BoundaryLine asBoundaryLine(String boundaryNode) {
-        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
+    public CgmesBoundaryLine asBoundaryLine(String boundaryNode) {
+        CgmesBoundaryLine cgmesBoundaryLine = super.createBoundaryLine(boundaryNode);
         double r = p.asDouble("r");
         double x = p.asDouble("x");
-        boundaryLine.setParameters(r, x, 0.0, 0.0, 0.0, 0.0);
-        return boundaryLine;
+        cgmesBoundaryLine.setParameters(r, x, 0.0, 0.0, 0.0, 0.0);
+        return cgmesBoundaryLine;
     }
 
     private void convertEquivalentBranchAtBoundary(int boundarySide) {
@@ -88,7 +88,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
                     "This method should not be called, the mapping has already been performed in ::convert";
             throw new PowsyblException(message);
         }
-        convertToDanglingLine(boundarySide, r, x, gch, bch);
+        convertToBoundaryLine(boundarySide, r, x, gch, bch);
     }
 
     private void updateParametersForEquivalentBranchWithDifferentNominalVoltages() {

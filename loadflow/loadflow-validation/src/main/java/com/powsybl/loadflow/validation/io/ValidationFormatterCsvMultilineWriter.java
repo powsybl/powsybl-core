@@ -128,7 +128,7 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
     @Override
     protected void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
                          double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-                         double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean validated,
+                         double boundaryLineP, double boundaryLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean validated,
                          boolean mainComponent, BusData busData, boolean found, boolean writeValues) throws IOException {
         write(busId, "incomingP", found, busData.incomingP, writeValues, incomingP);
         write(busId, "incomingQ", found, busData.incomingQ, writeValues, incomingQ);
@@ -147,8 +147,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(busId, "vscCSQ", found, busData.vscCSQ, writeValues, vscCSQ);
             write(busId, "lineP", found, busData.lineP, writeValues, lineP);
             write(busId, "lineQ", found, busData.lineQ, writeValues, lineQ);
-            write(busId, "danglingLineP", found, busData.danglingLineP, writeValues, danglingLineP);
-            write(busId, "danglingLineQ", found, busData.danglingLineQ, writeValues, danglingLineQ);
+            write(busId, "boundaryLineP", found, busData.boundaryLineP, writeValues, boundaryLineP);
+            write(busId, "boundaryLineQ", found, busData.boundaryLineQ, writeValues, boundaryLineQ);
             write(busId, "twtP", found, busData.twtP, writeValues, twtP);
             write(busId, "twtQ", found, busData.twtQ, writeValues, twtQ);
             write(busId, "tltP", found, busData.tltP, writeValues, tltP);

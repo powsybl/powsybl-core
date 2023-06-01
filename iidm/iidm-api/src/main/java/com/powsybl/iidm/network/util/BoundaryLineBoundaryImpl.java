@@ -13,21 +13,21 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class DanglingLineBoundaryImpl implements Boundary {
+public class BoundaryLineBoundaryImpl implements Boundary {
     // for SV use: side represents the network side, that is always
-    // Side.ONE for a dangling line.
+    // Side.ONE for a boundary line.
 
     private final BoundaryLine parent;
 
-    public DanglingLineBoundaryImpl(BoundaryLine parent) {
+    public BoundaryLineBoundaryImpl(BoundaryLine parent) {
         this.parent = Objects.requireNonNull(parent);
     }
 
     @Override
     public double getV() {
         if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
-            return danglingLineData.getBoundaryBusU();
+            BoundaryLineData boundaryLineData = new BoundaryLineData(parent, true);
+            return boundaryLineData.getBoundaryBusU();
         }
 
         Terminal t = parent.getTerminal();
@@ -38,8 +38,8 @@ public class DanglingLineBoundaryImpl implements Boundary {
     @Override
     public double getAngle() {
         if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
-            return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
+            BoundaryLineData boundaryLineData = new BoundaryLineData(parent, true);
+            return Math.toDegrees(boundaryLineData.getBoundaryBusTheta());
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
@@ -67,7 +67,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
     }
 
     @Override
-    public BoundaryLine getDanglingLine() {
+    public BoundaryLine getBoundaryLine() {
         return parent;
     }
 

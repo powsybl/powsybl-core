@@ -56,11 +56,11 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                 TerminalRefXml.writeTerminalRef(terminal, networkContext, getNamespaceUri(), "terminal");
             }
             for (Boundary boundary : controlArea.getBoundaries()) {
-                if (boundary.getDanglingLine() != null) { // TODO: delete this later, only for compatibility
+                if (boundary.getBoundaryLine() != null) { // TODO: delete this later, only for compatibility
                     writer.writeEmptyElement(getNamespaceUri(), "boundary");
-                    writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getDanglingLine().getId()));
+                    writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getBoundaryLine().getId()));
 
-                 // TODO use TieLine Id and DanglingLine Id for reference instead of TieLine Id and Side
+                 // TODO use TieLine Id and BoundaryLine Id for reference instead of TieLine Id and Side
                     Branch.Side side = getSide(boundary);
                     if (side != null) {
                         writer.writeAttribute("side", side.name());
@@ -73,8 +73,8 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
 
     private static Branch.Side getSide(Boundary boundary) {
         // a TieLine with two dangingLines inside
-        return boundary.getDanglingLine().getTieLine().map(tl -> {
-            if (tl.getBoundaryLine1() == boundary.getDanglingLine()) {
+        return boundary.getBoundaryLine().getTieLine().map(tl -> {
+            if (tl.getBoundaryLine1() == boundary.getBoundaryLine()) {
                 return Branch.Side.ONE;
             }
             return Branch.Side.TWO;
@@ -112,12 +112,12 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                     id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
                     Identifiable identifiable = network.getIdentifiable(id);
                     if (identifiable instanceof BoundaryLine) {
-                        BoundaryLine dl = (BoundaryLine) identifiable;
-                        cgmesControlArea.add(dl.getBoundary());
+                        BoundaryLine bl = (BoundaryLine) identifiable;
+                        cgmesControlArea.add(bl.getBoundary());
                     } else if (identifiable instanceof TieLine) {
                         side = networkContext.getReader().getAttributeValue(null, "side");
                         TieLine tl = (TieLine) identifiable;
-                        cgmesControlArea.add(tl.getDanglingLine(Branch.Side.valueOf(side)).getBoundary());
+                        cgmesControlArea.add(tl.getBoundaryLine(Branch.Side.valueOf(side)).getBoundary());
                     } else {
                         throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());
                     }

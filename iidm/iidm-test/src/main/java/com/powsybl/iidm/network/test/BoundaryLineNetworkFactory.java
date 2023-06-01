@@ -13,9 +13,9 @@ import java.util.Objects;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public final class DanglingLineNetworkFactory {
+public final class BoundaryLineNetworkFactory {
 
-    private DanglingLineNetworkFactory() {
+    private BoundaryLineNetworkFactory() {
     }
 
     public static Network create() {
@@ -24,7 +24,7 @@ public final class DanglingLineNetworkFactory {
 
     public static Network create(NetworkFactory networkFactory) {
         Network network = createBase(networkFactory);
-        BoundaryLine boundaryLine = network.getVoltageLevel("VL").newDanglingLine()
+        BoundaryLine boundaryLine = network.getVoltageLevel("VL").newBoundaryLine()
                 .setId("DL")
                 .setBus("BUS")
                 .setR(10.0)
@@ -34,7 +34,7 @@ public final class DanglingLineNetworkFactory {
                 .setP0(50.0)
                 .setQ0(30.0)
                 .add();
-        createDanglingLineCurrentLimits(boundaryLine);
+        createBoundaryLineCurrentLimits(boundaryLine);
         return network;
     }
 
@@ -44,7 +44,7 @@ public final class DanglingLineNetworkFactory {
 
     public static Network createWithGeneration(NetworkFactory networkFactory) {
         Network network = createBase(networkFactory);
-        BoundaryLine boundaryLine = network.getVoltageLevel("VL").newDanglingLine()
+        BoundaryLine boundaryLine = network.getVoltageLevel("VL").newBoundaryLine()
                 .setId("DL")
                 .setBus("BUS")
                 .setR(10.0)
@@ -73,7 +73,7 @@ public final class DanglingLineNetworkFactory {
                 .setMaxQ(46.25)
                 .endPoint()
                 .add();
-        createDanglingLineCurrentLimits(boundaryLine);
+        createBoundaryLineCurrentLimits(boundaryLine);
         return network;
     }
 
@@ -109,7 +109,7 @@ public final class DanglingLineNetworkFactory {
         return network;
     }
 
-    private static void createDanglingLineCurrentLimits(BoundaryLine boundaryLine) {
+    private static void createBoundaryLineCurrentLimits(BoundaryLine boundaryLine) {
         boundaryLine.newCurrentLimits()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()

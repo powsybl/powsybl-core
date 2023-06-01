@@ -52,21 +52,21 @@ class ReplaceTieLinesByLinesTest extends AbstractConverterTest {
     private static Network createBusBreakerNetworkWithAliasesPropertiesExtensions() {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
 
-        DanglingLine dl1 = network.getDanglingLine("NHV1_XNODE1");
-        dl1.addAlias("test1");
-        dl1.addAlias("test2", "same");
-        dl1.setProperty("key1", "value1");
-        dl1.setProperty("key2", "value2");
-        dl1.setProperty("key3", "value4");
+        BoundaryLine bl1 = network.getBoundaryLine("NHV1_XNODE1");
+        bl1.addAlias("test1");
+        bl1.addAlias("test2", "same");
+        bl1.setProperty("key1", "value1");
+        bl1.setProperty("key2", "value2");
+        bl1.setProperty("key3", "value4");
 
-        DanglingLine dl2 = network.getDanglingLine("XNODE1_NHV2");
-        dl2.addAlias("test3");
-        dl2.addAlias("test4", "same");
-        dl2.setProperty("key1", "value1");
-        dl2.setProperty("key2", "value3");
+        BoundaryLine bl2 = network.getBoundaryLine("XNODE1_NHV2");
+        bl2.addAlias("test3");
+        bl2.addAlias("test4", "same");
+        bl2.setProperty("key1", "value1");
+        bl2.setProperty("key2", "value3");
 
-        dl1.addExtension(DummyIdentifiableExtension.class, new DummyIdentifiableExtension<>());
-        dl2.addExtension(DummyIdentifiableExtension.class, new DummyIdentifiableExtension<>());
+        bl1.addExtension(DummyIdentifiableExtension.class, new DummyIdentifiableExtension<>());
+        bl2.addExtension(DummyIdentifiableExtension.class, new DummyIdentifiableExtension<>());
         network.getTieLine("NHV1_NHV2_1").addExtension(DummyIdentifiableExtension.class, new DummyIdentifiableExtension<>());
 
         return network;
@@ -79,9 +79,9 @@ class ReplaceTieLinesByLinesTest extends AbstractConverterTest {
         Substation s2 = network.newSubstation().setId("S2").add();
         VoltageLevel vl1 = s1.newVoltageLevel().setId("VL").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setNominalV(1f).setTopologyKind(TopologyKind.NODE_BREAKER).add();
-        DanglingLine dl1 = vl1.newDanglingLine().setId("DL1").setNode(0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
-        DanglingLine dl2 = vl2.newDanglingLine().setId("DL2").setNode(0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
-        network.newTieLine().setId("TL").setDanglingLine1(dl1.getId()).setDanglingLine2(dl2.getId()).add();
+        BoundaryLine bl1 = vl1.newBoundaryLine().setId("DL1").setNode(0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        BoundaryLine bl2 = vl2.newBoundaryLine().setId("DL2").setNode(0).setR(1.5).setX(13.0).setG(0.0).setB(1e-6).add();
+        network.newTieLine().setId("TL").setBoundaryLine1(bl1.getId()).setBoundaryLine2(bl2.getId()).add();
         return network;
     }
 

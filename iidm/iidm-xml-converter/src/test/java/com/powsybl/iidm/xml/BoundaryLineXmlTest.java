@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -27,18 +27,18 @@ class BoundaryLineXmlTest extends AbstractXmlConverterTest {
 
     @Test
     void test() throws IOException {
-        roundTripAllVersionedXmlTest("danglingLine.xml");
+        roundTripAllVersionedXmlTest("boundaryLine.xml");
     }
 
     @Test
     void testWithGeneration() throws IOException {
-        Network network = DanglingLineNetworkFactory.createWithGeneration();
+        Network network = BoundaryLineNetworkFactory.createWithGeneration();
         network.setCaseDate(DateTime.parse("2020-07-16T10:08:48.321+02:00"));
-        network.getDanglingLine("DL").setProperty("test", "test");
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, getVersionedNetworkPath("danglingLineWithGeneration.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
+        network.getBoundaryLine("DL").setProperty("test", "test");
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, getVersionedNetworkPath("boundaryLineWithGeneration.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility checks from version 1.3
-        roundTripVersionedXmlFromMinToCurrentVersionTest("danglingLineWithGeneration.xml", IidmXmlVersion.V_1_3);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("boundaryLineWithGeneration.xml", IidmXmlVersion.V_1_3);
 
         // check it fails for all versions < 1.3
         testForAllPreviousVersions(IidmXmlVersion.V_1_3, version -> {
@@ -48,14 +48,14 @@ class BoundaryLineXmlTest extends AbstractXmlConverterTest {
                 NetworkXml.write(network, options, path);
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("danglingLine.generation is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.3", e.getMessage());
+                assertEquals("boundaryLine.generation is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.3", e.getMessage());
             }
         });
 
         // check it doesn't fail for all versions < 1.3 if IidmVersionIncompatibilityBehavior is to log error
         testForAllPreviousVersions(IidmXmlVersion.V_1_3, version -> {
             try {
-                writeXmlTest(network, (n, path) -> write(n, path, version), getVersionedNetworkPath("danglingLineWithGeneration.xml", version));
+                writeXmlTest(network, (n, path) -> write(n, path, version), getVersionedNetworkPath("boundaryLineWithGeneration.xml", version));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

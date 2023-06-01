@@ -235,7 +235,7 @@ class TieLineTest {
 
         Branch.Side boundarySide1 = Branch.Side.ONE;
         Branch.Side boundarySide2 = Branch.Side.TWO;
-        BoundaryLine dl1 = s1vl1.newDanglingLine()
+        BoundaryLine bl1 = s1vl1.newBoundaryLine()
                 .setId(boundarySide1.name())
                 .setName(boundarySide1.name())
                 .setR(1.0)
@@ -243,7 +243,7 @@ class TieLineTest {
                 .setBus("S1VL1-BUS")
                 .setUcteXnodeCode("UcteNode")
                 .add();
-        BoundaryLine dl2 = s2vl1.newDanglingLine()
+        BoundaryLine bl2 = s2vl1.newBoundaryLine()
                 .setId(boundarySide2.name())
                 .setName(boundarySide2.name())
                 .setR(1.0)
@@ -255,8 +255,8 @@ class TieLineTest {
         TieLine tieLine = network.newTieLine()
                 .setId(boundarySide1.name() + " + " + boundarySide2.name())
                 .setName(boundarySide1.name() + " + " + boundarySide2.name())
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId())
+                .setBoundaryLine1(bl1.getId())
+                .setBoundaryLine2(bl2.getId())
                 .add();
 
         assertEquals(0.0, tieLine.getBoundaryLine1().getG(), 0.0);
@@ -307,7 +307,7 @@ class TieLineTest {
         // AcLinesegment 2 must be reoriented if boundary side is at end 2
         // Current model does not allow shunt admittances at both ends, so it does not make sense to reorient the AcLineSegments
 
-        BoundaryLine dl1 = s1vl1.newDanglingLine()
+        BoundaryLine bl1 = s1vl1.newBoundaryLine()
                 .setBus("S1VL1-BUS")
                 .setId(boundarySide1.name())
                 .setEnsureIdUnicity(true)
@@ -317,7 +317,7 @@ class TieLineTest {
                 .setG(0.05)
                 .setB(0.14)
                 .add();
-        BoundaryLine dl2 = s2vl1.newDanglingLine()
+        BoundaryLine bl2 = s2vl1.newBoundaryLine()
                 .setBus("S2VL1-BUS")
                 .setId(boundarySide2.name())
                 .setEnsureIdUnicity(true)
@@ -332,8 +332,8 @@ class TieLineTest {
         TieLine tieLine = network.newTieLine()
             .setId(boundarySide1.name() + " + " + boundarySide2.name())
             .setName(boundarySide1.name() + " + " + boundarySide2.name())
-            .setDanglingLine1(dl1.getId())
-            .setDanglingLine2(dl2.getId())
+            .setBoundaryLine1(bl1.getId())
+            .setBoundaryLine2(bl2.getId())
             .add();
         tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().setV(caseSv.node1.v);
         tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().setAngle(caseSv.node1.a);
@@ -388,7 +388,7 @@ class TieLineTest {
         // The initial parameters for AcLineSegment 2 are R = 3.1513680000000006, X = 14.928011999999999, G1 = 0.008044414674299755, B1 = -0.03791520949675112, G2 = -0.005046041932060755, B2 = 0.023978278075869598
         // AcLinesegment 2 must be reoriented if boundary side is at end 2
         // Current model does not allow shunt admittances at both ends, so it does not make sense to reorient it
-        BoundaryLine dl1 = s1vl1.newDanglingLine()
+        BoundaryLine bl1 = s1vl1.newBoundaryLine()
                 .setBus("S1VL1-BUS")
                 .setId(boundarySide1.name())
                 .setName(boundarySide1.name())
@@ -398,7 +398,7 @@ class TieLineTest {
                 .setB(0.00032976265)
                 .setUcteXnodeCode("UcteNode")
                 .add();
-        BoundaryLine dl2 = s2vl1.newDanglingLine()
+        BoundaryLine bl2 = s2vl1.newBoundaryLine()
                 .setBus("S2VL1-BUS")
                 .setId(boundarySide2.name())
                 .setName(boundarySide2.name())
@@ -411,8 +411,8 @@ class TieLineTest {
         TieLine tieLine = network.newTieLine()
                 .setId(boundarySide1.name() + " + " + boundarySide2.name())
                 .setName(boundarySide1.name() + " + " + boundarySide2.name())
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId())
+                .setBoundaryLine1(bl1.getId())
+                .setBoundaryLine2(bl2.getId())
                 .add();
 
         tieLine.getBoundaryLine1().getTerminal().getBusView().getBus().setV(caseSv.node1.v);
@@ -469,8 +469,8 @@ class TieLineTest {
     }
 
     // We define an error by value to adjust the case. The error is calculated by difference between
-    // the calculated value with both models, the initial model of the case and the current model of the danglingLine
-    // Errors are due to the danglingLine model (it does not allow shunt admittance at both ends)
+    // the calculated value with both models, the initial model of the case and the current model of the boundaryLine
+    // Errors are due to the boundaryLine model (it does not allow shunt admittance at both ends)
     private static boolean compare(SV sv, NodeSv nodeSv, LineSv lineSv, Branch.Side boundarySide, SV initialModelSv) {
         double tol = 0.00001;
         double errorP = initialModelSv.getP() - sv.getP();
@@ -493,8 +493,8 @@ class TieLineTest {
     }
 
     // We define an error to adjust the case. The error is calculated by difference between
-    // the calculated value with both models, the initial model of the case and the current model of the danglingLine
-    // Errors are due to the danglingLine model (it does not allow shunt admittance at both ends)
+    // the calculated value with both models, the initial model of the case and the current model of the boundaryLine
+    // Errors are due to the boundaryLine model (it does not allow shunt admittance at both ends)
     private static boolean compare(double expected, double actual, double initialActual) {
         double tol = 0.00001;
         double error = initialActual - actual;

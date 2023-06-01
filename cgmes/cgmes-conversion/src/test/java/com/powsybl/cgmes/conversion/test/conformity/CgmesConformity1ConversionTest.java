@@ -96,7 +96,7 @@ class CgmesConformity1ConversionTest {
 
     @Test
     void microGridBaseCaseBERoundtrip() throws IOException {
-        // TODO When we convert boundaries values for P0, Q0 at dangling lines
+        // TODO When we convert boundaries values for P0, Q0 at boundary lines
         // are recalculated and we need to increase the tolerance
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
@@ -110,7 +110,7 @@ class CgmesConformity1ConversionTest {
 
     @Test
     void microGridBaseCaseBEWithoutUnsupportedTapChangersRoundtrip() throws IOException {
-        // TODO When we convert boundaries values for P0, Q0 at dangling lines
+        // TODO When we convert boundaries values for P0, Q0 at boundary lines
         // are recalculated and we need to increase the tolerance
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));

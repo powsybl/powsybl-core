@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public interface DanglingLineAdder extends InjectionAdder<BoundaryLine, DanglingLineAdder> {
+public interface BoundaryLineAdder extends InjectionAdder<BoundaryLine, BoundaryLineAdder> {
 
     interface GenerationAdder {
 
@@ -26,22 +26,22 @@ public interface DanglingLineAdder extends InjectionAdder<BoundaryLine, Dangling
 
         GenerationAdder setTargetV(double targetV);
 
-        DanglingLineAdder add();
+        BoundaryLineAdder add();
     }
 
-    DanglingLineAdder setP0(double p0);
+    BoundaryLineAdder setP0(double p0);
 
-    DanglingLineAdder setQ0(double q0);
+    BoundaryLineAdder setQ0(double q0);
 
-    DanglingLineAdder setR(double r);
+    BoundaryLineAdder setR(double r);
 
-    DanglingLineAdder setX(double x);
+    BoundaryLineAdder setX(double x);
 
-    DanglingLineAdder setG(double g);
+    BoundaryLineAdder setG(double g);
 
-    DanglingLineAdder setB(double b);
+    BoundaryLineAdder setB(double b);
 
-    DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode);
+    BoundaryLineAdder setUcteXnodeCode(String ucteXnodeCode);
 
     default GenerationAdder newGeneration() {
         throw new UnsupportedOperationException();

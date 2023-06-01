@@ -14,12 +14,12 @@ import java.util.Optional;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class CgmesDanglingLineBoundaryNodeImpl extends AbstractExtension<BoundaryLine> implements CgmesDanglingLineBoundaryNode {
+class CgmesBoundaryLineBoundaryNodeImpl extends AbstractExtension<BoundaryLine> implements CgmesBoundaryLineBoundaryNode {
 
     private final boolean isHvdc;
     private final String lineEnergyIdentificationCodeEic;
 
-    CgmesDanglingLineBoundaryNodeImpl(boolean isHvdc, String lineEnergyIdentificationCodeEic) {
+    CgmesBoundaryLineBoundaryNodeImpl(boolean isHvdc, String lineEnergyIdentificationCodeEic) {
         this.isHvdc = isHvdc;
         this.lineEnergyIdentificationCodeEic = lineEnergyIdentificationCodeEic;
     }

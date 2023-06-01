@@ -126,7 +126,7 @@ class EquipmentExportTest extends AbstractConverterTest {
         boolean tieFlowsAtTieLinesAreSupported = false;
         if (tieFlowsAtTieLinesAreSupported) {
             assertEquals(1, actualCgmesControlArea.getBoundaries().size());
-            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getDanglingLine().getId());
+            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getBoundaryLine().getId());
         } else {
             assertEquals(0, actualCgmesControlArea.getBoundaries().size());
         }
@@ -145,7 +145,7 @@ class EquipmentExportTest extends AbstractConverterTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         // Remove aliases of equivalent injections, so they will have to be created during export
-        for (BoundaryLine boundaryLine : expected.getBoundaryLines(DanglingLineFilter.ALL)) {
+        for (BoundaryLine boundaryLine : expected.getBoundaryLines(BoundaryLineFilter.ALL)) {
             boundaryLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             boundaryLine.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         }
@@ -488,7 +488,7 @@ class EquipmentExportTest extends AbstractConverterTest {
             compareFlowLimits(expectedTwt.getLeg2(), twt.getLeg2());
             compareFlowLimits(expectedTwt.getLeg3(), twt.getLeg3());
         }
-        for (BoundaryLine boundaryLine : actual.getBoundaryLines(DanglingLineFilter.ALL)) {
+        for (BoundaryLine boundaryLine : actual.getBoundaryLines(BoundaryLineFilter.ALL)) {
             compareFlowLimits((FlowsLimitsHolder) expected.getIdentifiable(boundaryLine.getId()), boundaryLine);
         }
     }

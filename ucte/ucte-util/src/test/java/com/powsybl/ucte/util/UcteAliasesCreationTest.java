@@ -31,11 +31,11 @@ class UcteAliasesCreationTest {
     void checkAliasesCreationWhenImportingMergedFile() {
         Network network = loadNetworkFromResourceFile("/uxTestGridForMerging.uct");
 
-        // Dangling lines are there but paired
+        // Boundary lines are there but paired
         assertNotNull(network.getIdentifiable("BBBBBB11 XXXXXX11 1"));
-        assertTrue(network.getDanglingLine("BBBBBB11 XXXXXX11 1").isPaired());
+        assertTrue(network.getBoundaryLine("BBBBBB11 XXXXXX11 1").isPaired());
         assertNotNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1"));
-        assertTrue(network.getDanglingLine("FFFFFF11 XXXXXX11 1").isPaired());
+        assertTrue(network.getBoundaryLine("FFFFFF11 XXXXXX11 1").isPaired());
 
         // No aliases on element name
         assertNull(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
@@ -47,14 +47,14 @@ class UcteAliasesCreationTest {
         assertNotNull(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
         assertNotNull(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
 
-        // Aliases on disappeared dangling lines have been created
+        // Aliases on disappeared boundary lines have been created
         assertNotNull(network.getIdentifiable("BBBBBB11 XXXXXX11 1"));
         assertNotNull(network.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         // They are all referencing the same identifiable
         assertEquals(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
-        assertEquals(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), network.getDanglingLine("BBBBBB11 XXXXXX11 1").getTieLine().orElse(null));
-        assertEquals(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), network.getDanglingLine("FFFFFF11 XXXXXX11 1").getTieLine().orElse(null));
+        assertEquals(network.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), network.getBoundaryLine("BBBBBB11 XXXXXX11 1").getTieLine().orElse(null));
+        assertEquals(network.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), network.getBoundaryLine("FFFFFF11 XXXXXX11 1").getTieLine().orElse(null));
     }
 
     @Test
@@ -76,13 +76,13 @@ class UcteAliasesCreationTest {
         assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
         assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
 
-        // Aliases on disappeared dangling lines have been created after merge
+        // Aliases on disappeared boundary lines have been created after merge
         assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
         assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         // They are all referencing the same identifiable
-        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getDanglingLine("BBBBBB11 XXXXXX11 1"));
-        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getDanglingLine("FFFFFF11 XXXXXX11 1"));
+        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getBoundaryLine("BBBBBB11 XXXXXX11 1"));
+        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getBoundaryLine("FFFFFF11 XXXXXX11 1"));
     }
 
     @Test
@@ -92,11 +92,11 @@ class UcteAliasesCreationTest {
         Network merge = Network.create("merge", "UCT");
         merge.merge(networkBE, networkFR);
 
-        // No aliases on dangling lines element name
+        // No aliases on boundary lines element name
         assertNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
         assertNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
 
-        // Aliases on disappeared dangling lines ids are created
+        // Aliases on disappeared boundary lines ids are created
         assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
         assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
         assertEquals("BBBBBB11 XXXXXX11 1", merge.getIdentifiable("BBBBBB11 XXXXXX11 1").getId());
@@ -108,14 +108,14 @@ class UcteAliasesCreationTest {
         assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"));
         assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
 
-        // Aliases on disappeared dangling lines are still there
+        // Aliases on disappeared boundary lines are still there
         assertNotNull(merge.getIdentifiable("BBBBBB11 XXXXXX11 1"));
         assertNotNull(merge.getIdentifiable("FFFFFF11 XXXXXX11 1"));
 
         // They are all referencing the same identifiable
         assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"));
-        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getDanglingLine("BBBBBB11 XXXXXX11 1").getTieLine().orElse(null));
-        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getDanglingLine("FFFFFF11 XXXXXX11 1").getTieLine().orElse(null));
+        assertEquals(merge.getIdentifiable("BBBBBB11 XXXXXX11 ABCDE"), merge.getBoundaryLine("BBBBBB11 XXXXXX11 1").getTieLine().orElse(null));
+        assertEquals(merge.getIdentifiable("FFFFFF11 XXXXXX11 ABCDE"), merge.getBoundaryLine("FFFFFF11 XXXXXX11 1").getTieLine().orElse(null));
     }
 
     @Test

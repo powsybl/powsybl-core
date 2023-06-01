@@ -40,7 +40,7 @@ public class LinePositionAdderImplProvider<I extends Identifiable<I>> implements
     @Override
     public LinePositionAdderImpl<I> newAdder(I line) {
         if (!(line instanceof Line) && !(line instanceof BoundaryLine)) {
-            throw new PowsyblException("Line position extension only supported for lines and dangling lines");
+            throw new PowsyblException("Line position extension only supported for lines and boundary lines");
         }
         return new LinePositionAdderImpl<>(line);
     }

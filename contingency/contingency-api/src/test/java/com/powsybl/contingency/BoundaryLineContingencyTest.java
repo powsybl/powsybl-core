@@ -9,8 +9,8 @@ package com.powsybl.contingency;
 import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import com.powsybl.iidm.modification.tripping.DanglingLineTripping;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
+import com.powsybl.iidm.modification.tripping.BoundaryLineTripping;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -23,31 +23,31 @@ import static org.junit.jupiter.api.Assertions.*;
 class BoundaryLineContingencyTest {
     @Test
     void test() {
-        Contingency contingency = Contingency.danglingLine("id");
+        Contingency contingency = Contingency.boundaryLine("id");
         assertEquals("id", contingency.getId());
         assertEquals(1, contingency.getElements().size());
 
-        DanglingLineContingency dlContingency = new DanglingLineContingency("id");
+        BoundaryLineContingency dlContingency = new BoundaryLineContingency("id");
         assertEquals("id", dlContingency.getId());
-        assertEquals(ContingencyElementType.DANGLING_LINE, dlContingency.getType());
+        assertEquals(ContingencyElementType.BOUNDARY_LINE, dlContingency.getType());
 
         assertNotNull(dlContingency.toModification());
-        assertTrue(dlContingency.toModification() instanceof DanglingLineTripping);
+        assertTrue(dlContingency.toModification() instanceof BoundaryLineTripping);
 
         new EqualsTester()
-                .addEqualityGroup(new DanglingLineContingency("dl1"), new DanglingLineContingency("dl1"))
-                .addEqualityGroup(new DanglingLineContingency("dl2"), new DanglingLineContingency("dl2"))
+                .addEqualityGroup(new BoundaryLineContingency("dl1"), new BoundaryLineContingency("dl1"))
+                .addEqualityGroup(new BoundaryLineContingency("dl2"), new BoundaryLineContingency("dl2"))
                 .testEquals();
     }
 
     @Test
     void test2() {
-        Network network = DanglingLineNetworkFactory.create();
-        ContingencyList contingencyList = ContingencyList.of(Contingency.danglingLine("DL"), Contingency.danglingLine("unknown"));
+        Network network = BoundaryLineNetworkFactory.create();
+        ContingencyList contingencyList = ContingencyList.of(Contingency.boundaryLine("DL"), Contingency.boundaryLine("unknown"));
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
 
-        DanglingLineContingency dlCtg = (DanglingLineContingency) contingencies.get(0).getElements().get(0);
+        BoundaryLineContingency dlCtg = (BoundaryLineContingency) contingencies.get(0).getElements().get(0);
         assertEquals("DL", dlCtg.getId());
     }
 }

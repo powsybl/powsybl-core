@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.joda.time.DateTime;
@@ -30,13 +30,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    void testDanglingLine() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+    void testBoundaryLine() throws IOException {
+        Network network = BoundaryLineNetworkFactory.create();
         network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
-        BoundaryLine dl = network.getDanglingLine("DL");
-        createLoadingLimits(dl::newActivePowerLimits);
-        createLoadingLimits(dl::newApparentPowerLimits);
-        createLoadingLimits(dl::newCurrentLimits);
+        BoundaryLine bl = network.getBoundaryLine("DL");
+        createLoadingLimits(bl::newActivePowerLimits);
+        createLoadingLimits(bl::newApparentPowerLimits);
+        createLoadingLimits(bl::newCurrentLimits);
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,
@@ -52,7 +52,7 @@ class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
                 NetworkXml.write(network, options, tmpDir.resolve("fail"));
                 fail();
             } catch (PowsyblException e) {
-                assertEquals("danglingLine.activePowerLimits is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5",
+                assertEquals("boundaryLine.activePowerLimits is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5",
                         e.getMessage());
             }
         });

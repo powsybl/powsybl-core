@@ -50,7 +50,7 @@ public abstract class AbstractEquipmentTopologyVisitor extends DefaultTopologyVi
     }
 
     @Override
-    public void visitDanglingLine(BoundaryLine boundaryLine) {
+    public void visitBoundaryLine(BoundaryLine boundaryLine) {
         visitEquipment(boundaryLine);
     }
 

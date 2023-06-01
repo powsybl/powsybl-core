@@ -115,7 +115,7 @@ public class UcteExporter implements Exporter {
         // If it is connected this way, we could conclude it is a YNode
     }
 
-    private static boolean isDanglingLineYNode(BoundaryLine boundaryLine) {
+    private static boolean isBoundaryLineYNode(BoundaryLine boundaryLine) {
         return isYNode(boundaryLine.getTerminal().getBusBreakerView().getConnectableBus());
     }
 
@@ -164,8 +164,8 @@ public class UcteExporter implements Exporter {
                 }
             }
         }
-        for (BoundaryLine boundaryLine : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-            convertDanglingLine(ucteNetwork, boundaryLine, context);
+        for (BoundaryLine boundaryLine : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            convertBoundaryLine(ucteNetwork, boundaryLine, context);
         }
         for (Line line : network.getLines()) {
             convertLine(ucteNetwork, line, context);
@@ -311,10 +311,10 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * Create a {@link UcteNode} object from a DanglingLine and add it to the {@link UcteNetwork}.
+     * Create a {@link UcteNode} object from a BoundaryLine and add it to the {@link UcteNetwork}.
      *
      * @param ucteNetwork The target network in ucte
-     * @param boundaryLine The danglingLine used to create the XNode
+     * @param boundaryLine The boundaryLine used to create the XNode
      * @param context The context used to store temporary data during the conversion
      */
     private static void convertXNode(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
@@ -496,20 +496,20 @@ public class UcteExporter implements Exporter {
      * Convert a {@link BoundaryLine} object to an {@link UcteNode} and a {@link UcteLine} objects.
      *
      * @param ucteNetwork The target network in ucte
-     * @param boundaryLine The danglingLine to convert to UCTE
+     * @param boundaryLine The boundaryLine to convert to UCTE
      * @param context The context used to store temporary data during the conversion
      */
-    private static void convertDanglingLine(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
-        LOGGER.trace("Converting DanglingLine {}", boundaryLine.getId());
+    private static void convertBoundaryLine(UcteNetwork ucteNetwork, BoundaryLine boundaryLine, UcteExporterContext context) {
+        LOGGER.trace("Converting BoundaryLine {}", boundaryLine.getId());
 
         // Create XNode
         convertXNode(ucteNetwork, boundaryLine, context);
 
         // Always create the XNode,
-        // But do not export the dangling line if it was related to a YNode
+        // But do not export the boundary line if it was related to a YNode
         // The corresponding transformer will be connected to the XNode
-        if (isDanglingLineYNode(boundaryLine)) {
-            LOGGER.warn("Ignoring DanglingLine at YNode in the export {}", boundaryLine.getId());
+        if (isBoundaryLineYNode(boundaryLine)) {
+            LOGGER.warn("Ignoring BoundaryLine at YNode in the export {}", boundaryLine.getId());
             return;
         }
 
@@ -563,14 +563,14 @@ public class UcteExporter implements Exporter {
     }
 
     private static UcteElementStatus getStatusHalf(TieLine tieLine, Branch.Side side) {
-        if (tieLine.getDanglingLine(side).isFictitious()) {
-            if (tieLine.getDanglingLine(side).getTerminal().isConnected()) {
+        if (tieLine.getBoundaryLine(side).isFictitious()) {
+            if (tieLine.getBoundaryLine(side).getTerminal().isConnected()) {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
             }
         } else {
-            if (tieLine.getDanglingLine(side).getTerminal().isConnected()) {
+            if (tieLine.getBoundaryLine(side).getTerminal().isConnected()) {
                 return UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
             } else {
                 return UcteElementStatus.REAL_ELEMENT_OUT_OF_OPERATION;

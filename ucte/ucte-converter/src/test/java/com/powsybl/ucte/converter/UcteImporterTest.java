@@ -78,8 +78,8 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
         // Test Element name Line
         assertEquals("Test Line", network.getLine("F_SU1_12 F_SU2_11 1").getProperty("elementName"));
-        // Test Dangling Line element name
-        assertEquals("Test DL", network.getDanglingLine("XG__F_21 F_SU1_21 1").getProperty("elementName"));
+        // Test Boundary line element name
+        assertEquals("Test DL", network.getBoundaryLine("XG__F_21 F_SU1_21 1").getProperty("elementName"));
         // Test Switch element name
         assertEquals("Test Coupler", network.getSwitch("F_SU1_12 F_SU1_11 1").getProperty("elementName"));
         // Test 2WT element name
@@ -87,7 +87,7 @@ class UcteImporterTest {
         assertEquals("Test 2WT 2", network.getBranch("B_SU1_11 B_SU1_21 1").getProperty("elementName"));
         // Test tie line
         // cannot refer to side of tieline directly cause order of half lines may change
-        // at import : due to HashSet iterator on dangling lines ?
+        // at import : due to HashSet iterator on boundary lines ?
         TieLine tieLine1 = network.getTieLineStream()
                 .filter(line -> line.getBoundaryLine1().getId().contains("XB__F_11 B_SU1_11 1") || line.getBoundaryLine2().getId().contains("XB__F_11 B_SU1_11 1")).findAny().orElseThrow();
         String expectedElementName1 = tieLine1.getBoundaryLine1().getId().contains("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
@@ -110,7 +110,7 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
 
         assertEquals(2, network.getVoltageLevelCount());
-        assertEquals(1, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).count());
+        assertEquals(1, network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED).count());
         assertEquals(1, network.getTieLineCount());
         TieLine l = network.getTieLineStream().findFirst().orElseThrow(IllegalStateException::new);
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());
@@ -155,14 +155,14 @@ class UcteImporterTest {
     void testVoltageRegulatingXnode() {
         ResourceDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
-        BoundaryLine dl = network.getDanglingLine("FFFFFF13 XXXXXX14 1");
-        assertTrue(dl.getGeneration().isVoltageRegulationOn());
-        assertEquals(409.08, dl.getGeneration().getTargetV(), 0.01);
-        assertEquals(1.0, dl.getGeneration().getTargetP(), 0.01);
-        assertEquals(2.0, dl.getGeneration().getMaxP(), 0.01);
-        assertEquals(-2.0, dl.getGeneration().getMinP(), 0.01);
-        assertEquals(1.0, dl.getGeneration().getReactiveLimits().getMaxQ(dl.getGeneration().getTargetP()), 0.01);
-        assertEquals(-1.0, dl.getGeneration().getReactiveLimits().getMinQ(dl.getGeneration().getTargetP()), 0.01);
+        BoundaryLine bl = network.getBoundaryLine("FFFFFF13 XXXXXX14 1");
+        assertTrue(bl.getGeneration().isVoltageRegulationOn());
+        assertEquals(409.08, bl.getGeneration().getTargetV(), 0.01);
+        assertEquals(1.0, bl.getGeneration().getTargetP(), 0.01);
+        assertEquals(2.0, bl.getGeneration().getMaxP(), 0.01);
+        assertEquals(-2.0, bl.getGeneration().getMinP(), 0.01);
+        assertEquals(1.0, bl.getGeneration().getReactiveLimits().getMaxQ(bl.getGeneration().getTargetP()), 0.01);
+        assertEquals(-1.0, bl.getGeneration().getReactiveLimits().getMinQ(bl.getGeneration().getTargetP()), 0.01);
     }
 
     @Test
@@ -215,7 +215,7 @@ class UcteImporterTest {
     void importOfNetworkWithXnodesConnectedToOneClosedLineMustSucceed() {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeOneClosedLine", new ResourceSet("/", "xnodeOneClosedLine.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
-        assertNotNull(network.getDanglingLine("FFFFFF12 XXXXXX11 1"));
+        assertNotNull(network.getBoundaryLine("FFFFFF12 XXXXXX11 1"));
     }
 
     @Test
@@ -223,8 +223,8 @@ class UcteImporterTest {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeTwoClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         assertNotNull(network.getTieLine("BEBBBB11 XXXXXX11 1 + FFFFFF12 XXXXXX11 1"));
-        assertNotNull(network.getDanglingLine("FFFFFF11 XXXXXX11 1"));
-        assertNotNull(network.getDanglingLine("BEBBBB12 XXXXXX11 1"));
+        assertNotNull(network.getBoundaryLine("FFFFFF11 XXXXXX11 1"));
+        assertNotNull(network.getBoundaryLine("BEBBBB12 XXXXXX11 1"));
     }
 
     @Test

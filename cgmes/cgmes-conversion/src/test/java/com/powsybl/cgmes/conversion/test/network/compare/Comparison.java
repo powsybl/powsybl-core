@@ -104,9 +104,9 @@ public class Comparison {
                 actual.getThreeWindingsTransformerStream(),
                 this::compareThreeWindingsTransformers);
         compare(
-                expected.getDanglingLineStream(DanglingLineFilter.ALL).filter(dl -> !dl.isPaired()),
-                actual.getDanglingLineStream(DanglingLineFilter.ALL).filter(dl -> !dl.isPaired()),
-                this::compareDanglingLines);
+                expected.getBoundaryLineStream(BoundaryLineFilter.ALL).filter(bl -> !bl.isPaired()),
+                actual.getBoundaryLineStream(BoundaryLineFilter.ALL).filter(bl -> !bl.isPaired()),
+                this::compareBoundaryLines);
         diff.end();
     }
 
@@ -561,7 +561,7 @@ public class Comparison {
                 actual.getCurrentLimits2().orElse(null));
     }
 
-    private void compareDanglingLines(BoundaryLine expected, BoundaryLine actual) {
+    private void compareBoundaryLines(BoundaryLine expected, BoundaryLine actual) {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());

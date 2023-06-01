@@ -33,19 +33,19 @@ class TieLineAdapterTest {
         assertNotNull(tieLine.getBoundaryLine1());
         assertNotNull(tieLine.getBoundaryLine2());
 
-        assertSame(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine1().getBoundary().getDanglingLine());
-        assertSame(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine1().getBoundary().getDanglingLine());
+        assertSame(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine1().getBoundary().getBoundaryLine());
+        assertSame(tieLine.getBoundaryLine1(), tieLine.getBoundaryLine1().getBoundary().getBoundaryLine());
         assertSame(tieLine.getBoundaryLine1().getTerminal().getVoltageLevel(), tieLine.getBoundaryLine1().getBoundary().getNetworkSideVoltageLevel());
 
-        assertSame(tieLine.getBoundaryLine2(), tieLine.getBoundaryLine2().getBoundary().getDanglingLine());
-        assertSame(tieLine.getBoundaryLine2(), tieLine.getBoundaryLine2().getBoundary().getDanglingLine());
+        assertSame(tieLine.getBoundaryLine2(), tieLine.getBoundaryLine2().getBoundary().getBoundaryLine());
+        assertSame(tieLine.getBoundaryLine2(), tieLine.getBoundaryLine2().getBoundary().getBoundaryLine());
         assertSame(tieLine.getBoundaryLine2().getTerminal().getVoltageLevel(), tieLine.getBoundaryLine2().getBoundary().getNetworkSideVoltageLevel());
 
-        checkDanglingLine(tieLine.getBoundaryLine1());
-        checkDanglingLine(tieLine.getBoundaryLine2());
+        checkBoundaryLine(tieLine.getBoundaryLine1());
+        checkBoundaryLine(tieLine.getBoundaryLine2());
     }
 
-    private static void checkDanglingLine(BoundaryLine boundaryLine) {
+    private static void checkBoundaryLine(BoundaryLine boundaryLine) {
         assertEquals(1.0, boundaryLine.getR(), 0.0);
         boundaryLine.setR(2.0);
         assertEquals(2.0, boundaryLine.getR(), 0.0);
@@ -103,14 +103,14 @@ class TieLineAdapterTest {
                 .setP0(0.0)
                 .setQ0(0.0)
                 .add();
-        BoundaryLine dl1 = vl1.newDanglingLine()
+        BoundaryLine bl1 = vl1.newBoundaryLine()
                 .setBus("b1")
                 .setId("l1")
                 .setR(1.0)
                 .setX(1.0)
                 .setUcteXnodeCode("XNODE")
                 .add();
-        BoundaryLine dl2 = vl2.newDanglingLine()
+        BoundaryLine bl2 = vl2.newBoundaryLine()
                 .setBus("b2")
                 .setId("l2")
                 .setR(1.0)
@@ -119,8 +119,8 @@ class TieLineAdapterTest {
                 .add();
         n.newTieLine()
                 .setId("l1 + l2")
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId())
+                .setBoundaryLine1(bl1.getId())
+                .setBoundaryLine2(bl2.getId())
                 .add();
         return n;
     }

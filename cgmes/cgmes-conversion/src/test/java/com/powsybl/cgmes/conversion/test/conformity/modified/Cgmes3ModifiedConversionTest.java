@@ -45,7 +45,7 @@ class Cgmes3ModifiedConversionTest {
         Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), null);
         System.out.println(network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().tabulateLocals());
         assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
-        assertEquals(5, network.getDanglingLineCount());
+        assertEquals(5, network.getBoundaryLineCount());
     }
 
     @Test

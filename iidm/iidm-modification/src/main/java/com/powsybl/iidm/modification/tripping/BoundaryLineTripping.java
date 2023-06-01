@@ -13,17 +13,17 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class DanglingLineTripping extends AbstractInjectionTripping {
+public class BoundaryLineTripping extends AbstractInjectionTripping {
 
-    public DanglingLineTripping(String id) {
+    public BoundaryLineTripping(String id) {
         super(id);
     }
 
     @Override
     protected BoundaryLine getInjection(Network network) {
-        BoundaryLine injection = network.getDanglingLine(id);
+        BoundaryLine injection = network.getBoundaryLine(id);
         if (injection == null) {
-            throw new PowsyblException("Dangling line '" + id + "' not found");
+            throw new PowsyblException("Boundary line '" + id + "' not found");
         }
 
         return injection;

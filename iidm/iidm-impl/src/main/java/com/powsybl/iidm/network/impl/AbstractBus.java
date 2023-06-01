@@ -218,13 +218,13 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     }
 
     @Override
-    public Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getBoundaryLineStream(boundaryLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return getConnectableStream(BoundaryLine.class).filter(danglingLineFilter.getPredicate());
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return getConnectableStream(BoundaryLine.class).filter(boundaryLineFilter.getPredicate());
     }
 
     @Override
@@ -322,7 +322,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     break;
 
                 case DANGLING_LINE:
-                    visitor.visitDanglingLine((BoundaryLineImpl) connectable);
+                    visitor.visitBoundaryLine((BoundaryLineImpl) connectable);
                     break;
 
                 case STATIC_VAR_COMPENSATOR:

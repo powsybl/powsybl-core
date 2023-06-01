@@ -52,8 +52,8 @@ class SVTest {
     }
 
     @Test
-    void testDanglingLine() {
-        BoundaryLine dl = new DanglingLineTestData().getDanglingLine();
+    void testBoundaryLine() {
+        BoundaryLine bl = new BoundaryLineTestData().getBoundaryLine();
 
         double tol = 0.0001;
         double p1 = 126.818177;
@@ -67,38 +67,38 @@ class SVTest {
         double a2 = 0.0;
 
         SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
-        SV svA2 = svA1.otherSide(dl);
+        SV svA2 = svA1.otherSide(bl);
         assertEquals(p2, svA2.getP(), tol);
         assertEquals(q2, svA2.getQ(), tol);
         assertEquals(v2, svA2.getU(), tol);
         assertEquals(a2, svA2.getA(), tol);
 
         SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
-        SV svB1 = svB2.otherSide(dl);
+        SV svB1 = svB2.otherSide(bl);
         assertEquals(p1, svB1.getP(), tol);
         assertEquals(q1, svB1.getQ(), tol);
         assertEquals(v1, svB1.getU(), tol);
         assertEquals(a1, svB1.getA(), tol);
 
-        assertEquals(p2, svA1.otherSideP(dl), tol);
-        assertEquals(q2, svA1.otherSideQ(dl), tol);
-        assertEquals(v2, svA1.otherSideU(dl), tol);
-        assertEquals(a2, svA1.otherSideA(dl), tol);
+        assertEquals(p2, svA1.otherSideP(bl), tol);
+        assertEquals(q2, svA1.otherSideQ(bl), tol);
+        assertEquals(v2, svA1.otherSideU(bl), tol);
+        assertEquals(a2, svA1.otherSideA(bl), tol);
 
-        assertEquals(p1, svB2.otherSideP(dl), tol);
-        assertEquals(q1, svB2.otherSideQ(dl), tol);
-        assertEquals(v1, svB2.otherSideU(dl), tol);
-        assertEquals(a1, svB2.otherSideA(dl), tol);
+        assertEquals(p1, svB2.otherSideP(bl), tol);
+        assertEquals(q1, svB2.otherSideQ(bl), tol);
+        assertEquals(v1, svB2.otherSideU(bl), tol);
+        assertEquals(a1, svB2.otherSideA(bl), tol);
 
-        assertEquals(p2, svA1.otherSideP(dl, false), tol);
-        assertEquals(q2, svA1.otherSideQ(dl, false), tol);
-        assertEquals(v2, svA1.otherSideU(dl, false), tol);
-        assertEquals(a2, svA1.otherSideA(dl, false), tol);
+        assertEquals(p2, svA1.otherSideP(bl, false), tol);
+        assertEquals(q2, svA1.otherSideQ(bl, false), tol);
+        assertEquals(v2, svA1.otherSideU(bl, false), tol);
+        assertEquals(a2, svA1.otherSideA(bl, false), tol);
 
-        assertEquals(p1, svB2.otherSideP(dl, false), tol);
-        assertEquals(q1, svB2.otherSideQ(dl, false), tol);
-        assertEquals(v1, svB2.otherSideU(dl, false), tol);
-        assertEquals(a1, svB2.otherSideA(dl, false), tol);
+        assertEquals(p1, svB2.otherSideP(bl, false), tol);
+        assertEquals(q1, svB2.otherSideQ(bl, false), tol);
+        assertEquals(v1, svB2.otherSideU(bl, false), tol);
+        assertEquals(a1, svB2.otherSideA(bl, false), tol);
     }
 
     @Test
@@ -215,14 +215,14 @@ class SVTest {
         }
     }
 
-    private static final class DanglingLineTestData {
+    private static final class BoundaryLineTestData {
         private static double R = 10.30;
         private static double X = 40.20;
         private static double G = 0.01;
         private static double B = 0.0016;
         private BoundaryLine danglinLine;
 
-        private DanglingLineTestData() {
+        private BoundaryLineTestData() {
             danglinLine = Mockito.mock(BoundaryLine.class);
             Mockito.when(danglinLine.getR()).thenReturn(R);
             Mockito.when(danglinLine.getX()).thenReturn(X);
@@ -230,7 +230,7 @@ class SVTest {
             Mockito.when(danglinLine.getB()).thenReturn(B);
         }
 
-        private BoundaryLine getDanglingLine() {
+        private BoundaryLine getBoundaryLine() {
             return danglinLine;
         }
     }

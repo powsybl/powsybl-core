@@ -16,18 +16,18 @@ import java.util.Objects;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class DanglingLineData {
+public class BoundaryLineData {
 
     private final BoundaryLine boundaryLine;
 
     private final double boundaryBusU;
     private final double boundaryBusTheta;
 
-    public DanglingLineData(BoundaryLine boundaryLine) {
+    public BoundaryLineData(BoundaryLine boundaryLine) {
         this(boundaryLine, true);
     }
 
-    public DanglingLineData(BoundaryLine boundaryLine, boolean splitShuntAdmittance) {
+    public BoundaryLineData(BoundaryLine boundaryLine, boolean splitShuntAdmittance) {
         this.boundaryLine = Objects.requireNonNull(boundaryLine);
 
         double g1 = splitShuntAdmittance ? boundaryLine.getG() * 0.5 : boundaryLine.getG();

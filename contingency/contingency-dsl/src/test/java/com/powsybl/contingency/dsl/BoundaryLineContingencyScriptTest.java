@@ -10,9 +10,9 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.DanglingLineContingency;
+import com.powsybl.contingency.BoundaryLineContingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ class BoundaryLineContingencyScriptTest {
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         dslFile = fileSystem.getPath("/test.dsl");
-        network = DanglingLineNetworkFactory.create();
+        network = BoundaryLineNetworkFactory.create();
     }
 
     @AfterEach
@@ -70,7 +70,7 @@ class BoundaryLineContingencyScriptTest {
         assertEquals(0, contingency.getExtensions().size());
         assertEquals(1, contingency.getElements().size());
         ContingencyElement element = contingency.getElements().iterator().next();
-        assertTrue(element instanceof DanglingLineContingency);
+        assertTrue(element instanceof BoundaryLineContingency);
         assertEquals("DL", element.getId());
     }
 }

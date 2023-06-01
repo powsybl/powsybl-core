@@ -61,7 +61,7 @@ public abstract class AbstractTieLineTest {
         double hl2b2 = 0.0145;
 
         // adder
-        BoundaryLine dl1 = voltageLevelA.newDanglingLine()
+        BoundaryLine bl1 = voltageLevelA.newBoundaryLine()
                 .setBus("busA")
                 .setId("hl1")
                 .setEnsureIdUnicity(true)
@@ -72,7 +72,7 @@ public abstract class AbstractTieLineTest {
                 .setG(hl1g1 + hl1g2)
                 .setUcteXnodeCode("ucte")
                 .add();
-        BoundaryLine dl2 = voltageLevelB.newDanglingLine()
+        BoundaryLine bl2 = voltageLevelB.newBoundaryLine()
                 .setBus("busB")
                 .setId("hl2")
                 .setEnsureIdUnicity(true)
@@ -82,27 +82,27 @@ public abstract class AbstractTieLineTest {
                 .setG(hl2g1 + hl2g2)
                 .add();
 
-        assertEquals(List.of(dl1, dl2), network.getBoundaryLines(DanglingLineFilter.UNPAIRED));
-        assertFalse(network.getBoundaryLines(DanglingLineFilter.PAIRED).iterator().hasNext());
-        assertEquals(List.of(dl1, dl2), network.getBoundaryLines());
+        assertEquals(List.of(bl1, bl2), network.getBoundaryLines(BoundaryLineFilter.UNPAIRED));
+        assertFalse(network.getBoundaryLines(BoundaryLineFilter.PAIRED).iterator().hasNext());
+        assertEquals(List.of(bl1, bl2), network.getBoundaryLines());
 
         TieLineAdder adder = network.newTieLine().setId("testTie")
                 .setName("testNameTie")
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId());
+                .setBoundaryLine1(bl1.getId())
+                .setBoundaryLine2(bl2.getId());
         TieLine tieLine = adder.add();
 
-        assertEquals(List.of(dl1, dl2), network.getBoundaryLines(DanglingLineFilter.PAIRED));
-        assertFalse(network.getBoundaryLines(DanglingLineFilter.UNPAIRED).iterator().hasNext());
+        assertEquals(List.of(bl1, bl2), network.getBoundaryLines(BoundaryLineFilter.PAIRED));
+        assertFalse(network.getBoundaryLines(BoundaryLineFilter.UNPAIRED).iterator().hasNext());
 
         assertEquals(IdentifiableType.TIE_LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
         assertEquals("hl1", tieLine.getBoundaryLine1().getId());
         assertEquals(DANGLING1_NAME, tieLine.getBoundaryLine1().getOptionalName().orElse(null));
         assertEquals("hl2", tieLine.getBoundaryLine2().getId());
-        assertEquals("hl1", tieLine.getDanglingLine(voltageLevelA.getId()).getId());
-        assertEquals("hl2", tieLine.getDanglingLine(voltageLevelB.getId()).getId());
-        assertNull(tieLine.getDanglingLine("UnknownVoltageLevelId"));
+        assertEquals("hl1", tieLine.getBoundaryLine(voltageLevelA.getId()).getId());
+        assertEquals("hl2", tieLine.getBoundaryLine(voltageLevelB.getId()).getId());
+        assertNull(tieLine.getBoundaryLine("UnknownVoltageLevelId"));
         assertEquals(11.0, tieLine.getR(), tol);
         assertEquals(22.0, tieLine.getX(), tol);
         assertEquals(0.065, tieLine.getG1(), tol);
@@ -110,35 +110,35 @@ public abstract class AbstractTieLineTest {
         assertEquals(0.08499999999, tieLine.getB1(), tol);
         assertEquals(0.0285, tieLine.getB2(), tol);
 
-        BoundaryLine danglingLine1 = tieLine.getBoundaryLine1();
+        BoundaryLine boundaryLine1 = tieLine.getBoundaryLine1();
 
-        BoundaryLine danglingLine2 = tieLine.getBoundaryLine2();
+        BoundaryLine boundaryLine2 = tieLine.getBoundaryLine2();
 
         // Check notification on BoundaryLine changes
         NetworkListener mockedListener = mock(DefaultNetworkListener.class);
         // Add observer changes to current network
         network.addListener(mockedListener);
-        // Apply changes on dangling lines
-        danglingLine1.setR(r + 1);
-        danglingLine1.setX(x + 1);
-        danglingLine1.setG(hl1g1 + hl1g2 + 2);
-        danglingLine1.setB(hl1b1 + hl1b2 + 2);
-        danglingLine2.setR(r + 1);
-        danglingLine2.setX(x + 1);
-        danglingLine2.setG(hl2g1 + hl1g2 + 2);
-        danglingLine2.setB(hl2b1 + hl2b2 + 2);
+        // Apply changes on boundary lines
+        boundaryLine1.setR(r + 1);
+        boundaryLine1.setX(x + 1);
+        boundaryLine1.setG(hl1g1 + hl1g2 + 2);
+        boundaryLine1.setB(hl1b1 + hl1b2 + 2);
+        boundaryLine2.setR(r + 1);
+        boundaryLine2.setX(x + 1);
+        boundaryLine2.setG(hl2g1 + hl1g2 + 2);
+        boundaryLine2.setB(hl2b1 + hl2b2 + 2);
         verify(mockedListener, times(8)).onUpdate(any(BoundaryLine.class), anyString(), any(), any());
         // Remove observer
         network.removeListener(mockedListener);
-        // Cancel changes on dangling lines
-        danglingLine1.setR(r);
-        danglingLine1.setX(x);
-        danglingLine1.setG(hl1g1 + hl1g2);
-        danglingLine1.setB(hl1b1 + hl1b2);
-        danglingLine2.setR(r);
-        danglingLine2.setX(x);
-        danglingLine2.setG(hl2g1 + hl2g2);
-        danglingLine2.setB(hl2b1 + hl2b2);
+        // Cancel changes on boundary lines
+        boundaryLine1.setR(r);
+        boundaryLine1.setX(x);
+        boundaryLine1.setG(hl1g1 + hl1g2);
+        boundaryLine1.setB(hl1b1 + hl1b2);
+        boundaryLine2.setR(r);
+        boundaryLine2.setX(x);
+        boundaryLine2.setG(hl2g1 + hl2g2);
+        boundaryLine2.setB(hl2b1 + hl2b2);
         // Check no notification
         verifyNoMoreInteractions(mockedListener);
 
@@ -172,19 +172,19 @@ public abstract class AbstractTieLineTest {
     }
 
     @Test
-    public void danglingLine1NotSet() {
+    public void boundaryLine1NotSet() {
         // adder
         ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
                 .add());
-        assertTrue(e.getMessage().contains("undefined dangling line"));
+        assertTrue(e.getMessage().contains("undefined boundary line"));
     }
 
     @Test
-    public void danglingLine2NotSet() {
+    public void boundaryLine2NotSet() {
         // adder
-        BoundaryLine dl1 = voltageLevelA.newDanglingLine()
+        BoundaryLine bl1 = voltageLevelA.newBoundaryLine()
                 .setBus("busA")
                 .setId("hl1")
                 .setName(DANGLING1_NAME)
@@ -198,9 +198,9 @@ public abstract class AbstractTieLineTest {
         ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
-                .setDanglingLine1(dl1.getId())
+                .setBoundaryLine1(bl1.getId())
                 .add());
-        assertTrue(e.getMessage().contains("undefined dangling line"));
+        assertTrue(e.getMessage().contains("undefined boundary line"));
     }
 
     @Test
@@ -232,14 +232,14 @@ public abstract class AbstractTieLineTest {
     }
 
     @Test
-    public void danglingLineIdNull() {
+    public void boundaryLineIdNull() {
         PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
                 6.5, 8.5, "code"));
-        assertTrue(e.getMessage().contains("Dangling line id is not set"));
+        assertTrue(e.getMessage().contains("Boundary line id is not set"));
     }
 
     @Test
-    public void danglingLineIdEmpty() {
+    public void boundaryLineIdEmpty() {
         PowsyblException e = assertThrows(PowsyblException.class, () -> createTieLineWithDanglingline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
                 6.5, 8.5, "code"));
         assertTrue(e.getMessage().contains("Invalid id ''"));
@@ -266,18 +266,18 @@ public abstract class AbstractTieLineTest {
         assertEquals(count - 1L, network.getTieLineCount());
     }
 
-    private void createTieLineWithDanglingline2ByDefault(String id, String name, String danglingLineId, double r, double x,
+    private void createTieLineWithDanglingline2ByDefault(String id, String name, String boundaryLineId, double r, double x,
                                                          double g, double b, String code) {
-        BoundaryLine dl1 = voltageLevelA.newDanglingLine()
+        BoundaryLine bl1 = voltageLevelA.newBoundaryLine()
                 .setBus("busA")
-                .setId(danglingLineId)
+                .setId(boundaryLineId)
                 .setName(DANGLING1_NAME)
                 .setR(r)
                 .setX(x)
                 .setB(b)
                 .setG(g)
                 .add();
-        BoundaryLine dl2 = voltageLevelB.newDanglingLine()
+        BoundaryLine bl2 = voltageLevelB.newBoundaryLine()
                 .setBus("busB")
                 .setId("hl2")
                 .setName("half2_name")
@@ -291,8 +291,8 @@ public abstract class AbstractTieLineTest {
                 .setId(id)
                 .setEnsureIdUnicity(true)
                 .setName(name)
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId())
+                .setBoundaryLine1(bl1.getId())
+                .setBoundaryLine2(bl2.getId())
                 .add();
     }
 }

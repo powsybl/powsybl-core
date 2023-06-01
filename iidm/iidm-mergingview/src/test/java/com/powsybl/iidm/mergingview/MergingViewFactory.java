@@ -52,7 +52,7 @@ final class MergingViewFactory {
                 .setNode1(1)
                 .setNode2(2)
                 .add();
-        vl1.newDanglingLine()
+        vl1.newBoundaryLine()
                 .setId("DL" + index)
                 .setNode(2)
                 .setR(0)
@@ -106,7 +106,7 @@ final class MergingViewFactory {
                 .setBus1(bus1)
                 .setBus2(bus2)
                 .add();
-        vl1.newDanglingLine()
+        vl1.newBoundaryLine()
                 .setId("DL" + index)
                 .setBus(bus2)
                 .setR(0)

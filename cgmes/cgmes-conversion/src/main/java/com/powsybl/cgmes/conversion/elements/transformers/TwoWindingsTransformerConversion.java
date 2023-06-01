@@ -16,7 +16,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
-import com.powsybl.cgmes.conversion.elements.BoundaryLine;
+import com.powsybl.cgmes.conversion.elements.CgmesBoundaryLine;
 import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -105,8 +105,8 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
     }
 
     @Override
-    public BoundaryLine asBoundaryLine(String boundaryNode) {
-        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
+    public CgmesBoundaryLine asBoundaryLine(String boundaryNode) {
+        CgmesBoundaryLine cgmesBoundaryLine = super.createBoundaryLine(boundaryNode);
 
         CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
@@ -122,9 +122,9 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
         PiModel pm = piModel(getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel),
             getB(convertedT2xModel), getRatio(convertedT2xModel), 0.0);
-        boundaryLine.setParameters(pm.r1, pm.x1, pm.g1, pm.b1, pm.g2, pm.b2);
+        cgmesBoundaryLine.setParameters(pm.r1, pm.x1, pm.g1, pm.b1, pm.g2, pm.b2);
 
-        return boundaryLine;
+        return cgmesBoundaryLine;
     }
 
     private void convertTwoWindingsTransformerAtBoundary(int boundarySide) {
@@ -133,14 +133,14 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
         ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
 
-        // The twoWindingsTransformer is converted to a danglingLine with different VoltageLevels at its ends.
-        // As the current danglingLine only supports shunt admittance at the end1 we can only map twoWindingsTransformers with
+        // The twoWindingsTransformer is converted to a boundaryLine with different VoltageLevels at its ends.
+        // As the current boundaryLine only supports shunt admittance at the end1 we can only map twoWindingsTransformers with
         // ratio 1.0 and angle 0.0
         // Since the ratio has been fixed to 1.0, if the current (ratio, angle) of the transformer
         // (getRatio(convertedT2xModel), getAngle(convertedT2xModel)) is not (1.0, 0.0)
         // we will have differences in the LF computation.
-        // TODO support in the danglingLine the complete twoWindingsTransformer model (transformer + tapChangers)
-        convertToDanglingLine(boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel));
+        // TODO support in the boundaryLine the complete twoWindingsTransformer model (transformer + tapChangers)
+        convertToBoundaryLine(boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel));
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {

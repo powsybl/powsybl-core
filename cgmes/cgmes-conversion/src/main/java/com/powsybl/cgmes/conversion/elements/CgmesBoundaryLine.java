@@ -14,11 +14,11 @@ import com.powsybl.iidm.network.Branch;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class BoundaryLine {
+public class CgmesBoundaryLine {
 
-    BoundaryLine(String id, String name, String modelIidmVoltageLevelId, String modelBus,
-        boolean modelTconnected, int modelNode, String modelTerminalId, Branch.Side boundarySide,
-        String boundaryTerminalId, PowerFlow modelPowerFlow) {
+    CgmesBoundaryLine(String id, String name, String modelIidmVoltageLevelId, String modelBus,
+                      boolean modelTconnected, int modelNode, String modelTerminalId, Branch.Side boundarySide,
+                      String boundaryTerminalId, PowerFlow modelPowerFlow) {
         this.id = id;
         this.name = name;
         this.modelIidmVoltageLevelId = modelIidmVoltageLevelId;

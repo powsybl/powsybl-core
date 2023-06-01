@@ -40,8 +40,8 @@ class BoundaryAdapter extends AbstractAdapter<Boundary> implements Boundary {
     }
 
     @Override
-    public BoundaryLine getDanglingLine() {
-        return getIndex().getDanglingLine(getDelegate().getDanglingLine());
+    public BoundaryLine getBoundaryLine() {
+        return getIndex().getBoundaryLine(getDelegate().getBoundaryLine());
     }
 
     @Override

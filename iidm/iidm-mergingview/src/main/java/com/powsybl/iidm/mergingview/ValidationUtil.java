@@ -40,17 +40,17 @@ public final class ValidationUtil {
         index.getIdentifiableStream().forEach(identifiable -> {
             String id = identifiable.getId();
             if (otherIds.contains(id)) {
-                checkValidDanglingLines(identifiable, other.getIdentifiable(id));
+                checkValidBoundaryLines(identifiable, other.getIdentifiable(id));
             }
         });
     }
 
-    private static void checkValidDanglingLines(Identifiable<?> origin, Identifiable<?> other) {
+    private static void checkValidBoundaryLines(Identifiable<?> origin, Identifiable<?> other) {
         if (other instanceof BoundaryLine && origin instanceof BoundaryLine) {
             String xnodeCode1 = ((BoundaryLine) origin).getUcteXnodeCode();
             String xnodeCode2 = ((BoundaryLine) other).getUcteXnodeCode();
             if ((xnodeCode1 != null && xnodeCode2 != null && !xnodeCode1.equals(xnodeCode2)) || (xnodeCode1 == null && xnodeCode2 == null)) {
-                throw new PowsyblException(String.format("Dangling line couple %s have inconsistent Xnodes (%s,%s)", origin.getId(), xnodeCode1, xnodeCode2));
+                throw new PowsyblException(String.format("Boundary line couple %s have inconsistent Xnodes (%s,%s)", origin.getId(), xnodeCode1, xnodeCode2));
             }
             return;
         }

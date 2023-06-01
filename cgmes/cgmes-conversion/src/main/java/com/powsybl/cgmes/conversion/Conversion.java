@@ -271,7 +271,7 @@ public class Conversion {
             .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
 
         // Voltage and angle in boundary buses
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED)
             .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
     }
 
@@ -595,10 +595,10 @@ public class Conversion {
     }
 
     // Supported conversions:
-    // Only one Line (--> create dangling line)
-    // Only one Switch (--> create dangling line with z0)
-    // Only one Transformer (--> create dangling line)
-    // Only one EquivalentBranch (--> create dangling line)
+    // Only one Line (--> create boundary line)
+    // Only one Switch (--> create boundary line with z0)
+    // Only one Transformer (--> create boundary line)
+    // Only one EquivalentBranch (--> create boundary line)
     // Any combination of Line, Switch, Transformer and EquivalentBranch
 
     private void convertEquipmentAtBoundaryNode(Context context, String node) {
@@ -625,12 +625,12 @@ public class Conversion {
                 beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).collect(Collectors.toList())
                     .forEach(beq -> {
                         context.fixed("convertEquipmentAtBoundaryNode",
-                                String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as a dangling line.", node, beq.getAcLineSegmentId()));
+                                String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as a boundary line.", node, beq.getAcLineSegmentId()));
                         beq.createConversion(context).convertAtBoundary();
                     });
             } else {
                 // This case should not happen and will not result in an equivalent network at the end of the conversion
-                context.fixed(node, "More than two connected AcLineSegments at boundary: only dangling lines are created." +
+                context.fixed(node, "More than two connected AcLineSegments at boundary: only boundary lines are created." +
                         " Please note that the converted IIDM network will probably not be equivalent to the CGMES network.");
                 beqs.forEach(beq -> beq.createConversion(context).convertAtBoundary());
             }
@@ -640,10 +640,10 @@ public class Conversion {
     private static void convertTwoEquipmentsAtBoundaryNode(Context context, String node, BoundaryEquipment beq1, BoundaryEquipment beq2) {
         EquipmentAtBoundaryConversion conversion1 = beq1.createConversion(context);
         EquipmentAtBoundaryConversion conversion2 = beq2.createConversion(context);
-        BoundaryLine boundaryLine1 = conversion1.asBoundaryLine(node);
-        BoundaryLine boundaryLine2 = conversion2.asBoundaryLine(node);
+        CgmesBoundaryLine boundaryLine1 = conversion1.asBoundaryLine(node);
+        CgmesBoundaryLine boundaryLine2 = conversion2.asBoundaryLine(node);
         if (boundaryLine1 != null && boundaryLine2 != null) {
-            // there can be several dangling lines linked to same x-node in one IGM for planning purposes
+            // there can be several boundary lines linked to same x-node in one IGM for planning purposes
             // in this case, we don't merge them
             // please note that only one of them should be connected
             String regionName1 = context.network().getVoltageLevel(boundaryLine1.getModelIidmVoltageLevelId()).getSubstation()
@@ -653,7 +653,7 @@ public class Conversion {
                     .map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName"))
                     .orElse(null);
             if (regionName1 != null && regionName1.equals(regionName2)) {
-                context.ignored(node, "Both dangling lines are in the same voltage level: we do not consider them as a merged line");
+                context.ignored(node, "Both boundary lines are in the same voltage level: we do not consider them as a merged line");
                 conversion1.convertAtBoundary();
                 conversion2.convertAtBoundary();
             } else if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
@@ -755,7 +755,7 @@ public class Conversion {
             return this;
         }
 
-        public boolean computeFlowsAtBoundaryDanglingLines() {
+        public boolean computeFlowsAtBoundaryBoundaryLines() {
             return true;
         }
 

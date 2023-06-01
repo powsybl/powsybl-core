@@ -14,9 +14,9 @@ import java.util.Optional;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface CgmesDanglingLineBoundaryNode extends Extension<BoundaryLine> {
+public interface CgmesBoundaryLineBoundaryNode extends Extension<BoundaryLine> {
 
-    String NAME = "cgmesDanglingLineBoundaryNode";
+    String NAME = "cgmesBoundaryLineBoundaryNode";
 
     boolean isHvdc();
 

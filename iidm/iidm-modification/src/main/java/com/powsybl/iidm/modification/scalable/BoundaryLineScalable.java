@@ -21,24 +21,24 @@ import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class DanglingLineScalable extends AbstractInjectionScalable {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DanglingLineScalable.class);
+public class BoundaryLineScalable extends AbstractInjectionScalable {
+    private static final Logger LOGGER = LoggerFactory.getLogger(BoundaryLineScalable.class);
 
     private final ScalingConvention scalingConvention;
 
-    DanglingLineScalable(String id) {
+    BoundaryLineScalable(String id) {
         this(id, -Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
-    DanglingLineScalable(String id, ScalingConvention scalingConvention) {
+    BoundaryLineScalable(String id, ScalingConvention scalingConvention) {
         this(id, -Double.MAX_VALUE, Double.MAX_VALUE, scalingConvention);
     }
 
-    DanglingLineScalable(String id, double minValue, double maxValue) {
+    BoundaryLineScalable(String id, double minValue, double maxValue) {
         this(id, minValue, maxValue, ScalingConvention.GENERATOR);
     }
 
-    DanglingLineScalable(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
+    BoundaryLineScalable(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
         super(id, minValue, maxValue);
         this.scalingConvention = Objects.requireNonNull(scalingConvention);
     }
@@ -47,9 +47,9 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
     public void reset(Network n) {
         Objects.requireNonNull(n);
 
-        BoundaryLine dl = n.getDanglingLine(id);
-        if (dl != null) {
-            dl.setP0(0);
+        BoundaryLine bl = n.getBoundaryLine(id);
+        if (bl != null) {
+            bl.setP0(0);
         }
     }
 
@@ -63,8 +63,8 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
-        BoundaryLine dl = n.getDanglingLine(id);
-        if (dl != null) {
+        BoundaryLine bl = n.getBoundaryLine(id);
+        if (bl != null) {
             return scalingConvention == LOAD ? maxValue : -minValue;
         } else {
             return 0;
@@ -81,8 +81,8 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
-        BoundaryLine dl = n.getDanglingLine(id);
-        if (dl != null) {
+        BoundaryLine bl = n.getBoundaryLine(id);
+        if (bl != null) {
             return scalingConvention == LOAD ? minValue : -maxValue;
         } else {
             return 0;
@@ -94,9 +94,9 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(injections);
 
-        BoundaryLine dl = n.getDanglingLine(id);
-        if (dl != null) {
-            injections.add(dl);
+        BoundaryLine bl = n.getBoundaryLine(id);
+        if (bl != null) {
+            injections.add(bl);
         } else if (notFoundInjections != null) {
             notFoundInjections.add(id);
         }
@@ -113,23 +113,23 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(parameters);
 
-        BoundaryLine dl = n.getDanglingLine(id);
+        BoundaryLine bl = n.getBoundaryLine(id);
 
         double done = 0;
-        if (dl == null) {
-            LOGGER.warn("Dangling line {} not found", id);
+        if (bl == null) {
+            LOGGER.warn("Boundary line {} not found", id);
             return done;
         }
 
-        Terminal t = dl.getTerminal();
+        Terminal t = bl.getTerminal();
         if (!t.isConnected() && parameters.isReconnect()) {
             t.connect();
-            LOGGER.info("Connecting {}", dl.getId());
+            LOGGER.info("Connecting {}", bl.getId());
         }
 
-        double oldP0 = dl.getP0();
+        double oldP0 = bl.getP0();
         if (oldP0 < minValue || oldP0 > maxValue) {
-            LOGGER.error("Error scaling DanglingLineScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
+            LOGGER.error("Error scaling BoundaryLineScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
             return 0.;
         }
 
@@ -140,14 +140,14 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
 
         if (parameters.getScalingConvention() == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
-            dl.setP0(oldP0 + done);
+            bl.setP0(oldP0 + done);
         } else {
             done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
-            dl.setP0(oldP0 - done);
+            bl.setP0(oldP0 - done);
         }
 
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
-                dl.getId(), oldP0, dl.getP0());
+                bl.getId(), oldP0, bl.getP0());
 
         return done;
     }

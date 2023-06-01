@@ -36,10 +36,10 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             // If we find an Equivalent Injection at a boundary
             // we will decide later what to do with it
             //
-            // If finally a dangling line is created at the boundary node
+            // If finally a boundary line is created at the boundary node
             // and the equivalent injection is regulating voltage
             // we will have to transfer regulating voltage data
-            // from the equivalent injection to the dangling line
+            // from the equivalent injection to the boundary line
             context.boundary().addEquivalentInjectionAtNode(this.p, nodeId());
         }
     }
@@ -51,14 +51,14 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         convertToGenerator();
     }
 
-    // A dangling line has been created at the boundary node of the equivalent injection
-    public BoundaryLine convertOverDanglingLine(DanglingLineAdder adder, PowerFlow fother) {
+    // A boundary line has been created at the boundary node of the equivalent injection
+    public BoundaryLine convertOverBoundaryLine(BoundaryLineAdder adder, PowerFlow fother) {
         Regulation regulation = getRegulation();
-        BoundaryLine dl;
+        BoundaryLine bl;
         if (regulation.status) {
             // If this equivalent injection is regulating voltage,
-            // map it over the dangling line 'virtual generator'
-            dl = adder
+            // map it over the boundary line 'virtual generator'
+            bl = adder
                     .setP0(fother.p())
                     .setQ0(fother.q())
                     .newGeneration()
@@ -72,25 +72,25 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                     .add();
         } else {
             // Map all the observed flows to the 'virtual load'
-            // of the dangling line
-            dl = adder
+            // of the boundary line
+            bl = adder
                     .setP0(fother.p() + p0())
                     .setQ0(fother.q() + q0())
                     .add();
         }
         // We do not call addAliasesAndProperties(dl) !
         // Because we do not want to add this equivalent injection
-        // terminal id as a generic "Terminal" alias of the dangling line,
+        // terminal id as a generic "Terminal" alias of the boundary line,
         // Terminal1 and Terminal2 aliases should be used for
         // the original ACLineSegment or Switch terminals
         // We want to keep track add this equivalent injection terminal
         // under a separate, specific, alias type
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", this.id);
+        bl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", this.id);
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId());
         if (cgmesTerminal != null) {
-            dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", cgmesTerminal.id());
+            bl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", cgmesTerminal.id());
         }
-        return dl;
+        return bl;
     }
 
     private void convertToGenerator() {

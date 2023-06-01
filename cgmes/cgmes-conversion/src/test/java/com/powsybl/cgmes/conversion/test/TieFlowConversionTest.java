@@ -109,11 +109,11 @@ class TieFlowConversionTest {
 
     private static boolean containsBoundary(CgmesControlArea cgmesControlArea, String connectableId, IdentifiableType identifiableType) {
         boolean ok = cgmesControlArea.getBoundaries().stream().anyMatch(b -> isConnectableOk(connectableId, identifiableType,
-            b.getDanglingLine().getId(), b.getDanglingLine().getType()));
+            b.getBoundaryLine().getId(), b.getBoundaryLine().getType()));
         if (!ok) {
             LOG.info("Boundary to find connectableId {} identifiableType {}", connectableId, identifiableType);
-            cgmesControlArea.getBoundaries().forEach(b -> LOG.info("Boundary inside cgmesControlArea danglingLineId {}}",
-                    b.getDanglingLine().getId()));
+            cgmesControlArea.getBoundaries().forEach(b -> LOG.info("Boundary inside cgmesControlArea boundaryLineId {}}",
+                    b.getBoundaryLine().getId()));
         }
         return ok;
     }

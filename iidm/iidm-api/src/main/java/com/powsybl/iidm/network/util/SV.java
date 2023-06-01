@@ -22,11 +22,11 @@ import org.apache.commons.math3.complex.ComplexUtils;
 public class SV {
 
     /**
-     * In this class, lines, two windings transformers, half line and dangling lines can be considered as equivalent branches.
+     * In this class, lines, two windings transformers, half line and boundary lines can be considered as equivalent branches.
      * <p><div>
      * <object data="doc-files/SV.svg" type="image/svg+xml">
      * </object> </div>
-     * For dangling lines, side ONE is always on network's side and side TWO is always on boundary's side. <br>
+     * For boundary lines, side ONE is always on network's side and side TWO is always on boundary's side. <br>
      * For half lines, if the half line is on the side ONE of its tie line, side ONE is on network's side and side TWO is on boundary's side; <br>
      * if the half line is on the side TWO of its tie line, side ONE is on boundary's side and side TWO is on network's side.
      * @param p active power flow on the side of the branch we consider.
@@ -106,15 +106,15 @@ public class SV {
         }
     }
 
-    public SV otherSide(BoundaryLine dl) {
-        return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+    public SV otherSide(BoundaryLine bl) {
+        return otherSide(bl.getR(), bl.getX(), bl.getG(), bl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
-    public SV otherSide(BoundaryLine dl, boolean splitShuntAdmittance) {
+    public SV otherSide(BoundaryLine bl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
-            return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+            return otherSide(bl.getR(), bl.getX(), bl.getG() * 0.5, bl.getB() * 0.5, bl.getG() * 0.5, bl.getB() * 0.5, 1.0, 0.0);
         } else {
-            return otherSide(dl);
+            return otherSide(bl);
         }
     }
 
@@ -124,15 +124,15 @@ public class SV {
         return otherSideP(adm);
     }
 
-    public double otherSideP(BoundaryLine dl) {
-        return otherSideP(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+    public double otherSideP(BoundaryLine bl) {
+        return otherSideP(bl.getR(), bl.getX(), bl.getG(), bl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
-    public double otherSideP(BoundaryLine dl, boolean splitShuntAdmittance) {
+    public double otherSideP(BoundaryLine bl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
-            return otherSideP(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+            return otherSideP(bl.getR(), bl.getX(), bl.getG() * 0.5, bl.getB() * 0.5, bl.getG() * 0.5, bl.getB() * 0.5, 1.0, 0.0);
         } else {
-            return otherSideP(dl);
+            return otherSideP(bl);
         }
     }
 
@@ -142,15 +142,15 @@ public class SV {
         return otherSideQ(adm);
     }
 
-    public double otherSideQ(BoundaryLine dl) {
-        return otherSideQ(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+    public double otherSideQ(BoundaryLine bl) {
+        return otherSideQ(bl.getR(), bl.getX(), bl.getG(), bl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
-    public double otherSideQ(BoundaryLine dl, boolean splitShuntAdmittance) {
+    public double otherSideQ(BoundaryLine bl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
-            return otherSideQ(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+            return otherSideQ(bl.getR(), bl.getX(), bl.getG() * 0.5, bl.getB() * 0.5, bl.getG() * 0.5, bl.getB() * 0.5, 1.0, 0.0);
         } else {
-            return otherSideQ(dl);
+            return otherSideQ(bl);
         }
     }
 
@@ -160,15 +160,15 @@ public class SV {
         return otherSideU(adm);
     }
 
-    public double otherSideU(BoundaryLine dl) {
-        return otherSideU(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+    public double otherSideU(BoundaryLine bl) {
+        return otherSideU(bl.getR(), bl.getX(), bl.getG(), bl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
-    public double otherSideU(BoundaryLine dl, boolean splitShuntAdmittance) {
+    public double otherSideU(BoundaryLine bl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
-            return otherSideU(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+            return otherSideU(bl.getR(), bl.getX(), bl.getG() * 0.5, bl.getB() * 0.5, bl.getG() * 0.5, bl.getB() * 0.5, 1.0, 0.0);
         } else {
-            return otherSideU(dl);
+            return otherSideU(bl);
         }
     }
 
@@ -178,15 +178,15 @@ public class SV {
         return otherSideA(adm);
     }
 
-    public double otherSideA(BoundaryLine dl) {
-        return otherSideA(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+    public double otherSideA(BoundaryLine bl) {
+        return otherSideA(bl.getR(), bl.getX(), bl.getG(), bl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
-    public double otherSideA(BoundaryLine dl, boolean splitShuntAdmittance) {
+    public double otherSideA(BoundaryLine bl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
-            return otherSideA(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+            return otherSideA(bl.getR(), bl.getX(), bl.getG() * 0.5, bl.getB() * 0.5, bl.getG() * 0.5, bl.getB() * 0.5, 1.0, 0.0);
         } else {
-            return otherSideA(dl);
+            return otherSideA(bl);
         }
     }
 

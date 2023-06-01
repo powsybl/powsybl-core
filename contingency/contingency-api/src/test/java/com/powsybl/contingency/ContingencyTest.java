@@ -12,7 +12,7 @@ import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
@@ -128,10 +128,10 @@ class ContingencyTest {
 
     @Test
     void validationTestForDL() {
-        Network network = DanglingLineNetworkFactory.create();
-        Contingency danglingLineContingency = Contingency.builder("DL contingency").addDanglingLine("DL").build();
-        Contingency danglingLineInvalidContingency = Contingency.builder("DL invalid contingency").addDanglingLine("DL_THAT_DO_NOT_EXIST").build();
-        List<Contingency> validContingencies = ContingencyList.of(danglingLineContingency, danglingLineInvalidContingency)
+        Network network = BoundaryLineNetworkFactory.create();
+        Contingency boundaryLineContingency = Contingency.builder("DL contingency").addBoundaryLine("DL").build();
+        Contingency boundaryLineInvalidContingency = Contingency.builder("DL invalid contingency").addBoundaryLine("DL_THAT_DO_NOT_EXIST").build();
+        List<Contingency> validContingencies = ContingencyList.of(boundaryLineContingency, boundaryLineInvalidContingency)
                 .getContingencies(network);
 
         List<String> expectedValidIds = Collections.singletonList("DL contingency");
@@ -140,7 +140,7 @@ class ContingencyTest {
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
 
         assertEquals(expectedValidIds,
-                ContingencyList.getValidContingencies(Arrays.asList(danglingLineContingency, danglingLineInvalidContingency), network)
+                ContingencyList.getValidContingencies(Arrays.asList(boundaryLineContingency, boundaryLineInvalidContingency), network)
                         .stream()
                         .map(Contingency::getId)
                         .collect(Collectors.toList()));

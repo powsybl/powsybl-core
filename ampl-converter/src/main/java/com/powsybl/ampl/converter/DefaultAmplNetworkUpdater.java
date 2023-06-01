@@ -99,11 +99,11 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
             l.getTerminal().setP(p).setQ(q);
             busConnection(l.getTerminal(), busNum, networkMapper);
         } else {
-            BoundaryLine dl = network.getDanglingLine(id);
-            if (dl != null) {
-                dl.setP0(p0).setQ0(q0);
-                dl.getTerminal().setP(p).setQ(q);
-                busConnection(dl.getTerminal(), busNum, networkMapper);
+            BoundaryLine bl = network.getBoundaryLine(id);
+            if (bl != null) {
+                bl.setP0(p0).setQ0(q0);
+                bl.getTerminal().setP(p).setQ(q);
+                busConnection(bl.getTerminal(), busNum, networkMapper);
             } else {
                 throw new AmplException("Invalid load id '" + id + "'");
             }
@@ -158,10 +158,10 @@ public class DefaultAmplNetworkUpdater extends AbstractAmplNetworkUpdater {
             busConnection(br.getTerminal1(), busNum, networkMapper);
             busConnection(br.getTerminal2(), busNum2, networkMapper);
         } else if (!readThreeWindingsTransformerBranch(network, id, p1, q1, busNum, networkMapper)) {
-            BoundaryLine dl = network.getDanglingLine(id);
-            if (dl != null) {
-                dl.getTerminal().setP(p1).setQ(q1);
-                busConnection(dl.getTerminal(), busNum, networkMapper);
+            BoundaryLine bl = network.getBoundaryLine(id);
+            if (bl != null) {
+                bl.getTerminal().setP(p1).setQ(q1);
+                busConnection(bl.getTerminal(), busNum, networkMapper);
             } else {
                 throw new AmplException("Invalid branch id '" + id + "'");
             }

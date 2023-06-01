@@ -12,14 +12,14 @@ import com.powsybl.iidm.network.BoundaryLine;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface CgmesDanglingLineBoundaryNodeAdder extends ExtensionAdder<BoundaryLine, CgmesDanglingLineBoundaryNode> {
+public interface CgmesBoundaryLineBoundaryNodeAdder extends ExtensionAdder<BoundaryLine, CgmesBoundaryLineBoundaryNode> {
 
-    CgmesDanglingLineBoundaryNodeAdder setHvdc(boolean isHvdc);
+    CgmesBoundaryLineBoundaryNodeAdder setHvdc(boolean isHvdc);
 
-    CgmesDanglingLineBoundaryNodeAdder setLineEnergyIdentificationCodeEic(String lineEnergyIdentificationCodeEic);
+    CgmesBoundaryLineBoundaryNodeAdder setLineEnergyIdentificationCodeEic(String lineEnergyIdentificationCodeEic);
 
     @Override
-    default Class<CgmesDanglingLineBoundaryNode> getExtensionClass() {
-        return CgmesDanglingLineBoundaryNode.class;
+    default Class<CgmesBoundaryLineBoundaryNode> getExtensionClass() {
+        return CgmesBoundaryLineBoundaryNode.class;
     }
 }

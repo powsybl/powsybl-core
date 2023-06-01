@@ -287,8 +287,8 @@ class VoltageLevelAdapterTest {
         });
         assertEquals(vlExpected.getSwitchCount(), vlActual.getSwitchCount());
 
-        // DanglingLine
-        BoundaryLine dl = vlActual.newDanglingLine()
+        // BoundaryLine
+        BoundaryLine bl = vlActual.newBoundaryLine()
                 .setId("DLL1")
                 .setName("DLL1")
                 .setR(1)
@@ -301,12 +301,12 @@ class VoltageLevelAdapterTest {
                 .setBus("busA")
                 .setConnectableBus("busA")
             .add();
-        vlActual.getBoundaryLines(DanglingLineFilter.ALL).forEach(s -> {
+        vlActual.getBoundaryLines(BoundaryLineFilter.ALL).forEach(s -> {
             assertTrue(s instanceof BoundaryLineAdapter);
             assertNotNull(s);
         });
-        assertEquals(vlExpected.getDanglingLineCount(), vlActual.getDanglingLineCount());
-        assertEquals(vlExpected.getDanglingLineStream(DanglingLineFilter.ALL).count(), vlActual.getDanglingLineStream(DanglingLineFilter.ALL).count());
+        assertEquals(vlExpected.getBoundaryLineCount(), vlActual.getBoundaryLineCount());
+        assertEquals(vlExpected.getBoundaryLineStream(BoundaryLineFilter.ALL).count(), vlActual.getBoundaryLineStream(BoundaryLineFilter.ALL).count());
 
         // Topology : Bus kind
         assertEquals(vlExpected.getTopologyKind(), vlActual.getTopologyKind());
@@ -318,7 +318,7 @@ class VoltageLevelAdapterTest {
         verify(visitor, times(1)).visitShuntCompensator(any(ShuntCompensator.class));
         verify(visitor, times(1)).visitStaticVarCompensator(any(StaticVarCompensator.class));
         verify(visitor, times(2)).visitHvdcConverterStation(any(HvdcConverterStation.class));
-        verify(visitor, times(1)).visitDanglingLine(any(BoundaryLine.class));
+        verify(visitor, times(1)).visitBoundaryLine(any(BoundaryLine.class));
 
         TestUtil.notImplemented(() -> vlActual.printTopology());
         TestUtil.notImplemented(() -> vlActual.printTopology(System.out, mock(ShortIdDictionary.class)));
@@ -333,7 +333,7 @@ class VoltageLevelAdapterTest {
 
         assertSame(battery, vlActual.getConnectable("BAT", Battery.class));
         assertEquals(1, Iterables.size(vlActual.getConnectables(Battery.class)));
-        assertSame(dl, vlActual.getConnectable("DLL1", BoundaryLine.class));
+        assertSame(bl, vlActual.getConnectable("DLL1", BoundaryLine.class));
         assertEquals(1, Iterables.size(vlActual.getConnectables(BoundaryLine.class)));
         assertEquals(1, Iterables.size(vlActual.getConnectables(Line.class)));
         assertEquals(1, Iterables.size(vlActual.getConnectables(TwoWindingsTransformer.class)));
@@ -345,11 +345,11 @@ class VoltageLevelAdapterTest {
         VoltageLevel vl1 = cgm.getVoltageLevel("VL1");
         VoltageLevel vl2 = cgm.getVoltageLevel("VL2");
 
-        assertNotNull(cgm.getDanglingLine("DL1"));
+        assertNotNull(cgm.getBoundaryLine("DL1"));
         assertNotNull(vl1.getConnectable("DL1", BoundaryLine.class));
         assertEquals(1, Iterables.size(vl1.getConnectables(BoundaryLine.class)));
 
-        assertNotNull(cgm.getDanglingLine("DL2"));
+        assertNotNull(cgm.getBoundaryLine("DL2"));
         assertNotNull(vl2.getConnectable("DL2", BoundaryLine.class));
         assertEquals(1, Iterables.size(vl2.getConnectables(BoundaryLine.class)));
 

@@ -14,7 +14,7 @@ import java.util.function.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.network.util.TieLineUtil.findAndAssociateDanglingLines;
+import static com.powsybl.iidm.network.util.TieLineUtil.findAndAssociateBoundaryLines;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -71,30 +71,30 @@ class MergingViewIndex {
         ValidationUtil.checkUniqueIds(other, this);
         // Local storage for mergeable network
         networks.add(other);
-        // Manage DanglingLines
-        other.getDanglingLineStream(DanglingLineFilter.ALL).forEach(this::checkNewDanglingLine);
+        // Manage BoundaryLines
+        other.getBoundaryLineStream(BoundaryLineFilter.ALL).forEach(this::checkNewBoundaryLine);
     }
 
-    void checkNewDanglingLine(BoundaryLine dl2) {
-        BoundaryLine dl1 = getNetworkStream().map(n -> n.getDanglingLine(dl2.getId()))
+    void checkNewBoundaryLine(BoundaryLine bl2) {
+        BoundaryLine bl1 = getNetworkStream().map(n -> n.getBoundaryLine(bl2.getId()))
                 .filter(Objects::nonNull)
-                .filter(dl -> dl != dl2)
+                .filter(bl -> bl != bl2)
                 .findFirst()
                 .orElse(null);
         Function<String, List<BoundaryLine>> getBoundaryLinesByXnodeCode = code -> getNetworkStream()
-                .flatMap(Network::getDanglingLineStream)
+                .flatMap(Network::getBoundaryLineStream)
                 .filter(d -> code.equals(d.getUcteXnodeCode()))
-                .filter(d -> d.getNetwork() != dl2.getNetwork())
+                .filter(d -> d.getNetwork() != bl2.getNetwork())
                 .distinct()
                 .collect(Collectors.toList());
-        BiConsumer<BoundaryLine, BoundaryLine> pairDanglingLines = (dll1, dll2) -> {
-            String key = dll1.getId();
-            if (dll1.getUcteXnodeCode() != null && dll2.getUcteXnodeCode() != null) {
-                key = dll1.getUcteXnodeCode();
+        BiConsumer<BoundaryLine, BoundaryLine> pairBoundaryLines = (bll1, bll2) -> {
+            String key = bll1.getId();
+            if (bll1.getUcteXnodeCode() != null && bll2.getUcteXnodeCode() != null) {
+                key = bll1.getUcteXnodeCode();
             }
-            mergedLineCached.computeIfAbsent(key, k -> new MergedLine(this, dll1, dll2));
+            mergedLineCached.computeIfAbsent(key, k -> new MergedLine(this, bll1, bll2));
         };
-        findAndAssociateDanglingLines(dl2, dl1, getBoundaryLinesByXnodeCode, pairDanglingLines);
+        findAndAssociateBoundaryLines(bl2, bl1, getBoundaryLinesByXnodeCode, pairBoundaryLines);
     }
 
     MergedLine getMergedLineByCode(final String ucteXnodeCode) {
@@ -150,7 +150,7 @@ class MergingViewIndex {
         if (clazz == Line.class) {
             return getLineStream().filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
         } else if (clazz == BoundaryLine.class) {
-            return getDanglingLineStream(DanglingLineFilter.ALL).filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
+            return getBoundaryLineStream(BoundaryLineFilter.ALL).filter(clazz::isInstance).map(clazz::cast).collect(Collectors.toList());
         } else {
             return getNetworkStream()
                     .flatMap(n -> n.getConnectableStream(clazz))
@@ -325,20 +325,20 @@ class MergingViewIndex {
         return getNetworkStream().mapToInt(Network::getTieLineCount).sum() + mergedLineCached.size();
     }
 
-    boolean isMerged(final BoundaryLine dl) {
-        return mergedLineCached.containsKey(dl.getUcteXnodeCode()) || mergedLineCached.containsKey(dl.getId());
+    boolean isMerged(final BoundaryLine bl) {
+        return mergedLineCached.containsKey(bl.getUcteXnodeCode()) || mergedLineCached.containsKey(bl.getId());
     }
 
-    Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return getNetworkStream().flatMap(n -> n.getDanglingLineStream(danglingLineFilter)).map(this::getDanglingLine);
+    Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return getNetworkStream().flatMap(n -> n.getBoundaryLineStream(boundaryLineFilter)).map(this::getBoundaryLine);
     }
 
-    Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter) {
-        return getNetworkStream().flatMap(n -> n.getDanglingLineStream(danglingLineFilter)).map(this::getDanglingLine).collect(Collectors.toList());
+    Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return getNetworkStream().flatMap(n -> n.getBoundaryLineStream(boundaryLineFilter)).map(this::getBoundaryLine).collect(Collectors.toList());
     }
 
-    int getDanglingLineCount() {
-        return getNetworkStream().mapToInt(Network::getDanglingLineCount).sum();
+    int getBoundaryLineCount() {
+        return getNetworkStream().mapToInt(Network::getBoundaryLineCount).sum();
     }
 
     Collection<HvdcLine> getHvdcLines() {
@@ -462,8 +462,8 @@ class MergingViewIndex {
         return svc == null ? null : (StaticVarCompensatorAdapter) identifiableCached.computeIfAbsent(svc, key -> new StaticVarCompensatorAdapter((StaticVarCompensator) key, this));
     }
 
-    BoundaryLineAdapter getDanglingLine(final BoundaryLine dll) {
-        return dll == null ? null : (BoundaryLineAdapter) identifiableCached.computeIfAbsent(dll, key -> new BoundaryLineAdapter((BoundaryLine) key, this));
+    BoundaryLineAdapter getBoundaryLine(final BoundaryLine bl) {
+        return bl == null ? null : (BoundaryLineAdapter) identifiableCached.computeIfAbsent(bl, key -> new BoundaryLineAdapter((BoundaryLine) key, this));
     }
 
     Connectable getConnectable(final Connectable connectable) {
@@ -488,7 +488,7 @@ class MergingViewIndex {
             case SHUNT_COMPENSATOR:
                 return getShuntCompensator((ShuntCompensator) connectable);
             case DANGLING_LINE:
-                return getDanglingLine((BoundaryLine) connectable);
+                return getBoundaryLine((BoundaryLine) connectable);
             case STATIC_VAR_COMPENSATOR:
                 return getStaticVarCompensator((StaticVarCompensator) connectable);
             case HVDC_CONVERTER_STATION:

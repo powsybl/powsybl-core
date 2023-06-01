@@ -122,31 +122,31 @@ public class MatpowerExporter implements Exporter {
         }
     }
 
-    private static void createDanglingLineBuses(Network network, MatpowerModel model, Context context) {
-        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-            Terminal t = dl.getTerminal();
+    private static void createBoundaryLineBuses(Network network, MatpowerModel model, Context context) {
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            Terminal t = bl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus)) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBus mBus = new MBus();
                 mBus.setNumber(context.num++);
-                mBus.setName(dl.getNameOrId());
+                mBus.setName(bl.getNameOrId());
                 mBus.setType(MBus.Type.PQ);
                 mBus.setAreaNumber(AREA_NUMBER);
                 mBus.setLossZone(LOSS_ZONE);
-                mBus.setBaseVoltage(dl.getTerminal().getVoltageLevel().getNominalV());
+                mBus.setBaseVoltage(bl.getTerminal().getVoltageLevel().getNominalV());
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
-                mBus.setRealPowerDemand(dl.getP0());
-                mBus.setReactivePowerDemand(dl.getQ0());
+                mBus.setRealPowerDemand(bl.getP0());
+                mBus.setReactivePowerDemand(bl.getQ0());
                 mBus.setShuntConductance(0d);
                 mBus.setShuntSusceptance(0d);
-                mBus.setVoltageMagnitude(dl.getBoundary().getV() / vl.getNominalV());
-                mBus.setVoltageAngle(dl.getBoundary().getAngle());
+                mBus.setVoltageMagnitude(bl.getBoundary().getV() / vl.getNominalV());
+                mBus.setVoltageAngle(bl.getBoundary().getAngle());
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
                 model.addBus(mBus);
-                context.mBusesNumbersByIds.put(dl.getId(), mBus.getNumber());
+                context.mBusesNumbersByIds.put(bl.getId(), mBus.getNumber());
             }
         }
     }
@@ -195,7 +195,7 @@ public class MatpowerExporter implements Exporter {
             }
         }
 
-        createDanglingLineBuses(network, model, context);
+        createBoundaryLineBuses(network, model, context);
         createTransformerStarBuses(network, model, context);
     }
 
@@ -301,20 +301,20 @@ public class MatpowerExporter implements Exporter {
             + (nominalVoltageAtEnd - nominalVoltageAtOtherEnd) * nominalVoltageAtEnd * transmissionAdmittance) / sBase;
     }
 
-    private void createDanglingLineBranches(Network network, MatpowerModel model, Context context) {
-        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-            Terminal t = dl.getTerminal();
+    private void createBoundaryLineBranches(Network network, MatpowerModel model, Context context) {
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            Terminal t = bl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus)) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBranch mBranch = new MBranch();
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus.getId()));
-                mBranch.setTo(context.mBusesNumbersByIds.get(dl.getId()));
+                mBranch.setTo(context.mBusesNumbersByIds.get(bl.getId()));
                 mBranch.setStatus(CONNECTED_STATUS);
                 double zb = vl.getNominalV() * vl.getNominalV() / BASE_MVA;
-                mBranch.setR(dl.getR() / zb);
-                mBranch.setX(dl.getX() / zb);
-                mBranch.setB(dl.getB() * zb);
+                mBranch.setR(bl.getR() / zb);
+                mBranch.setX(bl.getX() / zb);
+                mBranch.setB(bl.getB() * zb);
                 model.addBranch(mBranch);
             }
         }
@@ -375,20 +375,20 @@ public class MatpowerExporter implements Exporter {
         createLines(network, model, context);
         createTieLines(network, model, context);
         createTransformers2(network, model, context);
-        createDanglingLineBranches(network, model, context);
+        createBoundaryLineBranches(network, model, context);
         createTransformerLegs(network, model, context);
     }
 
-    private void createDanglingLineGenerators(Network network, MatpowerModel model, Context context) {
-        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-            Terminal t = dl.getTerminal();
+    private void createBoundaryLineGenerators(Network network, MatpowerModel model, Context context) {
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            Terminal t = bl.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus)) {
-                var g = dl.getGeneration();
+                var g = bl.getGeneration();
                 if (g != null) {
                     VoltageLevel vl = t.getVoltageLevel();
                     MGen mGen = new MGen();
-                    mGen.setNumber(context.mBusesNumbersByIds.get(dl.getId()));
+                    mGen.setNumber(context.mBusesNumbersByIds.get(bl.getId()));
                     mGen.setStatus(CONNECTED_STATUS);
                     mGen.setRealPowerOutput(g.getTargetP());
                     mGen.setReactivePowerOutput(g.getTargetQ());
@@ -425,7 +425,7 @@ public class MatpowerExporter implements Exporter {
             }
         }
 
-        createDanglingLineGenerators(network, model, context);
+        createBoundaryLineGenerators(network, model, context);
     }
 
     private void createStaticVarCompensators(Network network, MatpowerModel model, Context context) {
@@ -451,7 +451,7 @@ public class MatpowerExporter implements Exporter {
                         maxQ, regulatedBus, voltageRegulation, Double.NaN);
             }
         }
-        createDanglingLineGenerators(network, model, context);
+        createBoundaryLineGenerators(network, model, context);
     }
 
     private void createVSCs(Network network, MatpowerModel model, Context context) {
@@ -473,7 +473,7 @@ public class MatpowerExporter implements Exporter {
                         maxQ, regulatedBus, voltageRegulation, Double.NaN);
             }
         }
-        createDanglingLineGenerators(network, model, context);
+        createBoundaryLineGenerators(network, model, context);
     }
 
     private static void addMgen(MatpowerModel model, Context context, Bus bus, VoltageLevel vl,
@@ -524,7 +524,7 @@ public class MatpowerExporter implements Exporter {
             }
 
             @Override
-            public void visitDanglingLine(BoundaryLine boundaryLine) {
+            public void visitBoundaryLine(BoundaryLine boundaryLine) {
                 branchCount[0]++;
             }
         });

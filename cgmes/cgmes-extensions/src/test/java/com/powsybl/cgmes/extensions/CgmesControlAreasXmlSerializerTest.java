@@ -30,7 +30,7 @@ class CgmesControlAreasXmlSerializerTest extends AbstractConverterTest {
                 .setId("NDL")
                 .add();
         network.getVoltageLevel("VLGEN")
-                .newDanglingLine()
+                .newBoundaryLine()
                 .setP0(0.0)
                 .setQ0(0.0)
                 .setR(1.0)
@@ -49,7 +49,7 @@ class CgmesControlAreasXmlSerializerTest extends AbstractConverterTest {
                 .setNetInterchange(100.0)
                 .add()
                 .add(network.getLine("NHV1_NHV2_1").getTerminal1());
-        network.getExtension(CgmesControlAreas.class).getCgmesControlArea("cgmesControlAreaId").add(network.getDanglingLine("DL").getBoundary());
+        network.getExtension(CgmesControlAreas.class).getCgmesControlArea("cgmesControlAreaId").add(network.getBoundaryLine("DL").getBoundary());
 
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead, "/eurostag_cgmes_control_area.xml");
     }

@@ -134,13 +134,13 @@ class FlowsValidationTest extends AbstractValidationTest {
 
         tieLine1 = Mockito.mock(TieLine.class);
         Mockito.when(tieLine1.getId()).thenReturn("tieLine1");
-        BoundaryLine dl1 = Mockito.mock(BoundaryLine.class);
-        Mockito.when(tieLine1.getBoundaryLine1()).thenReturn(dl1);
-        Mockito.when(dl1.getTerminal()).thenReturn(terminal1);
+        BoundaryLine bl1 = Mockito.mock(BoundaryLine.class);
+        Mockito.when(tieLine1.getBoundaryLine1()).thenReturn(bl1);
+        Mockito.when(bl1.getTerminal()).thenReturn(terminal1);
 
-        BoundaryLine dl2 = Mockito.mock(BoundaryLine.class);
-        Mockito.when(tieLine1.getBoundaryLine2()).thenReturn(dl2);
-        Mockito.when(dl2.getTerminal()).thenReturn(terminal2);
+        BoundaryLine bl2 = Mockito.mock(BoundaryLine.class);
+        Mockito.when(tieLine1.getBoundaryLine2()).thenReturn(bl2);
+        Mockito.when(bl2.getTerminal()).thenReturn(terminal2);
 
         Mockito.when(tieLine1.getR()).thenReturn(r);
         Mockito.when(tieLine1.getX()).thenReturn(x);

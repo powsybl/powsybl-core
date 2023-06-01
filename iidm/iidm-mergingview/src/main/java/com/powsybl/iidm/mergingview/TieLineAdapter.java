@@ -24,8 +24,8 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<TieLine> impleme
 
     TieLineAdapter(final TieLine delegate, final MergingViewIndex index) {
         super(delegate, index);
-        this.boundaryLine1 = index.getDanglingLine(delegate.getBoundaryLine1());
-        this.boundaryLine2 = index.getDanglingLine(delegate.getBoundaryLine2());
+        this.boundaryLine1 = index.getBoundaryLine(delegate.getBoundaryLine1());
+        this.boundaryLine2 = index.getBoundaryLine(delegate.getBoundaryLine2());
     }
 
     @Override
@@ -52,7 +52,7 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<TieLine> impleme
     }
 
     @Override
-    public BoundaryLine getDanglingLine(Branch.Side side) {
+    public BoundaryLine getBoundaryLine(Branch.Side side) {
         switch (side) {
             case ONE:
                 return boundaryLine1;
@@ -64,7 +64,7 @@ public class TieLineAdapter extends AbstractIdentifiableAdapter<TieLine> impleme
     }
 
     @Override
-    public BoundaryLine getDanglingLine(String voltageLevelId) {
+    public BoundaryLine getBoundaryLine(String voltageLevelId) {
 
         if (boundaryLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
             return boundaryLine1;

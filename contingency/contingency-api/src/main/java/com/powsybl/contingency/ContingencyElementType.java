@@ -18,7 +18,7 @@ public enum ContingencyElementType {
     BRANCH,
     HVDC_LINE,
     BUSBAR_SECTION,
-    DANGLING_LINE,
+    BOUNDARY_LINE,
     LINE,
     TWO_WINDINGS_TRANSFORMER,
     THREE_WINDINGS_TRANSFORMER,

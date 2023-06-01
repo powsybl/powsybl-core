@@ -8,7 +8,7 @@ CurrentLimit PATL value is 525
 Other terminal of the line has no limit defined
 
 
-2 - Define an OperationalLimit (PATL Current) for an Equipment ACTransmissionLine that will be mapped to a DanglingLine in IIDM
+2 - Define an OperationalLimit (PATL Current) for an Equipment ACTransmissionLine that will be mapped to a BoundaryLine in IIDM
 
 OperationalLimitSet _57c14dc8-1249-4a1c-8a58-b741b7bd8ae5
 Terminal _04684742-c766-11e0-2222-005056c00008 (corresponds to the end not in the boundary)

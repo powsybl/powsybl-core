@@ -103,7 +103,7 @@
                         <xs:element name="battery" type="iidm:Battery"/>
                         <xs:element name="load" type="iidm:Load"/>
                         <xs:element name="shunt" type="iidm:ShuntCompensator"/>
-                        <xs:element name="danglingLine" type="iidm:DanglingLine"/>
+                        <xs:element name="boundaryLine" type="iidm:BoundaryLine"/>
                         <xs:element name="staticVarCompensator" type="iidm:StaticVarCompensator"/>
                         <xs:element name="vscConverterStation" type="iidm:VscConverterStation"/>
                         <xs:element name="lccConverterStation" type="iidm:LccConverterStation"/>
@@ -318,7 +318,7 @@
         </xs:sequence>
         <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
     </xs:complexType>
-    <xs:complexType name="DanglingLine">
+    <xs:complexType name="BoundaryLine">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>

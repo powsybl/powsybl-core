@@ -59,13 +59,13 @@ public final class ModificationReports {
                 .build());
     }
 
-    public static void removedTieLineAndAssociatedDanglingLines(Reporter reporter, String tieLineId, String danglingLineId1, String danglingLineId2, String xnode) {
+    public static void removedTieLineAndAssociatedBoundaryLines(Reporter reporter, String tieLineId, String boundaryLineId1, String boundaryLineId2, String xnode) {
         reporter.report(Report.builder()
-                .withKey("removedTieLineAndAssociatedDanglingLines")
-                .withDefaultMessage("Removed tie line ${tieLineId} and associated dangling lines ${danglingLineId1} and ${danglingLineId2} at X-node ${xnode}")
+                .withKey("removedTieLineAndAssociatedBoundaryLines")
+                .withDefaultMessage("Removed tie line ${tieLineId} and associated boundary lines ${boundaryLineId1} and ${boundaryLineId2} at X-node ${xnode}")
                 .withValue("tieLineId", tieLineId)
-                .withValue("danglingLineId1", danglingLineId1)
-                .withValue("danglingLineId2", danglingLineId2)
+                .withValue("boundaryLineId1", boundaryLineId1)
+                .withValue("boundaryLineId2", boundaryLineId2)
                 .withValue("xnode", xnode == null ? "" : xnode)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
@@ -247,12 +247,12 @@ public final class ModificationReports {
                 .build());
     }
 
-    public static void lostDanglingLineExtensions(Reporter reporter, String extensions, String danglingLineId) {
+    public static void lostBoundaryLineExtensions(Reporter reporter, String extensions, String boundaryLineId) {
         reporter.report(Report.builder()
-                .withKey("lostDanglingLineExtensions")
-                .withDefaultMessage("Extension [${extensions}] of dangling line ${danglingLineId} will be lost")
+                .withKey("lostBoundaryLineExtensions")
+                .withDefaultMessage("Extension [${extensions}] of boundary line ${boundaryLineId} will be lost")
                 .withValue("extensions", extensions)
-                .withValue("danglingLineId", danglingLineId)
+                .withValue("boundaryLineId", boundaryLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .build());
     }

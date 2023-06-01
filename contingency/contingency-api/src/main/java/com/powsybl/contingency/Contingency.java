@@ -104,8 +104,8 @@ public class Contingency extends AbstractExtendable<Contingency> {
                     valid = checkBusbarSectionContingency(this, (BusbarSectionContingency) element, network);
                     break;
 
-                case DANGLING_LINE:
-                    valid = checkDanglingLineContingency(this, (DanglingLineContingency) element, network);
+                case BOUNDARY_LINE:
+                    valid = checkBoundaryLineContingency(this, (BoundaryLineContingency) element, network);
                     break;
 
                 case LINE:
@@ -227,9 +227,9 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
-    private static boolean checkDanglingLineContingency(Contingency contingency, DanglingLineContingency element, Network network) {
-        if (network.getDanglingLine(element.getId()) == null) {
-            LOGGER.warn("Dangling line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+    private static boolean checkBoundaryLineContingency(Contingency contingency, BoundaryLineContingency element, Network network) {
+        if (network.getBoundaryLine(element.getId()) == null) {
+            LOGGER.warn("Boundary line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }
         return true;
@@ -382,8 +382,8 @@ public class Contingency extends AbstractExtendable<Contingency> {
     /**
      * Creates a new contingency on the dangline line whose id is given
      */
-    public static Contingency danglingLine(String id) {
-        return builder(id).addDanglingLine(id).build();
+    public static Contingency boundaryLine(String id) {
+        return builder(id).addBoundaryLine(id).build();
     }
 
     /**

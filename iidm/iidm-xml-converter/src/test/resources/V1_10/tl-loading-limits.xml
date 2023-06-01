@@ -67,6 +67,6 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:tieLine id="NHV1_NHV2_1" danglingLineId1="NHV1_NHV2_1.1" danglingLineId2="NHV1_NHV2_1.2"/>
-    <iidm:tieLine id="NHV1_NHV2_2" danglingLineId1="NHV1_NHV2_2.1" danglingLineId2="NHV1_NHV2_2.2"/>
+    <iidm:tieLine id="NHV1_NHV2_1" boundaryLineId1="NHV1_NHV2_1.1" boundaryLineId2="NHV1_NHV2_1.2"/>
+    <iidm:tieLine id="NHV1_NHV2_2" boundaryLineId1="NHV1_NHV2_2.1" boundaryLineId2="NHV1_NHV2_2.2"/>
 </iidm:network>

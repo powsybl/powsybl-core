@@ -35,10 +35,10 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         for (TieLine tl : network.getTieLineStream().collect(Collectors.toList())) {
-            DanglingLine dl1 = tl.getDanglingLine1();
-            DanglingLine dl2 = tl.getDanglingLine2();
-            String dl1Id = dl1.getId();
-            String dl2Id = dl2.getId();
+            BoundaryLine bl1 = tl.getBoundaryLine1();
+            BoundaryLine bl2 = tl.getBoundaryLine2();
+            String bl1Id = bl1.getId();
+            String bl2Id = bl2.getId();
             LineAdder adder = network.newLine()
                     .setId(tl.getId())
                     .setName(tl.getOptionalName().orElse(null))
@@ -48,43 +48,43 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
                     .setB2(tl.getB2())
                     .setG1(tl.getG1())
                     .setG2(tl.getG2())
-                    .setVoltageLevel1(dl1.getTerminal().getVoltageLevel().getId())
-                    .setVoltageLevel2(dl2.getTerminal().getVoltageLevel().getId());
-            if (dl1.getTerminal().getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-                adder.setNode1(dl1.getTerminal().getNodeBreakerView().getNode());
+                    .setVoltageLevel1(bl1.getTerminal().getVoltageLevel().getId())
+                    .setVoltageLevel2(bl2.getTerminal().getVoltageLevel().getId());
+            if (bl1.getTerminal().getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                adder.setNode1(bl1.getTerminal().getNodeBreakerView().getNode());
             } else {
-                adder.setConnectableBus1(dl1.getTerminal().getBusBreakerView().getConnectableBus().getId())
-                        .setBus1(Optional.ofNullable(dl1.getTerminal().getBusBreakerView().getBus())
+                adder.setConnectableBus1(bl1.getTerminal().getBusBreakerView().getConnectableBus().getId())
+                        .setBus1(Optional.ofNullable(bl1.getTerminal().getBusBreakerView().getBus())
                                 .map(Identifiable::getId)
                                 .orElse(null));
             }
-            if (dl2.getTerminal().getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-                adder.setNode2(dl2.getTerminal().getNodeBreakerView().getNode());
+            if (bl2.getTerminal().getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                adder.setNode2(bl2.getTerminal().getNodeBreakerView().getNode());
             } else {
-                adder.setConnectableBus2(dl2.getTerminal().getBusBreakerView().getConnectableBus().getId())
-                        .setBus2(Optional.ofNullable(dl2.getTerminal().getBusBreakerView().getBus())
+                adder.setConnectableBus2(bl2.getTerminal().getBusBreakerView().getConnectableBus().getId())
+                        .setBus2(Optional.ofNullable(bl2.getTerminal().getBusBreakerView().getBus())
                                 .map(Identifiable::getId)
                                 .orElse(null));
             }
-            warningAboutExtensions(dl1, dl2, tl, reporter);
-            TopologyModificationUtils.LoadingLimitsBags limits1 = new TopologyModificationUtils.LoadingLimitsBags(dl1::getActivePowerLimits,
-                    dl1::getApparentPowerLimits, dl1::getCurrentLimits);
-            TopologyModificationUtils.LoadingLimitsBags limits2 = new TopologyModificationUtils.LoadingLimitsBags(dl2::getActivePowerLimits,
-                    dl2::getApparentPowerLimits, dl2::getCurrentLimits);
+            warningAboutExtensions(bl1, bl2, tl, reporter);
+            TopologyModificationUtils.LoadingLimitsBags limits1 = new TopologyModificationUtils.LoadingLimitsBags(bl1::getActivePowerLimits,
+                    bl1::getApparentPowerLimits, bl1::getCurrentLimits);
+            TopologyModificationUtils.LoadingLimitsBags limits2 = new TopologyModificationUtils.LoadingLimitsBags(bl2::getActivePowerLimits,
+                    bl2::getApparentPowerLimits, bl2::getCurrentLimits);
             String xNode = tl.getUcteXnodeCode();
-            double p1 = dl1.getTerminal().getP();
-            double q1 = dl1.getTerminal().getQ();
-            double p2 = dl2.getTerminal().getP();
-            double q2 = dl2.getTerminal().getQ();
+            double p1 = bl1.getTerminal().getP();
+            double q1 = bl1.getTerminal().getQ();
+            double p2 = bl2.getTerminal().getP();
+            double q2 = bl2.getTerminal().getQ();
             Properties properties = new Properties();
             tl.getPropertyNames().forEach(pn -> properties.put(pn, tl.getProperty(pn)));
-            mergeProperties(dl1, dl2, properties, reporter);
+            mergeProperties(bl1, bl2, properties, reporter);
             Map<String, String> aliases = new HashMap<>();
             tl.getAliases().forEach(alias -> aliases.put(alias, tl.getAliasType(alias).orElse("")));
-            mergeDifferentAliases(dl1, dl2, aliases, reporter);
+            mergeDifferentAliases(bl1, bl2, aliases, reporter);
             tl.remove();
-            dl1.remove();
-            dl2.remove();
+            bl1.remove();
+            bl2.remove();
             Line line = adder.add();
             properties.forEach((pn, pv) -> line.setProperty((String) pn, (String) pv));
             aliases.forEach((alias, type) -> {
@@ -98,30 +98,30 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             line.getTerminal2().setP(p2).setQ(q2);
             addLoadingLimits(line, limits1, Branch.Side.ONE);
             addLoadingLimits(line, limits2, Branch.Side.TWO);
-            // Add previous dangling lines ID and Xnode
-            line.addAlias(dl1Id, "danglingLine1Id");
-            line.addAlias(dl2Id, "danglingLine2Id");
+            // Add previous boundary lines ID and Xnode
+            line.addAlias(bl1Id, "boundaryLine1Id");
+            line.addAlias(bl2Id, "boundaryLine2Id");
             if (xNode != null) {
                 line.addAlias(xNode, "xNode");
             }
-            LOG.info("Removed tie line {} and associated dangling lines {} and {} at X-node {}. Created line {}", line.getId(), dl1Id, dl2Id, xNode, line.getId());
-            removedTieLineAndAssociatedDanglingLines(reporter, line.getId(), dl1Id, dl2Id, xNode);
+            LOG.info("Removed tie line {} and associated boundary lines {} and {} at X-node {}. Created line {}", line.getId(), bl1Id, bl2Id, xNode, line.getId());
+            removedTieLineAndAssociatedBoundaryLines(reporter, line.getId(), bl1Id, bl2Id, xNode);
             createdLineReport(reporter, line.getId());
         }
     }
 
-    private static void warningAboutExtensions(DanglingLine dl1, DanglingLine dl2, TieLine tl, Reporter reporter) {
-        String dl1Id = dl1.getId();
-        String dl2Id = dl2.getId();
-        if (!dl1.getExtensions().isEmpty()) {
-            String extensions = dl1.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
-            LOG.warn("Extension [{}] of dangling line {} will be lost", extensions, dl1Id);
-            lostDanglingLineExtensions(reporter, extensions, dl1Id);
+    private static void warningAboutExtensions(BoundaryLine bl1, BoundaryLine bl2, TieLine tl, Reporter reporter) {
+        String bl1Id = bl1.getId();
+        String bl2Id = bl2.getId();
+        if (!bl1.getExtensions().isEmpty()) {
+            String extensions = bl1.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
+            LOG.warn("Extension [{}] of boundary line {} will be lost", extensions, bl1Id);
+            lostBoundaryLineExtensions(reporter, extensions, bl1Id);
         }
-        if (!dl2.getExtensions().isEmpty()) {
-            String extensions = dl2.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
-            LOG.warn("Extension [{}] of dangling line {} will be lost", extensions, dl2Id);
-            lostDanglingLineExtensions(reporter, extensions, dl2Id);
+        if (!bl2.getExtensions().isEmpty()) {
+            String extensions = bl2.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));
+            LOG.warn("Extension [{}] of boundary line {} will be lost", extensions, bl2Id);
+            lostBoundaryLineExtensions(reporter, extensions, bl2Id);
         }
         if (!tl.getExtensions().isEmpty()) {
             String extensions = tl.getExtensions().stream().map(Extension::getName).collect(Collectors.joining(","));

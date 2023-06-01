@@ -159,18 +159,18 @@ public class AmplNetworkWriter {
         return middleCcNum;
     }
 
-    private static String getDanglingLineMiddleBusId(BoundaryLine dl) {
-        return dl.getId(); // same id as the dangling line
+    private static String getBoundaryLineMiddleBusId(BoundaryLine bl) {
+        return bl.getId(); // same id as the boundary line
     }
 
-    private static String getDanglingLineMiddleVoltageLevelId(BoundaryLine dl) {
-        return dl.getId(); // same id as the dangling line
+    private static String getBoundaryLineMiddleVoltageLevelId(BoundaryLine bl) {
+        return bl.getId(); // same id as the boundary line
     }
 
-    private static int getDanglingLineMiddleBusComponentNum(AmplExportContext context, BoundaryLine dl) {
-        Bus b = AmplUtil.getBus(dl.getTerminal());
+    private static int getBoundaryLineMiddleBusComponentNum(AmplExportContext context, BoundaryLine bl) {
+        Bus b = AmplUtil.getBus(bl.getTerminal());
         int middleCcNum;
-        // if the connection bus of the dangling line is null or not in the main cc, the middle bus is
+        // if the connection bus of the boundary line is null or not in the main cc, the middle bus is
         // obviously not in the main cc
         if (b != null) {
             middleCcNum = ConnectedComponents.getCcNum(b);
@@ -271,11 +271,11 @@ public class AmplNetworkWriter {
                         .writeCell("");
                 addExtensions(num, twt);
             }
-            // voltage level associated to dangling lines middle bus
-            for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-                String vlId = getDanglingLineMiddleVoltageLevelId(dl);
+            // voltage level associated to boundary lines middle bus
+            for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+                String vlId = getBoundaryLineMiddleVoltageLevelId(bl);
                 int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
-                VoltageLevel vl = dl.getTerminal().getVoltageLevel();
+                VoltageLevel vl = bl.getTerminal().getVoltageLevel();
                 double nomV = vl.getNominalV();
                 double minV = vl.getLowVoltageLimit() / nomV;
                 double maxV = vl.getHighVoltageLimit() / nomV;
@@ -289,9 +289,9 @@ public class AmplNetworkWriter {
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(vl.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
-                        .writeCell(dl.getId() + "_voltageLevel")
+                        .writeCell(bl.getId() + "_voltageLevel")
                         .writeCell("");
-                addExtensions(num, dl);
+                addExtensions(num, bl);
             }
             if (config.isExportXNodes()) {
                 for (TieLine tieLine : network.getTieLines()) {
@@ -357,7 +357,7 @@ public class AmplNetworkWriter {
 
             writeThreeWindingsTransformerMiddleBuses(context, formatter);
 
-            writeDanglingLineMiddleBuses(context, formatter);
+            writeBoundaryLineMiddleBuses(context, formatter);
 
             if (config.isExportXNodes()) {
                 writeTieLineMiddleBuses(context, formatter);
@@ -441,19 +441,19 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-            Terminal t = dl.getTerminal();
-            Bus b = AmplUtil.getBus(dl.getTerminal());
+    private void writeBoundaryLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            Terminal t = bl.getTerminal();
+            Bus b = AmplUtil.getBus(bl.getTerminal());
 
-            int middleCcNum = getDanglingLineMiddleBusComponentNum(context, dl);
+            int middleCcNum = getBoundaryLineMiddleBusComponentNum(context, bl);
             if (connectedComponentToExport(middleCcNum)) {
-                String middleBusId = getDanglingLineMiddleBusId(dl);
-                String middleVlId = getDanglingLineMiddleVoltageLevelId(dl);
+                String middleBusId = getBoundaryLineMiddleBusId(bl);
+                String middleVlId = getBoundaryLineMiddleVoltageLevelId(bl);
                 context.busIdsToExport.add(middleBusId);
                 int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
                 int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
-                SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN, Branch.Side.ONE).otherSide(dl, true);
+                SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN, Branch.Side.ONE).otherSide(bl, true);
                 double nomV = t.getVoltageLevel().getNominalV();
                 double v = sv.getU() / nomV;
                 double theta = Math.toRadians(sv.getA());
@@ -463,8 +463,8 @@ public class AmplNetworkWriter {
                         .writeCell(middleCcNum)
                         .writeCell(v)
                         .writeCell(theta)
-                        .writeCell(0.0) // 0 MW injected at dangling line internal bus
-                        .writeCell(0.0) // 0 MVar injected at dangling line internal bus
+                        .writeCell(0.0) // 0 MW injected at boundary line internal bus
+                        .writeCell(0.0) // 0 MVar injected at boundary line internal bus
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(middleBusId);
@@ -538,7 +538,7 @@ public class AmplNetworkWriter {
 
             writeThreeWindingsTransformers(context, formatter);
 
-            writeDanglingLines(context, formatter);
+            writeBoundaryLines(context, formatter);
         }
     }
 
@@ -633,17 +633,17 @@ public class AmplNetworkWriter {
 
             boolean merged = !config.isExportXNodes();
             if (config.isExportXNodes()) {
-                String dl1Id = l.getBoundaryLine1().getId();
-                String dl2Id = l.getBoundaryLine2().getId();
-                int dl1Num = mapper.getInt(AmplSubset.BRANCH, dl1Id);
-                int dl2Num = mapper.getInt(AmplSubset.BRANCH, dl2Id);
+                String bl1Id = l.getBoundaryLine1().getId();
+                String bl2Id = l.getBoundaryLine2().getId();
+                int bl1Num = mapper.getInt(AmplSubset.BRANCH, bl1Id);
+                int bl2Num = mapper.getInt(AmplSubset.BRANCH, bl2Id);
                 String xNodeBusId = AmplUtil.getXnodeBusId(l);
                 String xnodeVoltageLevelId = AmplUtil.getXnodeVoltageLevelId(l);
                 int xNodeBusNum = mapper.getInt(AmplSubset.BUS, xNodeBusId);
                 int xNodeVoltageLevelNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, xnodeVoltageLevelId);
 
                 formatter.writeCell(variantIndex)
-                        .writeCell(dl1Num)
+                        .writeCell(bl1Num)
                         .writeCell(bus1Num)
                         .writeCell(xNodeBusNum)
                         .writeCell(-1)
@@ -667,10 +667,10 @@ public class AmplNetworkWriter {
                         .writeCell(merged)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(dl1Id)
+                        .writeCell(bl1Id)
                         .writeCell(l.getBoundaryLine1().getNameOrId());
                 formatter.writeCell(variantIndex)
-                        .writeCell(dl2Num)
+                        .writeCell(bl2Num)
                         .writeCell(xNodeBusNum)
                         .writeCell(bus2Num)
                         .writeCell(-1)
@@ -694,7 +694,7 @@ public class AmplNetworkWriter {
                         .writeCell(merged)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(dl2Id)
+                        .writeCell(bl2Id)
                         .writeCell(l.getBoundaryLine2().getNameOrId());
             } else {
                 formatter.writeCell(variantIndex)
@@ -982,22 +982,22 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeDanglingLines(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-            Terminal t = dl.getTerminal();
+    private void writeBoundaryLines(AmplExportContext context, TableFormatter formatter) throws IOException {
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            Terminal t = bl.getTerminal();
             Bus bus1 = AmplUtil.getBus(t);
             String bus1Id = getBusId(bus1);
             int bus1Num = getBusNum(bus1);
-            String middleBusId = getDanglingLineMiddleBusId(dl);
+            String middleBusId = getBoundaryLineMiddleBusId(bl);
             int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
             if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, middleBusId))) {
                 continue;
             }
             VoltageLevel vl = t.getVoltageLevel();
-            String middleVlId = getDanglingLineMiddleVoltageLevelId(dl);
+            String middleVlId = getBoundaryLineMiddleVoltageLevelId(bl);
             context.voltageLevelIdsToExport.add(vl.getId());
             context.voltageLevelIdsToExport.add(middleVlId);
-            String id = dl.getId();
+            String id = bl.getId();
             int num = mapper.getInt(AmplSubset.BRANCH, id);
             int vl1Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
             int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
@@ -1005,10 +1005,10 @@ public class AmplNetworkWriter {
             double zb = vb * vb / AmplConstants.SB;
             double p1 = t.getP();
             double q1 = t.getQ();
-            SV sv = new SV(p1, q1, bus1 != null ? bus1.getV() : Double.NaN, bus1 != null ? bus1.getAngle() : Double.NaN, Branch.Side.ONE).otherSide(dl, true);
+            SV sv = new SV(p1, q1, bus1 != null ? bus1.getV() : Double.NaN, bus1 != null ? bus1.getAngle() : Double.NaN, Branch.Side.ONE).otherSide(bl, true);
             double p2 = sv.getP();
             double q2 = sv.getQ();
-            double patl = getPermanentLimit(dl.getCurrentLimits().orElse(null));
+            double patl = getPermanentLimit(bl.getCurrentLimits().orElse(null));
             formatter.writeCell(variantIndex)
                     .writeCell(num)
                     .writeCell(bus1Num)
@@ -1016,12 +1016,12 @@ public class AmplNetworkWriter {
                     .writeCell(-1)
                     .writeCell(vl1Num)
                     .writeCell(middleVlNum)
-                    .writeCell(dl.getR() / zb)
-                    .writeCell(dl.getX() / zb)
-                    .writeCell(dl.getG() / 2 * zb)
-                    .writeCell(dl.getG() / 2 * zb)
-                    .writeCell(dl.getB() / 2 * zb)
-                    .writeCell(dl.getB() / 2 * zb)
+                    .writeCell(bl.getR() / zb)
+                    .writeCell(bl.getX() / zb)
+                    .writeCell(bl.getG() / 2 * zb)
+                    .writeCell(bl.getG() / 2 * zb)
+                    .writeCell(bl.getB() / 2 * zb)
+                    .writeCell(bl.getB() / 2 * zb)
                     .writeCell(1f)  // constant ratio
                     .writeCell(-1) // no ratio tap changer
                     .writeCell(-1) // no phase tap changer
@@ -1035,8 +1035,8 @@ public class AmplNetworkWriter {
                     .writeCell(faultNum)
                     .writeCell(actionNum)
                     .writeCell(id)
-                    .writeCell(dl.getNameOrId());
-            addExtensions(num, dl);
+                    .writeCell(bl.getNameOrId());
+            addExtensions(num, bl);
         }
     }
 
@@ -1306,29 +1306,29 @@ public class AmplNetworkWriter {
                         .writeCell(t.getQ());
                 addExtensions(num, l);
             }
-            for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-                String middleBusId = getDanglingLineMiddleBusId(dl);
-                String id = dl.getId();
+            for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+                String middleBusId = getBoundaryLineMiddleBusId(bl);
+                String id = bl.getId();
                 int num = mapper.getInt(AmplSubset.LOAD, id);
                 int busNum = mapper.getInt(AmplSubset.BUS, middleBusId);
                 if (!exportLoad(context, middleBusId)) {
-                    skipped.add(dl.getId());
+                    skipped.add(bl.getId());
                     continue;
                 }
-                String middleVlId = getDanglingLineMiddleVoltageLevelId(dl);
+                String middleVlId = getBoundaryLineMiddleVoltageLevelId(bl);
                 int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
                         .writeCell(busNum)
                         .writeCell(vlNum)
-                        .writeCell(dl.getP0())
-                        .writeCell(dl.getQ0())
+                        .writeCell(bl.getP0())
+                        .writeCell(bl.getQ0())
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(dl.getId() + "_load")
+                        .writeCell(bl.getId() + "_load")
                         .writeCell("")
-                        .writeCell(dl.getTerminal().getP())
-                        .writeCell(dl.getTerminal().getQ());
+                        .writeCell(bl.getTerminal().getP())
+                        .writeCell(bl.getTerminal().getQ());
             }
             if (!skipped.isEmpty()) {
                 LOGGER.trace("Skip loads {} because not connected and not connectable", skipped);
@@ -1720,7 +1720,7 @@ public class AmplNetworkWriter {
 
             writeThreeWindingsTransformerCurrentLimits(formatter);
 
-            writeDanglingLineCurrentLimits(formatter);
+            writeBoundaryLineCurrentLimits(formatter);
         }
     }
 
@@ -1758,10 +1758,10 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
-        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-            String branchId = dl.getId();
-            Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
+    private void writeBoundaryLineCurrentLimits(TableFormatter formatter) throws IOException {
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            String branchId = bl.getId();
+            Optional<CurrentLimits> currentLimits = bl.getCurrentLimits();
             if (currentLimits.isPresent()) {
                 writeTemporaryCurrentLimits(currentLimits.get(), formatter, branchId, true, "");
             }

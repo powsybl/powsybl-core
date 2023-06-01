@@ -10,7 +10,7 @@ import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.impl.util.Ref;
-import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
+import com.powsybl.iidm.network.util.BoundaryLineBoundaryImpl;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.*;
@@ -22,7 +22,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
-        private BoundaryLineImpl danglingLine;
+        private BoundaryLineImpl boundaryLine;
 
         private ReactiveLimitsHolderImpl reactiveLimits;
 
@@ -57,31 +57,31 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
             }
         }
 
-        GenerationImpl attach(BoundaryLineImpl danglingLine) {
-            if (this.danglingLine != null) {
-                throw new IllegalStateException("DanglingLine.Generation already attached to " + this.danglingLine.getId());
+        GenerationImpl attach(BoundaryLineImpl boundaryLine) {
+            if (this.boundaryLine != null) {
+                throw new IllegalStateException("BoundaryLine.Generation already attached to " + this.boundaryLine.getId());
             }
 
-            this.danglingLine = Objects.requireNonNull(danglingLine);
-            this.reactiveLimits = new ReactiveLimitsHolderImpl(this.danglingLine, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
+            this.boundaryLine = Objects.requireNonNull(boundaryLine);
+            this.reactiveLimits = new ReactiveLimitsHolderImpl(this.boundaryLine, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
 
             return this;
         }
 
         @Override
         public double getTargetP() {
-            return targetP.get(danglingLine.getNetwork().getVariantIndex());
+            return targetP.get(boundaryLine.getNetwork().getVariantIndex());
         }
 
         @Override
         public GenerationImpl setTargetP(double targetP) {
-            NetworkImpl n = danglingLine.getNetwork();
-            ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP, n.getMinValidationLevel());
-            int variantIndex = danglingLine.network.get().getVariantIndex();
+            NetworkImpl n = boundaryLine.getNetwork();
+            ValidationUtil.checkActivePowerSetpoint(boundaryLine, targetP, n.getMinValidationLevel());
+            int variantIndex = boundaryLine.network.get().getVariantIndex();
             double oldValue = this.targetP.set(variantIndex, targetP);
-            String variantId = danglingLine.network.get().getVariantManager().getVariantId(variantIndex);
+            String variantId = boundaryLine.network.get().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
-            danglingLine.notifyUpdate("targetP", variantId, oldValue, targetP);
+            boundaryLine.notifyUpdate("targetP", variantId, oldValue, targetP);
             return this;
         }
 
@@ -92,11 +92,11 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         @Override
         public GenerationImpl setMaxP(double maxP) {
-            ValidationUtil.checkMaxP(danglingLine, maxP);
-            ValidationUtil.checkActivePowerLimits(danglingLine, minP, maxP);
+            ValidationUtil.checkMaxP(boundaryLine, maxP);
+            ValidationUtil.checkActivePowerLimits(boundaryLine, minP, maxP);
             double oldValue = this.maxP;
             this.maxP = maxP;
-            danglingLine.notifyUpdate("maxP", oldValue, maxP);
+            boundaryLine.notifyUpdate("maxP", oldValue, maxP);
             return this;
         }
 
@@ -107,65 +107,65 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         @Override
         public GenerationImpl setMinP(double minP) {
-            ValidationUtil.checkMinP(danglingLine, minP);
-            ValidationUtil.checkActivePowerLimits(danglingLine, minP, maxP);
+            ValidationUtil.checkMinP(boundaryLine, minP);
+            ValidationUtil.checkActivePowerLimits(boundaryLine, minP, maxP);
             double oldValue = this.minP;
             this.minP = minP;
-            danglingLine.notifyUpdate("minP", oldValue, minP);
+            boundaryLine.notifyUpdate("minP", oldValue, minP);
             return this;
         }
 
         @Override
         public double getTargetQ() {
-            return targetQ.get(danglingLine.getNetwork().getVariantIndex());
+            return targetQ.get(boundaryLine.getNetwork().getVariantIndex());
         }
 
         @Override
         public GenerationImpl setTargetQ(double targetQ) {
-            NetworkImpl n = danglingLine.getNetwork();
+            NetworkImpl n = boundaryLine.getNetwork();
             int variantIndex = n.getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ, n.getMinValidationLevel());
+            ValidationUtil.checkVoltageControl(boundaryLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ, n.getMinValidationLevel());
             double oldValue = this.targetQ.set(variantIndex, targetQ);
             String variantId = n.getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
-            danglingLine.notifyUpdate("targetQ", variantId, oldValue, targetQ);
+            boundaryLine.notifyUpdate("targetQ", variantId, oldValue, targetQ);
             return this;
         }
 
         @Override
         public boolean isVoltageRegulationOn() {
-            return voltageRegulationOn.get(danglingLine.getNetwork().getVariantIndex());
+            return voltageRegulationOn.get(boundaryLine.getNetwork().getVariantIndex());
         }
 
         @Override
         public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
-            NetworkImpl n = danglingLine.getNetwork();
-            int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn,
+            NetworkImpl n = boundaryLine.getNetwork();
+            int variantIndex = boundaryLine.getNetwork().getVariantIndex();
+            ValidationUtil.checkVoltageControl(boundaryLine, voltageRegulationOn,
                     targetV.get(variantIndex), targetQ.get(variantIndex), n.getMinValidationLevel());
             boolean oldValue = this.voltageRegulationOn.get(variantIndex);
             this.voltageRegulationOn.set(variantIndex, voltageRegulationOn);
-            String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
+            String variantId = boundaryLine.getNetwork().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
-            danglingLine.notifyUpdate("voltageRegulationOn", variantId, oldValue, voltageRegulationOn);
+            boundaryLine.notifyUpdate("voltageRegulationOn", variantId, oldValue, voltageRegulationOn);
             return this;
         }
 
         @Override
         public double getTargetV() {
-            return this.targetV.get(danglingLine.getNetwork().getVariantIndex());
+            return this.targetV.get(boundaryLine.getNetwork().getVariantIndex());
         }
 
         @Override
         public GenerationImpl setTargetV(double targetV) {
-            NetworkImpl n = danglingLine.getNetwork();
-            int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex),
+            NetworkImpl n = boundaryLine.getNetwork();
+            int variantIndex = boundaryLine.getNetwork().getVariantIndex();
+            ValidationUtil.checkVoltageControl(boundaryLine, voltageRegulationOn.get(variantIndex),
                     targetV, targetQ.get(variantIndex), n.getMinValidationLevel());
             double oldValue = this.targetV.set(variantIndex, targetV);
-            String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
+            String variantId = boundaryLine.getNetwork().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
-            danglingLine.notifyUpdate("targetV", variantId, oldValue, targetV);
+            boundaryLine.notifyUpdate("targetV", variantId, oldValue, targetV);
             return this;
         }
 
@@ -196,7 +196,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
         @Override
         public String getMessageHeader() {
-            return danglingLine.getMessageHeader();
+            return boundaryLine.getMessageHeader();
         }
 
         void extendVariantArraySize(int number, int sourceIndex) {
@@ -251,7 +251,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     private final TDoubleArrayList q0;
 
-    private final DanglingLineBoundaryImpl boundary;
+    private final BoundaryLineBoundaryImpl boundary;
 
     BoundaryLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode, GenerationImpl generation) {
         super(network, id, name, fictitious);
@@ -269,7 +269,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
         this.b = b;
         this.ucteXnodeCode = ucteXnodeCode;
         this.operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
-        this.boundary = new DanglingLineBoundaryImpl(this);
+        this.boundary = new BoundaryLineBoundaryImpl(this);
         this.generation = generation != null ? generation.attach(this) : null;
     }
 
@@ -302,7 +302,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
     @Override
     public void remove() {
         if (tieLine != null) {
-            throw new UnsupportedOperationException("Parent tie line " + tieLine.getId() + " should be removed before the child dangling line");
+            throw new UnsupportedOperationException("Parent tie line " + tieLine.getId() + " should be removed before the child boundary line");
         }
         super.remove();
     }
@@ -313,7 +313,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     @Override
     protected String getTypeDescription() {
-        return "Dangling line";
+        return "Boundary line";
     }
 
     @Override

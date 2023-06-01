@@ -284,8 +284,8 @@ class CgmesMappingTest extends AbstractConverterTest {
 
     private static String getId(Connectable<?> c) {
         if (c instanceof BoundaryLine) {
-            BoundaryLine dl = (BoundaryLine) c;
-            return dl.getTieLine().map(TieLine::getId).orElseGet(dl::getId);
+            BoundaryLine bl = (BoundaryLine) c;
+            return bl.getTieLine().map(TieLine::getId).orElseGet(bl::getId);
         }
         return c.getId();
     }

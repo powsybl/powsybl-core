@@ -63,7 +63,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     @Override
-    public BoundaryLine asBoundaryLine(String node) {
+    public CgmesBoundaryLine asBoundaryLine(String node) {
         return super.createBoundaryLine(node);
     }
 
@@ -92,8 +92,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         if (context.config().convertBoundary()) {
             convertToSwitch().setRetained(true);
         } else {
-            warnDanglingLineCreated();
-            convertToDanglingLine(boundarySide);
+            warnBoundaryLineCreated();
+            convertToBoundaryLine(boundarySide);
         }
     }
 
@@ -109,8 +109,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
         return SwitchKind.BREAKER;
     }
 
-    private void warnDanglingLineCreated() {
-        fixed("Dangling line with low impedance", "Connected to a boundary node");
+    private void warnBoundaryLineCreated() {
+        fixed("Boundary line with low impedance", "Connected to a boundary node");
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);

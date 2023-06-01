@@ -416,9 +416,9 @@ public class CgmesExportContext {
 
     private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
         if (c instanceof BoundaryLine) {
-            BoundaryLine dl = (BoundaryLine) c;
-            if (dl.isPaired()) {
-                TieLine tl = dl.getTieLine().orElseThrow(IllegalStateException::new);
+            BoundaryLine bl = (BoundaryLine) c;
+            if (bl.isPaired()) {
+                TieLine tl = bl.getTieLine().orElseThrow(IllegalStateException::new);
                 int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
                 String terminalId = tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
                 if (terminalId == null && tl.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_" + sequenceNumber)) { // TODO fix when merging is handled properly
@@ -426,9 +426,9 @@ public class CgmesExportContext {
                     if (tl.getAliases().contains(terminalId)) {
                         tl.removeAlias(terminalId);
                     }
-                    if (dl.getAliases().contains(terminalId)) {
-                        dl.setProperty(dl.getAliasType(terminalId).orElse(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL), terminalId);
-                        dl.removeAlias(terminalId);
+                    if (bl.getAliases().contains(terminalId)) {
+                        bl.setProperty(bl.getAliasType(terminalId).orElse(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL), terminalId);
+                        bl.removeAlias(terminalId);
                     }
                     tl.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber);
                 }
@@ -555,7 +555,7 @@ public class CgmesExportContext {
     }
 
     private static void addIidmMappingsEquivalentInjection(Network network) {
-        for (BoundaryLine boundaryLine : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine boundaryLine : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             String alias;
             alias = boundaryLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             if (alias == null) {
@@ -582,7 +582,7 @@ public class CgmesExportContext {
                     .setEnergyIdentificationCodeEic("Network--1")
                     .add();
             CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
-            for (BoundaryLine boundaryLine : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
+            for (BoundaryLine boundaryLine : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
                 cgmesControlArea.add(boundaryLine.getTerminal());
             }
         }

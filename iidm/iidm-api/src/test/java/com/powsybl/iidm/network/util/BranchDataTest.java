@@ -165,7 +165,7 @@ class BranchDataTest {
     // Some tests for a transmission line disconnected at one end
 
     @Test
-    void testDanglingLine() {
+    void testBoundaryLine() {
         BranchTestCase t = lineEnd2Disconnected();
 
         // First obtain results when end 2 is disconnected
@@ -186,7 +186,7 @@ class BranchDataTest {
     }
 
     @Test
-    void testDanglingLineDifferentY() {
+    void testBoundaryLineDifferentY() {
         BranchTestCase t = lineEnd2Disconnected();
         t.branch.id = "Dangling-Y1-Y2-different";
         // End 1 admittance to ground has different value of End 2

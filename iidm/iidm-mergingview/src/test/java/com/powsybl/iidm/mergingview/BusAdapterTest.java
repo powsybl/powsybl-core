@@ -129,11 +129,11 @@ class BusAdapterTest {
         double p0 = 50.0;
         double q0 = 60.0;
         String baseId = "DL";
-        String baseName = "DanglingLine";
+        String baseName = "BoundaryLine";
         String ucteXnodeCode = "code";
-        createDanglingLine(vl1, baseId + "1", baseName + "1", r, x, g, b, p0, q0, ucteXnodeCode, "busA");
-        createDanglingLine(vl3, baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, "busC");
-        createDanglingLine(vl1, baseId + "3", baseName + "3", r, x, g, b, p0, q0, "", "busA");
+        createBoundaryLine(vl1, baseId + "1", baseName + "1", r, x, g, b, p0, q0, ucteXnodeCode, "busA");
+        createBoundaryLine(vl3, baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, "busC");
+        createBoundaryLine(vl1, baseId + "3", baseName + "3", r, x, g, b, p0, q0, "", "busA");
         network1.newLine()
                 .setId("L")
                 .setVoltageLevel1("vl1")
@@ -150,16 +150,16 @@ class BusAdapterTest {
                 .setB2(386E-6 / 2)
                 .add();
 
-        // Check that dangling lines are present in networks and that merged line doesn't exist
+        // Check that boundary lines are present in networks and that merged line doesn't exist
         Bus busA = network1.getBusBreakerView().getBus("busA");
-        assertFalse(busA.getDanglingLineStream(DanglingLineFilter.ALL).noneMatch(dl -> "DL1".equals(dl.getId())));
-        assertFalse(StreamSupport.stream(busA.getBoundaryLines(DanglingLineFilter.ALL).spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertFalse(busA.getBoundaryLineStream(BoundaryLineFilter.ALL).noneMatch(bl -> "DL1".equals(bl.getId())));
+        assertFalse(StreamSupport.stream(busA.getBoundaryLines(BoundaryLineFilter.ALL).spliterator(), false).noneMatch(bl -> "DL1".equals(bl.getId())));
         assertTrue(busA.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
         assertTrue(StreamSupport.stream(busA.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
 
         Bus busC = network2.getBusBreakerView().getBus("busC");
-        assertFalse(busC.getDanglingLineStream(DanglingLineFilter.ALL).noneMatch(dl -> "DL2".equals(dl.getId())));
-        assertFalse(StreamSupport.stream(busC.getBoundaryLines(DanglingLineFilter.ALL).spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(busC.getBoundaryLineStream(BoundaryLineFilter.ALL).noneMatch(bl -> "DL2".equals(bl.getId())));
+        assertFalse(StreamSupport.stream(busC.getBoundaryLines(BoundaryLineFilter.ALL).spliterator(), false).noneMatch(bl -> "DL2".equals(bl.getId())));
         assertTrue(busC.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
         assertTrue(StreamSupport.stream(busC.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
 
@@ -167,19 +167,19 @@ class BusAdapterTest {
         MergingView mergingView = MergingView.create("merge", "test");
         mergingView.merge(network1, network2);
 
-        // Check that methods returning lines and dangling lines return adapters (wrapped objects)
+        // Check that methods returning lines and boundary lines return adapters (wrapped objects)
         Bus mergedBusA = mergingView.getBusBreakerView().getBus("busA");
 
         assertTrue(mergedBusA.getLineStream().allMatch(l -> l instanceof LineAdapter));
-        assertTrue(mergedBusA.getDanglingLineStream(DanglingLineFilter.ALL).allMatch(dl -> dl instanceof BoundaryLineAdapter));
+        assertTrue(mergedBusA.getBoundaryLineStream(BoundaryLineFilter.ALL).allMatch(bl -> bl instanceof BoundaryLineAdapter));
 
-        // Check that paired dangling lines are not present anymore
-        assertFalse(mergedBusA.getDanglingLineStream(DanglingLineFilter.ALL).noneMatch(dl -> "DL1".equals(dl.getId())));
-        assertFalse(StreamSupport.stream(mergedBusA.getBoundaryLines(DanglingLineFilter.ALL).spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
+        // Check that paired boundary lines are not present anymore
+        assertFalse(mergedBusA.getBoundaryLineStream(BoundaryLineFilter.ALL).noneMatch(bl -> "DL1".equals(bl.getId())));
+        assertFalse(StreamSupport.stream(mergedBusA.getBoundaryLines(BoundaryLineFilter.ALL).spliterator(), false).noneMatch(bl -> "DL1".equals(bl.getId())));
 
         Bus mergedBusC = mergingView.getBusBreakerView().getBus("busC");
-        assertFalse(mergedBusC.getDanglingLineStream(DanglingLineFilter.ALL).noneMatch(dl -> "DL2".equals(dl.getId())));
-        assertFalse(StreamSupport.stream(mergedBusC.getBoundaryLines(DanglingLineFilter.ALL).spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(mergedBusC.getBoundaryLineStream(BoundaryLineFilter.ALL).noneMatch(bl -> "DL2".equals(bl.getId())));
+        assertFalse(StreamSupport.stream(mergedBusC.getBoundaryLines(BoundaryLineFilter.ALL).spliterator(), false).noneMatch(bl -> "DL2".equals(bl.getId())));
     }
 
     @Test
@@ -199,11 +199,11 @@ class BusAdapterTest {
         double p0 = 50.0;
         double q0 = 60.0;
         String baseId = "DL";
-        String baseName = "DanglingLine";
+        String baseName = "BoundaryLine";
         String ucteXnodeCode = "code";
-        BoundaryLine dl1 = createDanglingLine(vl1, baseId + "1", baseName + "1", r, x, g, b, p0, q0, ucteXnodeCode, busId1);
+        BoundaryLine bl1 = createBoundaryLine(vl1, baseId + "1", baseName + "1", r, x, g, b, p0, q0, ucteXnodeCode, busId1);
 
-        // Create MergingView with Network with one DanglingLine
+        // Create MergingView with Network with one BoundaryLine
         MergingView view = MergingView.create("testComponentVisitor", "test");
         view.merge(noEquipNetwork);
         // Get BusAdapter from BusA
@@ -212,30 +212,30 @@ class BusAdapterTest {
         TopologyVisitor visitor1 = Mockito.mock(TopologyVisitor.class);
         // Visit
         busA.visitConnectedEquipments(visitor1);
-        // Check DanglingLine is visited
-        Mockito.verify(visitor1, Mockito.times(1)).visitDanglingLine(dl1);
+        // Check BoundaryLine is visited
+        Mockito.verify(visitor1, Mockito.times(1)).visitBoundaryLine(bl1);
         busA.visitConnectedOrConnectableEquipments(visitor1);
-        // Check DanglingLine is visited
-        Mockito.verify(visitor1, Mockito.times(2)).visitDanglingLine(dl1);
+        // Check BoundaryLine is visited
+        Mockito.verify(visitor1, Mockito.times(2)).visitBoundaryLine(bl1);
         // Check no line is visited
         Mockito.verify(visitor1, Mockito.never()).visitLine(Mockito.any(Line.class), Mockito.any(Branch.Side.class));
 
-        // Add second DanglingLine -> Creation of MergedLine
+        // Add second BoundaryLine -> Creation of MergedLine
         view.newSubstation().setId("S").add().newVoltageLevel().setId("VL").setNominalV(220).setTopologyKind(TopologyKind.BUS_BREAKER).add().getBusBreakerView().newBus().setId("B").add();
-        BoundaryLine dl2 = createDanglingLine(view.getVoltageLevel("VL"), baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, "B");
+        BoundaryLine bl2 = createBoundaryLine(view.getVoltageLevel("VL"), baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, "B");
 
         // Mock TopologyVisitor
         TopologyVisitor visitor2 = Mockito.mock(TopologyVisitor.class);
         // Visit
         busA.visitConnectedEquipments(visitor2);
         // Check MergedLine is visited
-        Mockito.verify(visitor2, Mockito.times(1)).visitDanglingLine(Mockito.any(BoundaryLine.class));
+        Mockito.verify(visitor2, Mockito.times(1)).visitBoundaryLine(Mockito.any(BoundaryLine.class));
         busA.visitConnectedOrConnectableEquipments(visitor2);
         // Check MergedLine is visited
-        Mockito.verify(visitor2, Mockito.times(2)).visitDanglingLine(Mockito.any(BoundaryLine.class));
-        // Check no DanglingLine is visited
-        Mockito.verify(visitor2, Mockito.times(2)).visitDanglingLine(dl1);
-        Mockito.verify(visitor2, Mockito.never()).visitDanglingLine(dl2);
+        Mockito.verify(visitor2, Mockito.times(2)).visitBoundaryLine(Mockito.any(BoundaryLine.class));
+        // Check no BoundaryLine is visited
+        Mockito.verify(visitor2, Mockito.times(2)).visitBoundaryLine(bl1);
+        Mockito.verify(visitor2, Mockito.never()).visitBoundaryLine(bl2);
     }
 
     @Test
@@ -313,7 +313,7 @@ class BusAdapterTest {
                 .setG2(0.0)
                 .setB2(0.0)
                 .add();
-        vl.newDanglingLine()
+        vl.newBoundaryLine()
                 .setId("S2_DL")
                 .setBus("B2")
                 .setUcteXnodeCode("XNode")
@@ -351,7 +351,7 @@ class BusAdapterTest {
                 .setP0(100.0)
                 .setQ0(1.0)
                 .add();
-        vl.newDanglingLine()
+        vl.newBoundaryLine()
                 .setId("S2_DL")
                 .setBus("B3")
                 .setUcteXnodeCode("XNode")
@@ -365,10 +365,10 @@ class BusAdapterTest {
         return network;
     }
 
-    private BoundaryLine createDanglingLine(VoltageLevel vl, String id, String name,
+    private BoundaryLine createBoundaryLine(VoltageLevel vl, String id, String name,
                                             double r, double x, double g, double b, double p0, double q0,
                                             String ucteXnodeCode, String busId) {
-        return vl.newDanglingLine()
+        return vl.newBoundaryLine()
                 .setId(id)
                 .setName(name)
                 .setR(r)

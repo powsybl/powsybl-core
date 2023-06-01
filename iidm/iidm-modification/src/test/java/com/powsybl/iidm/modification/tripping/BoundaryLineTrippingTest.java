@@ -8,7 +8,7 @@ package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,22 +23,22 @@ class BoundaryLineTrippingTest extends AbstractTrippingTest {
 
     @BeforeEach
     void setUp() {
-        network = DanglingLineNetworkFactory.create();
+        network = BoundaryLineNetworkFactory.create();
     }
 
     @Test
     void dlTrippingTest() {
-        assertTrue(network.getDanglingLine("DL").getTerminal().isConnected());
+        assertTrue(network.getBoundaryLine("DL").getTerminal().isConnected());
 
-        DanglingLineTripping tripping = new DanglingLineTripping("DL");
+        BoundaryLineTripping tripping = new BoundaryLineTripping("DL");
         tripping.apply(network);
 
-        assertFalse(network.getDanglingLine("DL").getTerminal().isConnected());
+        assertFalse(network.getBoundaryLine("DL").getTerminal().isConnected());
     }
 
     @Test
     void unknownDlTest() {
-        DanglingLineTripping tripping = new DanglingLineTripping("DL_THAT_DO_NOT_EXIST");
+        BoundaryLineTripping tripping = new BoundaryLineTripping("DL_THAT_DO_NOT_EXIST");
         assertThrows(PowsyblException.class, () -> tripping.apply(network));
     }
 }

@@ -217,8 +217,8 @@ public final class CgmesExportUtil {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
             if (c instanceof BoundaryLine) {
-                BoundaryLine dl = (BoundaryLine) c;
-                return dl.getTieLine().map(tl -> tl.getBoundaryLine1() == dl ? 1 : 2).orElse(1);
+                BoundaryLine bl = (BoundaryLine) c;
+                return bl.getTieLine().map(tl -> tl.getBoundaryLine1() == bl ? 1 : 2).orElse(1);
             }
             return 1;
         } else {

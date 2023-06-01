@@ -9,7 +9,7 @@ package com.powsybl.ampl.converter;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
@@ -193,8 +193,8 @@ class AmplNetworkWriterTest extends AbstractConverterTest {
     @Test
     void writeTieLine() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
-        for (DanglingLine danglingLine : network.getDanglingLines()) {
-            danglingLine.newCurrentLimits()
+        for (BoundaryLine boundaryLine : network.getBoundaryLines()) {
+            boundaryLine.newCurrentLimits()
                     .setPermanentLimit(100.0)
                     .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
                     .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
@@ -214,8 +214,8 @@ class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    void writeDanglingLines() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+    void writeBoundaryLines() throws IOException {
+        Network network = BoundaryLineNetworkFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, new Properties(), dataSource);

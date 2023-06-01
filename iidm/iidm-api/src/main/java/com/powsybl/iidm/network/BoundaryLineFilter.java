@@ -12,19 +12,19 @@ import java.util.function.Predicate;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public enum DanglingLineFilter {
-    /** All dangling lines, that is, no filtering */
-    ALL(dl -> true),
+public enum BoundaryLineFilter {
+    /** All boundary lines, that is, no filtering */
+    ALL(bl -> true),
 
-    /** Only paired dangling lines */
+    /** Only paired boundary lines */
     PAIRED(BoundaryLine::isPaired),
 
-    /** Only unpaired dangling lines */
+    /** Only unpaired boundary lines */
     UNPAIRED(Predicate.not(BoundaryLine::isPaired));
 
     private final Predicate<BoundaryLine> predicate;
 
-    DanglingLineFilter(Predicate<BoundaryLine> predicate) {
+    BoundaryLineFilter(Predicate<BoundaryLine> predicate) {
         this.predicate = predicate;
     }
 

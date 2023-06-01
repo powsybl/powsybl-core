@@ -58,41 +58,41 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
     }
 
     @Override
-    public BoundaryLine asBoundaryLine(String boundaryNode) {
-        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
+    public CgmesBoundaryLine asBoundaryLine(String boundaryNode) {
+        CgmesBoundaryLine cgmesBoundaryLine = super.createBoundaryLine(boundaryNode);
         double r = p.asDouble("r");
         double x = p.asDouble("x");
         double g = p.asDouble("gch", 0);
         double b = p.asDouble("bch", 0);
         // Assign all (g, b) to the network side
-        if (boundaryLine.getBoundarySide().equals(Branch.Side.TWO)) {
-            boundaryLine.setParameters(r, x, g, b, 0, 0);
+        if (cgmesBoundaryLine.getBoundarySide().equals(Branch.Side.TWO)) {
+            cgmesBoundaryLine.setParameters(r, x, g, b, 0, 0);
         } else {
-            boundaryLine.setParameters(r, x, 0, 0, g, b);
+            cgmesBoundaryLine.setParameters(r, x, 0, 0, g, b);
         }
-        return boundaryLine;
+        return cgmesBoundaryLine;
     }
 
     public boolean isConnectedAtBothEnds() {
         return terminalConnected(1) && terminalConnected(2);
     }
 
-    public static void convertBoundaryLines(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
+    public static void convertBoundaryLines(Context context, String boundaryNode, CgmesBoundaryLine cgmesBoundaryLine1, CgmesBoundaryLine cgmesBoundaryLine2) {
 
-        TieLine mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
+        TieLine mline = createTieLine(context, boundaryNode, cgmesBoundaryLine1, cgmesBoundaryLine2);
 
-        mline.addAlias(boundaryLine1.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
-        mline.addAlias(boundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1");
-        mline.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1", boundaryLine1.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
-        mline.addAlias(boundaryLine2.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
-        mline.addAlias(boundaryLine2.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2");
-        mline.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2", boundaryLine2.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
+        mline.addAlias(cgmesBoundaryLine1.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
+        mline.addAlias(cgmesBoundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1");
+        mline.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1", cgmesBoundaryLine1.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
+        mline.addAlias(cgmesBoundaryLine2.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
+        mline.addAlias(cgmesBoundaryLine2.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2");
+        mline.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2", cgmesBoundaryLine2.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
 
-        context.convertedTerminal(boundaryLine1.getModelTerminalId(), mline.getBoundaryLine1().getTerminal(), 1, boundaryLine1.getModelPowerFlow());
-        context.convertedTerminal(boundaryLine2.getModelTerminalId(), mline.getBoundaryLine2().getTerminal(), 2, boundaryLine2.getModelPowerFlow());
+        context.convertedTerminal(cgmesBoundaryLine1.getModelTerminalId(), mline.getBoundaryLine1().getTerminal(), 1, cgmesBoundaryLine1.getModelPowerFlow());
+        context.convertedTerminal(cgmesBoundaryLine2.getModelTerminalId(), mline.getBoundaryLine2().getTerminal(), 2, cgmesBoundaryLine2.getModelPowerFlow());
 
-        context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), mline.getBoundaryLine1().getBoundary(), 2);
-        context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), mline.getBoundaryLine2().getBoundary(), 1);
+        context.terminalMapping().add(cgmesBoundaryLine1.getBoundaryTerminalId(), mline.getBoundaryLine1().getBoundary(), 2);
+        context.terminalMapping().add(cgmesBoundaryLine2.getBoundaryTerminalId(), mline.getBoundaryLine2().getBoundary(), 1);
 
         context.namingStrategy().readIdMapping(mline, "TieLine"); // TODO: maybe this should be refined for merged line
     }
@@ -116,38 +116,38 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
             double gch = p.asDouble("gch", 0.0);
             double bch = p.asDouble("bch");
 
-            convertToDanglingLine(boundarySide, r, x, gch, bch);
+            convertToBoundaryLine(boundarySide, r, x, gch, bch);
         }
     }
 
-    private static TieLine createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
-        DanglingLineAdder adder1 = context.network().getVoltageLevel(boundaryLine1.getModelIidmVoltageLevelId())
-                .newDanglingLine()
-                .setId(boundaryLine1.getId())
-                .setName(boundaryLine1.getName())
-                .setR(boundaryLine1.getR())
-                .setX(boundaryLine1.getX())
-                .setG(boundaryLine1.getG1() + boundaryLine1.getG2())
-                .setB(boundaryLine1.getB1() + boundaryLine1.getB2())
+    private static TieLine createTieLine(Context context, String boundaryNode, CgmesBoundaryLine cgmesBoundaryLine1, CgmesBoundaryLine cgmesBoundaryLine2) {
+        BoundaryLineAdder adder1 = context.network().getVoltageLevel(cgmesBoundaryLine1.getModelIidmVoltageLevelId())
+                .newBoundaryLine()
+                .setId(cgmesBoundaryLine1.getId())
+                .setName(cgmesBoundaryLine1.getName())
+                .setR(cgmesBoundaryLine1.getR())
+                .setX(cgmesBoundaryLine1.getX())
+                .setG(cgmesBoundaryLine1.getG1() + cgmesBoundaryLine1.getG2())
+                .setB(cgmesBoundaryLine1.getB1() + cgmesBoundaryLine1.getB2())
                 .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
-        DanglingLineAdder adder2 = context.network().getVoltageLevel(boundaryLine2.getModelIidmVoltageLevelId())
-                .newDanglingLine()
-                .setId(boundaryLine2.getId())
-                .setName(boundaryLine2.getName())
-                .setR(boundaryLine2.getR())
-                .setX(boundaryLine2.getX())
-                .setG(boundaryLine2.getG1() + boundaryLine2.getG2())
-                .setB(boundaryLine2.getB1() + boundaryLine2.getB2())
+        BoundaryLineAdder adder2 = context.network().getVoltageLevel(cgmesBoundaryLine2.getModelIidmVoltageLevelId())
+                .newBoundaryLine()
+                .setId(cgmesBoundaryLine2.getId())
+                .setName(cgmesBoundaryLine2.getName())
+                .setR(cgmesBoundaryLine2.getR())
+                .setX(cgmesBoundaryLine2.getX())
+                .setG(cgmesBoundaryLine2.getG1() + cgmesBoundaryLine2.getG2())
+                .setB(cgmesBoundaryLine2.getB1() + cgmesBoundaryLine2.getB2())
                 .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
-        connect(context, adder1, boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(), boundaryLine1.getModelNode());
-        connect(context, adder2, boundaryLine2.getModelBus(), boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
-        com.powsybl.iidm.network.BoundaryLine dl1 = adder1.add();
-        com.powsybl.iidm.network.BoundaryLine dl2 = adder2.add();
+        connect(context, adder1, cgmesBoundaryLine1.getModelBus(), cgmesBoundaryLine1.isModelTconnected(), cgmesBoundaryLine1.getModelNode());
+        connect(context, adder2, cgmesBoundaryLine2.getModelBus(), cgmesBoundaryLine2.isModelTconnected(), cgmesBoundaryLine2.getModelNode());
+        com.powsybl.iidm.network.BoundaryLine bl1 = adder1.add();
+        com.powsybl.iidm.network.BoundaryLine bl2 = adder2.add();
         TieLineAdder adder = context.network().newTieLine()
-                .setDanglingLine1(dl1.getId())
-                .setDanglingLine2(dl2.getId());
-        identify(context, adder, context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(boundaryLine1.getId(), boundaryLine2.getId())),
-                TieLineUtil.buildMergedName(boundaryLine1.getId(), boundaryLine2.getId(), boundaryLine1.getName(), boundaryLine2.getName()));
+                .setBoundaryLine1(bl1.getId())
+                .setBoundaryLine2(bl2.getId());
+        identify(context, adder, context.namingStrategy().getIidmId("TieLine", TieLineUtil.buildMergedId(cgmesBoundaryLine1.getId(), cgmesBoundaryLine2.getId())),
+                TieLineUtil.buildMergedName(cgmesBoundaryLine1.getId(), cgmesBoundaryLine2.getId(), cgmesBoundaryLine1.getName(), cgmesBoundaryLine2.getName()));
         TieLine tieLine = adder.add();
         if (context.boundary().isHvdc(boundaryNode) || context.boundary().lineAtBoundary(boundaryNode) != null) {
             tieLine.newExtension(CgmesLineBoundaryNodeAdder.class)

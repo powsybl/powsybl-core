@@ -7,15 +7,15 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.DanglingLineAdder;
+import com.powsybl.iidm.network.BoundaryLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-class GenerationAdderImpl implements DanglingLineAdder.GenerationAdder {
+class GenerationAdderImpl implements BoundaryLineAdder.GenerationAdder {
 
-    private final DanglingLineAdderImpl parent;
+    private final BoundaryLineAdderImpl parent;
 
     private double minP = Double.NaN;
     private double maxP = Double.NaN;
@@ -24,7 +24,7 @@ class GenerationAdderImpl implements DanglingLineAdder.GenerationAdder {
     private boolean voltageRegulationOn = false;
     private double targetV = Double.NaN;
 
-    GenerationAdderImpl(DanglingLineAdderImpl parent) {
+    GenerationAdderImpl(BoundaryLineAdderImpl parent) {
         this.parent = parent;
     }
 
@@ -65,7 +65,7 @@ class GenerationAdderImpl implements DanglingLineAdder.GenerationAdder {
     }
 
     @Override
-    public DanglingLineAdderImpl add() {
+    public BoundaryLineAdderImpl add() {
         NetworkImpl network = parent.getNetwork();
         ValidationUtil.checkActivePowerLimits(parent, minP, maxP);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(parent, targetP, network.getMinValidationLevel()));

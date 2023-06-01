@@ -80,9 +80,9 @@
                 <iidm:switch id="btrf27" name="btrf27" fictitious="true" kind="BREAKER" retained="true" open="false" node1="18" node2="19"/>
                 <iidm:switch id="dtrf28" name="dtrf28" fictitious="true" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="20"/>
                 <iidm:switch id="btrf28" name="btrf28" fictitious="true" kind="BREAKER" retained="true" open="false" node1="20" node2="21"/>
-                <iidm:switch id="newDanglingLine_BREAKER" kind="BREAKER" retained="true" open="false" node1="22" node2="23"/>
-                <iidm:switch id="newDanglingLine_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="23" node2="0"/>
-                <iidm:switch id="newDanglingLine_DISCONNECTOR_23_1" kind="DISCONNECTOR" retained="false" open="true" node1="23" node2="1"/>
+                <iidm:switch id="newBoundaryLine_BREAKER" kind="BREAKER" retained="true" open="false" node1="22" node2="23"/>
+                <iidm:switch id="newBoundaryLine_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="23" node2="0"/>
+                <iidm:switch id="newBoundaryLine_DISCONNECTOR_23_1" kind="DISCONNECTOR" retained="false" open="true" node1="23" node2="1"/>
                 <iidm:switch id="newShuntCompensator_BREAKER" kind="BREAKER" retained="true" open="false" node1="24" node2="25"/>
                 <iidm:switch id="newShuntCompensator_DISCONNECTOR" kind="DISCONNECTOR" retained="false" open="false" node1="25" node2="0"/>
                 <iidm:switch id="newShuntCompensator_DISCONNECTOR_25_1" kind="DISCONNECTOR" retained="false" open="true" node1="25" node2="1"/>
@@ -103,7 +103,7 @@
             <iidm:shunt id="newShuntCompensator" sectionCount="0" voltageRegulatorOn="false" node="24">
                 <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
             </iidm:shunt>
-            <iidm:boundaryLine id="newDanglingLine" p0="50.0" q0="60.0" r="10.0" x="20.0" g="30.0" b="40.0" node="22"/>
+            <iidm:boundaryLine id="newBoundaryLine" p0="50.0" q0="60.0" r="10.0" x="20.0" g="30.0" b="40.0" node="22"/>
             <iidm:staticVarCompensator id="newStaticVarCompensator" bMin="2.0E-4" bMax="8.0E-4" voltageSetpoint="390.0" reactivePowerSetpoint="1.0" regulationMode="VOLTAGE" node="26"/>
             <iidm:vscConverterStation id="newVscConverterStation" voltageRegulatorOn="true" lossFactor="1.1" voltageSetpoint="405.0" node="30">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
@@ -198,9 +198,9 @@
     <iidm:extension id="bbs4">
         <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="2"/>
     </iidm:extension>
-    <iidm:extension id="newDanglingLine">
+    <iidm:extension id="newBoundaryLine">
         <cp:position>
-            <cp:feeder name="newDanglingLine" order="81" direction="BOTTOM"/>
+            <cp:feeder name="newBoundaryLine" order="81" direction="BOTTOM"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="bbs1">

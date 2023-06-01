@@ -128,14 +128,14 @@ package com.powsybl.iidm.network;
  *
  * <p>
  * In the Merging View: <br>
- * A tie line is created by matching two [dangling lines](#dangling-line) with the same Xnode code. <br>
- * We have two Dangling Lines as Half line objects of a Tie Line. <br>
- * The first dangling line maps directly to the first half line. <br>
- * The second dangling line must be reoriented before mapping it to the second half line (In dangling lines we assume that the boundary side is always at end 2).
+ * A tie line is created by matching two [boundary lines](#dangling-line) with the same Xnode code. <br>
+ * We have two Boundary lines as Half line objects of a Tie Line. <br>
+ * The first boundary line maps directly to the first half line. <br>
+ * The second boundary line must be reoriented before mapping it to the second half line (In boundary lines we assume that the boundary side is always at end 2).
  * </p>
  *
  * <p><div>
- * <object data="doc-files/TwoDanglingLinesToTieLine.svg" type="image/svg+xml">
+ * <object data="doc-files/TwoBoundaryLinesToTieLine.svg" type="image/svg+xml">
  * </object> </div>
  * </p>
  *
@@ -171,24 +171,24 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     String getUcteXnodeCode();
 
     /**
-     * Get first dangling line of this tie line
+     * Get first boundary line of this tie line
      */
     BoundaryLine getBoundaryLine1();
 
     /**
-     * Get second dangling line of this tie line
+     * Get second boundary line of this tie line
      */
     BoundaryLine getBoundaryLine2();
 
     /**
-     * Get the dangling line of this tie line corresponding to the given side
+     * Get the boundary line of this tie line corresponding to the given side
      */
-    BoundaryLine getDanglingLine(Side side);
+    BoundaryLine getBoundaryLine(Side side);
 
     /**
-     * Get the dangling line of this tie line corresponding to the given voltage level
+     * Get the boundary line of this tie line corresponding to the given voltage level
      */
-    BoundaryLine getDanglingLine(String voltageLevelId);
+    BoundaryLine getBoundaryLine(String voltageLevelId);
 
     @Override
     default IdentifiableType getType() {

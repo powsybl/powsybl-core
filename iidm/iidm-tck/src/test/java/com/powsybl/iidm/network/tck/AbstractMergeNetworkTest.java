@@ -47,16 +47,16 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void xnodeNonCompatible() {
         addSubstationAndVoltageLevel();
-        addDanglingLines("dl", "code", "dl", "deco");
+        addBoundaryLines("dl", "code", "dl", "deco");
         merge.merge(n1);
         PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n2));
-        assertTrue(e.getMessage().contains("Dangling line couple dl have inconsistent Xnodes (code!=deco)"));
+        assertTrue(e.getMessage().contains("Boundary line couple dl have inconsistent Xnodes (code!=deco)"));
     }
 
     @Test
     public void testMerge() {
         addSubstationAndVoltageLevel();
-        addDanglingLines("dl1", "code", "dl2", "code");
+        addBoundaryLines("dl1", "code", "dl2", "code");
         merge.merge(n1, n2);
         assertNotNull(merge.getTieLine("dl1 + dl2"));
         assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
@@ -66,7 +66,7 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void testMergeSameId() {
         addSubstationAndVoltageLevel();
-        addDanglingLines("dl", null, "dl", "code");
+        addBoundaryLines("dl", null, "dl", "code");
         merge.merge(n1, n2);
         assertNotNull(merge.getTieLine("dl"));
         assertEquals("dl", merge.getTieLine("dl").getId());
@@ -111,13 +111,13 @@ public abstract class AbstractMergeNetworkTest {
                 .add();
     }
 
-    private void addDanglingLines(String dl1, String code1, String dl2, String code2) {
-        addDanglingLine(n1, "vl1", dl1, code1, "b1", "b1");
-        addDanglingLine(n2, "vl2", dl2, code2, "b2", "b2");
+    private void addBoundaryLines(String bl1, String code1, String bl2, String code2) {
+        addBoundaryLine(n1, "vl1", bl1, code1, "b1", "b1");
+        addBoundaryLine(n2, "vl2", bl2, code2, "b2", "b2");
     }
 
-    private static void addDanglingLine(Network n, String voltageLevelId, String id, String code, String connectableBus, String bus) {
-        n.getVoltageLevel(voltageLevelId).newDanglingLine()
+    private static void addBoundaryLine(Network n, String voltageLevelId, String id, String code, String connectableBus, String bus) {
+        n.getVoltageLevel(voltageLevelId).newBoundaryLine()
                 .setId(id)
                 .setName(id + "_name")
                 .setConnectableBus(connectableBus)
@@ -156,7 +156,7 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void mergeThenCloneVariantBug() {
         addSubstationAndVoltageLevel();
-        addDanglingLines("dl1", "code", "dl2", "code");
+        addBoundaryLines("dl1", "code", "dl2", "code");
         Load ld2 = n2.getVoltageLevel("vl2").newLoad()
                 .setId("ld2")
                 .setConnectableBus("b2")
@@ -173,10 +173,10 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void multipleDanglingLinesInMergedNetwork() {
+    public void multipleBoundaryLinesInMergedNetwork() {
         addSubstationAndVoltageLevel();
-        addDanglingLines("dl1", "code", "dl2", "code");
-        addDanglingLine(n2, "vl2", "dl3", "code", "b2", null);
+        addBoundaryLines("dl1", "code", "dl2", "code");
+        addBoundaryLine(n2, "vl2", "dl3", "code", "b2", null);
         n1.merge(n2);
         assertNotNull(n1.getTieLine("dl1 + dl2"));
         assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
@@ -184,10 +184,10 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void multipleDanglingLinesInMergingNetwork() {
+    public void multipleBoundaryLinesInMergingNetwork() {
         addSubstationAndVoltageLevel();
-        addDanglingLines("dl1", "code", "dl2", "code");
-        addDanglingLine(n1, "vl1", "dl3", "code", "b1", null);
+        addBoundaryLines("dl1", "code", "dl2", "code");
+        addBoundaryLine(n1, "vl1", "dl3", "code", "b1", null);
         n1.merge(n2);
         assertNotNull(n1.getTieLine("dl1 + dl2"));
         assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getOptionalName().orElse(null));

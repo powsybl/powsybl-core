@@ -84,8 +84,8 @@ public final class AmplUtil {
         // Three windings transformers
         fillThreeWindingsTransformers(mapper, network);
 
-        // Dangling lines
-        fillDanglingLines(mapper, network);
+        // Boundary lines
+        fillBoundaryLines(mapper, network);
 
         // loads
         network.getLoadStream().forEach(l -> mapper.newInt(AmplSubset.LOAD, l.getId()));
@@ -193,15 +193,15 @@ public final class AmplUtil {
         }
     }
 
-    private static void fillDanglingLines(StringToIntMapper<AmplSubset> mapper, Network network) {
-        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-            mapper.newInt(AmplSubset.VOLTAGE_LEVEL, dl.getId());
-            mapper.newInt(AmplSubset.BUS, dl.getId());
-            mapper.newInt(AmplSubset.BRANCH, dl.getId());
-            mapper.newInt(AmplSubset.LOAD, dl.getId());
+    private static void fillBoundaryLines(StringToIntMapper<AmplSubset> mapper, Network network) {
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            mapper.newInt(AmplSubset.VOLTAGE_LEVEL, bl.getId());
+            mapper.newInt(AmplSubset.BUS, bl.getId());
+            mapper.newInt(AmplSubset.BRANCH, bl.getId());
+            mapper.newInt(AmplSubset.LOAD, bl.getId());
 
             // limits
-            dl.getCurrentLimits().ifPresent(l -> createLimitsIds(mapper, l, dl.getId(), ""));
+            bl.getCurrentLimits().ifPresent(l -> createLimitsIds(mapper, l, bl.getId(), ""));
         }
     }
 

@@ -33,8 +33,8 @@ class DefaultLimitViolationDetectorTest {
 
     private static Network networkWithFixedCurrentLimits;
     private static Network networkWithFixedLimits;
-    private static Network networkWithFixedCurrentLimitsOnDanglingLines;
-    private static Network networkWithFixedLimitsOnDanglingLines;
+    private static Network networkWithFixedCurrentLimitsOnBoundaryLines;
+    private static Network networkWithFixedLimitsOnBoundaryLines;
     private LimitViolationDetector detector;
     private List<LimitViolation> violationsCollector;
 
@@ -42,8 +42,8 @@ class DefaultLimitViolationDetectorTest {
     static void setUpClass() {
         networkWithFixedCurrentLimits = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         networkWithFixedLimits = EurostagTutorialExample1Factory.createWithFixedLimits();
-        networkWithFixedCurrentLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedCurrentLimitsOnDanglingLines();
-        networkWithFixedLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedLimitsOnDanglingLines();
+        networkWithFixedCurrentLimitsOnBoundaryLines = EurostagTutorialExample1Factory.createWithFixedCurrentLimitsOnBoundaryLines();
+        networkWithFixedLimitsOnBoundaryLines = EurostagTutorialExample1Factory.createWithFixedLimitsOnBoundaryLines();
     }
 
     @BeforeEach
@@ -126,7 +126,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectPermanentLimitOverloadOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         detector.checkCurrent(tieLine1, Branch.Side.TWO, 1101, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -143,8 +143,8 @@ class DefaultLimitViolationDetectorTest {
     @Test
     void testLimitReductionOnCurrentPermanentLimitOnTieLine() {
         final double i = 460;
-        TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
-        Optional<? extends LoadingLimits> line1Limits = tieLine1.getDanglingLine(Branch.Side.ONE).getCurrentLimits();
+        TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
+        Optional<? extends LoadingLimits> line1Limits = tieLine1.getBoundaryLine(Branch.Side.ONE).getCurrentLimits();
         assertTrue(line1Limits.isPresent()
                 && line1Limits.get().getTemporaryLimits().isEmpty()
                 && line1Limits.get().getPermanentLimit() > i); // no overload expected
@@ -169,7 +169,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectTemporaryLimitOverloadOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         detector.checkCurrent(tieLine1, Branch.Side.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -184,7 +184,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectHighestTemporaryLimitOverloadOnSide1OfTieLine2() {
-        TieLine tieLine2 = networkWithFixedCurrentLimitsOnDanglingLines.getTieLine("NHV1_NHV2_2");
+        TieLine tieLine2 = networkWithFixedCurrentLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_2");
         detector.checkCurrent(tieLine2, Branch.Side.ONE, 1250, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
@@ -337,7 +337,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectPermanentActivePowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         detector.checkPermanentLimit(tieLine1, Branch.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
@@ -352,7 +352,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectPermanentApparentPowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         detector.checkPermanentLimit(tieLine1, Branch.Side.TWO, 1.0f, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
@@ -368,7 +368,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectTemporaryActivePowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         detector.checkTemporary(tieLine1, Branch.Side.TWO, 1.0f, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
@@ -383,7 +383,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectTemporaryApparentPowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
 
         detector.checkTemporary(tieLine1, Branch.Side.TWO, 1.0f, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
 
@@ -399,7 +399,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectAllActivePowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
         cdetector.checkActivePower(tieLine1, Branch.Side.TWO, 1201, violationsCollector::add);
@@ -415,7 +415,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectAllApparentPowerLimitOnSide2OfTieLine1() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
         cdetector.checkApparentPower(tieLine1, Branch.Side.TWO, 1201, violationsCollector::add);
@@ -431,7 +431,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void testCheckLimitViolationUnsupportedVoltageOnTieLine() {
-        TieLine tieLine1 = networkWithFixedLimitsOnDanglingLines.getTieLine("NHV1_NHV2_1");
+        TieLine tieLine1 = networkWithFixedLimitsOnBoundaryLines.getTieLine("NHV1_NHV2_1");
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
         assertThrows(UnsupportedOperationException.class, () -> cdetector.checkLimitViolation(tieLine1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE));
     }

@@ -21,16 +21,16 @@ import javax.xml.stream.XMLStreamException;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSerializer<BoundaryLine, CgmesDanglingLineBoundaryNode> {
+public class CgmesBoundaryLineBoundaryNodeXmlSerializer extends AbstractExtensionXmlSerializer<BoundaryLine, CgmesBoundaryLineBoundaryNode> {
 
-    public CgmesDanglingLineBoundaryNodeXmlSerializer() {
-        super("cgmesDanglingLineBoundaryNode", "network", CgmesDanglingLineBoundaryNode.class,
-                false, "cgmesDanglingLineBoundaryNode.xsd",
+    public CgmesBoundaryLineBoundaryNodeXmlSerializer() {
+        super("cgmesBoundaryLineBoundaryNode", "network", CgmesBoundaryLineBoundaryNode.class,
+                false, "cgmesBoundaryLineBoundaryNode.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_dangling_line_boundary_node/1_0", "cdlbn");
     }
 
     @Override
-    public void write(CgmesDanglingLineBoundaryNode extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(CgmesBoundaryLineBoundaryNode extension, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("isHvdc", String.valueOf(extension.isHvdc()));
         extension.getLineEnergyIdentificationCodeEic()
                 .ifPresent(lineEnergyIdentificationCodeEic -> {
@@ -43,10 +43,10 @@ public class CgmesDanglingLineBoundaryNodeXmlSerializer extends AbstractExtensio
     }
 
     @Override
-    public CgmesDanglingLineBoundaryNode read(BoundaryLine extendable, XmlReaderContext context) throws XMLStreamException {
+    public CgmesBoundaryLineBoundaryNode read(BoundaryLine extendable, XmlReaderContext context) throws XMLStreamException {
         boolean isHvdc = XmlUtil.readBoolAttribute(context.getReader(), "isHvdc");
         String lineEnergyIdentificationCodeEic = context.getReader().getAttributeValue(null, "lineEnergyIdentificationCodeEic");
-        extendable.newExtension(CgmesDanglingLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();
-        return extendable.getExtension(CgmesDanglingLineBoundaryNode.class);
+        extendable.newExtension(CgmesBoundaryLineBoundaryNodeAdder.class).setHvdc(isHvdc).setLineEnergyIdentificationCodeEic(lineEnergyIdentificationCodeEic).add();
+        return extendable.getExtension(CgmesBoundaryLineBoundaryNode.class);
     }
 }

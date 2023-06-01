@@ -12,28 +12,28 @@ import com.powsybl.iidm.network.BoundaryLine;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class CgmesDanglingLineBoundaryNodeAdderImpl extends AbstractExtensionAdder<BoundaryLine, CgmesDanglingLineBoundaryNode> implements CgmesDanglingLineBoundaryNodeAdder {
+class CgmesBoundaryLineBoundaryNodeAdderImpl extends AbstractExtensionAdder<BoundaryLine, CgmesBoundaryLineBoundaryNode> implements CgmesBoundaryLineBoundaryNodeAdder {
 
     private boolean isHvdc;
     private String lineEnergyIdentificationCodeEic;
 
-    CgmesDanglingLineBoundaryNodeAdderImpl(BoundaryLine extendable) {
+    CgmesBoundaryLineBoundaryNodeAdderImpl(BoundaryLine extendable) {
         super(extendable);
     }
 
     @Override
-    protected CgmesDanglingLineBoundaryNode createExtension(BoundaryLine extendable) {
-        return new CgmesDanglingLineBoundaryNodeImpl(isHvdc, lineEnergyIdentificationCodeEic);
+    protected CgmesBoundaryLineBoundaryNode createExtension(BoundaryLine extendable) {
+        return new CgmesBoundaryLineBoundaryNodeImpl(isHvdc, lineEnergyIdentificationCodeEic);
     }
 
     @Override
-    public CgmesDanglingLineBoundaryNodeAdder setHvdc(boolean isHvdc) {
+    public CgmesBoundaryLineBoundaryNodeAdder setHvdc(boolean isHvdc) {
         this.isHvdc = isHvdc;
         return this;
     }
 
     @Override
-    public CgmesDanglingLineBoundaryNodeAdder setLineEnergyIdentificationCodeEic(String lineEnergyIdentificationCodeEic) {
+    public CgmesBoundaryLineBoundaryNodeAdder setLineEnergyIdentificationCodeEic(String lineEnergyIdentificationCodeEic) {
         this.lineEnergyIdentificationCodeEic = lineEnergyIdentificationCodeEic;
         return this;
     }

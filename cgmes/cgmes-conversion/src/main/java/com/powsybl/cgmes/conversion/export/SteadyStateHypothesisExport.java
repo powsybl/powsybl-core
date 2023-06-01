@@ -105,23 +105,23 @@ public final class SteadyStateHypothesisExport {
                 }
             }
         }
-        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
             // Terminal for equivalent injection at boundary is always connected
-            if (dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal") != null) {
-                writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), true, cimNamespace, writer, context);
+            if (bl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal") != null) {
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(bl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), true, cimNamespace, writer, context);
             }
             // Terminal for boundary side of original line/switch is always connected
-            if (dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").isPresent()) {
-                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary"), true, cimNamespace, writer, context);
+            if (bl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").isPresent()) {
+                writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(bl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary"), true, cimNamespace, writer, context);
             }
         }
     }
 
     private static void writeEquivalentInjections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        // One equivalent injection for every dangling line
+        // One equivalent injection for every boundary line
         List<String> exported = new ArrayList<>();
-        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-            writeEquivalentInjection(dl, exported, cimNamespace, writer, context);
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            writeEquivalentInjection(bl, exported, cimNamespace, writer, context);
         }
     }
 
@@ -515,28 +515,28 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeEquivalentInjection(BoundaryLine dl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+    private static void writeEquivalentInjection(BoundaryLine bl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String ei = bl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
         if (exported.contains(ei)) {
             return;
         }
         if (ei != null) {
             // Ensure equivalent injection identifier is valid
-            String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(bl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             CgmesExportUtil.writeStartAbout("EquivalentInjection", cgmesId, cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
-            writer.writeCharacters(CgmesExportUtil.format(dl.getP0()));
+            writer.writeCharacters(CgmesExportUtil.format(bl.getP0()));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "EquivalentInjection.q");
-            writer.writeCharacters(CgmesExportUtil.format(dl.getQ0()));
+            writer.writeCharacters(CgmesExportUtil.format(bl.getQ0()));
             writer.writeEndElement();
             // regulationStatus and regulationTarget are optional,
             // but test cases contain the attributes with disabled and 0
             boolean regulationStatus = false;
             double regulationTarget = 0;
-            if (dl.getGeneration() != null) {
-                regulationStatus = dl.getGeneration().isVoltageRegulationOn();
-                regulationTarget = dl.getGeneration().getTargetV();
+            if (bl.getGeneration() != null) {
+                regulationStatus = bl.getGeneration().isVoltageRegulationOn();
+                regulationTarget = bl.getGeneration().getTargetV();
             }
             writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationStatus");
             writer.writeCharacters(Boolean.toString(regulationStatus));

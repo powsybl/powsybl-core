@@ -134,8 +134,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private void reduce(Line line, VoltageLevel vl, Terminal terminal) {
-        if (options.isWithDanglingLines()) {
-            replaceLineByDanglingLine(line, vl, terminal);
+        if (options.isWithBoundaryLines()) {
+            replaceLineByBoundaryLine(line, vl, terminal);
         } else {
             replaceLineByLoad(line, vl, terminal);
         }
@@ -146,10 +146,10 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         observers.forEach(o -> o.lineReplaced(line, load));
     }
 
-    private void replaceLineByDanglingLine(Line line, VoltageLevel vl, Terminal terminal) {
+    private void replaceLineByBoundaryLine(Line line, VoltageLevel vl, Terminal terminal) {
         Branch.Side side = line.getSide(terminal);
 
-        DanglingLineAdder dlAdder = vl.newDanglingLine()
+        BoundaryLineAdder blAdder = vl.newBoundaryLine()
                 .setId(line.getId())
                 .setName(line.getOptionalName().orElse(null))
                 .setR(line.getR() / 2)
@@ -158,18 +158,18 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setG(side == Branch.Side.ONE ? line.getG1() : line.getG2())
                 .setP0(checkP(terminal))
                 .setQ0(checkQ(terminal));
-        fillNodeOrBus(dlAdder, terminal);
+        fillNodeOrBus(blAdder, terminal);
 
         double p = terminal.getP();
         double q = terminal.getQ();
         line.remove();
 
-        BoundaryLine dl = dlAdder.add();
-        dl.getTerminal()
+        BoundaryLine bl = blAdder.add();
+        bl.getTerminal()
                 .setP(p)
                 .setQ(q);
 
-        observers.forEach(o -> o.lineReplaced(line, dl));
+        observers.forEach(o -> o.lineReplaced(line, bl));
     }
 
     private void replaceTransformerByLoad(TwoWindingsTransformer transformer, VoltageLevel vl, Terminal terminal) {

@@ -852,40 +852,40 @@ public interface Network extends Container<Network> {
     ShuntCompensator getShuntCompensator(String id);
 
     /**
-     * Get all dangling lines corresponding to given filter.
+     * Get all boundary lines corresponding to given filter.
      */
-    Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter);
+    Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter);
 
     /**
-     * Get all dangling lines.
+     * Get all boundary lines.
      */
     default Iterable<BoundaryLine> getBoundaryLines() {
-        return getBoundaryLines(DanglingLineFilter.ALL);
+        return getBoundaryLines(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get the dangling lines corresponding to given filter.
+     * Get the boundary lines corresponding to given filter.
      */
-    Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+    Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter);
 
     /**
-     * Get all the dangling lines.
+     * Get all the boundary lines.
      */
-    default Stream<BoundaryLine> getDanglingLineStream() {
-        return getDanglingLineStream(DanglingLineFilter.ALL);
+    default Stream<BoundaryLine> getBoundaryLineStream() {
+        return getBoundaryLineStream(BoundaryLineFilter.ALL);
     }
 
     /**
-     * Get the dangling line count.
+     * Get the boundary line count.
      */
-    int getDanglingLineCount();
+    int getBoundaryLineCount();
 
     /**
-     * Get a dangling line.
+     * Get a boundary line.
      *
-     * @param id the id or an alias of the dangling line
+     * @param id the id or an alias of the boundary line
      */
-    BoundaryLine getDanglingLine(String id);
+    BoundaryLine getBoundaryLine(String id);
 
     /**
      * Get all static var compensators.
@@ -1240,7 +1240,7 @@ public interface Network extends Container<Network> {
             case THREE_WINDINGS_TRANSFORMER:
                 return getThreeWindingsTransformerStream().map(Function.identity());
             case DANGLING_LINE:
-                return getDanglingLineStream(DanglingLineFilter.ALL).map(Function.identity());
+                return getBoundaryLineStream(BoundaryLineFilter.ALL).map(Function.identity());
             case LINE:
                 return getLineStream().map(Function.identity());
             case TIE_LINE:

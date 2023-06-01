@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.BoundaryLine;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class CgmesDanglingLineBoundaryNodeAdderImplProvider implements ExtensionAdderProvider<BoundaryLine, CgmesDanglingLineBoundaryNode, CgmesDanglingLineBoundaryNodeAdderImpl> {
+public class CgmesBoundaryLineBoundaryNodeAdderImplProvider implements ExtensionAdderProvider<BoundaryLine, CgmesBoundaryLineBoundaryNode, CgmesBoundaryLineBoundaryNodeAdderImpl> {
     @Override
     public String getImplementationName() {
         return "Default";
@@ -22,16 +22,16 @@ public class CgmesDanglingLineBoundaryNodeAdderImplProvider implements Extension
 
     @Override
     public String getExtensionName() {
-        return CgmesDanglingLineBoundaryNode.NAME;
+        return CgmesBoundaryLineBoundaryNode.NAME;
     }
 
     @Override
-    public Class<? super CgmesDanglingLineBoundaryNodeAdderImpl> getAdderClass() {
-        return CgmesDanglingLineBoundaryNodeAdderImpl.class;
+    public Class<? super CgmesBoundaryLineBoundaryNodeAdderImpl> getAdderClass() {
+        return CgmesBoundaryLineBoundaryNodeAdderImpl.class;
     }
 
     @Override
-    public CgmesDanglingLineBoundaryNodeAdderImpl newAdder(BoundaryLine extendable) {
-        return new CgmesDanglingLineBoundaryNodeAdderImpl(extendable);
+    public CgmesBoundaryLineBoundaryNodeAdderImpl newAdder(BoundaryLine extendable) {
+        return new CgmesBoundaryLineBoundaryNodeAdderImpl(extendable);
     }
 }

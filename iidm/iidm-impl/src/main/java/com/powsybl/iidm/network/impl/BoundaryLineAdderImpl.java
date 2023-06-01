@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.DanglingLineAdder;
+import com.powsybl.iidm.network.BoundaryLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
 /**
@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.ValidationUtil;
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  *
  */
-class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
+class BoundaryLineAdderImpl extends AbstractInjectionAdder<BoundaryLineAdderImpl> implements BoundaryLineAdder {
 
     private final VoltageLevelExt voltageLevel;
 
@@ -35,7 +35,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private GenerationAdderImpl generationAdder;
 
-    DanglingLineAdderImpl(VoltageLevelExt voltageLevel) {
+    BoundaryLineAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
     }
 
@@ -50,47 +50,47 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     @Override
     protected String getTypeDescription() {
-        return "Dangling line";
+        return "Boundary line";
     }
 
     @Override
-    public DanglingLineAdderImpl setP0(double p0) {
+    public BoundaryLineAdderImpl setP0(double p0) {
         this.p0 = p0;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setQ0(double q0) {
+    public BoundaryLineAdderImpl setQ0(double q0) {
         this.q0 = q0;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setR(double r) {
+    public BoundaryLineAdderImpl setR(double r) {
         this.r = r;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setX(double x) {
+    public BoundaryLineAdderImpl setX(double x) {
         this.x = x;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setG(double g) {
+    public BoundaryLineAdderImpl setG(double g) {
         this.g = g;
         return this;
     }
 
     @Override
-    public DanglingLineAdderImpl setB(double b) {
+    public BoundaryLineAdderImpl setB(double b) {
         this.b = b;
         return this;
     }
 
     @Override
-    public DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode) {
+    public BoundaryLineAdder setUcteXnodeCode(String ucteXnodeCode) {
         this.ucteXnodeCode = ucteXnodeCode;
         return this;
     }
@@ -116,12 +116,12 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
             generation = generationAdder.build();
         }
 
-        BoundaryLineImpl danglingLine = new BoundaryLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
-        danglingLine.addTerminal(terminal);
+        BoundaryLineImpl boundaryLine = new BoundaryLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
+        boundaryLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        network.getIndex().checkAndAdd(danglingLine);
-        network.getListeners().notifyCreation(danglingLine);
-        return danglingLine;
+        network.getIndex().checkAndAdd(boundaryLine);
+        network.getListeners().notifyCreation(boundaryLine);
+        return boundaryLine;
     }
 
 }

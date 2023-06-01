@@ -359,8 +359,8 @@ final class RegulatingTerminalMapper {
         /**
          * The best terminal is the terminal associated to the line, branch at the border
          * one end inside the controlArea and the other outside.
-         * At this moment we only know this information in danglingLines so
-         * the terminal will only be accepted if it is a danglingLine
+         * At this moment we only know this information in boundaryLines so
+         * the terminal will only be accepted if it is a boundaryLine
          */
         private static Optional<Terminal> best(Terminal terminalEnd1, Terminal terminalEnd2) {
             if (terminalEnd1 != null && terminalEnd1.getConnectable().getType() == IdentifiableType.DANGLING_LINE) {

@@ -81,13 +81,13 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     }
 
     @Override
-    public Iterable<BoundaryLine> getBoundaryLines(DanglingLineFilter danglingLineFilter) {
-        return Iterables.transform(getDelegate().getBoundaryLines(danglingLineFilter), getIndex()::getDanglingLine);
+    public Iterable<BoundaryLine> getBoundaryLines(BoundaryLineFilter boundaryLineFilter) {
+        return Iterables.transform(getDelegate().getBoundaryLines(boundaryLineFilter), getIndex()::getBoundaryLine);
     }
 
     @Override
-    public Stream<BoundaryLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return getDelegate().getDanglingLineStream(danglingLineFilter).map(getIndex()::getDanglingLine);
+    public Stream<BoundaryLine> getBoundaryLineStream(BoundaryLineFilter boundaryLineFilter) {
+        return getDelegate().getBoundaryLineStream(boundaryLineFilter).map(getIndex()::getBoundaryLine);
     }
 
     @Override

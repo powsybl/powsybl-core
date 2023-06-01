@@ -149,14 +149,14 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.UNPAIRED)) {
-            Bus b = dl.getTerminal().getBusView().getBus();
-            String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+        for (BoundaryLine bl : network.getBoundaryLines(BoundaryLineFilter.UNPAIRED)) {
+            Bus b = bl.getTerminal().getBusView().getBus();
+            String topologicalNode = bl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNode != null) {
-                if (dl.hasProperty("v") && dl.hasProperty("angle")) {
-                    writeVoltage(topologicalNode, Double.parseDouble(dl.getProperty("v", "NaN")), Double.parseDouble(dl.getProperty("angle", "NaN")), cimNamespace, writer, context);
+                if (bl.hasProperty("v") && bl.hasProperty("angle")) {
+                    writeVoltage(topologicalNode, Double.parseDouble(bl.getProperty("v", "NaN")), Double.parseDouble(bl.getProperty("angle", "NaN")), cimNamespace, writer, context);
                 } else if (b != null) {
-                    writeVoltage(topologicalNode, dl.getBoundary().getV(), dl.getBoundary().getAngle(), cimNamespace, writer, context);
+                    writeVoltage(topologicalNode, bl.getBoundary().getV(), bl.getBoundary().getAngle(), cimNamespace, writer, context);
                 } else {
                     writeVoltage(topologicalNode, 0.0, 0.0, cimNamespace, writer, context);
                 }
@@ -201,15 +201,15 @@ public final class StateVariablesExport {
 
         Map<String, Double> equivalentInjectionTerminalP = new HashMap<>();
         Map<String, Double> equivalentInjectionTerminalQ = new HashMap<>();
-        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).forEach(dl -> {
+        network.getBoundaryLineStream(BoundaryLineFilter.UNPAIRED).forEach(bl -> {
             // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
-            // DanglingLine's attributes will be created to store calculated flows on the boundary side
+            // BoundaryLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
-                writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer, context);
+                writePowerFlowTerminalFromAlias(bl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", bl.getBoundary().getP(), bl.getBoundary().getQ(), cimNamespace, writer, context);
             }
-            writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", dl.getTerminal().getP(), dl.getTerminal().getQ(), cimNamespace, writer, context);
-            equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -dl.getBoundary().getP() : v - dl.getBoundary().getP());
-            equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -dl.getBoundary().getQ() : v - dl.getBoundary().getQ());
+            writePowerFlowTerminalFromAlias(bl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", bl.getTerminal().getP(), bl.getTerminal().getQ(), cimNamespace, writer, context);
+            equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(bl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -bl.getBoundary().getP() : v - bl.getBoundary().getP());
+            equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(bl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), (k, v) -> v == null ? -bl.getBoundary().getQ() : v - bl.getBoundary().getQ());
         });
         equivalentInjectionTerminalP.keySet().forEach(eiId -> writePowerFlow(eiId, equivalentInjectionTerminalP.get(eiId), equivalentInjectionTerminalQ.get(eiId), cimNamespace, writer, context));
 
@@ -409,7 +409,7 @@ public final class StateVariablesExport {
             }
         });
 
-        // RK: For dangling lines (boundaries), the AC Line Segment is considered in service if and only if it is connected on the network side.
+        // RK: For boundary lines (boundaries), the AC Line Segment is considered in service if and only if it is connected on the network side.
         // If it is disconnected on the boundary side, it might not appear on the SV file.
     }
 

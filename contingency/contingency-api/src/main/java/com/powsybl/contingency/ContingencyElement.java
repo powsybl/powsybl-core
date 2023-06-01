@@ -35,7 +35,7 @@ public interface ContingencyElement {
         } else if (identifiable instanceof Switch) {
             return new SwitchContingency(identifiable.getId());
         } else if (identifiable instanceof BoundaryLine) {
-            return new DanglingLineContingency(identifiable.getId());
+            return new BoundaryLineContingency(identifiable.getId());
         } else if (identifiable instanceof Load) {
             return new LoadContingency(identifiable.getId());
         } else if (identifiable instanceof HvdcLine) {

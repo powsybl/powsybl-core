@@ -60,7 +60,7 @@ class ContingencyJsonTest extends AbstractConverterTest {
                                              .addShuntCompensator("SC")
                                              .addStaticVarCompensator("SVC")
                                              .addBusbarSection("BBS1")
-                                             .addDanglingLine("DL1")
+                                             .addBoundaryLine("DL1")
                                              .addLine("LINE1")
                                              .addTwoWindingsTransformer("TRANSFO1")
                                              .addThreeWindingsTransformer("TWT3")

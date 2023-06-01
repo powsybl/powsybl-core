@@ -88,16 +88,16 @@ public abstract class AbstractCgmesAliasNamingStrategy implements NamingStrategy
     @Override
     public String getCgmesIdFromAlias(Identifiable<?> identifiable, String aliasType) {
         // This is a hack to save in the naming strategy an identifier for something comes as an alias of an identifiable
-        // Equivalent injections of dangling lines
+        // Equivalent injections of boundary lines
         // Transformer ends of power transformers
         // Tap changers of power transformers
         String id;
         Identifiable<?> realIdentifiable = identifiable;
         if (identifiable instanceof BoundaryLine) {
-            BoundaryLine dl = (BoundaryLine) identifiable;
-            id = identifiable.getAliasFromType(aliasType).or(() -> dl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
-            if (dl.isPaired()) {
-                realIdentifiable = dl.getTieLine().orElseThrow(IllegalStateException::new);
+            BoundaryLine bl = (BoundaryLine) identifiable;
+            id = identifiable.getAliasFromType(aliasType).or(() -> bl.getTieLine().flatMap(tl -> tl.getAliasFromType(aliasType))).orElseThrow(() -> new PowsyblException("Missing alias " + aliasType + " in " + identifiable.getId()));
+            if (bl.isPaired()) {
+                realIdentifiable = bl.getTieLine().orElseThrow(IllegalStateException::new);
             }
         } else {
             id = identifiable.getAliasFromType(aliasType)
