@@ -213,11 +213,9 @@ public final class StateVariablesExport {
         });
         equivalentInjectionTerminalP.keySet().forEach(eiId -> writePowerFlow(eiId, equivalentInjectionTerminalP.get(eiId), equivalentInjectionTerminalQ.get(eiId), cimNamespace, writer, context));
 
-        network.getBranchStream().forEach(b -> {
-            CgmesControlAreas areas = b.getClosestNetwork().getExtension(CgmesControlAreas.class);
-            writeOptionalPowerFlowTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getTerminal1(), cimNamespace, writer, context);
-            writeOptionalPowerFlowTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2(), cimNamespace, writer, context);
-        });
+        network.getTwoWindingsTransformerStream().forEach(b -> writeConnectableBranchPowerFlow(cimNamespace, writer, context, b));
+        network.getLineStream().forEach(b -> writeConnectableBranchPowerFlow(cimNamespace, writer, context, b));
+
         network.getDanglingLineStream(DanglingLineFilter.PAIRED).forEach(dl -> {
             CgmesControlAreas areas1 = dl.getClosestNetwork().getExtension(CgmesControlAreas.class);
             writePowerFlowTieLineTerminalFromAlias(areas1, dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, dl.getTerminal(), cimNamespace, writer, context);
@@ -244,6 +242,12 @@ public final class StateVariablesExport {
                 });
             });
         }
+    }
+
+    private static void writeConnectableBranchPowerFlow(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Branch b) {
+        CgmesControlAreas areas = b.getClosestNetwork().getExtension(CgmesControlAreas.class);
+        writeOptionalPowerFlowTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getTerminal1(), cimNamespace, writer, context);
+        writeOptionalPowerFlowTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2(), cimNamespace, writer, context);
     }
 
     private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Function<Network, Stream<I>> getInjectionStream) {
