@@ -139,7 +139,7 @@ import java.util.Optional;
  * @see PhaseTapChanger
  * @see TwoWindingsTransformerAdder
  */
-public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, RatioTapChangerHolder, PhaseTapChangerHolder {
+public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, Connectable<TwoWindingsTransformer>, RatioTapChangerHolder, PhaseTapChangerHolder {
 
     Optional<Substation> getSubstation();
 
