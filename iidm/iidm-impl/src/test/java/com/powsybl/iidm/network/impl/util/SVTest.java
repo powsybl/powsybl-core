@@ -58,6 +58,11 @@ class SVTest {
         assertEquals(bus1.getV(), svL2other.getU(), tol);
         assertEquals(bus1.getAngle(), svL2other.getA(), tol);
 
+        assertEquals(line.getTerminal1().getP(), svL2.otherSideP(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
+        assertEquals(line.getTerminal1().getQ(), svL2.otherSideQ(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
+        assertEquals(bus1.getV(), svL2.otherSideU(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
+        assertEquals(bus1.getAngle(), svL2.otherSideA(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
+
         SV svDl1 = new SV(dl.getTerminal().getP(), dl.getTerminal().getQ(), bus2.getV(), bus2.getAngle(), Branch.Side.ONE);
         SV svDl1other = svDl1.otherSide(dl);
         assertEquals(-dl.getP0(), svDl1other.getP(), tol);

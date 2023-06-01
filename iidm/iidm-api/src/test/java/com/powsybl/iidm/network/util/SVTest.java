@@ -137,6 +137,18 @@ class SVTest {
         assertEquals(q1, svB1.getQ(), tol);
         assertEquals(v1, svB1.getU(), tol);
         assertEquals(a1, svB1.getA(), tol);
+
+        SV svA2split = svA1.otherSide(twt, true);
+        assertEquals(p2, svA2split.getP(), tol);
+        assertEquals(q2, svA2split.getQ(), tol);
+        assertEquals(v2, svA2split.getU(), tol);
+        assertEquals(a2, svA2split.getA(), tol);
+
+        SV svB1split = svB2.otherSide(twt, true);
+        assertEquals(p1, svB1split.getP(), tol);
+        assertEquals(q1, svB1split.getQ(), tol);
+        assertEquals(v1, svB1split.getU(), tol);
+        assertEquals(a1, svB1split.getA(), tol);
     }
 
     @Test
