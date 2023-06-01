@@ -474,8 +474,9 @@ class MergingViewIndex {
             case BUSBAR_SECTION:
                 return getBusbarSection((BusbarSection) connectable);
             case LINE:
+                return getLine((Line) connectable);
             case TWO_WINDINGS_TRANSFORMER:
-                return getBranch((Branch) connectable);
+                return getTwoWindingsTransformer((TwoWindingsTransformer) connectable);
             case THREE_WINDINGS_TRANSFORMER:
                 return getThreeWindingsTransformer((ThreeWindingsTransformer) connectable);
             case GENERATOR:

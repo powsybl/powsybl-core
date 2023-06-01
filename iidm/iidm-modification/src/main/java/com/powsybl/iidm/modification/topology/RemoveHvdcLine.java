@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * @author Anis Touri <anis-1.touri@rte-france.com>
@@ -56,6 +56,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             }
             hvdcLine.remove();
             removedHvdcLineReport(reporter, hvdcLineId);
+            LOGGER.info("Hvdc line {} has been removed", hvdcLineId);
             // Remove the Shunt compensators that represent the filters of the LCC
             removeShuntCompensators(network, hvdcConverterStation1, hvdcConverterStation2, shunts, throwException, computationManager, reporter);
             removeConverterStations(network, hvdcConverterStation1, hvdcConverterStation2, throwException, computationManager, reporter);
@@ -96,6 +97,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             if (vl1 == shuntVl || vl2 == shuntVl) {
                 new RemoveFeederBay(shuntCompensator.getId()).apply(network, throwException, computationManager, reporter);
                 removedShuntCompensatorReport(reporter, shuntCompensator.getId());
+                LOGGER.info("Shunt compensator {} has been removed", shuntCompensator.getId());
             } else {
                 LOGGER.warn("Shunt compensator {} has been ignored because it is not in the same voltage levels as the Lcc ({} or {})", shuntCompensator.getId(), vl1.getId(), vl2.getId());
                 ignoredShuntInAnotherVoltageLevel(reporter, shuntCompensator.getId(), vl1.getId(), vl2.getId());
@@ -117,8 +119,10 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
     private static void reportConverterStationRemoved(Reporter reporter, String stationId, HvdcConverterStation.HvdcType converterStationType) {
         if (converterStationType == HvdcConverterStation.HvdcType.LCC) {
             removedLccConverterStationReport(reporter, stationId);
+            LOGGER.info("Lcc converter station {} has been removed", stationId);
         } else if (converterStationType == HvdcConverterStation.HvdcType.VSC) {
             removedVscConverterStationReport(reporter, stationId);
+            LOGGER.info("Vsc converter station {} has been removed", stationId);
         }
     }
 

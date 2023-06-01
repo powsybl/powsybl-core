@@ -44,7 +44,6 @@ class GeneratorScalableTest {
 
         g4 = Scalable.onGenerator("g2", 0., 80);
         g5 = Scalable.onGenerator("g2", 20., 100);
-
     }
 
     @Test
@@ -168,6 +167,11 @@ class GeneratorScalableTest {
         //Case 4 : generator.getTargetP() not in interval, skipped
         assertEquals(0, generator2.getTargetP(), 1e-3);
         assertEquals(0, g5.scale(network, 50), 1e-3);
+
+        //Case 5 : generator.getTargetP() not in interval, but allowed
+        g5.reset(network);
+        assertEquals(0, generator2.getTargetP(), 1e-3);
+        assertEquals(50, g5.scale(network, 50, new ScalingParameters().setAllowsGeneratorOutOfActivePowerLimits(true)), 1e-3);
     }
 
     @Test

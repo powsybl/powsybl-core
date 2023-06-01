@@ -21,13 +21,14 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class ControlAreaEq {
     private static final String CONTROL_AREA_TYPE = "ControlAreaTypeKind.Interchange";
 
-    public static void write(String id, String controlAreaName, String energyIdentificationCodeEIC, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static void write(String id, String controlAreaName, String energyIdentificationCodeEIC, String energyAreaId, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("ControlArea", id, controlAreaName, cimNamespace, writer, context);
         writer.writeStartElement(euNamespace, "IdentifiedObject.energyIdentCodeEic");
         writer.writeCharacters(energyIdentificationCodeEIC);
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, "ControlArea.type");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + CONTROL_AREA_TYPE);
+        CgmesExportUtil.writeReference("ControlArea.EnergyArea", energyAreaId, cimNamespace, writer, context);
         writer.writeEndElement();
     }
 

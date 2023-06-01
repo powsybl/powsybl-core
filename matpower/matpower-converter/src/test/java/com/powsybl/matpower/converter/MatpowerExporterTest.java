@@ -9,24 +9,33 @@ package com.powsybl.matpower.converter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.matpower.model.MatpowerModel;
+import com.powsybl.matpower.model.MatpowerModelFactory;
 import com.powsybl.matpower.model.MatpowerReader;
+import com.powsybl.matpower.model.MatpowerWriter;
+
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class MatpowerExporterTest {
+class MatpowerExporterTest extends AbstractConverterTest {
 
     private static void exportToMatAndCompareTo(Network network, String refJsonFile) throws IOException {
         MemDataSource dataSource = new MemDataSource();
@@ -41,7 +50,7 @@ class MatpowerExporterTest {
     }
 
     @Test
-    void testEsgTutu1() throws IOException {
+    void testEsgTuto1() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
         exportToMatAndCompareTo(network, "/sim1.json");
     }
@@ -56,5 +65,26 @@ class MatpowerExporterTest {
     void testWithTieLines() throws IOException {
         var network = EurostagTutorialExample1Factory.createWithTieLine();
         exportToMatAndCompareTo(network, "/sim1-with-tie-lines.json");
+    }
+
+    @Test
+    void testWithHvdcLines() throws IOException {
+        var network = FourSubstationsNodeBreakerFactory.create();
+        exportToMatAndCompareTo(network, "/fourSubstationFactory.json");
+    }
+
+    @Test
+    void testCase30ConsideringBaseVoltage() throws IOException {
+        MatpowerModel model = MatpowerModelFactory.create30();
+        model.setCaseName("ieee30-considering-base-voltage");
+        String caseId = model.getCaseName();
+        Path matFile = tmpDir.resolve(caseId + ".mat");
+        MatpowerWriter.write(model, matFile);
+
+        Properties properties = new Properties();
+        properties.put("matpower.import.ignore-base-voltage", false);
+        Network network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
+
+        exportToMatAndCompareTo(network, "/ieee30-considering-base-voltage.json");
     }
 }

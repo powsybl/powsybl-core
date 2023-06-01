@@ -301,7 +301,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     @Override
     public void remove() {
-        if (tieLine != null) { // TODO: should not throw error but only remove tie line
+        if (tieLine != null) {
             throw new UnsupportedOperationException("Parent tie line " + tieLine.getId() + " should be removed before the child dangling line");
         }
         super.remove();

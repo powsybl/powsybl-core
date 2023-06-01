@@ -162,7 +162,7 @@ package com.powsybl.iidm.network;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public interface TieLine extends Identifiable<TieLine>, LineCharacteristics {
+public interface TieLine extends Branch<TieLine>, LineCharacteristics {
 
     /**
      * Get the UCTE Xnode code corresponding to this tie line in the case where the
@@ -183,7 +183,7 @@ public interface TieLine extends Identifiable<TieLine>, LineCharacteristics {
     /**
      * Get the dangling line of this tie line corresponding to the given side
      */
-    BoundaryLine getDanglingLine(Branch.Side side);
+    BoundaryLine getDanglingLine(Side side);
 
     /**
      * Get the dangling line of this tie line corresponding to the given voltage level

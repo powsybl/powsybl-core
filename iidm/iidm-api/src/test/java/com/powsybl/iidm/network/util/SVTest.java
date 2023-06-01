@@ -388,4 +388,178 @@ class SVTest {
             return twt;
         }
     }
+
+    @Test
+    void testDcLine() {
+        Line line = new LineDcTestData().getLine();
+
+        double tol = 0.0001;
+        double p1 = 148.70937259543686;
+        double q1 = Double.NaN;
+        double v1 = Double.NaN;
+        double a1 = 0.0;
+
+        double p2 = -148.70937259543686;
+        double q2 = Double.NaN;
+        double v2 = Double.NaN;
+        double a2 = -5.041532173036991;
+
+        SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
+        SV svA2 = svA1.otherSide(line);
+        assertEquals(p2, svA2.getP(), tol);
+        assertEquals(a2, svA2.getA(), tol);
+
+        SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
+        SV svB1 = svB2.otherSide(line);
+        assertEquals(p1, svB1.getP(), tol);
+        assertEquals(a1, svB1.getA(), tol);
+    }
+
+    @Test
+    void testDcTwoWindingsTransformer() {
+        TwoWindingsTransformer twt = new TwoWindingsTransformerDcTestData().getTwoWindingsTransformer();
+
+        double tol = 0.0001;
+        double p1 = 1.4792780985886924;
+        double q1 = Double.NaN;
+        double v1 = Double.NaN;
+        double a1 = -10.76932587556957;
+
+        double p2 = -1.4792780985886924;
+        double q2 = Double.NaN;
+        double v2 = Double.NaN;
+        double a2 = -11.226110634252219;
+
+        SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
+        SV svA2 = svA1.otherSide(twt);
+        assertEquals(p2, svA2.getP(), tol);
+        assertEquals(a2, svA2.getA(), tol);
+
+        SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
+        SV svB1 = svB2.otherSide(twt);
+        assertEquals(p1, svB1.getP(), tol);
+        assertEquals(a1, svB1.getA(), tol);
+    }
+
+    @Test
+    void testDcPhaseShifter() {
+        TwoWindingsTransformer twt = new PhaseShifterDcTestData().getTwoWindingsTransformer();
+
+        double tol = 0.0001;
+        double p1 = 58.02489256054598;
+        double q1 = Double.NaN;
+        double v1 = Double.NaN;
+        double a1 = -10.76932587556957;
+
+        double p2 = -58.02489256054598;
+        double q2 = Double.NaN;
+        double v2 = Double.NaN;
+        double a2 = -7.56873858064591;
+
+        SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
+        SV svA2 = svA1.otherSide(twt);
+        assertEquals(p2, svA2.getP(), tol);
+        assertEquals(a2, svA2.getA(), tol);
+
+        SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
+        SV svB1 = svB2.otherSide(twt);
+        assertEquals(p1, svB1.getP(), tol);
+        assertEquals(a1, svB1.getA(), tol);
+    }
+
+    private static final class LineDcTestData {
+        private static double R = 0.0;
+        private static double X = 5.917E-4;
+        private static double G1 = 0.01;
+        private static double B1 = 0.0020;
+        private static double G2 = 0.01;
+        private static double B2 = 0.0020;
+        private Line line;
+
+        private LineDcTestData() {
+            line = Mockito.mock(Line.class);
+            Mockito.when(line.getR()).thenReturn(R);
+            Mockito.when(line.getX()).thenReturn(X);
+            Mockito.when(line.getG1()).thenReturn(G1);
+            Mockito.when(line.getB1()).thenReturn(B1);
+            Mockito.when(line.getG2()).thenReturn(G2);
+            Mockito.when(line.getB2()).thenReturn(B2);
+        }
+
+        private Line getLine() {
+            return line;
+        }
+    }
+
+    private static final class TwoWindingsTransformerDcTestData {
+        private static double R = 0.0043;
+        private static double X = 0.0055618;
+        private static double G = 0.0;
+        private static double B = 0.0;
+        private static double RTC_RHO = 1.0;
+        private static double RATEDU1 = 0.969;
+        private static double RATEDU2 = 1.0;
+
+        private static RatioTapChanger rtc;
+        private static RatioTapChangerStep rtcStep;
+        private static TwoWindingsTransformer twt;
+
+        private TwoWindingsTransformerDcTestData() {
+            twt = Mockito.mock(TwoWindingsTransformer.class);
+            Mockito.when(twt.getR()).thenReturn(R);
+            Mockito.when(twt.getX()).thenReturn(X);
+            Mockito.when(twt.getG()).thenReturn(G);
+            Mockito.when(twt.getB()).thenReturn(B);
+
+            rtc = Mockito.mock(RatioTapChanger.class);
+            rtcStep = Mockito.mock(RatioTapChangerStep.class);
+            Mockito.when(twt.getRatioTapChanger()).thenReturn(rtc);
+            Mockito.when(rtc.getCurrentStep()).thenReturn(rtcStep);
+            Mockito.when(rtcStep.getRho()).thenReturn(RTC_RHO);
+
+            Mockito.when(twt.getRatedU1()).thenReturn(RATEDU1);
+            Mockito.when(twt.getRatedU2()).thenReturn(RATEDU2);
+        }
+
+        private TwoWindingsTransformer getTwoWindingsTransformer() {
+            return twt;
+        }
+    }
+
+    private static final class PhaseShifterDcTestData {
+        private static double R = 0.00043;
+        private static double X = 0.0020912;
+        private static double G = 0.0;
+        private static double B = 0.0;
+        private static double PTC_RHO = 1.0;
+        private static double PTC_ALPHA = 10.0;
+        private static double RATEDU1 = 0.978;
+        private static double RATEDU2 = 1.0;
+
+        private static PhaseTapChanger ptc;
+        private static PhaseTapChangerStep ptcStep;
+        private static TwoWindingsTransformer twt;
+
+        private PhaseShifterDcTestData() {
+            twt = Mockito.mock(TwoWindingsTransformer.class);
+            Mockito.when(twt.getR()).thenReturn(R);
+            Mockito.when(twt.getX()).thenReturn(X);
+            Mockito.when(twt.getG()).thenReturn(G);
+            Mockito.when(twt.getB()).thenReturn(B);
+
+            ptc = Mockito.mock(PhaseTapChanger.class);
+            ptcStep = Mockito.mock(PhaseTapChangerStep.class);
+            Mockito.when(twt.getPhaseTapChanger()).thenReturn(ptc);
+            Mockito.when(ptc.getCurrentStep()).thenReturn(ptcStep);
+            Mockito.when(ptcStep.getRho()).thenReturn(PTC_RHO);
+            Mockito.when(ptcStep.getAlpha()).thenReturn(PTC_ALPHA);
+
+            Mockito.when(twt.getRatedU1()).thenReturn(RATEDU1);
+            Mockito.when(twt.getRatedU2()).thenReturn(RATEDU2);
+        }
+
+        private TwoWindingsTransformer getTwoWindingsTransformer() {
+            return twt;
+        }
+    }
 }

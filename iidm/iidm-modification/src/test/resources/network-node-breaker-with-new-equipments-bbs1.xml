@@ -283,7 +283,7 @@
     </iidm:extension>
     <iidm:extension id="newBattery">
         <cp:position>
-            <cp:feeder name="newBattery" order="115" direction="BOTTOM"/>
+            <cp:feeder name="newBattery" order="71" direction="BOTTOM"/>
         </cp:position>
     </iidm:extension>
     <iidm:extension id="newLccConverterStation">

@@ -9,8 +9,6 @@ package com.powsybl.ucte.converter;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Enums;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.config.PlatformConfig;
@@ -322,8 +320,6 @@ public class UcteImporter implements Importer {
                     .setMaxQ(-xnode.getMaximumPermissibleReactivePowerGeneration())
                     .add();
         }
-
-        dl.newExtension(XnodeAdder.class).withCode(xnode.getCode().toString()).add();
 
         if (ucteLine.getCurrentLimit() != null) {
             dl.newCurrentLimits()
@@ -694,7 +690,6 @@ public class UcteImporter implements Importer {
                 .setTargetQ(-targetQ)
                 .add()
                 .add();
-        yBoundaryLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();
         addXnodeStatusProperty(ucteXnode, yBoundaryLine);
         addGeographicalNameProperty(ucteXnode, yBoundaryLine);
 
@@ -837,12 +832,8 @@ public class UcteImporter implements Importer {
         return bus != null ? bus.getId() : null;
     }
 
-    private static BoundaryLine getMatchingDanglingLine(BoundaryLine dl1, Multimap<String, BoundaryLine> danglingLinesByXnodeCode) {
-        Xnode xnodExtension = dl1.getExtension(Xnode.class);
-        if (xnodExtension == null) {
-            throw new UcteException("Dangling line " + dl1.getNameOrId() + " doesn't have the Xnode extension");
-        }
-        String otherXnodeCode = xnodExtension.getCode();
+    private static BoundaryLine getMatchingDanglingLine(BoundaryLine dl1, Map<String, List<BoundaryLine>> danglingLinesByXnodeCode) {
+        String otherXnodeCode = dl1.getUcteXnodeCode();
         List<BoundaryLine> matchingBoundaryLines = danglingLinesByXnodeCode.get(otherXnodeCode)
                 .stream().filter(dl -> dl != dl1)
                 .collect(Collectors.toList());
@@ -985,9 +976,9 @@ public class UcteImporter implements Importer {
     }
 
     private void mergeXnodeDanglingLines(UcteNetwork ucteNetwork, Network network) {
-        Multimap<String, BoundaryLine> danglingLinesByXnodeCode = HashMultimap.create();
+        Map<String, List<BoundaryLine>> danglingLinesByXnodeCode = new HashMap<>();
         for (BoundaryLine dl : network.getBoundaryLines(DanglingLineFilter.ALL)) {
-            danglingLinesByXnodeCode.put(dl.getExtension(Xnode.class).getCode(), dl);
+            danglingLinesByXnodeCode.computeIfAbsent(dl.getUcteXnodeCode(), code -> new ArrayList<>()).add(dl);
         }
 
         Set<BoundaryLine> boundaryLinesToProcesses = Sets.newHashSet(network.getBoundaryLines(DanglingLineFilter.ALL));
@@ -1013,17 +1004,6 @@ public class UcteImporter implements Importer {
         // lexical sort to always end up with same merge line id
         String mergeLineId = dlAtSideOne.getId() + " + " + dlAtSideTwo.getId();
 
-        // create MergedXnode extension
-        // In case R1 and R2 (resp. X1 and X2) are zero, rdp (resp. xdp) is set to 0.5:
-        // by default the line is split in the middle.
-        // R1 = 0 and R2 = 0 (resp. X1 = 0 and X2 = 0) are recovered when splitting the mergedXnode anyway.
-        // FIXME: not useful anymore.
-        double sumR = dlAtSideOne.getR() + dlAtSideTwo.getR();
-        double sumX = dlAtSideOne.getX() + dlAtSideTwo.getX();
-        double rdp = (sumR == 0.) ? 0.5 : dlAtSideOne.getR() / sumR;
-        double xdp = (sumX == 0.) ? 0.5 : dlAtSideOne.getX() / sumX;
-        String xnodeCode = dlAtSideOne.getExtension(Xnode.class).getCode();
-
         TieLine mergeLine = network.newTieLine()
                 .setId(mergeLineId)
                 .setDanglingLine1(dlAtSideOne.getId())
@@ -1034,29 +1014,8 @@ public class UcteImporter implements Importer {
         addElementNameProperty(properties, dlAtSideOne, dlAtSideTwo);
         addGeographicalNameProperty(ucteNetwork, properties, dlAtSideOne, dlAtSideTwo);
         addXnodeStatusProperty(properties, dlAtSideOne);
-        double b1dp = dlAtSideOne.getB() == 0 ? 0.5 : 1;
-        double g1dp = dlAtSideOne.getG() == 0 ? 0.5 : 1;
-        double b2dp = dlAtSideTwo.getB() == 0 ? 0.5 : 0;
-        double g2dp = dlAtSideTwo.getG() == 0 ? 0.5 : 0;
-        String id1 = dlAtSideOne.getId();
-        boolean fict1 = dlAtSideOne.isFictitious();
-        String id2 = dlAtSideTwo.getId();
-        boolean fict2 = dlAtSideTwo.isFictitious();
 
         properties.forEach(mergeLine::setProperty);
-
-        mergeLine.newExtension(MergedXnodeAdder.class)
-                .withRdp(rdp).withXdp(xdp)
-                .withLine1Name(id1)
-                .withLine1Fictitious(fict1)
-                .withB1dp(b1dp)
-                .withG1dp(g1dp)
-                .withLine2Name(id2)
-                .withLine2Fictitious(fict2)
-                .withB2dp(b2dp)
-                .withG2dp(g2dp)
-                .withCode(xnodeCode)
-                .add();
     }
 
     @Override

@@ -55,10 +55,15 @@ public class CgmesExportContext {
 
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
-    private boolean exportBoundaryPowerFlows = true;
-    private boolean exportFlowsForSwitches = false;
+    public static final boolean EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE = true;
+    public static final boolean EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE = true;
+    public static final boolean ENCODE_IDS_DEFAULT_VALUE = true;
+    public static final double MAXIMUM_DOUBLE_DEFAULT_VALUE = Double.MAX_VALUE;
+
+    private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
+    private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
-    private boolean encodeIds = true;
+    private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
     private final Map<Double, BaseVoltageMapping.BaseVoltageSource> baseVoltageByNominalVoltageMapping = new HashMap<>();
 
@@ -69,7 +74,7 @@ public class CgmesExportContext {
 
     // Update dependencies in a way that:
     // [EQ.dependentOn EQ_BD]
-    // SV.dependentOn TP, SSH
+    // SV.dependentOn TP, SSH[, TP_BD]
     // TP.dependentOn EQ[, EQ_BD][, TP_BD]
     // SSH.dependentOn EQ
     public void updateDependencies() {
@@ -89,7 +94,6 @@ public class CgmesExportContext {
             Set<String> sshModelIds = getSshModelDescription().getIds();
             if (!sshModelIds.isEmpty()) {
                 getSvModelDescription().addDependencies(sshModelIds);
-                getSvModelDescription().addDependencies(sshModelIds);
             }
             if (boundaryEqId != null) {
                 getEqModelDescription().addDependency(boundaryEqId);
@@ -97,6 +101,7 @@ public class CgmesExportContext {
             }
             if (boundaryTpId != null) {
                 getTpModelDescription().addDependency(boundaryTpId);
+                getSvModelDescription().addDependency(boundaryTpId);
             }
         }
     }
@@ -339,6 +344,13 @@ public class CgmesExportContext {
         boolean ignored = c.isFictitious() &&
                 (c instanceof Load
                         || c instanceof Switch && "true".equals(c.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL)));
+        if (c instanceof Switch) {
+            Switch ss = (Switch) c;
+            VoltageLevel.BusBreakerView view = ss.getVoltageLevel().getBusBreakerView();
+            if (ss.isRetained() && view.getBus1(ss.getId()).equals(view.getBus2(ss.getId()))) {
+                ignored = true;
+            }
+        }
         return !ignored;
     }
 

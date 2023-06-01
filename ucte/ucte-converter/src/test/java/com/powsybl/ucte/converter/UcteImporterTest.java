@@ -11,7 +11,6 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
-import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.ucte.converter.util.UcteConstants;
@@ -115,8 +114,6 @@ class UcteImporterTest {
         assertEquals(1, network.getTieLineCount());
         TieLine l = network.getTieLineStream().findFirst().orElseThrow(IllegalStateException::new);
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());
-        MergedXnode mergedXnode = l.getExtension(MergedXnode.class);
-        assertNotNull(mergedXnode);
         assertTrue(l.getBoundaryLine1().getCurrentLimits().isPresent());
         assertTrue(l.getBoundaryLine2().getCurrentLimits().isPresent());
     }

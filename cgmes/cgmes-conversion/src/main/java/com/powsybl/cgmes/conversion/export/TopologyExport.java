@@ -139,11 +139,15 @@ public final class TopologyExport {
             return context.getNamingStrategy().getCgmesId(selectedBus.get());
         }
 
-        return context.getNamingStrategy().getCgmesId(nodeSet.stream()
+        String disconnectedBusId = nodeSet.stream()
                 .sorted()
                 .findFirst()
                 .map(selectedNode -> vl.getId() + "_" + selectedNode)
-                .orElseThrow(() -> new PowsyblException("nodeSet is never empty")));
+                .orElseThrow(() -> new PowsyblException("nodeSet is never empty"));
+        if (vl.getNetwork().getIdentifiable(disconnectedBusId) != null) { // can happen, particularly with busbar sections - must be distinct or mRIDs will be identical
+            disconnectedBusId += "_TN";
+        }
+        return context.getNamingStrategy().getCgmesId(disconnectedBusId);
     }
 
     private static void writeTopologicalNode(String tn, String tname, Bus bus, VoltageLevel voltageLevel, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

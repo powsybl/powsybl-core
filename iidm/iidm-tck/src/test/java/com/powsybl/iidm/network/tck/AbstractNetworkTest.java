@@ -358,9 +358,9 @@ public abstract class AbstractNetworkTest {
     public void testVoltageLevelGetConnectable() {
         Network n = EurostagTutorialExample1Factory.create();
         assertNotNull(n.getVoltageLevel(VLLOAD).getConnectable("LOAD", Load.class));
-        assertNotNull(n.getVoltageLevel(VLLOAD).getConnectable(NHV2_NLOAD, Branch.class));
+        assertNotNull(n.getVoltageLevel(VLLOAD).getConnectable(NHV2_NLOAD, TwoWindingsTransformer.class));
         assertNull(n.getVoltageLevel(VLGEN).getConnectable("LOAD", Load.class));
-        assertNull(n.getVoltageLevel(VLGEN).getConnectable(NHV2_NLOAD, Branch.class));
+        assertNull(n.getVoltageLevel(VLGEN).getConnectable(NHV2_NLOAD, TwoWindingsTransformer.class));
     }
 
     @Test
