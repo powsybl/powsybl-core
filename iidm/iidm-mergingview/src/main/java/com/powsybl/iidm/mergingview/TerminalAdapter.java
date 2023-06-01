@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraversalType;
 
 import java.util.HashMap;
 import java.util.List;
@@ -220,7 +221,12 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
     }
 
     @Override
-    public void traverse(final TopologyTraverser traverser) {
-        getDelegate().traverse(new TopologyTraverserAdapter(traverser, getIndex()));
+    public void traverse(TopologyTraverser traverser) {
+        traverse(traverser, TraversalType.DEPTH_FIRST);
+    }
+
+    @Override
+    public void traverse(final TopologyTraverser traverser, TraversalType traversalType) {
+        getDelegate().traverse(new TopologyTraverserAdapter(traverser, getIndex()), traversalType);
     }
 }
