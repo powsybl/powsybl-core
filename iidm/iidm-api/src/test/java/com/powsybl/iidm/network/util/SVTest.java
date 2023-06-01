@@ -18,7 +18,9 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerStep;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  *
@@ -204,7 +206,12 @@ class SVTest {
         private static double B1 = 0.0020;
         private static double G2 = 0.01;
         private static double B2 = 0.0020;
-        private Line line;
+        private static double VN = 138.0;
+        private static Line line;
+        private static Terminal t1;
+        private static Terminal t2;
+        private static VoltageLevel vl1;
+        private static VoltageLevel vl2;
 
         private LineTestData() {
             line = Mockito.mock(Line.class);
@@ -214,6 +221,18 @@ class SVTest {
             Mockito.when(line.getB1()).thenReturn(B1);
             Mockito.when(line.getG2()).thenReturn(G2);
             Mockito.when(line.getB2()).thenReturn(B2);
+
+            t1 = Mockito.mock(Terminal.class);
+            t2 = Mockito.mock(Terminal.class);
+            vl1 = Mockito.mock(VoltageLevel.class);
+            vl2 = Mockito.mock(VoltageLevel.class);
+
+            Mockito.when(line.getTerminal1()).thenReturn(t1);
+            Mockito.when(line.getTerminal2()).thenReturn(t2);
+            Mockito.when(t1.getVoltageLevel()).thenReturn(vl1);
+            Mockito.when(t2.getVoltageLevel()).thenReturn(vl2);
+            Mockito.when(vl1.getNominalV()).thenReturn(VN);
+            Mockito.when(vl2.getNominalV()).thenReturn(VN);
         }
 
         private Line getLine() {
@@ -226,7 +245,11 @@ class SVTest {
         private static double X = 40.20;
         private static double G = 0.01;
         private static double B = 0.0016;
-        private DanglingLine danglinLine;
+        private static double VN = 138.0;
+        private static DanglingLine danglinLine;
+
+        private static Terminal t;
+        private static VoltageLevel vl;
 
         private DanglingLineTestData() {
             danglinLine = Mockito.mock(DanglingLine.class);
@@ -234,6 +257,13 @@ class SVTest {
             Mockito.when(danglinLine.getX()).thenReturn(X);
             Mockito.when(danglinLine.getG()).thenReturn(G);
             Mockito.when(danglinLine.getB()).thenReturn(B);
+
+            t = Mockito.mock(Terminal.class);
+            vl = Mockito.mock(VoltageLevel.class);
+
+            Mockito.when(danglinLine.getTerminal()).thenReturn(t);
+            Mockito.when(t.getVoltageLevel()).thenReturn(vl);
+            Mockito.when(vl.getNominalV()).thenReturn(VN);
         }
 
         private DanglingLine getDanglingLine() {
@@ -259,12 +289,16 @@ class SVTest {
         private static double PTC_B = 0.0;
         private static double RATEDU1 = 230.0;
         private static double RATEDU2 = 138.0;
+        private static double VN = 138.0;
 
         private static RatioTapChanger rtc;
         private static RatioTapChangerStep rtcStep;
         private static PhaseTapChanger ptc;
         private static PhaseTapChangerStep ptcStep;
         private static TwoWindingsTransformer twt;
+
+        private static Terminal t2;
+        private static VoltageLevel vl2;
 
         private TwoWindingsTransformerTestData() {
             twt = Mockito.mock(TwoWindingsTransformer.class);
@@ -296,6 +330,13 @@ class SVTest {
 
             Mockito.when(twt.getRatedU1()).thenReturn(RATEDU1);
             Mockito.when(twt.getRatedU2()).thenReturn(RATEDU2);
+
+            t2 = Mockito.mock(Terminal.class);
+            vl2 = Mockito.mock(VoltageLevel.class);
+
+            Mockito.when(twt.getTerminal2()).thenReturn(t2);
+            Mockito.when(t2.getVoltageLevel()).thenReturn(vl2);
+            Mockito.when(vl2.getNominalV()).thenReturn(VN);
         }
 
         private TwoWindingsTransformer getTwoWindingsTransformer() {
@@ -316,10 +357,14 @@ class SVTest {
         private static double PTC_B = 0.0;
         private static double RATEDU1 = 230.0;
         private static double RATEDU2 = 138.0;
+        private static double VN = 138.0;
 
         private static PhaseTapChanger ptc;
         private static PhaseTapChangerStep ptcStep;
         private static TwoWindingsTransformer twt;
+
+        private static Terminal t2;
+        private static VoltageLevel vl2;
 
         private TwoWindingsTransformerWithoutRtcTestData() {
             twt = Mockito.mock(TwoWindingsTransformer.class);
@@ -343,6 +388,13 @@ class SVTest {
 
             Mockito.when(twt.getRatedU1()).thenReturn(RATEDU1);
             Mockito.when(twt.getRatedU2()).thenReturn(RATEDU2);
+
+            t2 = Mockito.mock(Terminal.class);
+            vl2 = Mockito.mock(VoltageLevel.class);
+
+            Mockito.when(twt.getTerminal2()).thenReturn(t2);
+            Mockito.when(t2.getVoltageLevel()).thenReturn(vl2);
+            Mockito.when(vl2.getNominalV()).thenReturn(VN);
         }
 
         private TwoWindingsTransformer getTwoWindingsTransformer() {
@@ -362,10 +414,14 @@ class SVTest {
         private static double RTC_B = 0.0;
         private static double RATEDU1 = 230.0;
         private static double RATEDU2 = 138.0;
+        private static double VN = 138.0;
 
         private static RatioTapChanger rtc;
         private static RatioTapChangerStep rtcStep;
         private static TwoWindingsTransformer twt;
+
+        private static Terminal t2;
+        private static VoltageLevel vl2;
 
         private TwoWindingsTransformerWithoutPtcTestData() {
             twt = Mockito.mock(TwoWindingsTransformer.class);
@@ -388,6 +444,13 @@ class SVTest {
 
             Mockito.when(twt.getRatedU1()).thenReturn(RATEDU1);
             Mockito.when(twt.getRatedU2()).thenReturn(RATEDU2);
+
+            t2 = Mockito.mock(Terminal.class);
+            vl2 = Mockito.mock(VoltageLevel.class);
+
+            Mockito.when(twt.getTerminal2()).thenReturn(t2);
+            Mockito.when(t2.getVoltageLevel()).thenReturn(vl2);
+            Mockito.when(vl2.getNominalV()).thenReturn(VN);
         }
 
         private TwoWindingsTransformer getTwoWindingsTransformer() {
@@ -414,16 +477,15 @@ class SVTest {
         SV svA2 = svA1.otherSide(line);
         assertEquals(p2, svA2.getP(), tol);
         assertEquals(a2, svA2.getA(), tol);
-        assertEquals(p2, svA1.otherSideP(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
-        assertEquals(a2, svA1.otherSideA(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
+        assertEquals(p2, svA1.otherSide(line).getP(), tol);
+        assertEquals(a2, svA1.otherSide(line).getA(), tol);
 
         SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
         SV svB1 = svB2.otherSide(line);
         assertEquals(p1, svB1.getP(), tol);
         assertEquals(a1, svB1.getA(), tol);
-        assertEquals(p1, svB2.otherSideP(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
-        assertEquals(a1, svB2.otherSideA(line.getR(), line.getX(), line.getG1(), line.getB1(), line.getG2(), line.getB2(), 1.0, 0.0), tol);
-
+        assertEquals(p1, svB2.otherSide(line).getP(), tol);
+        assertEquals(a1, svB2.otherSide(line).getA(), tol);
     }
 
     @Test
@@ -485,7 +547,12 @@ class SVTest {
         private static double B1 = 0.0020;
         private static double G2 = 0.01;
         private static double B2 = 0.0020;
-        private Line line;
+        private static double VN = 1.0;
+        private static Line line;
+        private static Terminal t1;
+        private static Terminal t2;
+        private static VoltageLevel vl1;
+        private static VoltageLevel vl2;
 
         private LineDcTestData() {
             line = Mockito.mock(Line.class);
@@ -495,6 +562,18 @@ class SVTest {
             Mockito.when(line.getB1()).thenReturn(B1);
             Mockito.when(line.getG2()).thenReturn(G2);
             Mockito.when(line.getB2()).thenReturn(B2);
+
+            t1 = Mockito.mock(Terminal.class);
+            t2 = Mockito.mock(Terminal.class);
+            vl1 = Mockito.mock(VoltageLevel.class);
+            vl2 = Mockito.mock(VoltageLevel.class);
+
+            Mockito.when(line.getTerminal1()).thenReturn(t1);
+            Mockito.when(line.getTerminal2()).thenReturn(t2);
+            Mockito.when(t1.getVoltageLevel()).thenReturn(vl1);
+            Mockito.when(t2.getVoltageLevel()).thenReturn(vl2);
+            Mockito.when(vl1.getNominalV()).thenReturn(VN);
+            Mockito.when(vl2.getNominalV()).thenReturn(VN);
         }
 
         private Line getLine() {
@@ -510,10 +589,14 @@ class SVTest {
         private static double RTC_RHO = 1.0;
         private static double RATEDU1 = 0.969;
         private static double RATEDU2 = 1.0;
+        private static double VN = 1.0;
 
         private static RatioTapChanger rtc;
         private static RatioTapChangerStep rtcStep;
         private static TwoWindingsTransformer twt;
+
+        private static Terminal t2;
+        private static VoltageLevel vl2;
 
         private TwoWindingsTransformerDcTestData() {
             twt = Mockito.mock(TwoWindingsTransformer.class);
@@ -530,6 +613,13 @@ class SVTest {
 
             Mockito.when(twt.getRatedU1()).thenReturn(RATEDU1);
             Mockito.when(twt.getRatedU2()).thenReturn(RATEDU2);
+
+            t2 = Mockito.mock(Terminal.class);
+            vl2 = Mockito.mock(VoltageLevel.class);
+
+            Mockito.when(twt.getTerminal2()).thenReturn(t2);
+            Mockito.when(t2.getVoltageLevel()).thenReturn(vl2);
+            Mockito.when(vl2.getNominalV()).thenReturn(VN);
         }
 
         private TwoWindingsTransformer getTwoWindingsTransformer() {
@@ -546,10 +636,14 @@ class SVTest {
         private static double PTC_ALPHA = 10.0;
         private static double RATEDU1 = 0.978;
         private static double RATEDU2 = 1.0;
+        private static double VN = 1.0;
 
         private static PhaseTapChanger ptc;
         private static PhaseTapChangerStep ptcStep;
         private static TwoWindingsTransformer twt;
+
+        private static Terminal t2;
+        private static VoltageLevel vl2;
 
         private PhaseShifterDcTestData() {
             twt = Mockito.mock(TwoWindingsTransformer.class);
@@ -567,6 +661,13 @@ class SVTest {
 
             Mockito.when(twt.getRatedU1()).thenReturn(RATEDU1);
             Mockito.when(twt.getRatedU2()).thenReturn(RATEDU2);
+
+            t2 = Mockito.mock(Terminal.class);
+            vl2 = Mockito.mock(VoltageLevel.class);
+
+            Mockito.when(twt.getTerminal2()).thenReturn(t2);
+            Mockito.when(t2.getVoltageLevel()).thenReturn(vl2);
+            Mockito.when(vl2.getNominalV()).thenReturn(VN);
         }
 
         private TwoWindingsTransformer getTwoWindingsTransformer() {

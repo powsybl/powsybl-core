@@ -74,112 +74,93 @@ public class SV {
     }
 
     public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        if (isAllDataForCalculatingOtherSide()) {
-            LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
-                new Complex(g1, b1), new Complex(g2, b2));
-            return otherSide(adm);
-        } else if (isAllDataForCalculatingOtherSideDcApproximation()) {
-            return otherSideDcApproximation(x, 1 / rho, -alpha, true); // we always consider useRatio true
-        } else {
-            Branch.Side otherSide = (side == Branch.Side.ONE) ? Branch.Side.TWO : Branch.Side.ONE;
-            return new SV(Double.NaN, Double.NaN, Double.NaN, Double.NaN, otherSide);
-        }
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN);
     }
 
     public SV otherSide(Line l) {
-        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0);
+        double zb = l.getTerminal1().getVoltageLevel().getNominalV() * l.getTerminal2().getVoltageLevel().getNominalV();
+        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0, zb);
     }
 
     public SV otherSide(TieLine l) {
-        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0);
+        double zb = l.getDanglingLine1().getTerminal().getVoltageLevel().getNominalV() * l.getDanglingLine2().getTerminal().getVoltageLevel().getNominalV();
+        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0, zb);
     }
 
     public SV otherSide(TwoWindingsTransformer twt) {
-        return otherSide(getR(twt), getX(twt), getG(twt), getB(twt), 0.0, 0.0, getRho(twt), getAlpha(twt));
+        double zb = twt.getTerminal2().getVoltageLevel().getNominalV() * twt.getTerminal2().getVoltageLevel().getNominalV();
+        return otherSide(getR(twt), getX(twt), getG(twt), getB(twt), 0.0, 0.0, getRho(twt), getAlpha(twt), zb);
     }
 
     public SV otherSide(TwoWindingsTransformer twt, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
-            return otherSide(getR(twt), getX(twt), getG(twt) * 0.5, getB(twt) * 0.5, getG(twt) * 0.5, getB(twt) * 0.5, getRho(twt), getAlpha(twt));
+            double zb = twt.getTerminal2().getVoltageLevel().getNominalV() * twt.getTerminal2().getVoltageLevel().getNominalV();
+            return otherSide(getR(twt), getX(twt), getG(twt) * 0.5, getB(twt) * 0.5, getG(twt) * 0.5, getB(twt) * 0.5, getRho(twt), getAlpha(twt), zb);
         } else {
             return otherSide(twt);
         }
     }
 
     public SV otherSide(DanglingLine dl) {
-        return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        double zb = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
+        return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0, zb);
     }
 
     public SV otherSide(DanglingLine dl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
-            return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+            double zb = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
+            return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0, zb);
         } else {
             return otherSide(dl);
         }
     }
 
     public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        return otherSide(r, x, g1, b1, g2, b2, rho, alpha).getP();
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getP();
     }
 
     public double otherSideP(DanglingLine dl) {
-        return otherSideP(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        return otherSide(dl).getP();
     }
 
     public double otherSideP(DanglingLine dl, boolean splitShuntAdmittance) {
-        if (splitShuntAdmittance) {
-            return otherSideP(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
-        } else {
-            return otherSideP(dl);
-        }
+        return otherSide(dl, splitShuntAdmittance).getP();
     }
 
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        return otherSide(r, x, g1, b1, g2, b2, rho, alpha).getQ();
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getQ();
     }
 
     public double otherSideQ(DanglingLine dl) {
-        return otherSideQ(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        return otherSide(dl).getQ();
     }
 
     public double otherSideQ(DanglingLine dl, boolean splitShuntAdmittance) {
-        if (splitShuntAdmittance) {
-            return otherSideQ(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
-        } else {
-            return otherSideQ(dl);
-        }
+        return otherSide(dl, splitShuntAdmittance).getQ();
     }
 
     public double otherSideU(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        return otherSide(r, x, g1, b1, g2, b2, rho, alpha).getU();
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getU();
     }
 
     public double otherSideU(DanglingLine dl) {
-        return otherSideU(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        return otherSide(dl).getU();
     }
 
     public double otherSideU(DanglingLine dl, boolean splitShuntAdmittance) {
-        if (splitShuntAdmittance) {
-            return otherSideU(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
-        } else {
-            return otherSideU(dl);
-        }
+        return otherSide(dl, splitShuntAdmittance).getU();
     }
 
     public double otherSideA(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        return otherSide(r, x, g1, b1, g2, b2, rho, alpha).getA();
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getA();
     }
 
     public double otherSideA(DanglingLine dl) {
-        return otherSideA(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        return otherSide(dl).getA();
     }
 
     public double otherSideA(DanglingLine dl, boolean splitShuntAdmittance) {
-        if (splitShuntAdmittance) {
-            return otherSideA(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
-        } else {
-            return otherSideA(dl);
-        }
+        return otherSide(dl, splitShuntAdmittance).getA();
     }
 
     private static double getRho(TwoWindingsTransformer twt) {
@@ -254,8 +235,21 @@ public class SV {
         return !(Double.isNaN(p) || Double.isNaN(q) || Double.isNaN(u) || Double.isNaN(a));
     }
 
-    private boolean isAllDataForCalculatingOtherSideDcApproximation() {
-        return !(Double.isNaN(p) || Double.isNaN(a));
+    private boolean isAllDataForCalculatingOtherSideDcApproximation(double zb) {
+        return !(Double.isNaN(p) || Double.isNaN(a) || Double.isNaN(zb));
+    }
+
+    private SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha, double zb) {
+        if (isAllDataForCalculatingOtherSide()) {
+            LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
+                new Complex(g1, b1), new Complex(g2, b2));
+            return otherSide(adm);
+        } else if (isAllDataForCalculatingOtherSideDcApproximation(zb)) {
+            return otherSideDcApproximation(x, 1 / rho, -alpha, zb, true); // we always consider useRatio true
+        } else {
+            Branch.Side otherSide = (side == Branch.Side.ONE) ? Branch.Side.TWO : Branch.Side.ONE;
+            return new SV(Double.NaN, Double.NaN, Double.NaN, Double.NaN, otherSide);
+        }
     }
 
     private SV otherSide(LinkData.BranchAdmittanceMatrix adm) {
@@ -278,9 +272,10 @@ public class SV {
         return new SV(s.getReal(), s.getImaginary(), v.abs(), Math.toDegrees(v.getArgument()), otherSide);
     }
 
-    private SV otherSideDcApproximation(double x, double ratio, double angle, boolean useRatio) {
+    private SV otherSideDcApproximation(double x, double ratio, double angle, double zb, boolean useRatio) {
         double pOtherSide = -p;
-        double b = useRatio ? 1 / (x * ratio) : 1 / x;
+        double xpu = x / zb;
+        double b = useRatio ? 1 / (xpu * ratio) : 1 / xpu;
         double aOtherSide;
         Branch.Side otherSide;
         if (side == Branch.Side.ONE) {
