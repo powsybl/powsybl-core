@@ -424,12 +424,20 @@ public class AmplNetworkWriter {
                 context.busIdsToExport.add(middleBusId);
                 int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
                 int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
+
+                double v = !Objects.equals(twt.getProperty("v"), null) ?
+                        Double.parseDouble(twt.getProperty("v")) / twt.getRatedU0()
+                        : Double.NaN;
+                double angle = !Objects.equals(twt.getProperty("angle"), null) ?
+                        Math.toRadians(Double.parseDouble(twt.getProperty("angle")))
+                        : Double.NaN;
+
                 formatter.writeCell(variantIndex)
                         .writeCell(middleBusNum)
                         .writeCell(middleVlNum)
                         .writeCell(middleCcNum)
-                        .writeCell(Float.NaN)
-                        .writeCell(Double.NaN)
+                        .writeCell(v)
+                        .writeCell(angle)
                         .writeCell(0.0)
                         .writeCell(0.0)
                         .writeCell(faultNum)
