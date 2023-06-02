@@ -13,6 +13,7 @@ import com.powsybl.commons.io.table.TableFormatter;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -25,14 +26,21 @@ import java.util.Locale;
  */
 public class AmplDatTableFormatter extends CsvTableFormatter {
 
-    public AmplDatTableFormatter(Writer writer, String title, float invalidFloatValue, boolean writeHeader, Locale locale, Column... columns) {
+    public AmplDatTableFormatter(Writer writer, String title, float invalidFloatValue, boolean writeHeader,
+                                 Locale locale, Column... columns) {
         super(writer, title, ' ', Float.toString(invalidFloatValue), writeHeader, locale, columns);
+    }
+
+    public AmplDatTableFormatter(Writer writer, String title, float invalidFloatValue, boolean writeHeader,
+                                 Locale locale, List<Column> columns) {
+        super(writer, title, ' ', Float.toString(invalidFloatValue), writeHeader, locale,
+            columns.toArray(new Column[0]));
     }
 
     @Override
     protected void writeHeader() throws IOException {
         writer.append("#").append(title).append(System.lineSeparator())
-              .append("#");
+            .append("#");
         for (int i = 0; i < columns.length; i++) {
             writer.append("\"").append(columns[i].getName()).append("\"");
             if (i < columns.length - 1) {
