@@ -24,8 +24,11 @@ import java.util.*;
 import static com.powsybl.ampl.converter.AmplConstants.*;
 
 /**
- * @author Nicolas Pierre <nicolas.pierre at artelys.com>
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * Legacy exporter that must be retrocompatible,
+ * and only fixes should be made on this class.
+ *
+ * @author Nicolas Pierre <nicolas.pierre at artelys.com> for the refactor
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com> for the original code
  */
 public class BasicAmplExporter implements AmplColumnsExporter {
 
@@ -37,7 +40,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     private final int actionNum;
     private HashMap<String, HvdcLine> hvdcLinesMap;
 
-    public static AmplColumnsExporter.Factory getFactory() {
+    public static AmplExportVersion.Factory getFactory() {
         return BasicAmplExporter::new;
     }
 

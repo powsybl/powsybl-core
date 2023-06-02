@@ -6,11 +6,8 @@
  */
 package com.powsybl.ampl.converter.version;
 
-import com.powsybl.ampl.converter.AmplExportConfig;
-import com.powsybl.ampl.converter.AmplSubset;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
-import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 
 import java.io.IOException;
@@ -20,11 +17,6 @@ import java.util.List;
  * @author Nicolas Pierre <nicolas.pierre at artelys.com>
  */
 public interface AmplColumnsExporter {
-
-    interface Factory {
-        AmplColumnsExporter create(AmplExportConfig config, Network network, StringToIntMapper<AmplSubset> mapper,
-                                   int variantIndex, int faultNum, int actionNum);
-    }
 
     List<Column> getRtcColumns();
 
