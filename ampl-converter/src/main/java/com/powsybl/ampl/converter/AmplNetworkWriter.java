@@ -255,18 +255,16 @@ public class AmplNetworkWriter {
             for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
                 String vlId = getThreeWindingsTransformerMiddleVoltageLevelId(twt);
                 int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
-                Terminal t1 = twt.getLeg1().getTerminal();
-                VoltageLevel vl1 = t1.getVoltageLevel();
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
                         .writeCell("")
                         .writeCell(0)
-                        .writeCell(vl1.getNominalV())
+                        .writeCell(twt.getRatedU0())
                         .writeCell(Float.NaN)
                         .writeCell(Float.NaN)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(vl1.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
+                        .writeCell(twt.getLeg1().getTerminal().getVoltageLevel().getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
                         .writeCell(vlId)
                         .writeCell("");
                 addExtensions(num, twt);
@@ -844,34 +842,37 @@ public class AmplNetworkWriter {
             int bus2Num = getBusNum(bus2);
             String bus3Id = getBusId(bus3);
             int bus3Num = getBusNum(bus3);
+
+            double vb0 = twt.getRatedU0();
             double vb1 = vl1.getNominalV();
             double vb2 = vl2.getNominalV();
             double vb3 = vl3.getNominalV();
-            double zb1 = vb1 * vb1 / AmplConstants.SB;
-            double zb2 = vb2 * vb2 / AmplConstants.SB;
-            double zb3 = vb3 * vb3 / AmplConstants.SB;
-            double r1 = twt.getLeg1().getR() / zb1;
-            double x1 = twt.getLeg1().getX() / zb1;
-            double g1 = twt.getLeg1().getG() * zb1;
-            double b1 = twt.getLeg1().getB() * zb1;
 
-            double r2 = twt.getLeg2().getR() / zb2;
-            double x2 = twt.getLeg2().getX() / zb2;
-            double g2 = twt.getLeg2().getG() * zb2;
-            double b2 = twt.getLeg2().getB() * zb2;
+            double zb0 = vb0 * vb0 / AmplConstants.SB;
 
-            double r3 = twt.getLeg3().getR() / zb3;
-            double x3 = twt.getLeg3().getX() / zb3;
-            double g3 = twt.getLeg3().getG() * zb3;
-            double b3 = twt.getLeg3().getB() * zb3;
+            double r1 = twt.getLeg1().getR() / zb0;
+            double x1 = twt.getLeg1().getX() / zb0;
+            double g1 = twt.getLeg1().getG() * zb0;
+            double b1 = twt.getLeg1().getB() * zb0;
+
+            double r2 = twt.getLeg2().getR() / zb0;
+            double x2 = twt.getLeg2().getX() / zb0;
+            double g2 = twt.getLeg2().getG() * zb0;
+            double b2 = twt.getLeg2().getB() * zb0;
+
+            double r3 = twt.getLeg3().getR() / zb0;
+            double x3 = twt.getLeg3().getX() / zb0;
+            double g3 = twt.getLeg3().getG() * zb0;
+            double b3 = twt.getLeg3().getB() * zb0;
 
             double ratedU1 = twt.getLeg1().getRatedU();
             double ratedU2 = twt.getLeg2().getRatedU();
             double ratedU3 = twt.getLeg3().getRatedU();
-            double ratedU0 = twt.getRatedU0();
-            double ratio1 = ratedU0 / ratedU1;
-            double ratio2 = ratedU0 / ratedU2;
-            double ratio3 = ratedU0 / ratedU3;
+
+            double ratio1 = 1. / (ratedU1 / vb1);
+            double ratio2 = 1. / (ratedU2 / vb2);
+            double ratio3 = 1. / (ratedU3 / vb3);
+
             RatioTapChanger rtc1 = twt.getLeg1().getRatioTapChanger();
             RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
             RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
@@ -892,11 +893,11 @@ public class AmplNetworkWriter {
             if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus1Id)) {
                 formatter.writeCell(variantIndex)
                         .writeCell(num1)
-                        .writeCell(middleBusNum)
                         .writeCell(bus1Num)
+                        .writeCell(middleBusNum)
                         .writeCell(num3wt)
-                        .writeCell(middleVlNum)
                         .writeCell(vl1Num)
+                        .writeCell(middleVlNum)
                         .writeCell(r1)
                         .writeCell(x1)
                         .writeCell(g1)
@@ -906,12 +907,12 @@ public class AmplNetworkWriter {
                         .writeCell(ratio1)
                         .writeCell(rtc1Num)
                         .writeCell(ptc1Num)
-                        .writeCell(Double.NaN)
                         .writeCell(t1.getP())
                         .writeCell(Double.NaN)
                         .writeCell(t1.getQ())
                         .writeCell(Double.NaN)
                         .writeCell(getPermanentLimit(twt.getLeg1().getCurrentLimits().orElse(null)))
+                        .writeCell(Double.NaN)
                         .writeCell(false)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
@@ -1095,10 +1096,11 @@ public class AmplNetworkWriter {
             int legNumber = 0;
             for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
                 legNumber++;
-                RatioTapChanger rtc = leg.getRatioTapChanger();
-                Terminal t = leg.getTerminal();
-                double vb = t.getVoltageLevel().getNominalV();
+
+                double vb = twt.getRatedU0();
                 double zb = vb * vb / AmplConstants.SB;
+
+                RatioTapChanger rtc = leg.getRatioTapChanger();
                 if (rtc != null) {
                     String id = twt.getId() + "_leg" + legNumber + "_ratio_table";
                     writeRatioTapChanger(formatter, id, zb, leg.getX(), rtc);
@@ -1203,10 +1205,10 @@ public class AmplNetworkWriter {
         try {
             String ptcId = twt.getId() + leg;
             String tcsId = twt.getId() + leg + "_phase_table";
-            int rtcNum = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
+            int ptcNum = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
-                    .writeCell(rtcNum)
+                    .writeCell(ptcNum)
                     .writeCell(ptc.getTapPosition() - ptc.getLowTapPosition() + 1)
                     .writeCell(tcsNum)
                     .writeCell(faultNum)
@@ -1564,7 +1566,6 @@ public class AmplNetworkWriter {
                 int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
                 double minP = g.getMinP();
                 double maxP = g.getMaxP();
-                double vb = t.getVoltageLevel().getNominalV();
 
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
@@ -1580,7 +1581,7 @@ public class AmplNetworkWriter {
                         .writeCell(g.getReactiveLimits().getMaxQ(0))
                         .writeCell(g.getReactiveLimits().getMaxQ(minP))
                         .writeCell(g.isVoltageRegulatorOn())
-                        .writeCell(g.getTargetV() / vb)
+                        .writeCell(g.getTargetV() / g.getRegulatingTerminal().getVoltageLevel().getNominalV())
                         .writeCell(g.getTargetP())
                         .writeCell(g.getTargetQ())
                         .writeCell(faultNum)
