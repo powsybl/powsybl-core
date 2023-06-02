@@ -7,9 +7,12 @@
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -54,12 +57,28 @@ public final class AmplUtil {
         return mapper;
     }
 
-    static String getXnodeBusId(TieLine tieLine) {
+    public static String getXnodeBusId(TieLine tieLine) {
         return tieLine.getUcteXnodeCode();
     }
 
-    static String getXnodeVoltageLevelId(TieLine tieLine) {
+    public static String getXnodeVoltageLevelId(TieLine tieLine) {
         return tieLine.getUcteXnodeCode();
+    }
+
+    public static String getThreeWindingsTransformerMiddleBusId(ThreeWindingsTransformer twt) {
+        return twt.getId(); // same id as the transformer
+    }
+
+    public static String getThreeWindingsTransformerMiddleVoltageLevelId(ThreeWindingsTransformer twt) {
+        return twt.getId(); // same id as the transformer
+    }
+
+    public static String getDanglingLineMiddleBusId(DanglingLine dl) {
+        return dl.getId(); // same id as the dangling line
+    }
+
+    public static String getDanglingLineMiddleVoltageLevelId(DanglingLine dl) {
+        return dl.getId(); // same id as the dangling line
     }
 
     public static void fillMapper(StringToIntMapper<AmplSubset> mapper, Network network) {
@@ -224,6 +243,19 @@ public final class AmplUtil {
         mapper.reset(AmplSubset.THREE_WINDINGS_TRANSFO);
         mapper.reset(AmplSubset.STATIC_VAR_COMPENSATOR);
         mapper.reset(AmplSubset.HVDC_LINE);
+    }
+
+    public static String getLegSuffix(ThreeWindingsTransformer.Side leg) {
+        Objects.requireNonNull(leg);
+        switch (leg) {
+            case ONE:
+                return AmplConstants.LEG1_SUFFIX;
+            case TWO:
+                return AmplConstants.LEG2_SUFFIX;
+            case THREE:
+                return AmplConstants.LEG3_SUFFIX;
+        }
+        throw new PowsyblException("Unsupported three windings leg.");
     }
 
 }
