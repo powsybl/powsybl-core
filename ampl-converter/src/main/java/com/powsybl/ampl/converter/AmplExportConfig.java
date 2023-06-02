@@ -120,8 +120,9 @@ public class AmplExportConfig {
         return version;
     }
 
-    public void setVersion(AmplExportVersion version) {
+    public AmplExportConfig setVersion(AmplExportVersion version) {
         this.version = Objects.requireNonNull(version);
+        return this;
     }
 
 }
