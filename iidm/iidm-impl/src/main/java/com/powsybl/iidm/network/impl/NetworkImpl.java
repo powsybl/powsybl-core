@@ -36,7 +36,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
-    private final Map<String, RefChain<NetworkImpl>> refs = new HashMap<>();
+    private final Map<String, RefChain<NetworkImpl>> refByNetworkId = new HashMap<>();
 
     private ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
     private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -142,9 +142,9 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     NetworkImpl(String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
-        refs.put(id, new RefChain<>(new RefObj<>(this)));
+        refByNetworkId.put(id, new RefChain<>(new RefObj<>(this)));
         variantManager = new VariantManagerImpl(this);
-        variants = new VariantArray<>(refs.get(id), VariantImpl::new);
+        variants = new VariantArray<>(refByNetworkId.get(id), VariantImpl::new);
         // add the network the object list as it is a multi variant object
         // and it needs to be notified when and extension or a reduction of
         // the variant array is requested
@@ -152,7 +152,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     RefChain<NetworkImpl> getRef() {
-        return refs.get(id);
+        return refByNetworkId.get(id);
     }
 
     NetworkListenerList getListeners() {
@@ -209,7 +209,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     SubstationAdder newSubstation(String subNetwork) {
-        return new SubstationAdderImpl(Optional.ofNullable(subNetwork).map(refs::get).orElseGet(() -> refs.get(id)), subNetwork);
+        return new SubstationAdderImpl(Optional.ofNullable(subNetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subNetwork);
     }
 
     @Override
@@ -248,7 +248,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     VoltageLevelAdder newVoltageLevel(String subNetwork) {
-        return new VoltageLevelAdderImpl(Optional.ofNullable(subNetwork).map(refs::get).orElseGet(() -> refs.get(id)), subNetwork);
+        return new VoltageLevelAdderImpl(Optional.ofNullable(subNetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subNetwork);
     }
 
     @Override
@@ -366,7 +366,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     TwoWindingsTransformerAdderImpl newTwoWindingsTransformer(String subNetwork) {
-        return new TwoWindingsTransformerAdderImpl(Optional.ofNullable(subNetwork).map(refs::get).orElseGet(() -> refs.get(id)), subNetwork);
+        return new TwoWindingsTransformerAdderImpl(Optional.ofNullable(subNetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subNetwork);
     }
 
     @Override
@@ -395,7 +395,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer(String subNetwork) {
-        return new ThreeWindingsTransformerAdderImpl(Optional.ofNullable(subNetwork).map(refs::get).orElseGet(() -> refs.get(id)), subNetwork);
+        return new ThreeWindingsTransformerAdderImpl(Optional.ofNullable(subNetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subNetwork);
     }
 
     @Override
@@ -676,7 +676,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     HvdcLineAdder newHvdcLine(String subNetwork) {
-        return new HvdcLineAdderImpl(Optional.ofNullable(subNetwork).map(refs::get).orElseGet(() -> refs.get(id)), subNetwork);
+        return new HvdcLineAdderImpl(Optional.ofNullable(subNetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subNetwork);
     }
 
     @Override
@@ -755,7 +755,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         @Override
         protected ConnectedComponentImpl createComponent(int num, int size) {
-            return new ConnectedComponentImpl(num, size, network.refs.get(network.id));
+            return new ConnectedComponentImpl(num, size, network.refByNetworkId.get(network.id));
         }
     }
 
@@ -780,7 +780,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         @Override
         protected SynchronousComponentImpl createComponent(int num, int size) {
-            return new SynchronousComponentImpl(num, size, network.refs.get(network.id));
+            return new SynchronousComponentImpl(num, size, network.refByNetworkId.get(network.id));
         }
     }
 
@@ -949,9 +949,9 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         index.merge(otherNetwork.index);
 
         // fix network back reference of the other network objects
-        otherNetwork.refs.forEach((snId, ref) -> {
-            ref.setRef(refs.get(id));
-            refs.put(snId, ref);
+        otherNetwork.refByNetworkId.forEach((snId, ref) -> {
+            ref.setRef(refByNetworkId.get(id));
+            refByNetworkId.put(snId, ref);
         });
 
         replaceDanglingLineByLine(lines);
@@ -965,7 +965,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     private static Network createSubNetwork(NetworkImpl parent, Network original) {
-        Network sn = new SubNetworkImpl(parent, original.getId(), original.getOptionalName().orElse(null), original.getSourceFormat()).setCaseDate(original.getCaseDate());
+        Network sn = new SubNetworkImpl(parent, original.getId(), original.getOptionalName().orElse(null),
+                original.getSourceFormat()).setCaseDate(original.getCaseDate());
         new ArrayList<>(original.getExtensions())
                 .forEach(e -> Arrays.stream(e.getClass().getInterfaces())
                         .filter(c -> Objects.nonNull(original.getExtension(c)))

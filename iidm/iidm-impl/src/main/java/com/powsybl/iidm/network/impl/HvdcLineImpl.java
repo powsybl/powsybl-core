@@ -84,7 +84,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         if (subNetwork1 == subNetwork2) {
             return subNetwork1;
         }
-        return networkRef.get(); // Should not happen (HVDC line between two sub-networks
+        return networkRef.get();
     }
 
     @Override

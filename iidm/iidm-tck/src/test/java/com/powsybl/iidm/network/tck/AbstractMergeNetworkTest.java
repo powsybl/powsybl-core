@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public abstract class AbstractMergeNetworkTest {
 
     private static final String MERGE2 = "merge";
+    public static final String N1 = "n1";
 
     Network merge;
     Network n1;
@@ -25,7 +26,7 @@ public abstract class AbstractMergeNetworkTest {
     @BeforeEach
     public void setup() {
         merge = Network.create(MERGE2, "asdf");
-        n1 = Network.create("n1", "asdf");
+        n1 = Network.create(N1, "asdf");
         n2 = Network.create("n2", "qwer");
     }
 
@@ -146,27 +147,35 @@ public abstract class AbstractMergeNetworkTest {
         assertEquals(3, merge.getSubNetworks().size());
         checks(merge, 1, "asdf", d1);
         checks(merge, 2, "qwer", d2);
-        Network m = merge.getSubNetwork("merge");
+        // Subnetwork without elements shall still be empty
+        Network m = merge.getSubNetwork(MERGE2);
         assertNotNull(m);
         assertEquals(0, m.getSubstationCount());
         assertEquals(0, m.getVoltageLevelCount());
-        merge.getSubNetwork("n1").newSubstation().setId("s1bis").add().newVoltageLevel().setId("vl1bis").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(90.0).add();
+        // Subnetwork with elements shall keep its elements
+        Network m1 = merge.getSubNetwork(N1);
+        assertNotNull(m1);
+        assertEquals(1, m1.getSubstationCount());
+        assertEquals(1, m1.getVoltageLevelCount());
+        // Substation and voltage level created on subnetwork shall be affected to subnetwork
+        merge.getSubNetwork(N1).newSubstation().setId("s1bis").add().newVoltageLevel().setId("vl1bis").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(90.0).add();
         Substation s1bis = merge.getSubstation("s1bis");
         assertNotNull(s1bis);
-        assertSame(s1bis, merge.getSubNetwork("n1").getSubstation("s1bis"));
-        assertSame(merge.getSubNetwork("n1"), s1bis.getClosestNetwork());
+        assertSame(s1bis, merge.getSubNetwork(N1).getSubstation("s1bis"));
+        assertSame(merge.getSubNetwork(N1), s1bis.getClosestNetwork());
         assertNull(merge.getSubNetwork("n2").getSubstation("s1bis"));
         VoltageLevel vl1bis = merge.getVoltageLevel("vl1bis");
         assertNotNull(vl1bis);
-        assertSame(vl1bis, merge.getSubNetwork("n1").getVoltageLevel("vl1bis"));
-        assertSame(merge.getSubNetwork("n1"), vl1bis.getClosestNetwork());
+        assertSame(vl1bis, merge.getSubNetwork(N1).getVoltageLevel("vl1bis"));
+        assertSame(merge.getSubNetwork(N1), vl1bis.getClosestNetwork());
         assertNull(merge.getSubNetwork("n2").getVoltageLevel("vl1bis"));
+        // Voltage level created on subnetwork shall be affected to subnetwork
         merge.getSubNetwork("n2").newVoltageLevel().setId("vl2bis").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(90.0).add();
         VoltageLevel vl2bis = merge.getVoltageLevel("vl2bis");
         assertNotNull(vl2bis);
         assertSame(vl2bis, merge.getSubNetwork("n2").getVoltageLevel("vl2bis"));
         assertSame(merge.getSubNetwork("n2"), vl2bis.getClosestNetwork());
-        assertNull(merge.getSubNetwork("n1").getVoltageLevel("vl2bis"));
+        assertNull(merge.getSubNetwork(N1).getVoltageLevel("vl2bis"));
     }
 
     private static void addLoad(Network n, int num) {
