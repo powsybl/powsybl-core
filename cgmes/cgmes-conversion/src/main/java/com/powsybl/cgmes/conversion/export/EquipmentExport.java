@@ -362,7 +362,7 @@ public final class EquipmentExport {
         }
         SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
                 context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel()),
-                generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, ratedS, kind, cimNamespace, writer, context);
+                generatingUnit, regulatingControlId, reactiveLimitsId, minP, maxP, minQ, maxQ, ratedS, kind, cimNamespace, writer, context);
         if (!generatingUnitsWritten.contains(generatingUnit)) {
             // We have not preserved the names of generating units
             // We name generating units based on the first machine found
