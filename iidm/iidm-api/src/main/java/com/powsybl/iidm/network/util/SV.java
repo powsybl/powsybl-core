@@ -78,38 +78,38 @@ public class SV {
     }
 
     public SV otherSide(Line l) {
-        double zb = l.getTerminal1().getVoltageLevel().getNominalV() * l.getTerminal2().getVoltageLevel().getNominalV();
-        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0, zb);
+        double zbase = l.getTerminal1().getVoltageLevel().getNominalV() * l.getTerminal2().getVoltageLevel().getNominalV();
+        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0, zbase);
     }
 
     public SV otherSide(TieLine l) {
-        double zb = l.getDanglingLine1().getTerminal().getVoltageLevel().getNominalV() * l.getDanglingLine2().getTerminal().getVoltageLevel().getNominalV();
-        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0, zb);
+        double zbase = l.getDanglingLine1().getTerminal().getVoltageLevel().getNominalV() * l.getDanglingLine2().getTerminal().getVoltageLevel().getNominalV();
+        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0, zbase);
     }
 
     public SV otherSide(TwoWindingsTransformer twt) {
-        double zb = twt.getTerminal2().getVoltageLevel().getNominalV() * twt.getTerminal2().getVoltageLevel().getNominalV();
-        return otherSide(getR(twt), getX(twt), getG(twt), getB(twt), 0.0, 0.0, getRho(twt), getAlpha(twt), zb);
+        double zbase = twt.getTerminal2().getVoltageLevel().getNominalV() * twt.getTerminal2().getVoltageLevel().getNominalV();
+        return otherSide(getR(twt), getX(twt), getG(twt), getB(twt), 0.0, 0.0, getRho(twt), getAlpha(twt), zbase);
     }
 
     public SV otherSide(TwoWindingsTransformer twt, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
-            double zb = twt.getTerminal2().getVoltageLevel().getNominalV() * twt.getTerminal2().getVoltageLevel().getNominalV();
-            return otherSide(getR(twt), getX(twt), getG(twt) * 0.5, getB(twt) * 0.5, getG(twt) * 0.5, getB(twt) * 0.5, getRho(twt), getAlpha(twt), zb);
+            double zbase = twt.getTerminal2().getVoltageLevel().getNominalV() * twt.getTerminal2().getVoltageLevel().getNominalV();
+            return otherSide(getR(twt), getX(twt), getG(twt) * 0.5, getB(twt) * 0.5, getG(twt) * 0.5, getB(twt) * 0.5, getRho(twt), getAlpha(twt), zbase);
         } else {
             return otherSide(twt);
         }
     }
 
     public SV otherSide(DanglingLine dl) {
-        double zb = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
-        return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0, zb);
+        double zbase = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
+        return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0, zbase);
     }
 
     public SV otherSide(DanglingLine dl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
-            double zb = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
-            return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0, zb);
+            double zbase = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
+            return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0, zbase);
         } else {
             return otherSide(dl);
         }
@@ -235,17 +235,17 @@ public class SV {
         return !(Double.isNaN(p) || Double.isNaN(q) || Double.isNaN(u) || Double.isNaN(a));
     }
 
-    private boolean isAllDataForCalculatingOtherSideDcApproximation(double zb) {
-        return !(Double.isNaN(p) || Double.isNaN(a) || Double.isNaN(zb));
+    private boolean isAllDataForCalculatingOtherSideDcApproximation(double zbase) {
+        return !(Double.isNaN(p) || Double.isNaN(a) || Double.isNaN(zbase));
     }
 
-    private SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha, double zb) {
+    private SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha, double zbase) {
         if (isAllDataForCalculatingOtherSide()) {
             LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
                 new Complex(g1, b1), new Complex(g2, b2));
             return otherSide(adm);
-        } else if (isAllDataForCalculatingOtherSideDcApproximation(zb)) {
-            return otherSideDcApproximation(x, 1 / rho, -alpha, zb, true); // we always consider useRatio true
+        } else if (isAllDataForCalculatingOtherSideDcApproximation(zbase)) {
+            return otherSideDcApproximation(x, 1 / rho, -alpha, zbase, true); // we always consider useRatio true
         } else {
             Branch.Side otherSide = (side == Branch.Side.ONE) ? Branch.Side.TWO : Branch.Side.ONE;
             return new SV(Double.NaN, Double.NaN, Double.NaN, Double.NaN, otherSide);
@@ -272,9 +272,9 @@ public class SV {
         return new SV(s.getReal(), s.getImaginary(), v.abs(), Math.toDegrees(v.getArgument()), otherSide);
     }
 
-    private SV otherSideDcApproximation(double x, double ratio, double angle, double zb, boolean useRatio) {
+    private SV otherSideDcApproximation(double x, double ratio, double angle, double zbase, boolean useRatio) {
         double pOtherSide = -p;
-        double xpu = x / zb;
+        double xpu = x / zbase;
         double b = useRatio ? 1 / (xpu * ratio) : 1 / xpu;
         double aOtherSide;
         Branch.Side otherSide;
