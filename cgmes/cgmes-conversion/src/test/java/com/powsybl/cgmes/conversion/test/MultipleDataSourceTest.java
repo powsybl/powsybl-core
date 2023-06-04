@@ -10,13 +10,9 @@ import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MultipleReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
@@ -52,11 +48,7 @@ class MultipleDataSourceTest {
 
             // create a multiple data source with all zipped profiles
             MultipleReadOnlyDataSource dataSource = new MultipleReadOnlyDataSource(profiles.stream().map(profile -> DataSource.fromPath(workDir.resolve(profile + ".zip"))).collect(Collectors.toList()));
-            String impl = TripleStoreFactory.defaultImplementation();
-            CgmesModel cgmes = CgmesModelFactory.create(dataSource, impl);
-            Conversion.Config config = new Conversion.Config();
-            Network network = new Conversion(cgmes, config)
-                    .convert();
+            Network network = Network.read(dataSource);
             assertNotNull(network);
         }
     }
