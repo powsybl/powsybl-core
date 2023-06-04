@@ -21,8 +21,6 @@ import java.util.Set;
  */
 public class MultipleReadOnlyDataSource implements ReadOnlyDataSource {
 
-    private final String baseName;
-
     private final List<ReadOnlyDataSource> dataSources;
 
     public MultipleReadOnlyDataSource(ReadOnlyDataSource... dataSource) {
@@ -30,25 +28,15 @@ public class MultipleReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     public MultipleReadOnlyDataSource(List<ReadOnlyDataSource> dataSources) {
-        this(null, dataSources);
-    }
-
-    public MultipleReadOnlyDataSource(String baseName, List<ReadOnlyDataSource> dataSources) {
         this.dataSources = Objects.requireNonNull(dataSources);
-        if (baseName == null && !dataSources.isEmpty()) {
-            this.baseName = dataSources.get(0).getBaseName();
-        } else {
-            if (baseName != null) {
-                this.baseName = baseName;
-            } else {
-                throw new PowsyblException("A base name should be provided");
-            }
+        if (dataSources.isEmpty()) {
+            throw new PowsyblException("Empty data source list");
         }
     }
 
     @Override
     public String getBaseName() {
-        return baseName;
+        return dataSources.get(0).getBaseName(); // this is just a convention
     }
 
     @Override
