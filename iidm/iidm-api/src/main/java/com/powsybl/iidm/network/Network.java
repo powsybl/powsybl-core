@@ -18,9 +18,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -114,7 +112,7 @@ public interface Network extends Container<Network> {
      */
     static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory,
                         ImportersLoader loader, Reporter reporter) {
-        ReadOnlyDataSource dataSource = Importers.createDataSource(file);
+        ReadOnlyDataSource dataSource = DataSource.fromPath(file);
         Importer importer = Importer.find(dataSource, loader, computationManager, config);
         if (importer != null) {
             return importer.importData(dataSource, networkFactory, parameters, reporter);
@@ -318,6 +316,23 @@ public interface Network extends Container<Network> {
             return importer.importData(dataSource, NetworkFactory.findDefault(), properties, reporter);
         }
         throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
+    }
+
+    static Network read(ReadOnlyDataSource... dataSources) {
+        return read(List.of(dataSources));
+    }
+
+    static Network read(List<ReadOnlyDataSource> dataSources) {
+        return read(dataSources, null);
+    }
+
+    static Network read(List<ReadOnlyDataSource> dataSources, Properties properties) {
+        return read(dataSources, properties, Reporter.NO_OP);
+    }
+
+    static Network read(List<ReadOnlyDataSource> dataSources, Properties properties, Reporter reporter) {
+        Objects.requireNonNull(dataSources);
+        return read(new MultipleReadOnlyDataSource(dataSources), properties, reporter);
     }
 
     static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
