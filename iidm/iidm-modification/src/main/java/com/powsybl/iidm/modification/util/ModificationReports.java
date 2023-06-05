@@ -342,11 +342,11 @@ public final class ModificationReports {
                 .build());
     }
 
-    public static void notFoundBusbarSectionCouplerReport(Reporter reporter, String identifiableId) {
+    public static void notFoundBurOrBusbarSectionReport(Reporter reporter, String identifiableId) {
         reporter.report(Report.builder()
-                .withKey("notFoundBusbarSection")
-                .withDefaultMessage("Bus or busbar section ID ${identifiableId} not found. Coupler was not created.")
-                .withValue(IDENTIFIABLE_ID, identifiableId)
+                .withKey("notFoundBurOrBusbarSection")
+                .withDefaultMessage("Bur or busbar section ${identifiableId} not found")
+                .withValue("busbarSectionId", identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
@@ -355,7 +355,7 @@ public final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("notFoundBusbarSection")
                 .withDefaultMessage("Busbar section ${busbarSectionId} not found")
-                .withValue("busbarSectionId", bbsId)
+                .withValue(IDENTIFIABLE_ID, bbsId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
