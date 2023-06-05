@@ -40,6 +40,7 @@ import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -330,12 +331,9 @@ class StateVariablesExportTest extends AbstractConverterTest {
 
         // Before comparison, set undefined p/q in expected network at 0.0
         expected.getConnectableStream()
-                .filter(c -> c instanceof Injection)
                 .filter(c -> !(c instanceof BusbarSection))
                 .filter(c -> !(c instanceof HvdcConverterStation))
-                .filter(c -> !(c instanceof DanglingLine && ((DanglingLine) c).isPaired()))
-                .map(c -> (Injection<?>) c)
-                .map(Injection::getTerminal)
+                .flatMap(c -> (Stream<Terminal>) c.getTerminals().stream())
                 .filter(t -> Double.isNaN(t.getP()) && Double.isNaN(t.getQ()))
                 .forEach(t -> t.setP(0.0).setQ(0.0));
 
