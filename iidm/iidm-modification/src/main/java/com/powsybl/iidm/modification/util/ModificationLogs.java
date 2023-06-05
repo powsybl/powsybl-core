@@ -24,7 +24,7 @@ public final class ModificationLogs {
 
     public static void busOrBbsDoesNotExist(String bbsId, Reporter reporter, boolean throwException) {
         LOGGER.error("Bus or busbar section {} not found.", bbsId);
-        ModificationReports.notFoundBurOrBusbarSectionReport(reporter, bbsId);
+        ModificationReports.notFoundBusOrBusbarSectionReport(reporter, bbsId);
         if (throwException) {
             throw new PowsyblException(String.format("Bus or busbar section %s not found", bbsId));
         }

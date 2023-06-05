@@ -333,7 +333,7 @@ public final class ModificationReports {
     }
 
     // ERROR
-    public static void notFoundBurOrBusbarSectionReport(Reporter reporter, String identifiableId) {
+    public static void notFoundBusOrBusbarSectionReport(Reporter reporter, String identifiableId) {
         reporter.report(Report.builder()
                 .withKey("notFoundBusOrBusbarSection")
                 .withDefaultMessage("Bus or busbar section ${identifiableId} not found")
