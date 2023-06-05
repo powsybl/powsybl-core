@@ -384,8 +384,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
             legNumber++;
             RatioTapChanger rtc = leg.getRatioTapChanger();
-            Terminal t = leg.getTerminal();
-            double vb = t.getVoltageLevel().getNominalV();
+            double vb = twt.getRatedU0();
             double zb = vb * vb / AmplConstants.SB;
             if (rtc != null) {
                 String id = twt.getId() + "_leg" + legNumber + RATIO_TABLE;
@@ -587,10 +586,10 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         try {
             String ptcId = twt.getId() + leg;
             String tcsId = twt.getId() + leg + PHASE_TABLE;
-            int rtcNum = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
+            int ptcNum = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
-                .writeCell(rtcNum)
+                .writeCell(ptcNum)
                 .writeCell(ptc.getTapPosition() - ptc.getLowTapPosition() + 1)
                 .writeCell(tcsNum)
                 .writeCell(faultNum)
@@ -654,12 +653,18 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         String middleVlId = AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt);
         int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
         int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
+
+        double v = twt.getProperty("v") == null ? Double.NaN :
+            Double.parseDouble(twt.getProperty("v")) / twt.getRatedU0();
+        double angle = twt.getProperty("angle") == null ? Double.NaN :
+            Math.toRadians(Double.parseDouble(twt.getProperty("angle")));
+
         formatter.writeCell(variantIndex)
             .writeCell(middleBusNum)
             .writeCell(middleVlNum)
             .writeCell(middleCcNum)
-            .writeCell(Float.NaN)
-            .writeCell(Double.NaN)
+            .writeCell(v)
+            .writeCell(angle)
             .writeCell(0.0)
             .writeCell(0.0)
             .writeCell(faultNum)
@@ -1011,35 +1016,29 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         int legVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
         int legBusNum = getBusNum(bus);
         double vb = vl.getNominalV();
-        double zb = vb * vb / AmplConstants.SB;
-        double r = twt.getLeg(legSide).getR() / zb;
-        double x = twt.getLeg(legSide).getX() / zb;
-        double g = twt.getLeg(legSide).getG() * zb;
-        double b = twt.getLeg(legSide).getB() * zb;
-        double ratedU = twt.getLeg(legSide).getRatedU();
         double ratedU0 = twt.getRatedU0();
-        double ratio = ratedU0 / ratedU;
+        double ratedU = twt.getLeg(legSide).getRatedU();
+
+        double zb0 = ratedU0 * ratedU0 / AmplConstants.SB;
+        double r = twt.getLeg(legSide).getR() / zb0;
+        double x = twt.getLeg(legSide).getX() / zb0;
+        double g = twt.getLeg(legSide).getG() * zb0;
+        double b = twt.getLeg(legSide).getB() * zb0;
+        double ratio = vb / ratedU;
+
         RatioTapChanger rtc1 = twt.getLeg(legSide).getRatioTapChanger();
         PhaseTapChanger ptc1 = twt.getLeg(legSide).getPhaseTapChanger();
         int rtc1Num = rtc1 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id) : -1;
         int ptc1Num = ptc1 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id) : -1;
 
         formatter.writeCell(variantIndex)
-            .writeCell(num);
-        if (ThreeWindingsTransformer.Side.ONE.equals(legSide)) {
-            formatter.writeCell(middleBusNum)
-                .writeCell(legBusNum)
-                .writeCell(num3wt)
-                .writeCell(middleVlNum)
-                .writeCell(legVlNum);
-        } else {
-            formatter.writeCell(legBusNum)
-                .writeCell(middleBusNum)
-                .writeCell(num3wt)
-                .writeCell(legVlNum)
-                .writeCell(middleVlNum);
-        }
-        formatter.writeCell(r)
+            .writeCell(num)
+            .writeCell(legBusNum)
+            .writeCell(middleBusNum)
+            .writeCell(num3wt)
+            .writeCell(legVlNum)
+            .writeCell(middleVlNum)
+            .writeCell(r)
             .writeCell(x)
             .writeCell(g)
             .writeCell(0.0)
@@ -1047,34 +1046,14 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .writeCell(0.0)
             .writeCell(ratio)
             .writeCell(rtc1Num)
-            .writeCell(ptc1Num);
-        switch (legSide) {
-            case ONE:
-                formatter.writeCell(Double.NaN)
-                    .writeCell(terminal.getP())
-                    .writeCell(Double.NaN)
-                    .writeCell(terminal.getQ())
-                    .writeCell(Double.NaN)
-                    .writeCell(getPermanentLimit(twt.getLeg1().getCurrentLimits().orElse(null)));
-                break;
-            case TWO:
-                formatter.writeCell(terminal.getP())
-                    .writeCell(Double.NaN)
-                    .writeCell(terminal.getQ())
-                    .writeCell(Double.NaN)
-                    .writeCell(getPermanentLimit(twt.getLeg2().getCurrentLimits().orElse(null)))
-                    .writeCell(Double.NaN);
-                break;
-            case THREE:
-                formatter.writeCell(terminal.getP())
-                    .writeCell(Double.NaN)
-                    .writeCell(terminal.getQ())
-                    .writeCell(Double.NaN)
-                    .writeCell(getPermanentLimit(twt.getLeg3().getCurrentLimits().orElse(null)))
-                    .writeCell(Double.NaN);
-                break;
-        }
-        formatter.writeCell(false)
+            .writeCell(ptc1Num)
+            .writeCell(terminal.getP())
+            .writeCell(Double.NaN)
+            .writeCell(terminal.getQ())
+            .writeCell(Double.NaN)
+            .writeCell(getPermanentLimit(twt.getLeg(legSide).getCurrentLimits().orElse(null)))
+            .writeCell(Double.NaN)
+            .writeCell(false)
             .writeCell(faultNum)
             .writeCell(actionNum)
             .writeCell(id)
@@ -1221,7 +1200,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
         double minP = gen.getMinP();
         double maxP = gen.getMaxP();
-        double vb = t.getVoltageLevel().getNominalV();
+        double vb = gen.getRegulatingTerminal().getVoltageLevel().getNominalV();
 
         formatter.writeCell(variantIndex)
             .writeCell(num)
@@ -1346,18 +1325,22 @@ public class BasicAmplExporter implements AmplColumnsExporter {
                                                                      ThreeWindingsTransformer twt) throws IOException {
         String vlId = AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt);
         int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
-        Terminal t1 = twt.getLeg1().getTerminal();
-        VoltageLevel vl1 = t1.getVoltageLevel();
         formatter.writeCell(variantIndex)
             .writeCell(num)
             .writeCell("")
             .writeCell(0)
-            .writeCell(vl1.getNominalV())
+            .writeCell(twt.getRatedU0())
             .writeCell(Float.NaN)
             .writeCell(Float.NaN)
             .writeCell(faultNum)
             .writeCell(actionNum)
-            .writeCell(vl1.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
+            .writeCell(twt.getLeg1()
+                .getTerminal()
+                .getVoltageLevel()
+                .getSubstation()
+                .flatMap(Substation::getCountry)
+                .map(Enum::toString)
+                .orElse(""))
             .writeCell(vlId)
             .writeCell("");
     }
