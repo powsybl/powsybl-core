@@ -333,15 +333,6 @@ public final class ModificationReports {
     }
 
     // ERROR
-    public static void notFoundIdentifiableReport(Reporter reporter, String identifiableId) {
-        reporter.report(Report.builder()
-                .withKey("notFoundIdentifiable")
-                .withDefaultMessage("Identifiable ${identifiableId} not found.")
-                .withValue(IDENTIFIABLE_ID, identifiableId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
     public static void notFoundBurOrBusbarSectionReport(Reporter reporter, String identifiableId) {
         reporter.report(Report.builder()
                 .withKey("notFoundBurOrBusbarSection")
