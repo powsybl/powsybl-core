@@ -176,7 +176,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     }
 
     private static void busOrBbsDoesNotExist(String bbsId, Reporter reporter, boolean throwException) {
-        LOGGER.error("Bus or busbar section ID {} not found.", bbsId);
+        LOGGER.error("Bus or busbar section {} not found.", bbsId);
         notFoundBurOrBusbarSectionReport(reporter, bbsId);
         if (throwException) {
             throw new PowsyblException(String.format("Bus or busbar section %s not found.", bbsId));
