@@ -10,7 +10,6 @@ import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +44,7 @@ class MultipleDataSourceTest {
             }
 
             // create a multiple data source with all zipped profiles
-            Path[] files = profiles.stream().map(profile -> DataSource.fromPath(workDir.resolve(profile + ".zip"))).toArray(k -> new Path[0]);
+            Path[] files = profiles.stream().map(profile -> workDir.resolve(profile + ".zip")).toArray(Path[]::new);
             Network network = Network.read(files);
             assertNotNull(network);
         }
