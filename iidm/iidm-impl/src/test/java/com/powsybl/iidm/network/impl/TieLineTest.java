@@ -31,8 +31,10 @@ class TieLineTest {
         // Line1 from node1 to boundaryNode, Line2 from boundaryNode to node2
         CaseSv caseSv0 = createCase0();
         Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), Branch.Side.TWO, Branch.Side.ONE, caseSv0);
-        TieLine tieLine = n.getTieLine("TWO + ONE");
+        Branch<?> branch = n.getBranch("TWO + ONE");
+        assertTrue(branch instanceof TieLine);
 
+        TieLine tieLine = (TieLine) branch;
         SV sv2 = new SV(tieLine.getDanglingLine1().getTerminal().getP(), tieLine.getDanglingLine1().getTerminal().getQ(),
             tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(),
             tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(),
