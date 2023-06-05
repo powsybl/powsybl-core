@@ -11,16 +11,13 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -48,8 +45,8 @@ class MultipleDataSourceTest {
             }
 
             // create a multiple data source with all zipped profiles
-            List<ReadOnlyDataSource> dataSources = profiles.stream().map(profile -> DataSource.fromPath(workDir.resolve(profile + ".zip"))).collect(Collectors.toList());
-            Network network = Network.read(dataSources);
+            Path[] files = profiles.stream().map(profile -> DataSource.fromPath(workDir.resolve(profile + ".zip"))).toArray(k -> new Path[0]);
+            Network network = Network.read(files);
             assertNotNull(network);
         }
     }

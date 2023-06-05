@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -320,6 +321,11 @@ public interface Network extends Container<Network> {
 
     static Network read(ReadOnlyDataSource... dataSources) {
         return read(List.of(dataSources));
+    }
+
+    static Network read(Path... files) {
+        List<ReadOnlyDataSource> dataSources = Objects.requireNonNull(Arrays.stream(files).map(DataSource::fromPath).collect(Collectors.toList()));
+        return read(dataSources);
     }
 
     static Network read(List<ReadOnlyDataSource> dataSources) {
