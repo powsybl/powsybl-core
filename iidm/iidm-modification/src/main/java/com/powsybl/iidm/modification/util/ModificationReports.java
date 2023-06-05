@@ -335,8 +335,8 @@ public final class ModificationReports {
     // ERROR
     public static void notFoundBurOrBusbarSectionReport(Reporter reporter, String identifiableId) {
         reporter.report(Report.builder()
-                .withKey("notFoundBurOrBusbarSection")
-                .withDefaultMessage("Bur or busbar section ${identifiableId} not found")
+                .withKey("notFoundBusOrBusbarSection")
+                .withDefaultMessage("Bus or busbar section ${identifiableId} not found")
                 .withValue("busbarSectionId", identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
