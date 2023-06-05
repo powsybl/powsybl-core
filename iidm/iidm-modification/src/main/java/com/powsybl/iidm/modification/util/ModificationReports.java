@@ -337,7 +337,7 @@ public final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("notFoundBusOrBusbarSection")
                 .withDefaultMessage("Bus or busbar section ${identifiableId} not found")
-                .withValue("busbarSectionId", identifiableId)
+                .withValue(IDENTIFIABLE_ID, identifiableId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
