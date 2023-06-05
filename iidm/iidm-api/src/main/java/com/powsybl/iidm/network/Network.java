@@ -324,7 +324,7 @@ public interface Network extends Container<Network> {
     }
 
     static Network read(Path... files) {
-        List<ReadOnlyDataSource> dataSources = Objects.requireNonNull(Arrays.stream(files).map(DataSource::fromPath).collect(Collectors.toList()));
+        List<ReadOnlyDataSource> dataSources = Arrays.stream(Objects.requireNonNull(files)).map(DataSource::fromPath).collect(Collectors.toList());
         return read(dataSources);
     }
 
