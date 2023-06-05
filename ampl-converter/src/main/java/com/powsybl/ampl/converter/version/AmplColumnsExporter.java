@@ -70,9 +70,9 @@ public interface AmplColumnsExporter {
 
     void writeBusesColumnsToFormatter(TableFormatter formatter, Bus b) throws IOException;
 
-    void writeThreeWindingsTranformsMiddleBusesColumnsToFormatter(TableFormatter formatter,
-                                                                  ThreeWindingsTransformer twt,
-                                                                  int middleCcNum) throws IOException;
+    void writeThreeWindingsTranformersMiddleBusesColumnsToFormatter(TableFormatter formatter,
+                                                                    ThreeWindingsTransformer twt,
+                                                                    int middleCcNum) throws IOException;
 
     void writeLinesToFormatter(TableFormatter formatter, Line l) throws IOException;
 

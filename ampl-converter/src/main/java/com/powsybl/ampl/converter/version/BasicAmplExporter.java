@@ -647,9 +647,9 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     }
 
     @Override
-    public void writeThreeWindingsTranformsMiddleBusesColumnsToFormatter(TableFormatter formatter,
-                                                                         ThreeWindingsTransformer twt,
-                                                                         int middleCcNum) throws IOException {
+    public void writeThreeWindingsTranformersMiddleBusesColumnsToFormatter(TableFormatter formatter,
+                                                                           ThreeWindingsTransformer twt,
+                                                                           int middleCcNum) throws IOException {
         String middleBusId = AmplUtil.getThreeWindingsTransformerMiddleBusId(twt);
         String middleVlId = AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt);
         int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);

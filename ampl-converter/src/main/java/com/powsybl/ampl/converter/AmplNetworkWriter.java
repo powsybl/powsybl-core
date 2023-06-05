@@ -277,7 +277,7 @@ public class AmplNetworkWriter {
             if (connectedComponentToExport(middleCcNum)) {
                 String middleBusId = AmplUtil.getThreeWindingsTransformerMiddleBusId(twt);
                 context.busIdsToExport.add(middleBusId);
-                columnsExporter.writeThreeWindingsTranformsMiddleBusesColumnsToFormatter(formatter, twt, middleCcNum);
+                columnsExporter.writeThreeWindingsTranformersMiddleBusesColumnsToFormatter(formatter, twt, middleCcNum);
             }
         }
     }
