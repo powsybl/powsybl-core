@@ -342,15 +342,6 @@ public final class ModificationReports {
                 .build());
     }
 
-    public static void notFoundBusbarSectionReport(Reporter reporter, String bbsId) {
-        reporter.report(Report.builder()
-                .withKey("notFoundBusbarSection")
-                .withDefaultMessage("Busbar section ${busbarSectionId} not found")
-                .withValue(IDENTIFIABLE_ID, bbsId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
     public static void notFoundShuntReport(Reporter reporter, String shuntId) {
         reporter.report(Report.builder()
                 .withKey("notFoundShunt")
