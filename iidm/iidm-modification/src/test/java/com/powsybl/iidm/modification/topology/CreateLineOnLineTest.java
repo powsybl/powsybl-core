@@ -142,7 +142,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLineAdder(adder1)
                 .build();
         PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception1.getMessage());
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception1.getMessage());
 
         Network network2 = createBbNetwork();
         Line line2 = network2.getLine("NHV1_NHV2_1");
@@ -153,7 +153,7 @@ class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLineAdder(adder2)
                 .build();
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception2.getMessage());
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
 
         NetworkModification modification3 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("LOAD")

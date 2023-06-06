@@ -132,7 +132,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine(network1.getLine("CJ"))
                 .build();
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception2.getMessage());
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
 
         Network network2 = createBbNetwork();
         NetworkModification modification3 = new ConnectVoltageLevelOnLineBuilder()
@@ -140,7 +140,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine(network2.getLine("NHV1_NHV2_1"))
                 .build();
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception3.getMessage());
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception3.getMessage());
     }
 
     @Test
