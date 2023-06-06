@@ -18,10 +18,6 @@ import java.util.Optional;
  * <div>
  *    <object data="doc-files/danglingLine.svg" type="image/svg+xml"></object>
  * </div>
- * Electrical characteritics (r, x, g, b) corresponding to a percent of the
- * orginal line.
- * <p>r, x, g, b have to be consistent with the declared length of the dangling
- * line.
  *
  * <p>
  *  Characteristics
