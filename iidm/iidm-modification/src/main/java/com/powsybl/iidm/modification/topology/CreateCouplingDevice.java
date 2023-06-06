@@ -20,6 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.modification.util.ModificationLogs.busOrBbsDoesNotExist;
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
@@ -173,14 +174,6 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             return true;
         }
         return false;
-    }
-
-    private static void busOrBbsDoesNotExist(String bbsId, Reporter reporter, boolean throwException) {
-        LOGGER.error("Identifiable {} not found.", bbsId);
-        notFoundIdentifiableReport(reporter, bbsId);
-        if (throwException) {
-            throw new PowsyblException(String.format("Identifiable %s not found.", bbsId));
-        }
     }
 
     private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, Reporter reporter, boolean throwException) {

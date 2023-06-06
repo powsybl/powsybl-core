@@ -112,7 +112,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
         ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
 
-        // The twoWindingsTransformer is converted to half line of a TieLine with different VoltageLevels at its ends
+        // The twoWindingsTransformer is converted to a BoundaryLine with different VoltageLevels at its ends
         // and the tapChanger fixed to the current tap position.
         // As the current TieLine only supports a Line at each half we can only map twoWindingsTransformers with
         // ratioTapChanger and / or phaseTapChanger with zero angle.

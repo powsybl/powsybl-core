@@ -158,7 +158,7 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionDirection(BOTTOM)
                 .build();
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(network, true, Reporter.NO_OP));
-        assertEquals("Identifiable bbs not found.", e1.getMessage());
+        assertEquals("Bus or busbar section bbs not found", e1.getMessage());
 
         // wrong identifiable type
         CreateFeederBay modification2 = new CreateFeederBayBuilder()
