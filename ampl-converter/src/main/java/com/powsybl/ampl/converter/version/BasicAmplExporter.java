@@ -1422,4 +1422,28 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         }
         return Double.NaN;
     }
+
+    public AmplExportConfig getConfig() {
+        return config;
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
+
+    public StringToIntMapper<AmplSubset> getMapper() {
+        return mapper;
+    }
+
+    public int getVariantIndex() {
+        return variantIndex;
+    }
+
+    public int getFaultNum() {
+        return faultNum;
+    }
+
+    public int getActionNum() {
+        return actionNum;
+    }
 }
