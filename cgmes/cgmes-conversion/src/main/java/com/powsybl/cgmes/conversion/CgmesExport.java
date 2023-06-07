@@ -80,6 +80,13 @@ public class CgmesExport implements Exporter {
         context.getTpModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
         context.getSshModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
         context.getSvModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
+        String modelDescription = Parameter.readString(getFormat(), params, MODEL_DESCRIPTION_PARAMETER, defaultValueConfig);
+        if (modelDescription != null) {
+            context.getEqModelDescription().setDescription(modelDescription);
+            context.getTpModelDescription().setDescription(modelDescription);
+            context.getSshModelDescription().setDescription(modelDescription);
+            context.getSvModelDescription().setDescription(modelDescription);
+        }
         String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
@@ -182,6 +189,7 @@ public class CgmesExport implements Exporter {
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
     public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
+    public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -237,6 +245,12 @@ public class CgmesExport implements Exporter {
             ParameterType.STRING,
             "Modeling authority set",
             "powsybl.org");
+
+    private static final Parameter MODEL_DESCRIPTION_PARAMETER = new Parameter(
+            MODEL_DESCRIPTION,
+            ParameterType.STRING,
+            "Model description",
+            null);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
