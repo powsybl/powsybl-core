@@ -118,7 +118,7 @@ public interface Scalable {
 
     /**
      * Scans all the expected injections of the scalable.
-     * If the injection can be found in given network, it is added the the injections list.
+     * If the injection can be found in given network, it is added to the injections list.
      *
      * @param network network
      * @return network injections used in the scalable
@@ -128,7 +128,8 @@ public interface Scalable {
     /**
      * Scale the given network using Generator convention by default.
      * The actual scaling value may be different to the one asked if
-     * the Scalable limit is reached.
+     * the Scalable limit is reached. If the scalable is disconnected,
+     * the scaling value will be 0.
      *
      * @param n network
      * @param asked value asked to adjust the scalable active power
