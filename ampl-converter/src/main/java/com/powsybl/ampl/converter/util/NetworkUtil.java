@@ -21,7 +21,7 @@ public final class NetworkUtil {
         SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
         if (slackTerminal != null) {
             Terminal terminal = slackTerminal.getTerminal();
-            return terminal.getBusBreakerView().getBus() == bus;
+            return terminal.getBusView().getBus() == bus;
         }
         return false;
     }
