@@ -41,10 +41,6 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     private final int actionNum;
     private HashMap<String, HvdcLine> hvdcLinesMap;
 
-    public static AmplExportVersion.Factory getFactory() {
-        return BasicAmplExporter::new;
-    }
-
     public BasicAmplExporter(AmplExportConfig config, Network network, StringToIntMapper<AmplSubset> mapper,
                              int variantIndex, int faultNum, int actionNum) {
 

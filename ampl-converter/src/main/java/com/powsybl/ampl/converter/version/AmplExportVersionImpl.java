@@ -13,7 +13,8 @@ public enum AmplExportVersionImpl implements AmplExportVersion {
     /**
      * Legacy export
      */
-    V1_LEGACY(BasicAmplExporter.getFactory());
+    V1_LEGACY(BasicAmplExporter::new),
+    V2(ExtendedAmplExporter::new);
 
     private final AmplExportVersion.Factory factory;
 
