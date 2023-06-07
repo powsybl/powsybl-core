@@ -118,9 +118,14 @@ class GeneratorScalable extends AbstractInjectionScalable {
         }
 
         Terminal t = g.getTerminal();
-        if (!t.isConnected() && parameters.isReconnect()) {
-            new ConnectGenerator(g.getId()).apply(n);
-            LOGGER.info("Connecting {}", g.getId());
+        if (!t.isConnected()) {
+            if (parameters.isReconnect()) {
+                new ConnectGenerator(g.getId()).apply(n);
+                LOGGER.info("Connecting {}", g.getId());
+            } else {
+                LOGGER.info("Generator {} is not connected, it is not participating in the scaling", g.getId());
+                return 0.;
+            }
         }
 
         double oldTargetP = g.getTargetP();

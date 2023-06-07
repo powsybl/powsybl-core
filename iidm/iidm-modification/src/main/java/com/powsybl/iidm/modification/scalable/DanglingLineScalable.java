@@ -122,9 +122,14 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         }
 
         Terminal t = dl.getTerminal();
-        if (!t.isConnected() && parameters.isReconnect()) {
-            t.connect();
-            LOGGER.info("Connecting {}", dl.getId());
+        if (!t.isConnected()) {
+            if (parameters.isReconnect()) {
+                t.connect();
+                LOGGER.info("Connecting {}", dl.getId());
+            } else {
+                LOGGER.info("Dangling line {} is not connected, it is not participating in the scaling", dl.getId());
+                return 0.;
+            }
         }
 
         double oldP0 = dl.getP0();
