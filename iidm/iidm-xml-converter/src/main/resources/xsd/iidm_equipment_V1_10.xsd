@@ -357,8 +357,8 @@
                     <xs:element name="apparentPowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
                     <xs:element name="currentLimits" type="iidm:LoadingLimit" minOccurs="0"/>
                 </xs:sequence>
-                <xs:attribute name="p0" use="optional" type="xs:double"/>
-                <xs:attribute name="q0" use="optional" type="xs:double"/>
+                <xs:attribute name="p0" use="required" type="xs:double"/>
+                <xs:attribute name="q0" use="required" type="xs:double"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>
                 <xs:attribute name="g" use="required" type="xs:double"/>

@@ -47,6 +47,8 @@ public final class ScadaNetworkFactory {
         DanglingLine dl = vl.newDanglingLine()
                 .setId("dl")
                 .setBus(busId)
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(1.0)
                 .setX(1.0)
                 .setG(0.0)

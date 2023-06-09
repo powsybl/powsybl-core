@@ -657,9 +657,9 @@ public class Conversion {
                 conversion1.convertAtBoundary();
                 conversion2.convertAtBoundary();
             } else if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
-                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine1, boundaryLine2);
+                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine1, boundaryLine2, conversion1, conversion2);
             } else {
-                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine2, boundaryLine1);
+                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine2, boundaryLine1, conversion2, conversion1);
             }
         } else {
             context.invalid(node, "Unexpected boundaryLine");

@@ -14,4 +14,6 @@ public interface EquipmentAtBoundaryConversion {
     void convertAtBoundary();
 
     BoundaryLine asBoundaryLine(String node);
+
+    EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(String boundaryNode, String terminalId);
 }

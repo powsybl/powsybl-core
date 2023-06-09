@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -77,9 +78,11 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         return terminalConnected(1) && terminalConnected(2);
     }
 
-    public static void convertBoundaryLines(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
+    public static void convertBoundaryLines(Context context, String boundaryNode,
+                                            BoundaryLine boundaryLine1, BoundaryLine boundaryLine2,
+                                            EquipmentAtBoundaryConversion conversion1, EquipmentAtBoundaryConversion conversion2) {
 
-        TieLine mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
+        TieLine mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2, conversion1, conversion2);
 
         mline.addAlias(boundaryLine1.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
         mline.addAlias(boundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1");
@@ -120,25 +123,11 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         }
     }
 
-    private static TieLine createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
-        DanglingLineAdder adder1 = context.network().getVoltageLevel(boundaryLine1.getModelIidmVoltageLevelId())
-                .newDanglingLine()
-                .setId(boundaryLine1.getId())
-                .setName(boundaryLine1.getName())
-                .setR(boundaryLine1.getR())
-                .setX(boundaryLine1.getX())
-                .setG(boundaryLine1.getG1() + boundaryLine1.getG2())
-                .setB(boundaryLine1.getB1() + boundaryLine1.getB2())
-                .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
-        DanglingLineAdder adder2 = context.network().getVoltageLevel(boundaryLine2.getModelIidmVoltageLevelId())
-                .newDanglingLine()
-                .setId(boundaryLine2.getId())
-                .setName(boundaryLine2.getName())
-                .setR(boundaryLine2.getR())
-                .setX(boundaryLine2.getX())
-                .setG(boundaryLine2.getG1() + boundaryLine2.getG2())
-                .setB(boundaryLine2.getB1() + boundaryLine2.getB2())
-                .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
+    private static TieLine createTieLine(Context context, String boundaryNode,
+                                         BoundaryLine boundaryLine1, BoundaryLine boundaryLine2,
+                                         EquipmentAtBoundaryConversion conversion1, EquipmentAtBoundaryConversion conversion2) {
+        DanglingLineAdder adder1 = getDanglingLineAdder(context, boundaryNode, boundaryLine1, conversion1);
+        DanglingLineAdder adder2 = getDanglingLineAdder(context, boundaryNode, boundaryLine2, conversion2);
         connect(context, adder1, boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(), boundaryLine1.getModelNode());
         connect(context, adder2, boundaryLine2.getModelBus(), boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
         DanglingLine dl1 = adder1.add();
@@ -156,5 +145,22 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
                     .add();
         }
         return tieLine;
+    }
+
+    private static DanglingLineAdder getDanglingLineAdder(Context context, String boundaryNode, BoundaryLine boundaryLine, EquipmentAtBoundaryConversion conversion) {
+        EquivalentInjectionConversion equivalentInjectionConversion = conversion.getEquivalentInjectionConversionForDanglingLine(boundaryNode,
+                boundaryLine.getModelTerminalId()); //FIXME: this is not the right terminalId
+        PowerFlow pf = equivalentInjectionConversion.powerFlow();
+        return context.network().getVoltageLevel(boundaryLine.getModelIidmVoltageLevelId())
+                .newDanglingLine()
+                .setId(boundaryLine.getId())
+                .setName(boundaryLine.getName())
+                .setP0(pf.p())
+                .setQ0(pf.q())
+                .setR(boundaryLine.getR())
+                .setX(boundaryLine.getX())
+                .setG(boundaryLine.getG1() + boundaryLine.getG2())
+                .setB(boundaryLine.getB1() + boundaryLine.getB2())
+                .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
     }
 }
