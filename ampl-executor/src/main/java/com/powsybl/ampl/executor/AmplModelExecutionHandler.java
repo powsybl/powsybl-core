@@ -85,10 +85,11 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
      * @throws IOException rethrow {@link Files#copy(InputStream, Path, CopyOption...)}
      */
     private void exportAmplParameters(Path workingDir) throws IOException {
-        for (AmplInputFile param : parameters.getInputParameters()) {
-            try (BufferedWriter bufferedWriter = Files.newBufferedWriter(workingDir.resolve(param.getFileName()),
+        for (AmplInputFile amplInputFile : parameters.getInputParameters()) {
+            try (BufferedWriter bufferedWriter = Files.newBufferedWriter(
+                workingDir.resolve(amplInputFile.getFileName()),
                 StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW, StandardOpenOption.TRUNCATE_EXISTING)) {
-                param.write(this.mapper, bufferedWriter);
+                amplInputFile.write(this.mapper, bufferedWriter);
             }
         }
     }
@@ -125,7 +126,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
     private void readCustomFiles(Path workingDir, boolean hasModelConverged) {
         for (AmplOutputFile amplOutputFile : parameters.getOutputParameters(hasModelConverged)) {
             Path customFilePath = workingDir.resolve(amplOutputFile.getFileName());
-            if (customFilePath.toFile().exists()) {
+            if (Files.isRegularFile(customFilePath)) {
                 try (BufferedReader reader = Files.newBufferedReader(customFilePath, StandardCharsets.UTF_8)) {
                     amplOutputFile.read(this.mapper, reader);
                 } catch (IOException e) {
