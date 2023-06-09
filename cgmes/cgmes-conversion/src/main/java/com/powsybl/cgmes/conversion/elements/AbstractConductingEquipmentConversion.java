@@ -237,7 +237,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         identify(dlAdder);
         connect(dlAdder, modelSide);
         EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(
-            boundaryNode, terminalId(boundarySide));
+            boundaryNode);
         DanglingLine dl;
         if (equivalentInjectionConversion != null) {
             dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
@@ -335,19 +335,17 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         dl.getTerminal().setQ(svmodel.getQ());
     }
 
-    public EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(String boundaryNode, String terminalId) {
+    private EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(String boundaryNode) {
         List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
         if (eis.isEmpty()) {
             return null;
         } else if (eis.size() > 1) {
-            if (terminalId == null) {
-                return null;
-            }
-            return eis.stream()
-                    .filter(p -> terminalId.equals(p.getId("Terminal")))
-                    .findFirst()
-                    .map(e -> new EquivalentInjectionConversion(e, context))
-                    .orElse(null);
+            // This should not happen
+            // We have decided to create a dangling line,
+            // so only one MAS at this boundary point,
+            // so there must be only one equivalent injection
+            invalid("Multiple equivalent injections at boundary node");
+            return null;
         } else {
             return new EquivalentInjectionConversion(eis.get(0), context);
         }

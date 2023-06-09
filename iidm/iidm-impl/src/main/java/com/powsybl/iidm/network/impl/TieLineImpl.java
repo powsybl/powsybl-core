@@ -136,6 +136,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
         network.getListeners().notifyAfterRemoval(id);
         removed = true;
+        //TODO p0 and q0 must be recomputed on the 2 dangling lines.
     }
 
     @Override
