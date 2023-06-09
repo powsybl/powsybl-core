@@ -9,10 +9,7 @@ package com.powsybl.ampl.converter;
 import com.powsybl.ampl.converter.version.AmplExportVersionImpl;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
@@ -63,6 +60,15 @@ public class ExtendedAmplExporterTest extends AbstractConverterTest {
 
     @Test
     public void testNewTapExport() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformers().iterator().next();
+        transformer.newRatioTapChanger();
+        transformer.newPhaseTapChanger();
+        MemDataSource dataSource = new MemDataSource();
+        new AmplNetworkWriter(network, dataSource, v2Config).write();
+        assertEqualsToRef(dataSource, "_network_tct",
+            "eurostag-tutorial-example1-tct.txt");
 
     }
 
