@@ -84,6 +84,7 @@ class CgmesConformity1ConversionTest {
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
+        exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
         ConversionTester t = new ConversionTester(
             importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -99,6 +100,7 @@ class CgmesConformity1ConversionTest {
         // are recalculated and we need to increase the tolerance
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
+        exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
         ConversionTester t = new ConversionTester(new Properties(), exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
             new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
@@ -112,6 +114,7 @@ class CgmesConformity1ConversionTest {
         // are recalculated and we need to increase the tolerance
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
+        exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
         Properties importParams = new Properties();
         importParams.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
         ConversionTester t = new ConversionTester(

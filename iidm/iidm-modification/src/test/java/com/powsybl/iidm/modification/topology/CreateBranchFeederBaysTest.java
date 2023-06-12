@@ -236,7 +236,7 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
                 .withDirection2(BOTTOM)
                 .build();
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> modification1.apply(nbNetwork, true, Reporter.NO_OP));
-        assertEquals("Identifiable bbs not found.", e1.getMessage());
+        assertEquals("Bus or busbar section bbs not found", e1.getMessage());
 
         // wrong identifiable type
         CreateBranchFeederBays modification2 = new CreateBranchFeederBaysBuilder().

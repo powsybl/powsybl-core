@@ -130,6 +130,11 @@ final class ExportXmlCompare {
             } else if (elementName.contains("TapChanger")) {
                 ignored = attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
                         || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
+            } else if (elementName.startsWith("generator")) {
+                // ratedS is optional for generators,
+                // but we always export it to keep up with the quality of datasets rules.
+                // So we do not enforce this attribute to be equal in the original and exported network
+                ignored = attr.getLocalName().equals("ratedS");
             } else {
                 ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
@@ -572,6 +577,44 @@ final class ExportXmlCompare {
                     if (control.getTarget().getParentNode().getLocalName().endsWith(".mRID")) {
                         return ComparisonResult.EQUAL;
                     }
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringLoadAreaIds(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Comparison.Detail control = comparison.getControlDetails();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (control.getXPath().contains("SubLoadArea")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("LoadArea")
+                        && control.getTarget().getLocalName().equals("ID")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control.getXPath().contains("SubLoadArea.LoadArea")
+                        && control.getTarget().getLocalName().equals("resource")) {
+                    return ComparisonResult.EQUAL;
+                }
+            } else if (comparison.getType() == ComparisonType.TEXT_VALUE) {
+                if (control.getXPath().contains("SubLoadArea") || control.getXPath().contains("LoadArea")) {
+                    if (control.getTarget().getParentNode().getLocalName().endsWith(".mRID")) {
+                        return ComparisonResult.EQUAL;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringEnergyAreaIdOfControlArea(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Comparison.Detail control = comparison.getControlDetails();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (control.getXPath().contains("ControlArea.EnergyArea")
+                        && control.getTarget().getLocalName().equals("resource")) {
+                    return ComparisonResult.EQUAL;
                 }
             }
         }
