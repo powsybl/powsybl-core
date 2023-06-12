@@ -10,8 +10,11 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.ampl.converter.AmplNetworkUpdaterFactory;
 import com.powsybl.ampl.converter.AmplReadableElement;
+import com.powsybl.ampl.converter.AmplSubset;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ExecutionEnvironment;
 import com.powsybl.computation.local.LocalCommandExecutor;
@@ -23,21 +26,20 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ForkJoinPool;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Nicolas Pierre <nicolas.pierre@artelys.com>
@@ -128,9 +130,96 @@ class AmplModelExecutionHandlerTest {
     void testUtilities() {
         String amplBinPath = AmplModelExecutionHandler.getAmplBinPath(getAmplConfig());
         Assertions.assertEquals("/home/test/ampl" + File.separator + "ampl", amplBinPath,
-                "Ampl binary is wrongly named ");
+            "Ampl binary is wrongly named ");
         // next instruction must not throw
         AmplModelExecutionHandler.createAmplRunCommand(getAmplConfig(), new MockAmplModel());
+    }
+
+    @Test
+    void testReadCustomFileException() throws IOException {
+        // We are testing custom reading.
+        // In this test case, the custom output file exists but an IOexception is thrown while reading
+        AmplOutputFile customFile = new AmplOutputFile() {
+            @Override
+            public String getFileName() {
+                return "dummy_file";
+            }
+
+            @Override
+            public boolean throwOnMissingFile() {
+                return false;
+            }
+
+            @Override
+            public void read(StringToIntMapper<AmplSubset> networkAmplMapper,
+                             BufferedReader reader) throws IOException {
+                throw new IOException("Dummy custom fail, failing read.");
+            }
+        };
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            CompletableFuture<AmplResults> result = runCustomOutputFile(fs, customFile);
+            CompletionException completionException = assertThrows(CompletionException.class, () -> result.join());
+            assertEquals(UncheckedIOException.class, completionException.getCause().getClass());
+        }
+    }
+
+    @Test
+    void testReadCustomFileMissing() throws IOException {
+        // We are testing custom reading.
+        // In this test case, the custom output file does not exist.
+        AmplOutputFile customFile = new AmplOutputFile() {
+            @Override
+            public String getFileName() {
+                return "missing_file";
+            }
+
+            @Override
+            public boolean throwOnMissingFile() {
+                return true;
+            }
+
+            @Override
+            public void read(StringToIntMapper<AmplSubset> networkAmplMapper,
+                             BufferedReader reader) throws IOException {
+            }
+        };
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            CompletableFuture<AmplResults> result = runCustomOutputFile(fs, customFile);
+            CompletionException completionException = assertThrows(CompletionException.class, () -> result.join());
+            assertEquals(PowsyblException.class, completionException.getCause().getClass());
+        }
+    }
+
+    private CompletableFuture<AmplResults> runCustomOutputFile(FileSystem fs,
+                                                               AmplOutputFile customOutput) throws IOException {
+        CompletableFuture<AmplResults> result;
+        Files.createDirectory(fs.getPath("/workingDir"));
+        // Test data
+        Network network = EurostagTutorialExample1Factory.create();
+        DummyAmplModel model = new DummyAmplModel();
+        AmplConfig cfg = getAmplConfig();
+        // Test config
+        String variantId = network.getVariantManager().getWorkingVariantId();
+        try (ComputationManager manager = new LocalComputationManager(
+            new LocalComputationConfig(fs.getPath("/workingDir")), new MockAmplLocalExecutor(
+            List.of("output_generators.txt", "output_indic.txt", "dummy_file")),
+            ForkJoinPool.commonPool())) {
+            ExecutionEnvironment env = ExecutionEnvironment.createDefault()
+                .setWorkingDirPrefix("ampl_")
+                .setDebug(true);
+            // Test execution
+            AmplParameters parameters = new EmptyAmplParameters() {
+                public Collection<AmplOutputFile> getOutputParameters(boolean hasConverged) {
+                    return Collections.singleton(customOutput);
+                }
+
+            };
+            AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
+                parameters);
+            result = manager.execute(env, handler);
+
+        }
+        return result;
     }
 
     private AmplConfig getAmplConfig() {
