@@ -66,6 +66,8 @@ public abstract class AbstractTieLineTest {
                 .setId("hl1")
                 .setEnsureIdUnicity(true)
                 .setName(DANGLING1_NAME)
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(r)
                 .setX(x)
                 .setB(hl1b1 + hl1b2)
@@ -76,6 +78,8 @@ public abstract class AbstractTieLineTest {
                 .setBus("busB")
                 .setId("hl2")
                 .setEnsureIdUnicity(true)
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(r2)
                 .setX(x2)
                 .setB(hl2b1 + hl2b2)
@@ -192,6 +196,8 @@ public abstract class AbstractTieLineTest {
                 .setX(20.0)
                 .setB(80.0)
                 .setG(65.0)
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setUcteXnodeCode("ucte")
                 .add();
         // adder
@@ -276,6 +282,8 @@ public abstract class AbstractTieLineTest {
                 .setX(x)
                 .setB(b)
                 .setG(g)
+                .setP0(0)
+                .setQ0(0)
                 .add();
         DanglingLine dl2 = voltageLevelB.newDanglingLine()
                 .setBus("busB")
@@ -285,6 +293,8 @@ public abstract class AbstractTieLineTest {
                 .setX(2.0)
                 .setB(6.5)
                 .setG(8.5)
+                .setP0(0)
+                .setQ0(0)
                 .setUcteXnodeCode(code)
                 .add();
         network.newTieLine()

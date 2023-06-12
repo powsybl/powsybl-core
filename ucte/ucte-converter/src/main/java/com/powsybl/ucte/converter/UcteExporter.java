@@ -461,7 +461,7 @@ public class UcteExporter implements Exporter {
         // Create XNode
         convertXNode(ucteNetwork, tieLine, context);
 
-        // Create half line 1
+        // Create dangling line 1
         DanglingLine danglingLine1 = tieLine.getDanglingLine1();
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(danglingLine1.getId());
         String elementName1 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
@@ -476,7 +476,7 @@ public class UcteExporter implements Exporter {
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
 
-        // Create half line2
+        // Create dangling line2
         DanglingLine danglingLine2 = tieLine.getDanglingLine2();
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(danglingLine2.getId());
         String elementName2 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);

@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 
@@ -111,8 +112,9 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
     }
 
     protected boolean failChecks(Network network, boolean throwException, Reporter reporter, Logger logger) {
-        Identifiable<?> identifiable = checkIdentifiable(bbsOrBusId, network, throwException, reporter, logger);
+        Identifiable<?> identifiable = network.getIdentifiable(bbsOrBusId);
         if (identifiable == null) {
+            ModificationLogs.busOrBbsDoesNotExist(bbsOrBusId, reporter, throwException);
             return true;
         }
         if (!checkPositionPercent(positionPercent, throwException, reporter, logger)) {
@@ -120,18 +122,6 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         }
         voltageLevel = getVoltageLevel(identifiable, throwException, reporter, logger);
         return voltageLevel == null;
-    }
-
-    private static Identifiable<?> checkIdentifiable(String id, Network network, boolean throwException, Reporter reporter, Logger logger) {
-        Identifiable<?> identifiable = network.getIdentifiable(id);
-        if (identifiable == null) {
-            logger.error("Identifiable {} not found", id);
-            notFoundIdentifiableReport(reporter, id);
-            if (throwException) {
-                throw new PowsyblException("Identifiable " + id + " not found");
-            }
-        }
-        return identifiable;
     }
 
     private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, Reporter reporter, Logger logger) {
