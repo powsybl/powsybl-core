@@ -22,5 +22,5 @@
     <logger name="com.powsybl.triplestore.TripleStore" level="error"/>
     <logger name="com.powsybl.cgmes.triplestore.CgmesModelTripleStore" level="error"/>
     <logger name="com.powsybl.cgmes.conversion.Conversion" level="error"/>
-    <logger name="com.powsybl.cgmes.completion" level="info"/>
+    <logger name="com.powsybl.cgmes.completion" level="error"/>
 </configuration>

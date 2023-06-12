@@ -12,8 +12,11 @@ import com.powsybl.cgmes.conversion.CgmesImportPreProcessor;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.export.elements.*;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ZipFileDataSource;
@@ -47,8 +50,10 @@ import java.util.zip.ZipOutputStream;
 @AutoService(CgmesImportPreProcessor.class)
 public class CreateMissingContainersPreProcessor implements CgmesImportPreProcessor {
 
-    public static final String NAME = "CreateMissingContainers";
+    public static final String NAME = "createMissingContainers";
     public static final String FIXES_FOLDER_NAME = "iidm.import.cgmes.fixes-for-missing-containers-folder";
+    public static final double DEFAULT_NOMINAL_VALUE_FOR_MISSING_VOLTAGE_LEVELS = 100.0;
+
     private static final Logger LOG = LoggerFactory.getLogger(CreateMissingContainersPreProcessor.class);
     private static final Parameter FIXES_FOLDER_NAME_PARAMETER = new Parameter(FIXES_FOLDER_NAME,
             ParameterType.STRING,
@@ -73,7 +78,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         }
     }
 
-    private void buildFixesOnFolder(CgmesModel cgmes, String basename, Path fixesFolder) {
+    private static void buildFixesOnFolder(CgmesModel cgmes, String basename, Path fixesFolder) {
         if (!Files.isDirectory(fixesFolder)) {
             LOG.error("Output folder is not a directory {}. Skipping post processor.", fixesFolder);
             return;
@@ -88,7 +93,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
             return;
         }
         if (LOG.isInfoEnabled()) {
-            LOG.info("Execute {} post processor on CGMES model {}. Output to file {}", getName(), cgmes.modelId(), fixesFile);
+            LOG.info("Execute {} post processor on CGMES model {}. Output to file {}", NAME, cgmes.modelId(), fixesFile);
         }
         buildFixesOnZipFile(cgmes, basename, fixesFile);
     }
@@ -98,7 +103,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         Set<String> missingVoltageLevels = findMissingVoltageLevels(cgmes);
         LOG.info("Missing voltage levels: {}", missingVoltageLevels);
         if (!missingVoltageLevels.isEmpty()) {
-            buildZipFileWithFixes(missingVoltageLevels, fixesFile, basename);
+            buildZipFileWithFixes(cgmes, missingVoltageLevels, fixesFile, basename);
             cgmes.read(new ZipFileDataSource(fixesFile), Reporter.NO_OP);
         }
         Set<String> missingVoltageLevelsAfterFix = findMissingVoltageLevels(cgmes);
@@ -121,9 +126,8 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         return referred.stream().filter(c -> !defined.contains(c)).collect(Collectors.toSet());
     }
 
-    private static void buildZipFileWithFixes(Set<String> missingVoltageLevels, Path fixesFile, String basename) {
-        Network network = NetworkFactory.findDefault().createNetwork("empty", "CGMES");
-        // TODO(Luma) should we ensure that context CIM version uses the same version of the input files ?
+    private static void buildZipFileWithFixes(CgmesModel cgmes, Set<String> missingVoltageLevels, Path fixesFile, String basename) {
+        Network network = prepareEmptyNetworkForExport(cgmes);
         CgmesExportContext context = new CgmesExportContext(network);
         try (ZipOutputStream zout = new ZipOutputStream(Files.newOutputStream(fixesFile))) {
             zout.putNextEntry(new ZipEntry(basename + "_EQ.xml"));
@@ -138,6 +142,19 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         } catch (IOException | XMLStreamException x) {
             throw new PowsyblException("Building file containing fixes for missing data", x);
         }
+    }
+
+    private static Network prepareEmptyNetworkForExport(CgmesModel cgmes) {
+        Network network = NetworkFactory.findDefault().createNetwork("empty", "CGMES");
+        // We ensure that the fixes are exported to CGMES files with the same version of the input files
+        // To achieve it, we set the CIM characteristics of the empty Network created
+        if (cgmes instanceof CgmesModelTripleStore) {
+            network.newExtension(CimCharacteristicsAdder.class)
+                    .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
+                    .setCimVersion(((CgmesModelTripleStore) cgmes).getCimVersion())
+                    .add();
+        }
+        return network;
     }
 
     private static RegionContainers writeRegionContainers(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -159,19 +176,17 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
     private static void writeMissingVoltageLevel(String voltageLevelId, XMLStreamWriter writer, CgmesExportContext context, RegionContainers regionContainers) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
 
-        // TODO(Luma) In a first approach,
+        // In a first approach,
         // we do not have additional information about the voltage level,
         // we create a different substation and base voltage for every missing voltage level
         String voltageLevelName = voltageLevelId + " VL";
         String substationId = CgmesExportUtil.getUniqueId();
         String substationName = voltageLevelId + "SUB for missing VL " + voltageLevelId;
         String baseVoltageId = CgmesExportUtil.getUniqueId();
-        // An arbitrary, abnormal value
-        double nominalV = 10000.0;
 
         VoltageLevelEq.write(voltageLevelId, voltageLevelName, Double.NaN, Double.NaN, substationId, baseVoltageId, cimNamespace, writer, context);
         SubstationEq.write(substationId, substationName, regionContainers.subGeographicalRegionId, cimNamespace, writer, context);
-        BaseVoltageEq.write(baseVoltageId, nominalV, cimNamespace, writer, context);
+        BaseVoltageEq.write(baseVoltageId, DEFAULT_NOMINAL_VALUE_FOR_MISSING_VOLTAGE_LEVELS, cimNamespace, writer, context);
     }
 
     private static void writeHeader(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -209,7 +224,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         }
     }
 
-    static class RegionContainers {
+    private static class RegionContainers {
         String subGeographicalRegionId;
         String geographicalRegionId;
     }
