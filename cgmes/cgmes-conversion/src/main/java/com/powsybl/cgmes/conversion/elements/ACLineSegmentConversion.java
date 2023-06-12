@@ -147,7 +147,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
                 .newDanglingLine()
                 .setId(boundaryLine.getId())
                 .setName(boundaryLine.getName())
-                // We consider p0 and q0 are null because there is no possible way to retrieve the corresponding
+                // We consider p0 and q0 are equal to zero because there is no possible way to retrieve the corresponding
                 // equivalent injection. Note that the equivalent injections of both sides are compensating each other
                 // (the sum of their flows is supposed to be equal to zero).
                 .setP0(0.0)
