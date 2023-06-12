@@ -6,15 +6,14 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.*;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -23,6 +22,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -241,5 +241,13 @@ class AmplNetworkWriterTest extends AbstractConverterTest {
     private void export(Network network, Properties properties, DataSource dataSource) {
         AmplExporter exporter = new AmplExporter();
         exporter.export(network, properties, dataSource);
+    }
+
+    @Test
+    void writeHeaders() throws IOException {
+        Network network = Network.create("dummy_network", "test");
+        MemDataSource dataSource = new MemDataSource();
+        export(network, new Properties(), dataSource);
+        assertEqualsToRef(dataSource, "_headers", "inputs/headers.txt");
     }
 }

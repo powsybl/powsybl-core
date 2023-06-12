@@ -32,6 +32,7 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  */
 public class BasicAmplExporter implements AmplColumnsExporter {
 
+    private static final String EXPORTER_ID = "V1_LEGACY";
     private final AmplExportConfig config;
     private final Network network;
     private final StringToIntMapper<AmplSubset> mapper;
@@ -53,6 +54,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         this.variantIndex = variantIndex;
         this.faultNum = faultNum;
         this.actionNum = actionNum;
+    }
+
+    @Override
+    public String getExporterId() {
+        return EXPORTER_ID;
     }
 
     @Override

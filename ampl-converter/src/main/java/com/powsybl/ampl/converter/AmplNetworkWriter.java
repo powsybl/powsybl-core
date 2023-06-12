@@ -808,8 +808,17 @@ public class AmplNetworkWriter {
         writeVscConverterStations();
         writeLccConverterStations();
         writeHvdcLines();
+        writeHeaders();
 
         addNetworkExtensions();
         exportExtensions();
+    }
+
+    private void writeHeaders() throws IOException {
+        try (Writer writer = new OutputStreamWriter(
+            dataSource.newOutputStream("_headers", "txt", append), StandardCharsets.UTF_8)
+        ) {
+            columnsExporter.writeHeaderFile(writer);
+        }
     }
 }
