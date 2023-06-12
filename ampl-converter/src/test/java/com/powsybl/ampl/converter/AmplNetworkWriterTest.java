@@ -40,7 +40,7 @@ class AmplNetworkWriterTest extends AbstractConverterTest {
         AmplExporter exporter = new AmplExporter();
         assertEquals("AMPL", exporter.getFormat());
         assertEquals("IIDM to AMPL converter", exporter.getComment());
-        assertEquals(5, exporter.getParameters().size());
+        assertEquals(6, exporter.getParameters().size());
     }
 
     @Test
