@@ -124,14 +124,6 @@ public interface Scalable {
     }
 
     /**
-     * @deprecated gen should be replaced by onGenerator
-     */
-    @Deprecated
-    static GeneratorScalable gen(String id) {
-        return new GeneratorScalable(id);
-    }
-
-    /**
      * create GeneratorScalable with id
      */
     static GeneratorScalable onGenerator(String id) {
