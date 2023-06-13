@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
@@ -73,24 +72,6 @@ public interface Scalable {
      * @see ScalingConvention
      */
     double minimumValue(Network n, ScalingConvention scalingConvention);
-
-    /**
-     * @deprecated listGenerators should be replaced by filterInjections
-     */
-    @Deprecated
-    void listGenerators(Network n, List<Generator> generators, List<String> notFoundGenerators);
-
-    /**
-     * @deprecated listGenerators should be replaced by filterInjections
-     */
-    @Deprecated
-    List<Generator> listGenerators(Network n, List<String> notFoundGenerators);
-
-    /**
-     * @deprecated listGenerators should be replaced by filterInjections
-     */
-    @Deprecated
-    List<Generator> listGenerators(Network n);
 
     /**
      * Scans all the expected injections of the scalable.
