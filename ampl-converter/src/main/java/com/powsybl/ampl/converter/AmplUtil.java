@@ -26,6 +26,10 @@ public final class AmplUtil {
         return n.getBusView().getBuses();
     }
 
+    public static String getBusId(Bus bus) {
+        return bus == null ? null : bus.getId();
+    }
+
     public static Bus getBus(Terminal t) {
         return t.getBusView().getBus();
     }

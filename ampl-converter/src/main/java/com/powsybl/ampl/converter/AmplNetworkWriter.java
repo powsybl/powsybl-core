@@ -335,8 +335,8 @@ public class AmplNetworkWriter {
                 LOGGER.warn("Skipping line '{}' connected to the same bus at both sides", l.getId());
                 continue;
             }
-            String bus1Id = getBusId(bus1);
-            String bus2Id = getBusId(bus2);
+            String bus1Id = AmplUtil.getBusId(bus1);
+            String bus2Id = AmplUtil.getBusId(bus2);
             if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, bus2Id))) {
                 continue;
             }
@@ -357,8 +357,8 @@ public class AmplNetworkWriter {
                 LOGGER.warn("Skipping line '{}' connected to the same bus at both sides", l.getId());
                 continue;
             }
-            String bus1Id = getBusId(bus1);
-            String bus2Id = getBusId(bus2);
+            String bus1Id = AmplUtil.getBusId(bus1);
+            String bus2Id = AmplUtil.getBusId(bus2);
             if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, bus2Id))) {
                 continue;
             }
@@ -379,7 +379,8 @@ public class AmplNetworkWriter {
                 LOGGER.warn("Skipping transformer '{}' connected to the same bus at both sides", twt.getId());
                 continue;
             }
-            if (isOnlyMainCc() && !(isBusExported(context, getBusId(bus1)) || isBusExported(context, getBusId(bus2)))) {
+            if (isOnlyMainCc() && !(isBusExported(context, AmplUtil.getBusId(bus1)) || isBusExported(context,
+                AmplUtil.getBusId(bus2)))) {
                 continue;
             }
             context.voltageLevelIdsToExport.add(t1.getVoltageLevel().getId());
@@ -410,9 +411,9 @@ public class AmplNetworkWriter {
             int num1 = mapper.getInt(AmplSubset.BRANCH, id1);
             int num2 = mapper.getInt(AmplSubset.BRANCH, id2);
             int num3 = mapper.getInt(AmplSubset.BRANCH, id3);
-            String bus1Id = getBusId(bus1);
-            String bus2Id = getBusId(bus2);
-            String bus3Id = getBusId(bus3);
+            String bus1Id = AmplUtil.getBusId(bus1);
+            String bus2Id = AmplUtil.getBusId(bus2);
+            String bus3Id = AmplUtil.getBusId(bus3);
 
             int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL,
                 AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt));
@@ -441,7 +442,7 @@ public class AmplNetworkWriter {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus1 = AmplUtil.getBus(t);
-            String bus1Id = getBusId(bus1);
+            String bus1Id = AmplUtil.getBusId(bus1);
             String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
             if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, middleBusId))) {
                 continue;
@@ -453,14 +454,6 @@ public class AmplNetworkWriter {
             columnsExporter.writeDanglingLineToFormatter(formatter, dl);
             addExtensions(mapper.getInt(AmplSubset.BRANCH, dl.getId()), dl);
         }
-    }
-
-    private String getBusId(Bus bus) {
-        return bus == null ? null : bus.getId();
-    }
-
-    private int getBusNum(Bus bus) {
-        return bus == null ? -1 : mapper.getInt(AmplSubset.BUS, bus.getId());
     }
 
     private void writeTapChangerTable() throws IOException {
@@ -691,17 +684,10 @@ public class AmplNetworkWriter {
                 Terminal t = b.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
-                int busNum = -1;
                 if (bus != null) {
                     busId = bus.getId();
-                    busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
                 }
-                int conBusNum = -1;
                 // take connectable bus if exists
-                Bus conBus = AmplUtil.getConnectableBus(t);
-                if (conBus != null) {
-                    conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
-                }
                 if (!isBusExported(context, busId)) {
                     skipped.add(b.getId());
                 } else {
