@@ -149,12 +149,12 @@ public class Parameter {
 
     public static double readDouble(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
         return read(parameters, configuredParameter, defaultValueConfig.getDoubleValue(prefix, configuredParameter),
-            (moduleConfig, names) -> ModuleConfigUtil.getOptionalDoubleProperty(moduleConfig, names).orElse(Double.NaN), value -> value != null && !Double.isNaN(value));
+            (moduleConfig, names) -> ModuleConfigUtil.getOptionalDoubleProperty(moduleConfig, names).orElse(Double.NaN), value -> !Double.isNaN(value));
     }
 
     public static int readInteger(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
         return read(parameters, configuredParameter, defaultValueConfig.getIntegerValue(prefix, configuredParameter),
-            (moduleConfig, names) -> ModuleConfigUtil.getOptionalIntProperty(moduleConfig, names).stream().boxed().findFirst().orElse(null), Objects::nonNull);
+            (moduleConfig, names) -> ModuleConfigUtil.getOptionalIntProperty(moduleConfig, names).stream().boxed().findFirst().orElse(null), t -> true);
     }
 
     public static double readDouble(String prefix, Properties parameters, Parameter configuredParameter) {
@@ -179,14 +179,14 @@ public class Parameter {
             }
         }
         // if none, use configured parameters
-        if (isPresent.test(value)) {
+        if (value != null && isPresent.test(value)) {
             return value;
         }
         return defaultValue;
     }
 
     private static <T> T read(Properties parameters, Parameter configuredParameter, T defaultValue, BiFunction<ModuleConfig, List<String>, Optional<T>> supplier) {
-        return read(parameters, configuredParameter, defaultValue, (moduleConfig, strings) -> supplier.apply(moduleConfig, strings).orElse(null), Objects::nonNull);
+        return read(parameters, configuredParameter, defaultValue, (moduleConfig, strings) -> supplier.apply(moduleConfig, strings).orElse(null), t -> true);
     }
 
     public Parameter addAdditionalNames(String... names) {

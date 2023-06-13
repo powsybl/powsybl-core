@@ -7,12 +7,8 @@
  */
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
-
-import java.io.File;
-import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -24,10 +20,7 @@ class EqOnlyConversionTest {
 
     @Test
     void testTeePointBusBranch() {
-        Network network = Network.read(new File(getClass().getResource("/t-line.xml").getFile()).toPath(),
-                LocalComputationManager.getDefault(),
-                ImportConfig.load(),
-                new Properties());
+        Network network = Network.read("t-line.xml", getClass().getResourceAsStream("/t-line.xml"));
         assertEquals(4, network.getVoltageLevelCount());
         assertEquals(3, network.getSubstationCount());
         assertTrue(network.getVoltageLevel("Line1TPointBus_VL").getSubstation().isEmpty()); // tee point
