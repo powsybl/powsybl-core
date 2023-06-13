@@ -443,7 +443,6 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     @Override
     public void writeCurrentLimits(TableFormatter formatter) throws IOException {
         writeBranchCurrentLimits(formatter);
-        writeTieLineCurrentLimits(formatter);
         writeThreeWindingsTransformerCurrentLimits(formatter);
         writeDanglingLineCurrentLimits(formatter);
     }
@@ -548,20 +547,6 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             Optional<CurrentLimits> currentLimits2 = branch.getCurrentLimits2();
             if (currentLimits2.isPresent()) {
                 writeTemporaryCurrentLimits(currentLimits2.get(), formatter, branchId, false, "_2_");
-            }
-        }
-    }
-
-    private void writeTieLineCurrentLimits(TableFormatter formatter) throws IOException {
-        for (TieLine line : network.getTieLines()) {
-            String lineId = line.getId();
-            Optional<CurrentLimits> currentLimits1 = line.getDanglingLine1().getCurrentLimits();
-            if (currentLimits1.isPresent()) {
-                writeTemporaryCurrentLimits(currentLimits1.get(), formatter, lineId, true, "_1_");
-            }
-            Optional<CurrentLimits> currentLimits2 = line.getDanglingLine2().getCurrentLimits();
-            if (currentLimits2.isPresent()) {
-                writeTemporaryCurrentLimits(currentLimits2.get(), formatter, lineId, false, "_2_");
             }
         }
     }
