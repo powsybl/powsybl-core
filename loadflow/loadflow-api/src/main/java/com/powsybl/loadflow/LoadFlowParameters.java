@@ -255,40 +255,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    /**
-     * @deprecated Use {@link #isTwtSplitShuntAdmittance} instead.
-     */
-    @Deprecated
-    public boolean isSpecificCompatibility() {
-        return isTwtSplitShuntAdmittance();
-    }
-
-    /**
-     * @deprecated Use {@link #isTwtSplitShuntAdmittance} instead.
-     */
-    @Deprecated
-    public boolean isT2wtSplitShuntAdmittance() {
-        return isTwtSplitShuntAdmittance();
-    }
-
     public boolean isTwtSplitShuntAdmittance() {
         return twtSplitShuntAdmittance;
-    }
-
-    /**
-     * @deprecated Use {@link #setTwtSplitShuntAdmittance} instead.
-     */
-    @Deprecated
-    public LoadFlowParameters setSpecificCompatibility(boolean twtSplitShuntAdmittance) {
-        return setTwtSplitShuntAdmittance(twtSplitShuntAdmittance);
-    }
-
-    /**
-     * @deprecated Use {@link #setTwtSplitShuntAdmittance} instead.
-     */
-    @Deprecated
-    public LoadFlowParameters setT2wtSplitShuntAdmittance(boolean twtSplitShuntAdmittance) {
-        return setTwtSplitShuntAdmittance(twtSplitShuntAdmittance);
     }
 
     public LoadFlowParameters setTwtSplitShuntAdmittance(boolean twtSplitShuntAdmittance) {
