@@ -7,13 +7,24 @@
  */
 package com.powsybl.cgmes.completion;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -24,28 +35,41 @@ import static org.junit.jupiter.api.Assertions.fail;
  */
 class CgmesCompletionTest {
 
+    private FileSystem fileSystem;
+
+    private InMemoryPlatformConfig platformConfig;
+
+    @BeforeEach
+    void setUp() {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        fileSystem.close();
+    }
+
     @Test
-    void miniGridNodeBreakerMissingVoltageLevel() {
+    void miniGridNodeBreakerMissingVoltageLevel() throws IOException {
+        ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.miniGridNodeBreakerMissingVoltageLevel().dataSource();
         Properties importParams = new Properties();
         importParams.put(CgmesImport.PRE_PROCESSORS, "createMissingContainers");
 
         // The only way to pass the output folder where we want the fixes to be written is to use a config file
-        // Its contents should be:
+        // Its contents must be:
         //
         //   import-export-parameters-default-value:
-        //     iidm.import.cgmes.fixes-for-missing-containers-filename: "/user/working/area/fixes/..."
+        //     iidm.import.cgmes.fixes-for-missing-containers-folder: "/user/working/area/fixes/..."
         //
-        // For tests, it is not possible to put a reference to a Jimfs folder,
-        // Even if we write the uri of the folder, and read it back as an uri,
-        // the default file system is used to interpret it
-        //
-        // An alternative would be to write in the config a temp folder that we create here in the tests,
-        // But that means writing in a resource file (the actual path of the temp folder), it is dirty.
-        //
-        // Instead, the CGMES completion processor creates itself a temp folder when no parameter is received.
-        // We won't receive directly the file with the fixes, but we do not care.
-
-        Network network = Network.read(CgmesConformity1ModifiedCatalog.miniGridNodeBreakerMissingVoltageLevel().dataSource(), importParams);
+        // When the folder is relative path,
+        // we assume in the preprocessor that it is relative to the given PlatformConfig dir
+        // To let the test platformConfig arrive at the preprocessor through the importer mechanism
+        // we have to import data using explicitly a computationManager
+        Network network;
+        try (ComputationManager computationManager = new LocalComputationManager(platformConfig)) {
+            network = Importers.importData("CGMES", dataSource, importParams, computationManager);
+        }
         assertNotNull(network);
 
         // Check that a specific terminal has a voltage level, navigating the CGMES model

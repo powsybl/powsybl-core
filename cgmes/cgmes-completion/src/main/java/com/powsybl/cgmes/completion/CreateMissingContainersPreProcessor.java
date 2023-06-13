@@ -20,7 +20,6 @@ import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ZipFileDataSource;
-import com.powsybl.commons.io.WorkingDirectory;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -38,7 +37,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -60,10 +61,13 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
             "Folder where zip files containing fixes will be created: one zip for each imported network missing data",
             null);
 
+    private final PlatformConfig platformConfig;
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     public CreateMissingContainersPreProcessor(PlatformConfig platformConfig) {
-        defaultValueConfig = new ParameterDefaultValueConfig(Objects.requireNonNull(platformConfig));
+        Objects.requireNonNull(platformConfig);
+        this.platformConfig = platformConfig;
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
     }
 
     public CreateMissingContainersPreProcessor() {
@@ -78,7 +82,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         }
     }
 
-    private static void buildFixesOnFolder(CgmesModel cgmes, String basename, Path fixesFolder) {
+    private static void prepareAndReadFixesUsingFolder(CgmesModel cgmes, String basename, Path fixesFolder) {
         if (!Files.isDirectory(fixesFolder)) {
             LOG.error("Output folder is not a directory {}. Skipping post processor.", fixesFolder);
             return;
@@ -93,12 +97,12 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
             return;
         }
         if (LOG.isInfoEnabled()) {
-            LOG.info("Execute {} post processor on CGMES model {}. Output to file {}", NAME, cgmes.modelId(), fixesFile);
+            LOG.info("Execute {} pre processor on CGMES model {}. Output to file {}", NAME, cgmes.modelId(), fixesFile);
         }
-        buildFixesOnZipFile(cgmes, basename, fixesFile);
+        prepareAndReadFixesUsingZipFile(cgmes, basename, fixesFile);
     }
 
-    private static void buildFixesOnZipFile(CgmesModel cgmes, String basename, Path fixesFile) {
+    private static void prepareAndReadFixesUsingZipFile(CgmesModel cgmes, String basename, Path fixesFile) {
         // Assume all containers missing are voltage levels and create proper objects for them (substation, regions, ...)
         Set<String> missingVoltageLevels = findMissingVoltageLevels(cgmes);
         LOG.info("Missing voltage levels: {}", missingVoltageLevels);
@@ -160,8 +164,8 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
     private static RegionContainers writeRegionContainers(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String cimNamespace = context.getCim().getNamespace();
 
-        // TODO(Luma) An alternative would be to make public the method writeFictitiousSubstationFor()
-        // from EquipmentExport and use it here.
+        // An alternative to replicate this code would be to make public the method
+        // EquipmentExport::writeFictitiousSubstationFor and use it here.
         // We could group all missing voltage levels in the same (fictitious) substation
         RegionContainers regionContainers = new RegionContainers();
         regionContainers.subGeographicalRegionId = CgmesExportUtil.getUniqueId();
@@ -198,6 +202,26 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         }
     }
 
+    private Path getFixesFolder() {
+        String fixesFolderName = Parameter.readString("CGMES", null, FIXES_FOLDER_NAME_PARAMETER, defaultValueConfig);
+        if (fixesFolderName == null) {
+            LOG.error("Executing {} pre processor. Missing the folder name for the output of files containing required fixes. Use the parameter {}.", NAME, FIXES_FOLDER_NAME_PARAMETER.getName());
+            return null;
+        }
+        Path fixesFolder = Paths.get(fixesFolderName);
+        if (fixesFolder.isAbsolute()) {
+            return fixesFolder;
+        } else {
+            Optional<Path> configDir = platformConfig.getConfigDir();
+            if (configDir.isPresent()) {
+                return configDir.get().resolve(fixesFolderName);
+            } else {
+                LOG.error("Executing {} pre processor. The folder name for the output of files containing required fixes is a relative path ({}), but the platform config dir is empty.", NAME, fixesFolderName);
+                return null;
+            }
+        }
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -208,19 +232,9 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         Objects.requireNonNull(cgmes);
         String basename = nameFor(cgmes);
 
-        String fixesFolderName = Parameter.readString("CGMES", null, FIXES_FOLDER_NAME_PARAMETER, defaultValueConfig);
-        if (fixesFolderName != null) {
-            buildFixesOnFolder(cgmes, basename, Path.of(fixesFolderName));
-        } else {
-            LOG.warn("Missing fixes folder parameter {}, attempt to create a temp directory in user working directory.", FIXES_FOLDER_NAME_PARAMETER.getName());
-            Path current = Path.of(System.getProperty("user.dir"));
-            String prefix = "cgmes-fixes-for-missing-containers";
-            boolean debug = false;
-            try (WorkingDirectory workingDirectory = new WorkingDirectory(current, prefix, debug)) {
-                buildFixesOnFolder(cgmes, basename, workingDirectory.toPath());
-            } catch (IOException e) {
-                LOG.warn("Failed to create a temp directory");
-            }
+        Path fixesFolder = getFixesFolder();
+        if (fixesFolder != null) {
+            prepareAndReadFixesUsingFolder(cgmes, basename, fixesFolder);
         }
     }
 
