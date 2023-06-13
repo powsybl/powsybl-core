@@ -114,7 +114,7 @@ class LoadScalable extends AbstractInjectionScalable {
                 t.connect();
                 LOGGER.info("Connecting {}", l.getId());
             } else {
-                LOGGER.info("Load {} is not connected, it is not participating in the scaling", l.getId());
+                LOGGER.info("Load {} is not connected, discarded from scaling", l.getId());
                 return 0.;
             }
         }

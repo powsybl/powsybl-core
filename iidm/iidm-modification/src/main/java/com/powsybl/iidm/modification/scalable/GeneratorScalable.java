@@ -123,7 +123,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
                 new ConnectGenerator(g.getId()).apply(n);
                 LOGGER.info("Connecting {}", g.getId());
             } else {
-                LOGGER.info("Generator {} is not connected, it is not participating in the scaling", g.getId());
+                LOGGER.info("Generator {} is not connected, discarded from scaling", g.getId());
                 return 0.;
             }
         }

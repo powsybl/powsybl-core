@@ -127,7 +127,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
                 t.connect();
                 LOGGER.info("Connecting {}", dl.getId());
             } else {
-                LOGGER.info("Dangling line {} is not connected, it is not participating in the scaling", dl.getId());
+                LOGGER.info("Dangling line {} is not connected, discarded from scaling", dl.getId());
                 return 0.;
             }
         }
