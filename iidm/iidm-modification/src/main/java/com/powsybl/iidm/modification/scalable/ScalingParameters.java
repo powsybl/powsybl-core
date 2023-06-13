@@ -60,6 +60,7 @@ public class ScalingParameters {
 
     /**
      * @return a boolean indicating if the terminal of the scalable should be reconnected if it is disconnected.
+     * If the scalable is disconnected, then it will not be scaled.
      */
     public boolean isReconnect() {
         return reconnect;
