@@ -15,11 +15,13 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 import java.util.Objects;
 
+import static com.powsybl.iidm.xml.ConnectableXmlUtil.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation, VscConverterStationAdder, VoltageLevel> {
+class VscConverterStationXml extends AbstractSimpleIdentifiableXml<VscConverterStation, VscConverterStationAdder, VoltageLevel> {
 
     static final VscConverterStationXml INSTANCE = new VscConverterStationXml();
 
@@ -61,7 +63,7 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     }
 
     @Override
-    protected VscConverterStation readRootElementAttributes(VscConverterStationAdder adder, NetworkXmlReaderContext context) {
+    protected VscConverterStation readRootElementAttributes(VscConverterStationAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         String voltageRegulatorOn = context.getReader().getAttributeValue(null, "voltageRegulatorOn");
         float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
         double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "voltageSetpoint");

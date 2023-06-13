@@ -6,12 +6,12 @@
  */
 package com.powsybl.loadflow.validation;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.stream.Stream;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Generator;
@@ -22,10 +22,10 @@ import com.powsybl.iidm.network.Terminal;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class BalanceTypeGuesserTest {
+class BalanceTypeGuesserTest {
 
     @Test
-    public void test() {
+    void test() {
         Terminal genTerminal1 = Mockito.mock(Terminal.class);
         Mockito.when(genTerminal1.getP()).thenReturn(-126.083);
         Generator generator1 = Mockito.mock(Generator.class);

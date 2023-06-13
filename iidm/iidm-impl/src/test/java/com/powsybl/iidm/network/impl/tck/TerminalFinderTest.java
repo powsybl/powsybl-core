@@ -12,5 +12,5 @@ import com.powsybl.iidm.network.tck.AbstractTerminalFinderTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class TerminalFinderTest extends AbstractTerminalFinderTest {
+class TerminalFinderTest extends AbstractTerminalFinderTest {
 }

@@ -14,32 +14,32 @@ import com.powsybl.cgmes.extensions.CgmesModelExtension;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class Cgmes3ModifiedConversionTest {
+class Cgmes3ModifiedConversionTest {
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         fileSystem.close();
     }
 
     @Test
-    public void microGridSingleFile() {
+    void microGridSingleFile() {
         Network network0 = Importers.importData("CGMES", Cgmes3Catalog.microGrid().dataSource(), null);
         System.out.println(network0.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().tabulateLocals());
         Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), null);
@@ -49,7 +49,7 @@ public class Cgmes3ModifiedConversionTest {
     }
 
     @Test
-    public void microGridGeographicalRegionInBoundary() {
+    void microGridGeographicalRegionInBoundary() {
         Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseGeographicalRegionInBoundary().dataSource(), null);
         Substation anvers = network.getSubstation("87f7002b-056f-4a6a-a872-1744eea757e3");
         Substation brussels = network.getSubstation("37e14a0f-5e34-4647-a062-8bfd9305fa9d");

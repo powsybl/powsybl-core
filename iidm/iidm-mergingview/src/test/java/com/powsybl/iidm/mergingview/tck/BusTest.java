@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractBusBreakerTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class BusTest extends AbstractBusBreakerTest { }
+class BusTest extends AbstractBusBreakerTest { }

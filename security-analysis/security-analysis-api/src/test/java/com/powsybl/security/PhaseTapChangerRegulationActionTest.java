@@ -10,23 +10,23 @@ package com.powsybl.security;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.PhaseTapChangerRegulationAction;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class PhaseTapChangerRegulationActionTest {
+class PhaseTapChangerRegulationActionTest {
 
     @Test
-    public void test() {
-        String message = Assert.assertThrows(IllegalArgumentException.class, () -> new PhaseTapChangerRegulationAction("id17", "transformerId5", ThreeWindingsTransformer.Side.ONE,
+    void test() {
+        String message = assertThrows(IllegalArgumentException.class, () -> new PhaseTapChangerRegulationAction("id17", "transformerId5", ThreeWindingsTransformer.Side.ONE,
                 false, PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 10.0)).getMessage();
-        Assert.assertEquals("PhaseTapChangerRegulationAction can not have a regulation mode " +
+        assertEquals("PhaseTapChangerRegulationAction can not have a regulation mode " +
                 "if it is not regulating", message);
         PhaseTapChangerRegulationAction action = PhaseTapChangerRegulationAction.deactivateRegulation("id17", "transformerId5",
                 ThreeWindingsTransformer.Side.ONE);
-        Assert.assertFalse(action.isRegulating());
-        Assert.assertTrue(action.getRegulationMode().isEmpty());
+        assertFalse(action.isRegulating());
+        assertTrue(action.getRegulationMode().isEmpty());
     }
 }

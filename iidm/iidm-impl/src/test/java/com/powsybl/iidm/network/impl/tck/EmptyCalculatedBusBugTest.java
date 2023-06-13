@@ -8,4 +8,4 @@ package com.powsybl.iidm.network.impl.tck;
 
 import com.powsybl.iidm.network.tck.AbstractEmptyCalculatedBusBugTest;
 
-public class EmptyCalculatedBusBugTest extends AbstractEmptyCalculatedBusBugTest { }
+class EmptyCalculatedBusBugTest extends AbstractEmptyCalculatedBusBugTest { }

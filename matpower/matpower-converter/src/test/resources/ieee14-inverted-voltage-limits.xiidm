@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_9" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="ieee14-inverted-voltage-limits" caseDate="2020-01-01T00:00:00.000Z" forecastDistance="0" sourceFormat="MATPOWER" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_10" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="ieee14-inverted-voltage-limits" caseDate="2020-01-01T00:00:00.000Z" forecastDistance="0" sourceFormat="MATPOWER" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="SUB-1">
         <iidm:voltageLevel id="VL-1" nominalV="1.0" lowVoltageLimit="0.9" highVoltageLimit="1.1" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-1" name="Bus 1     HV" v="1.06" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN-1" energySource="OTHER" minP="0.0" maxP="332.4" voltageRegulatorOn="true" targetP="232.4" targetV="1.06" targetQ="-16.9" bus="BUS-1" connectableBus="BUS-1">
+            <iidm:generator id="GEN-1" energySource="OTHER" minP="0.0" maxP="332.4" ratedS="100.0" voltageRegulatorOn="true" targetP="232.4" targetV="1.06" targetQ="-16.9" bus="BUS-1" connectableBus="BUS-1">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="10.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -15,7 +15,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-2" name="Bus 2     HV" v="1.045" angle="-4.98"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN-2" energySource="OTHER" minP="0.0" maxP="140.0" voltageRegulatorOn="true" targetP="40.0" targetV="1.045" targetQ="42.4" bus="BUS-2" connectableBus="BUS-2">
+            <iidm:generator id="GEN-2" energySource="OTHER" minP="0.0" maxP="140.0" ratedS="100.0" voltageRegulatorOn="true" targetP="40.0" targetV="1.045" targetQ="42.4" bus="BUS-2" connectableBus="BUS-2">
                 <iidm:minMaxReactiveLimits minQ="-40.0" maxQ="50.0"/>
             </iidm:generator>
             <iidm:load id="LOAD-2" loadType="UNDEFINED" p0="21.7" q0="12.7" bus="BUS-2" connectableBus="BUS-2"/>
@@ -26,7 +26,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-3" name="Bus 3     HV" v="1.01" angle="-12.72"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN-3" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.01" targetQ="23.4" bus="BUS-3" connectableBus="BUS-3">
+            <iidm:generator id="GEN-3" energySource="OTHER" minP="0.0" maxP="100.0" ratedS="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.01" targetQ="23.4" bus="BUS-3" connectableBus="BUS-3">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="40.0"/>
             </iidm:generator>
             <iidm:load id="LOAD-3" loadType="UNDEFINED" p0="94.2" q0="19.0" bus="BUS-3" connectableBus="BUS-3"/>
@@ -54,7 +54,7 @@
                 <iidm:bus id="BUS-5" name="Bus 5     HV" v="1.02" angle="-8.78"/>
                 <iidm:bus id="BUS-6" name="Bus 6     LV" v="1.07" angle="-14.22"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN-6" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.07" targetQ="12.2" bus="BUS-6" connectableBus="BUS-6">
+            <iidm:generator id="GEN-6" energySource="OTHER" minP="0.0" maxP="100.0" ratedS="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.07" targetQ="12.2" bus="BUS-6" connectableBus="BUS-6">
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
             </iidm:generator>
             <iidm:load id="LOAD-5" loadType="UNDEFINED" p0="7.6" q0="1.6" bus="BUS-5" connectableBus="BUS-5"/>
@@ -67,7 +67,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS-8" name="Bus 8     TV" v="1.09" angle="-13.36"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN-8" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.09" targetQ="17.4" bus="BUS-8" connectableBus="BUS-8">
+            <iidm:generator id="GEN-8" energySource="OTHER" minP="0.0" maxP="100.0" ratedS="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.09" targetQ="17.4" bus="BUS-8" connectableBus="BUS-8">
                 <iidm:minMaxReactiveLimits minQ="-6.0" maxQ="24.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -115,10 +115,10 @@
     <iidm:line id="LINE-1-2" r="1.9380000000000002E-4" x="5.917E-4" g1="0.0" b1="2.64" g2="0.0" b2="2.64" bus1="BUS-1" connectableBus1="BUS-1" voltageLevelId1="VL-1" bus2="BUS-2" connectableBus2="BUS-2" voltageLevelId2="VL-2"/>
     <iidm:line id="LINE-1-5" r="5.403000000000001E-4" x="0.0022304" g1="0.0" b1="2.46" g2="0.0" b2="2.46" bus1="BUS-1" connectableBus1="BUS-1" voltageLevelId1="VL-1" bus2="BUS-5" connectableBus2="BUS-5" voltageLevelId2="VL-5"/>
     <iidm:line id="LINE-2-3" r="4.699E-4" x="0.0019797" g1="0.0" b1="2.19" g2="0.0" b2="2.19" bus1="BUS-2" connectableBus1="BUS-2" voltageLevelId1="VL-2" bus2="BUS-3" connectableBus2="BUS-3" voltageLevelId2="VL-3"/>
-    <iidm:line id="LINE-2-4" r="5.811000000000001E-4" x="0.0017632000000000001" g1="0.0" b1="1.7000000000000002" g2="0.0" b2="1.7000000000000002" bus1="BUS-2" connectableBus1="BUS-2" voltageLevelId1="VL-2" bus2="BUS-4" connectableBus2="BUS-4" voltageLevelId2="VL-4"/>
-    <iidm:line id="LINE-2-5" r="5.695E-4" x="0.0017388000000000002" g1="0.0" b1="1.73" g2="0.0" b2="1.73" bus1="BUS-2" connectableBus1="BUS-2" voltageLevelId1="VL-2" bus2="BUS-5" connectableBus2="BUS-5" voltageLevelId2="VL-5"/>
+    <iidm:line id="LINE-2-4" r="5.811E-4" x="0.0017632000000000001" g1="0.0" b1="1.7000000000000002" g2="0.0" b2="1.7000000000000002" bus1="BUS-2" connectableBus1="BUS-2" voltageLevelId1="VL-2" bus2="BUS-4" connectableBus2="BUS-4" voltageLevelId2="VL-4"/>
+    <iidm:line id="LINE-2-5" r="5.695E-4" x="0.0017388" g1="0.0" b1="1.73" g2="0.0" b2="1.73" bus1="BUS-2" connectableBus1="BUS-2" voltageLevelId1="VL-2" bus2="BUS-5" connectableBus2="BUS-5" voltageLevelId2="VL-5"/>
     <iidm:line id="LINE-3-4" r="6.701E-4" x="0.0017102999999999999" g1="0.0" b1="0.64" g2="0.0" b2="0.64" bus1="BUS-3" connectableBus1="BUS-3" voltageLevelId1="VL-3" bus2="BUS-4" connectableBus2="BUS-4" voltageLevelId2="VL-4"/>
-    <iidm:line id="LINE-4-5" r="1.3350000000000002E-4" x="4.2110000000000004E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-5" connectableBus2="BUS-5" voltageLevelId2="VL-5"/>
+    <iidm:line id="LINE-4-5" r="1.3350000000000002E-4" x="4.211E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId1="VL-4" bus2="BUS-5" connectableBus2="BUS-5" voltageLevelId2="VL-5"/>
     <iidm:line id="LINE-6-11" r="9.498E-4" x="0.001989" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-6" connectableBus1="BUS-6" voltageLevelId1="VL-5" bus2="BUS-11" connectableBus2="BUS-11" voltageLevelId2="VL-11"/>
     <iidm:line id="LINE-6-12" r="0.0012291000000000001" x="0.0025581" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-6" connectableBus1="BUS-6" voltageLevelId1="VL-5" bus2="BUS-12" connectableBus2="BUS-12" voltageLevelId2="VL-12"/>
     <iidm:line id="LINE-6-13" r="6.615E-4" x="0.0013027" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-6" connectableBus1="BUS-6" voltageLevelId1="VL-5" bus2="BUS-13" connectableBus2="BUS-13" voltageLevelId2="VL-13"/>
@@ -126,7 +126,7 @@
     <iidm:line id="LINE-7-9" r="0.0" x="0.0011001" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-7" connectableBus1="BUS-7" voltageLevelId1="VL-4" bus2="BUS-9" connectableBus2="BUS-9" voltageLevelId2="VL-4"/>
     <iidm:line id="LINE-9-10" r="3.181E-4" x="8.45E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId1="VL-4" bus2="BUS-10" connectableBus2="BUS-10" voltageLevelId2="VL-10"/>
     <iidm:line id="LINE-9-14" r="0.0012711" x="0.0027038" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId1="VL-4" bus2="BUS-14" connectableBus2="BUS-14" voltageLevelId2="VL-14"/>
-    <iidm:line id="LINE-10-11" r="8.205E-4" x="0.0019207" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-10" connectableBus1="BUS-10" voltageLevelId1="VL-10" bus2="BUS-11" connectableBus2="BUS-11" voltageLevelId2="VL-11"/>
+    <iidm:line id="LINE-10-11" r="8.204999999999999E-4" x="0.0019207" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-10" connectableBus1="BUS-10" voltageLevelId1="VL-10" bus2="BUS-11" connectableBus2="BUS-11" voltageLevelId2="VL-11"/>
     <iidm:line id="LINE-12-13" r="0.0022092" x="0.0019988000000000002" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-12" connectableBus1="BUS-12" voltageLevelId1="VL-12" bus2="BUS-13" connectableBus2="BUS-13" voltageLevelId2="VL-13"/>
     <iidm:line id="LINE-13-14" r="0.0017093" x="0.0034802" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="BUS-13" connectableBus1="BUS-13" voltageLevelId1="VL-13" bus2="BUS-14" connectableBus2="BUS-14" voltageLevelId2="VL-14"/>
     <iidm:extension id="VL-1">

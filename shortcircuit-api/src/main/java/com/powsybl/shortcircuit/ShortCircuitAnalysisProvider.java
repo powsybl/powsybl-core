@@ -8,13 +8,16 @@ package com.powsybl.shortcircuit;
 
 import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -53,5 +56,45 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
                                                               List<FaultParameters> faultParameters,
                                                               Reporter reporter) {
         return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, faultParameters, reporter);
+    }
+
+    /**
+     * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation
+     * does not have any specific parameters, or does not support JSON serialization.
+     *
+     * <p>Note that the actual serializer type should be {@code ExtensionJsonSerializer<ShortCircuitParameters, MyParametersExtension>}
+     * where {@code MyParametersExtension} is the specific parameters class.
+     */
+    default Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
+        return Optional.empty();
+    }
+
+    /**
+     * Reads implementation-specific parameters from platform config, or return {@link Optional#empty()}
+     * if the implementation does not have any specific parameters, or does not support loading from config.
+     */
+    default Optional<Extension<ShortCircuitParameters>> loadSpecificParameters(PlatformConfig config) {
+        return Optional.empty();
+    }
+
+    /**
+     * Reads implementation-specific parameters from a Map, or return {@link Optional#empty()}
+     * if the implementation does not have any specific parameters, or does not support loading from config.
+     */
+    default Optional<Extension<ShortCircuitParameters>> loadSpecificParameters(Map<String, String> properties) {
+        return Optional.empty();
+    }
+
+    /**
+     * Updates implementation-specific parameters from a Map.
+     */
+    default void updateSpecificParameters(Extension<ShortCircuitParameters> extension, Map<String, String> properties) {
+    }
+
+    /**
+     * Get the list of the specific parameters.
+     */
+    default List<Parameter> getSpecificParameters() {
+        return Collections.emptyList();
     }
 }

@@ -47,6 +47,8 @@ class FaultResultDeserializer {
             List<Extension<FaultResult>> extensions = Collections.emptyList();
             FortescueValue current = null;
             FortescueValue voltage = null;
+            double currentMagnitude = Double.NaN;
+            double voltageMagnitude = Double.NaN;
             List<ShortCircuitBusResults> shortCircuitBusResults = Collections.emptyList();
 
             while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -86,9 +88,18 @@ class FaultResultDeserializer {
                         voltage = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
                         break;
 
-                    case "shortCircuitBusResults":
+                    case "currentMagnitude":
                         parser.nextToken();
-                        shortCircuitBusResults = JsonUtil.readList(deserializationContext, parser, ShortCircuitBusResults.class);
+                        currentMagnitude = parser.readValueAs(Double.class);
+                        break;
+
+                    case "voltageMagnitude":
+                        parser.nextToken();
+                        voltageMagnitude = parser.readValueAs(Double.class);
+                        break;
+
+                    case "shortCircuitBusResults":
+                        shortCircuitBusResults = new ShortCircuitBusResultsDeserializer().deserialize(parser, version);
                         break;
 
                     case "status":
@@ -103,20 +114,30 @@ class FaultResultDeserializer {
                         break;
 
                     default:
-                        throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                        throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
                 }
             }
 
             FaultResult faultResult;
             if (status == null) {
                 JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "No status", version, "1.0");
-                if (current == null) {
-                    faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.FAILURE);
+                if (current == null && Double.isNaN(currentMagnitude)) {
+                    faultResult = new FailedFaultResult(fault, FaultResult.Status.FAILURE);
                 } else {
-                    faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.SUCCESS);
+                    if (!Double.isNaN(currentMagnitude)) {
+                        faultResult = new MagnitudeFaultResult(fault, shortCircuitPower, feederResults, limitViolations, currentMagnitude, voltageMagnitude, shortCircuitBusResults, timeConstant, FaultResult.Status.SUCCESS);
+                    } else {
+                        faultResult = new FortescueFaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, FaultResult.Status.SUCCESS);
+                    }
                 }
             } else {
-                faultResult = new FaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status);
+                if (status == FaultResult.Status.FAILURE) {
+                    faultResult = new FailedFaultResult(fault, status);
+                } else if (!Double.isNaN(currentMagnitude)) {
+                    faultResult = new MagnitudeFaultResult(fault, shortCircuitPower, feederResults, limitViolations, currentMagnitude, voltageMagnitude, shortCircuitBusResults, timeConstant, status);
+                } else {
+                    faultResult = new FortescueFaultResult(fault, shortCircuitPower, feederResults, limitViolations, current, voltage, shortCircuitBusResults, timeConstant, status);
+                }
             }
 
             SUPPLIER.get().addExtensions(faultResult, extensions);

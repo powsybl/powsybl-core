@@ -6,10 +6,7 @@
  */
 package com.powsybl.security.detectors;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
@@ -79,21 +76,11 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     public void checkLimitViolation(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-
         Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
-
         if (currentLimitTypes.contains(LoadingLimitType.TATL) && (overload != null)) {
-            consumer.accept(new LimitViolation(branch.getId(),
-                    ((Branch<?>) branch).getOptionalName().orElse(null),
-                    toLimitViolationType(type),
-                    overload.getPreviousLimitName(),
-                    overload.getTemporaryLimit().getAcceptableDuration(),
-                    overload.getPreviousLimit(),
-                    limitReduction,
-                    value,
-                    side));
+            checkTemporary(branch, side, limitReduction, value, consumer, type);
         } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
-            checkPermanentLimit(branch, side, value, consumer, type);
+            checkPermanentLimit(branch, side, limitReduction, value, consumer, type);
         }
     }
 }

@@ -6,14 +6,12 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadAdder;
-import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class LoadAdderAdapter extends AbstractInjectionAdderAdapter<LoadAdder> implements LoadAdder {
+public class LoadAdderAdapter extends AbstractInjectionAdderAdapter<Load, LoadAdder> implements LoadAdder {
 
     LoadAdderAdapter(final LoadAdder delegate, final MergingViewIndex index) {
         super(delegate, index);
@@ -44,5 +42,15 @@ public class LoadAdderAdapter extends AbstractInjectionAdderAdapter<LoadAdder> i
     public LoadAdder setQ0(final double q0) {
         getDelegate().setQ0(q0);
         return this;
+    }
+
+    @Override
+    public ZipLoadModelAdder newZipModel() {
+        return getDelegate().newZipModel();
+    }
+
+    @Override
+    public ExponentialLoadModelAdder newExponentialModel() {
+        return getDelegate().newExponentialModel();
     }
 }

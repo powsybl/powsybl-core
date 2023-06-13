@@ -10,11 +10,11 @@ import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Terminal.BusView;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.stream.Stream;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -33,7 +33,7 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public abstract class AbstractLoadFlowResultsCompletionTest {
+abstract class AbstractLoadFlowResultsCompletionTest {
 
     protected String lineId = "line";
     protected double lineP1 = -42.051187;
@@ -72,8 +72,8 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
 
     protected Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         Bus lineBus1 = Mockito.mock(Bus.class);
         Mockito.when(lineBus1.getV()).thenReturn(225.105);
         Mockito.when(lineBus1.getAngle()).thenReturn(Math.toDegrees(0.0765428));

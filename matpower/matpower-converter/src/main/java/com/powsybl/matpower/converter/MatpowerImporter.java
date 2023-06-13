@@ -19,6 +19,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.matpower.model.*;
+
+import org.apache.commons.math3.complex.Complex;
 import org.jgrapht.alg.util.Pair;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -81,6 +83,9 @@ public class MatpowerImporter implements Importer {
     }
 
     private static boolean isLine(MatpowerModel model, MBranch branch) {
+        if (branch.getPhaseShiftAngle() != 0) {
+            return false;
+        }
         if (branch.getRatio() == 0) {
             return true;
         }
@@ -138,14 +143,23 @@ public class MatpowerImporter implements Importer {
             double lowVoltageLimit = e.getValue().getFirst();
             double highVoltageLimit = e.getValue().getSecond();
             VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-            if (highVoltageLimit >= lowVoltageLimit) {
-                voltageLevel.setLowVoltageLimit(lowVoltageLimit)
-                        .setHighVoltageLimit(highVoltageLimit);
+            if (!Double.isNaN(lowVoltageLimit) && !Double.isNaN(highVoltageLimit)) {
+                if (highVoltageLimit >= lowVoltageLimit) {
+                    voltageLevel.setLowVoltageLimit(lowVoltageLimit)
+                            .setHighVoltageLimit(highVoltageLimit);
+                } else {
+                    LOGGER.warn("Invalid voltage limits [{}, {}] for voltage level {}",
+                            lowVoltageLimit, highVoltageLimit, voltageLevelId);
+                    voltageLevel.setLowVoltageLimit(highVoltageLimit)
+                            .setHighVoltageLimit(lowVoltageLimit);
+                }
             } else {
-                LOGGER.warn("Invalid voltage limits [{}, {}] for voltage level {}",
-                        lowVoltageLimit, highVoltageLimit, voltageLevelId);
-                voltageLevel.setLowVoltageLimit(highVoltageLimit)
-                        .setHighVoltageLimit(lowVoltageLimit);
+                if (!Double.isNaN(lowVoltageLimit)) {
+                    voltageLevel.setLowVoltageLimit(lowVoltageLimit);
+                }
+                if (!Double.isNaN(highVoltageLimit)) {
+                    voltageLevel.setHighVoltageLimit(highVoltageLimit);
+                }
             }
         }
     }
@@ -182,6 +196,7 @@ public class MatpowerImporter implements Importer {
                     .setVoltageRegulatorOn(mGen.getVoltageMagnitudeSetpoint() != 0)
                     .setMaxP(mGen.getMaximumRealPowerOutput())
                     .setMinP(mGen.getMinimumRealPowerOutput())
+                    .setRatedS(mGen.getTotalMbase() != 0 ? mGen.getTotalMbase() : Double.NaN)
                     .add();
 
             if ((mGen.getPc1() != 0) || (mGen.getPc2() != 0)) {
@@ -358,6 +373,17 @@ public class MatpowerImporter implements Importer {
                 branch = newTwt;
                 LOGGER.trace("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
             } else {
+                double nominalV1 = voltageLevel1.getNominalV();
+                double nominalV2 = voltageLevel2.getNominalV();
+                double sBase = context.getBaseMva();
+                double r = impedanceToEngineeringUnitsForLine(mBranch.getR(), nominalV1, nominalV2, sBase);
+                double x = impedanceToEngineeringUnitsForLine(mBranch.getX(), nominalV1, nominalV2, sBase);
+                Complex ytr = impedanceToAdmittance(r, x);
+                double g1 = admittanceEndToEngineeringUnitsForLine(ytr.getReal(), 0.0, nominalV1, nominalV2, sBase);
+                double b1 = admittanceEndToEngineeringUnitsForLine(ytr.getImaginary(), mBranch.getB() * 0.5, nominalV1, nominalV2, sBase);
+                double g2 = admittanceEndToEngineeringUnitsForLine(ytr.getReal(), 0.0, nominalV2, nominalV1, sBase);
+                double b2 = admittanceEndToEngineeringUnitsForLine(ytr.getImaginary(), mBranch.getB() * 0.5, nominalV2, nominalV1, sBase);
+
                 branch = network.newLine()
                         .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
@@ -367,12 +393,12 @@ public class MatpowerImporter implements Importer {
                         .setBus2(connectedBus2)
                         .setConnectableBus2(bus2Id)
                         .setVoltageLevel2(voltageLevel2Id)
-                        .setR(mBranch.getR() * zb)
-                        .setX(mBranch.getX() * zb)
-                        .setG1(0)
-                        .setB1(mBranch.getB() / zb / 2)
-                        .setG2(0)
-                        .setB2(mBranch.getB() / zb / 2)
+                        .setR(r)
+                        .setX(x)
+                        .setG1(g1)
+                        .setB1(b1)
+                        .setG2(g2)
+                        .setB2(b2)
                         .add();
                 LOGGER.trace("Created line {} {} {}", branch.getId(), bus1Id, bus2Id);
             }
@@ -385,6 +411,24 @@ public class MatpowerImporter implements Importer {
                 createApparentPowerLimits(mBranch, branch.newApparentPowerLimits2());
             }
         }
+    }
+
+    // avoid NaN when r and x, both are 0.0
+    private static Complex impedanceToAdmittance(double r, double x) {
+        return r == 0.0 && x == 0.0 ? new Complex(0.0, 0.0) : new Complex(r, x).reciprocal();
+    }
+
+    private static double impedanceToEngineeringUnitsForLine(double impedance, double nominalVoltageAtEnd,
+                                                             double nominalVoltageAtOtherEnd, double sBase) {
+        // this method handles also line with different nominal voltage at ends
+        return impedance * nominalVoltageAtEnd * nominalVoltageAtOtherEnd / sBase;
+    }
+
+    private static double admittanceEndToEngineeringUnitsForLine(double transmissionAdmittance, double shuntAdmittanceAtEnd,
+                                                                 double nominalVoltageAtEnd, double nominalVoltageAtOtherEnd, double sBase) {
+        // this method handles also line with different nominal voltage at ends
+        // note that ytr is already in engineering units
+        return shuntAdmittanceAtEnd * sBase / (nominalVoltageAtEnd * nominalVoltageAtEnd) - (1 - nominalVoltageAtOtherEnd / nominalVoltageAtEnd) * transmissionAdmittance;
     }
 
     @Override

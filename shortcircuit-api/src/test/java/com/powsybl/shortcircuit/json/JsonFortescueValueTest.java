@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.shortcircuit.FortescueValue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,13 +21,13 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class JsonFortescueValueTest extends AbstractConverterTest {
+class JsonFortescueValueTest extends AbstractConverterTest {
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
@@ -50,18 +50,18 @@ public class JsonFortescueValueTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTrip() throws IOException {
+    void roundTrip() throws IOException {
         List<FortescueValue> values = new ArrayList<>();
         values.add(new FortescueValue(1.2, 2.2, 3.2, 1.3, 2.3, 3.3));
         roundTripTest(values, JsonFortescueValueTest::write, JsonFortescueValueTest::read, "/FortescueValue.json");
     }
 
     @Test
-    public void readUnexpectedField() throws IOException {
+    void readUnexpectedField() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FortescueValueInvalid.json"), fileSystem.getPath("/FortescueValueInvalid.json"));
 
         Path path = fileSystem.getPath("/FortescueValueInvalid.json");
-        AssertionError e = assertThrows(AssertionError.class, () -> read(path));
-        assertEquals("Unexpected field: unexpected", e.getMessage());
+        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> read(path));
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Unexpected field: unexpected (through reference chain: java.util.ArrayList[0])", e.getMessage());
     }
 }

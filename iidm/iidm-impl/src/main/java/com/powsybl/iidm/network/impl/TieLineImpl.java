@@ -6,14 +6,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.TieLineUtil;
 
-import java.util.Objects;
+import java.util.Collection;
+import java.util.Optional;
 
 /**
  *
@@ -21,281 +21,342 @@ import java.util.Objects;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class TieLineImpl extends LineImpl implements TieLine {
+class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
-    static class HalfLineImpl implements HalfLine {
-        private final String id;
-        private final String name;
-        private boolean fictitious;
-        private double r;
-        private double x;
-        private double g1;
-        private double g2;
-        private double b1;
-        private double b2;
-
-        private final HalfLineBoundaryImpl boundary;
-
-        TieLineImpl parent;
-
-        HalfLineImpl(String id, String name, boolean fictitious, double r, double x, double g1, double b1, double g2, double b2, Branch.Side side) {
-            this.id = Objects.requireNonNull(id);
-            this.name = name;
-            this.fictitious = fictitious;
-            this.r = r;
-            this.x = x;
-            this.g1 = g1;
-            this.b1 = b1;
-            this.g2 = g2;
-            this.b2 = b2;
-            this.boundary = new HalfLineBoundaryImpl(this, side);
+    @Override
+    public NetworkImpl getNetwork() {
+        if (removed) {
+            throw new PowsyblException("Cannot access network of removed tie line " + id);
         }
-
-        TieLineImpl getParent() {
-            return parent;
-        }
-
-        private void setParent(TieLineImpl parent) {
-            this.parent = parent;
-        }
-
-        private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-            if (Objects.nonNull(parent)) {
-                parent.notifyUpdate(() -> getHalfLineAttribute() + "." + attribute, oldValue, newValue);
-            }
-        }
-
-        @Override
-        public String getId() {
-            return id;
-        }
-
-        @Override
-        public String getName() {
-            return name == null ? id : name;
-        }
-
-        @Override
-        public double getR() {
-            return r;
-        }
-
-        @Override
-        public HalfLineImpl setR(double r) {
-            ValidationUtil.checkR(parent, r);
-            double oldValue = this.r;
-            this.r = r;
-            notifyUpdate("r", oldValue, r);
-            return this;
-        }
-
-        @Override
-        public double getX() {
-            return x;
-        }
-
-        @Override
-        public HalfLineImpl setX(double x) {
-            ValidationUtil.checkX(parent, x);
-            double oldValue = this.x;
-            this.x = x;
-            notifyUpdate("x", oldValue, x);
-
-            return this;
-        }
-
-        @Override
-        public double getG1() {
-            return g1;
-        }
-
-        @Override
-        public HalfLineImpl setG1(double g1) {
-            ValidationUtil.checkG1(parent, g1);
-            double oldValue = this.g1;
-            this.g1 = g1;
-            notifyUpdate("g1", oldValue, g1);
-            return this;
-        }
-
-        @Override
-        public double getG2() {
-            return g2;
-        }
-
-        @Override
-        public HalfLineImpl setG2(double g2) {
-            ValidationUtil.checkG2(parent, g2);
-            double oldValue = this.g2;
-            this.g2 = g2;
-            notifyUpdate("g2", oldValue, g2);
-            return this;
-        }
-
-        @Override
-        public double getB1() {
-            return b1;
-        }
-
-        @Override
-        public HalfLineImpl setB1(double b1) {
-            ValidationUtil.checkB1(parent, b1);
-            double oldValue = this.b1;
-            this.b1 = b1;
-            notifyUpdate("b1", oldValue, b1);
-            return this;
-        }
-
-        @Override
-        public double getB2() {
-            return b2;
-        }
-
-        @Override
-        public HalfLineImpl setB2(double b2) {
-            ValidationUtil.checkB2(parent, b2);
-            double oldValue = this.b2;
-            this.b2 = b2;
-            notifyUpdate("b2", oldValue, b2);
-            return this;
-        }
-
-        @Override
-        public HalfLineBoundaryImpl getBoundary() {
-            return boundary;
-        }
-
-        @Override
-        public boolean isFictitious() {
-            return fictitious;
-        }
-
-        @Override
-        public HalfLineImpl setFictitious(boolean fictitious) {
-            boolean oldValue = this.fictitious;
-            this.fictitious = fictitious;
-            notifyUpdate("fictitious", oldValue, fictitious);
-            return this;
-        }
-
-        private String getHalfLineAttribute() {
-            return this == parent.half1 ? "half1" : "half2";
-        }
-    }
-
-    private final String ucteXnodeCode;
-
-    private final HalfLineImpl half1;
-
-    private final HalfLineImpl half2;
-
-    TieLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
-        super(network, id, name, fictitious, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
-        this.ucteXnodeCode = ucteXnodeCode;
-        this.half1 = attach(half1);
-        this.half2 = attach(half2);
-    }
-
-    private HalfLineImpl attach(HalfLineImpl half) {
-        half.setParent(this);
-        return half;
+        return networkRef.get();
     }
 
     @Override
-    public boolean isTieLine() {
-        return true;
+    protected String getTypeDescription() {
+        return "Tie Line";
+    }
+
+    private DanglingLineImpl danglingLine1;
+
+    private DanglingLineImpl danglingLine2;
+
+    private final Ref<NetworkImpl> networkRef;
+
+    private boolean removed = false;
+
+    TieLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
+        super(id, name, fictitious);
+        this.networkRef = network;
+    }
+
+    void attachDanglingLines(DanglingLineImpl dl1, DanglingLineImpl dl2) {
+        this.danglingLine1 = attach(dl1);
+        this.danglingLine2 = attach(dl2);
+    }
+
+    private DanglingLineImpl attach(DanglingLineImpl danglingLine) {
+        danglingLine.setTieLine(this);
+        return danglingLine;
     }
 
     @Override
     public String getUcteXnodeCode() {
-        return ucteXnodeCode;
+        return Optional.ofNullable(danglingLine1.getUcteXnodeCode()).orElseGet(() -> danglingLine2.getUcteXnodeCode());
     }
 
     @Override
-    public HalfLineImpl getHalf1() {
-        return half1;
+    public DanglingLineImpl getDanglingLine1() {
+        return danglingLine1;
     }
 
     @Override
-    public HalfLineImpl getHalf2() {
-        return half2;
+    public DanglingLineImpl getDanglingLine2() {
+        return danglingLine2;
     }
 
     @Override
-    public HalfLineImpl getHalf(Side side) {
-        switch (side) {
-            case ONE:
-                return half1;
-            case TWO:
-                return half2;
-            default:
-                throw new AssertionError("Unknown branch side " + side);
+    public DanglingLineImpl getDanglingLine(Side side) {
+        return BranchUtil.getFromSide(side, this::getDanglingLine1, this::getDanglingLine2);
+    }
+
+    @Override
+    public DanglingLine getDanglingLine(String voltageLevelId) {
+        if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine1;
         }
+        if (danglingLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine2;
+        }
+        return null;
     }
 
-    // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
+    // danglingLine1 and danglingLine2 are dangling lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getR() {
-        return TieLineUtil.getR(half1, half2);
+        return TieLineUtil.getR(danglingLine1, danglingLine2);
     }
 
-    private ValidationException createNotSupportedForTieLines() {
-        return new ValidationException(this, "direct modification of characteristics not supported for tie lines");
-    }
-
-    @Override
-    public LineImpl setR(double r) {
-        throw createNotSupportedForTieLines();
-    }
-
-    // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
+    // danglingLine1 and danglingLine2 are dangling lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getX() {
-        return TieLineUtil.getX(half1, half2);
-    }
-
-    @Override
-    public LineImpl setX(double x) {
-        throw createNotSupportedForTieLines();
+        return TieLineUtil.getX(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getG1() {
-        return TieLineUtil.getG1(half1, half2);
-    }
-
-    @Override
-    public LineImpl setG1(double g1) {
-        throw createNotSupportedForTieLines();
+        return TieLineUtil.getG1(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getB1() {
-        return TieLineUtil.getB1(half1, half2);
-    }
-
-    @Override
-    public LineImpl setB1(double b1) {
-        throw createNotSupportedForTieLines();
+        return TieLineUtil.getB1(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getG2() {
-        return TieLineUtil.getG2(half1, half2);
-    }
-
-    @Override
-    public LineImpl setG2(double g2) {
-        throw createNotSupportedForTieLines();
+        return TieLineUtil.getG2(danglingLine1, danglingLine2);
     }
 
     @Override
     public double getB2() {
-        return TieLineUtil.getB2(half1, half2);
+        return TieLineUtil.getB2(danglingLine1, danglingLine2);
     }
 
     @Override
-    public LineImpl setB2(double b2) {
-        throw createNotSupportedForTieLines();
+    public void remove() {
+        NetworkImpl network = getNetwork();
+        network.getListeners().notifyBeforeRemoval(this);
+
+        // Remove dangling lines
+        danglingLine1.removeTieLine();
+        danglingLine2.removeTieLine();
+
+        // Remove this tie line from the network
+        network.getIndex().remove(this);
+
+        network.getListeners().notifyAfterRemoval(id);
+        removed = true;
+    }
+
+    @Override
+    public TerminalExt getTerminal1() {
+        return danglingLine1.getTerminal();
+    }
+
+    @Override
+    public TerminalExt getTerminal2() {
+        return danglingLine2.getTerminal();
+    }
+
+    @Override
+    public Terminal getTerminal(Side side) {
+        return BranchUtil.getFromSide(side, this::getTerminal1, this::getTerminal2);
+    }
+
+    @Override
+    public Terminal getTerminal(String voltageLevelId) {
+        return BranchUtil.getTerminal(voltageLevelId, getTerminal1(), getTerminal2());
+    }
+
+    public Side getSide(Terminal terminal) {
+        return BranchUtil.getSide(terminal, getTerminal1(), getTerminal2());
+    }
+
+    @Override
+    public Collection<OperationalLimits> getOperationalLimits1() {
+        return danglingLine1.getOperationalLimits();
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits1() {
+        return danglingLine1.getCurrentLimits();
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits1() {
+        return getCurrentLimits1().orElse(null);
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits1() {
+        return danglingLine1.newCurrentLimits();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
+        return danglingLine1.getApparentPowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits1() {
+        return getApparentPowerLimits1().orElse(null);
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        return danglingLine1.newApparentPowerLimits();
+    }
+
+    @Override
+    public Collection<OperationalLimits> getOperationalLimits2() {
+        return danglingLine2.getOperationalLimits();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits1() {
+        return danglingLine1.getActivePowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits1() {
+        return getActivePowerLimits1().orElse(null);
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        return danglingLine1.newActivePowerLimits();
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits2() {
+        return danglingLine2.getCurrentLimits();
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits2() {
+        return getCurrentLimits2().orElse(null);
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits2() {
+        return danglingLine2.newCurrentLimits();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
+        return danglingLine2.getApparentPowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        return getApparentPowerLimits2().orElse(null);
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        return danglingLine2.newApparentPowerLimits();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits2() {
+        return danglingLine2.getActivePowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits2() {
+        return getActivePowerLimits2().orElse(null);
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        return danglingLine2.newActivePowerLimits();
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits(Side side) {
+        return BranchUtil.getFromSide(side, this::getCurrentLimits1, this::getCurrentLimits2);
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits(Side side) {
+        return BranchUtil.getFromSide(side, this::getActivePowerLimits1, this::getActivePowerLimits2);
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits(Side side) {
+        return BranchUtil.getFromSide(side, this::getApparentPowerLimits1, this::getApparentPowerLimits2);
+    }
+
+    @Override
+    public boolean isOverloaded() {
+        return isOverloaded(1.0f);
+    }
+
+    @Override
+    public boolean isOverloaded(float limitReduction) {
+        return checkPermanentLimit1(limitReduction, LimitType.CURRENT) || checkPermanentLimit2(limitReduction, LimitType.CURRENT);
+    }
+
+    @Override
+    public int getOverloadDuration() {
+        return BranchUtil.getOverloadDuration(checkTemporaryLimits1(LimitType.CURRENT), checkTemporaryLimits2(LimitType.CURRENT));
+    }
+
+    @Override
+    public boolean checkPermanentLimit(Side side, float limitReduction, LimitType type) {
+        return BranchUtil.getFromSide(side,
+            () -> checkPermanentLimit1(limitReduction, type),
+            () -> checkPermanentLimit2(limitReduction, type));
+    }
+
+    @Override
+    public boolean checkPermanentLimit(Side side, LimitType type) {
+        return checkPermanentLimit(side, 1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(LimitType type) {
+        return checkPermanentLimit1(1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(LimitType type) {
+        return checkPermanentLimit2(1f, type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
+        return BranchUtil.getFromSide(side,
+            () -> checkTemporaryLimits1(limitReduction, type),
+            () -> checkTemporaryLimits2(limitReduction, type));
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits(Side side, LimitType type) {
+        return checkTemporaryLimits(side, 1f, type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits1(LimitType type) {
+        return checkTemporaryLimits1(1f, type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits2(LimitType type) {
+        return checkTemporaryLimits2(1f, type);
+    }
+
+    public double getValueForLimit(Terminal t, LimitType type) {
+        return BranchUtil.getValueForLimit(t, type);
     }
 }

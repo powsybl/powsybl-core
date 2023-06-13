@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.extensions.LinePosition;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
 import com.powsybl.iidm.network.impl.extensions.SubstationPositionImpl;
 import com.powsybl.iidm.network.impl.extensions.LinePositionImpl;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -30,17 +30,17 @@ import java.util.Collections;
 import java.util.List;
 
 import static com.powsybl.cgmes.gl.GLTestUtils.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class CgmesGLExporterTest {
+class CgmesGLExporterTest {
 
     @Test
-    public void test() {
+    void test() {
         Network network = GLTestUtils.getNetwork();
         Substation substation1 = network.getSubstation("Substation1");
         SubstationPosition substationPosition1 = new SubstationPositionImpl(substation1, SUBSTATION_1);

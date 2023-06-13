@@ -16,7 +16,7 @@ import java.util.Map;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class NetworkMapping {
+class NetworkMapping {
 
     protected NetworkMapping(Network expected, Network actual) {
         this.expected = expected;
@@ -27,7 +27,7 @@ public class NetworkMapping {
         this.actualPrefixed = false;
     }
 
-    public Identifiable findExpected(Identifiable a) {
+    Identifiable findExpected(Identifiable a) {
         Identifiable e = explicit(a, explicitExpecteds, expected);
         if (e != null) {
             return e;
@@ -36,7 +36,7 @@ public class NetworkMapping {
         return expected.getIdentifiable(eid);
     }
 
-    public Identifiable findActual(Identifiable e) {
+    Identifiable findActual(Identifiable e) {
         Identifiable a = explicit(e, explicitActuals, actual);
         if (a != null) {
             return a;
@@ -45,15 +45,15 @@ public class NetworkMapping {
         return actual.getIdentifiable(aid);
     }
 
-    public String applyPrefixToExpected(String eid) {
+    String applyPrefixToExpected(String eid) {
         return applyPrefix(eid, expectedPrefixed, actualPrefixed);
     }
 
-    public String applyPrefixToActual(String aid) {
+    String applyPrefixToActual(String aid) {
         return applyPrefix(aid, actualPrefixed, expectedPrefixed);
     }
 
-    public boolean equivalent(Identifiable expected, Identifiable actual) {
+    boolean equivalent(Identifiable expected, Identifiable actual) {
         if (expected == null) {
             return actual == null;
         }

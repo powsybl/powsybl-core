@@ -8,37 +8,31 @@ package com.powsybl.tools.autocompletion;
 
 import com.powsybl.commons.test.TestUtil;
 import org.apache.commons.io.IOUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-@RunWith(Parameterized.class)
-public class BashCompletionGeneratorTest {
+class BashCompletionGeneratorTest {
 
     enum TypeOption {
         TYPE1,
         TYPE2
     }
 
-    @Parameterized.Parameter
-    public BashCompletionGenerator generator;
-
-    @Parameterized.Parameters
-    public static Iterable<? extends Object> data() {
-        return Arrays.asList(
-                new StringTemplateBashCompletionGenerator()
-        );
+    static Stream<Arguments> data() {
+        return Stream.of(Arguments.of(new StringTemplateBashCompletionGenerator()));
     }
 
     private static String readResource(String path) throws IOException {
@@ -47,7 +41,7 @@ public class BashCompletionGeneratorTest {
         }
     }
 
-    private void checkGeneratedScript(String referencePath, BashCommand... commands) throws IOException {
+    private void checkGeneratedScript(String referencePath, BashCompletionGenerator generator, BashCommand... commands) throws IOException {
         try (StringWriter sw = new StringWriter()) {
             generator.generateCommands("itools", Arrays.asList(commands), sw);
             String script = TestUtil.normalizeLineSeparator(sw.toString());
@@ -56,33 +50,37 @@ public class BashCompletionGeneratorTest {
         }
     }
 
-    @Test
-    public void oneCommandOneNoArgOption() throws IOException {
+    @ParameterizedTest
+    @MethodSource("data")
+    void oneCommandOneNoArgOption(BashCompletionGenerator generator) throws IOException {
         BashOption option = new BashOption("--type");
         BashCommand command = new BashCommand("cmd", option);
-        checkGeneratedScript("1-command-1-no-arg-option.sh", command);
+        checkGeneratedScript("1-command-1-no-arg-option.sh", generator, command);
     }
 
-    @Test
-    public void oneCommandOneFile() throws IOException {
+    @ParameterizedTest
+    @MethodSource("data")
+    void oneCommandOneFile(BashCompletionGenerator generator) throws IOException {
         BashOption option = new BashOption("--case-file", "FILE", OptionType.FILE);
         BashCommand command = new BashCommand("cmd", option);
-        checkGeneratedScript("1-command-1-file.sh", command);
+        checkGeneratedScript("1-command-1-file.sh", generator, command);
     }
 
-    @Test
-    public void oneCommandMultipleOptions() throws IOException {
+    @ParameterizedTest
+    @MethodSource("data")
+    void oneCommandMultipleOptions(BashCompletionGenerator generator) throws IOException {
         BashOption file = new BashOption("--case-file", "FILE", OptionType.FILE);
         BashOption dir = new BashOption("--output-dir", "DIR", OptionType.DIRECTORY);
         BashOption host = new BashOption("--host", "HOST", OptionType.HOSTNAME);
         BashOption enumOption = new BashOption("--type", "TYPE", OptionType.enumeration(TypeOption.class));
         BashCommand command = new BashCommand("cmd", file, dir, host, enumOption);
-        checkGeneratedScript("1-command-multiple-options.sh", command);
+        checkGeneratedScript("1-command-multiple-options.sh", generator, command);
     }
 
-    @Test
-    public void twoCommands() throws IOException {
-        checkGeneratedScript("2-commands.sh", new BashCommand("cmd1"), new BashCommand("cmd2"));
+    @ParameterizedTest
+    @MethodSource("data")
+    void twoCommands(BashCompletionGenerator generator) throws IOException {
+        checkGeneratedScript("2-commands.sh", generator, new BashCommand("cmd1"), new BashCommand("cmd2"));
     }
 
 }

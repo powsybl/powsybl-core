@@ -14,6 +14,8 @@ import java.util.OptionalInt;
  *     <li>Use {@link #INJECTION_ACTIVE_POWER} to model a change on the production of a generator or on a group of generators, on
  * the consumption of a load or on a group of loads or on GLSK (for Generation and Load Shift keys) that describes a
  * linear combination of power injection shifts on generators and loads. The variable increase is in MW.</li>
+ *     <li>Use {@link #INJECTION_REACTIVE_POWER} to model a change on the reactive production of a generator or on
+ * the reactive consumption of a load. The variable increase is in MVar.</li>
  *     <li>Use {@link #TRANSFORMER_PHASE} to model the change of the tap position of a phase tap changer of a two windings transformer
  * or a three windings transformer that contains only one phase tap changer. The increase is in degree.</li>
  *     <li>Use {@link #BUS_TARGET_VOLTAGE} to model an increase of the voltage target of a generator, a static var compensator, a two
@@ -27,6 +29,8 @@ import java.util.OptionalInt;
 public enum SensitivityVariableType {
     /** increase in MW */
     INJECTION_ACTIVE_POWER,
+    /** increase in MVar */
+    INJECTION_REACTIVE_POWER,
     /** increase in degrees */
     TRANSFORMER_PHASE,
     /** increase in kV */

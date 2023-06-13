@@ -53,12 +53,20 @@ public final class CgmesExportUtil {
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
 
+    private static double fixValue(double value) {
+        return Double.isNaN(value) ? 0.0 : value; // disconnected equipment in general, a bit dangerous.
+    }
+
     public static String format(double value) {
-        return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+        // Always use scientific format for extreme values
+        if (value == Double.MAX_VALUE || value == -Double.MAX_VALUE) {
+            return scientificFormat(value);
+        }
+        return DOUBLE_FORMAT.format(fixValue(value));
     }
 
     public static String scientificFormat(double value) {
-        return SCIENTIFIC_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+        return SCIENTIFIC_FORMAT.format(fixValue(value));
     }
 
     public static String format(int value) {
@@ -125,45 +133,46 @@ public final class CgmesExportUtil {
         writer.writeEndElement();
     }
 
-    private static String toRdfId(String id) {
+    private static String toRdfId(String id, CgmesExportContext context) {
         // Handling ids: if received id is not prefixed by "_", add it to make it a valid RDF:Id
         // We have to be careful with "resource" and "about" references, and apply the same conversions
-        return id.startsWith("_") ? id : "_" + id;
+        // Encode IDs to be URL compatible (prevent issues when importing)
+        return context.encode(id.startsWith("_") ? id : "_" + id);
     }
 
-    private static String toMasterResourceId(String id) {
+    private static String toMasterResourceId(String id, CgmesExportContext context) {
         // Handling ids: if received id is prefixed by "_", remove it. Assuming it was added to comply with URN rules
-        return id.startsWith("_") ? id.substring(1) : id;
+        return context.encode(id.startsWith("_") ? id.substring(1) : id);
     }
 
-    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeStartId(String className, String id, boolean writeMasterResourceId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, className);
         // Writing mRID was optional in CIM 16, but is required since CIM 100
         // Only classes extending IdentifiedObject have an mRID
         // points of tables and curve data objects do not have mRID, although they have an RDF:ID
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, toRdfId(id));
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, toRdfId(id, context));
         if (writeMasterResourceId) {
             writer.writeStartElement(cimNamespace, "IdentifiedObject.mRID");
-            writer.writeCharacters(toMasterResourceId(id));
+            writer.writeCharacters(toMasterResourceId(id, context));
             writer.writeEndElement();
         }
     }
 
-    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writeStartId(className, id, true, cimNamespace, writer);
+    public static void writeStartIdName(String className, String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        writeStartId(className, id, true, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-        writer.writeCharacters(name);
+        writer.writeCharacters(name.length() > 32 ? name.substring(0, 32) : name); // name should not be longer than 32 characters
         writer.writeEndElement();
     }
 
-    public static void writeReference(String refName, String referredId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeReference(String refName, String referredId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeEmptyElement(cimNamespace, refName);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId));
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + toRdfId(referredId, context));
     }
 
-    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeStartAbout(String className, String id, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, className);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id));
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + toRdfId(id, context));
     }
 
     public static Complex complexVoltage(double r, double x, double g, double b,
@@ -181,10 +190,10 @@ public final class CgmesExportUtil {
             if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
                     && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
                 return CgmesNames.CONFORM_LOAD;
-            }
-            // NonConform load if fixed part is non-zero and variable part is all zero
-            if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
-                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {
+            } else if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
+                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {  // NonConform load if fixed part is non-zero and variable part is all zero
+                return CgmesNames.NONCONFORM_LOAD;
+            } else {
                 return CgmesNames.NONCONFORM_LOAD;
             }
         }
@@ -207,18 +216,20 @@ public final class CgmesExportUtil {
     public static int getTerminalSequenceNumber(Terminal t) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
+            if (c instanceof DanglingLine) {
+                DanglingLine dl = (DanglingLine) c;
+                return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
+            }
             return 1;
         } else {
-            if (c instanceof Injection) {
-                // An injection should have only one terminal
-            } else if (c instanceof Branch) {
+            if (c instanceof Branch) {
                 switch (((Branch<?>) c).getSide(t)) {
                     case ONE:
                         return 1;
                     case TWO:
                         return 2;
                     default:
-                        throw new AssertionError("Incorrect branch side " + ((Branch<?>) c).getSide(t));
+                        throw new IllegalStateException("Incorrect branch side " + ((Branch<?>) c).getSide(t));
                 }
             } else if (c instanceof ThreeWindingsTransformer) {
                 switch (((ThreeWindingsTransformer) c).getSide(t)) {
@@ -229,13 +240,12 @@ public final class CgmesExportUtil {
                     case THREE:
                         return 3;
                     default:
-                        throw new AssertionError("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
+                        throw new IllegalStateException("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
                 }
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
             }
         }
-        return 0;
     }
 
     public static boolean isConverterStationRectifier(HvdcConverterStation<?> converterStation) {
@@ -287,7 +297,7 @@ public final class CgmesExportUtil {
     public static String getTerminalId(Terminal t, CgmesExportContext context) {
         String aliasType;
         Connectable<?> c = t.getConnectable();
-        if (c instanceof DanglingLine) {
+        if (c instanceof DanglingLine && !((DanglingLine) c).isPaired()) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL;
         } else {
             int sequenceNumber = getTerminalSequenceNumber(t);

@@ -104,8 +104,8 @@ public class Comparison {
                 actual.getThreeWindingsTransformerStream(),
                 this::compareThreeWindingsTransformers);
         compare(
-                expected.getDanglingLineStream(),
-                actual.getDanglingLineStream(),
+                expected.getDanglingLineStream(DanglingLineFilter.ALL).filter(dl -> !dl.isPaired()),
+                actual.getDanglingLineStream(DanglingLineFilter.ALL).filter(dl -> !dl.isPaired()),
                 this::compareDanglingLines);
         diff.end();
     }
@@ -381,7 +381,7 @@ public class Comparison {
                 }
                 break;
             default:
-                throw new AssertionError("Unexpected shunt model type: " + expected.getModelType());
+                throw new IllegalStateException("Unexpected shunt model type: " + expected.getModelType());
         }
     }
 
@@ -490,7 +490,7 @@ public class Comparison {
                 break;
 
             default:
-                throw new AssertionError("Unexpected ReactiveLimitsKing value: " + expected.getKind());
+                throw new IllegalStateException("Unexpected ReactiveLimitsKing value: " + expected.getKind());
         }
     }
 

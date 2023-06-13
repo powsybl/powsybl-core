@@ -11,19 +11,19 @@ import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.tripping.BranchTripping;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class BranchContingencyTest {
+class BranchContingencyTest {
 
     @Test
-    public void test() {
+    void test() {
         BranchContingency contingency = new BranchContingency("id");
         assertEquals("id", contingency.getId());
         assertNull(contingency.getVoltageLevelId());
@@ -64,7 +64,7 @@ public class BranchContingencyTest {
     }
 
     @Test
-    public void test2() {
+    void test2() {
         Network network = EurostagTutorialExample1Factory.create();
 
         ContingencyList contingencyList = ContingencyList.of(

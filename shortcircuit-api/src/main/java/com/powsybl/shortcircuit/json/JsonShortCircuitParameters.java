@@ -8,11 +8,12 @@ package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.shortcircuit.ShortCircuitAnalysisProvider;
 import com.powsybl.shortcircuit.ShortCircuitParameters;
 
 import java.io.IOException;
@@ -21,8 +22,10 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author Boubakeur Brahimi
@@ -35,20 +38,14 @@ public final class JsonShortCircuitParameters {
     public interface ExtensionSerializer<E extends Extension<ShortCircuitParameters>> extends ExtensionJsonSerializer<ShortCircuitParameters, E> {
     }
 
-    /**
-     *  Lazily initialized list of extension serializers.
-     */
-    private static final Supplier<ExtensionProviders<ExtensionSerializer>> SUPPLIER =
-            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerializer.class, "short-circuit-parameters"));
-
-    /**
-     *  Gets the known extension serializers.
-     */
-    public static ExtensionProviders<ExtensionSerializer> getExtensionSerializers() {
-        return SUPPLIER.get();
+    private JsonShortCircuitParameters() {
     }
 
-    private JsonShortCircuitParameters() {
+    public static Map<String, ExtensionJsonSerializer> getExtensionSerializers() {
+        List<ShortCircuitAnalysisProvider> providers = new ServiceLoaderCache<>(ShortCircuitAnalysisProvider.class).getServices();
+        return providers.stream()
+                .flatMap(shortCircuitAnalysisProvider -> shortCircuitAnalysisProvider.getSpecificParametersSerializer().stream())
+                .collect(Collectors.toMap(ExtensionProvider::getExtensionName, shortCircuitAnalysisProvider -> shortCircuitAnalysisProvider));
     }
 
     public static ShortCircuitParameters update(ShortCircuitParameters parameters, Path jsonFile) {

@@ -13,17 +13,17 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.modification.NetworkModification;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class BranchTrippingTest {
+class BranchTrippingTest {
 
     @Test
-    public void lineTrippingTest() {
+    void lineTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
         Line line = network.getLine("NHV1_NHV2_1");
 
@@ -48,11 +48,11 @@ public class BranchTrippingTest {
 
         NetworkModification unknownVlModif = Contingency.line("NHV1_NHV2_1", "NOT_EXISTS_VL").toModification();
         Exception e2 = assertThrows(PowsyblException.class, () -> unknownVlModif.apply(network));
-        assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to line 'NHV1_NHV2_1'", e2.getMessage());
+        assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to LINE 'NHV1_NHV2_1'", e2.getMessage());
     }
 
     @Test
-    public void transformerTrippingTest() {
+    void transformerTrippingTest() {
         Network network = EurostagTutorialExample1Factory.create();
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("NHV2_NLOAD");
 
@@ -77,11 +77,11 @@ public class BranchTrippingTest {
 
         NetworkModification modifUnknownVl = Contingency.twoWindingsTransformer("NHV2_NLOAD", "NOT_EXISTS_VL").toModification();
         Exception e2 = assertThrows(PowsyblException.class, () -> modifUnknownVl.apply(network));
-        assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to the two windings transformer 'NHV2_NLOAD'", e2.getMessage());
+        assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to TWO_WINDINGS_TRANSFORMER 'NHV2_NLOAD'", e2.getMessage());
     }
 
     @Test
-    public void legacyTest() {
+    void legacyTest() {
         Network network = EurostagTutorialExample1Factory.create();
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("NHV2_NLOAD");
 

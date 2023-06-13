@@ -57,7 +57,7 @@ public final class TerminalRefXml {
                 ThreeWindingsTransformer twt = (ThreeWindingsTransformer) c;
                 writer.writeAttribute("side", twt.getSide(t).name());
             } else {
-                throw new AssertionError("Unexpected Connectable instance: " + c.getClass());
+                throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
             }
         }
     }

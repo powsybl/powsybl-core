@@ -14,8 +14,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.results.PostContingencyResult;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.StringWriter;
@@ -24,13 +24,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SecurityTest {
+class SecurityTest {
 
     TableFormatterConfig formatterConfig;
 
@@ -41,8 +40,8 @@ public class SecurityTest {
     private LimitViolation line2Violation;
     private Network network;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         formatterConfig = new TableFormatterConfig(Locale.US, ',', "inv", true, true);
 
         network = EurostagTutorialExample1Factory.createWithCurrentLimits();
@@ -61,7 +60,7 @@ public class SecurityTest {
     }
 
     @Test
-    public void printPreContingencyViolations() throws Exception {
+    void printPreContingencyViolations() throws Exception {
         StringWriter writer = new StringWriter();
         try {
             Security.printPreContingencyViolations(result, network, writer, formatterFactory, formatterConfig, null);
@@ -77,7 +76,7 @@ public class SecurityTest {
     }
 
     @Test
-    public void printPostContingencyViolations() throws Exception {
+    void printPostContingencyViolations() throws Exception {
         StringWriter writer = new StringWriter();
         try {
             Security.printPostContingencyViolations(result, network, writer, formatterFactory, formatterConfig, null, false);
@@ -95,7 +94,7 @@ public class SecurityTest {
     }
 
     @Test
-    public void printPostContingencyViolationsWithPreContingencyViolationsFiltering() throws Exception {
+    void printPostContingencyViolationsWithPreContingencyViolationsFiltering() throws Exception {
         StringWriter writer = new StringWriter();
         try {
             Security.printPostContingencyViolations(result, network, writer, formatterFactory, formatterConfig, null, true);
@@ -112,7 +111,7 @@ public class SecurityTest {
     }
 
     @Test
-    public void printLimitsViolations() {
+    void printLimitsViolations() {
         assertEquals("+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
                      "| Equipment (2) | End   | Country | Base voltage | Violation type | Violation name  | Value     | Limit    | abs(value-limit) | Loading rate % |\n" +
                      "+---------------+-------+---------+--------------+----------------+-----------------+-----------+----------+------------------+----------------+\n" +
@@ -123,14 +122,27 @@ public class SecurityTest {
     }
 
     @Test
-    public void checkLimits() {
+    void checkLimits() {
         List<LimitViolation> violations = Security.checkLimits(network);
-
-        assertEquals(5, violations.size());
         assertViolations(violations);
 
         violations = Security.checkLimits(network, 1);
         assertViolations(violations);
+    }
+
+    @Test
+    void checkLimitsDC() {
+        var eBadLimit = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0, 0.95));
+        assertEquals("Bad limit reduction 0.0", eBadLimit.getMessage());
+
+        var eLowCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0.7f, -0.1));
+        assertEquals("Invalid DC power factor -0.1", eLowCosPhi.getMessage());
+
+        var eHighCosPhi = assertThrows(IllegalArgumentException.class, () -> Security.checkLimitsDc(network, 0.7f, 1.2));
+        assertEquals("Invalid DC power factor 1.2", eHighCosPhi.getMessage());
+
+        List<LimitViolation> violations = Security.checkLimitsDc(network, 1, 0.95);
+        assertCurrentViolations(violations);
     }
 
     private static void assertViolations(List<LimitViolation> violations) {
@@ -142,6 +154,14 @@ public class SecurityTest {
             } else {
                 assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
             }
+        });
+    }
+
+    private static void assertCurrentViolations(List<LimitViolation> violations) {
+        assertEquals(4, violations.size());
+        violations.forEach(violation -> {
+            assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
+            assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
         });
     }
 }

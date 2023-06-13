@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder, Network> {
+class SubstationXml extends AbstractSimpleIdentifiableXml<Substation, SubstationAdder, Network> {
 
     static final SubstationXml INSTANCE = new SubstationXml();
 
@@ -79,7 +79,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     }
 
     @Override
-    protected Substation readRootElementAttributes(SubstationAdder adder, NetworkXmlReaderContext context) {
+    protected Substation readRootElementAttributes(SubstationAdder adder, Network network, NetworkXmlReaderContext context) {
 
         Country country = Optional.ofNullable(context.getReader().getAttributeValue(null, COUNTRY))
                 .map(c -> context.getAnonymizer().deanonymizeCountry(Country.valueOf(c)))

@@ -12,17 +12,17 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Franck Lecuyer <franck.lecuyer at rte-france.com>
  */
-public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
+class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
 
     private static LineAdder createLineAdder(Line line, Network network) {
         return network.newLine()
@@ -36,7 +36,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTe
     }
 
     @Test
-    public void replaceTeePointByVoltageLevelOnLineNbTest() throws IOException {
+    void replaceTeePointByVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
@@ -97,6 +97,15 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTe
                 .withNewLine2Id("NEW LINE2").build();
         assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError6.apply(network, true, Reporter.NO_OP)).getMessage().contains("Unable to find the tee point and the tapped voltage level from lines CJ_1, CJ_2 and LINE34"));
 
+        NetworkModification modificationWithError7 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
+                .withTeePointLine1("CJ_1")
+                .withTeePointLine2("CJ_2")
+                .withTeePointLineToRemove("testLine")
+                .withBbsOrBusId("bbs3")
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError7.apply(network, true, Reporter.NO_OP)).getMessage().contains("Busbar section bbs3 is not found in voltage level VLTEST"));
+
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withTeePointLine1("CJ_1")
                 .withTeePointLine2("CJ_2")
@@ -110,7 +119,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTe
     }
 
     @Test
-    public void replaceTeePointByVoltageLevelOnLineNbBbTest() throws IOException {
+    void replaceTeePointByVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
@@ -130,21 +139,33 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTe
     }
 
     @Test
-    public void replaceTeePointByVoltageLevelOnLineBbTest() throws IOException {
+    void replaceTeePointByVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("bus").withLine(line).withLineAdder(adder).build();
         modification.apply(network);
 
-        NetworkModification modificationWithError = new ReplaceTeePointByVoltageLevelOnLineBuilder()
+        VoltageLevel vl = network.newVoltageLevel().setId("VL3").setNominalV(380).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl.getBusBreakerView().newBus().setId("bus3").add();
+
+        NetworkModification modificationWithError1 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withTeePointLine1("NHV1_NHV2_1_1")
                 .withTeePointLine2("NHV1_NHV2_1_2")
                 .withTeePointLineToRemove("testLine")
                 .withBbsOrBusId("busNotFound")
                 .withNewLine1Id("NEW LINE1")
                 .withNewLine2Id("NEW LINE2").build();
-        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError.apply(network, true, Reporter.NO_OP)).getMessage().contains("Bus busNotFound is not found in voltage level " + VOLTAGE_LEVEL_ID));
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, Reporter.NO_OP)).getMessage().contains("Bus busNotFound is not found in voltage level " + VOLTAGE_LEVEL_ID));
+
+        NetworkModification modificationWithError2 = new ReplaceTeePointByVoltageLevelOnLineBuilder()
+                .withTeePointLine1("NHV1_NHV2_1_1")
+                .withTeePointLine2("NHV1_NHV2_1_2")
+                .withTeePointLineToRemove("testLine")
+                .withBbsOrBusId("bus3")
+                .withNewLine1Id("NEW LINE1")
+                .withNewLine2Id("NEW LINE2").build();
+        assertTrue(assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, Reporter.NO_OP)).getMessage().contains("Bus bus3 is not found in voltage level " + VOLTAGE_LEVEL_ID));
 
         modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withTeePointLine1("NHV1_NHV2_1_1")
@@ -159,7 +180,7 @@ public class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTe
     }
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         ReplaceTeePointByVoltageLevelOnLine modification = new ReplaceTeePointByVoltageLevelOnLineBuilder()
                 .withTeePointLine1("NHV1_NHV2_1")
                 .withTeePointLine2("NHV1_NHV2_2")

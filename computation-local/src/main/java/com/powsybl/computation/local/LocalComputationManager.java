@@ -7,6 +7,7 @@
  */
 package com.powsybl.computation.local;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
@@ -157,9 +158,21 @@ public class LocalComputationManager implements ComputationManager {
                     executionSubmitter.execute(() -> {
                         try {
                             enter();
-                            logExecutingCommand(workingDir, command, idx);
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Executing command {} in working directory {}",
+                                        command.toString(idx), workingDir);
+                            }
                             preProcess(workingDir, command, idx);
+                            Stopwatch stopwatch = null;
+                            if (LOGGER.isDebugEnabled()) {
+                                stopwatch = Stopwatch.createStarted();
+                            }
                             int exitValue = process(workingDir, commandExecution, idx, variables, computationParameters);
+                            if (stopwatch != null) {
+                                stopwatch.stop();
+                                LOGGER.debug("Command {} executed in {} ms",
+                                        command.toString(idx), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                            }
                             postProcess(workingDir, commandExecution, idx, exitValue, errors, monitor);
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
@@ -187,13 +200,6 @@ public class LocalComputationManager implements ComputationManager {
         return new DefaultExecutionReport(workingDir, errors);
     }
 
-    private void logExecutingCommand(Path workingDir, Command command, int executionIndex) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Executing command {} in working directory {}",
-                    command.toString(executionIndex), workingDir);
-        }
-    }
-
     private void preProcess(Path workingDir, Command command, int executionIndex) throws IOException {
         // pre-processing
         for (InputFile file : command.getInputFiles()) {
@@ -219,7 +225,7 @@ public class LocalComputationManager implements ComputationManager {
                         break;
 
                     default:
-                        throw new AssertionError("Unexpected FilePreProcessor value: " + file.getPreProcessor());
+                        throw new IllegalStateException("Unexpected FilePreProcessor value: " + file.getPreProcessor());
                 }
             }
         }
@@ -258,7 +264,7 @@ public class LocalComputationManager implements ComputationManager {
                 }
                 break;
             default:
-                throw new AssertionError("Unexpected CommandType value: " + command.getType());
+                throw new IllegalStateException("Unexpected CommandType value: " + command.getType());
         }
         return exitValue;
     }
@@ -280,7 +286,7 @@ public class LocalComputationManager implements ComputationManager {
                         }
 
                     } else {
-                        throw new AssertionError("Unexpected FilePostProcessor value: " + file.getPostProcessor());
+                        throw new IllegalStateException("Unexpected FilePostProcessor value: " + file.getPostProcessor());
                     }
                 }
             }

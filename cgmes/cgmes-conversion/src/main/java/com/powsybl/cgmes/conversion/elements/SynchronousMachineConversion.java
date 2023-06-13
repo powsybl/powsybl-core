@@ -70,10 +70,14 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
         double normalPF = p.asDouble("normalPF");
         if (!Double.isNaN(normalPF)) {
-            g.newExtension(ActivePowerControlAdder.class)
-                    .withParticipate(normalPF != 0.0)
-                    .withParticipationFactor(normalPF)
-                    .add();
+            if (context.config().createActivePowerControlExtension()) {
+                g.newExtension(ActivePowerControlAdder.class)
+                        .withParticipate(true)
+                        .withParticipationFactor(normalPF)
+                        .add();
+            } else {
+                g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF", String.valueOf(normalPF));
+            }
         }
         String generatingUnit = p.getId("GeneratingUnit");
         if (generatingUnit != null) {

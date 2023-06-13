@@ -59,7 +59,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
             case THREE:
                 return rtc3Status;
         }
-        throw new AssertionError(UNEXPECTED_SIDE + side);
+        throw new IllegalStateException(UNEXPECTED_SIDE + side);
     }
 
     @Override
@@ -87,7 +87,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
             case THREE:
                 return ptc3Status;
         }
-        throw new AssertionError(UNEXPECTED_SIDE + side);
+        throw new IllegalStateException(UNEXPECTED_SIDE + side);
     }
 
     @Override
@@ -121,7 +121,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
                 rtc3Status = toBeEstimated;
                 break;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + side);
         }
         return this;
     }
@@ -157,7 +157,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
                 ptc3Status = toBeEstimated;
                 break;
             default:
-                throw new AssertionError(UNEXPECTED_SIDE + side);
+                throw new IllegalStateException(UNEXPECTED_SIDE + side);
         }
         return this;
     }

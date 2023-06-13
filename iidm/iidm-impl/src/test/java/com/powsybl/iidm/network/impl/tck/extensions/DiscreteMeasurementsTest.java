@@ -11,5 +11,5 @@ import com.powsybl.iidm.network.tck.extensions.AbstractDiscreteMeasurementsTest;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class DiscreteMeasurementsTest extends AbstractDiscreteMeasurementsTest {
+class DiscreteMeasurementsTest extends AbstractDiscreteMeasurementsTest {
 }

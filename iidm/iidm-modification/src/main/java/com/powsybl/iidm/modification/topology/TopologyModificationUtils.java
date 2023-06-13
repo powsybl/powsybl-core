@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -37,13 +37,13 @@ public final class TopologyModificationUtils {
     private TopologyModificationUtils() {
     }
 
-    static final class LoadingLimitsBags {
+    public static final class LoadingLimitsBags {
 
         private final LoadingLimitsBag activePowerLimits;
         private final LoadingLimitsBag apparentPowerLimits;
         private final LoadingLimitsBag currentLimits;
 
-        LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
+        public LoadingLimitsBags(Supplier<Optional<ActivePowerLimits>> activePowerLimitsGetter, Supplier<Optional<ApparentPowerLimits>> apparentPowerLimitsGetter,
                           Supplier<Optional<CurrentLimits>> currentLimitsGetter) {
             activePowerLimits = activePowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
             apparentPowerLimits = apparentPowerLimitsGetter.get().map(LoadingLimitsBag::new).orElse(null);
@@ -166,11 +166,11 @@ public final class TopologyModificationUtils {
             int node = terminal.getNodeBreakerView().getNode();
             nodeSetter.accept(node, adder);
         } else {
-            throw new AssertionError();
+            throw new IllegalStateException();
         }
     }
 
-    static void addLoadingLimits(Line created, LoadingLimitsBags limits, Branch.Side side) {
+    public static void addLoadingLimits(Line created, LoadingLimitsBags limits, Branch.Side side) {
         if (side == Branch.Side.ONE) {
             limits.getActivePowerLimits().ifPresent(lim -> addLoadingLimits(created.newActivePowerLimits1(), lim));
             limits.getApparentPowerLimits().ifPresent(lim -> addLoadingLimits(created.newApparentPowerLimits1(), lim));
@@ -253,19 +253,17 @@ public final class TopologyModificationUtils {
                 .add();
     }
 
-    static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String lineId, VoltageLevel.BusBreakerView view) {
+    static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String prefix, VoltageLevel.BusBreakerView view) {
+        createBusBreakerSwitch(busId1, middleBusId, prefix, "_1", view);
+        createBusBreakerSwitch(middleBusId, busId2, prefix, "_2", view);
+    }
+
+    static void createBusBreakerSwitch(String busId1, String busId2, String prefix, String suffix, VoltageLevel.BusBreakerView view) {
         view.newSwitch()
-                .setId(lineId + "_SW_1")
+                .setId(prefix + "_SW" + suffix)
                 .setEnsureIdUnicity(true)
                 .setOpen(false)
                 .setBus1(busId1)
-                .setBus2(middleBusId)
-                .add();
-        view.newSwitch()
-                .setId(lineId + "_SW_2")
-                .setEnsureIdUnicity(true)
-                .setOpen(false)
-                .setBus1(middleBusId)
                 .setBus2(busId2)
                 .add();
     }
@@ -399,11 +397,31 @@ public final class TopologyModificationUtils {
     }
 
     /**
+     * Get the range of connectable positions delimited by neighbouring busbar sections, for a given busbar section.
+     * If the range is empty (for instance if positions max on left side is above position min on right side), the range returned is empty.
+     * Note that the connectable positions needs to be in ascending order in the voltage level for ascending busbar section index positions.
+     */
+    public static Optional<Range<Integer>> getPositionRange(BusbarSection bbs) {
+        BusbarSectionPosition positionExtension = bbs.getExtension(BusbarSectionPosition.class);
+        if (positionExtension != null) {
+            VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
+            NavigableMap<Integer, List<Integer>> allOrders = getSliceOrdersMap(voltageLevel);
+
+            int sectionIndex = positionExtension.getSectionIndex();
+            int max = getMinOrderUsedAfter(allOrders, sectionIndex).map(o -> o - 1).orElse(Integer.MAX_VALUE);
+            int min = getMaxOrderUsedBefore(allOrders, sectionIndex).map(o -> o + 1).orElse(0);
+
+            return Optional.ofNullable(min <= max ? Range.between(min, max) : null);
+        }
+        return Optional.of(Range.between(0, Integer.MAX_VALUE));
+    }
+
+    /**
      * Method returning the maximum order in the slice with the highest section index lower to the given section.
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS2 will return 3.
      */
-    private static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+    public static Optional<Integer> getMaxOrderUsedBefore(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         int s = section;
         Map.Entry<Integer, List<Integer>> lowerEntry;
         do {
@@ -423,7 +441,7 @@ public final class TopologyModificationUtils {
      * For two busbar sections with following indexes BBS1 with used orders 1,2,3 and BBS2 with used orders 7,8, this method
      * applied to BBS1 will return 7.
      */
-    private static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
+    public static Optional<Integer> getMinOrderUsedAfter(NavigableMap<Integer, List<Integer>> allOrders, int section) {
         int s = section;
         Map.Entry<Integer, List<Integer>> higherEntry;
         do {
@@ -505,7 +523,7 @@ public final class TopologyModificationUtils {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reporter, connectable);
             if (throwException) {
-                throw new AssertionError("Given connectable not supported: " + connectable.getClass().getName());
+                throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
             }
             return Collections.emptyList();
         }
@@ -528,7 +546,7 @@ public final class TopologyModificationUtils {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reporter, connectable);
             if (throwException) {
-                throw new AssertionError("Given connectable not supported: " + connectable.getClass().getName());
+                throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
             }
         }
         return Collections.emptyList();

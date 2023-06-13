@@ -46,7 +46,7 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 
@@ -88,8 +88,11 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case BUS:
                     return new BusContingency(id);
 
+                case TIE_LINE:
+                    return new TieLineContingency(id, voltageLevelId);
+
                 default:
-                    throw new AssertionError("Unexpected ContingencyElementType value: " + type);
+                    throw new IllegalStateException("Unexpected ContingencyElementType value: " + type);
             }
         }
 

@@ -14,22 +14,22 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Create a new Line from a given Line Adder and attach it on an existing Line by cutting the latter.
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class CreateLineOnLineTest extends AbstractConverterTest {
+class CreateLineOnLineTest extends AbstractConverterTest {
 
     @Test
-    public void createLineOnLineNbTest() throws IOException {
+    void createLineOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
@@ -40,7 +40,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void createLineOnLineNbBbTest() throws IOException {
+    void createLineOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
@@ -51,7 +51,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void createLineOnLineBbTest() throws IOException {
+    void createLineOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
@@ -62,7 +62,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testSetters() {
+    void testSetters() {
         Network network = createNbBbNetwork();
         Line line = network.getLine("NHV1_NHV2_1");
         LineAdder adder = createLineAdder(line, network);
@@ -90,7 +90,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testCompleteBuilder() throws IOException {
+    void testCompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
@@ -115,7 +115,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testIncompleteBuilder() throws IOException {
+    void testIncompleteBuilder() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
@@ -131,7 +131,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testExceptions() {
+    void testExceptions() {
         Network network1 = createNbNetworkWithBusbarSection();
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);
@@ -142,7 +142,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLineAdder(adder1)
                 .build();
         PowsyblException exception1 = assertThrows(PowsyblException.class, () -> modification1.apply(network1, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception1.getMessage());
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception1.getMessage());
 
         Network network2 = createBbNetwork();
         Line line2 = network2.getLine("NHV1_NHV2_1");
@@ -153,7 +153,7 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLineAdder(adder2)
                 .build();
         PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Identifiable NOT_EXISTING not found", exception2.getMessage());
+        assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
 
         NetworkModification modification3 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("LOAD")
@@ -161,7 +161,28 @@ public class CreateLineOnLineTest extends AbstractConverterTest {
                 .withLineAdder(adder2)
                 .build();
         PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
-        assertEquals("Identifiable LOAD is not a bus or a busbar section", exception3.getMessage());
+        assertEquals("Unexpected type of identifiable LOAD: LOAD", exception3.getMessage());
+
+        NetworkModification modification4 = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network1.getLine("CJ"))
+                .withLineAdder(createLineAdder(network1.getLine("CJ"), network1))
+                .withCreateFictitiousSubstation(true)
+                .withFictitiousSubstationId(null)
+                .build();
+        PowsyblException exception4 = assertThrows(PowsyblException.class, () -> modification4.apply(network1, true, Reporter.NO_OP));
+        assertEquals("Fictitious substation ID must be defined if a fictitious substation is to be created", exception4.getMessage());
+
+        NetworkModification modification5 = new CreateLineOnLineBuilder()
+                .withBusbarSectionOrBusId(BBS)
+                .withLine(network1.getLine("CJ"))
+                .withLineAdder(createLineAdder(network1.getLine("CJ"), network1))
+                .withCreateFictitiousSubstation(true)
+                .withPositionPercent(Double.NaN)
+                .build();
+        PowsyblException exception5 = assertThrows(PowsyblException.class, () -> modification5.apply(network1, true, Reporter.NO_OP));
+        assertEquals("Percent should not be undefined", exception5.getMessage());
+
     }
 
     private static LineAdder createLineAdder(Line line, Network network) {

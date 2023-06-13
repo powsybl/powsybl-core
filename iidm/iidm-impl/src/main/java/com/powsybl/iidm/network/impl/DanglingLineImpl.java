@@ -59,7 +59,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         GenerationImpl attach(DanglingLineImpl danglingLine) {
             if (this.danglingLine != null) {
-                throw new AssertionError("DanglingLine.Generation already attached to " + this.danglingLine.getId());
+                throw new IllegalStateException("DanglingLine.Generation already attached to " + this.danglingLine.getId());
             }
 
             this.danglingLine = Objects.requireNonNull(danglingLine);
@@ -123,10 +123,10 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public GenerationImpl setTargetQ(double targetQ) {
             NetworkImpl n = danglingLine.getNetwork();
-            int variantIndex = danglingLine.network.get().getVariantIndex();
+            int variantIndex = n.getVariantIndex();
             ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ, n.getMinValidationLevel());
             double oldValue = this.targetQ.set(variantIndex, targetQ);
-            String variantId = danglingLine.network.get().getVariantManager().getVariantId(variantIndex);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
             danglingLine.notifyUpdate("targetQ", variantId, oldValue, targetQ);
             return this;
@@ -229,7 +229,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
     }
 
-    private final Ref<? extends VariantManagerHolder> network;
+    private final Ref<NetworkImpl> network;
+    private TieLineImpl tieLine = null;
 
     private double r;
 
@@ -273,13 +274,51 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
+    void replaceId(String newId) {
+        NetworkIndex.checkId(newId);
+        network.get().getIndex().remove(this);
+        id = newId;
+        network.get().getIndex().checkAndAdd(this);
+    }
+
+    OperationalLimitsHolderImpl getLimitsHolder() {
+        return operationalLimitsHolder;
+    }
+
+    void setTieLine(TieLineImpl tieLine) {
+        this.tieLine = tieLine;
+    }
+
+    @Override
     public TerminalExt getTerminal() {
         return terminals.get(0);
     }
 
     @Override
+    public Optional<TieLine> getTieLine() {
+        return Optional.ofNullable(tieLine);
+    }
+
+    @Override
+    public void remove() {
+        if (tieLine != null) {
+            throw new UnsupportedOperationException("Parent tie line " + tieLine.getId() + " should be removed before the child dangling line");
+        }
+        super.remove();
+    }
+
+    void removeTieLine() {
+        tieLine = null;
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Dangling line";
+    }
+
+    @Override
+    public boolean isPaired() {
+        return tieLine != null;
     }
 
     @Override
@@ -290,10 +329,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public DanglingLineImpl setP0(double p0) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkP0(this, p0, n.getMinValidationLevel());
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = n.getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("p0", variantId, oldValue, p0);
         return this;
@@ -307,10 +345,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public DanglingLineImpl setQ0(double q0) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkQ0(this, q0, n.getValidationLevel());
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = n.getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("q0", variantId, oldValue, q0);
         return this;

@@ -13,7 +13,7 @@ import java.util.Optional;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWindingsTransformer> implements TwoWindingsTransformer {
+public class TwoWindingsTransformerAdapter extends AbstractConnectableBranchAdapter<TwoWindingsTransformer> implements TwoWindingsTransformer {
 
     TwoWindingsTransformerAdapter(final TwoWindingsTransformer delegate, final MergingViewIndex index) {
         super(delegate, index);

@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -21,16 +21,16 @@ import java.nio.file.Path;
 import java.util.function.Supplier;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
+class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
 
     @Test
-    public void testDanglingLine() throws IOException {
+    void testDanglingLine() throws IOException {
         Network network = DanglingLineNetworkFactory.create();
         network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
         DanglingLine dl = network.getDanglingLine("DL");
@@ -68,7 +68,7 @@ public class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testEurostag() throws IOException {
+    void testEurostag() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
         Line line = network.getLine("NHV1_NHV2_2");
@@ -116,15 +116,15 @@ public class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testTieLine() throws IOException {
+    void testTieLine() throws IOException {
         Network network = NetworkXml.read(getVersionedNetworkAsStream("tieline.xml", CURRENT_IIDM_XML_VERSION));
-        TieLine tl = (TieLine) network.getLine("NHV1_NHV2_1");
-        createLoadingLimits(tl::newActivePowerLimits1);
-        createLoadingLimits(tl::newActivePowerLimits2);
-        createLoadingLimits(tl::newApparentPowerLimits1);
-        createLoadingLimits(tl::newApparentPowerLimits2);
-        createLoadingLimits(tl::newCurrentLimits1);
-        createLoadingLimits(tl::newCurrentLimits2);
+        TieLine tl = network.getTieLine("NHV1_NHV2_1");
+        createLoadingLimits(tl.getDanglingLine1()::newActivePowerLimits);
+        createLoadingLimits(tl.getDanglingLine2()::newActivePowerLimits);
+        createLoadingLimits(tl.getDanglingLine1()::newApparentPowerLimits);
+        createLoadingLimits(tl.getDanglingLine2()::newApparentPowerLimits);
+        createLoadingLimits(tl.getDanglingLine1()::newCurrentLimits);
+        createLoadingLimits(tl.getDanglingLine2()::newCurrentLimits);
         roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::validateAndRead,
@@ -156,7 +156,7 @@ public class LoadingLimitsXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testThreeWindingsTransformer() throws IOException {
+    void testThreeWindingsTransformer() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
         createLoadingLimits(() -> twt.getLeg1().newActivePowerLimits());

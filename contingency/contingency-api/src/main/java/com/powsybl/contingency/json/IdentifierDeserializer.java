@@ -23,6 +23,8 @@ import java.util.List;
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdentifier> {
+    private static final String CONTEXT_NAME = "Identifier";
+    private static final String CONTINGENCY_ID = "contingencyId";
 
     public IdentifierDeserializer() {
         super(NetworkElementIdentifier.class);
@@ -34,6 +36,8 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         String identifier = null;
         String voltageLevelId1 = null;
         String voltageLevelId2 = null;
+        String contingencyId = null;
+        String version = (String) deserializationContext.getAttribute("version");
         List<NetworkElementIdentifier> networkElementIdentifierList = Collections.emptyList();
         char order = 0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -43,6 +47,10 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                     break;
                 case "identifier":
                     identifier = parser.nextTextValue();
+                    break;
+                case CONTINGENCY_ID:
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, CONTINGENCY_ID, version, "1.2");
+                    contingencyId = parser.nextTextValue();
                     break;
                 case "identifierList":
                     parser.nextToken();
@@ -64,7 +72,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         if (type == null) {
@@ -72,11 +80,11 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         }
         switch (type) {
             case ID_BASED:
-                return new IdBasedNetworkElementIdentifier(identifier);
+                return new IdBasedNetworkElementIdentifier(identifier, contingencyId);
             case LIST:
-                return new NetworkElementIdentifierList(networkElementIdentifierList);
+                return new NetworkElementIdentifierList(networkElementIdentifierList, contingencyId);
             case VOLTAGE_LEVELS_AND_ORDER:
-                return new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order);
+                return new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
             default:
                 throw new IllegalArgumentException("type " + type + " does not exist");
         }

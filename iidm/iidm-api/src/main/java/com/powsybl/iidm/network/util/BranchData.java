@@ -6,14 +6,11 @@
  */
 package com.powsybl.iidm.network.util;
 
-import java.util.Objects;
-
+import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 
-import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import java.util.Objects;
 
 /**
  *
@@ -118,49 +115,20 @@ public class BranchData {
     }
 
     public BranchData(Line line, double epsilonX, boolean applyReactanceCorrection) {
-        Objects.requireNonNull(line);
-
-        id = line.getId();
-
-        Bus bus1 = line.getTerminal1().getBusView().getBus();
-        Bus bus2 = line.getTerminal2().getBusView().getBus();
-        Bus connectableBus1 = line.getTerminal1().getBusView().getConnectableBus();
-        Bus connectableBus2 = line.getTerminal2().getBusView().getConnectableBus();
-
-        r = line.getR();
-        x = line.getX();
-        double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
-        z = Math.hypot(r, fixedX);
-        y = 1 / z;
-        ksi = Math.atan2(r, fixedX);
-        u1 = bus1 != null ? bus1.getV() : Double.NaN;
-        u2 = bus2 != null ? bus2.getV() : Double.NaN;
-        theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
-        theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        g1 = line.getG1();
-        g2 = line.getG2();
-        b1 = line.getB1();
-        b2 = line.getB2();
-        p1 = line.getTerminal1().getP();
-        q1 = line.getTerminal1().getQ();
-        p2 = line.getTerminal2().getP();
-        q2 = line.getTerminal2().getQ();
-
-        phaseAngleClock = 0;
-
-        connected1 = bus1 != null;
-        connected2 = bus2 != null;
-        boolean connectableMainComponent1 = connectableBus1 != null && connectableBus1.isInMainConnectedComponent();
-        boolean connectableMainComponent2 = connectableBus2 != null && connectableBus2.isInMainConnectedComponent();
-        mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
-        mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
-
-        rho1 = 1f;
-        alpha1 = 0f;
-        rho2 = 1f;
-        alpha2 = 0f;
-
-        computeValues();
+        this(Objects.requireNonNull(line), epsilonX, applyReactanceCorrection,
+                0,
+                line.getR(),
+                line.getX(),
+                line.getG1(),
+                line.getG2(),
+                line.getB1(),
+                line.getB2(),
+                1f,
+                1f,
+                0f,
+                0f,
+                line.getTerminal1(),
+                line.getTerminal2());
     }
 
     public BranchData(TwoWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection, boolean twtSplitShuntAdmittance) {
@@ -168,39 +136,77 @@ public class BranchData {
     }
 
     public BranchData(TwoWindingsTransformer twt, int phaseAngleClock, double epsilonX, boolean applyReactanceCorrection, boolean twtSplitShuntAdmittance) {
-        Objects.requireNonNull(twt);
+        this(Objects.requireNonNull(twt), epsilonX, applyReactanceCorrection,
+                phaseAngleClock,
+                getR(twt),
+                getX(twt),
+                getG1(twt, twtSplitShuntAdmittance),
+                getG2(twt, twtSplitShuntAdmittance),
+                getB1(twt, twtSplitShuntAdmittance),
+                getB2(twt, twtSplitShuntAdmittance),
+                getRho1(twt),
+                1f,
+                twt.getOptionalPhaseTapChanger().map(ptc -> Math.toRadians(ptc.getCurrentStep().getAlpha())).orElse(0d),
+                0f,
+                twt.getTerminal1(),
+                twt.getTerminal2());
+    }
 
-        id = twt.getId();
+    public BranchData(TieLine tieLine, double epsilonX, boolean applyReactanceCorrection) {
+        this(Objects.requireNonNull(tieLine), epsilonX, applyReactanceCorrection,
+                0,
+                tieLine.getR(),
+                tieLine.getX(),
+                tieLine.getG1(),
+                tieLine.getG2(),
+                tieLine.getB1(),
+                tieLine.getB2(),
+                1f,
+                1f,
+                0f,
+                0f,
+                tieLine.getDanglingLine1().getTerminal(),
+                tieLine.getDanglingLine2().getTerminal());
+    }
 
-        Bus bus1 = twt.getTerminal1().getBusView().getBus();
-        Bus bus2 = twt.getTerminal2().getBusView().getBus();
-        Bus connectableBus1 = twt.getTerminal1().getBusView().getConnectableBus();
-        Bus connectableBus2 = twt.getTerminal2().getBusView().getConnectableBus();
+    private BranchData(Identifiable<?> identifiable, double epsilonX, boolean applyReactanceCorrection,
+                       int phaseAngleClock, double r, double x, double g1, double g2, double b1, double b2,
+                       double rho1, double rho2, double alpha1, double alpha2,
+                       Terminal terminal1, Terminal terminal2) {
+        this.phaseAngleClock = phaseAngleClock;
 
-        r = getR(twt);
-        x = getX(twt);
+        this.r = r;
+        this.x = x;
+
+        this.g1 = g1;
+        this.g2 = g2;
+        this.b1 = b1;
+        this.b2 = b2;
+
+        this.rho1 = rho1;
+        this.rho2 = rho2;
+        this.alpha1 = alpha1;
+        this.alpha2 = alpha2;
+
+        id = identifiable.getId();
+
+        Bus bus1 = terminal1.getBusView().getBus();
+        Bus bus2 = terminal2.getBusView().getBus();
+        Bus connectableBus1 = terminal1.getBusView().getConnectableBus();
+        Bus connectableBus2 = terminal2.getBusView().getConnectableBus();
+
         double fixedX = LinkData.getFixedX(x, epsilonX, applyReactanceCorrection);
         z = Math.hypot(r, fixedX);
         y = 1 / z;
         ksi = Math.atan2(r, fixedX);
-        rho1 = getRho1(twt);
-        rho2 = 1f;
         u1 = bus1 != null ? bus1.getV() : Double.NaN;
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        alpha1 = twt.getOptionalPhaseTapChanger().map(ptc -> Math.toRadians(ptc.getCurrentStep().getAlpha())).orElse(0d);
-        alpha2 = 0f;
-        g1 = getG1(twt, twtSplitShuntAdmittance);
-        g2 = getG2(twt, twtSplitShuntAdmittance);
-        b1 = getB1(twt, twtSplitShuntAdmittance);
-        b2 = getB2(twt, twtSplitShuntAdmittance);
-        p1 = twt.getTerminal1().getP();
-        q1 = twt.getTerminal1().getQ();
-        p2 = twt.getTerminal2().getP();
-        q2 = twt.getTerminal2().getQ();
-
-        this.phaseAngleClock = phaseAngleClock;
+        p1 = terminal1.getP();
+        q1 = terminal1.getQ();
+        p2 = terminal2.getP();
+        q2 = terminal2.getQ();
 
         connected1 = bus1 != null;
         connected2 = bus2 != null;
@@ -212,47 +218,47 @@ public class BranchData {
         computeValues();
     }
 
-    private double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
+    private static double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
         return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
     }
 
-    private double getR(TwoWindingsTransformer twt) {
+    private static double getR(TwoWindingsTransformer twt) {
         return getValue(twt.getR(),
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getR()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getR()).orElse(0d));
     }
 
-    private double getX(TwoWindingsTransformer twt) {
+    private static double getX(TwoWindingsTransformer twt) {
         return getValue(twt.getX(),
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getX()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getX()).orElse(0d));
     }
 
-    private double getG1(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
+    private static double getG1(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getG() / 2 : twt.getG(),
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getG()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getG()).orElse(0d));
     }
 
-    private double getB1(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
+    private static double getB1(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getB() / 2 : twt.getB(),
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getB()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getB()).orElse(0d));
     }
 
-    private double getG2(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
+    private static double getG2(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getG() / 2 : 0,
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getG()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getG()).orElse(0d));
     }
 
-    private double getB2(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
+    private static double getB2(TwoWindingsTransformer twt, boolean twtSplitShuntAdmittance) {
         return getValue(twtSplitShuntAdmittance ? twt.getB() / 2 : 0,
                         twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getB()).orElse(0d),
                         twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getB()).orElse(0d));
     }
 
-    private double getRho1(TwoWindingsTransformer twt) {
+    private static double getRho1(TwoWindingsTransformer twt) {
         double rho = twt.getRatedU2() / twt.getRatedU1();
         rho *= twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getRho()).orElse(1d);
         rho *= twt.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getRho()).orElse(1d);
@@ -431,7 +437,7 @@ public class BranchData {
             case TWO:
                 return computedP2;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new IllegalStateException("Unexpected side: " + side);
         }
     }
 
@@ -443,7 +449,7 @@ public class BranchData {
             case TWO:
                 return computedQ2;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new IllegalStateException("Unexpected side: " + side);
         }
     }
 

@@ -9,15 +9,13 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public abstract class AbstractHvdcLineTest {
 
@@ -33,12 +31,9 @@ public abstract class AbstractHvdcLineTest {
 
     private static final String TO_REMOVE = "toRemove";
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     Network network;
 
-    @Before
+    @BeforeEach
     public void initNetwork() {
         network = HvdcTestNetwork.createLcc();
     }
@@ -90,62 +85,55 @@ public abstract class AbstractHvdcLineTest {
 
     @Test
     public void invalidR() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is invalid");
-        createHvdcLine(INVLID, INVALID, Double.NaN, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                440.0, 10.0, 20.0, "C1", "C2");
+        ValidationException e = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, Double.NaN, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                440.0, 10.0, 20.0, "C1", "C2"));
+        assertTrue(e.getMessage().contains("r is invalid"));
     }
 
     @Test
     public void invalidConvertersMode() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("converter mode is invalid");
-        createHvdcLine(INVLID, INVALID, 10.0, null,
-                440.0, 10.0, 20.0, "C1", "C2");
+        ValidationException e = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, 10.0, null,
+                440.0, 10.0, 20.0, "C1", "C2"));
+        assertTrue(e.getMessage().contains("converter mode is invalid"));
     }
 
     @Test
     public void invalidNominalV() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("nominal voltage is invalid");
-        createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                0.0, 10.0, 20.0, "C1", "C2");
+        ValidationException e = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                0.0, 10.0, 20.0, "C1", "C2"));
+        assertTrue(e.getMessage().contains("nominal voltage is invalid"));
     }
 
     @Test
     public void invalidActivePowerSetpoint() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("for active power setpoint");
-        createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                510.0, Double.NaN, 20.0, "C1", "C2");
+        ValidationException e = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                510.0, Double.NaN, 20.0, "C1", "C2"));
+        assertTrue(e.getMessage().contains("for active power setpoint"));
     }
 
     @Test
     public void invalidMaxP() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("for maximum P");
-        createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                510.0, 77.0, Double.NaN, "C1", "C2");
+        ValidationException e = assertThrows(ValidationException.class, () -> createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                510.0, 77.0, Double.NaN, "C1", "C2"));
+        assertTrue(e.getMessage().contains("for maximum P"));
     }
 
     @Test
     public void nonExistingConverterStationSide1() {
         HvdcConverterStation<?> nonExistingConverterStation = network.getHvdcConverterStation(NON_EXISTING);
         assertNull(nonExistingConverterStation);
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Side 1 converter station");
-        createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                510.0, 77.0, 22.0, NON_EXISTING, "C2");
+        RuntimeException e = assertThrows(RuntimeException.class, () -> createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                510.0, 77.0, 22.0, NON_EXISTING, "C2"));
+        assertTrue(e.getMessage().contains("Side 1 converter station"));
     }
 
     @Test
     public void nonExistingConverterStationSide2() {
         HvdcConverterStation<?> nonExistingConverterStation = network.getHvdcConverterStation(NON_EXISTING);
         assertNull(nonExistingConverterStation);
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("Side 2 converter station");
-        createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                510.0, 77.0, 22.0, "C1", NON_EXISTING);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createHvdcLine(INVLID, INVALID, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                510.0, 77.0, 22.0, "C1", NON_EXISTING));
+        assertTrue(e.getMessage().contains("Side 2 converter station"));
     }
 
     @Test
@@ -154,9 +142,8 @@ public abstract class AbstractHvdcLineTest {
                 10.0, 10.0, 20.0, "C1", "C2");
         HvdcLine line = network.getHvdcLine(DUPLICATE);
         assertNotNull(line);
-        thrown.expect(PowsyblException.class);
-        createHvdcLine(DUPLICATE, DUPLICATE, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
-                10.0, 10.0, 20.0, "C1", "C2");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> createHvdcLine(DUPLICATE, DUPLICATE, 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+                10.0, 10.0, 20.0, "C1", "C2"));
     }
 
     @Test

@@ -10,12 +10,10 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
-import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -23,18 +21,17 @@ import java.util.stream.Collectors;
  */
 public class IdentifierContingencyList implements ContingencyList {
 
+    private static final String VERSION = "1.2";
     private final String name;
-    private final IdentifiableType identifiableType;
     private final List<NetworkElementIdentifier> networkElementIdentifiers;
 
-    public IdentifierContingencyList(String name, String identifiableType, List<NetworkElementIdentifier> networkElementIdentifiers) {
-        this(name, IdentifiableType.valueOf(identifiableType), networkElementIdentifiers);
+    public IdentifierContingencyList(String name, List<NetworkElementIdentifier> networkElementIdentifiers) {
+        this.name = Objects.requireNonNull(name);
+        this.networkElementIdentifiers = ImmutableList.copyOf(networkElementIdentifiers);
     }
 
-    public IdentifierContingencyList(String name, IdentifiableType identifiableType, List<NetworkElementIdentifier> networkElementIdentifiers) {
-        this.name = Objects.requireNonNull(name);
-        this.identifiableType = Objects.requireNonNull(identifiableType);
-        this.networkElementIdentifiers = ImmutableList.copyOf(networkElementIdentifiers);
+    public static String getVersion() {
+        return VERSION;
     }
 
     @Override
@@ -47,10 +44,6 @@ public class IdentifierContingencyList implements ContingencyList {
         return "identifier";
     }
 
-    public IdentifiableType getIdentifiableType() {
-        return identifiableType;
-    }
-
     public List<NetworkElementIdentifier> getIdentifiants() {
         return ImmutableList.copyOf(networkElementIdentifiers);
     }
@@ -58,10 +51,19 @@ public class IdentifierContingencyList implements ContingencyList {
     @Override
     public List<Contingency> getContingencies(Network network) {
         return networkElementIdentifiers.stream()
-                .map(identifiant -> identifiant.filterIdentifiable(network))
-                .filter(Optional::isPresent)
-                .map(identifiable -> new Contingency(identifiable.get().getId(),
-                        ContingencyElement.of(identifiable.get())))
+                .filter(identifier -> !identifier.filterIdentifiable(network).isEmpty())
+                .map(identifier -> {
+                    List<ContingencyElement> contingencyElements = identifier.filterIdentifiable(network)
+                            .stream()
+                            .map(ContingencyElement::of)
+                            .collect(Collectors.toList());
+                    String contingencyId = identifier.getContingencyId().orElse("Contingency : " +
+                            contingencyElements
+                                    .stream()
+                                    .map(ContingencyElement::getId)
+                                    .collect(Collectors.joining(" + ")));
+                    return new Contingency(contingencyId, contingencyElements);
+                })
                 .filter(contingency -> contingency.isValid(network))
                 .collect(Collectors.toList());
     }

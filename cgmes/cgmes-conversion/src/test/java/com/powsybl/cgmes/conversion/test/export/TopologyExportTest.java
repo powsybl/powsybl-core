@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -28,30 +28,29 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.Properties;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class TopologyExportTest extends AbstractConverterTest {
+class TopologyExportTest extends AbstractConverterTest {
 
     @Test
-    public void smallGridHVDC() throws IOException, XMLStreamException {
+    void smallGridHVDC() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreakerHvdcEqTp().dataSource());
     }
 
     @Test
-    public void smallGridBusBranch() throws IOException, XMLStreamException {
+    void smallGridBusBranch() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallBusBranchEqTp().dataSource());
     }
 
     @Test
-    public void smallGridNodeBreaker() throws IOException, XMLStreamException {
+    void smallGridNodeBreaker() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreakerEqTp().dataSource());
     }
 
     @Test
-    public void smallGridNodeBreakerSsh() throws IOException, XMLStreamException {
+    void smallGridNodeBreakerSsh() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreakerEqTpSsh().dataSource(), true);
     }
 
@@ -61,9 +60,7 @@ public class TopologyExportTest extends AbstractConverterTest {
 
     private void test(ReadOnlyDataSource dataSource, boolean importSsh) throws IOException, XMLStreamException {
         // Import original
-        Properties properties = new Properties();
-        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
 
         // Export TP
         Path exportedTp = tmpDir.resolve("exportedTp.xml");
@@ -87,7 +84,7 @@ public class TopologyExportTest extends AbstractConverterTest {
 
         // Import with new TP
         Network actual = Network.read(repackaged,
-                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), null);
 
         prepareNetworkForComparison(expected);
         prepareNetworkForComparison(actual);

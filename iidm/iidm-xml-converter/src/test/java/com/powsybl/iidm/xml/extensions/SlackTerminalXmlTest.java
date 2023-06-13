@@ -16,23 +16,22 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLExporter;
 import org.joda.time.DateTime;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.*;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class SlackTerminalXmlTest extends AbstractConverterTest {
+class SlackTerminalXmlTest extends AbstractConverterTest {
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2019-05-27T12:17:02.504+02:00"));
 
@@ -63,7 +62,7 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testNoTerminal() throws IOException {
+    void testNoTerminal() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
 
@@ -99,7 +98,7 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testBadVariant() {
+    void testBadVariant() {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
 
@@ -113,11 +112,11 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
 
         Network clone = NetworkXml.copy(network);
         VoltageLevel vlClone = clone.getVoltageLevel("VLHV2");
-        Assert.assertNull(vlClone.getExtension(SlackTerminal.class));
+        assertNull(vlClone.getExtension(SlackTerminal.class));
     }
 
     @Test
-    public void testExtensionFiltering() {
+    void testExtensionFiltering() {
         Network network = EurostagTutorialExample1Factory.create();
 
         VoltageLevel vl = network.getVoltageLevel("VLHV2");

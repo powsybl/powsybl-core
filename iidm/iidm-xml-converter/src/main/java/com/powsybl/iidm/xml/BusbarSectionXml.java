@@ -19,7 +19,7 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSectionAdder, VoltageLevel> {
+class BusbarSectionXml extends AbstractSimpleIdentifiableXml<BusbarSection, BusbarSectionAdder, VoltageLevel> {
 
     static final BusbarSectionXml INSTANCE = new BusbarSectionXml();
 
@@ -50,7 +50,7 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
     }
 
     @Override
-    protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, NetworkXmlReaderContext context) {
+    protected BusbarSection readRootElementAttributes(BusbarSectionAdder adder, VoltageLevel voltageLevel, NetworkXmlReaderContext context) {
         int node = XmlUtil.readIntAttribute(context.getReader(), "node");
         BusbarSection bbs = adder.setNode(node)
                 .add();

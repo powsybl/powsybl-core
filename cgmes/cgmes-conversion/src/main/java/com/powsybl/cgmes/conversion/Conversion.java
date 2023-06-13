@@ -110,16 +110,21 @@ public class Conversion {
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config) {
-        this(cgmes, config, Collections.emptyList());
+        this(cgmes, config, Collections.emptyList(), Collections.emptyList());
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
-        this(cgmes, config, postProcessors, NetworkFactory.findDefault());
+        this(cgmes, config, Collections.emptyList(), postProcessors, NetworkFactory.findDefault());
     }
 
-    public Conversion(CgmesModel cgmes, Config config, List<CgmesImportPostProcessor> activatedPostProcessors, NetworkFactory networkFactory) {
+    public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPreProcessor> preProcessors, List<CgmesImportPostProcessor> postProcessors) {
+        this(cgmes, config, preProcessors, postProcessors, NetworkFactory.findDefault());
+    }
+
+    public Conversion(CgmesModel cgmes, Config config, List<CgmesImportPreProcessor> activatedPreProcessors, List<CgmesImportPostProcessor> activatedPostProcessors, NetworkFactory networkFactory) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
+        this.preProcessors = Objects.requireNonNull(activatedPreProcessors);
         this.postProcessors = Objects.requireNonNull(activatedPostProcessors);
         this.networkFactory = Objects.requireNonNull(networkFactory);
     }
@@ -134,6 +139,11 @@ public class Conversion {
 
     public Network convert(Reporter reporter) {
         Objects.requireNonNull(reporter);
+
+        // apply pre-processors before starting the conversion
+        for (CgmesImportPreProcessor preProcessor : preProcessors) {
+            preProcessor.process(cgmes);
+        }
 
         if (LOG.isTraceEnabled() && cgmes.baseVoltages() != null) {
             LOG.trace("{}{}{}", "BaseVoltages", System.lineSeparator(), cgmes.baseVoltages().tabulate());
@@ -261,7 +271,7 @@ public class Conversion {
             .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
 
         // Voltage and angle in boundary buses
-        network.getDanglingLines()
+        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
             .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
     }
 
@@ -758,15 +768,6 @@ public class Conversion {
             return this;
         }
 
-        public boolean createCgmesExportMapping() {
-            return createCgmesExportMapping;
-        }
-
-        public Config setCreateCgmesExportMapping(boolean createCgmesExportMapping) {
-            this.createCgmesExportMapping = createCgmesExportMapping;
-            return this;
-        }
-
         public boolean convertSvInjections() {
             return convertSvInjections;
         }
@@ -807,6 +808,15 @@ public class Conversion {
 
         public Config setStoreCgmesConversionContextAsNetworkExtension(boolean storeCgmesTerminalMappingAsNetworkExtension) {
             this.storeCgmesConversionContextAsNetworkExtension = storeCgmesTerminalMappingAsNetworkExtension;
+            return this;
+        }
+
+        public boolean createActivePowerControlExtension() {
+            return createActivePowerControlExtension;
+        }
+
+        public Config setCreateActivePowerControlExtension(boolean createActivePowerControlExtension) {
+            this.createActivePowerControlExtension = createActivePowerControlExtension;
             return this;
         }
 
@@ -885,6 +895,15 @@ public class Conversion {
             xfmr3StructuralRatio = alternative;
         }
 
+        public CgmesImport.FictitiousSwitchesCreationMode getCreateFictitiousSwitchesForDisconnectedTerminalsMode() {
+            return createFictitiousSwitchesForDisconnectedTerminalsMode;
+        }
+
+        public Config createFictitiousSwitchesForDisconnectedTerminalsMode(CgmesImport.FictitiousSwitchesCreationMode createFictitiousSwitchesForDisconnectedTerminalsMode) {
+            this.createFictitiousSwitchesForDisconnectedTerminalsMode = createFictitiousSwitchesForDisconnectedTerminalsMode;
+            return this;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -896,11 +915,12 @@ public class Conversion {
         private StateProfile profileForInitialValuesShuntSectionsTapPositions = SSH;
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
+        private boolean createActivePowerControlExtension = false;
+
+        private CgmesImport.FictitiousSwitchesCreationMode createFictitiousSwitchesForDisconnectedTerminalsMode = CgmesImport.FictitiousSwitchesCreationMode.ALWAYS;
 
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;
-
-        private boolean createCgmesExportMapping = false;
 
         private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
@@ -918,6 +938,7 @@ public class Conversion {
     private final CgmesModel cgmes;
     private final Config config;
     private final List<CgmesImportPostProcessor> postProcessors;
+    private final List<CgmesImportPreProcessor> preProcessors;
     private final NetworkFactory networkFactory;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);

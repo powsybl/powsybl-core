@@ -72,9 +72,14 @@ public class CgmesExport implements Exporter {
                 NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)))
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
+                .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER))
                 .setReporter(reporter);
+        context.getEqModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
+        context.getTpModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
+        context.getSshModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
+        context.getSvModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
         String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
@@ -168,13 +173,15 @@ public class CgmesExport implements Exporter {
     }
 
     public static final String BASE_NAME = "iidm.export.cgmes.base-name";
+    public static final String BOUNDARY_EQ_ID = "iidm.export.cgmes.boundary-EQ-identifier";
+    public static final String BOUNDARY_TP_ID = "iidm.export.cgmes.boundary-TP-identifier";
     public static final String CIM_VERSION = "iidm.export.cgmes.cim-version";
+    private static final String ENCODE_IDS = "iidm.export.cgmes.encode-ids";
     public static final String EXPORT_BOUNDARY_POWER_FLOWS = "iidm.export.cgmes.export-boundary-power-flows";
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
-    public static final String BOUNDARY_EQ_ID = "iidm.export.cgmes.boundary-EQ-identifier";
-    public static final String BOUNDARY_TP_ID = "iidm.export.cgmes.boundary-TP-identifier";
+    public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -187,16 +194,21 @@ public class CgmesExport implements Exporter {
             "CIM version to export",
             null,
             CgmesNamespace.CIM_LIST.stream().map(cim -> Integer.toString(cim.getVersion())).collect(Collectors.toList()));
+    private static final Parameter ENCODE_IDS_PARAMETERS = new Parameter(
+            ENCODE_IDS,
+            ParameterType.BOOLEAN,
+            "Encode IDs as valid URI",
+            CgmesExportContext.ENCODE_IDS_DEFAULT_VALUE);
     private static final Parameter EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER = new Parameter(
             EXPORT_BOUNDARY_POWER_FLOWS,
             ParameterType.BOOLEAN,
             "Export boundaries' power flows",
-            Boolean.TRUE);
+            CgmesExportContext.EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE);
     private static final Parameter EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER = new Parameter(
             EXPORT_POWER_FLOWS_FOR_SWITCHES,
             ParameterType.BOOLEAN,
             "Export power flows for switches",
-            Boolean.FALSE);
+            CgmesExportContext.EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE);
     private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(
             NAMING_STRATEGY,
             ParameterType.STRING,
@@ -220,6 +232,12 @@ public class CgmesExport implements Exporter {
             "Boundary TP model identifier",
             null);
 
+    private static final Parameter MODELING_AUTHORITY_SET_PARAMETER = new Parameter(
+            MODELING_AUTHORITY_SET,
+            ParameterType.STRING,
+            "Modeling authority set",
+            "powsybl.org");
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
             CIM_VERSION_PARAMETER,
@@ -228,7 +246,8 @@ public class CgmesExport implements Exporter {
             NAMING_STRATEGY_PARAMETER,
             PROFILES_PARAMETER,
             BOUNDARY_EQ_ID_PARAMETER,
-            BOUNDARY_TP_ID_PARAMETER);
+            BOUNDARY_TP_ID_PARAMETER,
+            MODELING_AUTHORITY_SET_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }

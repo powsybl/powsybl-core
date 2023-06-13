@@ -118,7 +118,7 @@ public interface Scalable {
 
     /**
      * Scans all the expected injections of the scalable.
-     * If the injection can be found in given network, it is added the the injections list.
+     * If the injection can be found in given network, it is added to the injections list.
      *
      * @param network network
      * @return network injections used in the scalable
@@ -127,50 +127,19 @@ public interface Scalable {
 
     /**
      * Scale the given network using Generator convention by default.
-     * The actual scaling value may be different to the one asked, if
-     * the Scalable limit is reached.
+     * The actual scaling value may be different to the one asked if
+     * the Scalable limit is reached. If the scalable is disconnected,
+     * the scaling value will be 0.
      *
      * @param n network
      * @param asked value asked to adjust the scalable active power
+     * @param parameters specific parameters used to scale
      * @return the actual value of the scalable active power adjustment
      */
-    double scale(Network n, double asked);
+    double scale(Network n, double asked, ScalingParameters parameters);
 
-    /**
-     * Scale the given network.
-     * The actual scaling value may be different to the one asked, if
-     * the Scalable limit is reached.
-     *
-     * @param n network
-     * @param asked value asked to adjust the scalable active power
-     * @param scalingConvention power convention used for scaling
-     * @return the actual value of the scalable active power adjustment
-     * @see ScalingConvention
-     */
-    double scale(Network n, double asked, ScalingConvention scalingConvention);
-
-    /**
-     * Scale the given network using Generator convention by default.
-     * If the object is a load, scaling is done with constant power factor.
-     * @param n network
-     * @param asked value asked to adjust the scalable active power and reactive power if load
-     * @return the actual value of the scalable active power adjustment
-     */
-    default double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scale(n, asked);
-    }
-
-    /**
-     * Scale the given network.
-     * The actual scaling value may be different to the one asked, if
-     * the Scalable limit is reached. If the Scalable is a load, the power factor is kept constant.
-     * @param n network
-     * @param asked value asked to adjust the scalable active power and reactive power if load
-     * @param scalingConvention power convention used for scaling
-     * @return the actual value of the scalable active power adjustment
-     */
-    default double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
-        return scale(n, asked, scalingConvention);
+    default double scale(Network n, double asked) {
+        return scale(n, asked, new ScalingParameters());
     }
 
     /**
@@ -249,10 +218,6 @@ public interface Scalable {
 
     static ProportionalScalable proportional(List<Float> percentages, List<Scalable> scalables) {
         return new ProportionalScalable(percentages, scalables);
-    }
-
-    static ProportionalScalable proportional(List<Float> percentages, List<Scalable> scalables, boolean iterative) {
-        return new ProportionalScalable(percentages, scalables, iterative);
     }
 
     static ProportionalScalable proportional(float percentage, Scalable scalable) {

@@ -15,7 +15,7 @@ import com.powsybl.contingency.contingency.list.*;
 import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +31,7 @@ import java.util.Objects;
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
-public class ListOfContingencyListsJsonTest extends AbstractConverterTest {
+class ListOfContingencyListsJsonTest extends AbstractConverterTest {
 
     private static ListOfContingencyLists create() {
         List<ContingencyList> contingencyLists = new ArrayList<>();
@@ -44,13 +44,15 @@ public class ListOfContingencyListsJsonTest extends AbstractConverterTest {
                 .VoltageInterval(200.0, 230.0, true, true),
                 new SingleNominalVoltageCriterion
                 .VoltageInterval(100.0, 120.0, true, true));
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion1 = new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion
+                .VoltageInterval(200.0, 230.0, true, true), null);
 
         ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(200.0, 230.0, true, true), null,
                 new SingleNominalVoltageCriterion.VoltageInterval(380.0, 430.0,
                         true, true));
         RegexCriterion regexCriterion = new RegexCriterion("regex");
-        contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, nominalVoltageCriterion,
+        contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, twoNominalVoltageCriterion1,
                 Collections.emptyList(), regexCriterion));
         contingencyLists.add(new DefaultContingencyList(new Contingency("contingency1", new GeneratorContingency("GEN"))));
         contingencyLists.add(new InjectionCriterionContingencyList("list3", IdentifiableType.LOAD, countryCriterion,
@@ -68,7 +70,7 @@ public class ListOfContingencyListsJsonTest extends AbstractConverterTest {
     }
 
     @Test
-    public void roundTripTest() throws IOException {
+    void roundTripTest() throws IOException {
         roundTripTest(create(), ListOfContingencyListsJsonTest::write, ListOfContingencyListsJsonTest::readContingencyList,
                 "/contingencyListsList.json");
     }

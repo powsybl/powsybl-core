@@ -77,7 +77,7 @@ public final class Colors {
                 b = q;
                 break;
             default:
-                throw new AssertionError();
+                throw new IllegalStateException();
         }
         return new long[] {Math.round(r * 256), Math.round(g * 256), Math.round(b * 256)};
     }

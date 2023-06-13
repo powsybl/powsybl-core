@@ -8,6 +8,7 @@ package com.powsybl.security.action;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 /**
  * An action to:
@@ -65,20 +66,19 @@ public class GeneratorAction extends AbstractAction {
         return Optional.ofNullable(activePowerRelativeValue);
     }
 
-    public Optional<Double> getActivePowerValue() {
-        return Optional.ofNullable(activePowerValue);
+    public OptionalDouble getActivePowerValue() {
+        return activePowerValue == null ? OptionalDouble.empty() : OptionalDouble.of(activePowerValue);
     }
 
     public Optional<Boolean> isVoltageRegulatorOn() {
         return Optional.ofNullable(voltageRegulatorOn);
     }
 
-    public Optional<Double> getTargetV() {
-        return Optional.ofNullable(targetV);
+    public OptionalDouble getTargetV() {
+        return targetV == null ? OptionalDouble.empty() : OptionalDouble.of(targetV);
     }
 
-    public Optional<Double> getTargetQ() {
-        return Optional.ofNullable(targetQ);
+    public OptionalDouble getTargetQ() {
+        return targetQ == null ? OptionalDouble.empty() : OptionalDouble.of(targetQ);
     }
-
 }

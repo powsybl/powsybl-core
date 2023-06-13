@@ -16,27 +16,27 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CgmesExportContextTest {
+class CgmesExportContextTest {
 
     @Test
-    public void testExporter() {
+    void testExporter() {
         var exporter = new CgmesExport();
         assertEquals("ENTSO-E CGMES version 2.4.15", exporter.getComment());
-        assertEquals(8, exporter.getParameters().size());
+        assertEquals(9, exporter.getParameters().size());
     }
 
     @Test
-    public void networkConstructor() {
+    void networkConstructor() {
         Network network = EurostagTutorialExample1Factory.create();
 
         CgmesExportContext context1 = new CgmesExportContext(network);
@@ -77,7 +77,7 @@ public class CgmesExportContextTest {
     }
 
     @Test
-    public void emptyConstructor() {
+    void emptyConstructor() {
         CgmesExportContext context = new CgmesExportContext();
         assertEquals(16, context.getCimVersion());
         assertEquals(CgmesNamespace.CIM_16_NAMESPACE, context.getCim().getNamespace());
@@ -91,7 +91,7 @@ public class CgmesExportContextTest {
     }
 
     @Test
-    public void getSet() {
+    void getSet() {
         CgmesExportContext context = new CgmesExportContext()
             .setCimVersion(14)
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)

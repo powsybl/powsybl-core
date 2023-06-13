@@ -13,19 +13,19 @@ import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GeneratorEntsoeCategoryXmlTest extends AbstractXmlConverterTest {
+class GeneratorEntsoeCategoryXmlTest extends AbstractXmlConverterTest {
 
-    public static Network createTestNetwork() {
+    static Network createTestNetwork() {
         Network network = NetworkFactory.create("test", "test");
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
@@ -54,7 +54,7 @@ public class GeneratorEntsoeCategoryXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         Network network = createTestNetwork();
 
         // extends generator

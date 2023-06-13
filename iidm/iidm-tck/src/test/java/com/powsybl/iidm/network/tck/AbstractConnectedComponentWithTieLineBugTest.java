@@ -7,9 +7,9 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -60,33 +60,32 @@ public abstract class AbstractConnectedComponentWithTieLineBugTest {
                 .setP0(0.0)
                 .setQ0(0.0)
                 .add();
+        DanglingLine dl1 = vl1.newDanglingLine()
+                .setBus("b1")
+                .setId("l1")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
+                .setUcteXnodeCode("XNODE")
+                .add();
+        DanglingLine dl2 = vl2.newDanglingLine()
+                .setBus("b2")
+                .setId("l2")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
+                .setUcteXnodeCode("XNODE")
+                .add();
         n.newTieLine()
                 .setId("l1 + l2")
-                .setVoltageLevel1("vl1")
-                .setConnectableBus1("b1")
-                .setBus1("b1")
-                .setVoltageLevel2("vl2")
-                .setConnectableBus2("b2")
-                .setBus2("b2")
-                .newHalfLine1()
-                    .setId("l1")
-                    .setR(1.0)
-                    .setX(1.0)
-                    .setG1(0.0)
-                    .setG2(0.0)
-                    .setB1(0.0)
-                    .setB2(0.0)
-                    .add()
-                .newHalfLine2()
-                    .setId("l2")
-                    .setR(1.0)
-                    .setX(1.0)
-                    .setG1(0.0)
-                    .setG2(0.0)
-                    .setB1(0.0)
-                    .setB2(0.0)
-                    .add()
-                .setUcteXnodeCode("XNODE")
+                .setDanglingLine1(dl1.getId())
+                .setDanglingLine2(dl2.getId())
                 .add();
         assertEquals(0, b1.getConnectedComponent().getNum());
         assertEquals(0, b2.getConnectedComponent().getNum());

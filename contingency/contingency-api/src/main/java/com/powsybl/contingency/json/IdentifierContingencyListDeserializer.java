@@ -23,6 +23,8 @@ import java.util.List;
  */
 public class IdentifierContingencyListDeserializer extends StdDeserializer<IdentifierContingencyList> {
 
+    private static final String CONTEXT_NAME = "identifierContingencyList";
+
     public IdentifierContingencyListDeserializer() {
         super(IdentifierContingencyList.class);
     }
@@ -30,12 +32,18 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
     @Override
     public IdentifierContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String name = null;
-        String identifiableType = null;
+        String version = null;
         List<NetworkElementIdentifier> networkElementIdentifiers = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
+                    version = parser.nextTextValue();
+                    deserializationContext.setAttribute("version", version);
+                    break;
+
+                case "identifiableType":
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "identifiableType", version, "1.0");
                     parser.nextToken();
                     break;
 
@@ -47,19 +55,15 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
                     parser.nextToken();
                     break;
 
-                case "identifiableType":
-                    identifiableType = parser.nextTextValue();
-                    break;
-
                 case "identifiers":
                     parser.nextToken();
                     networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                     break;
 
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new IdentifierContingencyList(name, identifiableType, networkElementIdentifiers);
+        return new IdentifierContingencyList(name, networkElementIdentifiers);
     }
 }

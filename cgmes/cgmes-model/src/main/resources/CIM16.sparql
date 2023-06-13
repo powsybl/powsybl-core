@@ -120,19 +120,37 @@ SELECT *
 }}
 
 # query: substations
-SELECT ?Substation ?name ?SubRegion ?subRegionName ?Region ?regionName
-{ GRAPH ?graph {
+SELECT *
+WHERE {
     ?Substation
         a cim:Substation ;
-        cim:IdentifiedObject.name ?name ;
-        cim:Substation.Region ?SubRegion .
-} GRAPH ?graph2 {
-    ?SubRegion
-        cim:SubGeographicalRegion.Region ?Region ;
-        cim:IdentifiedObject.name ?subRegionName .
-} GRAPH ?graph3 {
-    ?Region cim:IdentifiedObject.name ?regionName .
-}}
+        cim:IdentifiedObject.name ?name .
+    # Optional is required to keep the ?Substation variable already bounded in the sub-queries ...
+    OPTIONAL {
+        {
+            SELECT ?SubRegion
+            WHERE {
+                ?Substation cim:Substation.Region ?SubRegion .
+                ?SubRegion a cim:SubGeographicalRegion .
+            }
+            LIMIT 1
+        }
+        ?SubRegion cim:IdentifiedObject.name ?subRegionName .
+        OPTIONAL {
+            {
+                SELECT ?Region
+                WHERE {
+                    ?SubRegion cim:SubGeographicalRegion.Region ?Region .
+                    ?Region a cim:GeographicalRegion .
+                }
+                LIMIT 1
+            }
+            ?Region cim:IdentifiedObject.name ?regionName .
+        }
+    }
+    # ... But we do not want results where the regions are missing
+    FILTER (bound(?SubRegion) && bound(?Region))
+}
 
 # query: voltageLevels
 SELECT *
@@ -300,6 +318,7 @@ WHERE
         cim:IdentifiedObject.name ?name ;
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
+    OPTIONAL { ?OperationalLimit entsoe:IdentifiedObject.shortName ?shortName }
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
@@ -663,6 +682,18 @@ WHERE {
     ?EnergyConsumer
         a ?type ;
         cim:IdentifiedObject.name ?name .
+    OPTIONAL {
+        ?EnergyConsumer cim:EnergyConsumer.LoadResponse ?LoadResponseCharacteristic .
+        ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.exponentModel ?exponentModel .
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pConstantCurrent ?pConstantCurrent }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pConstantImpedance ?pConstantImpedance }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pConstantPower ?pConstantPower }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qConstantCurrent ?qConstantCurrent }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qConstantImpedance ?qConstantImpedance }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qConstantPower ?qConstantPower }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.pVoltageExponent ?pVoltageExponent }
+        OPTIONAL { ?LoadResponseCharacteristic cim:LoadResponseCharacteristic.qVoltageExponent ?qVoltageExponent }
+    }
     VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad cim:StationSupply }
     ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer .
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }

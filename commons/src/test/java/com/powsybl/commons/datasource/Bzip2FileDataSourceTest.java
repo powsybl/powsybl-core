@@ -9,7 +9,7 @@ package com.powsybl.commons.datasource;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Bzip2FileDataSourceTest extends AbstractDataSourceTest {
+class Bzip2FileDataSourceTest extends AbstractDataSourceTest {
 
     @Override
     protected boolean appendTest() {

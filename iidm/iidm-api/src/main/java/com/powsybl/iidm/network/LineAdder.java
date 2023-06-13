@@ -23,7 +23,7 @@ package com.powsybl.iidm.network;
  * @see Line
  * @see Network
  */
-public interface LineAdder extends BranchAdder<LineAdder> {
+public interface LineAdder extends BranchAdder<Line, LineAdder> {
 
     LineAdder setR(double r);
 
@@ -37,6 +37,7 @@ public interface LineAdder extends BranchAdder<LineAdder> {
 
     LineAdder setB2(double b2);
 
+    @Override
     Line add();
 
 }

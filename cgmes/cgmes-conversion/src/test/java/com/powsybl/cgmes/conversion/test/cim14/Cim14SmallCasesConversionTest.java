@@ -16,21 +16,21 @@ import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class Cim14SmallCasesConversionTest {
-    @BeforeClass
-    public static void setUp() {
+class Cim14SmallCasesConversionTest {
+    @BeforeAll
+    static void setUp() {
         tester = new ConversionTester(
                 TripleStoreFactory.onlyDefaultImplementation(),
                 new ComparisonConfig()
@@ -41,32 +41,32 @@ public class Cim14SmallCasesConversionTest {
     }
 
     @Test
-    public void txMicroBEAdapted() throws IOException {
+    void txMicroBEAdapted() throws IOException {
         tester.testConversion(Cim14SmallCasesNetworkCatalog.txMicroBEAdapted(), Cim14SmallCasesCatalog.txMicroBEAdapted());
     }
 
     @Test
-    public void smallcase1() throws IOException {
+    void smallcase1() throws IOException {
         tester.testConversion(Cim14SmallCasesNetworkCatalog.smallcase1(), Cim14SmallCasesCatalog.small1());
     }
 
     @Test
-    public void ieee14() throws IOException {
+    void ieee14() throws IOException {
         tester.testConversion(Cim14SmallCasesNetworkCatalog.ieee14(), Cim14SmallCasesCatalog.ieee14());
     }
 
     @Test
-    public void nordic32() throws IOException {
+    void nordic32() throws IOException {
         tester.testConversion(Cim14SmallCasesNetworkCatalog.nordic32(), Cim14SmallCasesCatalog.nordic32());
     }
 
     @Test
-    public void m7buses() throws IOException {
+    void m7buses() throws IOException {
         tester.testConversion(Cim14SmallCasesNetworkCatalog.m7buses(), Cim14SmallCasesCatalog.m7buses());
     }
 
     @Test
-    public void m7busesNoSequenceNumbers() {
+    void m7busesNoSequenceNumbers() {
         Network networkSeq = Importers.importData("CGMES", Cim14SmallCasesCatalog.m7buses().dataSource(), null);
         Network networkNoSeq = Importers.importData("CGMES", Cim14SmallCasesCatalog.m7busesNoSequenceNumbers().dataSource(), null);
         // Make sure we have not lost any line or switch

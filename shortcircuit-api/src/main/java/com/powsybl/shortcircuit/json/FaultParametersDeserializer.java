@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.StudyType;
 
@@ -20,21 +21,30 @@ import java.io.IOException;
  */
 class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
 
+    private static final String CONTEXT_NAME = "ShortCircuitFaultParameters";
+
     FaultParametersDeserializer() {
         super(FaultParameters.class);
     }
 
     @Override
     public FaultParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        String version = null;
         String id = null;
         boolean withLimitViolations = false;
-        boolean withVoltageMap = false;
+        boolean withVoltageAndVoltageDropProfileResult = false;
         boolean withFeederResult = false;
         StudyType type = null;
         double minVoltageDropProportionalThreshold = Double.NaN;
+        boolean withSimpleResult = false;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
+                case "version":
+                    parser.nextToken();
+                    version = parser.getValueAsString();
+                    break;
+
                 case "id":
                     parser.nextToken();
                     id = parser.readValueAs(String.class);
@@ -46,8 +56,15 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     break;
 
                 case "withVoltageMap":
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMap", version, "1.1");
                     parser.nextToken();
-                    withVoltageMap = parser.readValueAs(Boolean.class);
+                    withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "withVoltageResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageAndVoltageDropProfileResult", version, "1.1");
+                    parser.nextToken();
+                    withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);
                     break;
 
                 case "withFeederResult":
@@ -65,10 +82,16 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
                     break;
 
+                case "withFortescueResult":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withSimpleResult", version, "1.1");
+                    parser.nextToken();
+                    withSimpleResult = parser.readValueAs(Boolean.class);
+                    break;
+
                 default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FaultParameters(id, withLimitViolations, withVoltageMap, withFeederResult, type, minVoltageDropProportionalThreshold);
+        return new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type, minVoltageDropProportionalThreshold, withSimpleResult);
     }
 }

@@ -13,22 +13,22 @@ import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 import com.powsybl.iidm.network.test.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class AmplNetworkReaderTest {
+class AmplNetworkReaderTest {
 
     @Test
-    public void readEurostag() throws IOException {
+    void readEurostag() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
@@ -50,7 +50,7 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
-    public void readThreeWindingTransformers() throws IOException {
+    void readThreeWindingTransformers() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
         twt.getLeg1().newPhaseTapChanger()
@@ -111,7 +111,7 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
-    public void readThreeWindingTransformers2() throws IOException {
+    void readThreeWindingTransformers2() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
@@ -124,7 +124,7 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
-    public void readShunt() throws IOException {
+    void readShunt() throws IOException {
         Network network = ShuntTestCaseFactory.createNonLinear();
         ShuntCompensator sc = network.getShuntCompensator("SHUNT");
         sc.setSectionCount(2);
@@ -143,7 +143,7 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
-    public void readDanglingLines() throws IOException {
+    void readDanglingLines() throws IOException {
         Network network = DanglingLineNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
@@ -156,7 +156,7 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
-    public void readHvdcLines() throws IOException {
+    void readHvdcLines() throws IOException {
         Network network = HvdcTestNetwork.createLcc();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
@@ -183,7 +183,7 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
-    public void readHvdcLinesWithVariousVariants() throws IOException {
+    void readHvdcLinesWithVariousVariants() throws IOException {
         Network network = HvdcTestNetwork.createLcc();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
@@ -210,7 +210,7 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
-    public void readSvc() throws IOException {
+    void readSvc() throws IOException {
         Network network = SvcTestCaseFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
@@ -223,7 +223,7 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
-    public void readBattery() throws IOException {
+    void readBattery() throws IOException {
         Network network = BatteryNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
@@ -232,6 +232,20 @@ public class AmplNetworkReaderTest {
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testBatteries(network, reader);
+    }
+
+    @Test
+    void testMatchingQuote() {
+        Map<String, Integer> expectedTokens = Map.ofEntries(Map.entry("key some_value_without_spaces", 2),
+                Map.entry("key \"value with spaces in doubles quotes\"", 2),
+                Map.entry("key 'value with spaces in single quotes'", 2));
+        for (Map.Entry<String, Integer> entry : expectedTokens.entrySet()) {
+            String str = entry.getKey();
+            Integer expectedNbTokens = entry.getValue();
+            assertEquals(expectedNbTokens, AmplNetworkReader.parseExceptIfBetweenQuotes(str).size(),
+                    "The number of tokens parsed is wrong");
+        }
+
     }
 
     private void testGenerators(Network network, AmplNetworkReader reader) throws IOException {
@@ -312,7 +326,7 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
-    public void readPhaseTapChanger() throws IOException {
+    void readPhaseTapChanger() throws IOException {
         Network network = PhaseShifterTestCaseFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 

@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -25,15 +24,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final ShuntCompensatorModelExt model;
 
     /* the regulating terminal */
-    private TerminalExt regulatingTerminal;
+    private final RegulatingPoint regulatingPoint;
 
     // attributes depending on the variant
 
     /* the current number of section switched on */
     private final ArrayList<Integer> sectionCount;
-
-    /* the regulating status */
-    private final TBooleanArrayList voltageRegulatorOn;
 
     /* the target voltage value */
     private final TDoubleArrayList targetV;
@@ -47,15 +43,14 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
                          double targetV, double targetDeadband) {
         super(network, id, name, fictitious);
         this.network = network;
-        this.regulatingTerminal = regulatingTerminal;
         int variantArraySize = this.network.get().getVariantManager().getVariantArraySize();
+        regulatingPoint = new RegulatingPoint(id, this::getTerminal, variantArraySize, voltageRegulatorOn, true);
+        regulatingPoint.setRegulatingTerminal(regulatingTerminal);
         this.sectionCount = new ArrayList<>(variantArraySize);
-        this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.sectionCount.add(sectionCount);
-            this.voltageRegulatorOn.add(voltageRegulatorOn);
             this.targetV.add(targetV);
             this.targetDeadband.add(targetDeadband);
         }
@@ -158,21 +153,21 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public TerminalExt getRegulatingTerminal() {
-        return regulatingTerminal;
+        return regulatingPoint.getRegulatingTerminal();
     }
 
     @Override
     public ShuntCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        Terminal oldValue = this.regulatingTerminal;
-        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
-        notifyUpdate("regulatingTerminal", oldValue, this.regulatingTerminal);
+        Terminal oldValue = regulatingPoint.getRegulatingTerminal();
+        regulatingPoint.setRegulatingTerminal((TerminalExt) regulatingTerminal);
+        notifyUpdate("regulatingTerminal", oldValue, regulatingPoint.getRegulatingTerminal());
         return this;
     }
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return voltageRegulatorOn.get(network.get().getVariantIndex());
+        return regulatingPoint.isRegulating(network.get().getVariantIndex());
     }
 
     @Override
@@ -181,7 +176,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex), n.getMinValidationLevel());
         ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, voltageRegulatorOn, targetDeadband.get(variantIndex), n.getMinValidationLevel());
-        boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
+        boolean oldValue = regulatingPoint.setRegulating(variantIndex, voltageRegulatorOn);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
@@ -197,7 +192,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public ShuntCompensatorImpl setTargetV(double targetV) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV, n.getMinValidationLevel());
+        ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), targetV, n.getMinValidationLevel());
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -214,7 +209,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public ShuntCompensatorImpl setTargetDeadband(double targetDeadband) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, this.voltageRegulatorOn.get(variantIndex), targetDeadband, n.getMinValidationLevel());
+        ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, regulatingPoint.isRegulating(variantIndex), targetDeadband, n.getMinValidationLevel());
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -223,18 +218,23 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
+    public void remove() {
+        regulatingPoint.remove();
+        super.remove();
+    }
+
+    @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         sectionCount.ensureCapacity(sectionCount.size() + number);
-        voltageRegulatorOn.ensureCapacity(voltageRegulatorOn.size() + number);
         targetV.ensureCapacity(targetV.size() + number);
         targetDeadband.ensureCapacity(targetDeadband.size() + number);
         for (int i = 0; i < number; i++) {
             sectionCount.add(sectionCount.get(sourceIndex));
-            voltageRegulatorOn.add(voltageRegulatorOn.get(sourceIndex));
             targetV.add(targetV.get(sourceIndex));
             targetDeadband.add(targetDeadband.get(sourceIndex));
         }
+        regulatingPoint.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
 
     @Override
@@ -243,15 +243,15 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         List<Integer> tmpInt = new ArrayList<>(sectionCount.subList(0, sectionCount.size() - number));
         sectionCount.clear();
         sectionCount.addAll(tmpInt);
-        voltageRegulatorOn.remove(voltageRegulatorOn.size() - number, number);
         targetV.remove(targetV.size() - number, number);
         targetDeadband.remove(targetDeadband.size() - number, number);
+        regulatingPoint.reduceVariantArraySize(number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
-        // nothing to do
+        regulatingPoint.deleteVariantArrayElement(index);
     }
 
     @Override
@@ -259,10 +259,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             sectionCount.set(index, sectionCount.get(sourceIndex));
-            voltageRegulatorOn.set(index, voltageRegulatorOn.get(sourceIndex));
             targetV.set(index, targetV.get(sourceIndex));
             targetDeadband.set(index, targetDeadband.get(sourceIndex));
         }
+        regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }
 
     @Override

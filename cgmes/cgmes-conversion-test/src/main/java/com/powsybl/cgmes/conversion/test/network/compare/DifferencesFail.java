@@ -7,10 +7,13 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import com.powsybl.iidm.network.Identifiable;
-import org.junit.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.powsybl.iidm.network.Identifiable;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -29,24 +32,24 @@ public class DifferencesFail implements Differences {
 
     @Override
     public void compare(String context, double expected, double actual, double tolerance) {
-        Assert.assertEquals(completeContext(context), expected, actual, tolerance);
+        assertEquals(expected, actual, tolerance, completeContext(context));
     }
 
     @Override
     public void compare(String context, Object expected, Object actual) {
-        Assert.assertEquals(completeContext(context), expected, actual);
+        assertEquals(expected, actual, completeContext(context));
     }
 
     @Override
     public void unexpected(Identifiable i) {
         LOG.error("Unexpected {} {}", Comparison.className(i), i.getId());
-        Assert.fail();
+        fail();
     }
 
     @Override
     public void missing(Identifiable i) {
         LOG.error("Missing {} {}", Comparison.className(i), i.getId());
-        Assert.fail();
+        fail();
     }
 
     @Override
@@ -68,7 +71,7 @@ public class DifferencesFail implements Differences {
                 current.getId(),
                 expected.getId(),
                 actual.getId());
-        Assert.fail();
+        fail();
     }
 
     @Override
@@ -79,7 +82,7 @@ public class DifferencesFail implements Differences {
                 current.getId(),
                 expected.getId(),
                 actual.getId());
-        Assert.fail();
+        fail();
     }
 
     @Override

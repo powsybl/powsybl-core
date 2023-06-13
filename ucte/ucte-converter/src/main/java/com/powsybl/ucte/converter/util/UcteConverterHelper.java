@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.ucte.network.UcteAngleRegulation;
 import com.powsybl.ucte.network.UctePhaseRegulation;
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexUtils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -33,16 +35,15 @@ public final class UcteConverterHelper {
      * @return the δu needed to create a {@link UctePhaseRegulation}
      */
     public static double calculatePhaseDu(TwoWindingsTransformer twoWindingsTransformer) {
-        double rhoMin = Double.MAX_VALUE;
-        double rhoMax = -Double.MAX_VALUE;
-
         RatioTapChanger tapChanger = twoWindingsTransformer.getRatioTapChanger();
-        for (int i = tapChanger.getLowTapPosition(); i <= tapChanger.getHighTapPosition(); ++i) {
-            rhoMin = Double.min(rhoMin, tapChanger.getStep(i).getRho());
-            rhoMax = Double.max(rhoMax, tapChanger.getStep(i).getRho());
-        }
+        // Given the formulas : rho(i) = 1/(1+du.i/100)
+        // We have : -n.du = 100.(1/rho(-n) - 1)  and n.du = 100.(1/rho(n) - 1)
+        // Which gives n.du - (-n.du) = 100.(1/rho(n) - 1/rho(-n))
+        // then du = 100.(1/rho(n) - 1/rho(-n))/(nbTaps-1)
+        double rhoStepMin = tapChanger.getStep(tapChanger.getLowTapPosition()).getRho();
+        double rhoStepMax = tapChanger.getStep(tapChanger.getHighTapPosition()).getRho();
+        double res = 100 * (1 / rhoStepMax - 1 / rhoStepMin) / (tapChanger.getStepCount() - 1);
 
-        double res = 100 * (1 / rhoMin - 1 / rhoMax) / (tapChanger.getStepCount() - 1);
         return BigDecimal.valueOf(res).setScale(4, RoundingMode.HALF_UP).doubleValue();
     }
 
@@ -56,18 +57,17 @@ public final class UcteConverterHelper {
      * @return the δu needed to create a {@link UcteAngleRegulation}
      */
     public static double calculateSymmAngleDu(TwoWindingsTransformer twoWindingsTransformer) {
-        double alphaMin = Double.MAX_VALUE;
-        double alphaMax = -Double.MAX_VALUE;
-
         PhaseTapChanger tapChanger = twoWindingsTransformer.getPhaseTapChanger();
-        for (int i = tapChanger.getLowTapPosition(); i <= tapChanger.getHighTapPosition(); ++i) {
-            alphaMin = Double.min(alphaMin, tapChanger.getStep(i).getAlpha());
-            alphaMax = Double.max(alphaMax, tapChanger.getStep(i).getAlpha());
-        }
-        alphaMin = Math.toRadians(alphaMin);
-        alphaMax = Math.toRadians(alphaMax);
+        // Given the formulas : alpha(i) = 2.Atan(i/100.du/2)
+        // We have : -n.du = 200.tan(alpha(-n)/2)  and n.du = 200.tan(alpha(n)/2)
+        // Which gives n.du - (-n.du) = 200.(tan(alpha(n)/2) - tan(alpha(-n)/2))
+        // then du = 2.100.(tan(alpha(n)/2) - tan(alpha(-n)/2))/(nbTaps-1)
+        double alphaStepMax = Math.toRadians(tapChanger.getStep(tapChanger.getHighTapPosition()).getAlpha());
+        double alphaStepMin = Math.toRadians(tapChanger.getStep(tapChanger.getLowTapPosition()).getAlpha());
 
-        return 100 * (2 * (Math.tan(alphaMax / 2) - Math.tan(alphaMin / 2)) / (tapChanger.getStepCount() - 1));
+        // minus sign because in the UCT importer, alpha has sign inverted because in the UCT model PST is on side 2 and side1 on IIDM model
+        // we apply here the same transformation back
+        return -100 * (2 * (Math.tan(alphaStepMax / 2) - Math.tan(alphaStepMin / 2)) / (tapChanger.getStepCount() - 1));
     }
 
     /**
@@ -79,33 +79,8 @@ public final class UcteConverterHelper {
      * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
      * @return the δu needed to create a {@link UcteAngleRegulation}
      */
-    public static double calculateAsymmAngleDu(TwoWindingsTransformer twoWindingsTransformer) {
-        PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
-        int lowTapPosition = phaseTapChanger.getLowTapPosition();
-        int highTapPosition = phaseTapChanger.getHighTapPosition();
-        int tapNumber = phaseTapChanger.getStepCount();
-        double lowPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(lowTapPosition).getAlpha());
-        double lowPositionRho = 1 / phaseTapChanger.getStep(lowTapPosition).getRho();
-        double highPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(highTapPosition).getAlpha());
-        double highPositionRho = 1 / phaseTapChanger.getStep(highTapPosition).getRho();
-        double xa = lowPositionRho * Math.cos(lowPositionAlpha);
-        double ya = lowPositionRho * Math.sin(lowPositionAlpha);
-        double xb = highPositionRho * Math.cos(highPositionAlpha);
-        double yb = highPositionRho * Math.sin(highPositionAlpha);
-        double distance = Math.sqrt((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya));
-        double du = 100 * distance / (tapNumber - 1);
-        return BigDecimal.valueOf(du).setScale(4, RoundingMode.HALF_UP).doubleValue();
-    }
 
-    /**
-     * Calculate the Θ for the angle regulation of the two windings transformer
-     *
-     * Theta is the angle between the line (created by the 2 points Alpha and rho) and the abscissa line
-     *
-     * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
-     * @return the Θ needed to create a {@link UcteAngleRegulation}
-     */
-    public static double calculateAsymmAngleTheta(TwoWindingsTransformer twoWindingsTransformer) {
+    public static Complex calculateAsymmAngleDuAndAngle(TwoWindingsTransformer twoWindingsTransformer, boolean combinePhaseAngleRegulation) {
         PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
         int lowTapPosition = phaseTapChanger.getLowTapPosition();
         int highTapPosition = phaseTapChanger.getHighTapPosition();
@@ -117,6 +92,33 @@ public final class UcteConverterHelper {
         double ya = lowPositionRho * Math.sin(lowPositionAlpha);
         double xb = highPositionRho * Math.cos(highPositionAlpha);
         double yb = highPositionRho * Math.sin(highPositionAlpha);
-        return Math.toDegrees(Math.atan((yb - ya) / (xb - xa)));
+
+        double theta;
+        if (Math.abs(xb - xa) < 0.000000001) {
+            // we suppose that theta is equal to Pi/2 in this case
+            theta = Math.PI / 2.;
+        } else {
+            theta = Math.atan((yb - ya) / (xb - xa));
+        }
+        // the formula above gives actually the module of du, we need to verify the sign of du
+        if ((yb * highPositionRho - ya * lowPositionRho) / Math.sin(theta) < 0.) {
+            theta = theta - Math.PI;
+        }
+
+        int tapNumber = phaseTapChanger.getStepCount();
+        double distance = Math.sqrt((xb - xa) * (xb - xa) + (yb - ya) * (yb - ya));
+        double absDu = 100 * distance / (tapNumber - 1);
+        if (combinePhaseAngleRegulation) {
+            double r0Rtc = 1.0;
+            if (twoWindingsTransformer.getRatioTapChanger() != null) {
+                RatioTapChanger ratioTapChanger = twoWindingsTransformer.getRatioTapChanger();
+                int r0TapPosition = ratioTapChanger.getTapPosition();
+                r0Rtc = ratioTapChanger.getStep(r0TapPosition).getRho();
+            }
+            absDu = absDu / r0Rtc; // in the case of a combined RTC and PTC absDu includes rho0 of RTC
+        }
+
+        return ComplexUtils.polar2Complex(BigDecimal.valueOf(absDu).setScale(4, RoundingMode.HALF_UP).doubleValue(),
+                                          theta);
     }
 }

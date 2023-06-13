@@ -26,7 +26,6 @@ public interface LimitViolationDetector {
      * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
      * In case it should, feeds the consumer with it.
      *
-     *
      * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
      * @param branch        The branch on which the current must be checked.
      * @param side          The side of the branch on which the current must be checked.
@@ -122,7 +121,6 @@ public interface LimitViolationDetector {
      * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
      * In case it should, feeds the consumer with it.
      *
-     *
      * @param branch        The branch on which the current must be checked.
      * @param side          The side of the branch on which the current must be checked.
      * @param currentValue  The current value to be checked, in A.
@@ -135,7 +133,6 @@ public interface LimitViolationDetector {
      * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
      * In case it should, feeds the consumer with it.
      *
-     *
      * @param branch        The branch on which the current must be checked.
      * @param side          The side of the branch on which the current must be checked.
      * @param value         The active power value to be checked, in A.
@@ -147,7 +144,6 @@ public interface LimitViolationDetector {
      * Checks whether the specified apparent power value on the specified side
      * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
      * In case it should, feeds the consumer with it.
-     *
      *
      * @param branch        The branch on which the current must be checked.
      * @param side          The side of the branch on which the current must be checked.
@@ -166,6 +162,19 @@ public interface LimitViolationDetector {
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkCurrent(Branch branch, Branch.Side side, Consumer<LimitViolation> consumer);
+
+    /**
+     * Checks whether the current value on the specified side
+     * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     * In this DC power flow mode, the current is computed using the DC power factor if necessary.
+     *
+     * @param branch        The branch on which the current must be checked.
+     * @param side          The side of the branch on which the current must be checked.
+     * @param dcPowerFactor The DC power factor used to convert the active power into current.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    void checkCurrentDc(Branch branch, Branch.Side side, double dcPowerFactor, Consumer<LimitViolation> consumer);
 
     /**
      * Checks whether the specified voltage value on the specified {@link Bus}
@@ -209,6 +218,18 @@ public interface LimitViolationDetector {
     void checkCurrent(Branch branch, Consumer<LimitViolation> consumer);
 
     /**
+     * Checks whether the current value on both sides of the specified {@link Branch}
+     * should be considered as {@link LimitViolation}(s).
+     * In case it should, feeds the consumer with it.
+     * In this DC power flow mode, the current is computed using the DC power factor if necessary.
+     *
+     * @param branch        The branch on which the current must be checked.
+     * @param dcPowerFactor The DC power factor used to convert the active power into current.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    void checkCurrentDc(Branch branch, double dcPowerFactor, Consumer<LimitViolation> consumer);
+
+    /**
      * Checks whether the current and voltage values on all equipments
      * of the specified {@link Network} should be considered as {@link LimitViolation}s.
      * In case it should, feeds the consumer with it.
@@ -217,6 +238,18 @@ public interface LimitViolationDetector {
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkAll(Network network, Consumer<LimitViolation> consumer);
+
+    /**
+     * Checks whether the current and voltage values on all equipments
+     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     * In this DC power flow mode, the current is computed using the DC power factor if necessary.
+     *
+     * @param network       The network on which physical values must be checked.
+     * @param dcPowerFactor The DC power factor used to convert the active power into current.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    void checkAllDc(Network network, double dcPowerFactor, Consumer<LimitViolation> consumer);
 
     /**
      * Helper function to convert a limit type to a limit violation type
@@ -240,21 +273,17 @@ public interface LimitViolationDetector {
 
     /**
      * Generic implementation for permanent limit checks
-     * @param branch
-     * @param side
-     * @param value
-     * @param consumer
-     * @param type
      */
-    default void checkPermanentLimit(Branch<?> branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        if (LimitViolationUtils.checkPermanentLimit(branch, side, 1.0f, value, type)) {
+    default void checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
+            double limit = branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
             consumer.accept(new LimitViolation(branch.getId(),
-                    ((Branch<?>) branch).getOptionalName().orElse(null),
+                    branch.getOptionalName().orElse(null),
                     toLimitViolationType(type),
-                    null,
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
                     Integer.MAX_VALUE,
-                    branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new),
-                    1.0f,
+                    limit,
+                    limitReduction,
                     value,
                     side));
         }
@@ -262,22 +291,17 @@ public interface LimitViolationDetector {
 
     /**
      * Generic implementation for temporary limit checks
-     * @param branch
-     * @param side
-     * @param value
-     * @param consumer
-     * @param type
      */
-    default void checkTemporary(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, 1.0f, value, type);
+    default void checkTemporary(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
         if (overload != null) {
             consumer.accept(new LimitViolation(branch.getId(),
-                    ((Branch<?>) branch).getOptionalName().orElse(null),
+                    branch.getOptionalName().orElse(null),
                     toLimitViolationType(type),
                     overload.getPreviousLimitName(),
                     overload.getTemporaryLimit().getAcceptableDuration(),
                     overload.getPreviousLimit(),
-                    1.0f,
+                    limitReduction,
                     value,
                     side));
         }

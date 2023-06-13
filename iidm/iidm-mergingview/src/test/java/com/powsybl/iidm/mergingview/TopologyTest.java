@@ -7,30 +7,30 @@
 
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.VoltageLevel;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class TopologyTest {
+class TopologyTest {
 
     @Test
-    public void test() {
+    void test() {
         MergingView cgm = MergingViewFactory.createCGM(null);
         Network n1 = cgm.getNetwork("n1");
         Network n2 = cgm.getNetwork("n2");
         assertNotNull(n1);
         assertNotNull(n2);
 
-        Line mergedLine = cgm.getLine("DL1 + DL2");
+        TieLine mergedLine = cgm.getTieLine("DL1 + DL2");
         assertNotNull(mergedLine);
-        assertNotNull(mergedLine.getTerminal1().getBusView().getBus());
+        assertNotNull(mergedLine.getDanglingLine1().getTerminal().getBusView().getBus());
         // FIXME(mathbagu) assertNotNull(mergedLine.getTerminal2().getBusView().getBus());
 
         final String idVL1 = "VL1";

@@ -7,12 +7,12 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,22 +21,18 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.GridModelReference;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class TieFlowConversionTest {
+class TieFlowConversionTest {
 
     @Test
-    public void smallBaseCaseTieFlowMappedToSwitch() throws IOException {
+    void smallBaseCaseTieFlowMappedToSwitch() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(Cgmes3ModifiedCatalog.smallGridBaseCaseTieFlowMappedToSwitch(), config);
 
@@ -51,7 +47,7 @@ public class TieFlowConversionTest {
     }
 
     @Test
-    public void smallBaseCaseTieFlowMappedToEquivalentInjection() throws IOException {
+    void smallBaseCaseTieFlowMappedToEquivalentInjection() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(Cgmes3ModifiedCatalog.smallGridBaseCaseTieFlowMappedToEquivalentInjection(), config);
 
@@ -66,7 +62,7 @@ public class TieFlowConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection() throws IOException {
+    void microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToEquivalentInjection(), config);
 
@@ -81,7 +77,7 @@ public class TieFlowConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBEWithTieFlowMappedToSwitch() throws IOException {
+    void microGridBaseCaseBEWithTieFlowMappedToSwitch() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToSwitch(), config);
 
@@ -95,18 +91,9 @@ public class TieFlowConversionTest {
         });
     }
 
-    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) throws IOException {
-
-        ReadOnlyDataSource ds = testGridModel.dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
-
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-
+    private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {
         config.setConvertSvInjections(true);
-        Conversion c = new Conversion(cgmes, config);
-        Network n = c.convert();
-
-        return n;
+        return ConversionUtil.networkModel(testGridModel, config);
     }
 
     private static boolean containsTerminal(CgmesControlArea cgmesControlArea, String connectableId, IdentifiableType identifiableType) {
@@ -114,7 +101,7 @@ public class TieFlowConversionTest {
             t.getConnectable().getId(), t.getConnectable().getType()));
         if (!ok) {
             LOG.info("Terminal to find connectableId {} identifiableType {}", connectableId, identifiableType);
-            cgmesControlArea.getBoundaries().forEach(t -> LOG.info("Terminal inside cgmesControlArea connectableId {} identifiableType {}",
+            cgmesControlArea.getTerminals().forEach(t -> LOG.info("Terminal inside cgmesControlArea connectableId {} identifiableType {}",
                     t.getConnectable().getId(), t.getConnectable().getType()));
         }
         return ok;
@@ -122,11 +109,11 @@ public class TieFlowConversionTest {
 
     private static boolean containsBoundary(CgmesControlArea cgmesControlArea, String connectableId, IdentifiableType identifiableType) {
         boolean ok = cgmesControlArea.getBoundaries().stream().anyMatch(b -> isConnectableOk(connectableId, identifiableType,
-            b.getConnectable().getId(), b.getConnectable().getType()));
+            b.getDanglingLine().getId(), b.getDanglingLine().getType()));
         if (!ok) {
             LOG.info("Boundary to find connectableId {} identifiableType {}", connectableId, identifiableType);
-            cgmesControlArea.getBoundaries().forEach(b -> LOG.info("Boundary inside cgmesControlArea connectableId {} identifiableType {}",
-                    b.getConnectable().getId(), b.getConnectable().getType()));
+            cgmesControlArea.getBoundaries().forEach(b -> LOG.info("Boundary inside cgmesControlArea danglingLineId {}}",
+                    b.getDanglingLine().getId()));
         }
         return ok;
     }

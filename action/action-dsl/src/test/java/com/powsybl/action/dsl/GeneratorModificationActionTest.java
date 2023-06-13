@@ -7,47 +7,46 @@
 package com.powsybl.action.dsl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public class GeneratorModificationActionTest {
+class GeneratorModificationActionTest {
 
     private Network network;
     private Generator g;
 
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
-
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         network = EurostagTutorialExample1Factory.create();
         g = network.getGenerator("GEN");
     }
 
     @Test
-    public void testExceptionOnWrongGeneratorId() {
-        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
+    void testExceptionOnWrongGeneratorId() {
+        ActionDb actionDb = new ActionDslLoader(
+                new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("unknown generator");
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Generator 'UNKNOWN' not found");
-        action.run(network);
+        NetworkModification genModif = action.getModifications().get(0);
+        // should throw with ThrowException = true
+        PowsyblException e = assertThrows(PowsyblException.class, () -> genModif.apply(network, true, Reporter.NO_OP));
+        assertTrue(e.getMessage().contains("Generator 'UNKNOWN' not found"));
+        // should not throw with ThrowException = false (default)
+        assertDoesNotThrow(() -> genModif.apply(network));
     }
 
     @Test
-    public void testTargetVAndQWithVoltageRegulatorOff() {
+    void testTargetVAndQWithVoltageRegulatorOff() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetV and targetQ with voltageRegulator OFF");
         action.run(network);
@@ -60,7 +59,7 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testTargetVAndQWithVoltageRegulatorOn() {
+    void testTargetVAndQWithVoltageRegulatorOn() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetV and targetQ with voltageRegulator ON");
         action.run(network);
@@ -70,7 +69,7 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testDeltaTargetPInBoundaries() {
+    void testDeltaTargetPInBoundaries() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("deltaTargetP within boundaries");
         action.run(network);
@@ -78,7 +77,7 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testDeltaTargetPLowerBoundaryOverflow() {
+    void testDeltaTargetPLowerBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("deltaTargetP lower boundary overflow");
         action.run(network);
@@ -86,7 +85,7 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testDeltaTargetPUpperBoundaryOverflow() {
+    void testDeltaTargetPUpperBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("deltaTargetP upper boundary overflow");
         action.run(network);
@@ -94,7 +93,7 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testTargetPLowerBoundaryOverflow() {
+    void testTargetPLowerBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetP lower boundary overflow");
         action.run(network);
@@ -102,7 +101,7 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testTargetPUpperBoundaryOverflow() {
+    void testTargetPUpperBoundaryOverflow() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("targetP upper boundary overflow");
         action.run(network);
@@ -110,14 +109,13 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testBothTargetpAndDeltaTargetP() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("targetP/deltaTargetP actions are both found in generatorModification on 'GEN'");
-        new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/exception-generator-modification-action.groovy"))).load(network);
+    void testBothTargetpAndDeltaTargetP() {
+        PowsyblException e = assertThrows(PowsyblException.class, () -> new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/exception-generator-modification-action.groovy"))).load(network));
+        assertTrue(e.getMessage().contains("targetP/deltaTargetP actions are both found in generatorModification on 'GEN'"));
     }
 
     @Test
-    public void testConnectionOnOff() {
+    void testConnectionOnOff() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("disconnect");
         action.run(network);
@@ -128,7 +126,7 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testConnectionOnOffWithTargetPChange() {
+    void testConnectionOnOffWithTargetPChange() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("disconnect with targetP change");
         action.run(network);
@@ -141,7 +139,7 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testAlreadyAtTheConnectionStateAsked() {
+    void testAlreadyAtTheConnectionStateAsked() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("connect");
         action.run(network);
@@ -154,7 +152,7 @@ public class GeneratorModificationActionTest {
     }
 
     @Test
-    public void testConnectionOnOffWithTargetVChange() {
+    void testConnectionOnOffWithTargetVChange() {
         ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/generator-modification-action.groovy"))).load(network);
         Action action = actionDb.getAction("disconnect");
         action.run(network);

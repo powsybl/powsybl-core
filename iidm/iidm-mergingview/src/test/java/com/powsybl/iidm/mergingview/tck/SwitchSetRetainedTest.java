@@ -11,4 +11,4 @@ import com.powsybl.iidm.network.tck.AbstractSwitchSetRetainedTest;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class SwitchSetRetainedTest extends AbstractSwitchSetRetainedTest { }
+class SwitchSetRetainedTest extends AbstractSwitchSetRetainedTest { }

@@ -6,120 +6,28 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.*;
+
+import java.util.Collection;
+import java.util.Optional;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class TieLineAdapter extends LineAdapter implements TieLine {
+public class TieLineAdapter extends AbstractIdentifiableAdapter<TieLine> implements TieLine {
 
-    class TieLineHalfLineAdapter extends AbstractAdapter<HalfLine> implements HalfLine {
-
-        TieLineHalfLineAdapter(HalfLine delegate, MergingViewIndex index) {
-            super(delegate, index);
-        }
-
-        @Override
-        public double getR() {
-            return getDelegate().getR();
-        }
-
-        @Override
-        public HalfLine setR(double r) {
-            getDelegate().setR(r);
-            return this;
-        }
-
-        @Override
-        public double getX() {
-            return getDelegate().getX();
-        }
-
-        @Override
-        public HalfLine setX(double x) {
-            getDelegate().setX(x);
-            return this;
-        }
-
-        @Override
-        public double getG1() {
-            return getDelegate().getG1();
-        }
-
-        @Override
-        public HalfLine setG1(double g1) {
-            getDelegate().setG1(g1);
-            return this;
-        }
-
-        @Override
-        public double getG2() {
-            return getDelegate().getG2();
-        }
-
-        @Override
-        public HalfLine setG2(double g2) {
-            getDelegate().setG2(g2);
-            return this;
-        }
-
-        @Override
-        public double getB1() {
-            return getDelegate().getB1();
-        }
-
-        @Override
-        public HalfLine setB1(double b1) {
-            getDelegate().setB1(b1);
-            return this;
-        }
-
-        @Override
-        public double getB2() {
-            return getDelegate().getB2();
-        }
-
-        @Override
-        public HalfLine setB2(double b2) {
-            getDelegate().setB2(b2);
-            return this;
-        }
-
-        @Override
-        public String getId() {
-            return getDelegate().getId();
-        }
-
-        @Override
-        public String getName() {
-            return getDelegate().getName();
-        }
-
-        @Override
-        public Boundary getBoundary() {
-            return getIndex().getBoundary(getDelegate().getBoundary());
-        }
-
-        @Override
-        public boolean isFictitious() {
-            return getDelegate().isFictitious();
-        }
-
-        @Override
-        public HalfLine setFictitious(boolean fictitious) {
-            getDelegate().setFictitious(fictitious);
-            return this;
-        }
-    }
-
-    private final HalfLine half1;
-    private final HalfLine half2;
+    private final DanglingLine danglingLine1;
+    private final DanglingLine danglingLine2;
 
     TieLineAdapter(final TieLine delegate, final MergingViewIndex index) {
         super(delegate, index);
-        this.half1 = new TieLineHalfLineAdapter(delegate.getHalf1(), index);
-        this.half2 = new TieLineHalfLineAdapter(delegate.getHalf2(), index);
+        this.danglingLine1 = index.getDanglingLine(delegate.getDanglingLine1());
+        this.danglingLine2 = index.getDanglingLine(delegate.getDanglingLine2());
+    }
+
+    @Override
+    public final void remove() {
+        throw MergingView.createNotImplementedException();
     }
 
     // -------------------------------
@@ -127,28 +35,274 @@ public class TieLineAdapter extends LineAdapter implements TieLine {
     // -------------------------------
     @Override
     public String getUcteXnodeCode() {
-        return ((TieLine) getDelegate()).getUcteXnodeCode();
+        return (getDelegate()).getUcteXnodeCode();
     }
 
     @Override
-    public HalfLine getHalf1() {
-        return half1;
+    public DanglingLine getDanglingLine1() {
+        return danglingLine1;
     }
 
     @Override
-    public HalfLine getHalf2() {
-        return half2;
+    public DanglingLine getDanglingLine2() {
+        return danglingLine2;
     }
 
     @Override
-    public HalfLine getHalf(Side side) {
+    public DanglingLine getDanglingLine(Branch.Side side) {
         switch (side) {
             case ONE:
-                return half1;
+                return danglingLine1;
             case TWO:
-                return half2;
+                return danglingLine2;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new IllegalStateException("Unexpected side: " + side);
         }
+    }
+
+    @Override
+    public DanglingLine getDanglingLine(String voltageLevelId) {
+
+        if (danglingLine1.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine1;
+        }
+        if (danglingLine2.getTerminal().getVoltageLevel().getId().equals(voltageLevelId)) {
+            return danglingLine2;
+        }
+        return null;
+    }
+
+    @Override
+    public double getR() {
+        return getDelegate().getR();
+    }
+
+    @Override
+    public double getX() {
+        return getDelegate().getX();
+    }
+
+    @Override
+    public double getG1() {
+        return getDelegate().getG1();
+    }
+
+    @Override
+    public double getG2() {
+        return getDelegate().getG2();
+    }
+
+    @Override
+    public double getB1() {
+        return getDelegate().getB1();
+    }
+
+    @Override
+    public double getB2() {
+        return getDelegate().getB2();
+    }
+
+    @Override
+    public Terminal getTerminal1() {
+        return getIndex().getTerminal(getDelegate().getTerminal1());
+    }
+
+    @Override
+    public Terminal getTerminal2() {
+        return getIndex().getTerminal(getDelegate().getTerminal2());
+    }
+
+    @Override
+    public Terminal getTerminal(final Side side) {
+        return getIndex().getTerminal(getDelegate().getTerminal(side));
+    }
+
+    @Override
+    public Terminal getTerminal(final String voltageLevelId) {
+        return getIndex().getTerminal(getDelegate().getTerminal(voltageLevelId));
+    }
+
+    @Override
+    public Side getSide(final Terminal terminal) {
+        Terminal terminalCopied = terminal;
+        if (terminalCopied instanceof TerminalAdapter) {
+            terminalCopied = ((TerminalAdapter) terminalCopied).getDelegate();
+        }
+        return getDelegate().getSide(terminalCopied);
+    }
+
+    @Override
+    public Collection<OperationalLimits> getOperationalLimits1() {
+        return getDelegate().getOperationalLimits1();
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits1() {
+        return getDelegate().getCurrentLimits1();
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits1() {
+        return getDelegate().getNullableCurrentLimits1();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits1() {
+        return getDelegate().getActivePowerLimits1();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits1() {
+        return getDelegate().getNullableActivePowerLimits1();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
+        return getDelegate().getApparentPowerLimits1();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits1() {
+        return getDelegate().getNullableApparentPowerLimits1();
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits1() {
+        return getDelegate().newCurrentLimits1();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        return getDelegate().newApparentPowerLimits1();
+    }
+
+    @Override
+    public Collection<OperationalLimits> getOperationalLimits2() {
+        return getDelegate().getOperationalLimits2();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        return getDelegate().newActivePowerLimits1();
+    }
+
+    @Override
+    public Optional<CurrentLimits> getCurrentLimits2() {
+        return getDelegate().getCurrentLimits2();
+    }
+
+    @Override
+    public CurrentLimits getNullableCurrentLimits2() {
+        return getDelegate().getNullableCurrentLimits2();
+    }
+
+    @Override
+    public Optional<ActivePowerLimits> getActivePowerLimits2() {
+        return getDelegate().getActivePowerLimits2();
+    }
+
+    @Override
+    public ActivePowerLimits getNullableActivePowerLimits2() {
+        return getDelegate().getNullableActivePowerLimits2();
+    }
+
+    @Override
+    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
+        return getDelegate().getApparentPowerLimits2();
+    }
+
+    @Override
+    public ApparentPowerLimits getNullableApparentPowerLimits2() {
+        return getDelegate().getNullableApparentPowerLimits2();
+    }
+
+    @Override
+    public CurrentLimitsAdder newCurrentLimits2() {
+        return getDelegate().newCurrentLimits2();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        return getDelegate().newApparentPowerLimits2();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        return getDelegate().newActivePowerLimits2();
+    }
+
+    @Override
+    public boolean isOverloaded() {
+        return getDelegate().isOverloaded();
+    }
+
+    @Override
+    public boolean isOverloaded(final float limitReduction) {
+        return getDelegate().isOverloaded(limitReduction);
+    }
+
+    @Override
+    public int getOverloadDuration() {
+        return getDelegate().getOverloadDuration();
+    }
+
+    @Override
+    public boolean checkPermanentLimit(final Side side, final float limitReduction, LimitType type) {
+        return getDelegate().checkPermanentLimit(side, limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit(final Side side, LimitType type) {
+        return getDelegate().checkPermanentLimit(side, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(final float limitReduction, LimitType type) {
+        return getDelegate().checkPermanentLimit1(limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1(LimitType type) {
+        return getDelegate().checkPermanentLimit1(type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(final float limitReduction, LimitType type) {
+        return getDelegate().checkPermanentLimit2(limitReduction, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2(LimitType type) {
+        return getDelegate().checkPermanentLimit2(type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits(final Side side, final float limitReduction, LimitType type) {
+        return getDelegate().checkTemporaryLimits(side, limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits(final Side side, LimitType type) {
+        return getDelegate().checkTemporaryLimits(side, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits1(final float limitReduction, LimitType type) {
+        return getDelegate().checkTemporaryLimits1(limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits1(LimitType type) {
+        return getDelegate().checkTemporaryLimits1(type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2(final float limitReduction, LimitType type) {
+        return getDelegate().checkTemporaryLimits2(limitReduction, type);
+    }
+
+    @Override
+    public Overload checkTemporaryLimits2(LimitType type) {
+        return getDelegate().checkTemporaryLimits2(type);
     }
 }
