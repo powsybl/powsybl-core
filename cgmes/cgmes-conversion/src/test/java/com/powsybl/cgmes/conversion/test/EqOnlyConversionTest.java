@@ -11,7 +11,7 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Paths;
+import java.io.File;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,7 +24,7 @@ class EqOnlyConversionTest {
 
     @Test
     void testTeePointBusBranch() {
-        Network network = Network.read(Paths.get(getClass().getResource("/t-line.xml").getPath()),
+        Network network = Network.read(new File(getClass().getResource("/t-line.xml").getFile()).toPath(),
                 LocalComputationManager.getDefault(),
                 ImportConfig.load(),
                 new Properties());
