@@ -22,13 +22,11 @@ import org.apache.commons.math3.complex.ComplexUtils;
 public class SV {
 
     /**
-     * In this class, lines, two windings transformers, half line and dangling lines can be considered as equivalent branches.
+     * In this class, lines, two windings transformers and dangling lines can be considered as equivalent branches.
      * <p><div>
      * <object data="doc-files/SV.svg" type="image/svg+xml">
      * </object> </div>
      * For dangling lines, side ONE is always on network's side and side TWO is always on boundary's side. <br>
-     * For half lines, if the half line is on the side ONE of its tie line, side ONE is on network's side and side TWO is on boundary's side; <br>
-     * if the half line is on the side TWO of its tie line, side ONE is on boundary's side and side TWO is on network's side.
      * @param p active power flow on the side of the branch we consider.
      * @param q reactive power flow on the side of the branch we consider
      * @param u voltage on the side of the branch we consider.
@@ -41,18 +39,6 @@ public class SV {
         this.u = u;
         this.a = a;
         this.side = side;
-    }
-
-    /**
-     * @deprecated Not used anymore. The end associated to the voltage and flow must be defined. Use {@link #SV(double, double, double, double, Branch.Side)} instead.
-     */
-    @Deprecated(since = "4.3.0")
-    public SV(double p, double q, double u, double a) {
-        this.p = p;
-        this.q = q;
-        this.u = u;
-        this.a = a;
-        this.side = Branch.Side.ONE;
     }
 
     private final double p;
@@ -85,182 +71,94 @@ public class SV {
         return side;
     }
 
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSide(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public SV otherSide(double r, double x, double g, double b, double rho) {
-        return otherSide(r, x, g / 2, b / 2, g / 2, b / 2, rho, 0.0);
-    }
-
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSide(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        return otherSide(r, x, g1, b1, g2, b2, rho, 0.0);
-    }
-
     public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
-            new Complex(g1, b1), new Complex(g2, b2));
-        return otherSide(adm);
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN);
     }
 
     public SV otherSide(Line l) {
-        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0);
+        double zb = l.getTerminal1().getVoltageLevel().getNominalV() * l.getTerminal2().getVoltageLevel().getNominalV();
+        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0, zb);
     }
 
     public SV otherSide(TieLine l) {
-        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0);
-    }
-
-    /**
-     * @deprecated Should not be used anymore. Use {@link SV#otherSide(Line)} instead.
-     */
-    @Deprecated(since = "4.3.0")
-    public SV otherSideY1Y2(Line l) {
-        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1, 0.0);
+        double zb = l.getDanglingLine1().getTerminal().getVoltageLevel().getNominalV() * l.getDanglingLine2().getTerminal().getVoltageLevel().getNominalV();
+        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0, zb);
     }
 
     public SV otherSide(TwoWindingsTransformer twt) {
-        return otherSide(getR(twt), getX(twt), getG(twt), getB(twt), 0.0, 0.0, getRho(twt), getAlpha(twt));
+        double zbase = twt.getTerminal2().getVoltageLevel().getNominalV() * twt.getTerminal2().getVoltageLevel().getNominalV();
+        return otherSide(getR(twt), getX(twt), getG(twt), getB(twt), 0.0, 0.0, getRho(twt), getAlpha(twt), zbase);
     }
 
     public SV otherSide(TwoWindingsTransformer twt, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
-            return otherSide(getR(twt), getX(twt), getG(twt) * 0.5, getB(twt) * 0.5, getG(twt) * 0.5, getB(twt) * 0.5, getRho(twt), getAlpha(twt));
+            double zb = twt.getTerminal2().getVoltageLevel().getNominalV() * twt.getTerminal2().getVoltageLevel().getNominalV();
+            return otherSide(getR(twt), getX(twt), getG(twt) * 0.5, getB(twt) * 0.5, getG(twt) * 0.5, getB(twt) * 0.5, getRho(twt), getAlpha(twt), zb);
         } else {
             return otherSide(twt);
         }
     }
 
     public SV otherSide(DanglingLine dl) {
-        return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        double zb = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
+        return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0, zb);
     }
 
     public SV otherSide(DanglingLine dl, boolean splitShuntAdmittance) {
         if (splitShuntAdmittance) {
-            return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+            double zb = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
+            return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0, zb);
         } else {
             return otherSide(dl);
         }
     }
 
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSideP(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        return otherSideP(r, x, g1, b1, g2, b2, rho, 0.0);
-    }
-
     public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
-            new Complex(g1, b1), new Complex(g2, b2));
-        return otherSideP(adm);
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getP();
     }
 
     public double otherSideP(DanglingLine dl) {
-        return otherSideP(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        return otherSide(dl).getP();
     }
 
     public double otherSideP(DanglingLine dl, boolean splitShuntAdmittance) {
-        if (splitShuntAdmittance) {
-            return otherSideP(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
-        } else {
-            return otherSideP(dl);
-        }
-    }
-
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSideQ(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        return otherSideQ(r, x, g1, b1, g2, b2, rho, 0.0);
+        return otherSide(dl, splitShuntAdmittance).getP();
     }
 
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
-            new Complex(g1, b1), new Complex(g2, b2));
-        return otherSideQ(adm);
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getQ();
     }
 
     public double otherSideQ(DanglingLine dl) {
-        return otherSideQ(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        return otherSide(dl).getQ();
     }
 
     public double otherSideQ(DanglingLine dl, boolean splitShuntAdmittance) {
-        if (splitShuntAdmittance) {
-            return otherSideQ(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
-        } else {
-            return otherSideQ(dl);
-        }
-    }
-
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSideU(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public double otherSideU(double r, double x, double g1, double b1, double rho) {
-        return otherSideU(r, x, g1, b1, 0.0, 0.0, rho, 0.0);
+        return otherSide(dl, splitShuntAdmittance).getQ();
     }
 
     public double otherSideU(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
-            new Complex(g1, b1), new Complex(g2, b2));
-        return otherSideU(adm);
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getU();
     }
 
     public double otherSideU(DanglingLine dl) {
-        return otherSideU(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        return otherSide(dl).getU();
     }
 
     public double otherSideU(DanglingLine dl, boolean splitShuntAdmittance) {
-        if (splitShuntAdmittance) {
-            return otherSideU(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
-        } else {
-            return otherSideU(dl);
-        }
-    }
-
-    /**
-     * @deprecated Not used anymore. This version with a simplified view of the parameters
-     * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
-     * {@link SV#otherSideA(double, double, double, double, double, double, double, double)}
-     */
-    @Deprecated(since = "4.3.0")
-    public double otherSideA(double r, double x, double g1, double b1, double rho) {
-        return otherSideA(r, x, g1, b1, 0.0, 0.0, rho, 0.0);
+        return otherSide(dl, splitShuntAdmittance).getU();
     }
 
     public double otherSideA(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
-        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
-            new Complex(g1, b1), new Complex(g2, b2));
-        return otherSideA(adm);
+        return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getA();
     }
 
     public double otherSideA(DanglingLine dl) {
-        return otherSideA(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        return otherSide(dl).getA();
     }
 
     public double otherSideA(DanglingLine dl, boolean splitShuntAdmittance) {
-        if (splitShuntAdmittance) {
-            return otherSideA(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
-        } else {
-            return otherSideA(dl);
-        }
+        return otherSide(dl, splitShuntAdmittance).getA();
     }
 
     private static double getRho(TwoWindingsTransformer twt) {
@@ -331,6 +229,27 @@ public class SV {
         return "p=" + p + ", q=" + q + ", u=" + u + ", a=" + a + ", end=" + side;
     }
 
+    private boolean isAllDataForCalculatingOtherSide() {
+        return !(Double.isNaN(p) || Double.isNaN(q) || Double.isNaN(u) || Double.isNaN(a));
+    }
+
+    private boolean isAllDataForCalculatingOtherSideDcApproximation(double zbase) {
+        return !(Double.isNaN(p) || Double.isNaN(a) || Double.isNaN(zbase));
+    }
+
+    private SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha, double zb) {
+        if (isAllDataForCalculatingOtherSide()) {
+            LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
+                new Complex(g1, b1), new Complex(g2, b2));
+            return otherSide(adm);
+        } else if (isAllDataForCalculatingOtherSideDcApproximation(zb)) {
+            return otherSideDcApproximation(x, 1 / rho, -alpha, zb, true); // we always consider useRatio true
+        } else {
+            Branch.Side otherSide = (side == Branch.Side.ONE) ? Branch.Side.TWO : Branch.Side.ONE;
+            return new SV(Double.NaN, Double.NaN, Double.NaN, Double.NaN, otherSide);
+        }
+    }
+
     private SV otherSide(LinkData.BranchAdmittanceMatrix adm) {
         Complex v;
         Complex s;
@@ -351,34 +270,20 @@ public class SV {
         return new SV(s.getReal(), s.getImaginary(), v.abs(), Math.toDegrees(v.getArgument()), otherSide);
     }
 
-    private double otherSideP(LinkData.BranchAdmittanceMatrix adm) {
-        return otherSide(adm).getP();
-    }
-
-    private double otherSideQ(LinkData.BranchAdmittanceMatrix adm) {
-        return otherSide(adm).getQ();
-    }
-
-    private Complex otherSideV(LinkData.BranchAdmittanceMatrix adm) {
-        Complex v;
+    private SV otherSideDcApproximation(double x, double ratio, double angle, double zb, boolean useRatio) {
+        double pOtherSide = -p;
+        double xpu = x / zb;
+        double b = useRatio ? 1 / (xpu * ratio) : 1 / xpu;
+        double aOtherSide;
+        Branch.Side otherSide;
         if (side == Branch.Side.ONE) {
-            Complex v1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
-            Complex s1 = new Complex(p, q);
-            v = voltageAtEnd2(adm, v1, s1);
+            aOtherSide = Math.toDegrees(Math.toRadians(a) - angle - p / b);
+            otherSide = Branch.Side.TWO;
         } else {
-            Complex v2 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
-            Complex s2 = new Complex(p, q);
-            v = voltageAtEnd1(adm, v2, s2);
+            aOtherSide = Math.toDegrees(Math.toRadians(a) + angle - p / b);
+            otherSide = Branch.Side.ONE;
         }
-        return v;
-    }
-
-    private double otherSideU(LinkData.BranchAdmittanceMatrix adm) {
-        return otherSideV(adm).abs();
-    }
-
-    private double otherSideA(LinkData.BranchAdmittanceMatrix adm) {
-        return Math.toDegrees(otherSideV(adm).getArgument());
+        return new SV(pOtherSide, Double.NaN, Double.NaN, aOtherSide, otherSide);
     }
 
     // Get V2 from Y11.V1 + Y12.V2 = S1* / V1*

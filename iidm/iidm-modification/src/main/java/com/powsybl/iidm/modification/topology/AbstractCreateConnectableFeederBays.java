@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -140,11 +141,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
             Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
             if (busOrBusbarSection == null) {
-                LOGGER.error("Identifiable {} not found.", busOrBusbarSectionId);
-                notFoundIdentifiableReport(reporter, busOrBusbarSectionId);
-                if (throwException) {
-                    throw new PowsyblException(String.format("Identifiable %s not found.", busOrBusbarSectionId));
-                }
+                ModificationLogs.busOrBbsDoesNotExist(busOrBusbarSectionId, reporter, throwException);
                 return false;
             }
             if (busOrBusbarSection instanceof Bus) {
