@@ -25,7 +25,7 @@ import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
 /**
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-public class ExtendedAmplExporterTest extends AbstractConverterTest {
+class ExtendedAmplExporterTest extends AbstractConverterTest {
 
     private AmplExportConfig v2Config;
 
@@ -44,7 +44,7 @@ public class ExtendedAmplExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testSlackBusExport() throws IOException {
+    void testSlackBusExport() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         VoltageLevel vlGen = network.getVoltageLevel("VLLOAD");
         Bus bus = vlGen.getBusBreakerView().getBus("NLOAD");
@@ -59,7 +59,7 @@ public class ExtendedAmplExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testNewTapExport() throws IOException {
+    void testNewTapExport() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
 
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformers().iterator().next();
@@ -73,7 +73,7 @@ public class ExtendedAmplExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testRegulatingBusIdExportGenerators() throws IOException {
+    void testRegulatingBusIdExportGenerators() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
         network.getGenerator("GEN").setVoltageRegulatorOn(false);
 
@@ -85,7 +85,7 @@ public class ExtendedAmplExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testRegulatingBusIdExportSvc() throws IOException {
+    void testRegulatingBusIdExportSvc() throws IOException {
         Network network = SvcTestCaseFactory.createWithMoreSVCs();
         network.getStaticVarCompensator("SVC2").setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
         MemDataSource dataSource = new MemDataSource();
