@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -225,9 +225,10 @@ public abstract class AbstractCgmesMappingTest extends AbstractConverterTest {
                 )
                 .flatMap(id -> id)
                 .filter(id -> !isValidCimMasterRID(id));
-        assertEquals(String.format("Identifiers not valid as CIM mRIDs : %s", badIds.get().collect(Collectors.joining(","))),
+        assertEquals(
                 0,
-                badIds.get().count());
+                badIds.get().count(),
+                String.format("Identifiers not valid as CIM mRIDs : %s", badIds.get().collect(Collectors.joining(","))));
     }
 
     private static SortedSet<String> buildBusIdsBasedOnConnectedEquipment(Iterable<Bus> buses) {
