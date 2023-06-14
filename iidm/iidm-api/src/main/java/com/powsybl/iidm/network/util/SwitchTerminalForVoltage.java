@@ -36,9 +36,11 @@ public class SwitchTerminalForVoltage {
 
         ConnectivityInspector<SwNode, DefaultWeightedEdge> ci = new ConnectivityInspector<>(graph);
         this.terminal1 = ci.connectedSetOf(swNode1).stream()
+            .sorted(Comparator.comparing(SwitchTerminalForVoltage::getKey))
             .map(swNode -> terminalWithBus(swNode, sw.getVoltageLevel())).filter(Objects::nonNull)
             .findFirst().orElse(null);
         this.terminal2 = ci.connectedSetOf(swNode2).stream()
+            .sorted(Comparator.comparing(SwitchTerminalForVoltage::getKey))
             .map(swNode -> terminalWithBus(swNode, sw.getVoltageLevel())).filter(Objects::nonNull)
             .findFirst().orElse(null);
     }
@@ -62,23 +64,27 @@ public class SwitchTerminalForVoltage {
     private static void buildGraphFromNodeBreaker(Switch swRef, Map<String, SwNode> swNodeKey,
         SimpleWeightedGraph<SwNode, DefaultWeightedEdge> graph) {
         swRef.getVoltageLevel().getNodeBreakerView().getSwitches().forEach(sw -> {
-            if (swRef.equals(sw) || sw.isOpen()) {
+            if (!sw.equals(swRef) && sw.isOpen()) {
                 return;
             }
-            SwNode swNode1 = addSwNode(swNodeKey, swRef.getVoltageLevel().getNodeBreakerView().getNode1(sw.getId()));
-            SwNode swNode2 = addSwNode(swNodeKey, swRef.getVoltageLevel().getNodeBreakerView().getNode2(sw.getId()));
-            // Discard loops
-            if (swNode1 == swNode2) {
-                return;
-            }
+            SwNode swNode1 = addSwNode(swNodeKey, sw.getVoltageLevel().getNodeBreakerView().getNode1(sw.getId()));
+            SwNode swNode2 = addSwNode(swNodeKey, sw.getVoltageLevel().getNodeBreakerView().getNode2(sw.getId()));
+
+            // swNodes of the reference switch must be added
             graph.addVertex(swNode1);
             graph.addVertex(swNode2);
+
+            // Discard loops and the reference switch
+            if (swNode1 == swNode2 || sw.equals(swRef)) {
+                return;
+            }
             graph.addEdge(swNode1, swNode2);
         });
 
         swRef.getVoltageLevel().getNodeBreakerView().getInternalConnections().forEach(ic -> {
             SwNode swNode1 = addSwNode(swNodeKey, ic.getNode1());
             SwNode swNode2 = addSwNode(swNodeKey, ic.getNode2());
+
             // Discard loops
             if (swNode1 == swNode2) {
                 return;
@@ -92,17 +98,20 @@ public class SwitchTerminalForVoltage {
     private static void buildGraphFromBusBreaker(Switch swRef, Map<String, SwNode> swNodeKey,
         SimpleWeightedGraph<SwNode, DefaultWeightedEdge> graph) {
         swRef.getVoltageLevel().getBusBreakerView().getSwitches().forEach(sw -> {
-            if (swRef.equals(sw) || sw.isOpen()) {
+            if (!sw.equals(swRef) && sw.isOpen()) {
                 return;
             }
-            SwNode swNode1 = addSwNode(swNodeKey, swRef.getVoltageLevel().getBusBreakerView().getBus1(sw.getId()));
-            SwNode swNode2 = addSwNode(swNodeKey, swRef.getVoltageLevel().getBusBreakerView().getBus2(sw.getId()));
-            // Discard loops
-            if (swNode1 == swNode2) {
-                return;
-            }
+            SwNode swNode1 = addSwNode(swNodeKey, sw.getVoltageLevel().getBusBreakerView().getBus1(sw.getId()));
+            SwNode swNode2 = addSwNode(swNodeKey, sw.getVoltageLevel().getBusBreakerView().getBus2(sw.getId()));
+
+            // swNodes of the reference switch must be added
             graph.addVertex(swNode1);
             graph.addVertex(swNode2);
+
+            // Discard loops and the reference switch
+            if (swNode1 == swNode2 || sw.equals(swRef)) {
+                return;
+            }
             graph.addEdge(swNode1, swNode2);
         });
     }
@@ -166,7 +175,15 @@ public class SwitchTerminalForVoltage {
     }
 
     private static String getKey(Bus bus) {
-        return String.format("B-%s", bus);
+        return String.format("B-%s", bus.getId());
+    }
+
+    private static String getKey(SwNode swNode) {
+        if (swNode.isNodeBreaker()) {
+            return getKey(swNode.node);
+        } else {
+            return getKey(swNode.bus);
+        }
     }
 
     private static final class SwNode {
