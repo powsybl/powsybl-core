@@ -518,6 +518,9 @@ public class Conversion {
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
         vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", vldata.lineId);
+        if (!context.nodeBreaker()) {
+            vl.getBusBreakerView().newBus().setId(vldata.nodeId).add();
+        }
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {

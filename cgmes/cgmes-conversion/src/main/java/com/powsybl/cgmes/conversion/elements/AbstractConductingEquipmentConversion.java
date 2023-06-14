@@ -506,7 +506,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 // its ID is composed by its connectivity node ID + '_VL' sufix
                 voltageLevel = context.network().getVoltageLevel(nodeId + "_VL");
                 if (voltageLevel != null) {
-                    iidmVoltageLevelId = t.connectivityNode() + "_VL";
+                    iidmVoltageLevelId = nodeId + "_VL";
                 } else {
                     iidmVoltageLevelId = null;
                 }
