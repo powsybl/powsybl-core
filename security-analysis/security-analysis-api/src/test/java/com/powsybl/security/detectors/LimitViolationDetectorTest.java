@@ -98,6 +98,35 @@ class LimitViolationDetectorTest {
         }
     }
 
+    private void doCheckVoltageAngle(Contingency contingency, VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
+        // TODO JAM
+        /***
+        if (bus.getVoltageLevel() == voltageLevel1) {
+            consumer.accept(LimitViolations.highVoltage()
+                    .subject(bus.getVoltageLevel().getId())
+                    .value(500)
+                    .limit(420)
+                    .build());
+        }
+
+        if (bus.getVoltageLevel() == genVoltageLevel) {
+            consumer.accept(LimitViolations.lowVoltage()
+                    .subject(bus.getVoltageLevel().getId())
+                    .value(350)
+                    .limit(380)
+                    .build());
+        }
+
+        if (contingency == contingency1 && bus.getVoltageLevel() == loadVoltageLevel) {
+            consumer.accept(LimitViolations.highVoltage()
+                    .subject(bus.getVoltageLevel().getId())
+                    .value(500)
+                    .limit(420)
+                    .build());
+        }
+        ***/
+    }
+
     private LimitViolationDetector contingencyBlindDetector() {
         return new AbstractContingencyBlindDetector() {
             @Override
@@ -108,6 +137,11 @@ class LimitViolationDetectorTest {
             @Override
             public void checkVoltage(Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
                 doCheckVoltage(null, bus, consumer);
+            }
+
+            @Override
+            public void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, double voltageAngleDifference, Consumer<LimitViolation> consumer) {
+                doCheckVoltageAngle(null, voltageAngleLimit, consumer);
             }
 
             @Override
@@ -130,6 +164,11 @@ class LimitViolationDetectorTest {
             @Override
             public void checkVoltage(Contingency contingency, Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
                 doCheckVoltage(contingency, bus, consumer);
+            }
+
+            @Override
+            public void checkVoltageAngle(Contingency contingency, VoltageAngleLimit voltageAngleLimit, double voltageAngleDifference, Consumer<LimitViolation> consumer) {
+                doCheckVoltageAngle(contingency, voltageAngleLimit, consumer);
             }
 
             @Override

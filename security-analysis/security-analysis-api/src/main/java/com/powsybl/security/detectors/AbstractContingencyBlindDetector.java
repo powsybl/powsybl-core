@@ -9,10 +9,13 @@ package com.powsybl.security.detectors;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageAngleLimit;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetector;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -58,6 +61,26 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
         voltageLevel.getBusView().getBusStream().forEach(b -> checkVoltage(b, consumer));
     }
 
+    /**
+     * This implementation takes the voltageAngle difference to be checked from the Network.
+     */
+    @Override
+    public void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
+        Optional<Terminal> terminalFrom = voltageAngleLimit.getTerminalFrom();
+        Optional<Terminal> terminalTo = voltageAngleLimit.getTerminalTo();
+        if (terminalFrom.isPresent() && terminalTo.isPresent()) {
+            Bus busFrom = terminalFrom.get().getBusView().getBus();
+            Bus busTo = terminalTo.get().getBusView().getBus();
+            if (busFrom != null && busTo != null
+                && busFrom.getConnectedComponent().equals(busTo.getConnectedComponent())) {
+
+                double voltageAngleDifference = terminalFrom.get().getBusView().getBus().getAngle();
+                voltageAngleDifference -= terminalTo.get().getBusView().getBus().getAngle();
+                checkVoltageAngle(voltageAngleLimit, voltageAngleDifference, consumer);
+            }
+        }
+    }
+
     @Override
     public void checkCurrent(Branch branch, Consumer<LimitViolation> consumer) {
         checkCurrent(branch, Branch.Side.ONE, consumer);
@@ -74,12 +97,14 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     public void checkAll(Network network, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrent(b, consumer));
         network.getVoltageLevelStream()
-                .flatMap(v -> v.getBusView().getBusStream())
+                .flatMap(vl -> vl.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(b, consumer));
+        network.getVoltageAngleLimits().stream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
     }
 
     @Override
     public void checkAllDc(Network network, double dcPowerFactor, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, consumer));
+        network.getVoltageAngleLimits().stream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
     }
 }

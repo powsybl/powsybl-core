@@ -53,6 +53,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
+    private final List<VoltageAngleLimit> voltageAngleLimits = new ArrayList<>();
+
     class BusBreakerViewImpl implements BusBreakerView {
 
         @Override
@@ -711,6 +713,20 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public int getConnectableCount() {
         return Ints.checkedCast(getConnectableStream().count());
+    }
+
+    void addVoltageAngleLimit(VoltageAngleLimit voltageAngleLimit) {
+        voltageAngleLimits.add(voltageAngleLimit);
+    }
+
+    @Override
+    public VoltageAngleLimitAdder newVoltageAngleLimit() {
+        return new VoltageAngleLimitAdderImpl(ref);
+    }
+
+    @Override
+    public List<VoltageAngleLimit> getVoltageAngleLimits() {
+        return voltageAngleLimits;
     }
 
     @Override

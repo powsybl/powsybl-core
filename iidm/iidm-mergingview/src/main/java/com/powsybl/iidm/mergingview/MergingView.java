@@ -12,6 +12,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
+
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -926,5 +927,17 @@ public final class MergingView implements Network, MultiVariantObject {
     @Override
     public ValidationLevel getValidationLevel() {
         return index.getNetworkStream().map(Network::getValidationLevel).min(ValidationLevel::compareTo).orElseThrow(IllegalStateException::new);
+    }
+
+    // VoltageAngleLimit
+
+    @Override
+    public VoltageAngleLimitAdder newVoltageAngleLimit() {
+        return null; // TODO JAM
+    }
+
+    @Override
+    public List<VoltageAngleLimit> getVoltageAngleLimits() {
+        return null; // TODO JAM
     }
 }

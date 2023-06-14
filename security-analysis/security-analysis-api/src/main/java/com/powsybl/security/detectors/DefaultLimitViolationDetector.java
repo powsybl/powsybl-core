@@ -75,6 +75,37 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         }
     }
 
+    @Override
+    public void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, double value, Consumer<LimitViolation> consumer) {
+        if (Double.isNaN(voltageAngleLimit.getLimit()) || Double.isNaN(value)) {
+            return;
+        }
+
+        boolean limitViolation = false;
+        switch (voltageAngleLimit.getFlowDirection()) {
+            case FROM_TO:
+                if (value >= 0.0 && Math.abs(value) >= voltageAngleLimit.getLimit()) {
+                    limitViolation = true;
+                }
+                break;
+            case TO_FROM:
+                if (value <= 0.0 && Math.abs(value) >= voltageAngleLimit.getLimit()) {
+                    limitViolation = true;
+                }
+                break;
+            case BOTH_DIRECTIONS:
+                if (Math.abs(value) >= voltageAngleLimit.getLimit()) {
+                    limitViolation = true;
+                }
+                break;
+        }
+
+        if (limitViolation) {
+            consumer.accept(new LimitViolation(voltageAngleLimit.getId(), null, LimitViolationType.VOLTAGE_ANGLE,
+                voltageAngleLimit.getLimit(), limitReduction, value));
+        }
+    }
+
     public void checkLimitViolation(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
         if (currentLimitTypes.contains(LoadingLimitType.TATL) && (overload != null)) {
