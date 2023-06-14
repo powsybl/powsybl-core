@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import org.junit.jupiter.api.Test;
@@ -114,22 +113,19 @@ class CgmesConformity3ConversionTest {
         // Both networks have the same number of dangling lines
         assertEquals(nDlBE, nDlNL);
 
-        Network n = MergingView.create("be-nl", "CGMES");
-        n.merge(nl, be);
+        be.merge(nl);
 
-        int nSub = n.getSubstationCount();
+        int nSub = be.getSubstationCount();
         assertEquals(nSubBE + nSubNL, nSub);
-        long nTl = n.getTieLineCount();
+        long nTl = be.getTieLineCount();
         // All dangling lines must have been converted to tie lines
         assertEquals(nDlBE, nTl);
-        for (TieLine tl : n.getTieLines()) {
+        for (TieLine tl : be.getTieLines()) {
             // The danglingLine1 and danglingLine1.boundary.dl must be the same object
             // Both should correspond to objects at my level of merging
             assertEquals(tl.getDanglingLine1(), tl.getDanglingLine1().getBoundary().getDanglingLine());
             assertEquals(tl.getDanglingLine2(), tl.getDanglingLine2().getBoundary().getDanglingLine());
         }
-        // No dangling lines should be seen in the merging view
-        // Even if dangling line adapters have been added to the cached identifiables in the merging index
-        assertEquals(10, n.getDanglingLineCount());
+        assertEquals(10, be.getDanglingLineCount());
     }
 }
