@@ -290,5 +290,11 @@ class GeneratorScalableTest {
         assertEquals(20.0, g1.scale(network, 20.0, parameters), 1e-3);
         assertEquals(20.0, generator.getTargetP(), 1e-3);
         assertTrue(generator.getTerminal().isConnected());
+
+        //reconnect to false
+        generator.getTerminal().disconnect();
+        assertFalse(generator.getTerminal().isConnected());
+        assertEquals(0.0, g1.scale(network, 10));
+        assertEquals(20.0, generator.getTargetP(), 1e-3);
     }
 }
