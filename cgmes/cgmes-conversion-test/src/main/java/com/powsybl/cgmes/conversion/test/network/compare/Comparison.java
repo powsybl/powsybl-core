@@ -58,7 +58,7 @@ public class Comparison {
         // Compare Ssh metadata
         compareCgmesSshMetadata(expected.getExtension(CgmesSshMetadata.class), actual.getExtension(CgmesSshMetadata.class));
 
-        // TODO Consider other attributes of network (name, caseData, forecastDistance, ...)
+        // Consider comparing also other attributes of network (name, caseData, forecastDistance, ...)
         compare(
                 expected.getSubstationStream(),
                 actual.getSubstationStream(),
@@ -116,31 +116,31 @@ public class Comparison {
             Stream<T> expecteds,
             Stream<T> actuals,
             BiConsumer<T, T> testAttributes) {
-        actuals.forEach(actual -> {
-            Identifiable expected = networkMapping.findExpected(actual);
-            if (expected == null) {
-                diff.unexpected(actual);
+        actuals.forEach(actualk -> {
+            Identifiable expectedk = networkMapping.findExpected(actualk);
+            if (expectedk == null) {
+                diff.unexpected(actualk);
                 return;
             }
-            String context = className(actual);
-            compare(context, expected.getClass(), actual.getClass());
+            String context = className(actualk);
+            compare(context, expectedk.getClass(), actualk.getClass());
         });
-        expecteds.forEach(expected -> {
-            Identifiable<?> actual = networkMapping.findActual(expected);
-            if (actual == null) {
-                diff.missing(expected);
+        expecteds.forEach(expectedk -> {
+            Identifiable<?> actualk = networkMapping.findActual(expectedk);
+            if (actualk == null) {
+                diff.missing(expectedk);
                 return;
             }
-            diff.match(expected);
-            diff.current(expected);
-            String context = className(actual);
-            compare(context, expected.getClass(), actual.getClass());
+            diff.match(expectedk);
+            diff.current(expectedk);
+            String context = className(actualk);
+            compare(context, expectedk.getClass(), actualk.getClass());
             context = context + ".name";
-            compareNames(context, expected.getOptionalName().orElse(""), actual.getOptionalName().orElse(""));
+            compareNames(context, expectedk.getOptionalName().orElse(""), actualk.getOptionalName().orElse(""));
             // Obtained identifiable in actual must be of type T
             @SuppressWarnings("unchecked")
-            T tactual = (T) actual;
-            testAttributes.accept((T) expected, tactual);
+            T tactual = (T) actualk;
+            testAttributes.accept(expectedk, tactual);
         });
     }
 
@@ -222,28 +222,28 @@ public class Comparison {
         Map<String, Bus> expectedsById = new HashMap<>();
         expecteds.forEach(b -> expectedsById.put(b.getId(), b));
 
-        actualsById.values().forEach(actual -> {
-            Bus expected = expectedsById.get(actual.getId());
-            if (expected == null) {
-                diff.unexpected(actual);
+        actualsById.values().forEach(actualBus -> {
+            Bus expectedBus = expectedsById.get(actualBus.getId());
+            if (expectedBus == null) {
+                diff.unexpected(actualBus);
                 return;
             }
-            String context = className(actual);
-            compare(context, expected.getClass(), actual.getClass());
+            String context = className(actualBus);
+            compare(context, expectedBus.getClass(), actualBus.getClass());
         });
-        expectedsById.values().forEach(expected -> {
-            Bus actual = actualsById.get(expected.getId());
-            if (actual == null) {
-                diff.missing(expected);
+        expectedsById.values().forEach(expectedBus -> {
+            Bus actualBus = actualsById.get(expectedBus.getId());
+            if (actualBus == null) {
+                diff.missing(expectedBus);
                 return;
             }
-            diff.match(expected);
-            diff.current(expected);
-            String context = className(actual);
-            compare(context, expected.getClass(), actual.getClass());
+            diff.match(expectedBus);
+            diff.current(expectedBus);
+            String context = className(actualBus);
+            compare(context, expectedBus.getClass(), actualBus.getClass());
             context = context + ".name";
-            compareNames(context, expected.getOptionalName().orElse(""), actual.getOptionalName().orElse(""));
-            testAttributes.accept((Bus) expected, actual);
+            compareNames(context, expectedBus.getOptionalName().orElse(""), actualBus.getOptionalName().orElse(""));
+            testAttributes.accept(expectedBus, actualBus);
         });
     }
 
@@ -298,7 +298,7 @@ public class Comparison {
         compareAliases(expected, actual);
         compare("p0", expected.getP0(), actual.getP0());
         compare("q0", expected.getQ0(), actual.getQ0());
-        // TODO Should we check terminals ? (we are not setting terminal id)
+        // Maybe we should we check terminals (we are not setting terminal id)
         compare("p", expected.getTerminal().getP(), actual.getTerminal().getP());
         compare("q", expected.getTerminal().getQ(), actual.getTerminal().getQ());
         compareLoadDetails(expected.getExtension(LoadDetail.class), actual.getExtension(LoadDetail.class));
@@ -308,7 +308,6 @@ public class Comparison {
         if (expected == null) {
             if (actual != null) {
                 diff.unexpected("expected conform or not conform load (is energyConsumer)");
-                return;
             }
             return;
         }
@@ -462,7 +461,6 @@ public class Comparison {
         if (expected == null) {
             if (actual != null) {
                 diff.unexpected("qPercent");
-                return;
             }
             return;
         }
@@ -592,7 +590,6 @@ public class Comparison {
         if (expected == null) {
             if (actual != null) {
                 diff.unexpected(bactual);
-                return;
             }
         } else {
             if (actual == null) {
@@ -645,13 +642,11 @@ public class Comparison {
 
     private void comparePhaseAngleClock2(TwoWindingsTransformerPhaseAngleClock expected, TwoWindingsTransformerPhaseAngleClock actual) {
         if (expected == null && actual == null) {
-            return;
+            // Do nothing
         } else if (expected == null && actual != null) {
             diff.unexpected("phaseAngleClock2wt");
-            return;
         } else if (expected != null && actual == null) {
             diff.unexpected("phaseAngleClock2wt");
-            return;
         } else {
             diff.compare("phaseAngleClock", expected.getPhaseAngleClock(), actual.getPhaseAngleClock());
         }
@@ -668,13 +663,9 @@ public class Comparison {
 
     private void comparePhaseAngleClock3(ThreeWindingsTransformerPhaseAngleClock expected, ThreeWindingsTransformerPhaseAngleClock actual) {
         if (expected == null && actual == null) {
-            return;
-        } else if (expected == null && actual != null) {
+            // Do nothing
+        } else if (expected == null && actual != null || expected != null && actual == null) {
             diff.unexpected("phaseAngleClock3wt");
-            return;
-        } else if (expected != null && actual == null) {
-            diff.unexpected("phaseAngleClock3wt");
-            return;
         } else {
             diff.compare("phaseAngleClockLeg2", expected.getPhaseAngleClockLeg2(), actual.getPhaseAngleClockLeg2());
             diff.compare("phaseAngleClockLeg3", expected.getPhaseAngleClockLeg3(), actual.getPhaseAngleClockLeg3());
@@ -733,14 +724,13 @@ public class Comparison {
                 actual.getRegulationValue());
     }
 
-    private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChanger(
-            TapChanger<TC, TCS> expected,
-            TapChanger<TC, TCS> actual,
-            BiConsumer<TCS, TCS> testTapChangerStep1) {
+    private <T extends TapChanger<T, S>, S extends TapChangerStep<S>> void compareTapChanger(
+            TapChanger<T, S> expected,
+            TapChanger<T, S> actual,
+            BiConsumer<S, S> testTapChangerStep1) {
         if (expected == null) {
             if (actual != null) {
                 diff.unexpected("TapChanger");
-                return;
             }
         } else {
             if (actual == null) {
@@ -762,8 +752,8 @@ public class Comparison {
             compare("tapChanger.stepCount", expected.getStepCount(), actual.getStepCount());
             // Check steps
             for (int k = expected.getLowTapPosition(); k <= expected.getHighTapPosition(); k++) {
-                TCS stepExpected = expected.getStep(k);
-                TCS stepActual = actual.getStep(k);
+                S stepExpected = expected.getStep(k);
+                S stepActual = actual.getStep(k);
                 compareTapChangerStep(stepExpected, stepActual, testTapChangerStep1);
             }
             // Check regulation
@@ -771,7 +761,7 @@ public class Comparison {
                     actual.isRegulating());
             if (expected.getRegulationTerminal() == null
                     || actual.getRegulationTerminal() == null) {
-                // TODO We are not checking regulation terminals if one of them is null
+                // We are not checking regulation terminals if one of them is null
             } else {
                 equivalent(
                         "tapChanger.RegulationTerminalConnectable",
@@ -795,10 +785,10 @@ public class Comparison {
         }
     }
 
-    private <TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> void compareTapChangerStep(
-            TCS expected,
-            TCS actual,
-            BiConsumer<TCS, TCS> testTapChangerStep1) {
+    private <T extends TapChanger<T, S>, S extends TapChangerStep<S>> void compareTapChangerStep(
+            S expected,
+            S actual,
+            BiConsumer<S, S> testTapChangerStep1) {
         compare("tapChangerStep.r", expected.getR(), actual.getR());
         compare("tapChangerStep.x", expected.getX(), actual.getX());
         compare("tapChangerStep.g", expected.getG(), actual.getG());
@@ -834,15 +824,15 @@ public class Comparison {
     }
 
     private void compareTemporaryLimits(Identifiable bactual,
-                                        Collection<LoadingLimits.TemporaryLimit> expected,
-                                        Collection<LoadingLimits.TemporaryLimit> actual) {
-        if (expected.size() != actual.size()) {
+                                        Collection<LoadingLimits.TemporaryLimit> expectedLimits,
+                                        Collection<LoadingLimits.TemporaryLimit> actualLimits) {
+        if (expectedLimits.size() != actualLimits.size()) {
             diff.unexpected(bactual);
             return;
         }
-        Iterator<CurrentLimits.TemporaryLimit> actualIt = actual.iterator();
-        for (CurrentLimits.TemporaryLimit e : expected) {
-            CurrentLimits.TemporaryLimit a = actualIt.next();
+        Iterator<LoadingLimits.TemporaryLimit> actualIt = actualLimits.iterator();
+        for (LoadingLimits.TemporaryLimit e : expectedLimits) {
+            LoadingLimits.TemporaryLimit a = actualIt.next();
             diff.compare("temporaryLimit", e.getName(), a.getName());
             diff.compare("temporaryLimit", e.getAcceptableDuration(), a.getAcceptableDuration());
             diff.compare("temporaryLimit", e.getValue(), a.getValue());
