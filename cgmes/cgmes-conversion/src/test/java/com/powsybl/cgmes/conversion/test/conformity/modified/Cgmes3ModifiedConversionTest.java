@@ -10,7 +10,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
-import com.powsybl.cgmes.extensions.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.iidm.network.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;

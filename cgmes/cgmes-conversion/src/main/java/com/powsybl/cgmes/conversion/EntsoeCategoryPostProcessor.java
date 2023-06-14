@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.cgmes.extensions.CgmesModelExtension;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
