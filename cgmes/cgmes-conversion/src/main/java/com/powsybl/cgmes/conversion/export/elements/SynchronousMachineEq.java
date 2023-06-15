@@ -52,6 +52,6 @@ public final class SynchronousMachineEq {
 
     private static double defaultRatedS(double minP, double maxP, double minQ, double maxQ) {
         double[] array = {Math.abs(minP), Math.abs(maxP), Math.abs(minQ), Math.abs(maxQ)};
-        return Arrays.stream(array).max().orElseThrow() * 10.0;
+        return Arrays.stream(array).max().orElseThrow();
     }
 }
