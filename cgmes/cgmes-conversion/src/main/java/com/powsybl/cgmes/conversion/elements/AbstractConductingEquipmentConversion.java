@@ -663,13 +663,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         String modelBus = busId(modelEnd);
         String modelTerminalId = terminalId(modelEnd);
         String boundaryTerminalId = terminalId(modelEnd == 1 ? 2 : 1);
+        String boundaryConnectivityNodeId = connectivityNodeId(modelEnd == 1 ? 2 : 1);
+        String boundaryTopologicalNodeId = topologicalNodeId(modelEnd == 1 ? 2 : 1);
         int modelNode = -1;
         if (context.nodeBreaker()) {
             modelNode = iidmNode(modelEnd);
         }
         PowerFlow modelPowerFlow = powerFlowSV(modelEnd);
         return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
-            modelTerminalId, getBoundarySide(modelEnd), boundaryTerminalId, modelPowerFlow);
+            modelTerminalId, getBoundarySide(modelEnd), boundaryTerminalId, boundaryConnectivityNodeId,
+            boundaryTopologicalNodeId, modelPowerFlow);
     }
 
     private static Branch.Side getBoundarySide(int modelEnd) {

@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import java.util.Optional;
+
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
@@ -81,12 +83,19 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
 
         TieLine mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
 
-        mline.addAlias(boundaryLine1.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
-        mline.addAlias(boundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1");
-        mline.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_1", boundaryLine1.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
-        mline.addAlias(boundaryLine2.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
-        mline.addAlias(boundaryLine2.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2");
-        mline.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary_2", boundaryLine2.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
+        mline.getDanglingLine1().addAlias(boundaryLine1.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
+        mline.getDanglingLine1().addAlias(boundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary");
+        mline.getDanglingLine1().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", boundaryLine1.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
+
+        Optional.ofNullable(boundaryLine1.getBoundaryTopologicalNodeId()).ifPresent(tn -> mline.getDanglingLine1().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
+        Optional.ofNullable(boundaryLine1.getBoundaryConnectivityNodeId()).ifPresent(cn -> mline.getDanglingLine1().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn));
+
+        mline.getDanglingLine2().addAlias(boundaryLine2.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
+        mline.getDanglingLine2().addAlias(boundaryLine2.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary");
+        mline.getDanglingLine2().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", boundaryLine2.getBoundaryTerminalId()); // TODO delete when aliases merging is handled
+
+        Optional.ofNullable(boundaryLine2.getBoundaryTopologicalNodeId()).ifPresent(tn -> mline.getDanglingLine2().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
+        Optional.ofNullable(boundaryLine2.getBoundaryConnectivityNodeId()).ifPresent(cn -> mline.getDanglingLine2().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE_BOUNDARY, cn));
 
         context.convertedTerminal(boundaryLine1.getModelTerminalId(), mline.getDanglingLine1().getTerminal(), 1, boundaryLine1.getModelPowerFlow());
         context.convertedTerminal(boundaryLine2.getModelTerminalId(), mline.getDanglingLine2().getTerminal(), 2, boundaryLine2.getModelPowerFlow());

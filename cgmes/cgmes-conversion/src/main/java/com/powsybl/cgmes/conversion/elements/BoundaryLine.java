@@ -18,7 +18,8 @@ public class BoundaryLine {
 
     BoundaryLine(String id, String name, String modelIidmVoltageLevelId, String modelBus,
         boolean modelTconnected, int modelNode, String modelTerminalId, Branch.Side boundarySide,
-        String boundaryTerminalId, PowerFlow modelPowerFlow) {
+        String boundaryTerminalId, String boundaryConnectivityNodeId, String boundaryTopologicalNodeId,
+        PowerFlow modelPowerFlow) {
         this.id = id;
         this.name = name;
         this.modelIidmVoltageLevelId = modelIidmVoltageLevelId;
@@ -28,6 +29,8 @@ public class BoundaryLine {
         this.modelTerminalId = modelTerminalId;
         this.boundarySide = boundarySide;
         this.boundaryTerminalId = boundaryTerminalId;
+        this.boundaryConnectivityNodeId = boundaryConnectivityNodeId;
+        this.boundaryTopologicalNodeId = boundaryTopologicalNodeId;
         this.modelPowerFlow = modelPowerFlow;
         r = 0.0;
         x = 0.0;
@@ -78,6 +81,14 @@ public class BoundaryLine {
         return boundarySide;
     }
 
+    String getBoundaryConnectivityNodeId() {
+        return boundaryConnectivityNodeId;
+    }
+
+    String getBoundaryTopologicalNodeId() {
+        return boundaryTopologicalNodeId;
+    }
+
     String getBoundaryTerminalId() {
         return boundaryTerminalId;
     }
@@ -119,6 +130,8 @@ public class BoundaryLine {
     private final String modelTerminalId;
     private final Branch.Side boundarySide;
     private final String boundaryTerminalId;
+    private final String boundaryConnectivityNodeId;
+    private final String boundaryTopologicalNodeId;
     private double r;
     private double x;
     private double g1;

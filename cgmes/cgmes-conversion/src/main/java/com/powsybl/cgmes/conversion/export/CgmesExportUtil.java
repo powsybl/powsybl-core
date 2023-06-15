@@ -216,10 +216,6 @@ public final class CgmesExportUtil {
     public static int getTerminalSequenceNumber(Terminal t) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
-            if (c instanceof DanglingLine) {
-                DanglingLine dl = (DanglingLine) c;
-                return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
-            }
             return 1;
         } else {
             if (c instanceof Branch) {
