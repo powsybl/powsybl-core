@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.Terminal.BusBreakerView;
 import com.powsybl.iidm.network.Terminal.BusView;
 
@@ -30,11 +31,14 @@ class DanglingLineTestData {
 
     static double P0 = -367.40;
     static double Q0 = 63.73;
+    static double VN = 400.0;
 
     private Bus bus;
     private BusView busView;
     private BusBreakerView busBreakerView;
     private Terminal terminal;
+    private static VoltageLevel voltageLevel;
+
     private DanglingLine danglingLine;
 
     DanglingLineTestData() {
@@ -50,12 +54,16 @@ class DanglingLineTestData {
         danglingLine = Mockito.mock(DanglingLine.class);
         Mockito.when(danglingLine.getId()).thenReturn("DanglingLineTest");
         terminal = Mockito.mock(Terminal.class);
+        voltageLevel = Mockito.mock(VoltageLevel.class);
         Mockito.when(danglingLine.getTerminal()).thenReturn(terminal);
         Mockito.when(terminal.isConnected()).thenReturn(true);
         Mockito.when(terminal.getBusView()).thenReturn(busView);
+
         Mockito.when(terminal.getBusBreakerView()).thenReturn(busBreakerView);
         Mockito.when(terminal.getP()).thenReturn(-367.35795801563415);
         Mockito.when(terminal.getQ()).thenReturn(63.73282249057797);
+        Mockito.when(terminal.getVoltageLevel()).thenReturn(voltageLevel);
+        Mockito.when(voltageLevel.getNominalV()).thenReturn(VN);
 
         Mockito.when(danglingLine.getR()).thenReturn(r);
         Mockito.when(danglingLine.getX()).thenReturn(x);
