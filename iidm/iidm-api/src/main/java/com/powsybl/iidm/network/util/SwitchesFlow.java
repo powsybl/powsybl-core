@@ -197,7 +197,7 @@ public class SwitchesFlow {
         if (connectedSet.size() <= 1) {
             return;
         }
-        Optional<SwNode> swRoot = connectedSet.stream().findFirst();
+        Optional<SwNode> swRoot = connectedSet.stream().sorted(Comparator.comparing(SwitchesFlow::getKey)).findFirst();
         if (swRoot.isEmpty()) {
             return;
         }
@@ -303,7 +303,7 @@ public class SwitchesFlow {
     }
 
     private static String getKey(Bus bus) {
-        return String.format("B-%s", bus);
+        return String.format("B-%s", bus.getId());
     }
 
     private static String getKey(SwNode swNode) {
