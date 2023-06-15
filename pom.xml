@@ -109,7 +109,7 @@
         <gdata.version>1.41.1_1</gdata.version>
         <graphviz-builder.version>1.0.12</graphviz-builder.version>
         <groovy.version>3.0.15</groovy.version>
-        <guava.version>31.1-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <jackson.version>2.14.1</jackson.version>
         <jackson-databind.version>2.14.1</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
