@@ -46,6 +46,24 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
+ * <p>
+ *     A CGMES pre-processor that defines missing containers in input data.
+ * </p>
+ *
+ * <p>
+ *     The pre-processor will analyze the input data and check if there are missing container definitions.
+ *     It will then create a CIM-XML file with all required objects (voltage levels, substations, regions, ...)
+ *     that will be used during CGMES import to allow the conversion to PowSyBl Network.
+ * </p>
+ *
+ * <p>
+ *     It is assumed that all containers missing are voltage levels.
+ *     The user can specify the location folder of the output files using the parameter <code>iidm.import.cgmes.fixes-for-missing-containers-folder</code>.
+ *     The CIM version of the output file will be the same detected for the input data.
+ *     Because no information about voltage level is available, a default arbitrary value for nominal voltage is used.
+ *     The user may edit the generated files and reuse them in successive imports.
+ * </p>
+ *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 @AutoService(CgmesImportPreProcessor.class)
