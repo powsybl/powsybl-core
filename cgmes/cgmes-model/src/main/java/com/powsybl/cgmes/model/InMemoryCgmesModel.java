@@ -29,6 +29,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private boolean isNodeBreaker;
     private DateTime created;
     private DateTime scenarioTime;
+    private PropertyBags geographicalRegions;
     private PropertyBags substations;
     private PropertyBags voltageLevels;
     private PropertyBags terminals;
@@ -70,6 +71,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
         isNodeBreaker = false;
         created = DateTime.now();
         scenarioTime = DateTime.now();
+        geographicalRegions = new PropertyBags();
         substations = new PropertyBags();
         voltageLevels = new PropertyBags();
         terminals = new PropertyBags();
@@ -135,6 +137,11 @@ public final class InMemoryCgmesModel implements CgmesModel {
 
     public boolean hasBoundary() {
         return false;
+    }
+
+    public InMemoryCgmesModel geographicalRegions(String... ids) {
+        fakeObjectsFromIdentifiers("Region", ids, geographicalRegions);
+        return this;
     }
 
     public InMemoryCgmesModel substations(String... ids) {
@@ -326,6 +333,11 @@ public final class InMemoryCgmesModel implements CgmesModel {
     @Override
     public PropertyBags allObjectsOfType(String type) {
         return new PropertyBags();
+    }
+
+    @Override
+    public PropertyBags geographicalRegions() {
+        return geographicalRegions;
     }
 
     @Override

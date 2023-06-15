@@ -340,6 +340,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags geographicalRegions() {
+        return namedQuery("geographicalRegions");
+    }
+
+    @Override
     public PropertyBags substations() {
         return namedQuery("substations");
     }

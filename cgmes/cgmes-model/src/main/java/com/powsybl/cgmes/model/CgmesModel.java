@@ -59,6 +59,8 @@ public interface CgmesModel {
 
     PropertyBags baseVoltages();
 
+    PropertyBags geographicalRegions();
+
     PropertyBags substations();
 
     PropertyBags voltageLevels();
