@@ -402,48 +402,6 @@ class ScalableTest {
     }
 
     @Test
-    void testListGenerators() {
-        Generator generator1 = network.getGenerator("g1");
-        Generator generator2 = network.getGenerator("g2");
-
-        List<Generator> generators = g1.listGenerators(network);
-        assertEquals(1, generators.size());
-        assertSame(generator1, generators.get(0));
-
-        generators = Scalable.stack(g1, g2).listGenerators(network);
-        assertEquals(2, generators.size());
-        assertSame(generator1, generators.get(0));
-        assertSame(generator2, generators.get(1));
-
-        Scalable unknownGenerator = Scalable.onGenerator("unknown");
-        List<String> notFoundGenerators = new ArrayList<>();
-        generators = Scalable.stack(g1, g2, unknownGenerator).listGenerators(network, notFoundGenerators);
-        assertEquals(2, generators.size());
-        assertSame(generator1, generators.get(0));
-        assertSame(generator2, generators.get(1));
-        assertEquals(1, notFoundGenerators.size());
-        assertEquals("unknown", notFoundGenerators.get(0));
-
-        generators = new ArrayList<>();
-        notFoundGenerators.clear();
-        Scalable.stack(g1, g2, unknownGenerator).listGenerators(network, generators, notFoundGenerators);
-        assertEquals(2, generators.size());
-        assertSame(generator1, generators.get(0));
-        assertSame(generator2, generators.get(1));
-        assertEquals(1, notFoundGenerators.size());
-        assertEquals("unknown", notFoundGenerators.get(0));
-
-        generators = new ArrayList<>();
-        notFoundGenerators.clear();
-        Scalable.stack(g1, g2, l1, s).listGenerators(network, generators, notFoundGenerators);
-        assertEquals(2, generators.size());
-        assertSame(generator1, generators.get(0));
-        assertSame(generator2, generators.get(1));
-        assertEquals(2, notFoundGenerators.size());
-
-    }
-
-    @Test
     void testFilterInjections() {
         Generator generator1 = network.getGenerator("g1");
         Generator generator2 = network.getGenerator("g2");
