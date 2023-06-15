@@ -441,11 +441,11 @@ public final class EquipmentExport {
             double b = twt.getB() / a02;
             BaseVoltageMapping.BaseVoltageSource baseVoltage1 = context.getBaseVoltageByNominalVoltage(twt.getTerminal1().getVoltageLevel().getNominalV());
             PowerTransformerEq.writeEnd(end1Id, twt.getNameOrId() + "_1", context.getNamingStrategy().getCgmesId(twt), 1, r, x, g, b,
-                    twt.getRatedS(), twt.getRatedU1(), exportedTerminalId(mapTerminal2Id, twt.getTerminal1()), baseVoltage1.getId(), cimNamespace, writer, context);
+                    twt.getRatedS(), Math.max(twt.getRatedU1(), twt.getRatedU2()), exportedTerminalId(mapTerminal2Id, twt.getTerminal1()), baseVoltage1.getId(), cimNamespace, writer, context);
             String end2Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 2);
             BaseVoltageMapping.BaseVoltageSource baseVoltage2 = context.getBaseVoltageByNominalVoltage(twt.getTerminal2().getVoltageLevel().getNominalV());
             PowerTransformerEq.writeEnd(end2Id, twt.getNameOrId() + "_2", context.getNamingStrategy().getCgmesId(twt), 2, 0.0, 0.0, 0.0, 0.0,
-                    twt.getRatedS(), twt.getRatedU2(), exportedTerminalId(mapTerminal2Id, twt.getTerminal2()), baseVoltage2.getId(), cimNamespace, writer, context);
+                    twt.getRatedS(), Math.max(twt.getRatedU1(), twt.getRatedU2()), exportedTerminalId(mapTerminal2Id, twt.getTerminal2()), baseVoltage2.getId(), cimNamespace, writer, context);
 
             // Export tap changers:
             // We are exporting the tap changer as it is modelled in IIDM, always at end 1
@@ -460,8 +460,8 @@ public final class EquipmentExport {
             // In the rest of situations, we keep the same id under alias for tc1.
             adjustTapChangerAliases2wt(twt, twt.getPhaseTapChanger(), CgmesNames.PHASE_TAP_CHANGER);
             adjustTapChangerAliases2wt(twt, twt.getRatioTapChanger(), CgmesNames.RATIO_TAP_CHANGER);
-            writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1(), regulatingControlsWritten, cimNamespace, writer, context);
-            writeRatioTapChanger(twt, twt.getRatioTapChanger(), twt.getNameOrId(), endNumber, end1Id, twt.getRatedU1(), regulatingControlsWritten, cimNamespace, writer, context);
+            writePhaseTapChanger(twt, twt.getPhaseTapChanger(), twt.getNameOrId(), endNumber, end1Id, Math.max(twt.getRatedU1(), twt.getRatedU2()), regulatingControlsWritten, cimNamespace, writer, context);
+            writeRatioTapChanger(twt, twt.getRatioTapChanger(), twt.getNameOrId(), endNumber, end1Id, Math.max(twt.getRatedU1(), twt.getRatedU2()), regulatingControlsWritten, cimNamespace, writer, context);
             writeBranchLimits(twt, exportedTerminalId(mapTerminal2Id, twt.getTerminal1()), exportedTerminalId(mapTerminal2Id, twt.getTerminal2()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
         }
     }
