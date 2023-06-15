@@ -6,8 +6,13 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,4 +23,16 @@ public interface DataSource extends ReadOnlyDataSource {
 
     OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException;
 
+    static DataSource fromPath(Path file) {
+        Objects.requireNonNull(file);
+        if (!Files.isRegularFile(file)) {
+            throw new PowsyblException("File " + file + " does not exist or is not a regular file");
+        }
+        Path absFile = file.toAbsolutePath();
+        return fromPath(absFile.getParent(), absFile.getFileName().toString());
+    }
+
+    static DataSource fromPath(Path directory, String fileNameOrBaseName) {
+        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, null);
+    }
 }

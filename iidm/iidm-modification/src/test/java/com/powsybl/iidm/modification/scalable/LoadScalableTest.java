@@ -226,8 +226,9 @@ class LoadScalableTest {
         load.getTerminal().disconnect();
         assertFalse(load.getTerminal().isConnected());
         parameters.setReconnect(false);
-        ls1.scale(network, 20, parameters);
+        double scaleResult = ls1.scale(network, 20, parameters);
         assertFalse(load.getTerminal().isConnected());
-        assertEquals(40.0, load.getP0(), 1e-3);
+        assertEquals(60.0, load.getP0(), 1e-3);
+        assertEquals(0.0, scaleResult, 1e-3);
     }
 }
