@@ -44,7 +44,7 @@ class RemoveHvdcLineTest extends AbstractConverterTest {
         assertNull(network.getLccConverterStation("C1"));
         assertNull(network.getShuntCompensator("C1_Filter1"));
         assertNull(network.getShuntCompensator("C1_Filter2"));
-        assertNotNull(network.getShuntCompensator("C5_Filter5"));
+        assertNotNull(network.getShuntCompensator("C5_Filter5")); // not removed because it is not in the same VLs as the Lcc
     }
 
     @Test
