@@ -1550,5 +1550,21 @@ public final class CgmesConformity1ModifiedCatalog {
                         SMALL_GRID_BD_TP));
     }
 
+    public static GridModelReference miniGridNodeBreakerMissingVoltageLevel() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_missing_voltage_level/";
+        return new GridModelReferenceResources(
+                "MiniGrid-NodeBreaker-BaseCase-Complete-v3-missing-voltage-levels",
+                null,
+                new ResourceSet(base,
+                        MINI_GRID_EQ),
+                new ResourceSet(MINI_GRID_NODE_BREAKER_BASE,
+                        MINI_GRID_SSH,
+                        MINI_GRID_SV,
+                        MINI_GRID_TP),
+                new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
+                        MINI_GRID_BD_TP));
+    }
+
     private static final String ENTSOE_CONFORMITY_1_MODIFIED = "/conformity-modified/cas-1.1.3-data-4.0.3";
 }
