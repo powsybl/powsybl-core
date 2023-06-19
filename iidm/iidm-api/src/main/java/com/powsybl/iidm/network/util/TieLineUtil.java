@@ -249,7 +249,7 @@ public final class TieLineUtil {
 
     private static LinkData.BranchAdmittanceMatrix equivalentBranchAdmittanceMatrix(DanglingLine dl1,
         DanglingLine dl2) {
-        // zero impedance half lines should be supported
+        // zero impedance dangling lines should be supported
 
         BranchAdmittanceMatrix adm1 = LinkData.calculateBranchAdmittance(dl1.getR(), dl1.getX(), 1.0, 0.0, 1.0, 0.0,
             new Complex(dl1.getG(), dl1.getB()), new Complex(0.0, 0.0));
