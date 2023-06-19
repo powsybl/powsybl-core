@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,15 +9,16 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
+public abstract class AbstractComponentCalculationBugWhenMergingTest {
 
     @Test
-    public void test() {
+    public void shouldNotThrowShouldNotHappen() {
         Network n1 = Network.create("n1", "test");
         Substation s1 = n1.newSubstation()
                 .setId("s1")
@@ -68,21 +69,16 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
                 .setB(0)
                 .setUcteXnodeCode("XNODE")
                 .add();
-        assertEquals(0, n1.getLineCount());
-        assertEquals(1, n1.getDanglingLineCount());
-        assertEquals(0, n2.getLineCount());
-        assertEquals(1, n2.getDanglingLineCount());
-        n1.merge(n2);
-        assertEquals(1, n1.getTieLineCount());
-        assertEquals(2, n1.getDanglingLineCount());
-        n1.getTieLine("dl1 + dl2").remove();
-        assertEquals(2, n1.getDanglingLineCount());
+        // to reproduce the issue, force connected components on one of the network (n1)
+        // and not the other one
         for (Bus b : n1.getBusView().getBuses()) {
             b.getConnectedComponent();
         }
-        for (Bus b : n1.getBusBreakerView().getBuses()) {
-            // throws an exception if bug already present
-            b.isInMainConnectedComponent();
+        n1.merge(n2);
+        for (Bus b : n1.getBusView().getBuses()) {
+            assertDoesNotThrow(b::getConnectedComponent);
+            assertEquals(0, b.getConnectedComponent().getNum());
+            assertEquals(0, b.getSynchronousComponent().getNum());
         }
     }
 }

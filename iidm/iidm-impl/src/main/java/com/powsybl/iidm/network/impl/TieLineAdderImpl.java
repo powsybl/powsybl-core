@@ -68,8 +68,9 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
 
         TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious());
         line.attachDanglingLines(dl1, dl2);
-        // invalidate connected components
+        // invalidate components
         getNetwork().getConnectedComponentsManager().invalidate();
+        getNetwork().getSynchronousComponentsManager().invalidate();
         network.getIndex().checkAndAdd(line);
         network.getListeners().notifyCreation(line);
         return line;
