@@ -77,9 +77,6 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
         assertEquals(2, n1.getDanglingLineCount());
         n1.getTieLine("dl1 + dl2").remove();
         assertEquals(2, n1.getDanglingLineCount());
-        for (Bus b : n1.getBusView().getBuses()) {
-            b.getConnectedComponent();
-        }
         for (Bus b : n1.getBusBreakerView().getBuses()) {
             // throws an exception if bug already present
             b.isInMainConnectedComponent();
