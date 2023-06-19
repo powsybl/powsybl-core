@@ -254,6 +254,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     @Override
     public void read(ReadOnlyDataSource ds, Reporter reporter) {
         Objects.requireNonNull(reporter);
+        invalidateCaches();
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
@@ -271,6 +272,20 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                 throw new CgmesModelException(msg, e);
             }
         }
+    }
+
+    protected void invalidateCaches() {
+        cachedGroupedTransformerEnds = null;
+        powerTransformerRatioTapChanger = null;
+        powerTransformerPhaseTapChanger = null;
+        cachedTerminals = null;
+        cachedContainers = null;
+        cachedBaseVoltages = null;
+        cachedNodes = false;
+        cachedConnectivityNodes = null;
+        cachedTopologicalNodes = null;
+        cachedNodesById = null;
+        cachedDcTerminals = null;
     }
 
     private final Properties properties;
