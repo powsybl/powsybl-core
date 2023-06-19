@@ -360,9 +360,10 @@ public final class EquipmentExport {
             default:
                 throw new PowsyblException("Unexpected type of ReactiveLimits on the generator " + i.getNameOrId());
         }
+        double defaultRatedS = obtainDefaultRatedS(i, minP, maxP);
         SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
                 context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel()),
-                generatingUnit, regulatingControlId, reactiveLimitsId, minP, maxP, minQ, maxQ, ratedS, kind, cimNamespace, writer, context);
+                generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, ratedS, defaultRatedS, kind, cimNamespace, writer, context);
         if (!generatingUnitsWritten.contains(generatingUnit)) {
             // We have not preserved the names of generating units
             // We name generating units based on the first machine found
@@ -371,6 +372,26 @@ public final class EquipmentExport {
                     i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), writer, context);
             generatingUnitsWritten.add(generatingUnit);
         }
+    }
+
+    private static <I extends ReactiveLimitsHolder & Injection<I>> double obtainDefaultRatedS(I i, double minP,
+        double maxP) {
+        List<Double> values = new ArrayList<>();
+        values.add(Math.abs(minP));
+        values.add(Math.abs(maxP));
+        ReactiveLimits limits = i.getReactiveLimits();
+        if (limits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+            values.add(Math.abs(i.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ()));
+            values.add(Math.abs(i.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ()));
+        } else { // reactive capability curve
+            ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
+            for (ReactiveCapabilityCurve.Point p : curve.getPoints()) {
+                values.add(Math.sqrt(p.getP() * p.getP() + p.getMinQ() * p.getMinQ()));
+                values.add(Math.sqrt(p.getP() * p.getP() + p.getMaxQ() * p.getMaxQ()));
+            }
+        }
+        values.sort(Double::compareTo);
+        return values.get(values.size() - 1);
     }
 
     private static void writeShuntCompensators(Network network, Map<Terminal, String> mapTerminal2Id, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
