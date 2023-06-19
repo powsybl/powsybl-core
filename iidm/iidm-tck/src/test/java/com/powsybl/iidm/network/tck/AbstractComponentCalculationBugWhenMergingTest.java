@@ -74,11 +74,25 @@ public abstract class AbstractComponentCalculationBugWhenMergingTest {
         for (Bus b : n1.getBusView().getBuses()) {
             b.getConnectedComponent();
         }
+        assertEquals(0, n1.getTieLineCount());
         n1.merge(n2);
         for (Bus b : n1.getBusView().getBuses()) {
             assertDoesNotThrow(b::getConnectedComponent);
             assertEquals(0, b.getConnectedComponent().getNum());
+            assertEquals(2, b.getConnectedComponent().getSize());
             assertEquals(0, b.getSynchronousComponent().getNum());
+            assertEquals(2, b.getConnectedComponent().getSize());
+        }
+        assertEquals(1, n1.getTieLineCount());
+        n1.getTieLine("dl1 + dl2").remove();
+        assertEquals(0, n1.getTieLineCount());
+        for (Bus b : n1.getBusView().getBuses()) {
+            assertEquals(1, b.getConnectedComponent().getSize());
+            assertEquals(1, b.getConnectedComponent().getSize());
+        }
+        for (Bus b : n2.getBusView().getBuses()) {
+            assertEquals(1, b.getConnectedComponent().getSize());
+            assertEquals(1, b.getConnectedComponent().getSize());
         }
     }
 }
