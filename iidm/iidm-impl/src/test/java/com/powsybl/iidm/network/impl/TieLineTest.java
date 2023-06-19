@@ -31,8 +31,10 @@ class TieLineTest {
         // Line1 from node1 to boundaryNode, Line2 from boundaryNode to node2
         CaseSv caseSv0 = createCase0();
         Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), Branch.Side.TWO, Branch.Side.ONE, caseSv0);
-        TieLine tieLine = n.getTieLine("TWO + ONE");
+        Branch<?> branch = n.getBranch("TWO + ONE");
+        assertTrue(branch instanceof TieLine);
 
+        TieLine tieLine = (TieLine) branch;
         SV sv2 = new SV(tieLine.getDanglingLine1().getTerminal().getP(), tieLine.getDanglingLine1().getTerminal().getQ(),
             tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(),
             tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(),
@@ -236,6 +238,8 @@ class TieLineTest {
         DanglingLine dl1 = s1vl1.newDanglingLine()
                 .setId(boundarySide1.name())
                 .setName(boundarySide1.name())
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(1.0)
                 .setX(2.0)
                 .setBus("S1VL1-BUS")
@@ -244,6 +248,8 @@ class TieLineTest {
         DanglingLine dl2 = s2vl1.newDanglingLine()
                 .setId(boundarySide2.name())
                 .setName(boundarySide2.name())
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(1.0)
                 .setX(2.0)
                 .setBus("S2VL1-BUS")
@@ -310,6 +316,8 @@ class TieLineTest {
                 .setId(boundarySide1.name())
                 .setEnsureIdUnicity(true)
                 .setName(boundarySide1.name())
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(0.019)
                 .setX(0.059)
                 .setG(0.05)
@@ -320,6 +328,8 @@ class TieLineTest {
                 .setId(boundarySide2.name())
                 .setEnsureIdUnicity(true)
                 .setName(boundarySide2.name())
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(0.038)
                 .setX(0.118)
                 .setG(0.04)
@@ -390,6 +400,8 @@ class TieLineTest {
                 .setBus("S1VL1-BUS")
                 .setId(boundarySide1.name())
                 .setName(boundarySide1.name())
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(2.1672071999999996)
                 .setX(9.5543748)
                 .setG(0.0)
@@ -400,6 +412,8 @@ class TieLineTest {
                 .setBus("S2VL1-BUS")
                 .setId(boundarySide2.name())
                 .setName(boundarySide2.name())
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(3.1513680000000006)
                 .setX(14.928011999999999)
                 .setG(0.00299837274)

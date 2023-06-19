@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -77,10 +76,7 @@ public final class StateVariablesExport {
                 continue;
             }
             String islandId = CgmesExportUtil.getUniqueId();
-            CgmesExportUtil.writeStartId(CgmesNames.TOPOLOGICAL_ISLAND, islandId, false, cimNamespace, writer, context);
-            writer.writeStartElement(cimNamespace, CgmesNames.NAME);
-            writer.writeCharacters(islandId); // Use id as name
-            writer.writeEndElement();
+            CgmesExportUtil.writeStartIdName(CgmesNames.TOPOLOGICAL_ISLAND, islandId, islandId, cimNamespace, writer, context);
             CgmesExportUtil.writeReference("TopologicalIsland.AngleRefTopologicalNode", angleRefs.get(island.getKey()), cimNamespace, writer, context);
             for (String tn : island.getValue()) {
                 CgmesExportUtil.writeReference("TopologicalIsland.TopologicalNodes", tn, cimNamespace, writer, context);
@@ -216,14 +212,12 @@ public final class StateVariablesExport {
         });
         equivalentInjectionTerminalP.keySet().forEach(eiId -> writePowerFlow(eiId, equivalentInjectionTerminalP.get(eiId), equivalentInjectionTerminalQ.get(eiId), cimNamespace, writer, context));
 
-        CgmesControlAreas areas = network.getExtension(CgmesControlAreas.class);
-        network.getBranchStream().forEach(b -> {
-            writeOptionalPowerFlowTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getTerminal1(), cimNamespace, writer, context);
-            writeOptionalPowerFlowTerminalFromAlias(areas, b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2(), cimNamespace, writer, context);
-        });
+        network.getTwoWindingsTransformerStream().forEach(b -> writeConnectableBranchPowerFlow(cimNamespace, writer, context, b));
+        network.getLineStream().forEach(b -> writeConnectableBranchPowerFlow(cimNamespace, writer, context, b));
+
         network.getTieLineStream().forEach(b -> {
-            writePowerFlowTieLineTerminalFromAlias(areas, b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getDanglingLine1().getTerminal(), cimNamespace, writer, context);
-            writePowerFlowTieLineTerminalFromAlias(areas, b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getDanglingLine2().getTerminal(), cimNamespace, writer, context);
+            writePowerFlowTieLineTerminalFromAlias(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getDanglingLine1().getTerminal(), cimNamespace, writer, context);
+            writePowerFlowTieLineTerminalFromAlias(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getDanglingLine2().getTerminal(), cimNamespace, writer, context);
             if (context.exportBoundaryPowerFlows()) {
                 writePowerFlowTerminalFromAlias(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", b.getDanglingLine1().getBoundary().getP(), b.getDanglingLine1().getBoundary().getQ(), cimNamespace, writer, context);
                 writePowerFlowTerminalFromAlias(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", b.getDanglingLine2().getBoundary().getP(), b.getDanglingLine2().getBoundary().getQ(), cimNamespace, writer, context);
@@ -231,22 +225,27 @@ public final class StateVariablesExport {
         });
 
         network.getThreeWindingsTransformerStream().forEach(twt -> {
-            writeOptionalPowerFlowTerminalFromAlias(areas, twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, twt.getLeg1().getTerminal(), cimNamespace, writer, context);
-            writeOptionalPowerFlowTerminalFromAlias(areas, twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, twt.getLeg2().getTerminal(), cimNamespace, writer, context);
-            writeOptionalPowerFlowTerminalFromAlias(areas, twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL3, twt.getLeg3().getTerminal(), cimNamespace, writer, context);
+            writePowerFlowTerminalFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, twt.getLeg1().getTerminal(), cimNamespace, writer, context);
+            writePowerFlowTerminalFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, twt.getLeg2().getTerminal(), cimNamespace, writer, context);
+            writePowerFlowTerminalFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL3, twt.getLeg3().getTerminal(), cimNamespace, writer, context);
         });
 
         if (context.exportFlowsForSwitches()) {
             network.getVoltageLevelStream().forEach(vl -> {
                 SwitchesFlow swflows = new SwitchesFlow(vl);
                 vl.getSwitches().forEach(sw -> {
-                    if (context.isExportedEquipment(sw) && swflows.hasFlow(sw.getId())) {
+                    if (context.isExportedEquipment(sw)) {
                         writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, swflows.getP1(sw.getId()), swflows.getQ1(sw.getId()), cimNamespace, writer, context);
                         writePowerFlowTerminalFromAlias(sw, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, swflows.getP2(sw.getId()), swflows.getQ2(sw.getId()), cimNamespace, writer, context);
                     }
                 });
             });
         }
+    }
+
+    private static void writeConnectableBranchPowerFlow(String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Branch b) {
+        writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getTerminal1(), cimNamespace, writer, context);
+        writePowerFlowTerminalFromAlias(b, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2, b.getTerminal2(), cimNamespace, writer, context);
     }
 
     private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Function<Network, Stream<I>> getInjectionStream) {
@@ -281,21 +280,13 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeOptionalPowerFlowTerminalFromAlias(CgmesControlAreas areas, Identifiable<?> c, String aliasTypeForTerminalId, Terminal t, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+    private static void writePowerFlowTerminalFromAlias(Identifiable<?> c, String aliasTypeForTerminalId, Terminal t, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         // Export only if we have a terminal identifier
-        if (!Double.isNaN(t.getP()) || !Double.isNaN(t.getQ()) || (areas != null && areas.getCgmesControlAreas().stream().anyMatch(area -> area.getTerminals().contains(t)))) {
-            writePowerFlowTerminalFromAlias(c, aliasTypeForTerminalId, t.getP(), t.getQ(), cimNamespace, writer, context);
-        }
+        writePowerFlowTerminalFromAlias(c, aliasTypeForTerminalId, t.getP(), t.getQ(), cimNamespace, writer, context);
     }
 
-    // only if we have areas and this dangling line boundary is defined at one area
-    private static void writePowerFlowTieLineTerminalFromAlias(CgmesControlAreas areas, DanglingLine danglingLine, String aliasTypeForTerminalId, Terminal t, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        TieLine tieLine = danglingLine.getTieLine().orElseThrow();
-        Boundary b1 = tieLine.getDanglingLine1().getBoundary();
-        Boundary b2 = tieLine.getDanglingLine1().getBoundary();
-        if (areas != null && areas.getCgmesControlAreas().stream().flatMap(area -> area.getBoundaries().stream()).anyMatch(b -> b == b1 || b == b2)) {
-            writePowerFlowTerminalFromAlias(danglingLine, aliasTypeForTerminalId, t.getP(), t.getQ(), cimNamespace, writer, context);
-        }
+    private static void writePowerFlowTieLineTerminalFromAlias(DanglingLine danglingLine, String aliasTypeForTerminalId, Terminal t, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        writePowerFlowTerminalFromAlias(danglingLine, aliasTypeForTerminalId, t.getP(), t.getQ(), cimNamespace, writer, context);
     }
 
     private static void writePowerFlowTerminalFromAlias(Identifiable<?> c, String aliasTypeForTerminalId, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {

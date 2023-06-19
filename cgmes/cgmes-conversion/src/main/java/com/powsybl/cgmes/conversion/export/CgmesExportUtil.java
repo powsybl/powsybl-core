@@ -53,12 +53,20 @@ public final class CgmesExportUtil {
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
 
+    private static double fixValue(double value) {
+        return Double.isNaN(value) ? 0.0 : value; // disconnected equipment in general, a bit dangerous.
+    }
+
     public static String format(double value) {
-        return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+        // Always use scientific format for extreme values
+        if (value == Double.MAX_VALUE || value == -Double.MAX_VALUE) {
+            return scientificFormat(value);
+        }
+        return DOUBLE_FORMAT.format(fixValue(value));
     }
 
     public static String scientificFormat(double value) {
-        return SCIENTIFIC_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+        return SCIENTIFIC_FORMAT.format(fixValue(value));
     }
 
     public static String format(int value) {
@@ -182,10 +190,10 @@ public final class CgmesExportUtil {
             if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
                     && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
                 return CgmesNames.CONFORM_LOAD;
-            }
-            // NonConform load if fixed part is non-zero and variable part is all zero
-            if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
-                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {
+            } else if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
+                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {  // NonConform load if fixed part is non-zero and variable part is all zero
+                return CgmesNames.NONCONFORM_LOAD;
+            } else {
                 return CgmesNames.NONCONFORM_LOAD;
             }
         }

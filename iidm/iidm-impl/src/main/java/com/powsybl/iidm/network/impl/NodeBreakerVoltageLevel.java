@@ -707,15 +707,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return this;
         }
 
-        /**
-         * @deprecated Use {@link #getMaximumNodeIndex()} instead.
-         */
-        @Override
-        @Deprecated
-        public int getNodeCount() {
-            return graph.getVertexCount();
-        }
-
         @Override
         public int getMaximumNodeIndex() {
             return graph.getVertexCapacity() - 1;

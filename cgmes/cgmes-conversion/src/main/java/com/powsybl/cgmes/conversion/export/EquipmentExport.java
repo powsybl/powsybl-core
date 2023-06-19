@@ -35,6 +35,7 @@ public final class EquipmentExport {
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
     private static final String RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
+    private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
     public static void write(Network network, XMLStreamWriter writer) {
@@ -76,7 +77,7 @@ public final class EquipmentExport {
             writeVoltageLevels(network, cimNamespace, writer, context, exportedBaseVoltagesByNominalV);
             writeBusbarSections(network, cimNamespace, writer, context);
             writeLoads(network, loadGroups, cimNamespace, writer, context);
-            writeLoadGroups(loadGroups.found(), cimNamespace, writer, context);
+            String loadAreaId = writeLoadGroups(network.getId(), loadGroups.found(), cimNamespace, writer, context);
             writeGenerators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writeInitialP, writer, context);
             writeBatteries(network, cimNamespace, writeInitialP, writer, context);
             writeShuntCompensators(network, mapTerminal2Id, regulatingControlsWritten, cimNamespace, writer, context);
@@ -89,7 +90,7 @@ public final class EquipmentExport {
             writeDanglingLines(network, mapTerminal2Id, cimNamespace, euNamespace, limitValueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context, exportedBaseVoltagesByNominalV);
             writeHvdcLines(network, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
 
-            writeControlAreas(network, mapTerminal2Id, cimNamespace, euNamespace, writer, context);
+            writeControlAreas(loadAreaId, network, cimNamespace, euNamespace, writer, context);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -256,14 +257,19 @@ public final class EquipmentExport {
 
     // We may receive a warning if we define an empty load group,
     // So we will output only the load groups that have been found during export of loads
-    private static void writeLoadGroups(Collection<LoadGroup> foundLoadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    // one load area and one sub load area is created in any case
+    private static String writeLoadGroups(String networkId, Collection<LoadGroup> foundLoadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        // Write one load area and one sub load area for the whole network
+        String loadAreaId = CgmesExportUtil.getUniqueId();
+        LoadAreaEq.write(loadAreaId, networkId, cimNamespace, writer, context);
+        String subLoadAreaId = CgmesExportUtil.getUniqueId();
+        LoadAreaEq.writeSubArea(subLoadAreaId, loadAreaId, networkId, cimNamespace, writer, context);
         for (LoadGroup loadGroup : foundLoadGroups) {
             CgmesExportUtil.writeStartIdName(loadGroup.className, loadGroup.id, loadGroup.name, cimNamespace, writer, context);
-            // LoadArea and SubLoadArea are inside the Operation profile
-            // In principle they are not required, but we may have to add them
-            // and write here a reference to "LoadGroup.SubLoadArea"
+            CgmesExportUtil.writeReference("LoadGroup.SubLoadArea", subLoadAreaId, cimNamespace, writer, context);
             writer.writeEndElement();
         }
+        return loadAreaId;
     }
 
     private static void writeLoads(Network network, LoadGroups loadGroups, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -288,7 +294,7 @@ public final class EquipmentExport {
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
             String regulatingControlId = RegulatingControlEq.writeKindVoltage(generator, exportedTerminalId(mapTerminal2Id, generator.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, writer, context);
-            writeSynchronousMachine(generator, cimNamespace, writeInitialP, "generator",
+            writeSynchronousMachine(generator, cimNamespace, writeInitialP,
                     generator.getMinP(), generator.getMaxP(), generator.getTargetP(), generator.getRatedS(), generator.getEnergySource(),
                     regulatingControlId, writer, context, generatingUnitsWritten);
         }
@@ -300,23 +306,37 @@ public final class EquipmentExport {
         // We have to write each generating unit only once
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Battery battery : network.getBatteries()) {
-            writeSynchronousMachine(battery, cimNamespace, writeInitialP, "generatorOrMotor",
+            writeSynchronousMachine(battery, cimNamespace, writeInitialP,
                     battery.getMinP(), battery.getMaxP(), battery.getTargetP(), Double.NaN, EnergySource.HYDRO, null,
                     writer, context, generatingUnitsWritten);
         }
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> void writeSynchronousMachine(I i, String cimNamespace, boolean writeInitialP, String kind,
+    private static <I extends ReactiveLimitsHolder & Injection<I>> void writeSynchronousMachine(I i, String cimNamespace, boolean writeInitialP,
                                                 double minP, double maxP, double targetP, double ratedS, EnergySource energySource, String regulatingControlId,
                                                 XMLStreamWriter writer, CgmesExportContext context, Set<String> generatingUnitsWritten) throws XMLStreamException {
         String generatingUnit = context.getNamingStrategy().getCgmesIdFromProperty(i, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
         String reactiveLimitsId = null;
-        double minQ = 0.0;
-        double maxQ = 0.0;
+        double minQ;
+        double maxQ;
+        String kind = CgmesNames.GENERATOR_OR_MOTOR;
         switch (i.getReactiveLimits().getKind()) {
             case CURVE:
-                reactiveLimitsId = CgmesExportUtil.getUniqueId();
                 ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
+
+                minQ = Double.min(curve.getMinQ(curve.getMinP()), curve.getMinQ(curve.getMaxP()));
+                maxQ = Double.max(curve.getMaxQ(curve.getMinP()), curve.getMaxQ(curve.getMaxP()));
+
+                if (curve.getMinP() >= 0 && curve.getMaxP() >= 0) {
+                    kind = "generator";
+                } else if (curve.getMinP() <= 0 && curve.getMaxP() <= 0) {
+                    kind = "motor";
+                } // other case not possible
+                if (minQ == maxQ) {
+                    break;
+                }
+
+                reactiveLimitsId = CgmesExportUtil.getUniqueId();
                 for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
                     CurveDataEq.write(CgmesExportUtil.getUniqueId(), point.getP(), point.getMinQ(), point.getMaxQ(), reactiveLimitsId, cimNamespace, writer, context);
                 }
@@ -327,6 +347,14 @@ public final class EquipmentExport {
             case MIN_MAX:
                 minQ = i.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ();
                 maxQ = i.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ();
+
+                // We can use the P limits from the equipment if we do not have a curve
+                if (minP >= 0 && maxP >= 0) {
+                    kind = "generator";
+                } else if (minP <= 0 && maxP <= 0) {
+                    kind = "motor";
+                } // other case not possible
+
                 break;
 
             default:
@@ -631,7 +659,7 @@ public final class EquipmentExport {
             }
             String equivalentInjectionId = context.getNamingStrategy().getCgmesIdFromProperty(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             if (!exported.contains(equivalentInjectionId)) { // check if the equivalent injection has already been written (if several dangling lines linked to same X-node)
-                EquivalentInjectionEq.write(equivalentInjectionId, danglingLine.getNameOrId() + "_EI", danglingLine.getGeneration() != null, danglingLine.getGeneration() != null, minP, maxP, minQ, maxQ, baseVoltageId, cimNamespace, writer, context);
+                EquivalentInjectionEq.write(equivalentInjectionId, danglingLine.getNameOrId() + "_EI", danglingLine.getGeneration() != null, minP, maxP, minQ, maxQ, baseVoltageId, cimNamespace, writer, context);
                 exported.add(equivalentInjectionId);
             }
             String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
@@ -645,7 +673,7 @@ public final class EquipmentExport {
                     context.getBaseVoltageByNominalVoltage(danglingLine.getTerminal().getVoltageLevel().getNominalV()).getId(),
                     danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer, context);
             writeFlowsLimits(danglingLine, exportedTerminalId(mapTerminal2Id, danglingLine.getTerminal()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
-            danglingLine.getAliasFromType("CGMES.Terminal_Boundary").ifPresent(terminalBdId -> {
+            danglingLine.getAliasFromType("CGMES." + TERMINAL_BOUNDARY).ifPresent(terminalBdId -> {
                 try {
                     writeFlowsLimits(danglingLine, terminalBdId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
                 } catch (XMLStreamException e) {
@@ -692,7 +720,7 @@ public final class EquipmentExport {
             }
         }
         // New Terminal
-        String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
+        String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
         TerminalEq.write(terminalId, context.getNamingStrategy().getCgmesId(danglingLine), connectivityNodeId, 2, cimNamespace, writer, context);
 
         return connectivityNodeId;
@@ -921,20 +949,31 @@ public final class EquipmentExport {
         DCTerminalEq.write(AC_DC_CONVERTER_DC_TERMINAL, id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer, context);
     }
 
-    private static void writeControlAreas(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeControlAreas(String energyAreaId, Network network, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
         for (CgmesControlArea cgmesControlArea : cgmesControlAreas.getCgmesControlAreas()) {
-            writeControlArea(cgmesControlArea, mapTerminal2Id, cimNamespace, euNamespace, writer, context);
+            writeControlArea(cgmesControlArea, energyAreaId, cimNamespace, euNamespace, writer, context);
         }
     }
 
-    private static void writeControlArea(CgmesControlArea cgmesControlArea, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeControlArea(CgmesControlArea cgmesControlArea, String energyAreaId, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // Original control area identifiers may not respect mRID rules, so we pass it through naming strategy
         // to obtain always valid mRID identifiers
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(cgmesControlArea.getId());
-        ControlAreaEq.write(controlAreaCgmesId, cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), cimNamespace, euNamespace, writer, context);
+        ControlAreaEq.write(controlAreaCgmesId, cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), energyAreaId, cimNamespace, euNamespace, writer, context);
         for (Terminal terminal : cgmesControlArea.getTerminals()) {
-            TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId, exportedTerminalId(mapTerminal2Id, terminal), cimNamespace, writer, context);
+            if (terminal.getConnectable() instanceof DanglingLine) {
+                DanglingLine dl = (DanglingLine) terminal.getConnectable();
+                if (!dl.isPaired()) {
+                    TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId,
+                            context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY),
+                            cimNamespace, writer, context);
+                } else {
+                    LOG.error("Unsupported tie flow at TieLine boundary {}", dl.getId());
+                }
+            } else {
+                LOG.warn("Ignored tie flow at {}: should be a dangling line to retrieve boundary terminal", terminal.getConnectable().getId());
+            }
         }
         for (Boundary boundary : cgmesControlArea.getBoundaries()) {
             String terminalId = getTieFlowBoundaryTerminal(boundary, context);
@@ -947,7 +986,7 @@ public final class EquipmentExport {
     private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context) {
         DanglingLine dl = boundary.getDanglingLine();
         if (!dl.isPaired()) {
-            return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
+            return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
         } else {
             // This means the boundary corresponds to a TieLine.
             // Because the network should not be a merging view,

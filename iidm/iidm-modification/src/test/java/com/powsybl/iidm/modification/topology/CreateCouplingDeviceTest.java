@@ -66,7 +66,7 @@ class CreateCouplingDeviceTest extends AbstractConverterTest {
                 .withBusOrBusbarSectionId2("bbs2")
                 .build();
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> couplingDeviceModifWrongBbs.apply(network, true, Reporter.NO_OP));
-        assertEquals("Identifiable bbs not found.", e0.getMessage());
+        assertEquals("Bus or busbar section bbs not found", e0.getMessage());
 
         NetworkModification couplingDeviceModifBbsInDifferentVl = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
@@ -135,8 +135,8 @@ class CreateCouplingDeviceTest extends AbstractConverterTest {
     private static Stream<Arguments> parameters() {
         return Stream.of(
                 Arguments.of("bbs1", "gen1", "Unexpected type of identifiable gen1: GENERATOR"),
-                Arguments.of("bb1", "bbs2", "Identifiable bb1 not found."),
-                Arguments.of("bbs1", "bb2", "Identifiable bb2 not found.")
+                Arguments.of("bb1", "bbs2", "Bus or busbar section bb1 not found"),
+                Arguments.of("bbs1", "bb2", "Bus or busbar section bb2 not found")
         );
     }
 

@@ -134,17 +134,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working variant.</p>
      * @return the voltage setpoint
      */
-    default double getVoltageSetpoint() {
-        return getVoltageSetPoint();
-    }
-
-    /**
-     * @deprecated use {@link #getVoltageSetpoint()} instead.
-     */
-    @Deprecated
-    default double getVoltageSetPoint() {
-        return getVoltageSetpoint();
-    }
+    double getVoltageSetpoint();
 
     /**
      * <p>Set the voltage setpoint in Kv.</p>
@@ -153,17 +143,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @param voltageSetpoint the voltage setpoint
      * @return this to allow method chaining
      */
-    default StaticVarCompensator setVoltageSetpoint(double voltageSetpoint) {
-        return setVoltageSetPoint(voltageSetpoint);
-    }
-
-    /**
-     * @deprecated use {@link #setVoltageSetpoint(double voltageSetpoint)} instead.
-     */
-    @Deprecated
-    default StaticVarCompensator setVoltageSetPoint(double voltageSetPoint) {
-        return setVoltageSetpoint(voltageSetPoint);
-    }
+    StaticVarCompensator setVoltageSetpoint(double voltageSetpoint);
 
     /**
      * <p>Get the reactive power setpoint in MVAR.</p>
@@ -171,17 +151,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working variant.</p>
      * @return the reactive power setpoint
      */
-    default double getReactivePowerSetpoint() {
-        return getReactivePowerSetPoint();
-    }
-
-    /**
-     * @deprecated use {@link #getReactivePowerSetpoint()} instead.
-     */
-    @Deprecated
-    default double getReactivePowerSetPoint() {
-        return getReactivePowerSetpoint();
-    }
+    double getReactivePowerSetpoint();
 
     /**
      * <p>Set the reactive power setpoint in MVAR.</p>
@@ -190,17 +160,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return this to allow method chaining
      */
-    default StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        return setReactivePowerSetPoint(reactivePowerSetpoint);
-    }
-
-    /**
-     * @deprecated use {@link #setReactivePowerSetpoint(double reactivePowerSetpoint)} instead.
-     */
-    @Deprecated
-    default StaticVarCompensator setReactivePowerSetPoint(double reactivePowerSetPoint) {
-        return setReactivePowerSetpoint(reactivePowerSetPoint);
-    }
+    StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
      * <p>Get the regulating mode.</p>
