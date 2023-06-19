@@ -67,8 +67,8 @@ class SVTest {
         SV svDl1other = svDl1.otherSide(dl);
         assertEquals(-dl.getP0(), svDl1other.getP(), tol);
         assertEquals(-dl.getQ0(), svDl1other.getQ(), tol);
-        assertEquals(225.1798987500, svDl1other.getU(), tol);
-        assertEquals(-0.4183680524, svDl1other.getA(), tol);
+        assertEquals(224.95412675699487, svDl1other.getU(), tol);
+        assertEquals(-0.4186586492949765, svDl1other.getA(), tol);
 
         assertEquals(-dl.getP0(), dl.getBoundary().getP(), tol);
         assertEquals(-dl.getQ0(), dl.getBoundary().getQ(), tol);
@@ -111,12 +111,12 @@ class SVTest {
 
         // Voltages at the buses
         bus1.setV(225.0).setAngle(0.0);
-        bus2.setV(225.2726820000).setAngle(-0.2603514491);
+        bus2.setV(225.04700479902164).setAngle(-0.2603248262814924);
 
-        line.getTerminal1().setP(115.003788).setQ(-56.302621);
-        line.getTerminal2().setP(-115.000986).setQ(6.176675);
+        line.getTerminal1().setP(115.00360715150475).setQ(-30.914232945266917);
+        line.getTerminal2().setP(-115.00098844353953).setQ(-19.19760264636019);
 
-        dl.getTerminal().setP(70.000986).setQ(-15.176675);
+        dl.getTerminal().setP(70.00098808488349).setQ(10.197609248344843);
     }
 
     private static void svDcOlfDataToNetwork(Network network) {
@@ -227,7 +227,8 @@ class SVTest {
             .add();
         generator.newMinMaxReactiveLimits()
             .setMinQ(-500.0)
-            .setMaxQ(500.0);
+            .setMaxQ(500.0)
+            .add();
         generator.getTerminal().setP(-p).setQ(-q);
     }
 
@@ -253,7 +254,7 @@ class SVTest {
             .setR(0.01)
             .setX(2.0)
             .setG(0.0)
-            .setB(0.0005)
+            .setB(0.0)
             .setP0(p0)
             .setQ0(q0)
             .setUcteXnodeCode(ucteCode)
