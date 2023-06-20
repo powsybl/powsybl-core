@@ -285,11 +285,21 @@ public final class NetworkXml {
         AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
+        writeSubNetworks(n, context);
+
         writeVoltageLevels(n, context);
         writeSubstations(n, context);
         writeLines(n, context);
         writeTieLines(n, context);
         writeHvdcLines(n, context);
+    }
+
+    private static void writeSubNetworks(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        for (Network subNetwork : IidmXmlUtil.sorted(n.getSubNetworks(), context.getOptions())) {
+            IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
+                    IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_11, context);
+            write(subNetwork, context);
+        }
     }
 
     private static void writeVoltageLevels(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
@@ -304,14 +314,16 @@ public final class NetworkXml {
 
     private static void writeSubstations(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
-            SubstationXml.INSTANCE.write(s, n, context);
+            if (s.getClosestNetwork() == n) {
+                SubstationXml.INSTANCE.write(s, n, context);
+            }
         }
     }
 
     private static void writeLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         BusFilter filter = context.getFilter();
         for (Line l : IidmXmlUtil.sorted(n.getLines(), context.getOptions())) {
-            if (!filter.test(l)) {
+            if (l.getClosestNetwork() != n || !filter.test(l)) {
                 continue;
             }
             LineXml.INSTANCE.write(l, n, context);
@@ -321,7 +333,7 @@ public final class NetworkXml {
     private static void writeTieLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         BusFilter filter = context.getFilter();
         for (TieLine l : IidmXmlUtil.sorted(n.getTieLines(), context.getOptions())) {
-            if (!filter.test(l)) {
+            if (l.getClosestNetwork() != n || !filter.test(l)) {
                 continue;
             }
             TieLineXml.INSTANCE.write(l, n, context);
@@ -331,22 +343,26 @@ public final class NetworkXml {
     private static void writeHvdcLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         BusFilter filter = context.getFilter();
         for (HvdcLine l : IidmXmlUtil.sorted(n.getHvdcLines(), context.getOptions())) {
-            if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
+            if (l.getClosestNetwork() != n || !filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
                 continue;
             }
             HvdcLineXml.INSTANCE.write(l, n, context);
         }
     }
 
+    private static void write(Network network, NetworkXmlWriterContext context) throws XMLStreamException {
+        writeRootElement(network, context);
+        writeBaseNetwork(network, context);
+        writeVoltageAngleLimits(network, context);
+        writeExtensions(network, context);
+        context.getWriter().writeEndElement();
+    }
+
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os) {
         try {
             XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
             NetworkXmlWriterContext context = createContext(n, options, writer);
-            writeRootElement(n, context);
-            writeBaseNetwork(n, context);
-            writeVoltageAngleLimits(n, context);
-            writeExtensions(n, context);
-            context.getWriter().writeEndElement();
+            write(n, context);
             context.getWriter().writeEndDocument();
             context.getWriter().close();
             return context.getAnonymizer();

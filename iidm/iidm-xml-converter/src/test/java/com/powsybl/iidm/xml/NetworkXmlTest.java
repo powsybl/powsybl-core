@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.test.BusbarSectionExt;
 import com.powsybl.iidm.network.test.ScadaNetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.joda.time.DateTime;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -151,5 +152,62 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
         BusbarSection bb2 = nodeBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1");
         assertEquals(1, bb2.getExtensions().size());
         assertNotNull(bb2.getExtension(BusbarSectionExt.class));
+    }
+
+    @Disabled
+    @Test
+    void roundTripWithSubNetworksTest() throws IOException {
+        Network merged = Network.create("Merged", "hybrid");
+        Network n1 = createNetwork(1);
+        Network n2 = createNetwork(2);
+        merged.setCaseDate(DateTime.parse("2013-01-15T18:40:00+01:00"));
+        n1.setCaseDate(DateTime.parse("2013-01-15T18:41:00+01:00"));
+        n2.setCaseDate(DateTime.parse("2013-01-15T18:42:00+01:00"));
+        merged.merge(n1, n2);
+
+        //TODO
+        // - Read network files with subnetworks
+        // - Ensure backward compatibility
+        roundTripXmlTest(merged,
+            (n, p) -> NetworkXml.writeAndValidate(n, new ExportOptions().setSorted(true), p),
+            NetworkXml::read,
+            getVersionedNetworkPath("subnetworks.xml", CURRENT_IIDM_XML_VERSION));
+
+        // backward compatibility
+        roundTripAllPreviousVersionedXmlTest("subnetworks.xml");
+    }
+
+    private Network createNetwork(int num) {
+        String dlId = "dl" + num;
+        String voltageLevelId = "vl" + num;
+        String busId = "b" + num;
+
+        Network network = Network.create("Network-" + num, "format");
+        Substation s1 = network.newSubstation()
+                .setId("s" + num)
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId(voltageLevelId)
+                .setNominalV(380)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl1.getBusBreakerView().newBus()
+                .setId(busId)
+                .add();
+        network.getVoltageLevel(voltageLevelId).newDanglingLine()
+                .setId(dlId)
+                .setName(dlId + "_name")
+                .setConnectableBus(busId)
+                .setBus(busId)
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(4.0)
+                .setB(5.0)
+                .setUcteXnodeCode("code")
+                .add();
+        return network;
     }
 }
