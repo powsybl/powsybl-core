@@ -34,7 +34,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public boolean isPaired() {
+    public boolean isPaired(Network network) {
         if (getIndex().isMerged(this)) {
             return true;
         }

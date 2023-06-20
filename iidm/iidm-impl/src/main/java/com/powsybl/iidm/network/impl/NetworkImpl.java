@@ -155,6 +155,10 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return refByNetworkId.get(id);
     }
 
+    RefChain<NetworkImpl> getRef(String networkId) {
+        return refByNetworkId.get(networkId);
+    }
+
     NetworkListenerList getListeners() {
         return listeners;
     }
