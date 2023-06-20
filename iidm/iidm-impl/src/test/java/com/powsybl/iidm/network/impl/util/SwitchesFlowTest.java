@@ -254,7 +254,8 @@ class SwitchesFlowTest {
             .add();
         generator.newMinMaxReactiveLimits()
             .setMinQ(-100)
-            .setMaxQ(100);
+            .setMaxQ(100)
+            .add();
         generator.getTerminal().setP(-p).setQ(-q);
 
     }

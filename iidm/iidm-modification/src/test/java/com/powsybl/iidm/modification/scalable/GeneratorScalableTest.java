@@ -93,15 +93,6 @@ class GeneratorScalableTest {
     }
 
     @Test
-    void testListGenerators() {
-        Generator generator1 = network.getGenerator("g1");
-
-        List<Generator> generators = g1.listGenerators(network);
-        assertEquals(1, generators.size());
-        assertSame(generator1, generators.get(0));
-    }
-
-    @Test
     void testDisconnectedGenerator() {
         g3.scale(network, 100.0);
 
@@ -290,5 +281,11 @@ class GeneratorScalableTest {
         assertEquals(20.0, g1.scale(network, 20.0, parameters), 1e-3);
         assertEquals(20.0, generator.getTargetP(), 1e-3);
         assertTrue(generator.getTerminal().isConnected());
+
+        //reconnect to false
+        generator.getTerminal().disconnect();
+        assertFalse(generator.getTerminal().isConnected());
+        assertEquals(0.0, g1.scale(network, 10));
+        assertEquals(20.0, generator.getTargetP(), 1e-3);
     }
 }

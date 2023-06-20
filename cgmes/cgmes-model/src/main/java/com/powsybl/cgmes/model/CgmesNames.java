@@ -115,6 +115,8 @@ public final class CgmesNames {
     public static final String TOPOLOGICAL_NODE_BOUNDARY = "TopologicalNode_Boundary";
     public static final String GENERATOR_OR_MOTOR = "generatorOrMotor";
 
+    public static final String CONNECTIVITY_NODE_CONTAINER = "ConnectivityNodeContainer";
+
     private CgmesNames() {
     }
 }

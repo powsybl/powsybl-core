@@ -33,16 +33,6 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     String getId();
 
     /**
-     * Get the name of the object if it exists. If not, get the unique identifier of the object.
-     *
-     * @deprecated Use {@link #getNameOrId()} or {@link #getOptionalName()} instead.
-     */
-    @Deprecated
-    default String getName() {
-        return getNameOrId();
-    }
-
-    /**
      * Get the aliases of the object.
      */
     default Set<String> getAliases() {
@@ -138,16 +128,6 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      * Check that this object has some properties.
      */
     boolean hasProperty();
-
-    /**
-     * Get properties associated to the object.
-     *
-     * @deprecated Use {@link #getProperty(String)} & {@link #setProperty(String, String)} instead.
-     */
-    @Deprecated
-    default Properties getProperties() {
-        throw new UnsupportedOperationException("Deprecated");
-    }
 
     /**
      * Check that this object has property with specified name.

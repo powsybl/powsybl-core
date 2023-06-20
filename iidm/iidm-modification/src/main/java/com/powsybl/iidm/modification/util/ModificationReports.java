@@ -333,20 +333,11 @@ public final class ModificationReports {
     }
 
     // ERROR
-    public static void notFoundIdentifiableReport(Reporter reporter, String identifiableId) {
+    public static void notFoundBusOrBusbarSectionReport(Reporter reporter, String identifiableId) {
         reporter.report(Report.builder()
-                .withKey("notFoundIdentifiable")
-                .withDefaultMessage("Identifiable ${identifiableId} not found")
+                .withKey("notFoundBusOrBusbarSection")
+                .withDefaultMessage("Bus or busbar section ${identifiableId} not found")
                 .withValue(IDENTIFIABLE_ID, identifiableId)
-                .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
-    }
-
-    public static void notFoundBusbarSectionReport(Reporter reporter, String bbsId) {
-        reporter.report(Report.builder()
-                .withKey("notFoundBusbarSection")
-                .withDefaultMessage("Busbar section ${busbarSectionId} not found")
-                .withValue("busbarSectionId", bbsId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
