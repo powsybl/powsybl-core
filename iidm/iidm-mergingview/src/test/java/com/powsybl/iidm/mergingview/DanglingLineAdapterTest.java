@@ -138,8 +138,8 @@ class DanglingLineAdapterTest {
 
         // Properties
         assertFalse(line.removeProperty("noFound"));
-        assertTrue(line.hasProperty("keyTest"));
-        assertTrue(line.removeProperty("keyTest"));
+        // The tie line does not merge properties from its dangling lines,
+        // We only have to check that we can assign new properties to it
         assertFalse(line.hasProperty("keyTest"));
         line.setProperty("keyTest", "test");
         assertTrue(line.hasProperty("keyTest"));
@@ -360,9 +360,8 @@ class DanglingLineAdapterTest {
         assertEquals("dl", mergedLine.getOptionalName().orElse(null));
         assertEquals("dl", mergedLine.getNameOrId());
 
-        assertTrue(mergedLine.hasProperty());
-        assertTrue(mergedLine.hasProperty("ucteCode"));
-        assertEquals(11, mergedLine.getPropertyNames().size());
+        // The merged line does not receive properties from its dangling lines
+        // We only have to check that we can add new properties
         mergedLine.setProperty("key", "value");
         assertEquals("value", mergedLine.getProperty("key"));
         assertEquals("defaultValue", mergedLine.getProperty("noKey", "defaultValue"));
