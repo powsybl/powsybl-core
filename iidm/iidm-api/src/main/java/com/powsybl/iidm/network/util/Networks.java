@@ -90,20 +90,6 @@ public final class Networks {
         private double disconnectedShuntNegativeVolume = 0.0;
     }
 
-    /**
-     * @deprecated Use {@link #printBalanceSummary(String, Network, Writer)} instead.
-     */
-    @Deprecated
-    public static void printBalanceSummary(String title, Network network, Logger logger) throws IOException {
-        Objects.requireNonNull(logger);
-        if (logger.isDebugEnabled()) {
-            try (Writer writer = new StringWriter()) {
-                printBalanceSummary(title, network, writer);
-                logger.debug(writer.toString());
-            }
-        }
-    }
-
     public static void printBalanceSummary(String title, Network network, Writer writer) throws IOException {
         Objects.requireNonNull(title);
         Objects.requireNonNull(network);
