@@ -351,6 +351,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
+    private EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(String graph, String boundaryNode) {
+        List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
+
+        Optional<PropertyBag> optionalEi = eis.stream().filter(ei -> ei.get("graph").equals(graph)).findFirst();
+        return optionalEi.map(ei -> new EquivalentInjectionConversion(ei, context)).orElse(null);
+    }
+
     int iidmNode() {
         return iidmNode(1, true);
     }
@@ -651,7 +658,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         context.namingStrategy().readIdMapping(identifiable, type);
     }
 
-    protected BoundaryLine createBoundaryLine(String boundaryNode) {
+    protected BoundaryLine createBoundaryLine(String graph, String boundaryNode) {
         int modelEnd = 1;
         if (nodeId(1).equals(boundaryNode)) {
             modelEnd = 2;
@@ -670,9 +677,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             modelNode = iidmNode(modelEnd);
         }
         PowerFlow modelPowerFlow = powerFlowSV(modelEnd);
+        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(graph, boundaryNode);
+        String equivalentInjectionId = equivalentInjectionConversion != null ? equivalentInjectionConversion.id() : null;
+        String equivalentInjectionCgmesTerminalId = equivalentInjectionConversion != null ? equivalentInjectionConversion.terminalId() : null;
+
         return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
             modelTerminalId, getBoundarySide(modelEnd), boundaryTerminalId, boundaryConnectivityNodeId,
-            boundaryTopologicalNodeId, modelPowerFlow);
+            boundaryTopologicalNodeId, modelPowerFlow, equivalentInjectionId, equivalentInjectionCgmesTerminalId);
     }
 
     private static Branch.Side getBoundarySide(int modelEnd) {

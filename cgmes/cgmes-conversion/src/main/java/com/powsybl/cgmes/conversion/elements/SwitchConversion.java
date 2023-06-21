@@ -64,7 +64,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
 
     @Override
     public BoundaryLine asBoundaryLine(String node) {
-        return super.createBoundaryLine(node);
+        String graph = p.get("graph");
+        return super.createBoundaryLine(graph, node);
     }
 
     private Switch convertToSwitch() {

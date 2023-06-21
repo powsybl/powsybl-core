@@ -106,7 +106,8 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     @Override
     public BoundaryLine asBoundaryLine(String boundaryNode) {
-        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
+        String graph = ps.get(0).get("graph");
+        BoundaryLine boundaryLine = super.createBoundaryLine(graph, boundaryNode);
 
         CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);

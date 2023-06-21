@@ -239,10 +239,7 @@ public final class TopologyExport {
     }
 
     private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
-            if (dl.isPaired()) {
-                continue;
-            }
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNodeId == null) {
                 // If no information about original boundary has been preserved in the IIDM model,

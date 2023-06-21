@@ -19,7 +19,7 @@ public class BoundaryLine {
     BoundaryLine(String id, String name, String modelIidmVoltageLevelId, String modelBus,
         boolean modelTconnected, int modelNode, String modelTerminalId, Branch.Side boundarySide,
         String boundaryTerminalId, String boundaryConnectivityNodeId, String boundaryTopologicalNodeId,
-        PowerFlow modelPowerFlow) {
+        PowerFlow modelPowerFlow, String equivalentInjectionId, String equivalentInjectionCgmesTerminalId) {
         this.id = id;
         this.name = name;
         this.modelIidmVoltageLevelId = modelIidmVoltageLevelId;
@@ -32,6 +32,9 @@ public class BoundaryLine {
         this.boundaryConnectivityNodeId = boundaryConnectivityNodeId;
         this.boundaryTopologicalNodeId = boundaryTopologicalNodeId;
         this.modelPowerFlow = modelPowerFlow;
+        this.equivalentInjectionId = equivalentInjectionId;
+        this.equivalentInjectionCgmesTerminalId = equivalentInjectionCgmesTerminalId;
+
         r = 0.0;
         x = 0.0;
         g1 = 0.0;
@@ -121,6 +124,14 @@ public class BoundaryLine {
         return modelPowerFlow;
     }
 
+    String getEquivalentInjectionId() {
+        return equivalentInjectionId;
+    }
+
+    String getEquivalentInjectionCgmesTerminalId() {
+        return equivalentInjectionCgmesTerminalId;
+    }
+
     private final String id;
     private final String name;
     private final String modelIidmVoltageLevelId;
@@ -139,4 +150,6 @@ public class BoundaryLine {
     private double g2;
     private double b2;
     private final PowerFlow modelPowerFlow;
+    private final String equivalentInjectionId;
+    private final String equivalentInjectionCgmesTerminalId;
 }

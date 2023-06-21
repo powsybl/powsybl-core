@@ -67,7 +67,8 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
 
     @Override
     public BoundaryLine asBoundaryLine(String boundaryNode) {
-        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
+        String graph = p.get("graph");
+        BoundaryLine boundaryLine = super.createBoundaryLine(graph, boundaryNode);
         double r = p.asDouble("r");
         double x = p.asDouble("x");
         boundaryLine.setParameters(r, x, 0.0, 0.0, 0.0, 0.0);

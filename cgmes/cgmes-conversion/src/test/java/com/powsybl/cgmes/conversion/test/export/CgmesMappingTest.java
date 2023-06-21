@@ -116,7 +116,7 @@ class CgmesMappingTest extends AbstractConverterTest {
         // In the Network created from CGMES + mapping all Identifiables that do not have a valid CIM mRID
         // must have a valid UUID alias
         for (Identifiable<?> i : networkActual.getIdentifiables()) {
-            if (!i.isFictitious() && !CgmesExportUtil.isValidCimMasterRID(i.getId())) {
+            if (!i.isFictitious() && !i.getType().equals(IdentifiableType.TIE_LINE) && !CgmesExportUtil.isValidCimMasterRID(i.getId())) {
                 Optional<String> uuid = i.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
                 assertTrue(uuid.isPresent());
                 assertTrue(CgmesExportUtil.isValidCimMasterRID(uuid.get()));
@@ -248,7 +248,7 @@ class CgmesMappingTest extends AbstractConverterTest {
     private void checkAllIdentifiersAreValidCimCgmesIdentifiers(Network network) {
         CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
         Supplier<Stream<String>> badIds = () -> Stream.of(
-                        network.getIdentifiables().stream().filter(i -> !i.isFictitious()).map(Identifiable::getId),
+            network.getIdentifiables().stream().filter(i -> !i.isFictitious() && !i.getType().equals(IdentifiableType.TIE_LINE)).map(Identifiable::getId),
                         // Some CGMES identifiers do not end as Network identifiables
                         cgmes.terminals().stream().map(o -> o.getId(CgmesNames.TERMINAL)),
                         cgmes.connectivityNodes().stream().map(o -> o.getId(CgmesNames.CONNECTIVITY_NODE)),
@@ -373,6 +373,12 @@ class CgmesMappingTest extends AbstractConverterTest {
         if (eqbd != null) {
             try (InputStream is = originalDataSource.newInputStream(eqbd)) {
                 Files.copy(is, outputFolder.resolve(baseName + "_EQ_BD.xml"));
+            }
+        }
+        String tpbd = originalDataSource.listNames(".*TP_BD.*").stream().findFirst().orElse(null);
+        if (tpbd != null) {
+            try (InputStream is = originalDataSource.newInputStream(tpbd)) {
+                Files.copy(is, outputFolder.resolve(baseName + "_TP_BD.xml"));
             }
         }
     }

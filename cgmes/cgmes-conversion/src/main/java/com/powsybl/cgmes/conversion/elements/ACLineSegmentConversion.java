@@ -61,7 +61,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
 
     @Override
     public BoundaryLine asBoundaryLine(String boundaryNode) {
-        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
+        String graph = p.get("graph");
+        BoundaryLine boundaryLine = super.createBoundaryLine(graph, boundaryNode);
         double r = p.asDouble("r");
         double x = p.asDouble("x");
         double g = p.asDouble("gch", 0);
@@ -102,6 +103,12 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
 
         context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), mline.getDanglingLine1().getBoundary(), 2);
         context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), mline.getDanglingLine2().getBoundary(), 1);
+
+        Optional.ofNullable(boundaryLine1.getEquivalentInjectionId()).ifPresent(eiId -> mline.getDanglingLine1().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", eiId));
+        Optional.ofNullable(boundaryLine1.getEquivalentInjectionCgmesTerminalId()).ifPresent(teiId -> mline.getDanglingLine1().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", teiId));
+
+        Optional.ofNullable(boundaryLine2.getEquivalentInjectionId()).ifPresent(eiId -> mline.getDanglingLine2().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", eiId));
+        Optional.ofNullable(boundaryLine2.getEquivalentInjectionCgmesTerminalId()).ifPresent(teiId -> mline.getDanglingLine2().setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", teiId));
 
         context.namingStrategy().readIdMapping(mline, "TieLine"); // TODO: maybe this should be refined for merged line
     }
