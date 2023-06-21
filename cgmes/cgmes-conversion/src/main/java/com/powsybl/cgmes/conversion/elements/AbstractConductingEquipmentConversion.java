@@ -351,6 +351,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
+    // TODO graph is only valid if cgmes export preserves separated models
     private EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(String graph, String boundaryNode) {
         List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
 

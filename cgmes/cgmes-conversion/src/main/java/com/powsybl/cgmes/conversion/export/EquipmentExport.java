@@ -705,6 +705,7 @@ public final class EquipmentExport {
         return baseVoltage.getId();
     }
 
+    // TODO Only one connectivityNode must be generated in paired danglingLines
     private static String writeDanglingLineConnectivity(DanglingLine danglingLine, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
                                                         CgmesExportContext context) throws XMLStreamException {
         String connectivityNodeId = null;
