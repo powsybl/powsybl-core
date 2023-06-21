@@ -27,6 +27,7 @@ public class CreateVoltageLevelTopologyBuilder {
 
     private String busOrBusbarSectionPrefixId = null;
     private String switchPrefixId = null;
+    private NamingStrategy namingStrategy = new DefaultNamingStrategy();
 
     private List<SwitchKind> switchKinds = Collections.emptyList();
 
@@ -110,6 +111,16 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     /**
+     * Set the naming strategy to be used. By default, the DefaultNamingStrategy is used.
+     *
+     * @param namingStrategy
+     */
+    public CreateVoltageLevelTopologyBuilder withNamingStrategy(NamingStrategy namingStrategy) {
+        this.namingStrategy = namingStrategy;
+        return this;
+    }
+
+    /**
      * Set the switching devices between the sections of a busbar.
      * There are as many specified switch kinds as there are intervals between sections i.e. <code>sectionCount - 1</code>.
      * The switch kinds can be {@link SwitchKind#BREAKER}, {@link SwitchKind#DISCONNECTOR} or null.
@@ -143,6 +154,6 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     public CreateVoltageLevelTopology build() {
-        return new CreateVoltageLevelTopology(voltageLevelId, lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, busOrBusbarSectionPrefixId, switchPrefixId, switchKinds);
+        return new CreateVoltageLevelTopology(voltageLevelId, lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, busOrBusbarSectionPrefixId, switchPrefixId, namingStrategy, switchKinds);
     }
 }

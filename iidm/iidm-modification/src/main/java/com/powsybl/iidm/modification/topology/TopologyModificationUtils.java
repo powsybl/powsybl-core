@@ -217,6 +217,15 @@ public final class TopologyModificationUtils {
         });
     }
 
+    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, NamingStrategy namingStrategy, String prefix, VoltageLevel.NodeBreakerView view) {
+        createNodeBreakerSwitches(node1, middleNode, node2, namingStrategy, prefix, view, false);
+    }
+
+    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, NamingStrategy namingStrategy, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBBreaker(node1, middleNode, namingStrategy.getBreakerId(prefix), view, open);
+        createNBDisconnector(middleNode, node2, namingStrategy.getDisconnectorId(prefix), view, open);
+    }
+
     static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String prefix, VoltageLevel.NodeBreakerView view) {
         createNodeBreakerSwitches(node1, middleNode, node2, "", prefix, view);
     }
@@ -230,6 +239,18 @@ public final class TopologyModificationUtils {
         createNBDisconnector(middleNode, node2, suffix, prefix, view, open);
     }
 
+    static void createNBBreaker(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+        view.newSwitch()
+                .setId(id)
+                .setEnsureIdUnicity(true)
+                .setKind(SwitchKind.BREAKER)
+                .setOpen(open)
+                .setRetained(true)
+                .setNode1(node1)
+                .setNode2(node2)
+                .add();
+    }
+
     static void createNBBreaker(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         view.newSwitch()
                 .setId(prefix + "_BREAKER" + suffix)
@@ -237,6 +258,17 @@ public final class TopologyModificationUtils {
                 .setKind(SwitchKind.BREAKER)
                 .setOpen(open)
                 .setRetained(true)
+                .setNode1(node1)
+                .setNode2(node2)
+                .add();
+    }
+
+    static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
+        view.newSwitch()
+                .setId(id)
+                .setEnsureIdUnicity(true)
+                .setKind(SwitchKind.DISCONNECTOR)
+                .setOpen(open)
                 .setNode1(node1)
                 .setNode2(node2)
                 .add();
@@ -256,6 +288,16 @@ public final class TopologyModificationUtils {
     static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String prefix, VoltageLevel.BusBreakerView view) {
         createBusBreakerSwitch(busId1, middleBusId, prefix, "_1", view);
         createBusBreakerSwitch(middleBusId, busId2, prefix, "_2", view);
+    }
+
+    static void createBusBreakerSwitch(String busId1, String busId2, String id, VoltageLevel.BusBreakerView view) {
+        view.newSwitch()
+                .setId(id)
+                .setEnsureIdUnicity(true)
+                .setOpen(false)
+                .setBus1(busId1)
+                .setBus2(busId2)
+                .add();
     }
 
     static void createBusBreakerSwitch(String busId1, String busId2, String prefix, String suffix, VoltageLevel.BusBreakerView view) {
@@ -337,6 +379,16 @@ public final class TopologyModificationUtils {
             public TraverseResult traverse(Switch aSwitch) {
                 return TraverseResult.CONTINUE;
             }
+        });
+    }
+
+    /**
+     * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
+     */
+    static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList) {
+        bbsList.forEach(b -> {
+            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
+            createNBDisconnector(forkNode, bbsNode, namingStrategy.getDisconnectorId(baseId, forkNode, bbsNode), voltageLevel.getNodeBreakerView(), true);
         });
     }
 

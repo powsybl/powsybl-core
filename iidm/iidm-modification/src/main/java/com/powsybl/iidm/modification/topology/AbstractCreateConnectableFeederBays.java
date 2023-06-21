@@ -33,6 +33,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCreateConnectableFeederBays.class);
 
     protected final int[] sides;
+    protected NamingStrategy namingStrategy;
 
     protected abstract String getBusOrBusbarSectionId(int side);
 
@@ -60,9 +61,11 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+        // Set the connectable bus or node
         if (!setAdderConnectivity(network, reporter, throwException)) {
             return;
         }
+        // Add the element on the network
         Connectable<?> connectable = add();
         if (!checkNetworks(connectable, network, reporter, throwException)) {
             return;
@@ -135,15 +138,23 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         return true;
     }
 
+    /**
+     * Set the connectable bus/node on the injection or branch adder for each side of the Feeder Bay(s)
+     * <br><b>TODO: add a better description of this method</b>
+     * @return true if the connectable bus(es) or node(s) has(have) been set, else return false
+     */
     private boolean setAdderConnectivity(Network network, Reporter reporter, boolean throwException) {
         Map<VoltageLevel, Integer> firstAvailableNodes = new HashMap<>();
         for (int side : sides) {
+            // Get the busOrBusbarSection corresponding to the side parameter
             String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
             Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
             if (busOrBusbarSection == null) {
                 ModificationLogs.busOrBbsDoesNotExist(busOrBusbarSectionId, reporter, throwException);
                 return false;
             }
+
+            // Set the connectable bus/node on the injection or branch adder
             if (busOrBusbarSection instanceof Bus) {
                 Bus bus = (Bus) busOrBusbarSection; // if bus is an identifiable, the voltage level is BUS_BREAKER
                 checkOrders(side, bus.getVoltageLevel(), reporter, throwException); // is always true, can only return a warning
@@ -154,6 +165,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 if (!checkOrders(side, voltageLevel, reporter, throwException)) {
                     return false;
                 }
+                // Store or update in the hashmap the next available node for the current voltage level
                 int connectableNode = firstAvailableNodes.compute(voltageLevel, (vl, node) -> node == null ? vl.getNodeBreakerView().getMaximumNodeIndex() + 1 : node + 1);
                 setNode(side, connectableNode, voltageLevel.getId());
             } else {
@@ -193,10 +205,14 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
                 continue; // no extension nor switches created in bus-breaker topology
             }
+
+            // Get the set of existing position extensions on other connectables
             Set<Integer> takenFeederPositions = TopologyModificationUtils.getFeederPositions(voltageLevel);
+
+            // Get the wanted position for the new connectable
             int positionOrder = getPositionOrder(side);
             if (!takenFeederPositions.isEmpty() || voltageLevel.getConnectableStream().filter(c -> !(c instanceof BusbarSection)).count() == 1) {
-                // check that there is only one connectable (that we added) or there are existing position extensions on other connectables
+                // check that there are existing position extensions on other connectables or there is only one connectable (that we added)
                 if (checkOrderValue(side, (BusbarSection) busOrBusbarSection, takenFeederPositions, reporter)) { // BusbarSection as voltage level is NODE_BREAKER
                     getFeederAdder(side, connectablePositionAdder)
                             .withDirection(getDirection(side))
@@ -224,7 +240,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         String bbsId = getBusOrBusbarSectionId(side);
         BusbarSection bbs = network.getBusbarSection(bbsId);
         int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-        createNodeBreakerSwitches(connectableNode, forkNode, bbsNode, baseId, voltageLevel.getNodeBreakerView());
+        createNodeBreakerSwitches(connectableNode, forkNode, bbsNode, namingStrategy, baseId, voltageLevel.getNodeBreakerView());
         BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
         int parallelBbsNumber = 0;
         if (position == null) {
@@ -236,7 +252,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                     .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex())
                     .filter(b -> !b.getId().equals(bbsId)).collect(Collectors.toList());
             parallelBbsNumber = bbsList.size();
-            createTopologyFromBusbarSectionList(voltageLevel, forkNode, baseId, bbsList);
+            createTopologyFromBusbarSectionList(voltageLevel, forkNode, namingStrategy, baseId, bbsList);
         }
         LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector" +
                 "and on {} parallel busbar sections with an open disconnector.", connectable.getId(), connectable.getType(), voltageLevel.getId(), bbsId, parallelBbsNumber);

@@ -23,9 +23,10 @@ public class CreateBranchFeederBaysBuilder {
     private String feederName2 = null;
     private ConnectablePosition.Direction direction1 = ConnectablePosition.Direction.TOP;
     private ConnectablePosition.Direction direction2 = ConnectablePosition.Direction.TOP;
+    private NamingStrategy namingStrategy = new DefaultNamingStrategy();
 
     public CreateBranchFeederBays build() {
-        return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2);
+        return new CreateBranchFeederBays(branchAdder, busOrBbs1, busOrBbs2, positionOrder1, positionOrder2, feederName1, feederName2, direction1, direction2, namingStrategy);
     }
 
     public CreateBranchFeederBaysBuilder withBranchAdder(BranchAdder<?, ?> branchAdder) {
@@ -96,6 +97,14 @@ public class CreateBranchFeederBaysBuilder {
 
     public CreateBranchFeederBaysBuilder withDirection2(ConnectablePosition.Direction direction2) {
         this.direction2 = direction2;
+        return this;
+    }
+
+    /**
+     * Set the naming strategy to be used. By default, the DefaultNamingStrategy is used.
+     */
+    public CreateBranchFeederBaysBuilder withNamingStrategy(NamingStrategy namingStrategy) {
+        this.namingStrategy = namingStrategy;
         return this;
     }
 }

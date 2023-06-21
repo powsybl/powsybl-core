@@ -40,11 +40,13 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     private final String busOrBbsId2;
 
     private String switchPrefixId;
+    private final NamingStrategy namingStrategy;
 
-    CreateCouplingDevice(String busOrBbsId1, String busOrBbsId2, String switchPrefixId) {
+    CreateCouplingDevice(String busOrBbsId1, String busOrBbsId2, String switchPrefixId, NamingStrategy namingStrategy) {
         this.busOrBbsId1 = Objects.requireNonNull(busOrBbsId1, "Busbar section 1 not defined");
         this.busOrBbsId2 = Objects.requireNonNull(busOrBbsId2, "Busbar section 2 not defined");
         this.switchPrefixId = switchPrefixId;
+        this.namingStrategy = namingStrategy;
     }
 
     public String getBusOrBbsId1() {
@@ -106,7 +108,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         }
         if (busOrBbs1 instanceof Bus && busOrBbs2 instanceof Bus) {
             // buses are identifiable: voltage level is BUS_BREAKER
-            createBusBreakerSwitch(busOrBbsId1, busOrBbsId2, switchPrefixId, "", voltageLevel1.getBusBreakerView());
+            createBusBreakerSwitch(busOrBbsId1, busOrBbsId2, namingStrategy.getSwitchId(switchPrefixId), voltageLevel1.getBusBreakerView());
         } else if (busOrBbs1 instanceof BusbarSection && busOrBbs2 instanceof BusbarSection) {
             // busbar sections exist: voltage level is NODE_BREAKER
             BusbarSection bbs1 = (BusbarSection) busOrBbs1;
@@ -116,9 +118,9 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             int bbs1Node = bbs1.getTerminal().getNodeBreakerView().getNode();
             int bbs2Node = bbs2.getTerminal().getNodeBreakerView().getNode();
 
-            createNBBreaker(breakerNode1, breakerNode2, "", switchPrefixId, voltageLevel1.getNodeBreakerView(), false);
-            createNBDisconnector(bbs1Node, breakerNode1, "_" + bbs1Node, switchPrefixId, voltageLevel1.getNodeBreakerView(), false);
-            createNBDisconnector(bbs2Node, breakerNode2, "_" + bbs2Node, switchPrefixId, voltageLevel1.getNodeBreakerView(), false);
+            createNBBreaker(breakerNode1, breakerNode2, namingStrategy.getBreakerId(switchPrefixId), voltageLevel1.getNodeBreakerView(), false);
+            createNBDisconnector(bbs1Node, breakerNode1, namingStrategy.getDisconnectorId(switchPrefixId, bbs1Node), voltageLevel1.getNodeBreakerView(), false);
+            createNBDisconnector(bbs2Node, breakerNode2, namingStrategy.getDisconnectorId(switchPrefixId, bbs2Node), voltageLevel1.getNodeBreakerView(), false);
 
             BusbarSectionPosition position1 = bbs1.getExtension(BusbarSectionPosition.class);
             BusbarSectionPosition position2 = bbs2.getExtension(BusbarSectionPosition.class);
