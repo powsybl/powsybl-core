@@ -360,7 +360,7 @@ public final class EquipmentExport {
             default:
                 throw new PowsyblException("Unexpected type of ReactiveLimits on the generator " + i.getNameOrId());
         }
-        double defaultRatedS = obtainDefaultRatedS(i, minP, maxP);
+        double defaultRatedS = computeDefaultRatedS(i, minP, maxP);
         SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
                 context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel()),
                 generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, ratedS, defaultRatedS, kind, cimNamespace, writer, context);
@@ -374,8 +374,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static <I extends ReactiveLimitsHolder & Injection<I>> double obtainDefaultRatedS(I i, double minP,
-        double maxP) {
+    private static <I extends ReactiveLimitsHolder & Injection<I>> double computeDefaultRatedS(I i, double minP, double maxP) {
         List<Double> values = new ArrayList<>();
         values.add(Math.abs(minP));
         values.add(Math.abs(maxP));
@@ -386,6 +385,9 @@ public final class EquipmentExport {
         } else { // reactive capability curve
             ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
             for (ReactiveCapabilityCurve.Point p : curve.getPoints()) {
+                values.add(Math.abs(p.getP()));
+                values.add(Math.abs(p.getMinQ()));
+                values.add(Math.abs(p.getMaxQ()));
                 values.add(Math.sqrt(p.getP() * p.getP() + p.getMinQ() * p.getMinQ()));
                 values.add(Math.sqrt(p.getP() * p.getP() + p.getMaxQ() * p.getMaxQ()));
             }

@@ -38,7 +38,7 @@ public final class SynchronousMachineEq {
         writer.writeCharacters(CgmesExportUtil.format(maxQ));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "RotatingMachine.ratedS");
-        writer.writeCharacters(CgmesExportUtil.format(ratedS, defaultRatedS)); //RatedS by default needed for SUV
+        writer.writeCharacters(CgmesExportUtil.format(ratedS, defaultRatedS));
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, "SynchronousMachine.type");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", cimNamespace, "SynchronousMachineKind", kind)); // all generators are considered generators

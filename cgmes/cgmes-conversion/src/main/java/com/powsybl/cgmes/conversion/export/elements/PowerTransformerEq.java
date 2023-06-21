@@ -29,7 +29,7 @@ public final class PowerTransformerEq {
     private static final String EQ_POWERTRANSFORMEREND_RATEDS = "PowerTransformerEnd.ratedS";
     private static final String EQ_POWERTRANSFORMEREND_RATEDU = "PowerTransformerEnd.ratedU";
 
-    private static final double EQ_POWERTRANSFORMEREND_DEFAULT_RATEDS = 100.0;
+    private static final double EQ_POWERTRANSFORMEREND_RATEDS_DEFAULT_VALUE = 100.0;
 
     public static void write(String id, String transformerName, String equipmentContainer, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("PowerTransformer", id, transformerName, cimNamespace, writer, context);
@@ -59,7 +59,7 @@ public final class PowerTransformerEq {
         writer.writeCharacters(CgmesExportUtil.format(b));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDS);
-        writer.writeCharacters(CgmesExportUtil.format(ratedS, EQ_POWERTRANSFORMEREND_DEFAULT_RATEDS)); //RatedS by default to 100, needed for SUV
+        writer.writeCharacters(CgmesExportUtil.format(ratedS, EQ_POWERTRANSFORMEREND_RATEDS_DEFAULT_VALUE));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDU);
         writer.writeCharacters(CgmesExportUtil.format(ratedU));
