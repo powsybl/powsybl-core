@@ -7,6 +7,9 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.TerminalRef.Side;
+import com.powsybl.iidm.network.VoltageAngleLimit.FlowDirection;
+
 import org.joda.time.DateTime;
 
 /**
@@ -842,4 +845,30 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    public static Network createWithVoltageAngleLimit() {
+        Network network = create(NetworkFactory.findDefault());
+
+        network.newVoltageAngleLimit()
+            .from(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
+            .to(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
+            .withLimit(0.25)
+            .withFlowDirection(FlowDirection.FROM_TO)
+            .add();
+
+        network.newVoltageAngleLimit()
+            .from(TerminalRef.create("NHV1_NHV2_2", Side.ONE))
+            .to(TerminalRef.create("NHV1_NHV2_2", Side.TWO))
+            .withLimit(0.20)
+            .withFlowDirection(FlowDirection.TO_FROM)
+            .add();
+
+        network.newVoltageAngleLimit()
+            .from(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
+            .to(TerminalRef.create("NHV1_NHV2_2", Side.TWO))
+            .withLimit(0.35)
+            .withFlowDirection(FlowDirection.BOTH_DIRECTIONS)
+            .add();
+
+        return network;
+    }
 }

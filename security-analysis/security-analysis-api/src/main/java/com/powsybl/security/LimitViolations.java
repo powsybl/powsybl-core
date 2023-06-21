@@ -58,6 +58,13 @@ public final class LimitViolations {
     }
 
     /**
+     * A builder for low voltageAngle limit violations.
+     */
+    public static LimitViolationBuilder voltageAngle() {
+        return new LimitViolationBuilder().type(LimitViolationType.VOLTAGE_ANGLE);
+    }
+
+    /**
      * A builder for high short circuit current limit violations.
      */
     public static LimitViolationBuilder highShortCircuitCurrent() {

@@ -104,6 +104,7 @@ public class LimitViolationBuilder {
                 return new LimitViolation(subjectId, subjectName, type, limitName, duration, limit, reduction, value, side);
             case LOW_VOLTAGE:
             case HIGH_VOLTAGE:
+            case VOLTAGE_ANGLE:
             case LOW_SHORT_CIRCUIT_CURRENT:
             case HIGH_SHORT_CIRCUIT_CURRENT:
                 return new LimitViolation(subjectId, subjectName, type, limitName, Integer.MAX_VALUE, limit, reduction, value, null);

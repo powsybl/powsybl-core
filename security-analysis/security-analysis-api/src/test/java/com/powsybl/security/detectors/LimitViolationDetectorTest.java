@@ -36,6 +36,9 @@ class LimitViolationDetectorTest {
     private VoltageLevel voltageLevel1;
     private VoltageLevel genVoltageLevel;
     private VoltageLevel loadVoltageLevel;
+    private VoltageAngleLimit voltageAngleLimit0;
+    private VoltageAngleLimit voltageAngleLimit1;
+    private VoltageAngleLimit voltageAngleLimit2;
     private List<LimitViolation> collectedViolations;
 
     private void doCheckCurrent(Contingency contingency, Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
@@ -99,32 +102,20 @@ class LimitViolationDetectorTest {
     }
 
     private void doCheckVoltageAngle(Contingency contingency, VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
-        // TODO JAM
-        /***
-        if (bus.getVoltageLevel() == voltageLevel1) {
-            consumer.accept(LimitViolations.highVoltage()
-                    .subject(bus.getVoltageLevel().getId())
-                    .value(500)
-                    .limit(420)
-                    .build());
+        if (voltageAngleLimit == voltageAngleLimit0) {
+            consumer.accept(LimitViolations.voltageAngle()
+                .subject(voltageAngleLimit.getId())
+                .value(0.30)
+                .limit(0.25)
+                .build());
         }
-
-        if (bus.getVoltageLevel() == genVoltageLevel) {
-            consumer.accept(LimitViolations.lowVoltage()
-                    .subject(bus.getVoltageLevel().getId())
-                    .value(350)
-                    .limit(380)
-                    .build());
+        if (contingency == contingency1 && voltageAngleLimit == voltageAngleLimit1) {
+            consumer.accept(LimitViolations.voltageAngle()
+                .subject(voltageAngleLimit.getId())
+                .value(0.22)
+                .limit(0.20)
+                .build());
         }
-
-        if (contingency == contingency1 && bus.getVoltageLevel() == loadVoltageLevel) {
-            consumer.accept(LimitViolations.highVoltage()
-                    .subject(bus.getVoltageLevel().getId())
-                    .value(500)
-                    .limit(420)
-                    .build());
-        }
-        ***/
     }
 
     private LimitViolationDetector contingencyBlindDetector() {
@@ -188,13 +179,16 @@ class LimitViolationDetectorTest {
 
     @BeforeEach
     void setUp() {
-        network = EurostagTutorialExample1Factory.create();
+        network = EurostagTutorialExample1Factory.createWithVoltageAngleLimit();
         line1 = network.getBranch("NHV1_NHV2_1");
         line2 = network.getBranch("NHV1_NHV2_2");
         transformer = network.getBranch("NGEN_NHV1");
         voltageLevel1 = network.getVoltageLevel("VLHV1");
         genVoltageLevel = network.getVoltageLevel("VLGEN");
         loadVoltageLevel = network.getVoltageLevel("VLLOAD");
+        voltageAngleLimit0 = network.getVoltageAngleLimits().get(0);
+        voltageAngleLimit1 = network.getVoltageAngleLimits().get(1);
+        voltageAngleLimit2 = network.getVoltageAngleLimits().get(2);
         contingency1 = new Contingency("cont1");
         contingency2 = new Contingency("cont2");
 
@@ -202,13 +196,14 @@ class LimitViolationDetectorTest {
     }
 
     @Test
-    void networkHas5Violations() {
+    void networkHas6Violations() {
         contingencyBasedDetector().checkAll(network, collectedViolations::add);
-        assertEquals(5, collectedViolations.size());
+        assertEquals(6, collectedViolations.size());
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
         assertEquals(2, collectedViolations.stream().filter(l -> l.getSubjectId().equals("NHV1_NHV2_1")).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.VOLTAGE_ANGLE).count());
     }
 
     @Test
@@ -238,30 +233,40 @@ class LimitViolationDetectorTest {
     }
 
     @Test
-    void networkHas7ViolationsOnContingency1() {
+    void voltageAngleLimit0Has1Violation() {
+        contingencyBasedDetector().checkVoltageAngle(network.getVoltageAngleLimits().get(0), collectedViolations::add);
+        assertEquals(1, collectedViolations.size());
+        assertSame(LimitViolationType.VOLTAGE_ANGLE, collectedViolations.get(0).getLimitType());
+    }
+
+    @Test
+    void networkHas9ViolationsOnContingency1() {
         contingencyBasedDetector().checkAll(contingency1, network, collectedViolations::add);
-        assertEquals(7, collectedViolations.size());
+        assertEquals(9, collectedViolations.size());
         assertEquals(4, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(2, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
+        assertEquals(2, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.VOLTAGE_ANGLE).count());
     }
 
     @Test
     void networkHas5ViolationsOnContingency2() {
         contingencyBasedDetector().checkAll(contingency2, network, collectedViolations::add);
-        assertEquals(5, collectedViolations.size());
+        assertEquals(6, collectedViolations.size());
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.VOLTAGE_ANGLE).count());
     }
 
     @Test
     void networkHas5ViolationsOnContingency1WithContingencyBlindDetector() {
         contingencyBlindDetector().checkAll(contingency1, network, collectedViolations::add);
-        assertEquals(5, collectedViolations.size());
+        assertEquals(6, collectedViolations.size());
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.VOLTAGE_ANGLE).count());
     }
 
     @Test
@@ -289,4 +294,15 @@ class LimitViolationDetectorTest {
         assertEquals(0, collectedViolations.size());
     }
 
+    @Test
+    void voltageAngleLimit1Has1ViolationOnContingency1() {
+        contingencyBasedDetector().checkVoltageAngle(contingency1, voltageAngleLimit1, collectedViolations::add);
+        assertEquals(1, collectedViolations.size());
+    }
+
+    @Test
+    void voltageAngleLimit2HasNoViolationOnContingency1() {
+        contingencyBasedDetector().checkVoltageAngle(contingency1, voltageAngleLimit2, collectedViolations::add);
+        assertEquals(0, collectedViolations.size());
+    }
 }
