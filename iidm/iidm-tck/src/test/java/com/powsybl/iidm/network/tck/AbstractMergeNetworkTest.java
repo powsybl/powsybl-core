@@ -69,8 +69,8 @@ public abstract class AbstractMergeNetworkTest {
         Network subNetwork1 = merge.getSubNetwork(N1);
         Network subNetwork2 = merge.getSubNetwork(N2);
         checkDanglingLineStatusCount(merge, 0, 2);
-        checkDanglingLineStatusCount(subNetwork1, 1, 0);
-        checkDanglingLineStatusCount(subNetwork2, 1, 0);
+        checkDanglingLineStatusCount(subNetwork1, 0, 1);
+        checkDanglingLineStatusCount(subNetwork2, 0, 1);
 
         assertEquals(merge, tieLine.getClosestNetwork());
         assertEquals(subNetwork1, merge.getDanglingLine("dl1").getClosestNetwork());

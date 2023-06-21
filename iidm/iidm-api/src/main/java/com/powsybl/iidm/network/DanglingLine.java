@@ -199,11 +199,7 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
         Generation setTargetV(double targetV);
     }
 
-    default boolean isPaired() {
-        return isPaired(null);
-    }
-
-    boolean isPaired(Network network);
+    boolean isPaired();
 
     /**
      * Get the constant active power in MW.

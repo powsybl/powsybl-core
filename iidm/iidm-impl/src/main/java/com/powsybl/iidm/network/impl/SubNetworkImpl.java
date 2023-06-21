@@ -350,7 +350,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return parent.getDanglingLineStream(danglingLineFilter.restrictTo(this)).filter(this::contains);
+        return parent.getDanglingLineStream().filter(this::contains).filter(danglingLineFilter.getPredicate());
     }
 
     @Override

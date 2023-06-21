@@ -317,14 +317,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public boolean isPaired(Network network) {
-        if (tieLine == null) {
-            return false;
-        }
-        if (network == null) {
-            return true;
-        }
-        return tieLine.getClosestNetwork() == network;
+    public boolean isPaired() {
+        return tieLine != null;
     }
 
     @Override

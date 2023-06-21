@@ -12,15 +12,15 @@ import java.util.function.Predicate;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class DanglingLineFilter {
+public enum DanglingLineFilter {
     /** All dangling lines, that is, no filtering */
-    public static final DanglingLineFilter ALL = new DanglingLineFilter(dl -> true);
+    ALL(dl -> true),
 
     /** Only paired dangling lines */
-    public static final DanglingLineFilter PAIRED = new DanglingLineFilter(DanglingLine::isPaired);
+    PAIRED(DanglingLine::isPaired),
 
     /** Only unpaired dangling lines */
-    public static final DanglingLineFilter UNPAIRED = new DanglingLineFilter(PAIRED.getPredicate().negate());
+    UNPAIRED(Predicate.not(DanglingLine::isPaired));
 
     private final Predicate<DanglingLine> predicate;
 
@@ -30,24 +30,5 @@ public class DanglingLineFilter {
 
     public Predicate<DanglingLine> getPredicate() {
         return this.predicate;
-    }
-
-    private static DanglingLineFilter pairedOf(Network network) {
-        return network == null ? PAIRED : new DanglingLineFilter(dl -> dl.isPaired(network));
-    }
-
-    private static DanglingLineFilter unpairedOf(Network network) {
-        return network == null ? UNPAIRED : new DanglingLineFilter(dl -> !dl.isPaired(network));
-    }
-
-    public DanglingLineFilter restrictTo(Network network) {
-        if (network != null) {
-            if (this == PAIRED) {
-                return pairedOf(network);
-            } else if (this == UNPAIRED) {
-                return unpairedOf(network);
-            }
-        }
-        return this;
     }
 }
