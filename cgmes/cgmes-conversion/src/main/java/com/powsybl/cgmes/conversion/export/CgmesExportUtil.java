@@ -26,10 +26,12 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
@@ -201,24 +203,12 @@ public final class CgmesExportUtil {
         return CgmesNames.ENERGY_CONSUMER;
     }
 
-    /**
-     * @deprecated Use {@link #getTerminalSequenceNumber(Terminal)} instead
-     */
-    @Deprecated(since = "4.9.0", forRemoval = true)
-    public static int getTerminalSide(Terminal t, Connectable<?> c) {
-        // There is no need to provide the connectable explicitly, it must always be the one associated with the terminal
-        if (c != t.getConnectable()) {
-            throw new PowsyblException("Wrong connectable in getTerminalSide : " + c.getId());
-        }
-        return getTerminalSequenceNumber(t);
-    }
-
-    public static int getTerminalSequenceNumber(Terminal t) {
+    public static int getTerminalSequenceNumber(Terminal t, List<DanglingLine> unpairedDanglingLines) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
             if (c instanceof DanglingLine) {
                 DanglingLine dl = (DanglingLine) c;
-                if (dl.isPaired()) {
+                if (!unpairedDanglingLines.contains(dl)) {
                     // TODO(Luma) Export tie line components instead of a single equipment
                     // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
                     // We need to return the proper terminal of the single tie line that will be exported
@@ -309,9 +299,17 @@ public final class CgmesExportUtil {
         if (c instanceof DanglingLine) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
         } else {
-            int sequenceNumber = getTerminalSequenceNumber(t);
+            int sequenceNumber = getTerminalSequenceNumber(t, context.getUnpairedDanglingLines());
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
         }
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
+    }
+
+    public static List<DanglingLine> getUnpairedDanglingLines(Network network) {
+        // For this network, the unpaired dangling lines are the ones with unpaired status
+        // or the ones which closest network if different that this network.
+        return network.getDanglingLineStream()
+                .filter(danglingLine -> !danglingLine.isPaired() || (danglingLine.isPaired() && danglingLine.getTieLine().orElseThrow().getClosestNetwork() != network))
+                .collect(Collectors.toList());
     }
 }
