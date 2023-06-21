@@ -26,10 +26,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -307,7 +304,7 @@ public final class CgmesExportUtil {
         if (c instanceof DanglingLine) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
         } else {
-            int sequenceNumber = getTerminalSequenceNumber(t, context.getUnpairedDanglingLines());
+            int sequenceNumber = getTerminalSequenceNumber(t, Collections.emptyList()); // never a dangling line here
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
         }
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);

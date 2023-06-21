@@ -72,8 +72,6 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
 
-    private List<DanglingLine> unpairedDanglingLines = new ArrayList<>();
-
     // Update dependencies in a way that:
     // [EQ.dependentOn EQ_BD]
     // SV.dependentOn TP, SSH[, TP_BD]
@@ -244,7 +242,6 @@ public class CgmesExportContext {
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
         addIidmMappings(network);
-        setUnpairedDanglingLines(network);
     }
 
     private CgmesTopologyKind networkTopologyKind(Network network) {
@@ -567,7 +564,7 @@ public class CgmesExportContext {
                     .setEnergyIdentificationCodeEic("Network--1")
                     .add();
             CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
-            for (DanglingLine danglingLine : getUnpairedDanglingLines()) {
+            for (DanglingLine danglingLine : CgmesExportUtil.getUnpairedDanglingLines(network)) {
                 cgmesControlArea.add(danglingLine.getTerminal());
             }
         }
@@ -713,16 +710,5 @@ public class CgmesExportContext {
         return Collections.unmodifiableMap(topologicalNodes);
     }
 
-    private void setUnpairedDanglingLines(Network network) {
-        // For this network, the unpaired dangling lines are the ones with unpaired status
-        // or the ones which closest network if different that this network.
-        unpairedDanglingLines = network.getDanglingLineStream()
-                .filter(danglingLine -> !danglingLine.isPaired() || (danglingLine.isPaired() && danglingLine.getTieLine().orElseThrow().getClosestNetwork() != network))
-                .collect(Collectors.toList());
-    }
-
-    public List<DanglingLine> getUnpairedDanglingLines() {
-        return unpairedDanglingLines;
-    }
 }
 
