@@ -8,8 +8,10 @@
 package com.powsybl.cgmes.conversion.test.conformity;
 
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.mergingview.MergingView;
@@ -60,10 +62,8 @@ class CgmesConformity3ConversionTest {
 
         // For all tie lines we have exported the power flows with the right terminal identifiers
         for (TieLine tieLine : network.getTieLines()) {
-            String terminal1 = tieLine.getAliasFromType("CGMES.Terminal1").orElseThrow();
-            String terminal2 = tieLine.getAliasFromType("CGMES.Terminal2").orElseThrow();
-            assertEquals(tieLine.getProperty("CGMES.Terminal_1"), terminal1);
-            assertEquals(tieLine.getProperty("CGMES.Terminal_2"), terminal2);
+            String terminal1 = tieLine.getDanglingLine1().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
+            String terminal2 = tieLine.getDanglingLine2().getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElseThrow();
             String terminal1Resource = "#_" + terminal1;
             String terminal2Resource = "#_" + terminal2;
             assertTrue(xmlContains(xml, "SvPowerFlow.Terminal", CgmesNamespace.RDF_NAMESPACE, "resource", terminal1Resource));

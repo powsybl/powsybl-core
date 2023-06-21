@@ -961,7 +961,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.dl1Id = dl1.getId();
             l.dl2Id = dl2.getId();
             l.aliases = new HashMap<>();
-            mergeProperties(dl1, dl2, l.properties);
+            // No need to merge properties or aliases because we keep the original dangling lines after merge
             danglingLinePairs.add(l);
 
             if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
@@ -970,7 +970,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                 l.dl1Id = dl1.getId();
                 l.dl2Id = dl2.getId();
             }
-            mergeIdenticalAliases(dl1, dl2, l.aliases);
         }
     }
 
