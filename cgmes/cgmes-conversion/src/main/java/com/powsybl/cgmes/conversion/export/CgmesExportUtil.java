@@ -53,20 +53,28 @@ public final class CgmesExportUtil {
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
 
-    private static double fixValue(double value) {
-        return Double.isNaN(value) ? 0.0 : value; // disconnected equipment in general, a bit dangerous.
+    private static double fixValue(double value, double defaultValue) {
+        return Double.isNaN(value) ? defaultValue : value;
     }
 
     public static String format(double value) {
+        return format(value, 0.0); // disconnected equipment in general, a bit dangerous.
+    }
+
+    public static String format(double value, double defaultValue) {
         // Always use scientific format for extreme values
         if (value == Double.MAX_VALUE || value == -Double.MAX_VALUE) {
-            return scientificFormat(value);
+            return scientificFormat(value, defaultValue);
         }
-        return DOUBLE_FORMAT.format(fixValue(value));
+        return DOUBLE_FORMAT.format(fixValue(value, defaultValue));
     }
 
     public static String scientificFormat(double value) {
-        return SCIENTIFIC_FORMAT.format(fixValue(value));
+        return scientificFormat(value, 0.0); // disconnected equipment in general, a bit dangerous.
+    }
+
+    private static String scientificFormat(double value, double defaultValue) {
+        return SCIENTIFIC_FORMAT.format(fixValue(value, defaultValue));
     }
 
     public static String format(int value) {
