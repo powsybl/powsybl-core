@@ -148,7 +148,7 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : context.getUnpairedDanglingLines()) {
+        for (DanglingLine dl : CgmesExportUtil.getUnpairedDanglingLines(network)) {
             Bus b = dl.getTerminal().getBusView().getBus();
             String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNode != null) {
@@ -200,7 +200,7 @@ public final class StateVariablesExport {
 
         Map<String, Double> equivalentInjectionTerminalP = new HashMap<>();
         Map<String, Double> equivalentInjectionTerminalQ = new HashMap<>();
-        context.getUnpairedDanglingLines().stream().forEach(dl -> {
+        CgmesExportUtil.getUnpairedDanglingLines(network).stream().forEach(dl -> {
             // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
             // DanglingLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
@@ -406,7 +406,7 @@ public final class StateVariablesExport {
         // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
         network.getConnectableStream().forEach(c -> {
             if (context.isExportedEquipment(c)) {
-                writeConnectableStatus(c, cimNamespace, writer, context);
+                writeConnectableStatus(c, cimNamespace, writer, context, network);
             }
         });
 
@@ -414,8 +414,9 @@ public final class StateVariablesExport {
         // If it is disconnected on the boundary side, it might not appear on the SV file.
     }
 
-    private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        if (connectable instanceof DanglingLine && !context.getUnpairedDanglingLines().contains((DanglingLine) connectable)) {
+    private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer,
+                                               CgmesExportContext context, Network network) {
+        if (connectable instanceof DanglingLine && !CgmesExportUtil.getUnpairedDanglingLines(network).contains((DanglingLine) connectable)) {
             // TODO(Luma) Export tie line components instead of a single equipment
             // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
             // We ignore dangling lines inside tie lines for now
