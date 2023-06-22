@@ -202,7 +202,7 @@ class LimitViolationDetectorTest {
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
-        assertEquals(2, collectedViolations.stream().filter(l -> l.getSubjectId().equals("NHV1_NHV2_1")).count());
+        assertEquals(3, collectedViolations.stream().filter(l -> l.getSubjectId().equals("NHV1_NHV2_1")).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.VOLTAGE_ANGLE).count());
     }
 

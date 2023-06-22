@@ -30,7 +30,7 @@ public interface VoltageAngleLimit extends OperationalLimits {
      * Get the id
      */
     default String getId() {
-        return getFrom().getId() + " + " + getTo().getId();
+        return getFrom().getId();
     }
 
     /**
