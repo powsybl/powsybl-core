@@ -130,7 +130,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param side           The side of the equipment where the violation occurred.
      */
     public LimitViolation(String subjectId, LimitViolationType limitType, double limit, float limitReduction, double value, Branch.Side side) {
-        this(subjectId, null, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, null);
+        this(subjectId, null, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, side);
     }
 
     /**
@@ -225,7 +225,8 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     private static Branch.Side checkSide(LimitViolationType limitType, Branch.Side side) {
         if (limitType == LimitViolationType.ACTIVE_POWER
             || limitType == LimitViolationType.APPARENT_POWER
-            || limitType == LimitViolationType.CURRENT) {
+            || limitType == LimitViolationType.CURRENT
+            || limitType == LimitViolationType.VOLTAGE_ANGLE) {
             return Objects.requireNonNull(side);
         } else {
             return null;

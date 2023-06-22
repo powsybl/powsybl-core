@@ -243,7 +243,7 @@ class DefaultLimitViolationDetectorTest {
                 assertEquals(LimitViolationType.VOLTAGE_ANGLE, v.getLimitType());
                 assertEquals(0.25, v.getLimit(), 0d);
                 assertEquals(0.30, v.getValue(), 0d);
-                assertNull(v.getSide());
+                assertEquals(Branch.Side.ONE, v.getSide());
                 assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
             });
     }
@@ -259,7 +259,7 @@ class DefaultLimitViolationDetectorTest {
                 assertEquals(LimitViolationType.VOLTAGE_ANGLE, v.getLimitType());
                 assertEquals(0.20, v.getLimit(), 0d);
                 assertEquals(-0.30, v.getValue(), 0d);
-                assertNull(v.getSide());
+                assertEquals(Branch.Side.ONE, v.getSide());
                 assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
             });
     }
@@ -275,7 +275,7 @@ class DefaultLimitViolationDetectorTest {
                 assertEquals(LimitViolationType.VOLTAGE_ANGLE, v.getLimitType());
                 assertEquals(0.35, v.getLimit(), 0d);
                 assertEquals(-0.40, v.getValue(), 0d);
-                assertNull(v.getSide());
+                assertEquals(Branch.Side.ONE, v.getSide());
                 assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
             });
     }

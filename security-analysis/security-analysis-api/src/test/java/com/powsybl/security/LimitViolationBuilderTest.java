@@ -109,12 +109,13 @@ class LimitViolationBuilderTest {
         LimitViolationBuilder builder = LimitViolations.voltageAngle()
             .subject("id")
             .limit(0.25)
-            .value(0.30);
+            .value(0.30)
+            .side(Branch.Side.ONE);
 
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.VOLTAGE_ANGLE, violation.getLimitType());
-        assertNull(violation.getSide());
+        assertEquals(Branch.Side.ONE, violation.getSide());
         assertNull(violation.getLimitName());
         assertEquals(0.25, violation.getLimit(), 0);
         assertEquals(0.30, violation.getValue(), 0);
