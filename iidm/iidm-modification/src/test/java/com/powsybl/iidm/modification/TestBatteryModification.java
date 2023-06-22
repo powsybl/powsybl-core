@@ -32,7 +32,7 @@ class TestBatteryModification {
     }
 
     @Test
-    public void testBatteryModification() {
+    void testBatteryModification() {
         BatteryModification batteryModification = new BatteryModification(battery.getId(), 2.);
         assertEquals(0, battery.getTargetQ());
         batteryModification.apply(network);

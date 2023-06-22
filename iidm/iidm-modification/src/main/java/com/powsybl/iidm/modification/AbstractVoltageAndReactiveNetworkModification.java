@@ -28,10 +28,10 @@ public abstract class AbstractVoltageAndReactiveNetworkModification<T> extends A
     private final Double voltageSetpoint;
     private final Double reactivePowerSetpoint;
 
-    public AbstractVoltageAndReactiveNetworkModification(String elementId, Double voltageSetpoint,
-                                                         Double reactivePowerSetpoint) {
+    protected AbstractVoltageAndReactiveNetworkModification(String elementId, Double voltageSetpoint,
+                                                            Double reactivePowerSetpoint) {
         if (voltageSetpoint == null && reactivePowerSetpoint == null) {
-            LOGGER.warn("Creating a " + getElementName() + " modification with no change !");
+            LOGGER.warn("Creating a ", getElementName(), " modification with no change !");
         }
         this.elementID = Objects.requireNonNull(elementId);
         this.voltageSetpoint = voltageSetpoint;
