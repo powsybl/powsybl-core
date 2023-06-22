@@ -35,6 +35,7 @@ class DefaultLimitViolationDetectorTest {
     private static Network networkWithFixedLimits;
     private static Network networkWithFixedCurrentLimitsOnDanglingLines;
     private static Network networkWithFixedLimitsOnDanglingLines;
+    private static Network networkWithVoltageAngleLimit;
     private LimitViolationDetector detector;
     private List<LimitViolation> violationsCollector;
 
@@ -44,6 +45,7 @@ class DefaultLimitViolationDetectorTest {
         networkWithFixedLimits = EurostagTutorialExample1Factory.createWithFixedLimits();
         networkWithFixedCurrentLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedCurrentLimitsOnDanglingLines();
         networkWithFixedLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedLimitsOnDanglingLines();
+        networkWithVoltageAngleLimit = EurostagTutorialExample1Factory.createWithVoltageAngleLimit();
     }
 
     @BeforeEach
@@ -228,6 +230,54 @@ class DefaultLimitViolationDetectorTest {
                     assertNull(v.getSide());
                     assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
                 });
+    }
+
+    @Test
+    void detectVoltageAngleViolationFromTo() {
+        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimits().get(0);
+        detector.checkVoltageAngle(voltageAngleLimit, 0.30, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+            .hasSize(1)
+            .allSatisfy(v -> {
+                assertEquals(LimitViolationType.VOLTAGE_ANGLE, v.getLimitType());
+                assertEquals(0.25, v.getLimit(), 0d);
+                assertEquals(0.30, v.getValue(), 0d);
+                assertNull(v.getSide());
+                assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
+            });
+    }
+
+    @Test
+    void detectVoltageAngleViolationToFrom() {
+        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimits().get(1);
+        detector.checkVoltageAngle(voltageAngleLimit, -0.30, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+            .hasSize(1)
+            .allSatisfy(v -> {
+                assertEquals(LimitViolationType.VOLTAGE_ANGLE, v.getLimitType());
+                assertEquals(0.20, v.getLimit(), 0d);
+                assertEquals(-0.30, v.getValue(), 0d);
+                assertNull(v.getSide());
+                assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
+            });
+    }
+
+    @Test
+    void detectVoltageAngleViolationBothDirections() {
+        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimits().get(2);
+        detector.checkVoltageAngle(voltageAngleLimit, -0.40, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+            .hasSize(1)
+            .allSatisfy(v -> {
+                assertEquals(LimitViolationType.VOLTAGE_ANGLE, v.getLimitType());
+                assertEquals(0.35, v.getLimit(), 0d);
+                assertEquals(-0.40, v.getValue(), 0d);
+                assertNull(v.getSide());
+                assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
+            });
     }
 
     @Test
