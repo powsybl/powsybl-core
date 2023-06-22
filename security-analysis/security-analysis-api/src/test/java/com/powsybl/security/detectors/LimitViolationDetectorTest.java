@@ -105,6 +105,7 @@ class LimitViolationDetectorTest {
         if (voltageAngleLimit == voltageAngleLimit0) {
             consumer.accept(LimitViolations.voltageAngle()
                 .subject(voltageAngleLimit.getId())
+                .side(Branch.Side.ONE)
                 .value(0.30)
                 .limit(0.25)
                 .build());
@@ -112,7 +113,8 @@ class LimitViolationDetectorTest {
         if (contingency == contingency1 && voltageAngleLimit == voltageAngleLimit1) {
             consumer.accept(LimitViolations.voltageAngle()
                 .subject(voltageAngleLimit.getId())
-                .value(0.22)
+                .side(Branch.Side.ONE)
+                .value(-0.22)
                 .limit(0.20)
                 .build());
         }

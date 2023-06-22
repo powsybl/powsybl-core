@@ -118,6 +118,22 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
+     * Create a new LimitViolation, for voltageAngleLimit.
+     *
+     * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
+     *
+     * @param subjectId      The identifier of the network equipment on which the violation occurred.
+     * @param limitType      The type of limit which has been violated.
+     * @param limit          The value of the limit which has been violated.
+     * @param limitReduction The limit reduction factor used for violation detection.
+     * @param value          The actual value of the physical value which triggered the detection of a violation.
+     * @param side           The side of the equipment where the violation occurred.
+     */
+    public LimitViolation(String subjectId, LimitViolationType limitType, double limit, float limitReduction, double value, Branch.Side side) {
+        this(subjectId, null, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, null);
+    }
+
+    /**
      * The identifier of the network equipment on which the violation occurred.
      *
      * @return the identifier of the network equipment on which the violation occurred.

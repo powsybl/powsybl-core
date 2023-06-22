@@ -88,10 +88,11 @@ class LimitViolationFilterTest {
         LimitViolation vl1Violation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
         LimitViolation line1ViolationAcP = new LimitViolation("VL1", LimitViolationType.ACTIVE_POWER, "", Integer.MAX_VALUE, 200.0, 1, 250.0, Branch.Side.ONE);
         LimitViolation line1ViolationApP = new LimitViolation("VL1", LimitViolationType.APPARENT_POWER, "", Integer.MAX_VALUE, 200.0, 1, 250.0, Branch.Side.TWO);
+        LimitViolation voltageAngleLimit = new LimitViolation("SW4-4.1", LimitViolationType.VOLTAGE_ANGLE, "", Integer.MAX_VALUE, 0.25, 1, 0.26, Branch.Side.ONE);
 
         LimitViolationFilter filter = new LimitViolationFilter();
-        List<LimitViolation> filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation, line1ViolationAcP, line1ViolationApP), network);
-        assertEquals(5, filteredViolations.size());
+        List<LimitViolation> filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation, line1ViolationAcP, line1ViolationApP, voltageAngleLimit), network);
+        assertEquals(6, filteredViolations.size());
 
         filter = new LimitViolationFilter();
         filter.setViolationTypes(EnumSet.of(LimitViolationType.HIGH_VOLTAGE));
@@ -116,6 +117,11 @@ class LimitViolationFilterTest {
         filter = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 300.0, EnumSet.of(Country.FR));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
         checkFilteredViolations(filteredViolations, network, "LINE1", LimitViolationType.CURRENT, 380.0, Country.FR, "VL2");
+
+        filter = new LimitViolationFilter();
+        filter.setViolationTypes(EnumSet.of(LimitViolationType.VOLTAGE_ANGLE));
+        filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, voltageAngleLimit), network);
+        checkFilteredViolations(filteredViolations, network, "SW4-4.1", LimitViolationType.VOLTAGE_ANGLE, 380.0, Country.BE, "VL4");
     }
 
     private void checkFilteredViolations(List<LimitViolation> filteredViolations, Network network, String equipmentId, LimitViolationType violationType,

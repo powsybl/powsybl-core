@@ -105,6 +105,23 @@ class LimitViolationBuilderTest {
     }
 
     @Test
+    void buildVoltageAngleViolation() {
+        LimitViolationBuilder builder = LimitViolations.voltageAngle()
+            .subject("id")
+            .limit(0.25)
+            .value(0.30);
+
+        LimitViolation violation = builder.build();
+        assertEquals("id", violation.getSubjectId());
+        assertSame(LimitViolationType.VOLTAGE_ANGLE, violation.getLimitType());
+        assertNull(violation.getSide());
+        assertNull(violation.getLimitName());
+        assertEquals(0.25, violation.getLimit(), 0);
+        assertEquals(0.30, violation.getValue(), 0);
+        assertEquals(1.0, violation.getLimitReduction(), 0);
+    }
+
+    @Test
     void builLowShortCircuitCurrentViolation() {
         LimitViolationBuilder builder = LimitViolations.lowShortCircuitCurrent()
                 .subject("id")

@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.detectors;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.LimitViolation;
@@ -101,8 +102,21 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         }
 
         if (limitViolation) {
-            consumer.accept(new LimitViolation(voltageAngleLimit.getId(), null, LimitViolationType.VOLTAGE_ANGLE,
-                voltageAngleLimit.getLimit(), limitReduction, value));
+            consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.VOLTAGE_ANGLE,
+                voltageAngleLimit.getLimit(), limitReduction, value, convert(voltageAngleLimit.getSide())));
+        }
+    }
+
+    private static Branch.Side convert(TerminalRef.Side side) {
+        switch (side) {
+            case ONE:
+                return Branch.Side.ONE;
+            case TWO:
+                return Branch.Side.TWO;
+            case THREE:
+                throw new PowsyblException("Unsupported side: " + side);
+            default:
+                throw new PowsyblException("Unexpected side: " + side);
         }
     }
 

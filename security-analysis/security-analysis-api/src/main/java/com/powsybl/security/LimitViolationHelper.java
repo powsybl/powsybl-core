@@ -24,7 +24,10 @@ public final class LimitViolationHelper {
         Objects.requireNonNull(limitViolation);
 
         Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
-        if (identifiable instanceof Branch) {
+        if (identifiable instanceof Switch) {
+            Switch sw = (Switch) identifiable;
+            return sw.getVoltageLevel();
+        } else if (identifiable instanceof Branch) {
             Branch branch = (Branch) identifiable;
             return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();
         } else if (identifiable instanceof Injection) {

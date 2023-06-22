@@ -34,6 +34,13 @@ public interface VoltageAngleLimit extends OperationalLimits {
     }
 
     /**
+     * Get the side
+     */
+    default TerminalRef.Side getSide() {
+        return getFrom().getSide();
+    }
+
+    /**
      * Get the TerminalRef from
      */
     TerminalRef getFrom();
