@@ -942,6 +942,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         replaceDanglingLineByLine(lines);
 
+        mergeVoltageAngleLimits(other.getVoltageAngleLimits());
+
         // update the source format
         if (!sourceFormat.equals(otherNetwork.sourceFormat)) {
             sourceFormat = "hybrid";
@@ -993,6 +995,15 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                 }
             });
         }
+    }
+
+    private void mergeVoltageAngleLimits(List<VoltageAngleLimit> voltageAngleLimits) {
+        voltageAngleLimits.forEach(voltageAngleLimit -> newVoltageAngleLimit()
+            .from(TerminalRef.create(voltageAngleLimit.getFrom().getId(), voltageAngleLimit.getFrom().getSide()))
+            .to(TerminalRef.create(voltageAngleLimit.getTo().getId(), voltageAngleLimit.getTo().getSide()))
+            .withLimit(voltageAngleLimit.getLimit())
+            .withFlowDirection(voltageAngleLimit.getFlowDirection())
+            .add());
     }
 
     class DanglingLinePair {
