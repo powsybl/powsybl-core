@@ -349,6 +349,12 @@ class MergingViewIndex {
                 .collect(Collectors.toList());
     }
 
+    List<VoltageAngleLimit> getVoltageAngleLimits() {
+        return getNetworkStream().map(Network::getVoltageAngleLimits)
+            .flatMap(List::stream)
+            .collect(Collectors.toList());
+    }
+
     /** @return adapter according to given Substation */
     SubstationAdapter getSubstation(final Substation substation) {
         return substation == null ? null : (SubstationAdapter) identifiableCached.computeIfAbsent(substation, key -> new SubstationAdapter(substation, this));

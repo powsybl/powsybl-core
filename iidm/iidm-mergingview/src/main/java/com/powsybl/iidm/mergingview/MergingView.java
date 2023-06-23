@@ -933,11 +933,11 @@ public final class MergingView implements Network, MultiVariantObject {
 
     @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
-        return null; // TODO JAM
+        throw createNotImplementedException();
     }
 
     @Override
     public List<VoltageAngleLimit> getVoltageAngleLimits() {
-        return null; // TODO JAM
+        return index.getVoltageAngleLimits();
     }
 }
