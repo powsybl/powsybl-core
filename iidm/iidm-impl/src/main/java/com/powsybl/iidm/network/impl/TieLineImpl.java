@@ -141,6 +141,10 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         danglingLine1.removeTieLine();
         danglingLine2.removeTieLine();
 
+        // invalidate components
+        network.getConnectedComponentsManager().invalidate();
+        network.getSynchronousComponentsManager().invalidate();
+
         // Remove this tie line from the network
         network.getIndex().remove(this);
 
