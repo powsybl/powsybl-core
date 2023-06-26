@@ -314,7 +314,13 @@ public final class CgmesExportUtil {
         // For this network, the unpaired dangling lines are the ones with unpaired status
         // or the ones which closest network if different that this network.
         return network.getDanglingLineStream()
-                .filter(danglingLine -> !danglingLine.isPaired() || (danglingLine.isPaired() && danglingLine.getTieLine().orElseThrow().getClosestNetwork() != network))
+                .filter(danglingLine -> isUnpaired(network, danglingLine))
                 .collect(Collectors.toList());
+    }
+
+    public static boolean isUnpaired(Network network, DanglingLine danglingLine) {
+        // For this network, an unpaired dangling line has an unpaired status
+        // or its closest network different that this network.
+        return !danglingLine.isPaired() || (danglingLine.isPaired() && danglingLine.getTieLine().orElseThrow().getClosestNetwork() != network);
     }
 }

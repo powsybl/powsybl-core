@@ -997,7 +997,7 @@ public final class EquipmentExport {
         for (Terminal terminal : cgmesControlArea.getTerminals()) {
             if (terminal.getConnectable() instanceof DanglingLine) {
                 DanglingLine dl = (DanglingLine) terminal.getConnectable();
-                if (CgmesExportUtil.getUnpairedDanglingLines(network).contains(dl)) {
+                if (CgmesExportUtil.isUnpaired(network, dl)) {
                     TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId,
                             context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY),
                             cimNamespace, writer, context);
@@ -1018,7 +1018,7 @@ public final class EquipmentExport {
 
     private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context, Network network) {
         DanglingLine dl = boundary.getDanglingLine();
-        if (CgmesExportUtil.getUnpairedDanglingLines(network).contains(dl)) {
+        if (CgmesExportUtil.isUnpaired(network, dl)) {
             return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
         } else {
             // This means the boundary corresponds to a TieLine.
@@ -1074,7 +1074,7 @@ public final class EquipmentExport {
         // We need to write the proper terminal of the single tie line that will be exported
         // When we change the export and write the two dangling lines as separate equipment,
         // then we should always return 1 and forget about this special case
-        if (t.getConnectable() instanceof DanglingLine && !CgmesExportUtil.getUnpairedDanglingLines(network).contains((DanglingLine) t.getConnectable())) {
+        if (t.getConnectable() instanceof DanglingLine && !CgmesExportUtil.isUnpaired(network, (DanglingLine) t.getConnectable())) {
             equipmentId = context.getNamingStrategy().getCgmesId(((DanglingLine) t.getConnectable()).getTieLine().orElseThrow(IllegalStateException::new));
         }
         writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t),
