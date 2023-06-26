@@ -416,7 +416,7 @@ public final class StateVariablesExport {
 
     private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer,
                                                CgmesExportContext context, Network network) {
-        if (connectable instanceof DanglingLine && !CgmesExportUtil.getUnpairedDanglingLines(network).contains((DanglingLine) connectable)) {
+        if (connectable instanceof DanglingLine && !CgmesExportUtil.isUnpaired(network, (DanglingLine) connectable)) {
             // TODO(Luma) Export tie line components instead of a single equipment
             // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
             // We ignore dangling lines inside tie lines for now
