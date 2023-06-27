@@ -332,11 +332,11 @@ class RemoveFeederBayTest {
         // removing line 'LINE1'
         new RemoveFeederBay("LINE1").apply(network);
 
-        Set<String> removedIdentifiables = Set.of("VL2_B1", "VL2_D1", "LINE1");
+        Set<String> removedIdentifiables = Set.of("VL2_B1", "VL2_D1", "LINE1", "VL1_B2", "VL1_D2", "VL1_D3");
 
         // following assert fails !!!!
         //
-        // . The following identifiables should not be removed : VL1_B2, VL1_D3, VL1_B1, VL1_D2, VL1_D1
+        // . The following identifiables should not be removed : VL1_B1, VL1_D1
         //
         // . The generator G1 remains alone and is not connected to anything, which generates the following error when building the SLD diagram for voltage level VL1 :
         //
