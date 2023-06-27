@@ -82,7 +82,7 @@ public final class StateVariablesExport {
                 CgmesExportUtil.writeReference("TopologicalIsland.TopologicalNodes", tn, cimNamespace, writer, context);
             }
             writer.writeStartElement(cimNamespace, "IdentifiedObject.description");
-            writer.writeCharacters("converged");
+            writer.writeCharacters("converged"); //FIXME: put result of loadflow
             writer.writeEndElement();
             writer.writeEndElement();
         }
