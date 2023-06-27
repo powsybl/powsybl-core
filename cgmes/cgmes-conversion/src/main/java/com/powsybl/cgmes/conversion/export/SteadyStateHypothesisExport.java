@@ -121,7 +121,22 @@ public final class SteadyStateHypothesisExport {
         // One equivalent injection for every dangling line
         List<String> exported = new ArrayList<>();
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
-            writeEquivalentInjection(dl, exported, cimNamespace, writer, context);
+            String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            if (!exported.contains(ei) && ei != null) {
+                // Ensure equivalent injection identifier is valid
+                String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+                // regulationStatus and regulationTarget are optional,
+                // but test cases contain the attributes with disabled and 0
+                boolean regulationStatus = false;
+                double regulationTarget = 0;
+                if (dl.getGeneration() != null) {
+                    regulationStatus = dl.getGeneration().isVoltageRegulationOn();
+                    regulationTarget = dl.getGeneration().getTargetV();
+                }
+                writeEquivalentInjection(cgmesId, dl.getP0(), dl.getQ0(), regulationStatus, regulationTarget, cimNamespace, writer, context);
+                exported.add(ei);
+            }
+
         }
     }
 
@@ -515,44 +530,33 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeEquivalentInjection(DanglingLine dl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
-        if (exported.contains(ei)) {
-            return;
-        }
-        if (ei != null) {
-            // Ensure equivalent injection identifier is valid
-            String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
-            CgmesExportUtil.writeStartAbout("EquivalentInjection", cgmesId, cimNamespace, writer, context);
-            writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
-            writer.writeCharacters(CgmesExportUtil.format(dl.getP0()));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "EquivalentInjection.q");
-            writer.writeCharacters(CgmesExportUtil.format(dl.getQ0()));
-            writer.writeEndElement();
-            // regulationStatus and regulationTarget are optional,
-            // but test cases contain the attributes with disabled and 0
-            boolean regulationStatus = false;
-            double regulationTarget = 0;
-            if (dl.getGeneration() != null) {
-                regulationStatus = dl.getGeneration().isVoltageRegulationOn();
-                regulationTarget = dl.getGeneration().getTargetV();
-            }
-            writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationStatus");
-            writer.writeCharacters(Boolean.toString(regulationStatus));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationTarget");
-            writer.writeCharacters(CgmesExportUtil.format(regulationTarget));
-            writer.writeEndElement();
-            writer.writeEndElement();
-            exported.add(ei);
-        }
+    private static void writeEquivalentInjection(String cgmesId, double p, double q, boolean regulationStatus, double regulationTarget, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout("EquivalentInjection", cgmesId, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "EquivalentInjection.q");
+        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationStatus");
+        writer.writeCharacters(Boolean.toString(regulationStatus));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationTarget");
+        writer.writeCharacters(CgmesExportUtil.format(regulationTarget));
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     private static void writeEnergyConsumers(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
             if (context.isExportedEquipment(load)) {
-                writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
+                if (load.getP0() < 0) { //TODO: fix me
+                    // Ensure equivalent injection identifier is valid
+                    String cgmesId = context.getNamingStrategy().getCgmesId(load);
+                    writeEquivalentInjection(cgmesId, load.getP0(), load.getQ0(), false, 0, cimNamespace, writer, context);
+                } else {
+                    writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
+                }
             }
         }
     }

@@ -277,12 +277,19 @@ public final class EquipmentExport {
             if (context.isExportedEquipment(load)) {
                 LoadDetail loadDetail = load.getExtension(LoadDetail.class);
                 String className = CgmesExportUtil.loadClassName(loadDetail);
-                String loadGroup = loadGroups.groupFor(className);
-                EnergyConsumerEq.write(className,
-                        context.getNamingStrategy().getCgmesId(load),
-                        load.getNameOrId(), loadGroup,
-                        context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()),
-                        cimNamespace, writer, context);
+                String loadId = context.getNamingStrategy().getCgmesId(load);
+                if (load.getP0() < 0) { //TODO: fix me
+                    double nominalV = load.getTerminal().getVoltageLevel().getNominalV();
+                    String baseVoltageId = context.getBaseVoltageByNominalVoltage(nominalV).getId();
+                    EquivalentInjectionEq.write(loadId, load.getNameOrId(), false, 0, -load.getP0(), 0, load.getQ0() != 0 ? -load.getQ0() : 0, baseVoltageId, cimNamespace, writer, context); // negation because load convention
+                } else {
+                    String loadGroup = loadGroups.groupFor(className);
+                    EnergyConsumerEq.write(className,
+                            loadId,
+                            load.getNameOrId(), loadGroup,
+                            context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()),
+                            cimNamespace, writer, context);
+                }
             }
         }
     }
