@@ -63,6 +63,7 @@ public final class NetworkXml {
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
     private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
+    private static final String VOLTAGE_ANGLE_LIMIT_ELEMENT_NAME = "voltageAngleLimit";
 
     // cache to improve performance
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
@@ -211,6 +212,14 @@ public final class NetworkXml {
                 .orElseGet(extensionXmlSerializer::getNamespaceUri);
     }
 
+    private static void writeVoltageAngleLimits(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (!n.getVoltageAngleLimits().isEmpty()) {
+            for (VoltageAngleLimit voltageAngleLimit : n.getVoltageAngleLimits()) {
+                VoltageAngleLimitXml.write(voltageAngleLimit, context);
+            }
+        }
+    }
+
     private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), context.getOptions())) {
             if (!context.isExportedEquipment(identifiable)) {
@@ -355,6 +364,7 @@ public final class NetworkXml {
             NetworkXmlWriterContext context = createContext(n, options, writer);
             writeRootElement(n, context);
             writeBaseNetwork(n, context);
+            writeVoltageAngleLimits(n, context);
             writeExtensions(n, context);
             context.getWriter().writeEndElement();
             context.getWriter().writeEndDocument();
@@ -498,6 +508,10 @@ public final class NetworkXml {
 
                     case HvdcLineXml.ROOT_ELEMENT_NAME:
                         HvdcLineXml.INSTANCE.read(network, context);
+                        break;
+
+                    case VOLTAGE_ANGLE_LIMIT_ELEMENT_NAME:
+                        VoltageAngleLimitXml.read(network, context);
                         break;
 
                     case EXTENSION_ELEMENT_NAME:
