@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ import org.junit.jupiter.api.Test;
 class VoltageAngleLimitTest {
 
     @Test
-    void limitTest() {
+    void voltageAngleLimitTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
 
         network.newVoltageAngleLimit()
@@ -84,7 +85,7 @@ class VoltageAngleLimitTest {
     }
 
     @Test
-    void threeWindingsTransformerLimitTest() {
+    void threeWindingsTransformerVoltageAngleLimitTest() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
 
         network.newVoltageAngleLimit()
@@ -122,6 +123,45 @@ class VoltageAngleLimitTest {
 
         assertTrue(network.getVoltageAngleLimits().get(1).getTerminalFrom().map(t -> compareTerminal(t, "3WT")).orElse(false));
         assertTrue(network.getVoltageAngleLimits().get(1).getTerminalTo().map(t -> compareTerminal(t, "3WT")).orElse(false));
+    }
+
+    @Test
+    void badLimitVoltageAngleLimitTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+
+        VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
+            .from(TerminalRef.create("LINE_S2S3", Side.ONE))
+            .to(TerminalRef.create("LINE_S2S3", Side.TWO))
+            .withLimit(-1.0)
+            .withFlowDirection(FlowDirection.FROM_TO);
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> adder.add());
+        assertEquals("Limit <= 0: -1.0", e.getMessage());
+    }
+
+    @Test
+    void badBranchSideVoltageAngleLimitTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+
+        VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
+            .from(TerminalRef.create("LINE_S2S3", Side.ONE))
+            .to(TerminalRef.create("LINE_S2S3", Side.THREE))
+            .withLimit(1.0)
+            .withFlowDirection(FlowDirection.FROM_TO);
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> adder.add());
+        assertEquals("Unexpected Branch side: THREE", e.getMessage());
+    }
+
+    @Test
+    void badIdentifiableSideVoltageAngleLimitTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+
+        VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
+            .from(TerminalRef.create("LIN_S2S3", Side.ONE))
+            .to(TerminalRef.create("LINE_S2S3", Side.THREE))
+            .withLimit(1.0)
+            .withFlowDirection(FlowDirection.FROM_TO);
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> adder.add());
+        assertEquals("Identifiable from not found: LIN_S2S3", e.getMessage());
     }
 
     private static boolean compareTerminal(Terminal terminal, String eqId) {

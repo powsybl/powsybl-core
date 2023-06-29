@@ -110,17 +110,15 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
             } else if (side.equals(Side.TWO)) {
                 return ((Branch<?>) connectable).getTerminal2();
             } else {
-                return null;
+                throw new IllegalStateException("Unexpected Branch side: " + side.name());
             }
         } else if (connectable instanceof ThreeWindingsTransformer) {
             if (side.equals(Side.ONE)) {
                 return ((ThreeWindingsTransformer) connectable).getLeg1().getTerminal();
             } else if (side.equals(Side.TWO)) {
                 return ((ThreeWindingsTransformer) connectable).getLeg2().getTerminal();
-            } else if (side.equals(Side.THREE)) {
-                return ((ThreeWindingsTransformer) connectable).getLeg3().getTerminal();
             } else {
-                return null;
+                return ((ThreeWindingsTransformer) connectable).getLeg3().getTerminal();
             }
         } else {
             throw new IllegalStateException();
