@@ -212,7 +212,7 @@ public final class NetworkXml {
                 .orElseGet(extensionXmlSerializer::getNamespaceUri);
     }
 
-    private static void writeVoltageAngleLimits(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeVoltageAngleLimits(Network n, NetworkXmlWriterContext context) {
         if (!n.getVoltageAngleLimits().isEmpty()) {
             for (VoltageAngleLimit voltageAngleLimit : n.getVoltageAngleLimits()) {
                 VoltageAngleLimitXml.write(voltageAngleLimit, context);
