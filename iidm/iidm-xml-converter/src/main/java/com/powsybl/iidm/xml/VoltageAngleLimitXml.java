@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.TerminalRef;
 import com.powsybl.iidm.network.VoltageAngleLimit;
 import com.powsybl.iidm.network.VoltageAngleLimitAdder;
 import com.powsybl.iidm.network.VoltageAngleLimit.FlowDirection;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -35,40 +36,46 @@ public final class VoltageAngleLimitXml {
     static final String TO = "to";
 
     public static void write(VoltageAngleLimit voltageAngleLimit, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), VOLTAGE_ANGLE_LIMIT);
-        XmlUtil.writeDouble(LIMIT, voltageAngleLimit.getLimit(), context.getWriter());
-        context.getWriter().writeAttribute(FLOW_DIRECTION, voltageAngleLimit.getFlowDirection().name());
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
 
-        writeTerminalRef(voltageAngleLimit.getFrom(), context, FROM);
-        writeTerminalRef(voltageAngleLimit.getTo(), context, TO);
+            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), VOLTAGE_ANGLE_LIMIT);
+            XmlUtil.writeDouble(LIMIT, voltageAngleLimit.getLimit(), context.getWriter());
+            context.getWriter().writeAttribute(FLOW_DIRECTION, voltageAngleLimit.getFlowDirection().name());
 
-        context.getWriter().writeEndElement();
+            writeTerminalRef(voltageAngleLimit.getFrom(), context, FROM);
+            writeTerminalRef(voltageAngleLimit.getTo(), context, TO);
+
+            context.getWriter().writeEndElement();
+        });
     }
 
     public static void read(Network network, NetworkXmlReaderContext context) throws XMLStreamException {
-        double limit = XmlUtil.readDoubleAttribute(context.getReader(), LIMIT);
-        String flowDirectionString = context.getReader().getAttributeValue(null, FLOW_DIRECTION);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
 
-        VoltageAngleLimitAdder adder = network.newVoltageAngleLimit();
-        adder
-            .withLimit(limit)
-            .withFlowDirection(FlowDirection.valueOf(flowDirectionString));
+            double limit = XmlUtil.readDoubleAttribute(context.getReader(), LIMIT);
+            String flowDirectionString = context.getReader().getAttributeValue(null, FLOW_DIRECTION);
 
-        XmlUtil.readUntilEndElement(VOLTAGE_ANGLE_LIMIT, context.getReader(), () -> {
-            TerminalRef from = null;
-            TerminalRef to = null;
-            if (context.getReader().getLocalName().equals(FROM)) {
-                from = readTerminalRef(context);
-                adder.from(from);
-            } else if (context.getReader().getLocalName().equals(TO)) {
-                to = readTerminalRef(context);
-                adder.to(to);
-            } else {
-                throw new PowsyblException("Unexpected TerminalRef: " + context.getReader().getLocalName());
-            }
+            VoltageAngleLimitAdder adder = network.newVoltageAngleLimit();
+            adder
+                .withLimit(limit)
+                .withFlowDirection(FlowDirection.valueOf(flowDirectionString));
+
+            XmlUtil.readUntilEndElement(VOLTAGE_ANGLE_LIMIT, context.getReader(), () -> {
+                TerminalRef from = null;
+                TerminalRef to = null;
+                if (context.getReader().getLocalName().equals(FROM)) {
+                    from = readTerminalRef(context);
+                    adder.from(from);
+                } else if (context.getReader().getLocalName().equals(TO)) {
+                    to = readTerminalRef(context);
+                    adder.to(to);
+                } else {
+                    throw new PowsyblException("Unexpected TerminalRef: " + context.getReader().getLocalName());
+                }
+            });
+
+            adder.add();
         });
-
-        adder.add();
     }
 
     private static void writeTerminalRef(TerminalRef terminalRef, NetworkXmlWriterContext context, String ft) throws XMLStreamException {

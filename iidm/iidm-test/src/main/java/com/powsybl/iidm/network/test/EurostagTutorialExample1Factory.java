@@ -847,6 +847,7 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network createWithVoltageAngleLimit() {
         Network network = create(NetworkFactory.findDefault());
+        network.setCaseDate(DateTime.parse("2023-06-28T23:11:51.614+02:00"));
 
         network.newVoltageAngleLimit()
             .from(TerminalRef.create("NHV1_NHV2_1", Side.ONE))

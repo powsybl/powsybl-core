@@ -33,6 +33,7 @@
                     <xs:element name="tieLine" type="iidm:TieLine"/>
                     <xs:element name="hvdcLine" type="iidm:HvdcLine"/>
                 </xs:choice>
+				<xs:element name="voltageAngleLimit" minOccurs="0" maxOccurs="unbounded" type="iidm:VoltageAngleLimit"/>
                 <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:sequence>
@@ -630,4 +631,13 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
+	<xs:complexType name="VoltageAngleLimit">
+		<xs:sequence>
+			<xs:element name="from" type="iidm:TerminalRef"/>
+			<xs:element name="to" type="iidm:TerminalRef"/>
+		</xs:sequence>
+		<xs:attribute name="limit" use="required" type="xs:double"/>
+        <xs:attribute name="flowDirection" use="required" type="xs:string"/>
+    </xs:complexType>
+
 </xs:schema>
