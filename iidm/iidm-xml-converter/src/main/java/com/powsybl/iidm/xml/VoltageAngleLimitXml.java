@@ -35,7 +35,7 @@ public final class VoltageAngleLimitXml {
     static final String FROM = "from";
     static final String TO = "to";
 
-    public static void write(VoltageAngleLimit voltageAngleLimit, NetworkXmlWriterContext context) throws XMLStreamException {
+    public static void write(VoltageAngleLimit voltageAngleLimit, NetworkXmlWriterContext context) {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
 
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), VOLTAGE_ANGLE_LIMIT);
@@ -49,7 +49,7 @@ public final class VoltageAngleLimitXml {
         });
     }
 
-    public static void read(Network network, NetworkXmlReaderContext context) throws XMLStreamException {
+    public static void read(Network network, NetworkXmlReaderContext context) {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
 
             double limit = XmlUtil.readDoubleAttribute(context.getReader(), LIMIT);
