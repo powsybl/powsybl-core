@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -42,10 +43,11 @@ public abstract class AbstractNetworkDataframeMapper<T> extends AbstractDatafram
     }
 
     protected List<T> getFilteredItems(Network network, DataframeFilter dataframeFilter) {
-        if (dataframeFilter.getSelectingDataframe().isEmpty()) {
+        Optional<UpdatingDataframe> optSelectDf = dataframeFilter.getSelectingDataframe();
+        if (optSelectDf.isEmpty()) {
             return getItems(network);
         } else {
-            UpdatingDataframe selectedDataframe = dataframeFilter.getSelectingDataframe().get();
+            UpdatingDataframe selectedDataframe = optSelectDf.get();
             return IntStream.range(0, selectedDataframe.getRowCount())
                 .mapToObj(i -> getItem(network, selectedDataframe, i))
                 .collect(Collectors.toList());
