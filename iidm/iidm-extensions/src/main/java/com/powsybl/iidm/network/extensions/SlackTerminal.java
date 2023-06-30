@@ -6,14 +6,14 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.util.TerminalFinder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -30,24 +30,61 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
      * @param network A network to cleanup
      */
     static void reset(Network network) {
-        network.getVoltageLevels().forEach(vl -> reset(vl, null));
+        network.getVoltageLevels().forEach(vl -> reset(vl));
     }
 
     /**
+     * @deprecated
      * Reset the slackTerminal extension to the given terminal (may be null)
+     *
      * @param voltageLevel the voltageLevel to reset the slackTerminal extension from
      * @param terminal the terminal to reset the extension to (may be null)
      */
+    @Deprecated
     static void reset(VoltageLevel voltageLevel, Terminal terminal) {
         Objects.requireNonNull(voltageLevel);
 
         SlackTerminal st = voltageLevel.getExtension(SlackTerminal.class);
         if (st == null && terminal != null) {
-            voltageLevel.newExtension(SlackTerminalAdder.class)
-                    .withTerminal(terminal)
-                    .add();
+            voltageLevel.newExtension(SlackTerminalAdder.class).withTerminal(terminal).add();
         } else if (st != null) {
             st.setTerminal(terminal, true);
+        }
+    }
+
+    /**
+     * Reset the slackTerminal extension with no terminal
+     *
+     * @param voltageLevel the voltageLevel to reset the slackTerminal extension from
+     */
+    static void reset(VoltageLevel voltageLevel) {
+        Objects.requireNonNull(voltageLevel);
+
+        SlackTerminal st = voltageLevel.getExtension(SlackTerminal.class);
+        if (st != null) {
+            st.setNoTerminalAndClean();
+        }
+    }
+
+    /**
+     * Reset the slackTerminal extension to the given terminal (may NOT be null)
+     *
+     * @param voltageLevel the voltageLevel to reset the slackTerminal extension from
+     * @param terminal the terminals to reset the extension to
+     */
+    static void reset(VoltageLevel voltageLevel, List<? extends TerminalWithPriority> terminals) {
+        Objects.requireNonNull(voltageLevel);
+        Objects.requireNonNull(terminals);
+
+        SlackTerminal st = voltageLevel.getExtension(SlackTerminal.class);
+        if (st == null) {
+            var extention = voltageLevel.newExtension(SlackTerminalAdder.class);
+            for (var terminal : terminals) {
+                extention = extention.withTerminal(terminal);
+            }
+            extention.add();
+        } else {
+            st.setTerminals(terminals);
         }
     }
 
@@ -59,11 +96,14 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
         Objects.requireNonNull(bus);
 
         VoltageLevel vl = bus.getVoltageLevel();
-        Terminal terminal = TerminalFinder.getDefault()
-                .find(bus.getConnectedTerminals())
-                .orElseThrow(() -> new PowsyblException("Unable to find a terminal in the bus " + bus.getId()));
 
-        reset(vl, terminal);
+        ArrayList<TerminalWithPriority> terminals = new ArrayList<>();
+
+        for (var terminal : bus.getConnectedTerminals()) {
+            terminals.add(new TerminalWithPriorityImpl(terminal, 1));
+        }
+
+        reset(vl, terminals);
     }
 
     @Override
@@ -72,25 +112,71 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
     }
 
     /**
-     * Get the terminal pointed by the current SlackTerminal
+     * Get the terminals pointed by the current SlackTerminal
+     *
+     * @return the corresponding terminal and its priority
+     */
+    List<TerminalWithPriority> getTerminals();
+
+    /**
+     * @deprecated Get the terminal pointed by the current SlackTerminal
      * @return the corresponding terminal
      */
+    @Deprecated
     Terminal getTerminal();
 
     /**
-     * Set the terminal pointed by the current SlackTerminal
+     * Set the terminals pointed by the current SlackTerminal
+     *
+     * @param terminals the corresponding terminals with a priority (may NOT be null)
+     * @return the current SlackTerminal
+     */
+    SlackTerminal setTerminals(List<? extends TerminalWithPriority> terminals);
+
+    default SlackTerminal addTerminal(TerminalWithPriority terminal) {
+        var terminals = getTerminals();
+        terminals.add(terminal);
+        setTerminals(terminals);
+        return this;
+    }
+
+    /**
+     * Reset the current SlackTerminal to point to no terminal
+     *
+     * @return the current SlackTerminal
+     */
+    SlackTerminal setNoTerminal();
+
+    /**
+     * Reset the current SlackTerminal to point to no terminal Remove the SlackTerminal extension from the corresponding
+     * VoltageLevel if the SlackTerminal is empty
+     *
+     * @return the current SlackTerminal
+     */
+    default SlackTerminal setNoTerminalAndClean() {
+        setNoTerminal();
+        if (isEmpty()) {
+            getExtendable().removeExtension(SlackTerminal.class);
+        }
+        return this;
+    }
+
+    /**
+     * @deprecated Set the terminal pointed by the current SlackTerminal
      * @param terminal the corresponding terminal
      * @return the current SlackTerminal
      */
+    @Deprecated
     SlackTerminal setTerminal(Terminal terminal);
 
     /**
-     * Set the terminal pointed by the current SlackTerminal
+     * @deprecated Set the terminal pointed by the current SlackTerminal
      * @param terminal the corresponding terminal (may be null)
-     * @param cleanIfEmpty if true and if the slackTerminal is empty, removes the SlackTerminal extension from
-     *                     the corresponding VoltageLevel
+     * @param cleanIfEmpty if true and if the slackTerminal is empty, removes the SlackTerminal extension from the
+     *        corresponding VoltageLevel
      * @return the current SlackTerminal
      */
+    @Deprecated
     default SlackTerminal setTerminal(Terminal terminal, boolean cleanIfEmpty) {
         setTerminal(terminal);
         if (cleanIfEmpty && terminal == null && isEmpty()) {

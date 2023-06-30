@@ -20,6 +20,11 @@ public interface SlackTerminalAdder extends ExtensionAdder<VoltageLevel, SlackTe
         return SlackTerminal.class;
     }
 
-    SlackTerminalAdder withTerminal(Terminal terminal);
+    default SlackTerminalAdder withTerminal(Terminal terminal) {
+        return withTerminal(terminal, 1);
+    }
 
+    SlackTerminalAdder withTerminal(Terminal terminal, int priority);
+
+    SlackTerminalAdder withTerminal(TerminalWithPriority terminal);
 }

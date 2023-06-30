@@ -10,52 +10,78 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.TerminalWithPriority;
+import com.powsybl.iidm.network.extensions.TerminalWithPriorityImpl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension<VoltageLevel> implements SlackTerminal {
 
-    private final ArrayList<Terminal> terminals;
+    private final ArrayList<ArrayList<TerminalWithPriority>> terminals;
 
-    SlackTerminalImpl(VoltageLevel voltageLevel, Terminal terminal) {
+    SlackTerminalImpl(VoltageLevel voltageLevel, ArrayList<? extends TerminalWithPriority> terminals) {
         super(voltageLevel);
         this.terminals = new ArrayList<>(
-            Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), null));
-        this.setTerminal(terminal);
+            Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), new ArrayList<>()));
+        this.setTerminals(terminals);
     }
 
     @Override
-    public Terminal getTerminal() {
+    public List<TerminalWithPriority> getTerminals() {
         return terminals.get(getVariantIndex());
     }
 
     @Override
-    public SlackTerminal setTerminal(Terminal terminal) {
-        if (terminal != null && !terminal.getVoltageLevel().equals(getExtendable())) {
-            throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
-                + terminal.getVoltageLevel().getId() + " instead of " + getExtendable().getId() + ")");
+    public Terminal getTerminal() {
+        var variantTerminals = terminals.get(getVariantIndex());
+        if (variantTerminals == null || variantTerminals.isEmpty()) {
+            return null;
         }
-        terminals.set(getVariantIndex(), terminal);
+        return variantTerminals.get(0).getTerminal();
+    }
+
+    @Override
+    public SlackTerminal setTerminals(List<? extends TerminalWithPriority> terminals) {
+        Objects.requireNonNull(terminals);
+
+        for (TerminalWithPriority terminal : terminals) {
+            if (terminal != null && !terminal.getVoltageLevel().equals(getExtendable())) {
+                throw new PowsyblException("Terminal given is not in the right VoltageLevel ("
+                    + terminal.getVoltageLevel().getId() + " instead of " + getExtendable().getId() + ")");
+            }
+        }
+        this.terminals.set(getVariantIndex(), new ArrayList<>(terminals));
+        return this;
+    }
+
+    public SlackTerminal setNoTerminal() {
+        this.terminals.set(getVariantIndex(), new ArrayList<>());
         return this;
     }
 
     @Override
+    public SlackTerminal setTerminal(Terminal terminal) {
+        if (terminal == null) {
+            return setNoTerminal();
+        }
+        return this.setTerminals(Arrays.asList(new TerminalWithPriorityImpl(terminal, 1)));
+    }
+
+    @Override
     public boolean isEmpty() {
-        return terminals.stream().noneMatch(Objects::nonNull);
+        return terminals.stream().allMatch(List::isEmpty);
     }
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         terminals.ensureCapacity(terminals.size() + number);
-        Terminal sourceTerminal = terminals.get(sourceIndex);
+        ArrayList<? extends TerminalWithPriority> sourceTerminals = terminals.get(sourceIndex);
         for (int i = 0; i < number; ++i) {
-            terminals.add(sourceTerminal);
+            terminals.add(new ArrayList<>(sourceTerminals));
         }
     }
 
@@ -73,9 +99,9 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
-        Terminal terminalSource = terminals.get(sourceIndex);
+        ArrayList<TerminalWithPriority> sourceTerminals = terminals.get(sourceIndex);
         for (int index : indexes) {
-            terminals.set(index, terminalSource);
+            terminals.set(index, sourceTerminals);
         }
     }
 }
