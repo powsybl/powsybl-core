@@ -453,8 +453,8 @@ public final class NetworkDataframes {
                 .filter(sc -> sc.getModelType() == ShuntCompensatorModelType.LINEAR)
                 .map(shuntCompensator -> Pair.of(shuntCompensator,
                     (ShuntCompensatorLinearModel) shuntCompensator.getModel()));
-        return NetworkDataframeMapperBuilder.ofStream(linearShunts,
-                (net, s) -> Pair.of(checkShuntNonNull(net, s), checkLinearModel(net, s)))
+        return NetworkDataframeMapperBuilder
+            .ofStream(linearShunts, (net, s) -> Pair.of(checkShuntNonNull(net, s), checkLinearModel(net, s)))
             .stringsIndex("id", p -> p.getLeft().getId())
             .doubles("g_per_section", p -> p.getRight().getGPerSection(), (p, g) -> p.getRight().setGPerSection(g))
             .doubles("b_per_section", p -> p.getRight().getBPerSection(), (p, b) -> p.getRight().setBPerSection(b))
