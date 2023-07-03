@@ -553,12 +553,23 @@ public final class SteadyStateHypothesisExport {
                 if (load.getP0() < 0) { //FIXME
                     // Ensure equivalent injection identifier is valid
                     String cgmesId = context.getNamingStrategy().getCgmesId(load);
-                    writeEquivalentInjection(cgmesId, load.getP0(), load.getQ0(), false, 0, cimNamespace, writer, context);
+                    writeEnergySource(cgmesId, load.getNameOrId(), load.getP0(), load.getQ0(), cimNamespace, writer, context);
                 } else {
                     writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
                 }
             }
         }
+    }
+
+    private static void writeEnergySource(String id, String name, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("EnergySource", id, name, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "EnergySource.activePower");
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "EnergySource.reactivePower");
+        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     private static void writeSshEnergyConsumer(String id, double p, double q, LoadDetail loadDetail, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
