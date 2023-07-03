@@ -78,9 +78,9 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     @Override
-    public Network getClosestNetwork() {
-        Network subNetwork1 = converterStation1.getClosestNetwork();
-        Network subNetwork2 = converterStation2.getClosestNetwork();
+    public Network getSmallestContainingNetwork() {
+        Network subNetwork1 = converterStation1.getSmallestContainingNetwork();
+        Network subNetwork2 = converterStation2.getSmallestContainingNetwork();
         if (subNetwork1 == subNetwork2) {
             return subNetwork1;
         }

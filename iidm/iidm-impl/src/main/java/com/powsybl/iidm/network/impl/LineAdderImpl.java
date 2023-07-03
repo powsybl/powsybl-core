@@ -92,7 +92,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
-        if (voltageLevel1.getClosestNetwork() != voltageLevel2.getClosestNetwork()) {
+        if (voltageLevel1.getSmallestContainingNetwork() != voltageLevel2.getSmallestContainingNetwork()) {
             LOG.warn("Line '{}' is between two different sub-networks: splitting back the network will not be possible." +
                     " If you want to be able to split the network, delete this line and create a tie-line instead", id);
         }

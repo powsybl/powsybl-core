@@ -43,8 +43,8 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     }
 
     @Override
-    public Network getClosestNetwork() {
-        return voltageLevel.getClosestNetwork();
+    public Network getSmallestContainingNetwork() {
+        return voltageLevel.getSmallestContainingNetwork();
     }
 
     @Override

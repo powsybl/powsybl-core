@@ -44,6 +44,6 @@ class SubComponent implements Component {
 
     @Override
     public Stream<Bus> getBusStream() {
-        return parent.getBusStream().filter(b -> b.getClosestNetwork() == subNetwork);
+        return parent.getBusStream().filter(b -> b.getSmallestContainingNetwork() == subNetwork);
     }
 }

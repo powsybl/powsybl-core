@@ -99,12 +99,30 @@ import java.util.stream.Stream;
  */
 public interface Network extends Container<Network> {
 
+    String SUBNETWORKS_ARE_UNSUPPORTED = "This network doesn't support subnetworks.";
+
     default Collection<Network> getSubNetworks() {
         return Collections.emptyList();
     }
 
+    default Collection<String> getSubNetworkIds() {
+        return getSubNetworks().stream().map(Identifiable::getId).collect(Collectors.toList());
+    }
+
     default Network getSubNetwork(String id) {
         return null;
+    }
+
+    default Network getNetworkById(String subNetworkId) {
+        return getOptionalNetworkById(subNetworkId)
+                .orElseThrow(() -> new IllegalStateException("(Sub)network " + subNetworkId + " is unknown in network " + getId()));
+    }
+
+    default Optional<Network> getOptionalNetworkById(String subNetworkId) {
+        if (subNetworkId == null || subNetworkId.equals(getId())) {
+            return Optional.of(getNetwork());
+        }
+        return Optional.ofNullable(getSubNetwork(subNetworkId));
     }
 
     /**
@@ -498,6 +516,16 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Create a network (using default implementation) as the result of the merge of the given networks.
+     *
+     * @param id id of the network to create
+     * @return the merged network
+     */
+    static Network createByMerging(String id, Network... networks) {
+        return NetworkFactory.findDefault().createByMerging(id, networks);
+    }
+
+    /**
      * Just being able to name method create et not createNetwork. Create is not available in {@link NetworkFactory} for backward
      * compatibility reason. To cleanup when {@link NetworkFactory#create(String, String)} will be removed.
      */
@@ -558,8 +586,18 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new substation.
+     * @return a builder to create a new substation
      */
     SubstationAdder newSubstation();
+
+    /**
+     * Get a builder to create a new substation in a subnetwork.
+     * @param subnetwork the subnetwork's id
+     * @return a builder to create a new substation
+     */
+    default SubstationAdder newSubstation(String subnetwork) {
+        throw new UnsupportedOperationException(SUBNETWORKS_ARE_UNSUPPORTED);
+    }
 
     /**
      * Get all substations.
@@ -611,6 +649,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a builder to create a new voltage level (without substation).
      * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     * @return a builder to create a new voltage level
      */
     default VoltageLevelAdder newVoltageLevel() {
         return newSubstation()
@@ -619,6 +658,16 @@ public interface Network extends Container<Network> {
                 .setFictitious(true)
                 .add()
                 .newVoltageLevel();
+    }
+
+    /**
+     * Get a builder to create a new voltage level (without substation) in a subnetwork.
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     * @param subnetwork the subnetwork's id
+     * @return a builder to create a new voltage level
+     */
+    default VoltageLevelAdder newVoltageLevel(String subnetwork) {
+        throw new UnsupportedOperationException(SUBNETWORKS_ARE_UNSUPPORTED);
     }
 
     /**
@@ -645,8 +694,18 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new AC line.
+     * @return a builder to create a new line
      */
     LineAdder newLine();
+
+    /**
+     * Get a builder to create a new AC line in a subnetwork.
+     * @param subnetwork the subnetwork's id
+     * @return a builder to create a new line
+     */
+    default LineAdder newLine(String subnetwork) {
+        throw new UnsupportedOperationException(SUBNETWORKS_ARE_UNSUPPORTED);
+    }
 
     /**
      * Get all AC lines.
@@ -715,14 +774,25 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new AC tie line.
+     * @return a builder to create a new AC tie line
      */
     TieLineAdder newTieLine();
+
+    /**
+     * Get a builder to create a new AC tie line in a subnetwork.
+     * @param subnetwork the subnetwork's id
+     * @return a builder to create a new AC tie line
+     */
+    default TieLineAdder newTieLine(String subnetwork) {
+        throw new UnsupportedOperationException(SUBNETWORKS_ARE_UNSUPPORTED);
+    }
 
     /**
      * Get a builder to create a two windings transformer.
      * Only use if at least one of the transformer's ends does not belong to any substation.
      * Else use {@link Substation#newTwoWindingsTransformer()}.
      * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     * @return a builder to create a new two windings transformer
      */
     default TwoWindingsTransformerAdder newTwoWindingsTransformer() {
         return newSubstation()
@@ -731,6 +801,18 @@ public interface Network extends Container<Network> {
                 .setFictitious(true)
                 .add()
                 .newTwoWindingsTransformer();
+    }
+
+    /**
+     * Get a builder to create a two windings transformer in a subnetwork.
+     * Only use if at least one of the transformer's ends does not belong to any substation.
+     * Else use {@link Substation#newTwoWindingsTransformer()}.
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     * @param subnetwork the subnetwork's id
+     * @return a builder to create a new two windings transformer
+     */
+    default TwoWindingsTransformerAdder newTwoWindingsTransformer(String subnetwork) {
+        throw new UnsupportedOperationException(SUBNETWORKS_ARE_UNSUPPORTED);
     }
 
     /**
@@ -760,7 +842,8 @@ public interface Network extends Container<Network> {
      * Only use this builder if at least one of the transformer's ends does not belong to any substation.
      * Else use {@link Substation#newThreeWindingsTransformer()}.
      * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
-     */
+     * @return a builder to create a new three windings transformer
+     * */
     default ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
         return newSubstation()
                 .setId("FICTITIOUS_SUBSTATION")
@@ -768,6 +851,18 @@ public interface Network extends Container<Network> {
                 .setFictitious(true)
                 .add()
                 .newThreeWindingsTransformer();
+    }
+
+    /**
+     * Get a builder to create a three windings transformer in a subnetwork.
+     * Only use this builder if at least one of the transformer's ends does not belong to any substation.
+     * Else use {@link Substation#newThreeWindingsTransformer()}.
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     * @param subnetwork the subnetwork's id
+     * @return a builder to create a new three windings transformer
+     */
+    default ThreeWindingsTransformerAdder newThreeWindingsTransformer(String subnetwork) {
+        throw new UnsupportedOperationException(SUBNETWORKS_ARE_UNSUPPORTED);
     }
 
     /**
@@ -1105,6 +1200,15 @@ public interface Network extends Container<Network> {
     HvdcLineAdder newHvdcLine();
 
     /**
+     * Get a builder to create a new HVDC line in a subnetwork.
+     * @param subnetwork the subnetwork's id
+     * @return a builder to create a new HVDC line
+     */
+    default HvdcLineAdder newHvdcLine(String subnetwork) {
+        throw new UnsupportedOperationException(SUBNETWORKS_ARE_UNSUPPORTED);
+    }
+
+    /**
      * Get an equipment by its ID or alias
      *
      * @param id the id or an alias of the equipment
@@ -1199,13 +1303,133 @@ public interface Network extends Container<Network> {
     BusView getBusView();
 
     /**
-     * Merge with an other network. At the end of the merge the other network
-     * is empty.
+     * Create an empty subnetwork in the current network.
+     *
+     * @param subnetworkId id of the subnetwork
+     * @param sourceFormat source format
+     * @return the created subnetwork
+     */
+    Network createSubnetwork(String subnetworkId, String sourceFormat);
+
+    /**
+     * Merge with another network. At the end of the merge the other network
+     * is empty (destructive merge).
      * @param other the other network
      */
     void merge(Network other);
 
     void merge(Network... others);
+
+    /**
+     * Unmerge the network. Each subnetwork will be converted in a fully-independent network.<br/>
+     * Each equipment linking 2 subnetworks together shall be removed prior to this operation.
+     * A {@link PowsyblException} will be thrown if 2 subnetworks are still linked together.<br/>
+     * If substations were defined at the root network level, the root network (without the subnetwork's equipments) will
+     * also be added to the resulting map. An {@link IllegalStateException} will be thrown if some links exist between
+     * these substations and another subnetwork.<br/>
+     *
+     * @return a map containing a new {@link Network} for each subnetwork detected ({@literal value}),
+     * associated to its id ({@literal key}).
+     */
+    Map<String, Network> unmerge();
+
+    /**
+     * Extract a subnetwork and convert it in a fully-independent network.<br/>
+     * Each equipment linking the subnetwork to another shall be removed prior to this operation.
+     * A {@link PowsyblException} will be thrown if the subnetwork is still linked to another one.<br/>
+     * All the extracted subnetworks' equipments will be removed from the current network.
+     *
+     * @param subnetworkId the id of a current network's subnetwork.
+     * @return a fully-independent {@link Network} corresponding to the subnetwork.
+     */
+    Network extractSubnetwork(String subnetworkId);
+
+    /**
+     * Check if the given identifiable id <b>directly</b> in the current network.<br/>
+     * If the identifiable is in a subnetwork of the current network, this method will return <code>false</code>.
+     *
+     * @param identifiable the identifiable to check
+     * @return true if the given identifiable is <b>directly</b> in the network
+     */
+    default boolean containsDirectly(Identifiable<?> identifiable) {
+        return identifiable != null && identifiable.getSmallestContainingNetwork() == this;
+    }
+
+    /**
+     * Check if the network contains the given identifiable or another network containing it.
+     *
+     * @param identifiable the identifiable to check
+     * @return true is the given identifiable is in the network (or in one of its subnetworks)
+     */
+    default boolean contains(Identifiable<?> identifiable) {
+        if (containsDirectly(identifiable)) {
+            return true;
+        }
+        return getSubNetworks().stream().anyMatch(s -> s.containsDirectly(identifiable));
+    }
+
+    /**
+     * If both ids correspond to the current network or one of its subnetworks, return a {@link Map} containing
+     * all the equipments linking the both networks (i.e. with a terminal in each network), organized by class.<br/>
+     * Throw an {@link IllegalArgumentException} if one of the given ids doesn't match the known ids of the current network.
+     *
+     * @param networkId1 1st network's id
+     * @param networkId2 2nd network's id
+     * @return the elements linking the 2 given networks, organized by class
+     */
+    default Map<Class<? extends Identifiable<?>>, Set<Identifiable<?>>> getLinksBetween(String networkId1, String networkId2) {
+        return getLinksBetween(getNetworkById(networkId1), getNetworkById(networkId2));
+    }
+
+    /**
+     * If both networks are in the current network (i.e. is the current network or one of its subnetworks), return a {@link Map} containing
+     * all the equipments linking the both networks (i.e. with a terminal in each network), organized by class.
+     *
+     * @param network1 1st network
+     * @param network2 2nd network
+     * @return the elements linking the 2 given networks, organized by class
+     */
+    Map<Class<? extends Identifiable<?>>, Set<Identifiable<?>>> getLinksBetween(Network network1, Network network2);
+
+    /**
+     * Split all links connecting 2 subnetworks of the current network, or between the current network and one of its subnetworks.<br/>
+     * A {@link PowsyblException} is thrown if an un-splittable link is detected.
+     * @param networkId1 1st network's id
+     * @param networkId2 2nd network's id
+     */
+    void splitLinksBetween(String networkId1, String networkId2);
+
+    /**
+     * Split all links connecting 2 subnetworks of the current network, or between the current network and one of its subnetworks.<br/>
+     * A {@link PowsyblException} is thrown if an un-splittable link is found.
+     * @param network1 1st network
+     * @param network2 2nd network
+     */
+    void splitLinksBetween(Network network1, Network network2);
+
+    /**
+     * Split the given equipments.<br/>
+     * A {@link PowsyblException} is thrown if an un-splittable element is found.
+     * @param equipments the elements to split.
+     */
+    void splitEquipments(Collection<Identifiable<?>> equipments);
+
+    /**
+     * Split the links connecting the all subnetworks together.<br/>
+     * A {@link PowsyblException} is thrown if an un-splittable link is found.
+     */
+    void splitLinksBetweenSubnetworks();
+
+    /**
+     * Convert the current network as a one-level network.<br/>
+     * <ul>
+     *   <li>If the network contains subnetworks, their equipments are moved at the current network level and
+     *   the subnetworks are all removed. In addition, the inner tie-lines are replaced by standard lines.
+     *   <b>This operation is irreversible.</b></li>
+     *   <li>If the network doesn't contain subnetworks, this operation doesn't do anything.</li>
+     * </ul>
+     */
+    void flatten();
 
     void addListener(NetworkListener listener);
 

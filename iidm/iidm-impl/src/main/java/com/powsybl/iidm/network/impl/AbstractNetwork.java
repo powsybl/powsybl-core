@@ -7,12 +7,15 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -68,5 +71,31 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
     @Override
     protected String getTypeDescription() {
         return "Network";
+    }
+
+    @Override
+    public void splitLinksBetween(String networkId1, String networkId2) {
+        splitEquipments(getLinksBetween(networkId1, networkId2));
+    }
+
+    @Override
+    public void splitLinksBetween(Network network1, Network network2) {
+        splitEquipments(getLinksBetween(network1, network2));
+    }
+
+    private void splitEquipments(Map<Class<? extends Identifiable<?>>, Set<Identifiable<?>>> equipmentsByClass) {
+        splitEquipments(equipmentsByClass.values().stream().flatMap(Set::stream).collect(Collectors.toSet()));
+    }
+
+    @Override
+    public void splitEquipments(Collection<Identifiable<?>> equipments) {
+        for (Identifiable<?> equipment : equipments) {
+            if (equipment.getType() == IdentifiableType.TIE_LINE) {
+                //TODO subnetworks API
+                throw new UnsupportedOperationException("Not yet implemented");
+            } else {
+                throw new PowsyblException("This equipment cannot be split.");
+            }
+        }
     }
 }

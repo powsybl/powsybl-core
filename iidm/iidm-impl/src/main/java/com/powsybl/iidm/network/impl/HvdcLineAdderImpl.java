@@ -116,7 +116,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         }
         VoltageLevelExt vl1 = converterStation1.getTerminal().getVoltageLevel();
         VoltageLevelExt vl2 = converterStation2.getTerminal().getVoltageLevel();
-        if (vl1.getClosestNetwork() != vl2.getClosestNetwork()) {
+        if (vl1.getSmallestContainingNetwork() != vl2.getSmallestContainingNetwork()) {
             LOG.warn("HVDC Line '{}' is between two different sub-networks: splitting back the network will not be possible.", id);
         }
         if (subNetwork != null && (!subNetwork.equals(vl1.getSubNetwork()) || !subNetwork.equals(vl2.getSubNetwork()))) {

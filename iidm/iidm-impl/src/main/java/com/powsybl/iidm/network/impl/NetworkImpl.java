@@ -151,6 +151,15 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         index.checkAndAdd(this);
     }
 
+    static Network createByMerging(String id, String name, Network... networks) {
+        if (networks == null || networks.length < 2) {
+            throw new IllegalArgumentException("At least 2 networks are expected");
+        }
+        Network mergedNetwork = new NetworkImpl(id, name, networks[0].getSourceFormat());
+        mergedNetwork.merge(networks);
+        return mergedNetwork;
+    }
+
     RefChain<NetworkImpl> getRef() {
         return refByNetworkId.get(id);
     }
@@ -167,20 +176,13 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return index;
     }
 
-    Network getClosestNetwork(String subNetworkId) {
-        if (subNetworkId == null) {
-            return this;
-        }
-        return subNetworks.get(subNetworkId);
-    }
-
     @Override
     public NetworkImpl getNetwork() {
         return this;
     }
 
     @Override
-    public Network getClosestNetwork() {
+    public Network getSmallestContainingNetwork() {
         return this;
     }
 
@@ -212,7 +214,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return newSubstation(null);
     }
 
-    SubstationAdder newSubstation(String subNetwork) {
+    @Override
+    public SubstationAdder newSubstation(String subNetwork) {
         return new SubstationAdderImpl(Optional.ofNullable(subNetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subNetwork);
     }
 
@@ -251,7 +254,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return newVoltageLevel(null);
     }
 
-    VoltageLevelAdder newVoltageLevel(String subNetwork) {
+    @Override
+    public VoltageLevelAdder newVoltageLevel(String subNetwork) {
         return new VoltageLevelAdderImpl(Optional.ofNullable(subNetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subNetwork);
     }
 
@@ -283,7 +287,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return newLine(null);
     }
 
-    LineAdderImpl newLine(String subNetwork) {
+    @Override
+    public LineAdderImpl newLine(String subNetwork) {
         return new LineAdderImpl(this, subNetwork);
     }
 
@@ -360,7 +365,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return newTieLine(null);
     }
 
-    TieLineAdderImpl newTieLine(String subNetwork) {
+    @Override
+    public TieLineAdderImpl newTieLine(String subNetwork) {
         return new TieLineAdderImpl(this, subNetwork);
     }
 
@@ -369,7 +375,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return newTwoWindingsTransformer(null);
     }
 
-    TwoWindingsTransformerAdderImpl newTwoWindingsTransformer(String subNetwork) {
+    @Override
+    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer(String subNetwork) {
         return new TwoWindingsTransformerAdderImpl(Optional.ofNullable(subNetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subNetwork);
     }
 
@@ -398,7 +405,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return newThreeWindingsTransformer(null);
     }
 
-    ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer(String subNetwork) {
+    @Override
+    public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer(String subNetwork) {
         return new ThreeWindingsTransformerAdderImpl(Optional.ofNullable(subNetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subNetwork);
     }
 
@@ -679,7 +687,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return newHvdcLine(null);
     }
 
-    HvdcLineAdder newHvdcLine(String subNetwork) {
+    @Override
+    public HvdcLineAdder newHvdcLine(String subNetwork) {
         return new HvdcLineAdderImpl(Optional.ofNullable(subNetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subNetwork);
     }
 
@@ -915,18 +924,18 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         // create subnetworks
         Network n = createSubNetwork(this, this);
         subNetworks.put(id, n);
-        getSubstationStream().filter(s -> s.getClosestNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubNetwork(id));
-        getVoltageLevelStream().filter(v -> v.getClosestNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubNetwork(id));
+        getSubstationStream().filter(s -> s.getSmallestContainingNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubNetwork(id));
+        getVoltageLevelStream().filter(v -> v.getSmallestContainingNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubNetwork(id));
 
         otherNetwork.getSubstationStream().forEach(s -> {
-            Network subNetwork = s.getClosestNetwork();
+            Network subNetwork = s.getSmallestContainingNetwork();
             if (subNetwork == otherNetwork) {
                 ((SubstationImpl) s).setSubNetwork(otherNetwork.id);
             }
             subNetworks.computeIfAbsent(subNetwork.getId(), id -> createSubNetwork(this, subNetwork));
         });
         otherNetwork.getVoltageLevelStream().forEach(vl -> {
-            Network subNetwork = vl.getClosestNetwork();
+            Network subNetwork = vl.getSmallestContainingNetwork();
             if (subNetwork == otherNetwork) {
                 ((VoltageLevelExt) vl).setSubNetwork(otherNetwork.id);
             }
@@ -1036,10 +1045,46 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     @Override
+    public Network createSubnetwork(String subnetworkId, String sourceFormat) {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
     public void merge(Network... others) {
         for (Network other : others) {
             merge(other);
         }
+    }
+
+    @Override
+    public Map<String, Network> unmerge() {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public Network extractSubnetwork(String subnetworkId) {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public Map<Class<? extends Identifiable<?>>, Set<Identifiable<?>>> getLinksBetween(Network network1, Network network2) {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void splitLinksBetweenSubnetworks() {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void flatten() {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override

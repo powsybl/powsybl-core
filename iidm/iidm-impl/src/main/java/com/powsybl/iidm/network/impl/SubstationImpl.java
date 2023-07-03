@@ -97,8 +97,8 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     }
 
     @Override
-    public Network getClosestNetwork() {
-        return networkRef.get().getClosestNetwork(subNetwork);
+    public Network getSmallestContainingNetwork() {
+        return networkRef.get().getNetworkById(subNetwork);
     }
 
     void addVoltageLevel(VoltageLevelExt voltageLevel) {

@@ -48,7 +48,7 @@ public class SubNetworkImpl extends AbstractNetwork {
     }
 
     public boolean contains(Identifiable<?> identifiable) {
-        return identifiable != null && identifiable.getClosestNetwork() == this;
+        return identifiable != null && identifiable.getSmallestContainingNetwork() == this;
     }
 
     @Override
@@ -523,7 +523,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public HvdcLine getHvdcLine(HvdcConverterStation converterStation) {
-        if (converterStation.getClosestNetwork() == this) {
+        if (converterStation.getSmallestContainingNetwork() == this) {
             return getHvdcLineStream()
                     .filter(l -> l.getConverterStation1() == converterStation || l.getConverterStation2() == converterStation)
                     .findFirst()
@@ -668,6 +668,12 @@ public class SubNetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public Network createSubnetwork(String subnetworkId, String sourceFormat) {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
     public void merge(Network other) {
         throw new UnsupportedOperationException("Network " + id + " is already merged in network " + parent.getId());
     }
@@ -675,6 +681,35 @@ public class SubNetworkImpl extends AbstractNetwork {
     @Override
     public void merge(Network... others) {
         throw new UnsupportedOperationException("Network " + id + " is already merged in network " + parent.getId());
+    }
+
+    @Override
+    public Map<String, Network> unmerge() {
+        throw new UnsupportedOperationException("Unmerge operation should be performed at the root network level.");
+    }
+
+    @Override
+    public Network extractSubnetwork(String subnetworkId) {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public Map<Class<? extends Identifiable<?>>, Set<Identifiable<?>>> getLinksBetween(Network network1, Network network2) {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void splitLinksBetweenSubnetworks() {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void flatten() {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
