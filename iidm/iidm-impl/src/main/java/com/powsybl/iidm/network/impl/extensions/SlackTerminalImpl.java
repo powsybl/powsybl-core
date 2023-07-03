@@ -37,9 +37,15 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
 
     @Override
     public Terminal getTerminal() {
-        var variantTerminals = terminals.get(getVariantIndex());
+        List<TerminalWithPriority> variantTerminals = getTerminals();
         if (variantTerminals == null || variantTerminals.isEmpty()) {
             return null;
+        }
+
+        for (TerminalWithPriority terminalWithPriority : variantTerminals) {
+            if (terminalWithPriority.getTerminal().isConnected()) {
+                return terminalWithPriority.getTerminal();
+            }
         }
         return variantTerminals.get(0).getTerminal();
     }

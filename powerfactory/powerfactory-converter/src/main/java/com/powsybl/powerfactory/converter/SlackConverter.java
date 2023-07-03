@@ -7,13 +7,17 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import java.util.List;
-
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.extensions.TerminalWithPriorityImpl;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
+
+import java.util.List;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -25,13 +29,21 @@ class SlackConverter extends AbstractConverter {
         super(importContext, network);
     }
 
-    void create(List<DataObject> slackObjects) {
+    void create(List<DataObject> slackGenerators) {
 
-        for (DataObject slackObject : slackObjects) {
+        for (DataObject slackGenerator : slackGenerators) {
 
-            Generator generator = getNetwork().getGenerator(GeneratorConverter.getId(slackObject));
-            if (generator != null) {
-                SlackTerminal.reset(generator.getTerminal().getVoltageLevel(), generator.getTerminal());
+            Generator generator = getNetwork().getGenerator(GeneratorConverter.getId(slackGenerator));
+            if (generator == null) {
+                continue;
+            }
+            Terminal terminal = generator.getTerminal();
+            VoltageLevel voltageLevel = terminal.getVoltageLevel();
+            SlackTerminal ext = voltageLevel.getExtension(SlackTerminal.class);
+            if (ext == null) {
+                voltageLevel.newExtension(SlackTerminalAdder.class).withTerminal(terminal, 1).add();
+            } else {
+                ext.addTerminal(new TerminalWithPriorityImpl(terminal, 1));
             }
         }
     }

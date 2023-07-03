@@ -14,8 +14,11 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.network.extensions.TerminalWithPriorityImpl;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -56,16 +59,19 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         connect(adder);
         Generator g = adder.add();
         addAliasesAndProperties(g);
-        convertedTerminals(g.getTerminal());
+        Terminal generatorTerminal = g.getTerminal();
+        convertedTerminals(generatorTerminal);
         convertReactiveLimits(g);
-        if (p.asInt("referencePriority", 0) > 0) {
-            // We could find multiple generators with the same priority,
-            // we will only change the terminal of the slack extension if the previous was not connected
-            SlackTerminal st = g.getTerminal().getVoltageLevel().getExtension(SlackTerminal.class);
+        int refPriority = p.asInt("referencePriority", 0);
+        if (refPriority > 0) {
+            SlackTerminal st = generatorTerminal.getVoltageLevel().getExtension(SlackTerminal.class);
             if (st == null) {
-                SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
-            } else if (!st.getTerminal().isConnected()) {
-                st.setTerminal(g.getTerminal());
+                generatorTerminal.getVoltageLevel()
+                                 .newExtension(SlackTerminalAdder.class)
+                                 .withTerminal(generatorTerminal, refPriority)
+                                 .add();
+            } else {
+                st.addTerminal(new TerminalWithPriorityImpl(generatorTerminal, refPriority));
             }
         }
         double normalPF = p.asDouble("normalPF");

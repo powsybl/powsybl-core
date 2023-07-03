@@ -254,7 +254,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
             // reference priority is used for angle reference selection (slack)
-            writer.writeCharacters(isInSlackBus(g) ? "1" : "0");
+            writer.writeCharacters(Integer.toString(slackPriority(g)));
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(g.getTargetP(), g.getMinP(), g.getReactiveLimits()));
@@ -275,7 +275,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
             // reference priority is used for angle reference selection (slack)
-            writer.writeCharacters(isInSlackBus(b) ? "1" : "0");
+            writer.writeCharacters(Integer.toString(slackPriority(b)));
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(b.getTargetP(), b.getMinP(), b.getReactiveLimits()));
@@ -352,16 +352,19 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static boolean isInSlackBus(Injection<?> g) {
-        VoltageLevel vl = g.getTerminal().getVoltageLevel();
+    private static int slackPriority(Injection<?> g) {
+        Terminal terminal = g.getTerminal();
+        VoltageLevel vl = terminal.getVoltageLevel();
         SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-        if (slackTerminal != null) {
-            Bus slackBus = slackTerminal.getTerminal().getBusBreakerView().getBus();
-            if (slackBus == g.getTerminal().getBusBreakerView().getBus()) {
-                return true;
-            }
+        if (slackTerminal == null) {
+            return 0;
         }
-        return false;
+        // TODO: not sure the terminal sould be the exact same object, but I can't find a way to compare terminals.
+        var term = slackTerminal.getTerminals().stream().filter(t -> t.getTerminal() == terminal).findAny();
+        if (term.isEmpty()) {
+            return 0;
+        }
+        return term.get().getPriority();
     }
 
     private static void writeTapChanger(String type, String id, TapChanger<?, ?> tc, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
