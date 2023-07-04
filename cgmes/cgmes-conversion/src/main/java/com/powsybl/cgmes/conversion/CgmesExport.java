@@ -261,7 +261,8 @@ public class CgmesExport implements Exporter {
             PROFILES_PARAMETER,
             BOUNDARY_EQ_ID_PARAMETER,
             BOUNDARY_TP_ID_PARAMETER,
-            MODELING_AUTHORITY_SET_PARAMETER);
+            MODELING_AUTHORITY_SET_PARAMETER,
+            MODEL_DESCRIPTION_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }
