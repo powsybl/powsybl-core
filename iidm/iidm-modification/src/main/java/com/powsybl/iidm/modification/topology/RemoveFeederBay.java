@@ -96,6 +96,29 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     }
 
     /**
+     * Starting from the given node, traverse the graph and remove all the switches and/or internal connections until a
+     * fork node is encountered or a node on which a connectable is connected
+     */
+    private void cleanMixedTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Reporter reporter) {
+        // Get the next edge and the opposite node
+        Set<Object> edges = graph.edgesOf(node);
+        Object edge = edges.iterator().next();
+        Integer oppositeNode = getOppositeNode(graph, node, edge);
+
+        // Remove the switch or internal connection on the current edge
+        removeSwitchOrInternalConnection(nbv, graph, edge, reporter);
+
+        // List the connectables connected to the opposite node
+        List<Connectable<?>> connectables = new ArrayList<>();
+        nbv.getOptionalTerminal(oppositeNode).map(Terminal::getConnectable).ifPresent(connectables::add);
+
+        // If there is only one edge on the opposite node and no connectable, continue to remove the elements
+        if (graph.edgesOf(oppositeNode).size() == 1 && connectables.isEmpty()) {
+            cleanMixedTopology(nbv, graph, oppositeNode, reporter);
+        }
+    }
+
+    /**
      * Try to remove all edges of the given fork node
      */
     private void cleanFork(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Set<Object> edges, Reporter reporter) {
@@ -128,8 +151,8 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         }
         // We don't remove the latter ones if more than one, as this would break the connection between them
         if (mixed.size() == 1) {
-            // If only one, we're cleaning the dangling switch and/or internal connections but keep the topology to connect the other connectable to the busbar section
-            removeSwitchOrInternalConnection(nbv, graph, mixed.get(0), reporter);
+            // If only one, we're cleaning the dangling switches and/or internal connections
+            cleanMixedTopology(nbv, graph, node, reporter);
         }
     }
 

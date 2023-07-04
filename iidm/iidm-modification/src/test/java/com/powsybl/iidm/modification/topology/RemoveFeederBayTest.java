@@ -333,23 +333,6 @@ class RemoveFeederBayTest {
         new RemoveFeederBay("LINE1").apply(network);
 
         Set<String> removedIdentifiables = Set.of("VL2_B1", "VL2_D1", "LINE1", "VL1_B2", "VL1_D2", "VL1_D3");
-
-        // following assert fails !!!!
-        //
-        // . The following identifiables should not be removed : VL1_B1, VL1_D1
-        //
-        // . The generator G1 remains alone and is not connected to anything, which generates the following error when building the SLD diagram for voltage level VL1 :
-        //
-        //       com.powsybl.commons.PowsyblException: Empty node set
-        //          at com.powsybl.sld.builders.NetworkGraphBuilder.lambda$ensureOneBusInConnectedComponent$12(NetworkGraphBuilder.java:631) ~[powsybl-single-line-diagram-core-3.3.0.jar:na]
-        //          at java.base/java.util.Optional.orElseThrow(Unknown Source) ~[na:na]
-        //          at com.powsybl.sld.builders.NetworkGraphBuilder.ensureOneBusInConnectedComponent(NetworkGraphBuilder.java:631) ~[powsybl-single-line-diagram-core-3.3.0.jar:na]
-        //          at com.powsybl.sld.builders.NetworkGraphBuilder.lambda$handleConnectedComponents$8(NetworkGraphBuilder.java:618) ~[powsybl-single-line-diagram-core-3.3.0.jar:na]
-        //          at java.base/java.util.ArrayList.forEach(Unknown Source) ~[na:na]
-        //          at com.powsybl.sld.builders.NetworkGraphBuilder.handleConnectedComponents(NetworkGraphBuilder.java:618) ~[powsybl-single-line-diagram-core-3.3.0.jar:na]
-        //          at com.powsybl.sld.builders.NetworkGraphBuilder.buildGraph(NetworkGraphBuilder.java:113) ~[powsybl-single-line-diagram-core-3.3.0.jar:na]
-        //          at com.powsybl.sld.builders.NetworkGraphBuilder.buildVoltageLevelGraph(NetworkGraphBuilder.java:82) ~[powsybl-single-line-diagram-core-3.3.0.jar:na]
-        //
         assertEquals(removedIdentifiables, beforeRemovalObjects);
     }
 }
