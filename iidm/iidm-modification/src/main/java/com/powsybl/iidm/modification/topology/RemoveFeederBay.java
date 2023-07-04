@@ -128,8 +128,8 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         }
         // We don't remove the latter ones if more than one, as this would break the connection between them
         if (mixed.size() == 1) {
-            // If only one, we're cleaning the dangling switches and/or internal connections
-            cleanTopology(nbv, graph, node, reporter);
+            // If only one, we're cleaning the dangling switch and/or internal connections but keep the topology to connect the other connectable to the busbar section
+            removeSwitchOrInternalConnection(nbv, graph, mixed.get(0), reporter);
         }
     }
 
