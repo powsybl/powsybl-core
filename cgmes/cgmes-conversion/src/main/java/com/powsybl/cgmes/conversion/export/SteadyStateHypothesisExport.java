@@ -550,8 +550,10 @@ public final class SteadyStateHypothesisExport {
     private static void writeEnergyConsumers(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
             if (context.isExportedEquipment(load)) {
-                if (load.getP0() < 0) { //FIXME
-                    // Ensure equivalent injection identifier is valid
+                if (load.getP0() < 0) {
+                    // As negative loads are not allowed, they are modeled as energy source.
+                    // Note that negative loads can be the result of network reduction and could be modeled
+                    // as equivalent injections.
                     String cgmesId = context.getNamingStrategy().getCgmesId(load);
                     writeEnergySource(cgmesId, load.getP0(), load.getQ0(), cimNamespace, writer, context);
                 } else {

@@ -278,15 +278,14 @@ public final class EquipmentExport {
                 LoadDetail loadDetail = load.getExtension(LoadDetail.class);
                 String className = CgmesExportUtil.loadClassName(loadDetail);
                 String loadId = context.getNamingStrategy().getCgmesId(load);
-                if (load.getP0() < 0) { //FIXME
+                if (load.getP0() < 0) {
+                    // As negative loads are not allowed, they are modeled as energy source.
+                    // Note that negative loads can be the result of network reduction and could be modeled
+                    // as equivalent injections.
                     writeEnergySource(loadId, load.getNameOrId(), cimNamespace, writer, context);
                 } else {
                     String loadGroup = loadGroups.groupFor(className);
-                    EnergyConsumerEq.write(className,
-                            loadId,
-                            load.getNameOrId(), loadGroup,
-                            context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()),
-                            cimNamespace, writer, context);
+                    EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
                 }
             }
         }
