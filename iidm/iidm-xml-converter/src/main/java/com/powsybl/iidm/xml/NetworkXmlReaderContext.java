@@ -9,6 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.xml.XmlReaderContext;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
 import javax.xml.stream.XMLStreamReader;
@@ -29,17 +30,14 @@ public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOpt
 
     private final Set<String> extensionsNamespaceUri = new HashSet<>();
 
-    private final Reporter reporter;
-
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, Reporter reporter) {
-        this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION, reporter);
+    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
+        this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION);
     }
 
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, ImportOptions options, IidmXmlVersion version, Reporter reporter) {
+    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, ImportOptions options, IidmXmlVersion version) {
         super(anonymizer, version);
         this.reader = Objects.requireNonNull(reader);
         this.options = Objects.requireNonNull(options);
-        this.reporter = Objects.requireNonNull(reporter);
     }
 
     @Override
@@ -51,13 +49,15 @@ public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOpt
         return endTasks;
     }
 
+    public void executeEndTasks(Network network, Reporter reporter) {
+        network.pushReporter(reporter);
+        getEndTasks().forEach(Runnable::run);
+        network.popReporter();
+    }
+
     @Override
     public ImportOptions getOptions() {
         return options;
-    }
-
-    public Reporter getReporter() {
-        return reporter;
     }
 
     public void buildExtensionNamespaceUriList(Stream<ExtensionXmlSerializer> providers) {

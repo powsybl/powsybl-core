@@ -1111,12 +1111,29 @@ public interface Network extends Container<Network> {
     Collection<Identifiable<?>> getIdentifiables();
 
     /**
-     * Executes runnable with a specific reporter, network operations use "network.getReporter()" to report functional logs
-     * This method changes the network reporter to the one in parameter, executes the Runnable, then set the original reporter back
-     * @param reporter that will be set for runnable to report logs
-     * @param runnable runnable we want to execute with a specific network.getReporter()
-      */
-    public void executeWithReporter(Reporter reporter, Runnable runnable);
+     * Get the current {@link Reporter}.
+     * @see #pushReporter(Reporter)
+     * @see #popReporter()
+     * @return the last defined {@link Reporter}
+     */
+    Reporter getReporter();
+
+    /**
+     * Use the given {@link Reporter} instead of the current one.<br/>
+     * The reporters are stacked and the previous one should be restored latter using {@link #popReporter()}.
+     * @see #popReporter()
+     *
+     * @param reporter The new reporter to use.
+     */
+    void pushReporter(Reporter reporter);
+
+    /**
+     * Pop the current {@link Reporter} (defined via {@link Reporter}) and restore the previous one.
+     * @see #pushReporter(Reporter)
+     *
+     * @return the current {@link Reporter}
+     */
+    Reporter popReporter();
 
     /**
      * Get all connectables of the network for a given type

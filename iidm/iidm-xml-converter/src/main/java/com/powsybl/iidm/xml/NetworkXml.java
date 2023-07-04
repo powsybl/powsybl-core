@@ -432,7 +432,7 @@ public final class NetworkXml {
             }
 
             IidmXmlVersion version = IidmXmlVersion.fromNamespaceURI(reader.getNamespaceURI());
-            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version, reporter);
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
 
             String id = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, ID));
             DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
@@ -528,7 +528,7 @@ public final class NetworkXml {
                 logExtensionsNotFound(extensionsNotFoundReporter, extensionNamesNotFound);
             }
 
-            network.executeWithReporter(validationReporter, () -> context.getEndTasks().forEach(Runnable::run));
+            context.executeEndTasks(network, validationReporter);
 
             if (validationReporter.getReports() == null || validationReporter.getReports().isEmpty()) {
                 reporter.removeSubReporter(validationReporter);

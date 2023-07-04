@@ -53,7 +53,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
-    private Reporter reporter;
+    private ThreadLocal<Deque<Reporter>> reporters;
 
     class BusBreakerViewImpl implements BusBreakerView {
 
@@ -140,7 +140,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         super(id, name);
         Objects.requireNonNull(sourceFormat, "source format is null");
         Objects.requireNonNull(reporter, "reporter is null");
-        this.reporter = reporter;
+        this.reporters = ThreadLocal.withInitial(() -> {
+            Deque<Reporter> deque = new LinkedList<>();
+            deque.push(Reporter.NO_OP);
+            return deque;
+        });
         this.sourceFormat = sourceFormat;
         variantManager = new VariantManagerImpl(this);
         variants = new VariantArray<>(ref, VariantImpl::new);
@@ -192,16 +196,23 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         return listeners;
     }
 
-    Reporter getReporter() {
-        return reporter;
+    @Override
+    public Reporter getReporter() {
+        return this.reporters.get().peekFirst();
     }
 
     @Override
-    public void executeWithReporter(Reporter reporter, Runnable runnable) {
-        Reporter originalReporter = this.reporter;
-        this.reporter = reporter;
-        runnable.run();
-        this.reporter = originalReporter;
+    public void pushReporter(Reporter reporter) {
+        this.reporters.get().push(reporter);
+    }
+
+    @Override
+    public Reporter popReporter() {
+        Reporter popped = this.reporters.get().pop();
+        if (reporters.get().isEmpty()) {
+            this.reporters.get().push(Reporter.NO_OP);
+        }
+        return popped;
     }
 
     public NetworkIndex getIndex() {
