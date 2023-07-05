@@ -471,13 +471,14 @@ class CgmesExportTest {
         Properties params = new Properties();
         params.put(CgmesExport.MODEL_DESCRIPTION, modelDescription);
 
-        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
-        new CgmesExport().export(network, params, zip);
-        Network network2 = Network.read(tmpDir.resolve("output.zip"));
-        CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
-        assertEquals(modelDescription, sshMetadata.getDescription());
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            new CgmesExport().export(network, params, zip);
+            Network network2 = Network.read(tmpDir.resolve("output.zip"));
+            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+            assertEquals(modelDescription, sshMetadata.getDescription());
+        }
     }
 
     @Test
@@ -490,15 +491,18 @@ class CgmesExportTest {
         Properties params = new Properties();
         params.put(CgmesExport.MODEL_DESCRIPTION, modelDescription);
 
-        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
-        new CgmesExport().export(network, params, zip);
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            new CgmesExport().export(network, params, zip);
 
-        // check network can be reimported and that ModelDescription still includes end-tag
-        Network network2 = Network.read(tmpDir.resolve("output.zip"));
-        CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
-        assertEquals(modelDescription, sshMetadata.getDescription());
+            // check network can be reimported and that ModelDescription still includes end-tag
+            Network network2 = Network.read(tmpDir.resolve("output.zip"));
+
+            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+            assertEquals(modelDescription, sshMetadata.getDescription());
+        }
+
     }
 
     private static void checkDanglingLineParams(DanglingLine expected, DanglingLine actual) {
