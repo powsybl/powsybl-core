@@ -30,8 +30,6 @@ import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.util.Networks;
-import com.powsybl.iidm.xml.ExportOptions;
-import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.Test;
 
@@ -41,12 +39,13 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
-import java.util.Collections;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Properties;
 
-import static com.powsybl.cgmes.conversion.test.export.ExportXmlCompare.compareEQNetworks;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
