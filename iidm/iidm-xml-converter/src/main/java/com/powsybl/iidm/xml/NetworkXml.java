@@ -78,7 +78,8 @@ public final class NetworkXml {
         try {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            int length = IidmXmlVersion.values().length + (int) Arrays.stream(IidmXmlVersion.values()).filter(v -> v.supportEquipmentValidationLevel()).count();
+            int length = IidmXmlVersion.values().length + (int) Arrays.stream(IidmXmlVersion.values())
+                    .filter(IidmXmlVersion::supportEquipmentValidationLevel).count();
             Source[] sources = new Source[additionalSchemas.size() + length];
             int i = 0;
             int j = 0;
