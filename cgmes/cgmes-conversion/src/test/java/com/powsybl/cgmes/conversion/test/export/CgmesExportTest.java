@@ -30,6 +30,8 @@ import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.xml.ExportOptions;
+import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.Test;
 
@@ -40,9 +42,11 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import static com.powsybl.cgmes.conversion.test.export.ExportXmlCompare.compareEQNetworks;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -472,6 +476,27 @@ class CgmesExportTest {
         Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
         ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
         new CgmesExport().export(network, params, zip);
+        Network network2 = Network.read(tmpDir.resolve("output.zip"));
+        CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+        assertEquals(modelDescription, sshMetadata.getDescription());
+    }
+
+    @Test
+    void testModelDescriptionClosingXML() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        // Security test
+        // Checking that putting end-tag does not corrupt the file
+        String modelDescription = "powsybl community</md:Model.modelingAuthoritySet></md:FullModel>";
+        Properties params = new Properties();
+        params.put(CgmesExport.MODEL_DESCRIPTION, modelDescription);
+
+        FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+        new CgmesExport().export(network, params, zip);
+
+        // check network can be reimported and that ModelDescription still includes end-tag
         Network network2 = Network.read(tmpDir.resolve("output.zip"));
         CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
         assertEquals(modelDescription, sshMetadata.getDescription());
