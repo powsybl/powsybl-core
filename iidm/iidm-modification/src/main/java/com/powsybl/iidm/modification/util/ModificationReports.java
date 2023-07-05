@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.*;
  */
 public final class ModificationReports {
 
+    private static final String SUBSTATION_ID = "substationId";
     private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
     private static final String LINE_ID = "lineId";
     private static final String BBS_ID = "bbsId";
@@ -165,6 +166,15 @@ public final class ModificationReports {
                 .withValue(CONNECTABLE_ID, connectableId)
                 .withValue("node", node)
                 .withValue("otherConnectableId", otherConnectableId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    public static void removedSubstationReport(Reporter reporter, String substationId) {
+        reporter.report(Report.builder()
+                .withKey("removeSubstation")
+                .withDefaultMessage("Substation ${substationId}, its voltage levels have been removed")
+                .withValue(SUBSTATION_ID, substationId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
@@ -422,6 +432,15 @@ public final class ModificationReports {
                 .withKey("voltageLevelNotFound")
                 .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    public static void notFoundSubstationReport(Reporter reporter, String substationId) {
+        reporter.report(Report.builder()
+                .withKey("substationNotFound")
+                .withDefaultMessage("Substation ${substationId} is not found")
+                .withValue(SUBSTATION_ID, substationId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }
