@@ -37,6 +37,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
     private static final String NODE_BREAKER_TOPOLOGY_ELEMENT_NAME = "nodeBreakerTopology";
     private static final String BUS_BREAKER_TOPOLOGY_ELEMENT_NAME = "busBreakerTopology";
     private static final String NODE_COUNT = "nodeCount";
+    private static final String UNEXPECTED_ELEMENT = "Unexpected element: ";
 
     @Override
     protected String getRootElementName() {
@@ -350,7 +351,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected element: " + context.getReader().getLocalName());
+                    throw new IllegalStateException(UNEXPECTED_ELEMENT + context.getReader().getLocalName());
             }
         });
     }
@@ -367,7 +368,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                 String value = context.getReader().getAttributeValue(null, VALUE);
                 properties.put(name, value);
             } else {
-                throw new IllegalStateException("Unexpected element: " + context.getReader().getLocalName());
+                throw new IllegalStateException(UNEXPECTED_ELEMENT + context.getReader().getLocalName());
             }
         });
         context.getEndTasks().add(() -> {
@@ -411,7 +412,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected element: " + context.getReader().getLocalName());
+                    throw new IllegalStateException(UNEXPECTED_ELEMENT + context.getReader().getLocalName());
             }
         });
     }

@@ -19,7 +19,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
-public class NodeBreakerPropertiesOnBusTest extends AbstractXmlConverterTest {
+class NodeBreakerPropertiesOnBusTest extends AbstractXmlConverterTest {
     @Test
     void testPropertiesOnBus() throws IOException {
         Network network = FictitiousSwitchFactory.create();
