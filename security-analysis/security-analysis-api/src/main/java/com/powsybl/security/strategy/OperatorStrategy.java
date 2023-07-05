@@ -28,14 +28,31 @@ import java.util.Objects;
 public class OperatorStrategy extends AbstractExtendable<OperatorStrategy> {
     private final String id;
     private final ContingencyContext contingencyContext;
-    private final Condition condition;  // under which circumstances do I want to trigger my action
-    private final List<String> actionIds;
+    private final List<OperatorStrategyStage> stages;
 
+    /**
+     * Single stage operator strategy
+     * @param id The id of the operator strategy
+     * @param contingencyContext The contingency context in which to apply the operator strategy
+     * @param condition The condition to trigger the operator strategy
+     * @param actionIds The list of action ids to apply within this strategy
+     */
     public OperatorStrategy(String id, ContingencyContext contingencyContext, Condition condition, List<String> actionIds) {
         this.id = Objects.requireNonNull(id);
         this.contingencyContext = Objects.requireNonNull(contingencyContext);
-        this.condition = Objects.requireNonNull(condition);
-        this.actionIds = ImmutableList.copyOf(Objects.requireNonNull(actionIds));
+        this.stages = List.of(new OperatorStrategyStage("default", condition, actionIds));
+    }
+
+    /**
+     * Multiple stage operator strategy
+     * @param id The id of the operator strategy
+     * @param contingencyContext The contingency context in which to apply the operator strategy
+     * @param stages The list of stages for this operator strategy
+     */
+    public OperatorStrategy(String id, ContingencyContext contingencyContext, List<OperatorStrategyStage> stages) {
+        this.id = Objects.requireNonNull(id);
+        this.contingencyContext = Objects.requireNonNull(contingencyContext);
+        this.stages = ImmutableList.copyOf(Objects.requireNonNull(stages));
     }
 
     /**
@@ -52,17 +69,7 @@ public class OperatorStrategy extends AbstractExtendable<OperatorStrategy> {
         return contingencyContext;
     }
 
-    /**
-     * The condition which will decided the actual application of the actions, or not.
-     */
-    public Condition getCondition() {
-        return condition;
-    }
-
-    /**
-     * An ordered list of actions, which will be simulated if the condition holds true.
-     */
-    public List<String> getActionIds() {
-        return actionIds;
+    public List<OperatorStrategyStage> getStages() {
+        return stages;
     }
 }
