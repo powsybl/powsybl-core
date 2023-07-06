@@ -26,7 +26,8 @@ public class FaultParameters {
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
-    public static final String VERSION = "1.1";
+    // VERSION = 1.2 subTransientCoefficient
+    public static final String VERSION = "1.2";
 
     private final String id;
 
@@ -41,6 +42,8 @@ public class FaultParameters {
     private final boolean withVoltageResult;
 
     private final double minVoltageDropProportionalThreshold;
+
+    private final double subTransientCoefficient;
 
     /** Fault id */
     public String getId() {
@@ -77,13 +80,19 @@ public class FaultParameters {
         return minVoltageDropProportionalThreshold;
     }
 
+    /** Override general parameter subTransientCoefficient from {@link ShortCircuitParameters} */
+    public double getSubTransientCoefficient() {
+        return subTransientCoefficient;
+    }
+
     public FaultParameters(String id,
                            boolean withLimitViolations,
                            boolean withVoltageResult,
                            boolean withFeederResult,
                            StudyType studyType,
                            double minVoltageDropProportionalThreshold,
-                           boolean withFortescueResult) {
+                           boolean withFortescueResult,
+                           double subTransientCoefficient) {
         this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
         this.withVoltageResult = withVoltageResult;
@@ -91,6 +100,7 @@ public class FaultParameters {
         this.studyType = studyType;
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
         this.withFortescueResult = withFortescueResult;
+        this.subTransientCoefficient = subTransientCoefficient;
     }
 
     @Override
@@ -108,12 +118,13 @@ public class FaultParameters {
                 Objects.equals(withFeederResult, that.withFeederResult) &&
                 Objects.equals(studyType, that.studyType) &&
                 Objects.equals(minVoltageDropProportionalThreshold, that.minVoltageDropProportionalThreshold) &&
-                Objects.equals(withFortescueResult, that.withFortescueResult);
+                Objects.equals(withFortescueResult, that.withFortescueResult) &&
+                Objects.equals(subTransientCoefficient, that.subTransientCoefficient);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, withLimitViolations, withVoltageResult, withFeederResult, studyType, minVoltageDropProportionalThreshold, withFortescueResult);
+        return Objects.hash(id, withLimitViolations, withVoltageResult, withFeederResult, studyType, minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient);
     }
 
     @Override
@@ -126,6 +137,7 @@ public class FaultParameters {
                 ", studyType=" + studyType +
                 ", minVoltageDropProportionalThreshold=" + minVoltageDropProportionalThreshold +
                 ", withFortescueResult=" + withFortescueResult +
+                ", subTransientCoefficient=" + subTransientCoefficient +
                 '}';
     }
 

@@ -3,7 +3,8 @@
   "withLimitViolations" : false,
   "withVoltageResult" : false,
   "withFeederResult" : true,
-  "studyType" : "TRANSIENT",
+  "studyType" : "SUB_TRANSIENT",
   "minVoltageDropProportionalThreshold" : 0.0,
-  "withFortescueResult" : true
+  "withFortescueResult" : true,
+  "subTransientCoefficient" : 80.0
 }

@@ -36,7 +36,8 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         boolean withFeederResult = false;
         StudyType type = null;
         double minVoltageDropProportionalThreshold = Double.NaN;
-        boolean withSimpleResult = false;
+        boolean withFortescueResult = false;
+        double subTransientCoefficient = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -83,15 +84,21 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     break;
 
                 case "withFortescueResult":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withSimpleResult", version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withFortescueResult", version, "1.1");
                     parser.nextToken();
-                    withSimpleResult = parser.readValueAs(Boolean.class);
+                    withFortescueResult = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "subTransientCoefficient":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: subTransientCoefficient", version, "1.2");
+                    parser.nextToken();
+                    subTransientCoefficient = parser.readValueAs(Double.class);
                     break;
 
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type, minVoltageDropProportionalThreshold, withSimpleResult);
+        return new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type, minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient);
     }
 }

@@ -24,7 +24,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
-    public static final String VERSION = "1.1";
+    // VERSION = 1.2 subTransientCoefficient
+    public static final String VERSION = "1.2";
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
     private boolean withFortescueResult = DEFAULT_WITH_FORTESCUE_RESULT;
@@ -32,6 +33,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private StudyType studyType = DEFAULT_STUDY_TYPE;
     private boolean withVoltageResult = DEFAULT_WITH_VOLTAGE_RESULT;
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
+    private double subTransientCoefficient = DEFAULT_SUB_TRANSIENT_COEFFICIENT;
 
     /**
      * Load parameters from platform default config.
@@ -51,7 +53,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithFeederResult(config.getBooleanProperty("with-feeder-result", DEFAULT_WITH_FEEDER_RESULT))
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
                         .setWithFortescueResult(config.getBooleanProperty("with-fortescue-result", DEFAULT_WITH_FORTESCUE_RESULT))
-                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD)));
+                        .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
+                        .setSubTransientCoefficient(config.getDoubleProperty("sub-transient-coefficient", DEFAULT_SUB_TRANSIENT_COEFFICIENT)));
 
         parameters.readExtensions(platformConfig);
 
@@ -145,6 +148,18 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     public ShortCircuitParameters setMinVoltageDropProportionalThreshold(double minVoltageDropProportionalThreshold) {
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
+        return this;
+    }
+
+    /** In case of a subtransient study, a multiplicative coefficient to obtain the subtransient reactance of generators
+     * from the transient reactance.
+     */
+    public double getSubTransientCoefficient() {
+        return subTransientCoefficient;
+    }
+
+    public ShortCircuitParameters setSubTransientCoefficient(double subTransientCoefficient) {
+        this.subTransientCoefficient = subTransientCoefficient;
         return this;
     }
 }

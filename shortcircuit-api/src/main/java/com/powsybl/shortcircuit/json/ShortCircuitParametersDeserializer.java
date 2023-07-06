@@ -78,6 +78,11 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     parameters.setWithFortescueResult(parser.readValueAs(Boolean.class));
                     break;
+                case "subTransientCoefficient":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: subtransientCoefficient", version, "1.2");
+                    parser.nextToken();
+                    parameters.setSubTransientCoefficient(parser.readValueAs(Double.class));
+                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);

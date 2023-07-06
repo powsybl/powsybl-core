@@ -28,10 +28,10 @@ class JsonFaultParametersTest extends AbstractConverterTest {
     @Test
     void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
-        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true));
-        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true));
-        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false));
-        parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false));
+        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN));
+        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN));
+        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN));
+        parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, Double.NaN));
         roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
 
         assertNotNull(parameters.get(0));
@@ -92,6 +92,22 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         assertTrue(firstParam.isWithFeederResult());
         assertFalse(firstParam.isWithVoltageResult());
         assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
+    }
+
+    @Test
+    void readVersion12() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFileVersion12.json"), fileSystem.getPath("/FaultParametersFileVersion12.json"));
+        List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFileVersion12.json"));
+        assertEquals(1, parameters.size());
+
+        FaultParameters firstParam = parameters.get(0);
+        assertEquals("f00", firstParam.getId());
+        assertFalse(firstParam.isWithLimitViolations());
+        assertEquals(StudyType.SUB_TRANSIENT, firstParam.getStudyType());
+        assertTrue(firstParam.isWithFeederResult());
+        assertFalse(firstParam.isWithVoltageResult());
+        assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(80.0, firstParam.getSubTransientCoefficient());
     }
 
     @Test

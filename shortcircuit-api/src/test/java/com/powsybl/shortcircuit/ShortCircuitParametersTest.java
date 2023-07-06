@@ -224,6 +224,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertTrue(parameters.isWithFeederResult());
         assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(70.0, parameters.getSubTransientCoefficient(), 0);
     }
 
     @Test
@@ -236,6 +237,20 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertTrue(parameters.isWithFeederResult());
         assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(70.0, parameters.getSubTransientCoefficient(), 0);
+    }
+
+    @Test
+    void readVersion12() {
+        ShortCircuitParameters parameters = JsonShortCircuitParameters
+                .read(getClass().getResourceAsStream("/ShortCircuitParametersVersion12.json"));
+        assertNotNull(parameters);
+        assertFalse(parameters.isWithLimitViolations());
+        assertFalse(parameters.isWithVoltageResult());
+        assertTrue(parameters.isWithFeederResult());
+        assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
+        assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
+        assertEquals(80.0, parameters.getSubTransientCoefficient(), 0);
     }
 
     @Test

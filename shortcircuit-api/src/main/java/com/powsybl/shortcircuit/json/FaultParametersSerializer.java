@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FaultParameters;
+import com.powsybl.shortcircuit.StudyType;
 
 import java.io.IOException;
 
@@ -37,6 +38,9 @@ public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
         JsonUtil.writeOptionalStringField(jsonGenerator, "studyType", parameters.getStudyType() != null ? parameters.getStudyType().name() : null);
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withFortescueResult", parameters.isWithFortescueResult(), false);
+        if (parameters.getStudyType() == StudyType.SUB_TRANSIENT) {
+            JsonUtil.writeOptionalDoubleField(jsonGenerator, "subTransientCoefficient", parameters.getSubTransientCoefficient());
+        }
         jsonGenerator.writeEndObject();
     }
 }

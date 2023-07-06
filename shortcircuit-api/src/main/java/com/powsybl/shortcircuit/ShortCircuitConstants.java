@@ -20,4 +20,5 @@ public final class ShortCircuitConstants {
     public static final boolean DEFAULT_WITH_FEEDER_RESULT = true;
     public static final double DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD = 0.0;
     public static final boolean DEFAULT_WITH_FORTESCUE_RESULT = true;
+    public static final double DEFAULT_SUB_TRANSIENT_COEFFICIENT = 70.0;
 }
