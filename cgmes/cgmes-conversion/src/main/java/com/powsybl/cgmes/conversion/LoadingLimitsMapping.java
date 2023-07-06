@@ -6,8 +6,6 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.google.common.collect.Iterables;
-import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 
 import java.util.HashMap;
@@ -33,16 +31,8 @@ public class LoadingLimitsMapping {
 
     void addAll() {
         for (Map.Entry<String, LoadingLimitsAdder<?, ?>> entry : adders.entrySet()) {
-            if (!Double.isNaN(entry.getValue().getPermanentLimit()) || entry.getValue().hasTemporaryLimits()) {
-                LoadingLimits limits = entry.getValue().add();
-                if (Double.isNaN(limits.getPermanentLimit())) {
-                    double fixedPermanentLimit = Iterables.get(limits.getTemporaryLimits(), 0).getValue();
-                    context.fixed("Operational Limit Set of " + entry.getKey(),
-                            "An operational limit set without permanent limit is considered with permanent limit" +
-                                    "equal to lowest TATL value",
-                            Double.NaN, fixedPermanentLimit);
-                    limits.setPermanentLimit(fixedPermanentLimit);
-                }
+            if (!Double.isNaN(entry.getValue().getPermanentLimit())) {
+                entry.getValue().add();
             }
         }
         adders.clear();
