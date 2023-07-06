@@ -130,21 +130,6 @@ public final class ValidationUtil {
         }
     }
 
-    /**
-     * @deprecated Use {@link #checkActivePowerLimits(Validable, double, double)} instead.
-     */
-    @Deprecated(since = "4.3.0")
-    public static void checkActivePowerLimits(Validable validable, double minP, double maxP, double p) {
-        checkActivePowerLimits(validable, minP, maxP);
-
-        if (p > maxP) {
-            throw new ValidationException(validable, "invalid active power p > maxP: " + p + " > " + maxP);
-        }
-        if (p < minP) {
-            throw new ValidationException(validable, "invalid active power p < minP: " + p + " < " + minP);
-        }
-    }
-
     public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, ValidationLevel validationLevel) {
         return checkTargetDeadband(validable, validableType, regulating, targetDeadband, validationLevel, Reporter.NO_OP);
     }

@@ -41,14 +41,6 @@ public class BranchTripping extends AbstractTripping {
         this.supplier = supplier;
     }
 
-    /**
-     * @deprecated Use {@link #getId()} instead.
-     */
-    @Deprecated
-    protected String getBranchId() {
-        return id;
-    }
-
     protected String getVoltageLevelId() {
         return voltageLevelId;
     }

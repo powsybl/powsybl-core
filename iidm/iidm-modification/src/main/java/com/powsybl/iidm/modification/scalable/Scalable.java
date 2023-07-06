@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
@@ -75,24 +74,6 @@ public interface Scalable {
     double minimumValue(Network n, ScalingConvention scalingConvention);
 
     /**
-     * @deprecated listGenerators should be replaced by filterInjections
-     */
-    @Deprecated
-    void listGenerators(Network n, List<Generator> generators, List<String> notFoundGenerators);
-
-    /**
-     * @deprecated listGenerators should be replaced by filterInjections
-     */
-    @Deprecated
-    List<Generator> listGenerators(Network n, List<String> notFoundGenerators);
-
-    /**
-     * @deprecated listGenerators should be replaced by filterInjections
-     */
-    @Deprecated
-    List<Generator> listGenerators(Network n);
-
-    /**
      * Scans all the expected injections of the scalable.
      * If the injection can be found in given network, it is added the the injections list.
      * Otherwise, its identifier is added to the "notFound" list.
@@ -118,7 +99,7 @@ public interface Scalable {
 
     /**
      * Scans all the expected injections of the scalable.
-     * If the injection can be found in given network, it is added the the injections list.
+     * If the injection can be found in given network, it is added to the injections list.
      *
      * @param network network
      * @return network injections used in the scalable
@@ -128,7 +109,8 @@ public interface Scalable {
     /**
      * Scale the given network using Generator convention by default.
      * The actual scaling value may be different to the one asked if
-     * the Scalable limit is reached.
+     * the Scalable limit is reached. If the scalable is disconnected,
+     * the scaling value will be 0.
      *
      * @param n network
      * @param asked value asked to adjust the scalable active power
@@ -139,14 +121,6 @@ public interface Scalable {
 
     default double scale(Network n, double asked) {
         return scale(n, asked, new ScalingParameters());
-    }
-
-    /**
-     * @deprecated gen should be replaced by onGenerator
-     */
-    @Deprecated
-    static GeneratorScalable gen(String id) {
-        return new GeneratorScalable(id);
     }
 
     /**
