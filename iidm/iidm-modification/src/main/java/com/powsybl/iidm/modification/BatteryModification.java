@@ -14,34 +14,33 @@ import com.powsybl.iidm.network.Network;
 import java.util.Objects;
 
 /**
- * Simple {@link NetworkModification} for vsc converter stations.
+ * Simple {@link NetworkModification} for a battery.
  *
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
 public class BatteryModification extends AbstractNetworkModification {
 
-    private final String elementID;
+    private final String batteryId;
     private final Double targetQ;
 
-    public BatteryModification(String elementId, double targetQ) {
-        this.elementID = Objects.requireNonNull(elementId);
+    public BatteryModification(String batteryId, double targetQ) {
+        this.batteryId = Objects.requireNonNull(batteryId);
         this.targetQ = targetQ;
     }
 
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager,
                       Reporter reporter) {
-        Battery battery = network.getBattery(elementID);
-
+        Battery battery = network.getBattery(batteryId);
         if (battery == null) {
-            logOrThrow(throwException, "Battery '" + elementID + "' not found");
+            logOrThrow(throwException, "Battery '" + batteryId + "' not found");
             return;
         }
         battery.setTargetQ(targetQ);
     }
 
-    public String getElementID() {
-        return elementID;
+    public String getBatteryId() {
+        return batteryId;
     }
 
     public Double getTargetQ() {

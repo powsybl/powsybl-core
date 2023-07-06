@@ -10,12 +10,11 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VscConverterStation;
 
 /**
- * Simple {@link NetworkModification} for vsc converter stations.
+ * Simple {@link NetworkModification} for a VSC converter station.
  *
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-public class VscConverterStationModification
-    extends AbstractVoltageAndReactiveNetworkModification<VscConverterStation> {
+public class VscConverterStationModification extends AbstractSetpointModification<VscConverterStation> {
 
     public VscConverterStationModification(String elementId, Double voltageSetpoint, Double reactivePowerSetpoint) {
         super(elementId, voltageSetpoint, reactivePowerSetpoint);
@@ -39,5 +38,9 @@ public class VscConverterStationModification
     @Override
     public VscConverterStation getNetworkElement(Network network, String elementID) {
         return network.getVscConverterStation(elementID);
+    }
+
+    public String getVscConverterStationId() {
+        return getElementId();
     }
 }

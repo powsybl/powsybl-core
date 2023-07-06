@@ -17,23 +17,24 @@ import java.util.OptionalDouble;
 
 /**
  * Simple {@link NetworkModification} for elements that needs to modify
- * their voltage and reactive setpoints.
+ * their voltage and reactive setpoints. This is used for SVCs and for VSC
+ * converter stations. Note that a VSC converter station follows a generator
+ * convention but SVCs follow a load convention.
  *
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-public abstract class AbstractVoltageAndReactiveNetworkModification<T> extends AbstractNetworkModification {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractVoltageAndReactiveNetworkModification.class);
+public abstract class AbstractSetpointModification<T> extends AbstractNetworkModification {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSetpointModification.class);
 
-    private final String elementID;
+    private final String elementId;
     private final Double voltageSetpoint;
     private final Double reactivePowerSetpoint;
 
-    protected AbstractVoltageAndReactiveNetworkModification(String elementId, Double voltageSetpoint,
-                                                            Double reactivePowerSetpoint) {
+    protected AbstractSetpointModification(String elementId, Double voltageSetpoint, Double reactivePowerSetpoint) {
         if (voltageSetpoint == null && reactivePowerSetpoint == null) {
-            LOGGER.warn("Creating a ", getElementName(), " modification with no change !");
+            LOGGER.warn("Creating a ", getElementName(), " modification with no change");
         }
-        this.elementID = Objects.requireNonNull(elementId);
+        this.elementId = Objects.requireNonNull(elementId);
         this.voltageSetpoint = voltageSetpoint;
         this.reactivePowerSetpoint = reactivePowerSetpoint;
     }
@@ -41,10 +42,10 @@ public abstract class AbstractVoltageAndReactiveNetworkModification<T> extends A
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager,
                       Reporter reporter) {
-        T networkElement = getNetworkElement(network, elementID);
+        T networkElement = getNetworkElement(network, elementId);
 
         if (networkElement == null) {
-            logOrThrow(throwException, getElementName() + " '" + elementID + "' not found");
+            logOrThrow(throwException, getElementName() + " '" + elementId + "' not found");
             return;
         }
         if (voltageSetpoint != null) {
@@ -63,8 +64,8 @@ public abstract class AbstractVoltageAndReactiveNetworkModification<T> extends A
 
     public abstract T getNetworkElement(Network network, String elementID);
 
-    public String getElementID() {
-        return elementID;
+    protected String getElementId() {
+        return elementId;
     }
 
     public Double getReactivePowerSetpoint() {

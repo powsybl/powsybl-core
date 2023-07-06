@@ -10,12 +10,11 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 
 /**
- * Simple {@link NetworkModification} for static var compensator.
+ * Simple {@link NetworkModification} for a static var compensator.
  *
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-public class StaticVarCompensatorModification
-    extends AbstractVoltageAndReactiveNetworkModification<StaticVarCompensator> {
+public class StaticVarCompensatorModification extends AbstractSetpointModification<StaticVarCompensator> {
 
     public StaticVarCompensatorModification(String elementId, Double voltageSetpoint, Double reactivePowerSetpoint) {
         super(elementId, voltageSetpoint, reactivePowerSetpoint);
@@ -39,5 +38,9 @@ public class StaticVarCompensatorModification
     @Override
     public StaticVarCompensator getNetworkElement(Network network, String elementID) {
         return network.getStaticVarCompensator(elementID);
+    }
+
+    public String getStaticVarCompensatorId() {
+        return getElementId();
     }
 }
