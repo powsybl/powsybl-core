@@ -6,73 +6,41 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
-import java.util.OptionalDouble;
 
 /**
- * Simple {@link NetworkModification} for static var compensator.
+ * Simple {@link NetworkModification} for a static var compensator.
  *
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
-public class StaticVarCompensatorModification extends AbstractNetworkModification {
+public class StaticVarCompensatorModification extends AbstractSetpointModification<StaticVarCompensator> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StaticVarCompensatorModification.class);
-
-    private final String svcId;
-    private final Double voltageSetpoint;
-    private final Double reactivePowerSetpoint;
-
-    public StaticVarCompensatorModification(String svcId, Double voltageSetpoint,
-                                            Double reactivePowerSetpoint) {
-        if (voltageSetpoint == null && reactivePowerSetpoint == null) {
-            LOGGER.warn("Creating a VscConverterStationModification with no change !");
-        }
-        this.svcId = Objects.requireNonNull(svcId);
-        this.voltageSetpoint = voltageSetpoint;
-        this.reactivePowerSetpoint = reactivePowerSetpoint;
+    public StaticVarCompensatorModification(String elementId, Double voltageSetpoint, Double reactivePowerSetpoint) {
+        super(elementId, voltageSetpoint, reactivePowerSetpoint);
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager,
-                      Reporter reporter) {
-        StaticVarCompensator svc = network.getStaticVarCompensator(svcId);
-
-        if (svc == null) {
-            logOrThrow(throwException, "StaticVarcompensator '" + svcId + "' not found");
-            return;
-        }
-        if (voltageSetpoint != null) {
-            svc.setVoltageSetpoint(voltageSetpoint);
-        }
-        if (reactivePowerSetpoint != null) {
-            svc.setReactivePowerSetpoint(reactivePowerSetpoint);
-        }
+    public String getElementName() {
+        return "StaticVarCompensator";
     }
 
-    public String getSvcId() {
-        return svcId;
+    @Override
+    protected void setVoltageSetpoint(StaticVarCompensator networkElement, Double voltageSetpoint) {
+        networkElement.setVoltageSetpoint(voltageSetpoint);
     }
 
-    public Double getReactivePowerSetpoint() {
-        return reactivePowerSetpoint;
+    @Override
+    protected void setReactivePowerSetpoint(StaticVarCompensator networkElement, Double reactivePowerSetpoint) {
+        networkElement.setReactivePowerSetpoint(reactivePowerSetpoint);
     }
 
-    public OptionalDouble getOptionalReactivePowerSetpoint() {
-        return reactivePowerSetpoint == null ? OptionalDouble.empty() : OptionalDouble.of(reactivePowerSetpoint);
+    @Override
+    public StaticVarCompensator getNetworkElement(Network network, String elementID) {
+        return network.getStaticVarCompensator(elementID);
     }
 
-    public Double getVoltageSetpoint() {
-        return voltageSetpoint;
-    }
-
-    public OptionalDouble getOptionalVoltageSetpoint() {
-        return voltageSetpoint == null ? OptionalDouble.empty() : OptionalDouble.of(voltageSetpoint);
+    public String getStaticVarCompensatorId() {
+        return getElementId();
     }
 }
