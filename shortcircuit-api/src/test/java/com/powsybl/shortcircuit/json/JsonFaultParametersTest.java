@@ -32,12 +32,12 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN));
         parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN));
         parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, Double.NaN));
+        parameters.add(new FaultParameters("f12", true, false, false, StudyType.SUB_TRANSIENT, Double.NaN, false, 80.0));
         roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
 
         assertNotNull(parameters.get(0));
         assertNotEquals(parameters.get(0), parameters.get(1));
         assertNotEquals(parameters.get(0).hashCode(), parameters.get(2).hashCode());
-        assertEquals(parameters.get(0), parameters.get(0));
     }
 
     @Test
