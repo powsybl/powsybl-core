@@ -22,9 +22,11 @@ public class BatteryModification extends AbstractNetworkModification {
 
     private final String batteryId;
     private final Double targetQ;
+    private final Double targetP;
 
-    public BatteryModification(String batteryId, double targetQ) {
+    public BatteryModification(String batteryId, Double targetP, Double targetQ) {
         this.batteryId = Objects.requireNonNull(batteryId);
+        this.targetP = targetP;
         this.targetQ = targetQ;
     }
 
@@ -36,11 +38,20 @@ public class BatteryModification extends AbstractNetworkModification {
             logOrThrow(throwException, "Battery '" + batteryId + "' not found");
             return;
         }
-        battery.setTargetQ(targetQ);
+        if (targetP != null) {
+            battery.setTargetP(targetP);
+        }
+        if (targetQ != null) {
+            battery.setTargetQ(targetQ);
+        }
     }
 
     public String getBatteryId() {
         return batteryId;
+    }
+
+    public Double getTargetP() {
+        return targetP;
     }
 
     public Double getTargetQ() {

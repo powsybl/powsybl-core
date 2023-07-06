@@ -33,9 +33,14 @@ class TestBatteryModification {
 
     @Test
     void testBatteryModification() {
-        BatteryModification batteryModification = new BatteryModification(battery.getId(), 2.);
-        assertEquals(0, battery.getTargetQ());
+        BatteryModification batteryModification = new BatteryModification(battery.getId(), 1.0, null);
+        assertEquals(9999.99, battery.getTargetP());
         batteryModification.apply(network);
+        assertEquals(1., battery.getTargetP());
+
+        BatteryModification batteryModification2 = new BatteryModification(battery.getId(), null, 2.0);
+        assertEquals(0, battery.getTargetQ());
+        batteryModification2.apply(network);
         assertEquals(2., battery.getTargetQ());
     }
 }
