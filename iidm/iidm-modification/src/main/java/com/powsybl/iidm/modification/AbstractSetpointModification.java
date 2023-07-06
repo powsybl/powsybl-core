@@ -32,7 +32,7 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
 
     protected AbstractSetpointModification(String elementId, Double voltageSetpoint, Double reactivePowerSetpoint) {
         if (voltageSetpoint == null && reactivePowerSetpoint == null) {
-            LOGGER.warn("Creating a ", getElementName(), " modification with no change");
+            LOGGER.warn("Creating a {} modification with no modification", getElementName());
         }
         this.elementId = Objects.requireNonNull(elementId);
         this.voltageSetpoint = voltageSetpoint;
