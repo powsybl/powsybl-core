@@ -54,3 +54,4 @@ public class RemoveSubstation extends AbstractNetworkModification {
         LOGGER.info("Substation {} and its voltage levels have been removed", substationId);
     }
 }
+
