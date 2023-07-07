@@ -81,7 +81,7 @@ public abstract class AbstractMergeNetworkTest {
     public void testMergeNewAPI() {
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
-        merge = Network.createByMerging(MERGE, n1, n2);
+        merge = Network.create(MERGE, n1, n2);
         TieLine tieLine = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine);
         assertEquals("dl1_name + dl2_name", tieLine.getOptionalName().orElse(null));
@@ -108,7 +108,7 @@ public abstract class AbstractMergeNetworkTest {
         addDanglingLines(n3, "vl3", "dl4", "code2", "b3");
 
         //merge.merge(n1, n2, n3);
-        merge = Network.createByMerging(MERGE, n1, n2, n3);
+        merge = Network.create(MERGE, n1, n2, n3);
         TieLine tieLine1 = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine1);
         assertEquals("dl1_name + dl2_name", tieLine1.getOptionalName().orElse(null));

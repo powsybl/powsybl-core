@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,8 +48,8 @@ public class SubNetworkImpl extends AbstractNetwork {
         return parent.getVariantManager();
     }
 
-    public boolean contains(Identifiable<?> identifiable) {
-        return identifiable != null && identifiable.getParentNetwork() == this;
+    private boolean contains(Identifiable<?> identifiable) {
+        return Networks.contains(this, identifiable);
     }
 
     @Override
@@ -684,25 +685,7 @@ public class SubNetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public Map<String, Network> unmerge() {
-        throw new UnsupportedOperationException("Unmerge operation should be performed at the root network level.");
-    }
-
-    @Override
-    public Network extractSubnetwork(String subnetworkId) {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Override
-    public Map<Class<? extends Identifiable<?>>, Set<Identifiable<?>>> getLinksBetween(Network network1, Network network2) {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    @Override
-    public void splitLinksBetweenSubnetworks() {
-        //TODO subnetworks API
+    public Network split() {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

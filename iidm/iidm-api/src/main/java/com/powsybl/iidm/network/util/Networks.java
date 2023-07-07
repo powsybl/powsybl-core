@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -423,5 +424,53 @@ public final class Networks {
         if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
         }
+    }
+
+    /**
+     * Check if the identifiable is <b>directly</b> in the network.<br/>
+     * If the identifiable is in a subnetwork of the network, this method will return <code>false</code>.
+     *
+     * @param network a network
+     * @param identifiable the identifiable to check
+     * @return true if the identifiable is <b>directly</b> in the network
+     */
+    public static boolean containsDirectly(Network network, Identifiable<?> identifiable) {
+        return identifiable != null && identifiable.getParentNetwork() == network;
+    }
+
+    /**
+     * Check if the network contains the identifiable or another network containing it.
+     *
+     * @param network a network
+     * @param identifiable the identifiable to check
+     * @return true is the identifiable is in the network or in one of its subnetworks
+     */
+    public static boolean contains(Network network, Identifiable<?> identifiable) {
+        if (containsDirectly(network, identifiable)) {
+            return true;
+        }
+        return network.getSubNetworks().stream().anyMatch(subnetwork -> containsDirectly(subnetwork, identifiable));
+    }
+
+    /**
+     * Return all the outgoing equipments of a network, i.e. the equipments linking the network to a substation outside of it.
+     *
+     * @param network a network
+     * @return a set containing the outgoing equipments of the network.
+     */
+    public static Set<Identifiable<?>> getOutgoingEquipments(Network network) {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Return all the equipments preventing the network to be split with {@link Network#split()}.
+     *
+     * @return a set containing the equipments preventing the network to be split from its parent network.
+     */
+    public static Set<Identifiable<?>> getSplitPreventingEquipments(Network network) {
+        return Networks.getOutgoingEquipments(network).stream()
+                .filter(network::isSplittableEquipment)
+                .collect(Collectors.toSet());
     }
 }

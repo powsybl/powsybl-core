@@ -36,7 +36,7 @@ public class NetworkFactoryMock implements NetworkFactory {
     }
 
     @Override
-    public Network createByMerging(String id, Network... networks) {
+    public Network createNetwork(String id, Network... networks) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 }
