@@ -113,7 +113,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
-        if (voltageLevel1.getSmallestContainingNetwork() != voltageLevel2.getSmallestContainingNetwork()) {
+        if (voltageLevel1.getParentNetwork() != voltageLevel2.getParentNetwork()) {
             LOG.warn("Transformer '{}' is between two different sub-networks: splitting back the network will not be possible." +
                     " If you want to be able to split the network, delete this transformer and create a tie-line instead", id);
         }

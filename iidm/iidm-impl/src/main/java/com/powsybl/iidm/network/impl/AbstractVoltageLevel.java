@@ -102,7 +102,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public Network getSmallestContainingNetwork() {
+    public Network getParentNetwork() {
         return getNetwork().getNetworkById(subNetwork);
     }
 

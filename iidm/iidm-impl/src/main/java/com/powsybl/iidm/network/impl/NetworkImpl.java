@@ -182,7 +182,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     @Override
-    public Network getSmallestContainingNetwork() {
+    public Network getParentNetwork() {
         return this;
     }
 
@@ -924,18 +924,18 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         // create subnetworks
         Network n = createSubNetwork(this, this);
         subNetworks.put(id, n);
-        getSubstationStream().filter(s -> s.getSmallestContainingNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubNetwork(id));
-        getVoltageLevelStream().filter(v -> v.getSmallestContainingNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubNetwork(id));
+        getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubNetwork(id));
+        getVoltageLevelStream().filter(v -> v.getParentNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubNetwork(id));
 
         otherNetwork.getSubstationStream().forEach(s -> {
-            Network subNetwork = s.getSmallestContainingNetwork();
+            Network subNetwork = s.getParentNetwork();
             if (subNetwork == otherNetwork) {
                 ((SubstationImpl) s).setSubNetwork(otherNetwork.id);
             }
             subNetworks.computeIfAbsent(subNetwork.getId(), id -> createSubNetwork(this, subNetwork));
         });
         otherNetwork.getVoltageLevelStream().forEach(vl -> {
-            Network subNetwork = vl.getSmallestContainingNetwork();
+            Network subNetwork = vl.getParentNetwork();
             if (subNetwork == otherNetwork) {
                 ((VoltageLevelExt) vl).setSubNetwork(otherNetwork.id);
             }

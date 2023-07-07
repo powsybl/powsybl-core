@@ -48,7 +48,7 @@ public class SubNetworkImpl extends AbstractNetwork {
     }
 
     public boolean contains(Identifiable<?> identifiable) {
-        return identifiable != null && identifiable.getSmallestContainingNetwork() == this;
+        return identifiable != null && identifiable.getParentNetwork() == this;
     }
 
     @Override
@@ -523,7 +523,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public HvdcLine getHvdcLine(HvdcConverterStation converterStation) {
-        if (converterStation.getSmallestContainingNetwork() == this) {
+        if (converterStation.getParentNetwork() == this) {
             return getHvdcLineStream()
                     .filter(l -> l.getConverterStation1() == converterStation || l.getConverterStation2() == converterStation)
                     .findFirst()

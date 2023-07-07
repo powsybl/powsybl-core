@@ -49,8 +49,8 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     }
 
     @Override
-    public Network getSmallestContainingNetwork() {
-        return voltageLevel.getSmallestContainingNetwork();
+    public Network getParentNetwork() {
+        return voltageLevel.getParentNetwork();
     }
 
     @Override

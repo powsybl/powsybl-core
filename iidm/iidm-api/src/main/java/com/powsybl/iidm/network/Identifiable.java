@@ -24,9 +24,9 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     Network getNetwork();
 
     /**
-     * Get the smallest network containing the object.
+     * Get the parent network, i.e. the smallest network containing the object.
      */
-    default Network getSmallestContainingNetwork() {
+    default Network getParentNetwork() {
         return getNetwork();
     }
 

@@ -1352,7 +1352,7 @@ public interface Network extends Container<Network> {
      * @return true if the given identifiable is <b>directly</b> in the network
      */
     default boolean containsDirectly(Identifiable<?> identifiable) {
-        return identifiable != null && identifiable.getSmallestContainingNetwork() == this;
+        return identifiable != null && identifiable.getParentNetwork() == this;
     }
 
     /**

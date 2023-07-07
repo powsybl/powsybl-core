@@ -32,9 +32,9 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public Network getSmallestContainingNetwork() {
-        Network subNetwork1 = danglingLine1.getSmallestContainingNetwork();
-        Network subNetwork2 = danglingLine2.getSmallestContainingNetwork();
+    public Network getParentNetwork() {
+        Network subNetwork1 = danglingLine1.getParentNetwork();
+        Network subNetwork2 = danglingLine2.getParentNetwork();
         if (subNetwork1 == subNetwork2) {
             return subNetwork1;
         }

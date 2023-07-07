@@ -72,9 +72,9 @@ public abstract class AbstractMergeNetworkTest {
         checkDanglingLineStatusCount(subNetwork1, 0, 1);
         checkDanglingLineStatusCount(subNetwork2, 0, 1);
 
-        assertEquals(merge, tieLine.getSmallestContainingNetwork());
-        assertEquals(subNetwork1, merge.getDanglingLine("dl1").getSmallestContainingNetwork());
-        assertEquals(subNetwork2, merge.getDanglingLine("dl2").getSmallestContainingNetwork());
+        assertEquals(merge, tieLine.getParentNetwork());
+        assertEquals(subNetwork1, merge.getDanglingLine("dl1").getParentNetwork());
+        assertEquals(subNetwork2, merge.getDanglingLine("dl2").getParentNetwork());
     }
 
     @Test
@@ -93,9 +93,9 @@ public abstract class AbstractMergeNetworkTest {
         checkDanglingLineStatusCount(subNetwork1, 0, 1);
         checkDanglingLineStatusCount(subNetwork2, 0, 1);
 
-        assertEquals(merge, tieLine.getSmallestContainingNetwork());
-        assertEquals(subNetwork1, merge.getDanglingLine("dl1").getSmallestContainingNetwork());
-        assertEquals(subNetwork2, merge.getDanglingLine("dl2").getSmallestContainingNetwork());
+        assertEquals(merge, tieLine.getParentNetwork());
+        assertEquals(subNetwork1, merge.getDanglingLine("dl1").getParentNetwork());
+        assertEquals(subNetwork2, merge.getDanglingLine("dl2").getParentNetwork());
     }
 
     @Test
@@ -126,12 +126,12 @@ public abstract class AbstractMergeNetworkTest {
         checkDanglingLineStatusCount(subNetwork2, 0, 1);
         checkDanglingLineStatusCount(subNetwork3, 0, 1);
 
-        assertEquals(merge, tieLine1.getSmallestContainingNetwork());
-        assertEquals(merge, tieLine2.getSmallestContainingNetwork());
-        assertEquals(subNetwork1, merge.getDanglingLine("dl1").getSmallestContainingNetwork());
-        assertEquals(subNetwork1, merge.getDanglingLine("dl3").getSmallestContainingNetwork());
-        assertEquals(subNetwork2, merge.getDanglingLine("dl2").getSmallestContainingNetwork());
-        assertEquals(subNetwork3, merge.getDanglingLine("dl4").getSmallestContainingNetwork());
+        assertEquals(merge, tieLine1.getParentNetwork());
+        assertEquals(merge, tieLine2.getParentNetwork());
+        assertEquals(subNetwork1, merge.getDanglingLine("dl1").getParentNetwork());
+        assertEquals(subNetwork1, merge.getDanglingLine("dl3").getParentNetwork());
+        assertEquals(subNetwork2, merge.getDanglingLine("dl2").getParentNetwork());
+        assertEquals(subNetwork3, merge.getDanglingLine("dl4").getParentNetwork());
     }
 
     private void checkDanglingLineStatusCount(Network network, long unpairedNb, long pairedNb) {
@@ -232,19 +232,19 @@ public abstract class AbstractMergeNetworkTest {
         Substation s1bis = merge.getSubstation("s1bis");
         assertNotNull(s1bis);
         assertSame(s1bis, merge.getSubNetwork(N1).getSubstation("s1bis"));
-        assertSame(merge.getSubNetwork(N1), s1bis.getSmallestContainingNetwork());
+        assertSame(merge.getSubNetwork(N1), s1bis.getParentNetwork());
         assertNull(merge.getSubNetwork(N2).getSubstation("s1bis"));
         VoltageLevel vl1bis = merge.getVoltageLevel("vl1bis");
         assertNotNull(vl1bis);
         assertSame(vl1bis, merge.getSubNetwork(N1).getVoltageLevel("vl1bis"));
-        assertSame(merge.getSubNetwork(N1), vl1bis.getSmallestContainingNetwork());
+        assertSame(merge.getSubNetwork(N1), vl1bis.getParentNetwork());
         assertNull(merge.getSubNetwork(N2).getVoltageLevel("vl1bis"));
         // Voltage level created on subnetwork shall be affected to subnetwork
         merge.getSubNetwork(N2).newVoltageLevel().setId("vl2bis").setTopologyKind(TopologyKind.BUS_BREAKER).setNominalV(90.0).add();
         VoltageLevel vl2bis = merge.getVoltageLevel("vl2bis");
         assertNotNull(vl2bis);
         assertSame(vl2bis, merge.getSubNetwork(N2).getVoltageLevel("vl2bis"));
-        assertSame(merge.getSubNetwork(N2), vl2bis.getSmallestContainingNetwork());
+        assertSame(merge.getSubNetwork(N2), vl2bis.getParentNetwork());
         assertNull(merge.getSubNetwork(N1).getVoltageLevel("vl2bis"));
     }
 
@@ -273,14 +273,14 @@ public abstract class AbstractMergeNetworkTest {
         Bus b = n.getBusBreakerView().getBus("b" + num);
         assertNotNull(b);
         assertSame(merge, b.getNetwork());
-        assertSame(n, merge.getSubstation("s" + num).getSmallestContainingNetwork());
-        assertSame(n, merge.getVoltageLevel("vl" + num).getSmallestContainingNetwork());
-        assertSame(n, merge.getBusBreakerView().getBus("b" + num).getSmallestContainingNetwork());
+        assertSame(n, merge.getSubstation("s" + num).getParentNetwork());
+        assertSame(n, merge.getVoltageLevel("vl" + num).getParentNetwork());
+        assertSame(n, merge.getBusBreakerView().getBus("b" + num).getParentNetwork());
         Load l = merge.getLoad("l" + num);
         Load other = merge.getLoad("l" + (3 - num));
         assertNotNull(l);
         assertNotNull(other);
-        assertSame(n, l.getSmallestContainingNetwork());
+        assertSame(n, l.getParentNetwork());
         Load lBis = n.getLoad("l" + num);
         assertSame(l, lBis);
         Load otherBis = n.getLoad("l" + (3 - num));
