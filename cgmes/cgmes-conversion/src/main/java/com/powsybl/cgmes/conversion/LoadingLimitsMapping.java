@@ -7,10 +7,11 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.iidm.network.LoadingLimitsAdder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -19,11 +20,6 @@ import java.util.function.Supplier;
 public class LoadingLimitsMapping {
 
     protected final Map<String, LoadingLimitsAdder<?, ?>> adders = new HashMap<>();
-    private final Context context;
-
-    LoadingLimitsMapping(Context context) {
-        this.context = Objects.requireNonNull(context);
-    }
 
     public LoadingLimitsAdder<?, ?> computeIfAbsentLoadingLimitsAdder(String id, Supplier<LoadingLimitsAdder<?, ?>> supplier) {
         return adders.computeIfAbsent(id, s -> supplier.get());
@@ -33,8 +29,12 @@ public class LoadingLimitsMapping {
         for (Map.Entry<String, LoadingLimitsAdder<?, ?>> entry : adders.entrySet()) {
             if (!Double.isNaN(entry.getValue().getPermanentLimit())) {
                 entry.getValue().add();
+            } else {
+                LOG.error("Missing permanent limit for LoadingLimit set {}. Any temporary limits in the set will be ignored", entry.getKey());
             }
         }
         adders.clear();
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(LoadingLimitsMapping.class);
 }

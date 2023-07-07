@@ -53,7 +53,7 @@ public class Context {
         substationIdMapping = new SubstationIdMapping(this);
         terminalMapping = new TerminalMapping();
         dcMapping = new DcMapping(this);
-        loadingLimitsMapping = new LoadingLimitsMapping(this);
+        loadingLimitsMapping = new LoadingLimitsMapping();
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping(this);
 
