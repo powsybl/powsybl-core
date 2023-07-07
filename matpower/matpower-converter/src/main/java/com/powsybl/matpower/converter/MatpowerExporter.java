@@ -479,30 +479,41 @@ public class MatpowerExporter implements Exporter {
     private static void addMgen(MatpowerModel model, Context context, Bus bus, VoltageLevel vl,
                                 String id, double targetV, double targetP, double minP, double maxP, double targetQ,
                                 double minQ, double maxQ, Bus regulatedBus, boolean voltageRegulation, double ratedS) {
-        MGen mGen = new MGen();
-        mGen.setNumber(context.mBusesNumbersByIds.get(bus.getId()));
-        mGen.setStatus(CONNECTED_STATUS);
-        mGen.setRealPowerOutput(targetP);
-        mGen.setReactivePowerOutput(targetQ);
-        if (voltageRegulation && regulatedBus != null) {
-            double targetVpu = targetV / vl.getNominalV();
-            if (!regulatedBus.getId().equals(bus.getId())) {
-                double oldTargetV = targetVpu;
-                targetVpu *= vl.getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
-                LOGGER.warn(
-                    "Generator remote voltage control not supported in Matpower model, rescale targetV of '{}' from {} to {}",
-                    id, oldTargetV, targetVpu);
-            }
-            mGen.setVoltageMagnitudeSetpoint(targetVpu);
+        int busNum = context.mBusesNumbersByIds.get(bus.getId());
+        MBus mBus = model.getBusByNum(busNum);
+        boolean validVoltageRegulation = voltageRegulation && regulatedBus != null;
+        // Matpower power flow does not support bus with multiple generators that do not have the same voltage regulation
+        // status. if the bus has PV type, all of its generator must have a valid voltage set point.
+        if (!validVoltageRegulation && mBus.getType() == MBus.Type.PV) {
+            // convert to load
+            mBus.setRealPowerDemand(mBus.getRealPowerDemand() - targetP);
+            mBus.setReactivePowerDemand(mBus.getReactivePowerDemand() - targetQ);
         } else {
-            mGen.setVoltageMagnitudeSetpoint(0);
+            MGen mGen = new MGen();
+            mGen.setNumber(busNum);
+            mGen.setStatus(CONNECTED_STATUS);
+            mGen.setRealPowerOutput(targetP);
+            mGen.setReactivePowerOutput(targetQ);
+            if (validVoltageRegulation) {
+                double targetVpu = targetV / vl.getNominalV();
+                if (!regulatedBus.getId().equals(bus.getId())) {
+                    double oldTargetV = targetVpu;
+                    targetVpu *= vl.getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
+                    LOGGER.warn(
+                            "Generator remote voltage control not supported in Matpower model, rescale targetV of '{}' from {} to {}",
+                            id, oldTargetV, targetVpu);
+                }
+                mGen.setVoltageMagnitudeSetpoint(targetVpu);
+            } else {
+                mGen.setVoltageMagnitudeSetpoint(0);
+            }
+            mGen.setMinimumRealPowerOutput(minP);
+            mGen.setMaximumRealPowerOutput(maxP);
+            mGen.setMinimumReactivePowerOutput(minQ);
+            mGen.setMaximumReactivePowerOutput(maxQ);
+            mGen.setTotalMbase(Double.isNaN(ratedS) ? 0 : ratedS);
+            model.addGenerator(mGen);
         }
-        mGen.setMinimumRealPowerOutput(minP);
-        mGen.setMaximumRealPowerOutput(maxP);
-        mGen.setMinimumReactivePowerOutput(minQ);
-        mGen.setMaximumReactivePowerOutput(maxQ);
-        mGen.setTotalMbase(Double.isNaN(ratedS) ? 0 : ratedS);
-        model.addGenerator(mGen);
     }
 
     private static int getBranchCount(Bus bus) {
