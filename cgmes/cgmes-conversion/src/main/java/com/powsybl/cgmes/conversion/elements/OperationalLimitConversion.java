@@ -7,14 +7,8 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -45,6 +39,24 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         Terminal terminal = null;
         if (terminalId != null) {
             terminal = context.terminalMapping().find(terminalId);
+
+            // FIXME(Luma) looking for a way to keep limits defined at boundary terminals
+            if (terminal == null) {
+                // This will check if the terminalId is an alias for a dangling line
+                DanglingLine dl = context.network().getDanglingLine(terminalId);
+                if (dl != null) {
+                    String terminalBoundaryId = dl.getAliasFromType("CGMES.Terminal_Boundary").orElse(null);
+                    if (terminalId.equals(terminalBoundaryId)) {
+                        // We have checked that the terminalId corresponds to the boundary terminal id of the dangling line
+                        // FIXME(Luma) A first, dirty (and incorrect) solution, is just store the limit at the network terminal, keeping the same value
+                        // Alternatives:
+                        // 1 - Modify the dangling line API to support loading limits at both sides
+                        // 2 - Store at the network side (do not modify the dangling line API) but translate the value if needed
+                        // The value must be translated for limits of current if the dangling line is a transformer or a line with different nominal values
+                        terminal = dl.getTerminal();
+                    }
+                }
+            }
         }
         if (limitSubclass == null || limitSubclass.equals(ACTIVE_POWER_LIMIT) || limitSubclass.equals(APPARENT_POWER_LIMIT) || limitSubclass.equals(CURRENT_LIMIT)) {
             if (terminal != null) {
