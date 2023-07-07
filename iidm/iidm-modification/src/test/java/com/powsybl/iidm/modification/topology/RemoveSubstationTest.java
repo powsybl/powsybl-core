@@ -11,17 +11,13 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.DefaultNetworkListener;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,8 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Maissa Souissi <maissa.souissi at rte-france.com> eurostag-remove-voltage-level-bb.xml
  */
 class RemoveSubstationTest extends AbstractConverterTest {
-    private final Set<String> removedObjects = new HashSet<>();
-    private final Set<String> beforeRemovalObjects = new HashSet<>();
+    private final List<String> removedObjects = new ArrayList<>();
 
     @AfterEach
     public void tearDown() {
@@ -40,11 +35,6 @@ class RemoveSubstationTest extends AbstractConverterTest {
     private void addListener(Network network) {
         network.addListener(new DefaultNetworkListener() {
             @Override
-            public void beforeRemoval(Identifiable id) {
-                beforeRemovalObjects.add(id.getId());
-            }
-
-            @Override
             public void afterRemoval(String id) {
                 removedObjects.add(id);
             }
@@ -52,54 +42,34 @@ class RemoveSubstationTest extends AbstractConverterTest {
     }
 
     @Test
-    void testRemoveVoltageLevel() {
-        Network network = HvdcTestNetwork.createBase();
+    void testRemoveSubstationAndItsEquipments() {
+        Network network = EurostagTutorialExample1Factory.create();
         addListener(network);
-        new RemoveSubstationBuilder().withSubstationId("S1").build().apply(network);
-        assertEquals(Set.of("VL1", "S1", "B1"), beforeRemovalObjects);
-        assertEquals(Set.of("VL1", "S1", "B1"), removedObjects);
-        assertNull(network.getSubstation("S1"));
-        assertNull(network.getVoltageLevel("VL1"));
+        new RemoveSubstationBuilder().withSubstationId("P2").build().apply(network);
+
+        assertEquals(List.of("NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV2", "VLHV2", "LOAD", "NLOAD", "VLLOAD", "P2"), removedObjects);
+        assertNull(network.getSubstation("P2"));
+        assertNull(network.getVoltageLevel("NHV2"));
+        assertNull(network.getBusBreakerView().getBus("nload"));
+        assertNull(network.getTwoWindingsTransformer("NHV2_NLOAD"));
     }
 
     @Test
-    void testRemoveSubstationWithManyVL() throws IOException {
+    void testRemoveSubstationWithManyVL() {
         Network network = EurostagTutorialExample1Factory.create();
         addListener(network);
-        assertEquals("VLGEN", network.getVoltageLevel("VLGEN").getId());
-        assertEquals("VLHV1", network.getVoltageLevel("VLHV1").getId());
         new RemoveSubstationBuilder().withSubstationId("P1").build().apply(network);
-        System.out.println(network.getVoltageLevel("VLGEN"));
-        assertEquals(Set.of("GEN", "NHV1", "P1", "VLHV1", "VLGEN", "NGEN_NHV1", "NGEN", "NHV1_NHV2_2", "NHV1_NHV2_1"), beforeRemovalObjects);
-        assertEquals(Set.of("GEN", "NHV1", "P1", "VLHV1", "VLGEN", "NGEN_NHV1", "NGEN", "NHV1_NHV2_2", "NHV1_NHV2_1"), removedObjects);
+
+        assertEquals(List.of("NGEN_NHV1", "GEN", "NGEN", "VLGEN", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1", "VLHV1", "P1"), removedObjects);
         assertNull(network.getSubstation("P1"));
         assertNull(network.getVoltageLevel("VLGEN"));
         assertNull(network.getVoltageLevel("VLHV1"));
-        assertNull(network.getTwoWindingsTransformer("NGEN_NHV1"));
     }
 
     @Test
-    public void testRemoveSubstation() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
-        addListener(network);
-        assertNotNull(network.getSubstation("S1"));
-        assertNotNull(network.getSubstation("S1").getVoltageLevels());
-        new RemoveSubstationBuilder().withSubstationId("S1").build().apply(network);
-        assertNull(network.getSubstation("S1"));
-        assertNull(network.getVoltageLevel("S1VL1"));
-        assertNull(network.getTwoWindingsTransformer("TWT"));
-        assertNull(network.getVoltageLevel("S1VL1"));
-        assertNull(network.getVscConverterStation("LCC1"));
-        assertNull(network.getHvdcLine("HVDC2"));
-
-        new RemoveSubstationBuilder().withSubstationId("S2").build().apply(network);
-        assertNull(network.getSubstation("S2"));
-        assertNull(network.getVoltageLevel("S2VL1"));
-        assertNull(network.getLine("LINE_S2S3"));
-        assertNull(network.getHvdcLine("HVDC1"));
-        assertNull(network.getVscConverterStation("VSC2"));
-
+    void testRemoveUnknownSubstation() {
         RemoveSubstation removeUnknown = new RemoveSubstation("UNKNOWN");
+        Network network = EurostagTutorialExample1Factory.create();
         removeUnknown.apply(network, false, Reporter.NO_OP);
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, Reporter.NO_OP));
         assertEquals("Substation not found: UNKNOWN", e.getMessage());

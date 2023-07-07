@@ -173,7 +173,7 @@ public final class ModificationReports {
     public static void removedSubstationReport(Reporter reporter, String substationId) {
         reporter.report(Report.builder()
                 .withKey("removeSubstation")
-                .withDefaultMessage("Substation ${substationId}, its voltage levels have been removed")
+                .withDefaultMessage("Substation ${substationId} and its voltage levels have been removed")
                 .withValue(SUBSTATION_ID, substationId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
