@@ -34,7 +34,7 @@ public class RemoveSubstation extends AbstractNetworkModification {
     @Override
     public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         Substation substation = network.getSubstation(substationId);
-        if (substationId == null) {
+        if (substation == null) {
             LOGGER.error("Substation {} not found", substationId);
             notFoundSubstationReport(reporter, substationId);
             if (throwException) {
@@ -50,5 +50,4 @@ public class RemoveSubstation extends AbstractNetworkModification {
         removedSubstationReport(reporter, substationId);
         LOGGER.info("Substation {}, and its voltage levels have been removed", substationId);
     }
-
 }
