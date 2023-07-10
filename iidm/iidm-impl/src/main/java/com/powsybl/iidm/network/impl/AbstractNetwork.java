@@ -7,9 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -68,4 +71,18 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
         return "Network";
     }
 
+    /**
+     * Transfer the extensions of a network to another one.
+     * @param from the network whose extensions must be transferred
+     * @param to the destination network
+     */
+    protected static void transferExtensions(Network from, Network to) {
+        new ArrayList<>(from.getExtensions())
+                .forEach(e -> Arrays.stream(e.getClass().getInterfaces())
+                        .filter(c -> Objects.nonNull(from.getExtension(c)))
+                        .forEach(clazz -> {
+                            from.removeExtension((Class<? extends Extension<Network>>) clazz);
+                            to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
+                        }));
+    }
 }

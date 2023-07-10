@@ -78,9 +78,10 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void testMergeNewAPI() {
+    public void testMergeAndDetach() {
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
+        // merge(n1, n2)
         merge = Network.create(MERGE, n1, n2);
         TieLine tieLine = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine);
@@ -92,10 +93,35 @@ public abstract class AbstractMergeNetworkTest {
         checkDanglingLineStatusCount(merge, 0, 2);
         checkDanglingLineStatusCount(subnetwork1, 0, 1);
         checkDanglingLineStatusCount(subnetwork2, 0, 1);
+        checkSubstationAndVoltageLevelCounts(merge, 2, 2);
 
         assertEquals(merge, tieLine.getParentNetwork());
         assertEquals(subnetwork1, merge.getDanglingLine("dl1").getParentNetwork());
         assertEquals(subnetwork2, merge.getDanglingLine("dl2").getParentNetwork());
+
+        // detach(n1)
+        assertTrue(subnetwork1.isDetachable());
+        Network detachedN1 = subnetwork1.detach();
+        checkDanglingLineStatusCount(merge, 1, 0);
+        checkDanglingLineStatusCount(detachedN1, 1, 0);
+        checkDanglingLineStatusCount(subnetwork2, 1, 0);
+        checkSubstationAndVoltageLevelCounts(merge, 1, 1);
+        checkSubstationAndVoltageLevelCounts(detachedN1, 1, 1);
+
+        // detach(n2)
+        assertTrue(subnetwork2.isDetachable());
+        Network detachedN2 = subnetwork2.detach();
+        checkDanglingLineStatusCount(merge, 0, 0);
+        checkDanglingLineStatusCount(detachedN1, 1, 0);
+        checkDanglingLineStatusCount(detachedN2, 1, 0);
+        checkSubstationAndVoltageLevelCounts(merge, 0, 0);
+        checkSubstationAndVoltageLevelCounts(detachedN1, 1, 1);
+        checkSubstationAndVoltageLevelCounts(detachedN2, 1, 1);
+    }
+
+    private void checkSubstationAndVoltageLevelCounts(Network n, long substationCount, long voltageLevelCount) {
+        assertEquals(substationCount, n.getSubstationCount());
+        assertEquals(voltageLevelCount, n.getVoltageLevelCount());
     }
 
     @Test

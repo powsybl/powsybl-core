@@ -7,11 +7,15 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.network.impl.util.RefChain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -20,6 +24,8 @@ import java.util.stream.StreamSupport;
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 public class SubnetworkImpl extends AbstractNetwork {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubnetworkImpl.class);
 
     private final NetworkImpl parent;
 
@@ -49,7 +55,7 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     private boolean contains(Identifiable<?> identifiable) {
-        return Networks.contains(this, identifiable);
+        return identifiable != null && identifiable.getParentNetwork() == this;
     }
 
     @Override
@@ -546,7 +552,11 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Collection<Identifiable<?>> getIdentifiables() {
-        return parent.getIdentifiables().stream().filter(this::contains).collect(Collectors.toList());
+        return getIdentifiableStream().collect(Collectors.toList());
+    }
+
+    Stream<Identifiable<?>> getIdentifiableStream() {
+        return parent.getIdentifiables().stream().filter(this::contains);
     }
 
     @Override
@@ -669,9 +679,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public Network createSubnetwork(String subnetworkId, String sourceFormat) {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+    public Network createSubnetwork(String subnetworkId, String name, String sourceFormat) {
+        throw new UnsupportedOperationException("Inner subnetworks are not yet supported");
     }
 
     @Override
@@ -686,8 +695,43 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Network detach() {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+        Set<Identifiable<?>> boundaryElements = getBoundaryElements();
+        checkDetachable(boundaryElements, true);
+
+        long start = System.currentTimeMillis();
+
+        // Remove tie-lines
+        boundaryElements.stream()
+                .filter(i -> i.getType() == IdentifiableType.TIE_LINE)
+                .map(TieLineImpl.class::cast)
+                .forEach(TieLineImpl::remove);
+
+        // Create a new NetworkImpl and transfer the extensions to it
+        NetworkImpl detachedNetwork = new NetworkImpl(getId(), getNameOrId(), getSourceFormat());
+        transferExtensions(this, detachedNetwork);
+
+        // Memorize the network identifiables before moving references (to use them latter)
+        Collection<Identifiable<?>> identifiables = getIdentifiables();
+
+        // Move the substations and voltageLevels to the new Network
+        getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(null));
+        getVoltageLevelStream().forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(null));
+
+        // Change network back reference of the network objects
+        RefChain<NetworkImpl> refChain = parent.removeRef(getId());
+        refChain.setRef(detachedNetwork.getRef());
+
+        // Remove the old subnetwork from the subnetworks list of the current parent network
+        parent.removeFromSubnetworks(getId());
+
+        // Remove all the identifiers from the parent's index and add them to the detached network's index
+        identifiables.forEach(i -> {
+            parent.getIndex().remove(i);
+            detachedNetwork.getIndex().checkAndAdd(i);
+        });
+
+        LOGGER.info("Detaching of {} done in {} ms", id, System.currentTimeMillis() - start);
+        return detachedNetwork;
     }
 
     /**
@@ -696,20 +740,104 @@ public class SubnetworkImpl extends AbstractNetwork {
      */
     @Override
     public boolean isDetachable() {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+        return checkDetachable(getBoundaryElements(), false);
+    }
+
+    private boolean checkDetachable(Set<Identifiable<?>> boundaryElements, boolean throwsException) {
+        if (parent.getVariantManager().getVariantArraySize() != 1) {
+            if (throwsException) {
+                throw new PowsyblException("Detaching from multi-variants network is not supported");
+            }
+            return false;
+        }
+        if (boundaryElements.stream().anyMatch(Predicate.not(SubnetworkImpl::isSplittable))) {
+            if (throwsException) {
+                throw new PowsyblException("Some un-splittable equipments prevent the subnetwork to be detached");
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isSplittable(Identifiable<?> identifiable) {
+        return identifiable.getType() == IdentifiableType.TIE_LINE;
     }
 
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+        return getIdentifiableStream()
+                .flatMap(this::withPairingElements)
+                .filter(this::isBoundaryElement)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * <p>Return a Stream containing the given identifiable and its pairing element if it exists.</p>
+     * <p>Pairing elements are the tie-line associated to a dangling-line or the HVDC line associated to an HVDC converter station.</p>
+     *
+     * @param identifiable an identifiable
+     * @return a stream containing <code>identifiable</code> and its pairing element if it exists.
+     */
+    private Stream<Identifiable<?>> withPairingElements(Identifiable<?> identifiable) {
+        if (identifiable.getType() == IdentifiableType.DANGLING_LINE) {
+            Optional<TieLine> tieLine = ((DanglingLine) identifiable).getTieLine();
+            if (tieLine.isPresent()) {
+                return Stream.of(identifiable, tieLine.get());
+            }
+        } else if (identifiable.getType() == IdentifiableType.HVDC_CONVERTER_STATION) {
+            HvdcLine hvdcLine = ((HvdcConverterStation<?>) identifiable).getHvdcLine();
+            if (hvdcLine != null) {
+                return Stream.of(identifiable, hvdcLine);
+            }
+        }
+        return Stream.of(identifiable);
     }
 
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+        switch (identifiable.getType()) {
+            case LINE:
+            case TWO_WINDINGS_TRANSFORMER:
+            case TIE_LINE: {
+                return isBoundary((Branch<?>) identifiable);
+            }
+            case THREE_WINDINGS_TRANSFORMER: {
+                return isBoundary((ThreeWindingsTransformer) identifiable);
+            }
+            case HVDC_LINE: {
+                return isBoundary((HvdcLine) identifiable);
+            }
+            default: {
+                return false;
+            }
+        }
+    }
+
+    private boolean isBoundary(Branch<?> branch) {
+        boolean containsVoltageLevel1 = contains(branch.getTerminal1().getVoltageLevel());
+        boolean containsVoltageLevel2 = contains(branch.getTerminal2().getVoltageLevel());
+        return containsVoltageLevel1 && !containsVoltageLevel2 ||
+                !containsVoltageLevel1 && containsVoltageLevel2;
+    }
+
+    private boolean isBoundary(ThreeWindingsTransformer threeWindingsTransformer) {
+        boolean containsVoltageLevel1 = contains(threeWindingsTransformer.getLeg1().getTerminal().getVoltageLevel());
+        boolean containsVoltageLevel2 = contains(threeWindingsTransformer.getLeg2().getTerminal().getVoltageLevel());
+        boolean containsVoltageLevel3 = contains(threeWindingsTransformer.getLeg3().getTerminal().getVoltageLevel());
+        boolean containsOne = containsVoltageLevel1 ||
+                containsVoltageLevel2 ||
+                containsVoltageLevel3;
+        boolean containsAll = containsVoltageLevel1 &&
+                containsVoltageLevel2 &&
+                containsVoltageLevel3;
+        return containsOne && !containsAll;
+    }
+
+    private boolean isBoundary(HvdcLine hvdcLine) {
+        boolean containsVoltageLevel1 = contains(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel());
+        boolean containsVoltageLevel2 = contains(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel());
+        return containsVoltageLevel1 && !containsVoltageLevel2 ||
+                !containsVoltageLevel1 && containsVoltageLevel2;
     }
 
     @Override

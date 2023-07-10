@@ -1227,10 +1227,11 @@ public interface Network extends Container<Network> {
      * Create an empty subnetwork in the current network.
      *
      * @param subnetworkId id of the subnetwork
+     * @param name subnetwork's name
      * @param sourceFormat source format
      * @return the created subnetwork
      */
-    Network createSubnetwork(String subnetworkId, String sourceFormat);
+    Network createSubnetwork(String subnetworkId, String name, String sourceFormat);
 
     /**
      * Merge the current network with another one. At the end of this operation, <code>other</code>

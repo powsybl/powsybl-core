@@ -10,7 +10,6 @@ import com.google.common.base.Functions;
 import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
@@ -57,6 +56,10 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     @Override
     public Network getSubnetwork(String id) {
         return subnetworks.get(id);
+    }
+
+    void removeFromSubnetworks(String subnetworkId) {
+        subnetworks.remove(subnetworkId);
     }
 
     class BusBreakerViewImpl implements BusBreakerView {
@@ -135,7 +138,6 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         void invalidateCache() {
             variants.get().busViewCache.invalidate();
         }
-
     }
 
     private final BusViewImpl busView = new BusViewImpl();
@@ -164,8 +166,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return refByNetworkId.get(id);
     }
 
-    RefChain<NetworkImpl> getRef(String networkId) {
-        return refByNetworkId.get(networkId);
+    RefChain<NetworkImpl> removeRef(String networkId) {
+        return refByNetworkId.remove(networkId);
     }
 
     NetworkListenerList getListeners() {
@@ -885,8 +887,15 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         variants.allocate(indexes, () -> variants.copy(sourceIndex));
     }
 
+    private static void checkIndependentNetwork(Network network) {
+        if (network instanceof SubnetworkImpl) {
+            throw new IllegalArgumentException("The network " + network.getId() + " is a subnetwork");
+        }
+    }
+
     @Override
     public void merge(Network other) {
+        checkIndependentNetwork(other);
         NetworkImpl otherNetwork = (NetworkImpl) other;
 
         // this check must not be done on the number of variants but on the size
@@ -973,13 +982,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     private static Network createSubnetwork(NetworkImpl parent, Network original) {
         Network sn = new SubnetworkImpl(parent, original.getId(), original.getOptionalName().orElse(null),
                 original.getSourceFormat()).setCaseDate(original.getCaseDate());
-        new ArrayList<>(original.getExtensions())
-                .forEach(e -> Arrays.stream(e.getClass().getInterfaces())
-                        .filter(c -> Objects.nonNull(original.getExtension(c)))
-                        .forEach(clazz -> {
-                            original.removeExtension((Class<? extends Extension<Network>>) clazz);
-                            sn.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
-                        }));
+        transferExtensions(original, sn);
         return sn;
     }
 
@@ -1038,9 +1041,13 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     @Override
-    public Network createSubnetwork(String subnetworkId, String sourceFormat) {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+    public Network createSubnetwork(String subnetworkId, String name, String sourceFormat) {
+        if (subnetworks.containsKey(subnetworkId)) {
+            throw new IllegalArgumentException("The network already contains another subnetwork of id " + subnetworkId);
+        }
+        Network subnetwork = new SubnetworkImpl(this, subnetworkId, name, sourceFormat);
+        subnetworks.put(subnetworkId, subnetwork);
+        return subnetwork;
     }
 
     @Override
