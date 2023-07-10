@@ -1050,15 +1050,43 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>Since {@link NetworkImpl} instances are already independent networks, this method throws an {@link IllegalStateException}. </p>
+     */
     @Override
     public Network detach() {
-        return this;
+        throw new IllegalStateException("This network is already detached.");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>Since {@link NetworkImpl} instances are independent networks and can't thus be detached, this method returns <code>false</code>.</p>
+     * @return false
+     */
     @Override
-    public void flatten() {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+    public boolean isDetachable() {
+        return false;
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>Since {@link NetworkImpl} instances are independent networks, they have no boundary elements.</p>
+     * @return an empty set
+     */
+    @Override
+    public Set<Identifiable<?>> getBoundaryElements() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>Since {@link NetworkImpl} instances are independent networks, they have no boundary elements.</p>
+     * @return false
+     */
+    @Override
+    public boolean isBoundaryElements(Identifiable<?> identifiable) {
+        return false;
     }
 
     @Override

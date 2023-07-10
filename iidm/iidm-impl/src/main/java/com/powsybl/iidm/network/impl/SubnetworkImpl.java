@@ -686,11 +686,28 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Network detach() {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>For now, only tie-lines can be split (HVDC lines may be supported later).</p>
+     */
+    @Override
+    public boolean isDetachable() {
+        //TODO subnetworks API
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
-    public void flatten() {
+    public Set<Identifiable<?>> getBoundaryElements() {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public boolean isBoundaryElements(Identifiable<?> identifiable) {
         //TODO subnetworks API
         throw new UnsupportedOperationException("Not yet implemented");
     }

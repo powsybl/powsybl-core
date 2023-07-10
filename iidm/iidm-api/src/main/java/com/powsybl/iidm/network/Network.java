@@ -11,7 +11,6 @@ import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.util.Networks;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -1234,7 +1233,7 @@ public interface Network extends Container<Network> {
     Network createSubnetwork(String subnetworkId, String sourceFormat);
 
     /**
-     * Merge with another network. At the end of the merge the other network
+     * Merge the current network with another one. At the end of this operation, <code>other</code>
      * is empty (destructive merge).
      * @param other the other network
      */
@@ -1246,46 +1245,36 @@ public interface Network extends Container<Network> {
      * <p>Detach the current network (including its subnetworks) from its parent network.</p>
      * <p>Please note that this operation is "destructive": after it the current network's content
      * couldn't be accessed from the parent networks anymore.</p>
-     * <p>The equipments linking this network to a substation outside of it will be split if possible.</br>
+     * <p>The elements linking this network to a substation outside of it will be split if possible.</br>
      * A {@link PowsyblException} will be thrown if some un-splittable links are detected. This detection is processed
      * before any network modification. So if an un-splittable link is detected when calling this method,
      * no networks were impacted by the operation.</p>
-     * <p>{@link Networks#getDetachPreventingEquipments(Network)} allows you to retrieve the equipments preventing this operation.</p>
      *
      * @return a fully-independent network corresponding to the current network and its subnetworks.
      */
     Network detach();
 
     /**
-     * <p>Check if the current Network can be detached from its parent network (with {@link #detach()}.</p>
-     * <p>If you prefer, you can retrieve the list of the equipments preventing the network to be detached with
-     * {@link Networks#getDetachPreventingEquipments(Network)}.</p>
+     * <p>Check if the current Network can be detached from its parent network (with {@link #detach()}).</p>
      *
      * @return True if the network can be detached from its parent network.
      */
-    default boolean isDetachable() {
-        return Networks.getDetachPreventingEquipments(this).isEmpty();
-    }
+    boolean isDetachable();
 
     /**
-     * <p>Check if the equipment is splittable.</p>
-     * <p>This method is especially used to determine if the equipment's network can be detached from its parent network.</p>
-     * @see Networks#getDetachPreventingEquipments(Network)
+     * Return all the boundary elements of the current network, i.e. the elements linking the network to a substation outside of it.
+     *
+     * @return a set containing the boundary elements of the network.
      */
-    default boolean isSplittableEquipment(Identifiable<?> identifiable) {
-        return false;
-    }
+    Set<Identifiable<?>> getBoundaryElements();
 
     /**
-     * Convert the current network as a one-level network.<br/>
-     * <ul>
-     *   <li>If the network contains subnetworks, their equipments are moved at the current network level and
-     *   the subnetworks are all removed. In addition, the inner tie-lines are replaced by standard lines.
-     *   <b>This operation is irreversible.</b></li>
-     *   <li>If the network doesn't contain subnetworks, this operation doesn't do anything.</li>
-     * </ul>
+     * Check if an identifiable is a boundary for the current network.
+     *
+     * @param identifiable the identifiable to check
+     * @return True if the identifiable is a boundary for the current network
      */
-    void flatten();
+    boolean isBoundaryElements(Identifiable<?> identifiable);
 
     void addListener(NetworkListener listener);
 

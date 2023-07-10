@@ -22,7 +22,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
@@ -452,27 +451,4 @@ public final class Networks {
         return network.getSubnetworks().stream().anyMatch(subnetwork -> containsDirectly(subnetwork, identifiable));
     }
 
-    /**
-     * Return all the outgoing equipments of a network, i.e. the equipments linking the network to a substation outside of it.
-     *
-     * @param network a network
-     * @return a set containing the outgoing equipments of the network.
-     */
-    public static Set<Identifiable<?>> getOutgoingEquipments(Network network) {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    /**
-     * Return all the equipments preventing the given network to be detached from its parent network.
-     *
-     * @param network a network
-     * @return a set containing the equipments preventing the network to be detached from its parent network.
-     * @see Network#detach()
-     */
-    public static Set<Identifiable<?>> getDetachPreventingEquipments(Network network) {
-        return Networks.getOutgoingEquipments(network).stream()
-                .filter(network::isSplittableEquipment)
-                .collect(Collectors.toSet());
-    }
 }
