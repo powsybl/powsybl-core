@@ -9,6 +9,8 @@ package com.powsybl.matpower.converter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractConverterTest;
@@ -20,7 +22,7 @@ import com.powsybl.matpower.model.MatpowerModel;
 import com.powsybl.matpower.model.MatpowerModelFactory;
 import com.powsybl.matpower.model.MatpowerReader;
 import com.powsybl.matpower.model.MatpowerWriter;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -37,15 +39,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 class MatpowerExporterTest extends AbstractConverterTest {
 
-    private static void exportToMatAndCompareTo(Network network, String refJsonFile) throws IOException {
+    private PlatformConfig platformConfig;
+
+    @Override
+    @BeforeEach
+    public void setUp() throws IOException {
+        super.setUp();
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
+    }
+
+    private void exportToMatAndCompareTo(Network network, String refJsonFile) throws IOException {
         Properties parameters = new Properties();
         parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES, "true");
         exportToMatAndCompareTo(network, refJsonFile, parameters);
     }
 
-    private static void exportToMatAndCompareTo(Network network, String refJsonFile, Properties parameters) throws IOException {
+    private void exportToMatAndCompareTo(Network network, String refJsonFile, Properties parameters) throws IOException {
         MemDataSource dataSource = new MemDataSource();
-        new MatpowerExporter().export(network, parameters, dataSource);
+        new MatpowerExporter(platformConfig).export(network, parameters, dataSource);
         byte[] mat = dataSource.getData(null, "mat");
         MatpowerModel model = MatpowerReader.read(new ByteArrayInputStream(mat), network.getId());
         String json = new ObjectMapper()
