@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
 import org.joda.time.DateTime;
 
 import java.util.Objects;
@@ -74,11 +75,12 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
      * <p>For now, only tie-lines can be split (HVDC lines may be supported later).</p>
      */
     @Override
-    public abstract Network split();
+    public abstract Network detach();
 
     /**
      * {@inheritDoc}
      * For now, only tie-lines can be split (HVDC lines may be supported later).
+     * @see Networks#getDetachPreventingEquipments(Network)
      */
     @Override
     public boolean isSplittableEquipment(Identifiable<?> identifiable) {

@@ -685,7 +685,7 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public Network split() {
+    public Network detach() {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 

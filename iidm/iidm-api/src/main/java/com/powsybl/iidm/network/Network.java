@@ -1243,21 +1243,34 @@ public interface Network extends Container<Network> {
     void merge(Network... others);
 
     /**
-     * Split and detach the current network (including its subnetworks) from its parent network.<br/>
-     * Please note that this operation is "destructive": after it the current network's content
-     * couldn't be accessed from the parent networks anymore.
+     * <p>Detach the current network (including its subnetworks) from its parent network.</p>
+     * <p>Please note that this operation is "destructive": after it the current network's content
+     * couldn't be accessed from the parent networks anymore.</p>
      * <p>The equipments linking this network to a substation outside of it will be split if possible.</br>
      * A {@link PowsyblException} will be thrown if some un-splittable links are detected. This detection is processed
      * before any network modification. So if an un-splittable link is detected when calling this method,
      * no networks were impacted by the operation.</p>
-     * <p>{@link Networks#getSplitPreventingEquipments(Network)} allows you to retrieve the equipments preventing this operation.</p>
+     * <p>{@link Networks#getDetachPreventingEquipments(Network)} allows you to retrieve the equipments preventing this operation.</p>
      *
      * @return a fully-independent network corresponding to the current network and its subnetworks.
      */
-    Network split();
+    Network detach();
 
     /**
-     * Check if the equipment is splittable.
+     * <p>Check if the current Network can be detached from its parent network (with {@link #detach()}.</p>
+     * <p>If you prefer, you can retrieve the list of the equipments preventing the network to be detached with
+     * {@link Networks#getDetachPreventingEquipments(Network)}.</p>
+     *
+     * @return True if the network can be detached from its parent network.
+     */
+    default boolean isDetachable() {
+        return Networks.getDetachPreventingEquipments(this).isEmpty();
+    }
+
+    /**
+     * <p>Check if the equipment is splittable.</p>
+     * <p>This method is especially used to determine if the equipment's network can be detached from its parent network.</p>
+     * @see Networks#getDetachPreventingEquipments(Network)
      */
     default boolean isSplittableEquipment(Identifiable<?> identifiable) {
         return false;

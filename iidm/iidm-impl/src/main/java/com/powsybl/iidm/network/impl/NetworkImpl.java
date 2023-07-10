@@ -151,7 +151,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         index.checkAndAdd(this);
     }
 
-    static Network createByMerging(String id, String name, Network... networks) {
+    static Network create(String id, String name, Network... networks) {
         if (networks == null || networks.length < 2) {
             throw new IllegalArgumentException("At least 2 networks are expected");
         }
@@ -1051,7 +1051,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     @Override
-    public Network split() {
+    public Network detach() {
         return this;
     }
 

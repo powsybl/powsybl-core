@@ -464,11 +464,13 @@ public final class Networks {
     }
 
     /**
-     * Return all the equipments preventing the network to be split with {@link Network#split()}.
+     * Return all the equipments preventing the given network to be detached from its parent network.
      *
-     * @return a set containing the equipments preventing the network to be split from its parent network.
+     * @param network a network
+     * @return a set containing the equipments preventing the network to be detached from its parent network.
+     * @see Network#detach()
      */
-    public static Set<Identifiable<?>> getSplitPreventingEquipments(Network network) {
+    public static Set<Identifiable<?>> getDetachPreventingEquipments(Network network) {
         return Networks.getOutgoingEquipments(network).stream()
                 .filter(network::isSplittableEquipment)
                 .collect(Collectors.toSet());

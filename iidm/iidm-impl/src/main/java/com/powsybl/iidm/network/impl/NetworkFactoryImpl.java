@@ -21,6 +21,6 @@ public class NetworkFactoryImpl implements NetworkFactory {
 
     @Override
     public Network createNetwork(String id, Network... networks) {
-        return NetworkImpl.createByMerging(id, id, networks);
+        return NetworkImpl.create(id, id, networks);
     }
 }
