@@ -22,7 +22,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Maissa Souissi <maissa.souissi at rte-france.com> eurostag-remove-voltage-level-bb.xml
+ * @author Maissa Souissi <maissa.souissi at rte-france.com>
  */
 class RemoveSubstationTest extends AbstractConverterTest {
     private final List<String> removedObjects = new ArrayList<>();
