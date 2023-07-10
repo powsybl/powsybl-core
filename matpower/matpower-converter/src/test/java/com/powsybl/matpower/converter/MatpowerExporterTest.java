@@ -87,4 +87,19 @@ class MatpowerExporterTest extends AbstractConverterTest {
 
         exportToMatAndCompareTo(network, "/ieee30-considering-base-voltage.json");
     }
+
+    @Test
+    void testNonRegulatingGenOnPVBus() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        network.getVoltageLevel("VLGEN").newGenerator()
+                .setId("GEN2")
+                .setBus("NGEN")
+                .setTargetP(10)
+                .setTargetQ(5)
+                .setMinP(0)
+                .setMaxP(1000)
+                .setVoltageRegulatorOn(false)
+                .add();
+        exportToMatAndCompareTo(network, "/sim1-with-non-regulating-gen.json");
+    }
 }
