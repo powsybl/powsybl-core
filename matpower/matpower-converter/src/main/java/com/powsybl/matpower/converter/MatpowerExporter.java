@@ -7,8 +7,11 @@
 package com.powsybl.matpower.converter;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
@@ -40,6 +43,23 @@ public class MatpowerExporter implements Exporter {
     private static final String V_PROP = "v";
     private static final String ANGLE_PROP = "angle";
 
+    public static final String WITH_BUS_NAMES = "matpower.export.with-bus-names";
+
+    private static final Parameter WITH_BUS_NAMES_PARAMETER
+            = new Parameter(WITH_BUS_NAMES, ParameterType.BOOLEAN, "Export bus names", false);
+
+    private static final List<Parameter> PARAMETERS = List.of(WITH_BUS_NAMES_PARAMETER);
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public MatpowerExporter() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public MatpowerExporter(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
+
     @Override
     public String getFormat() {
         return MatpowerConstants.FORMAT;
@@ -52,7 +72,7 @@ public class MatpowerExporter implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return Collections.emptyList();
+        return PARAMETERS;
     }
 
     private static boolean hasSlackExtension(Bus bus) {
@@ -550,6 +570,8 @@ public class MatpowerExporter implements Exporter {
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(reporter);
 
+        boolean withBusNames = Parameter.readBoolean(getFormat(), parameters, WITH_BUS_NAMES_PARAMETER, defaultValueConfig);
+
         MatpowerModel model = new MatpowerModel(network.getId());
         model.setBaseMva(BASE_MVA);
         model.setVersion(FORMAT_VERSION);
@@ -571,7 +593,7 @@ public class MatpowerExporter implements Exporter {
         createVSCs(network, model, context);
 
         try (OutputStream os = dataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
-            MatpowerWriter.write(model, os);
+            MatpowerWriter.write(model, os, withBusNames);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
