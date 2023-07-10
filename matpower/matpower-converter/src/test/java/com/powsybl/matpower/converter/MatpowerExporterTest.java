@@ -38,8 +38,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class MatpowerExporterTest extends AbstractConverterTest {
 
     private static void exportToMatAndCompareTo(Network network, String refJsonFile) throws IOException {
+        Properties parameters = new Properties();
+        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES, "true");
+        exportToMatAndCompareTo(network, refJsonFile, parameters);
+    }
+
+    private static void exportToMatAndCompareTo(Network network, String refJsonFile, Properties parameters) throws IOException {
         MemDataSource dataSource = new MemDataSource();
-        new MatpowerExporter().export(network, null, dataSource);
+        new MatpowerExporter().export(network, parameters, dataSource);
         byte[] mat = dataSource.getData(null, "mat");
         MatpowerModel model = MatpowerReader.read(new ByteArrayInputStream(mat), network.getId());
         String json = new ObjectMapper()
@@ -53,6 +59,14 @@ class MatpowerExporterTest extends AbstractConverterTest {
     void testEsgTuto1() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
         exportToMatAndCompareTo(network, "/sim1.json");
+    }
+
+    @Test
+    void testEsgTuto1WithoutBusNames() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        Properties parameters = new Properties();
+        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES, "false");
+        exportToMatAndCompareTo(network, "/sim1-without-bus-names.json", parameters);
     }
 
     @Test
@@ -79,7 +93,7 @@ class MatpowerExporterTest extends AbstractConverterTest {
         model.setCaseName("ieee30-considering-base-voltage");
         String caseId = model.getCaseName();
         Path matFile = tmpDir.resolve(caseId + ".mat");
-        MatpowerWriter.write(model, matFile);
+        MatpowerWriter.write(model, matFile, true);
 
         Properties properties = new Properties();
         properties.put("matpower.import.ignore-base-voltage", false);
