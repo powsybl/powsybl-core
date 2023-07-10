@@ -94,7 +94,7 @@ public final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("substationRemoved")
                 .withDefaultMessage("Substation ${substationId} removed")
-                .withValue("substationId", substationId)
+                .withValue(SUBSTATION_ID, substationId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
