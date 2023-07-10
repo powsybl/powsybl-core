@@ -525,6 +525,8 @@ public class MatpowerExporter implements Exporter {
                 }
                 mGen.setVoltageMagnitudeSetpoint(targetVpu);
             } else {
+                // we can safely set voltage setpoint to zero, because a PQ bus never go back to PV even if reactive limits
+                // are activated in Matpower power flow
                 mGen.setVoltageMagnitudeSetpoint(0);
             }
             mGen.setMinimumRealPowerOutput(minP);
