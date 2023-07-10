@@ -21,7 +21,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
     private static final Logger LOG = LoggerFactory.getLogger(LineAdderImpl.class);
 
     private final NetworkImpl network;
-    private final String subNetwork;
+    private final String subnetwork;
 
     private double r = Double.NaN;
 
@@ -35,9 +35,9 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     private double b2 = 0.0;
 
-    LineAdderImpl(NetworkImpl network, String subNetwork) {
+    LineAdderImpl(NetworkImpl network, String subnetwork) {
         this.network = network;
-        this.subNetwork = subNetwork;
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -96,9 +96,9 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
             LOG.warn("Line '{}' is between two different sub-networks: splitting back the network will not be possible." +
                     " If you want to be able to split the network, delete this line and create a tie-line instead", id);
         }
-        if (subNetwork != null && (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork()))) {
+        if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()))) {
             throw new ValidationException(this, "Line '" + id + "' is not contained in sub-network '" +
-                    subNetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+                    subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
         }
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();

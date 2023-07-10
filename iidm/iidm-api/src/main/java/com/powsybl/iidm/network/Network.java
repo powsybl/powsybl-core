@@ -100,20 +100,20 @@ import java.util.stream.Stream;
  */
 public interface Network extends Container<Network> {
 
-    default Collection<Network> getSubNetworks() {
+    default Collection<Network> getSubnetworks() {
         return Collections.emptyList();
     }
 
-    default Collection<String> getSubNetworkIds() {
-        return getSubNetworks().stream().map(Identifiable::getId).collect(Collectors.toList());
+    default Collection<String> getSubnetworkIds() {
+        return getSubnetworks().stream().map(Identifiable::getId).collect(Collectors.toList());
     }
 
-    default Network getSubNetwork(String id) {
+    default Network getSubnetwork(String id) {
         return null;
     }
 
     default Optional<Network> getOptionalSubnetwork(String subnetworkId) {
-        return Optional.ofNullable(getSubNetwork(subnetworkId));
+        return Optional.ofNullable(getSubnetwork(subnetworkId));
     }
 
     /**

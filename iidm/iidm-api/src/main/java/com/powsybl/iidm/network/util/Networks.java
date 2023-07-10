@@ -449,7 +449,7 @@ public final class Networks {
         if (containsDirectly(network, identifiable)) {
             return true;
         }
-        return network.getSubNetworks().stream().anyMatch(subnetwork -> containsDirectly(subnetwork, identifiable));
+        return network.getSubnetworks().stream().anyMatch(subnetwork -> containsDirectly(subnetwork, identifiable));
     }
 
     /**

@@ -35,7 +35,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     private boolean removed = false;
 
-    private String subNetwork = null;
+    private String subnetwork = null;
 
     SubstationImpl(String id, String name, boolean fictitious, Country country, String tso, Ref<NetworkImpl> networkRef) {
         super(id, name, fictitious);
@@ -44,12 +44,12 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         this.networkRef = networkRef;
     }
 
-    void setSubNetwork(String subNetwork) {
-        this.subNetwork = subNetwork;
+    void setSubnetwork(String subnetwork) {
+        this.subnetwork = subnetwork;
     }
 
-    String getSubNetwork() {
-        return subNetwork;
+    String getSubnetwork() {
+        return subnetwork;
     }
 
     @Override
@@ -99,7 +99,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     @Override
     public Network getParentNetwork() {
         Network network = getNetwork();
-        return subNetwork == null ? network : network.getSubNetwork(subNetwork);
+        return subnetwork == null ? network : network.getSubnetwork(subnetwork);
     }
 
     void addVoltageLevel(VoltageLevelExt voltageLevel) {

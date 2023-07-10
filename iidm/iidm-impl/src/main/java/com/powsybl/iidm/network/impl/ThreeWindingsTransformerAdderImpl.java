@@ -189,7 +189,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
-    private final String subNetwork;
+    private final String subnetwork;
 
     private LegAdderImpl legAdder1;
 
@@ -202,13 +202,13 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
         networkRef = null;
         this.substation = substation;
-        subNetwork = substation.getSubNetwork();
+        subnetwork = substation.getSubnetwork();
     }
 
-    ThreeWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef, String subNetwork) {
+    ThreeWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef, String subnetwork) {
         this.networkRef = networkRef;
         substation = null;
-        this.subNetwork = subNetwork;
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -292,10 +292,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             LOGGER.warn("Transformer '{}' is between several different sub-networks: splitting back the network will not be possible." +
                     " If you want to be able to split the network, delete this transformer and create tie-lines instead", id);
         }
-        if (subNetwork != null && (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork()) ||
-                !subNetwork.equals(voltageLevel3.getSubNetwork()))) {
+        if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()) ||
+                !subnetwork.equals(voltageLevel3.getSubnetwork()))) {
             throw new ValidationException(this, "Transformer '" + id + "' is not contained in sub-network '" +
-                    subNetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+                    subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
         }
         if (substation != null) {
             if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {

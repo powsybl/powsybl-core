@@ -43,23 +43,23 @@ class NetworkElementIdentifierContingencyListTest {
     void testSimpleIdentifierWithSeveralElements() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         List<NetworkElementIdentifier> networkElementIdentifierList = new ArrayList<>();
-        List<NetworkElementIdentifier> subNetworkElementIdentifiers = new ArrayList<>();
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S2S3"));
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S3S4"));
-        networkElementIdentifierList.add(new NetworkElementIdentifierList(subNetworkElementIdentifiers, "2-same-elements-contingency"));
-        subNetworkElementIdentifiers = new ArrayList<>();
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S2S3"));
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GH1"));
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("HVDC1"));
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LD4"));
-        networkElementIdentifierList.add(new NetworkElementIdentifierList(subNetworkElementIdentifiers, "4-different-elements-contingency"));
-        subNetworkElementIdentifiers = new ArrayList<>();
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S3S4"));
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("Unknown"));
-        networkElementIdentifierList.add(new NetworkElementIdentifierList(subNetworkElementIdentifiers, "test-one-unexpected-element"));
-        subNetworkElementIdentifiers = new ArrayList<>();
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("test"));
-        networkElementIdentifierList.add(new NetworkElementIdentifierList(subNetworkElementIdentifiers, "test"));
+        List<NetworkElementIdentifier> subnetworkElementIdentifiers = new ArrayList<>();
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S2S3"));
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S3S4"));
+        networkElementIdentifierList.add(new NetworkElementIdentifierList(subnetworkElementIdentifiers, "2-same-elements-contingency"));
+        subnetworkElementIdentifiers = new ArrayList<>();
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S2S3"));
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GH1"));
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("HVDC1"));
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LD4"));
+        networkElementIdentifierList.add(new NetworkElementIdentifierList(subnetworkElementIdentifiers, "4-different-elements-contingency"));
+        subnetworkElementIdentifiers = new ArrayList<>();
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S3S4"));
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("Unknown"));
+        networkElementIdentifierList.add(new NetworkElementIdentifierList(subnetworkElementIdentifiers, "test-one-unexpected-element"));
+        subnetworkElementIdentifiers = new ArrayList<>();
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("test"));
+        networkElementIdentifierList.add(new NetworkElementIdentifierList(subnetworkElementIdentifiers, "test"));
         IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(3, contingencies.size());
@@ -104,30 +104,30 @@ class NetworkElementIdentifierContingencyListTest {
     void testIdentifierListOfIdBasedWithSeveralIds() {
         Network network = EurostagTutorialExample1Factory.create();
         List<NetworkElementIdentifier> networkElementIdentifierListElements = new ArrayList<>();
-        List<NetworkElementIdentifier> subNetworkElementIdentifiers = new ArrayList<>();
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_1"));
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_2"));
-        List<NetworkElementIdentifier> subNetworkElementIdentifiersBis = new ArrayList<>();
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_1"));
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GEN"));
+        List<NetworkElementIdentifier> subnetworkElementIdentifiers = new ArrayList<>();
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_1"));
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_2"));
+        List<NetworkElementIdentifier> subnetworkElementIdentifiersBis = new ArrayList<>();
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_1"));
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GEN"));
         networkElementIdentifierListElements.add(
                 new NetworkElementIdentifierList(List.of(
                         new NetworkElementIdentifierList(
-                                subNetworkElementIdentifiers
+                                subnetworkElementIdentifiers
                         ),
                         new NetworkElementIdentifierList(
-                                subNetworkElementIdentifiersBis
+                                subnetworkElementIdentifiersBis
                         )
                 ), "contingencyId1")
         );
-        subNetworkElementIdentifiers = new ArrayList<>();
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_2"));
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GEN"));
+        subnetworkElementIdentifiers = new ArrayList<>();
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_2"));
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GEN"));
         networkElementIdentifierListElements.add(
                 new NetworkElementIdentifierList(List.of(
                         new NetworkElementIdentifierList(List.of(
                                 new NetworkElementIdentifierList(
-                                        subNetworkElementIdentifiers
+                                        subnetworkElementIdentifiers
                                 )))
                 ), "contingencyId2")
         );
@@ -144,10 +144,10 @@ class NetworkElementIdentifierContingencyListTest {
     void testIdentifierListOfDefaultIds() {
         Network network = EurostagTutorialExample1Factory.create();
         List<NetworkElementIdentifier> networkElementIdentifierListElements = new ArrayList<>();
-        List<NetworkElementIdentifier> subNetworkElementIdentifiers = new ArrayList<>();
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_2"));
-        subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GEN"));
-        networkElementIdentifierListElements.add(new NetworkElementIdentifierList(subNetworkElementIdentifiers));
+        List<NetworkElementIdentifier> subnetworkElementIdentifiers = new ArrayList<>();
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_2"));
+        subnetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GEN"));
+        networkElementIdentifierListElements.add(new NetworkElementIdentifierList(subnetworkElementIdentifiers));
         networkElementIdentifierListElements.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_1"));
         IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierListElements);
         List<Contingency> contingencies = contingencyList.getContingencies(network);

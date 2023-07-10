@@ -19,22 +19,22 @@ import java.util.stream.StreamSupport;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class SubNetworkImpl extends AbstractNetwork {
+public class SubnetworkImpl extends AbstractNetwork {
 
     private final NetworkImpl parent;
 
-    SubNetworkImpl(NetworkImpl parent, String id, String name, String sourceFormat) {
+    SubnetworkImpl(NetworkImpl parent, String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
         this.parent = Objects.requireNonNull(parent);
     }
 
     @Override
-    public final Collection<Network> getSubNetworks() {
+    public final Collection<Network> getSubnetworks() {
         return Collections.emptyList();
     }
 
     @Override
-    public final Network getSubNetwork(String id) {
+    public final Network getSubnetwork(String id) {
         return null;
     }
 
@@ -594,7 +594,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
         @Override
         public Stream<Bus> getBusStream() {
-            return parent.getBusBreakerView().getBusStream().filter(SubNetworkImpl.this::contains);
+            return parent.getBusBreakerView().getBusStream().filter(SubnetworkImpl.this::contains);
         }
 
         @Override
@@ -604,7 +604,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
         @Override
         public Stream<Switch> getSwitchStream() {
-            return parent.getBusBreakerView().getSwitchStream().filter(SubNetworkImpl.this::contains);
+            return parent.getBusBreakerView().getSwitchStream().filter(SubnetworkImpl.this::contains);
         }
 
         @Override
@@ -635,7 +635,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
         @Override
         public Stream<Bus> getBusStream() {
-            return parent.getBusView().getBusStream().filter(SubNetworkImpl.this::contains);
+            return parent.getBusView().getBusStream().filter(SubnetworkImpl.this::contains);
         }
 
         @Override
@@ -647,16 +647,16 @@ public class SubNetworkImpl extends AbstractNetwork {
         @Override
         public Collection<Component> getConnectedComponents() {
             return parent.getBusView().getConnectedComponents().stream()
-                    .filter(c -> c.getBusStream().anyMatch(SubNetworkImpl.this::contains))
-                    .map(c -> new SubComponent(c, SubNetworkImpl.this))
+                    .filter(c -> c.getBusStream().anyMatch(SubnetworkImpl.this::contains))
+                    .map(c -> new Subcomponent(c, SubnetworkImpl.this))
                     .collect(Collectors.toList());
         }
 
         @Override
         public Collection<Component> getSynchronousComponents() {
             return parent.getBusView().getSynchronousComponents().stream()
-                    .filter(c -> c.getBusStream().anyMatch(SubNetworkImpl.this::contains))
-                    .map(c -> new SubComponent(c, SubNetworkImpl.this))
+                    .filter(c -> c.getBusStream().anyMatch(SubnetworkImpl.this::contains))
+                    .map(c -> new Subcomponent(c, SubnetworkImpl.this))
                     .collect(Collectors.toList());
         }
     }

@@ -44,9 +44,9 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public Network getParentNetwork() {
-        List<Network> subNetworks = terminals.stream().map(t -> t.getVoltageLevel().getParentNetwork()).distinct().collect(Collectors.toList());
-        if (subNetworks.size() == 1) {
-            return subNetworks.get(0);
+        List<Network> subnetworks = terminals.stream().map(t -> t.getVoltageLevel().getParentNetwork()).distinct().collect(Collectors.toList());
+        if (subnetworks.size() == 1) {
+            return subnetworks.get(0);
         }
         return getNetwork();
     }
