@@ -16,13 +16,13 @@ import java.util.Objects;
 class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> implements TieLineAdder {
 
     private final NetworkImpl network;
-    private final String subNetwork;
+    private final String subnetwork;
     private String dl1Id;
     private String dl2Id;
 
-    TieLineAdderImpl(NetworkImpl network, String subNetwork) {
+    TieLineAdderImpl(NetworkImpl network, String subnetwork) {
         this.network = network;
-        this.subNetwork = subNetwork;
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -69,9 +69,9 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
         }
         VoltageLevelExt voltageLevel1 = dl1.getTerminal().getVoltageLevel();
         VoltageLevelExt voltageLevel2 = dl2.getTerminal().getVoltageLevel();
-        if (subNetwork != null && (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork()))) {
+        if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()))) {
             throw new ValidationException(this, "Line '" + id + "' is not contained in sub-network '" +
-                    subNetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+                    subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
         }
 
         TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious());

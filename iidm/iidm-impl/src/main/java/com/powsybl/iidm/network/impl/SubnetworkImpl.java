@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,22 +19,22 @@ import java.util.stream.StreamSupport;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-public class SubNetworkImpl extends AbstractNetwork {
+public class SubnetworkImpl extends AbstractNetwork {
 
     private final NetworkImpl parent;
 
-    SubNetworkImpl(NetworkImpl parent, String id, String name, String sourceFormat) {
+    SubnetworkImpl(NetworkImpl parent, String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
         this.parent = Objects.requireNonNull(parent);
     }
 
     @Override
-    public final Collection<Network> getSubNetworks() {
+    public final Collection<Network> getSubnetworks() {
         return Collections.emptyList();
     }
 
     @Override
-    public final Network getSubNetwork(String id) {
+    public final Network getSubnetwork(String id) {
         return null;
     }
 
@@ -47,8 +48,8 @@ public class SubNetworkImpl extends AbstractNetwork {
         return parent.getVariantManager();
     }
 
-    public boolean contains(Identifiable<?> identifiable) {
-        return identifiable != null && identifiable.getClosestNetwork() == this;
+    private boolean contains(Identifiable<?> identifiable) {
+        return Networks.contains(this, identifiable);
     }
 
     @Override
@@ -523,7 +524,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
     @Override
     public HvdcLine getHvdcLine(HvdcConverterStation converterStation) {
-        if (converterStation.getClosestNetwork() == this) {
+        if (converterStation.getParentNetwork() == this) {
             return getHvdcLineStream()
                     .filter(l -> l.getConverterStation1() == converterStation || l.getConverterStation2() == converterStation)
                     .findFirst()
@@ -593,7 +594,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
         @Override
         public Stream<Bus> getBusStream() {
-            return parent.getBusBreakerView().getBusStream().filter(SubNetworkImpl.this::contains);
+            return parent.getBusBreakerView().getBusStream().filter(SubnetworkImpl.this::contains);
         }
 
         @Override
@@ -603,7 +604,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
         @Override
         public Stream<Switch> getSwitchStream() {
-            return parent.getBusBreakerView().getSwitchStream().filter(SubNetworkImpl.this::contains);
+            return parent.getBusBreakerView().getSwitchStream().filter(SubnetworkImpl.this::contains);
         }
 
         @Override
@@ -634,7 +635,7 @@ public class SubNetworkImpl extends AbstractNetwork {
 
         @Override
         public Stream<Bus> getBusStream() {
-            return parent.getBusView().getBusStream().filter(SubNetworkImpl.this::contains);
+            return parent.getBusView().getBusStream().filter(SubnetworkImpl.this::contains);
         }
 
         @Override
@@ -646,16 +647,16 @@ public class SubNetworkImpl extends AbstractNetwork {
         @Override
         public Collection<Component> getConnectedComponents() {
             return parent.getBusView().getConnectedComponents().stream()
-                    .filter(c -> c.getBusStream().anyMatch(SubNetworkImpl.this::contains))
-                    .map(c -> new SubComponent(c, SubNetworkImpl.this))
+                    .filter(c -> c.getBusStream().anyMatch(SubnetworkImpl.this::contains))
+                    .map(c -> new Subcomponent(c, SubnetworkImpl.this))
                     .collect(Collectors.toList());
         }
 
         @Override
         public Collection<Component> getSynchronousComponents() {
             return parent.getBusView().getSynchronousComponents().stream()
-                    .filter(c -> c.getBusStream().anyMatch(SubNetworkImpl.this::contains))
-                    .map(c -> new SubComponent(c, SubNetworkImpl.this))
+                    .filter(c -> c.getBusStream().anyMatch(SubnetworkImpl.this::contains))
+                    .map(c -> new Subcomponent(c, SubnetworkImpl.this))
                     .collect(Collectors.toList());
         }
     }
@@ -668,6 +669,12 @@ public class SubNetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public Network createSubnetwork(String subnetworkId, String sourceFormat) {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
     public void merge(Network other) {
         throw new UnsupportedOperationException("Network " + id + " is already merged in network " + parent.getId());
     }
@@ -675,6 +682,34 @@ public class SubNetworkImpl extends AbstractNetwork {
     @Override
     public void merge(Network... others) {
         throw new UnsupportedOperationException("Network " + id + " is already merged in network " + parent.getId());
+    }
+
+    @Override
+    public Network detach() {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>For now, only tie-lines can be split (HVDC lines may be supported later).</p>
+     */
+    @Override
+    public boolean isDetachable() {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public Set<Identifiable<?>> getBoundaryElements() {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public boolean isBoundaryElement(Identifiable<?> identifiable) {
+        //TODO subnetworks API
+        throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override

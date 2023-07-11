@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.SubstationAdder;
 class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl> implements SubstationAdder {
 
     private final Ref<NetworkImpl> networkRef;
-    private final String subNetwork;
+    private final String subnetwork;
 
     private Country country;
 
@@ -26,9 +26,9 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
 
     private String[] tags;
 
-    SubstationAdderImpl(Ref<NetworkImpl> networkRef, String subNetwork) {
+    SubstationAdderImpl(Ref<NetworkImpl> networkRef, String subnetwork) {
         this.networkRef = networkRef;
-        this.subNetwork = subNetwork;
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -63,7 +63,7 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
     public Substation add() {
         String id = checkAndGetUniqueId();
         SubstationImpl substation = new SubstationImpl(id, getName(), isFictitious(), country, tso, networkRef);
-        substation.setSubNetwork(subNetwork);
+        substation.setSubnetwork(subnetwork);
         if (tags != null) {
             for (String tag : tags) {
                 substation.addGeographicalTag(tag);

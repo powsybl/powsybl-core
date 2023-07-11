@@ -42,7 +42,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private boolean removed = false;
 
-    private String subNetwork = null;
+    private String subnetwork = null;
 
     AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> networkRef,
                          double nominalV, double lowVoltageLimit, double highVoltageLimit) {
@@ -62,13 +62,13 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public void setSubNetwork(String subNetwork) {
-        this.subNetwork = subNetwork;
+    public void setSubnetwork(String subnetwork) {
+        this.subnetwork = subnetwork;
     }
 
     @Override
-    public String getSubNetwork() {
-        return subNetwork;
+    public String getSubnetwork() {
+        return subnetwork;
     }
 
     @Override
@@ -102,8 +102,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public Network getClosestNetwork() {
-        return getNetwork().getClosestNetwork(subNetwork);
+    public Network getParentNetwork() {
+        Network network = getNetwork();
+        return subnetwork == null ? network : network.getSubnetwork(subnetwork);
     }
 
     private void notifyUpdate(String attribute, Object oldValue, Object newValue) {

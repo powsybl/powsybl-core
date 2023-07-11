@@ -23,7 +23,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
 
     private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
-    private final String subNetwork;
+    private final String subnetwork;
 
     private double nominalV = Double.NaN;
 
@@ -36,13 +36,13 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
     VoltageLevelAdderImpl(SubstationImpl substation) {
         networkRef = null;
         this.substation = substation;
-        this.subNetwork = substation.getSubNetwork();
+        this.subnetwork = substation.getSubnetwork();
     }
 
-    VoltageLevelAdderImpl(Ref<NetworkImpl> networkRef, String subNetwork) {
+    VoltageLevelAdderImpl(Ref<NetworkImpl> networkRef, String subnetwork) {
         this.networkRef = networkRef;
         substation = null;
-        this.subNetwork = subNetwork;
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -109,7 +109,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
             default:
                 throw new IllegalStateException();
         }
-        voltageLevel.setSubNetwork(subNetwork);
+        voltageLevel.setSubnetwork(subnetwork);
         getNetwork().getIndex().checkAndAdd(voltageLevel);
         Optional.ofNullable(substation).ifPresent(s -> s.addVoltageLevel(voltageLevel));
         getNetwork().getListeners().notifyCreation(voltageLevel);

@@ -23,7 +23,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
-    private final String subNetwork;
+    private final String subnetwork;
 
     private double r = Double.NaN;
 
@@ -42,13 +42,13 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
         networkRef = null;
         this.substation = substation;
-        this.subNetwork = substation.getSubNetwork();
+        this.subnetwork = substation.getSubnetwork();
     }
 
-    TwoWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef, String subNetwork) {
+    TwoWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef, String subnetwork) {
         this.networkRef = networkRef;
         substation = null;
-        this.subNetwork = subNetwork;
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -113,13 +113,13 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
-        if (voltageLevel1.getClosestNetwork() != voltageLevel2.getClosestNetwork()) {
+        if (voltageLevel1.getParentNetwork() != voltageLevel2.getParentNetwork()) {
             LOG.warn("Transformer '{}' is between two different sub-networks: splitting back the network will not be possible." +
                     " If you want to be able to split the network, delete this transformer and create a tie-line instead", id);
         }
-        if (subNetwork != null && (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork()))) {
+        if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()))) {
             throw new ValidationException(this, "Transformer '" + id + "' is not contained in sub-network '" +
-                    subNetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+                    subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
         }
         if (substation != null) {
             if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true)) {
