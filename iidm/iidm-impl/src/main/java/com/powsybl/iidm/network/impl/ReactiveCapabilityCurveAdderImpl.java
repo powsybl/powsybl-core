@@ -76,7 +76,7 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
                             minQ + ", " + maxQ + "] != " + "[" + point.getMinQ() + ", " + point.getMaxQ() + "]");
                 } else {
                     LOGGER.warn("{}duplicate point for active power {}", owner.getMessageHeader(), p);
-                    owner.getNetwork().getReporter().report(Report.builder()
+                    owner.getNetwork().getReporterContext().getReporter().report(Report.builder()
                             .withKey("validationWarning")
                             .withDefaultMessage("${parent} duplicate point for active power {p}")
                             .withValue("parent", owner.getMessageHeader())

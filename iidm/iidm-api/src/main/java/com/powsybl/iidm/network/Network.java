@@ -539,6 +539,17 @@ public interface Network extends Container<Network> {
     VariantManager getVariantManager();
 
     /**
+     * Set the reporter context
+     * @param reporterContext the <code>ReporterContext</code> to use
+     */
+    void setReporterContext(ReporterContext reporterContext);
+
+    /**
+     * Get the {@link ReporterContext} of the network.
+     */
+    ReporterContext getReporterContext();
+
+    /**
      * Get all countries.
      */
     Set<Country> getCountries();
@@ -1109,31 +1120,6 @@ public interface Network extends Container<Network> {
      * @return all identifiables of the network
      */
     Collection<Identifiable<?>> getIdentifiables();
-
-    /**
-     * Get the current {@link Reporter}.
-     * @see #pushReporter(Reporter)
-     * @see #popReporter()
-     * @return the last defined {@link Reporter}
-     */
-    Reporter getReporter();
-
-    /**
-     * Use the given {@link Reporter} instead of the current one.<br/>
-     * The reporters are stacked and the previous one should be restored latter using {@link #popReporter()}.
-     * @see #popReporter()
-     *
-     * @param reporter The new reporter to use.
-     */
-    void pushReporter(Reporter reporter);
-
-    /**
-     * Pop the current {@link Reporter} (defined via {@link Reporter}) and restore the previous one.
-     * @see #pushReporter(Reporter)
-     *
-     * @return the current {@link Reporter}
-     */
-    Reporter popReporter();
 
     /**
      * Get all connectables of the network for a given type

@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.util;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;
@@ -424,4 +425,21 @@ public final class Networks {
             throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
         }
     }
+
+    /**
+     * Set a Reporter in the reporter context of the given network, execute a runnable then restore the reporter context.
+     *
+     * @param network a network
+     * @param reporter the reporter to use
+     * @param runnable the runnable to execute
+     */
+    public static void executeWithReporter(Network network, Reporter reporter, Runnable runnable) {
+        network.getReporterContext().pushReporter(reporter);
+        try {
+            runnable.run();
+        } finally {
+            network.getReporterContext().popReporter();
+        }
+    }
+
 }

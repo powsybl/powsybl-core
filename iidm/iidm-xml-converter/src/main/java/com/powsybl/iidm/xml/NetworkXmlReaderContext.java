@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 
 import javax.xml.stream.XMLStreamReader;
@@ -50,9 +51,7 @@ public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOpt
     }
 
     public void executeEndTasks(Network network, Reporter reporter) {
-        network.pushReporter(reporter);
-        getEndTasks().forEach(Runnable::run);
-        network.popReporter();
+        Networks.executeWithReporter(network, reporter, () -> getEndTasks().forEach(Runnable::run));
     }
 
     @Override

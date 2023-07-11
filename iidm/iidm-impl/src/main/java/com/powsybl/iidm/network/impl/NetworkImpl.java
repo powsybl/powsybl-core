@@ -51,9 +51,9 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final VariantManagerImpl variantManager;
 
-    private final NetworkListenerList listeners = new NetworkListenerList();
+    private ReporterContext reporterContext;
 
-    private ThreadLocal<Deque<Reporter>> reporters;
+    private final NetworkListenerList listeners = new NetworkListenerList();
 
     class BusBreakerViewImpl implements BusBreakerView {
 
@@ -136,15 +136,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final BusViewImpl busView = new BusViewImpl();
 
-    NetworkImpl(String id, String name, String sourceFormat, Reporter reporter) {
+    NetworkImpl(String id, String name, String sourceFormat) {
         super(id, name);
         Objects.requireNonNull(sourceFormat, "source format is null");
-        Objects.requireNonNull(reporter, "reporter is null");
-        this.reporters = ThreadLocal.withInitial(() -> {
-            Deque<Reporter> deque = new LinkedList<>();
-            deque.push(Reporter.NO_OP);
-            return deque;
-        });
+        this.reporterContext = new SimpleReporterContext();
         this.sourceFormat = sourceFormat;
         variantManager = new VariantManagerImpl(this);
         variants = new VariantArray<>(ref, VariantImpl::new);
@@ -196,25 +191,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         return listeners;
     }
 
-    @Override
-    public Reporter getReporter() {
-        return this.reporters.get().peekFirst();
-    }
-
-    @Override
-    public void pushReporter(Reporter reporter) {
-        this.reporters.get().push(reporter);
-    }
-
-    @Override
-    public Reporter popReporter() {
-        Reporter popped = this.reporters.get().pop();
-        if (reporters.get().isEmpty()) {
-            this.reporters.get().push(Reporter.NO_OP);
-        }
-        return popped;
-    }
-
     public NetworkIndex getIndex() {
         return index;
     }
@@ -227,6 +203,16 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public VariantManagerImpl getVariantManager() {
         return variantManager;
+    }
+
+    @Override
+    public void setReporterContext(ReporterContext reporterContext) {
+        this.reporterContext = reporterContext;
+    }
+
+    @Override
+    public ReporterContext getReporterContext() {
+        return this.reporterContext;
     }
 
     @Override
