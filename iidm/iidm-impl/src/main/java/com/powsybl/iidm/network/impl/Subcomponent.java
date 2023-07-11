@@ -17,14 +17,14 @@ import java.util.stream.Stream;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-class SubComponent implements Component {
+class Subcomponent implements Component {
 
     private final Component parent;
-    private final Network subNetwork;
+    private final Network subnetwork;
 
-    SubComponent(Component parent, Network subNetwork) {
+    Subcomponent(Component parent, Network subnetwork) {
         this.parent = parent;
-        this.subNetwork = subNetwork;
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -44,6 +44,6 @@ class SubComponent implements Component {
 
     @Override
     public Stream<Bus> getBusStream() {
-        return parent.getBusStream().filter(b -> b.getClosestNetwork() == subNetwork);
+        return parent.getBusStream().filter(b -> b.getParentNetwork() == subnetwork);
     }
 }

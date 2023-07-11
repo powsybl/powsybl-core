@@ -23,7 +23,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
     private static final Logger LOG = LoggerFactory.getLogger(HvdcLineAdderImpl.class);
 
     private final Ref<NetworkImpl> networkRef;
-    private final String subNetwork;
+    private final String subnetwork;
 
     private double r = Double.NaN;
 
@@ -39,9 +39,9 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
     private String converterStationId2;
 
-    public HvdcLineAdderImpl(Ref<NetworkImpl> networkRef, String subNetwork) {
+    public HvdcLineAdderImpl(Ref<NetworkImpl> networkRef, String subnetwork) {
         this.networkRef = Objects.requireNonNull(networkRef);
-        this.subNetwork = subNetwork;
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -116,12 +116,12 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         }
         VoltageLevelExt vl1 = converterStation1.getTerminal().getVoltageLevel();
         VoltageLevelExt vl2 = converterStation2.getTerminal().getVoltageLevel();
-        if (vl1.getClosestNetwork() != vl2.getClosestNetwork()) {
+        if (vl1.getParentNetwork() != vl2.getParentNetwork()) {
             LOG.warn("HVDC Line '{}' is between two different sub-networks: splitting back the network will not be possible.", id);
         }
-        if (subNetwork != null && (!subNetwork.equals(vl1.getSubNetwork()) || !subNetwork.equals(vl2.getSubNetwork()))) {
+        if (subnetwork != null && (!subnetwork.equals(vl1.getSubnetwork()) || !subnetwork.equals(vl2.getSubnetwork()))) {
             throw new ValidationException(this, "HVDC Line '" + id + "' is not contained in sub-network '" +
-                    subNetwork + "'. Create this HVDC line from the parent network '" + getNetwork().getId() + "'");
+                    subnetwork + "'. Create this HVDC line from the parent network '" + getNetwork().getId() + "'");
         }
         HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, isFictitious(), r, nominalV, maxP, convertersMode, activePowerSetpoint,
                                                  converterStation1, converterStation2, networkRef);

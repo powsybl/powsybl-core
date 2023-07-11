@@ -85,8 +85,8 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Network getClosestNetwork() {
-        return getVoltageLevel().getClosestNetwork();
+    public Network getParentNetwork() {
+        return getVoltageLevel().getParentNetwork();
     }
 
     @Override

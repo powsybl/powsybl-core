@@ -7,9 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
 import java.util.Objects;
@@ -69,4 +67,5 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
     protected String getTypeDescription() {
         return "Network";
     }
+
 }

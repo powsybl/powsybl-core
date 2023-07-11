@@ -18,4 +18,9 @@ public class NetworkFactoryImpl implements NetworkFactory {
     public Network createNetwork(String id, String sourceFormat) {
         return new NetworkImpl(id, id, sourceFormat);
     }
+
+    @Override
+    public Network createNetwork(String id, Network... networks) {
+        return NetworkImpl.create(id, id, networks);
+    }
 }
