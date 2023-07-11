@@ -663,30 +663,7 @@ public final class EquipmentExport {
             String connectivityNodeId = writeDanglingLineConnectivity(danglingLine, baseVoltageId, cimNamespace, writer, context);
 
             // New Equivalent Injection
-            double minP = 0.0;
-            double maxP = 0.0;
-            double minQ = 0.0;
-            double maxQ = 0.0;
-            if (danglingLine.getGeneration() != null) {
-                minP = danglingLine.getGeneration().getMinP();
-                maxP = danglingLine.getGeneration().getMaxP();
-                if (danglingLine.getGeneration().getReactiveLimits().getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
-                    minQ = danglingLine.getGeneration().getReactiveLimits(MinMaxReactiveLimits.class).getMinQ();
-                    maxQ = danglingLine.getGeneration().getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ();
-                } else {
-                    throw new PowsyblException("Unexpected type of ReactiveLimits on the dangling line " + danglingLine.getNameOrId());
-                }
-            }
-            String equivalentInjectionId = context.getNamingStrategy().getCgmesIdFromProperty(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
-            if (equivalentInjectionId != null && !exported.contains(equivalentInjectionId)) { // check if the equivalent injection has already been written (if several dangling lines linked to same X-node)
-                EquivalentInjectionEq.write(equivalentInjectionId, danglingLine.getNameOrId() + "_EI", danglingLine.getGeneration() != null, minP, maxP, minQ, maxQ, baseVoltageId, cimNamespace, writer, context);
-                exported.add(equivalentInjectionId);
-            }
-            String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
-            if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) { // check if the equivalent injection terminal has already been written (if several dangling lines linked to same X-node)
-                TerminalEq.write(equivalentInjectionTerminalId, equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer, context);
-                exported.add(equivalentInjectionTerminalId);
-            }
+            writeDanglingLineEquivalentInjection(danglingLine, cimNamespace, baseVoltageId, connectivityNodeId, exported, writer, context);
 
             // Cast the danglingLine to an AcLineSegment
             AcLineSegmentEq.write(context.getNamingStrategy().getCgmesId(danglingLine), danglingLine.getNameOrId() + "_DL",
@@ -700,6 +677,36 @@ public final class EquipmentExport {
                     throw new UncheckedXmlStreamException(e);
                 }
             });
+        }
+    }
+
+    private static void writeDanglingLineEquivalentInjection(DanglingLine danglingLine, String cimNamespace,
+        String baseVoltageId, String connectivityNodeId, List<String> exported, XMLStreamWriter writer,
+        CgmesExportContext context) throws XMLStreamException {
+
+        double minP = 0.0;
+        double maxP = 0.0;
+        double minQ = 0.0;
+        double maxQ = 0.0;
+        if (danglingLine.getGeneration() != null) {
+            minP = danglingLine.getGeneration().getMinP();
+            maxP = danglingLine.getGeneration().getMaxP();
+            if (danglingLine.getGeneration().getReactiveLimits().getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
+                minQ = danglingLine.getGeneration().getReactiveLimits(MinMaxReactiveLimits.class).getMinQ();
+                maxQ = danglingLine.getGeneration().getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ();
+            } else {
+                throw new PowsyblException("Unexpected type of ReactiveLimits on the dangling line " + danglingLine.getNameOrId());
+            }
+        }
+        String equivalentInjectionId = context.getNamingStrategy().getCgmesIdFromProperty(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+        if (equivalentInjectionId != null && !exported.contains(equivalentInjectionId)) { // check if the equivalent injection has already been written (if several dangling lines linked to same X-node)
+            EquivalentInjectionEq.write(equivalentInjectionId, danglingLine.getNameOrId() + "_EI", danglingLine.getGeneration() != null, minP, maxP, minQ, maxQ, baseVoltageId, cimNamespace, writer, context);
+            exported.add(equivalentInjectionId);
+        }
+        String equivalentInjectionTerminalId = context.getNamingStrategy().getCgmesIdFromProperty(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+        if (equivalentInjectionTerminalId != null && !exported.contains(equivalentInjectionTerminalId)) { // check if the equivalent injection terminal has already been written (if several dangling lines linked to same X-node)
+            TerminalEq.write(equivalentInjectionTerminalId, equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer, context);
+            exported.add(equivalentInjectionTerminalId);
         }
     }
 
