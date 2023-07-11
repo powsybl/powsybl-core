@@ -352,6 +352,9 @@ class EquipmentExportTest extends AbstractConverterTest {
         assertEquals(400.0, twtSorted.getTerminal1().getVoltageLevel().getNominalV(), 0.0);
         assertEquals(225.0, twtSorted.getTerminal2().getVoltageLevel().getNominalV(), 0.0);
 
+        assertTrue(compareCurrentLimits(twt.getCurrentLimits1().orElse(null), twtSorted.getCurrentLimits2().orElse(null)));
+        assertTrue(compareCurrentLimits(twt.getCurrentLimits2().orElse(null), twtSorted.getCurrentLimits1().orElse(null)));
+
         // Voltage at both ends of the transformer
         Bus busS400 = twtSorted.getTerminal1().getBusView().getBus();
         busS400.setV(400.0).setAngle(0.0);
@@ -395,6 +398,9 @@ class EquipmentExportTest extends AbstractConverterTest {
         assertEquals(400.0, twtSorted.getTerminal1().getVoltageLevel().getNominalV(), 0.0);
         assertEquals(225.0, twtSorted.getTerminal2().getVoltageLevel().getNominalV(), 0.0);
 
+        assertTrue(compareCurrentLimits(twt.getCurrentLimits1().orElse(null), twtSorted.getCurrentLimits2().orElse(null)));
+        assertTrue(compareCurrentLimits(twt.getCurrentLimits2().orElse(null), twtSorted.getCurrentLimits1().orElse(null)));
+
         // Voltage at both ends of the transformer
         Bus busS400 = twtSorted.getTerminal1().getBusView().getBus();
         busS400.setV(400.0).setAngle(0.0);
@@ -415,7 +421,7 @@ class EquipmentExportTest extends AbstractConverterTest {
 
     @Test
     void threeWindingsTransformerCgmesExportTest() throws IOException, XMLStreamException {
-        Network network = ThreeWindingsTransformerWithUnsortedEndsNodeBreakerNetworkFactory.create();
+        Network network = ThreeWindingsTransformerWithUnsortedEndsNodeBreakerNetworkFactory.createWithCurrentLimits();
 
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
         assertEquals(11.0, twt.getLeg1().getTerminal().getVoltageLevel().getNominalV(), 0.0);
@@ -443,6 +449,10 @@ class EquipmentExportTest extends AbstractConverterTest {
         assertEquals(33.0, twtSorted.getLeg2().getTerminal().getVoltageLevel().getNominalV(), 0.0);
         assertEquals(11.0, twtSorted.getLeg3().getTerminal().getVoltageLevel().getNominalV(), 0.0);
 
+        assertTrue(compareCurrentLimits(twt.getLeg2().getCurrentLimits().orElse(null), twtSorted.getLeg1().getCurrentLimits().orElse(null)));
+        assertTrue(compareCurrentLimits(twt.getLeg3().getCurrentLimits().orElse(null), twtSorted.getLeg2().getCurrentLimits().orElse(null)));
+        assertTrue(compareCurrentLimits(twt.getLeg1().getCurrentLimits().orElse(null), twtSorted.getLeg3().getCurrentLimits().orElse(null)));
+
         // Set the voltage at each end for calculating flows and voltage at the star bus
 
         Bus busS132 = twtSorted.getLeg1().getTerminal().getBusView().getBus();
@@ -464,6 +474,16 @@ class EquipmentExportTest extends AbstractConverterTest {
         assertEquals(twtData.getComputedQ(Side.TWO), twtDataSorted.getComputedQ(Side.ONE), tol);
         assertEquals(twtData.getComputedP(Side.THREE), twtDataSorted.getComputedP(Side.TWO), tol);
         assertEquals(twtData.getComputedQ(Side.THREE), twtDataSorted.getComputedQ(Side.TWO), tol);
+    }
+
+    private static boolean compareCurrentLimits(CurrentLimits expected, CurrentLimits actual) {
+        if (expected == null && actual == null) {
+            return true;
+        }
+        if (expected != null && actual != null) {
+            return expected.getPermanentLimit() == actual.getPermanentLimit();
+        }
+        return false;
     }
 
     @Test
