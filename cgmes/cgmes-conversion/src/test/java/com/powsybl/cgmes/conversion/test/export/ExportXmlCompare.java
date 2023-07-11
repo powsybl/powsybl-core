@@ -52,27 +52,27 @@ final class ExportXmlCompare {
         }
     }
 
-    static void compareNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
+    static boolean compareNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
         try (InputStream expectedIs = Files.newInputStream(expected);
              InputStream actualIs = Files.newInputStream(actual)) {
-            compareNetworks(expectedIs, actualIs, knownDiffs);
+            return compareNetworks(expectedIs, actualIs, knownDiffs);
         }
     }
 
-    static void compareEQNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
+    static boolean compareEQNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
         try (InputStream expectedIs = Files.newInputStream(expected);
              InputStream actualIs = Files.newInputStream(actual)) {
-            compareEQNetworks(expectedIs, actualIs, knownDiffs);
+            return compareEQNetworks(expectedIs, actualIs, knownDiffs);
         }
     }
 
-    static void compareNetworks(InputStream expected, InputStream actual) {
-        compareNetworks(expected, actual, DifferenceEvaluators.chain(
+    static boolean compareNetworks(InputStream expected, InputStream actual) {
+        return compareNetworks(expected, actual, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator));
     }
 
-    static void compareNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
+    static boolean compareNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         Diff diff = DiffBuilder
@@ -85,9 +85,10 @@ final class ExportXmlCompare {
                 .withComparisonListeners(ExportXmlCompare::debugComparison)
                 .build();
         assertFalse(diff.hasDifferences());
+        return !diff.hasDifferences();
     }
 
-    static void compareEQNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
+    static boolean compareEQNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         Diff diff = DiffBuilder
@@ -101,6 +102,7 @@ final class ExportXmlCompare {
                 .withComparisonListeners(ExportXmlCompare::debugComparison)
                 .build();
         assertFalse(diff.hasDifferences());
+        return !diff.hasDifferences();
     }
 
     static boolean isConsideredForNetwork(Attr attr) {
@@ -110,7 +112,7 @@ final class ExportXmlCompare {
         if (attr.getLocalName().equals("value")) {
             Element e = attr.getOwnerElement();
             return !e.getLocalName().equals("property") ||
-                    (!"CGMES.TP_ID".equals(e.getAttribute("name")) && !"CGMES.SSH_ID".equals(e.getAttribute("name")));
+                    !"CGMES.TP_ID".equals(e.getAttribute("name")) && !"CGMES.SSH_ID".equals(e.getAttribute("name"));
         }
         return true;
     }

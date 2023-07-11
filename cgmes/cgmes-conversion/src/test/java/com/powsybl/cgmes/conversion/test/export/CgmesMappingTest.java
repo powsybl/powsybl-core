@@ -10,6 +10,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.*;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.*;
@@ -309,7 +310,7 @@ class CgmesMappingTest extends AbstractConverterTest {
         Network network1 = export2IidmAndImport(network);
         network1.setCaseDate(network.getCaseDate());
         exportNetwork(network1, exportDataSource2, baseName);
-        compareFiles("export1", "export2");
+        assertTrue(compareFiles("export1", "export2"));
     }
 
     @Test
@@ -321,10 +322,10 @@ class CgmesMappingTest extends AbstractConverterTest {
         DataSource exportDataSource2 = tmpDataSource("export2", baseName);
         exportNetwork(network, exportDataSource1, baseName);
         exportNetwork(network, exportDataSource2, baseName);
-        compareFiles("export1", "export2");
+        assertTrue(compareFiles("export1", "export2"));
     }
 
-    private void compareFiles(String export1, String export2) throws IOException {
+    private boolean compareFiles(String export1, String export2) throws IOException {
         List<Path> files;
         try (Stream<Path> walk = Files.walk(tmpDir.resolve(export1))) {
             files = walk.filter(Files::isRegularFile)
@@ -340,10 +341,11 @@ class CgmesMappingTest extends AbstractConverterTest {
                 ExportXmlCompare::ignoringSVIds,
                 ExportXmlCompare::ignoringLoadAreaIds,
                 ExportXmlCompare::ignoringEnergyAreaIdOfControlArea);
+        boolean ok = true;
         for (Path file : files) {
-            ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs);
+            ok = ok && ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs);
         }
-
+        return ok;
     }
 
     private void exportNetwork(Network network, DataSource exportDataSource, String baseName) {
