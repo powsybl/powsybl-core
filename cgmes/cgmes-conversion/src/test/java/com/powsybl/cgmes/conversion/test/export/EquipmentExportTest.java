@@ -24,9 +24,16 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerWithUnsortedEndsNodeBreakerNetworkFactory;
+import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.network.util.TwtData;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluators;
 
@@ -37,7 +44,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -157,12 +167,102 @@ class EquipmentExportTest extends AbstractConverterTest {
     void nordic32() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+
         exportToCgmesEQ(network);
         exportToCgmesTP(network);
 
         // Import EQ & TP file, no additional information (boundaries) are required
         Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
+
+        // Before comparing, interchange ends in unsorted twoWindingsTransformers
+        List<Pair<String, TwtRecord>> pairs = new ArrayList<>();
+        network.getTwoWindingsTransformerStream().filter(twt -> twt
+            .getTerminal1().getVoltageLevel().getNominalV() < twt.getTerminal2().getVoltageLevel().getNominalV())
+            .forEach(twt -> {
+                TwtRecord twtRecord = obtainRecord(twt);
+                pairs.add(Pair.of(twt.getId(), twtRecord));
+            });
+
+        pairs.forEach(pair -> {
+            TwoWindingsTransformer twt = network.getTwoWindingsTransformer(pair.getLeft());
+            twt.remove();
+            TwoWindingsTransformer newTwt = pair.getRight().getAdder().add();
+            Optional<CurrentLimits> currentLimits1 = pair.getRight().getCurrentLimits1();
+            if (currentLimits1.isPresent()) {
+                newTwt.newCurrentLimits1().setPermanentLimit(currentLimits1.get().getPermanentLimit()).add();
+            }
+            Optional<CurrentLimits> currentLimits2 = pair.getRight().getCurrentLimits2();
+            if (currentLimits2.isPresent()) {
+                newTwt.newCurrentLimits2().setPermanentLimit(currentLimits2.get().getPermanentLimit()).add();
+            }
+            pair.getRight().getAliases().forEach(aliasPair -> {
+                if (aliasPair.getLeft() == null) {
+                    newTwt.addAlias(aliasPair.getRight());
+                } else {
+                    newTwt.addAlias(aliasPair.getRight(), aliasPair.getLeft());
+                }
+            });
+        });
+
         compareNetworksEQdata(network, actual);
+    }
+
+    private TwtRecord obtainRecord(TwoWindingsTransformer twt) {
+        Substation substation = twt.getSubstation().orElseThrow();
+        double a0 = twt.getRatedU1() / twt.getRatedU2();
+        double a02 = a0 * a0;
+        TwoWindingsTransformerAdder adder = substation.newTwoWindingsTransformer()
+            .setId(twt.getId())
+            .setName(twt.getNameOrId())
+            .setBus1(twt.getTerminal2().getBusBreakerView().getBus().getId())
+            .setBus2(twt.getTerminal1().getBusBreakerView().getBus().getId())
+            .setR(twt.getR() * a02)
+            .setX(twt.getX() * a02)
+            .setG(twt.getG() / a02)
+            .setB(twt.getB() / a02)
+            .setRatedU1(twt.getRatedU2())
+            .setRatedU2(twt.getRatedU1());
+
+        CurrentLimits currentLimits1 = twt.getCurrentLimits1().orElse(null);
+        CurrentLimits currentLimits2 = twt.getCurrentLimits2().orElse(null);
+
+        List<Pair<String, String>> aliases = new ArrayList<>();
+        twt.getAliases().forEach(alias -> {
+            String type = twt.getAliasType(alias).orElse(null);
+            aliases.add(Pair.of(type, alias));
+        });
+        return new TwtRecord(adder, currentLimits2, currentLimits1, aliases);
+    }
+
+    private static final class TwtRecord {
+        private final TwoWindingsTransformerAdder adder;
+        private final CurrentLimits currentLimits1;
+        private final CurrentLimits currentLimits2;
+        private final List<Pair<String, String>> aliases;
+
+        private TwtRecord(TwoWindingsTransformerAdder adder, CurrentLimits currentLimits1, CurrentLimits currentLimits2,
+            List<Pair<String, String>> aliases) {
+            this.adder = adder;
+            this.currentLimits1 = currentLimits1;
+            this.currentLimits2 = currentLimits2;
+            this.aliases = aliases;
+        }
+
+        private TwoWindingsTransformerAdder getAdder() {
+            return adder;
+        }
+
+        private Optional<CurrentLimits> getCurrentLimits1() {
+            return Optional.ofNullable(currentLimits1);
+        }
+
+        private Optional<CurrentLimits> getCurrentLimits2() {
+            return Optional.ofNullable(currentLimits2);
+        }
+
+        private List<Pair<String, String>> getAliases() {
+            return aliases;
+        }
     }
 
     @Test
@@ -223,6 +323,150 @@ class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
+    void twoWindingsTransformerCgmesExportTest() throws IOException, XMLStreamException {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        assertEquals(225.0, twt.getTerminal1().getVoltageLevel().getNominalV(), 0.0);
+        assertEquals(400.0, twt.getTerminal2().getVoltageLevel().getNominalV(), 0.0);
+
+        // Change the tap position to have a ratio != 1.0
+        // Models are only equivalent if G and B are zero
+        twt.setB(0.0);
+        twt.getRatioTapChanger().setTapPosition(0);
+
+        // Voltage at both ends of the transformer
+        Bus bus400 = twt.getTerminal2().getBusView().getBus();
+        bus400.setV(400.0).setAngle(0.0);
+        Bus bus225 = twt.getTerminal1().getBusView().getBus();
+        bus225.setV(264.38396259257394).setAngle(2.4025237265837864);
+
+        BranchData twtData = new BranchData(twt, 0.0, false, false);
+
+        // Export network as cgmes files and re-import again,
+        // the ends of the transformer must be sorted
+        // to have the high nominal voltage at end1
+        Network networkSorted = exportImportNodeBreakerNoBoundaries(network);
+
+        TwoWindingsTransformer twtSorted = networkSorted.getTwoWindingsTransformer("TWT");
+        assertEquals(400.0, twtSorted.getTerminal1().getVoltageLevel().getNominalV(), 0.0);
+        assertEquals(225.0, twtSorted.getTerminal2().getVoltageLevel().getNominalV(), 0.0);
+
+        // Voltage at both ends of the transformer
+        Bus busS400 = twtSorted.getTerminal1().getBusView().getBus();
+        busS400.setV(400.0).setAngle(0.0);
+        Bus busS225 = twtSorted.getTerminal2().getBusView().getBus();
+        busS225.setV(264.38396259257394).setAngle(2.4025237265837864);
+
+        BranchData twtDataSorted = new BranchData(twtSorted, 0.0, false, false);
+
+        double tol = 0.0000001;
+        assertEquals(twtData.getComputedP1(), twtDataSorted.getComputedP2(), tol);
+        assertEquals(twtData.getComputedQ1(), twtDataSorted.getComputedQ2(), tol);
+        assertEquals(twtData.getComputedP2(), twtDataSorted.getComputedP1(), tol);
+        assertEquals(twtData.getComputedQ2(), twtDataSorted.getComputedQ1(), tol);
+    }
+
+    @Test
+    void twoWindingsTransformerWithShuntAdmittanceCgmesExportTest() throws IOException, XMLStreamException {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("TWT");
+        assertEquals(225.0, twt.getTerminal1().getVoltageLevel().getNominalV(), 0.0);
+        assertEquals(400.0, twt.getTerminal2().getVoltageLevel().getNominalV(), 0.0);
+
+        // Change the tap position to have a ratio != 1.0
+        twt.getRatioTapChanger().setTapPosition(0);
+
+        // Voltage at both ends of the transformer
+        Bus bus400 = twt.getTerminal2().getBusView().getBus();
+        bus400.setV(400.0).setAngle(0.0);
+        Bus bus225 = twt.getTerminal1().getBusView().getBus();
+        bus225.setV(264.38396259257394).setAngle(2.4025237265837864);
+
+        BranchData twtData = new BranchData(twt, 0.0, false, false);
+
+        // Export network as cgmes files and re-import again,
+        // the ends of the transformer must be sorted
+        // to have the high nominal voltage at end1
+        Network networkSorted = exportImportNodeBreakerNoBoundaries(network);
+
+        TwoWindingsTransformer twtSorted = networkSorted.getTwoWindingsTransformer("TWT");
+        assertEquals(400.0, twtSorted.getTerminal1().getVoltageLevel().getNominalV(), 0.0);
+        assertEquals(225.0, twtSorted.getTerminal2().getVoltageLevel().getNominalV(), 0.0);
+
+        // Voltage at both ends of the transformer
+        Bus busS400 = twtSorted.getTerminal1().getBusView().getBus();
+        busS400.setV(400.0).setAngle(0.0);
+        Bus busS225 = twtSorted.getTerminal2().getBusView().getBus();
+        busS225.setV(264.38396259257394).setAngle(2.4025237265837864);
+
+        BranchData twtDataSorted = new BranchData(twtSorted, 0.0, false, false);
+
+        // Models are only equivalent if G and B are zero
+        double tol = 0.0000001;
+        assertEquals(twtData.getComputedP1(), twtDataSorted.getComputedP2(), tol);
+        assertEquals(-12.553777142703378, twtData.getComputedQ1(), tol);
+        assertEquals(-7.446222857261597, twtDataSorted.getComputedQ2(), tol);
+        assertEquals(twtData.getComputedP2(), twtDataSorted.getComputedP1(), tol);
+        assertEquals(7.871048170667905, twtData.getComputedQ2(), tol);
+        assertEquals(2.751048170611625, twtDataSorted.getComputedQ1(), tol);
+    }
+
+    @Test
+    void threeWindingsTransformerCgmesExportTest() throws IOException, XMLStreamException {
+        Network network = ThreeWindingsTransformerWithUnsortedEndsNodeBreakerNetworkFactory.create();
+
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+        assertEquals(11.0, twt.getLeg1().getTerminal().getVoltageLevel().getNominalV(), 0.0);
+        assertEquals(132.0, twt.getLeg2().getTerminal().getVoltageLevel().getNominalV(), 0.0);
+        assertEquals(33.0, twt.getLeg3().getTerminal().getVoltageLevel().getNominalV(), 0.0);
+
+        // Set the voltage at each end for calculating flows and voltage at the star bus
+
+        Bus bus132 = twt.getLeg2().getTerminal().getBusView().getBus();
+        bus132.setV(135.0).setAngle(0.0);
+        Bus bus33 = twt.getLeg3().getTerminal().getBusView().getBus();
+        bus33.setV(28.884977348881097).setAngle(-0.7602433704291399);
+        Bus bus11 = twt.getLeg1().getTerminal().getBusView().getBus();
+        bus11.setV(11.777636198340568).setAngle(-0.78975650100671);
+
+        TwtData twtData = new TwtData(twt, 0.0, false);
+
+        // Export network as cgmes files and re-import again,
+        // the ends of the transformer must be sorted
+        // in concordance with nominal voltage
+        Network networkSorted = exportImportNodeBreakerNoBoundaries(network);
+
+        ThreeWindingsTransformer twtSorted = networkSorted.getThreeWindingsTransformer("3WT");
+        assertEquals(132.0, twtSorted.getLeg1().getTerminal().getVoltageLevel().getNominalV(), 0.0);
+        assertEquals(33.0, twtSorted.getLeg2().getTerminal().getVoltageLevel().getNominalV(), 0.0);
+        assertEquals(11.0, twtSorted.getLeg3().getTerminal().getVoltageLevel().getNominalV(), 0.0);
+
+        // Set the voltage at each end for calculating flows and voltage at the star bus
+
+        Bus busS132 = twtSorted.getLeg1().getTerminal().getBusView().getBus();
+        busS132.setV(135.0).setAngle(0.0);
+        Bus busS33 = twtSorted.getLeg2().getTerminal().getBusView().getBus();
+        busS33.setV(28.884977348881097).setAngle(-0.7602433704291399);
+        Bus busS11 = twtSorted.getLeg3().getTerminal().getBusView().getBus();
+        busS11.setV(11.777636198340568).setAngle(-0.78975650100671);
+
+        TwtData twtDataSorted = new TwtData(twtSorted, 0.0, false);
+
+        // star bus voltage must be checked in per unit as it depends on the ratedU0 (vnominal0 = ratedU0)
+        double tol = 0.0000001;
+        assertEquals(twtData.getStarU() / twt.getRatedU0(), twtDataSorted.getStarU() / twtDataSorted.getRatedU0(), tol);
+        assertEquals(twtData.getStarTheta(), twtDataSorted.getStarTheta(), tol);
+        assertEquals(twtData.getComputedP(Side.ONE), twtDataSorted.getComputedP(Side.THREE), tol);
+        assertEquals(twtData.getComputedQ(Side.ONE), twtDataSorted.getComputedQ(Side.THREE), tol);
+        assertEquals(twtData.getComputedP(Side.TWO), twtDataSorted.getComputedP(Side.ONE), tol);
+        assertEquals(twtData.getComputedQ(Side.TWO), twtDataSorted.getComputedQ(Side.ONE), tol);
+        assertEquals(twtData.getComputedP(Side.THREE), twtDataSorted.getComputedP(Side.TWO), tol);
+        assertEquals(twtData.getComputedQ(Side.THREE), twtDataSorted.getComputedQ(Side.TWO), tol);
+    }
+
+    @Test
     void testLoadGroups() throws XMLStreamException, IOException {
         ReadOnlyDataSource dataSource = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
@@ -240,6 +484,10 @@ class EquipmentExportTest extends AbstractConverterTest {
 
     private Network exportImportBusBranchNoBoundaries(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
         return exportImport(expected, dataSource, true, false);
+    }
+
+    private Network exportImportNodeBreakerNoBoundaries(Network expected) throws IOException, XMLStreamException {
+        return exportImport(expected, null, false, false);
     }
 
     private Network createThreeWindingTransformerNetwork() {

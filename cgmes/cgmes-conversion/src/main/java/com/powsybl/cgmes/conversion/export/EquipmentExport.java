@@ -16,6 +16,8 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -454,20 +456,17 @@ public final class EquipmentExport {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(), twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), cimNamespace, writer, context);
             String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 1);
-            // structural ratio at end1
-            double a0 = twt.getRatedU1() / twt.getRatedU2();
-            // move structural ratio from end1 to end2
-            double a02 = a0 * a0;
-            double r = twt.getR() * a02;
-            double x = twt.getX() * a02;
-            double g = twt.getG() / a02;
-            double b = twt.getB() / a02;
+
+            // high nominal voltage always at end1
+            EndNumber2 en2 = new EndNumber2(twt);
+            PowerTransformerEndParameters p = new PowerTransformerEndParameters(twt, en2.getEndNumberEnd1());
+
             BaseVoltageMapping.BaseVoltageSource baseVoltage1 = context.getBaseVoltageByNominalVoltage(twt.getTerminal1().getVoltageLevel().getNominalV());
-            PowerTransformerEq.writeEnd(end1Id, twt.getNameOrId() + "_1", context.getNamingStrategy().getCgmesId(twt), 1, r, x, g, b,
+            PowerTransformerEq.writeEnd(end1Id, twt.getNameOrId() + "_1", context.getNamingStrategy().getCgmesId(twt), en2.getEndNumberEnd1(), p.getEnd1R(), p.getEnd1X(), p.getEnd1G(), p.getEnd1B(),
                     twt.getRatedS(), twt.getRatedU1(), exportedTerminalId(mapTerminal2Id, twt.getTerminal1()), baseVoltage1.getId(), cimNamespace, writer, context);
             String end2Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 2);
             BaseVoltageMapping.BaseVoltageSource baseVoltage2 = context.getBaseVoltageByNominalVoltage(twt.getTerminal2().getVoltageLevel().getNominalV());
-            PowerTransformerEq.writeEnd(end2Id, twt.getNameOrId() + "_2", context.getNamingStrategy().getCgmesId(twt), 2, 0.0, 0.0, 0.0, 0.0,
+            PowerTransformerEq.writeEnd(end2Id, twt.getNameOrId() + "_2", context.getNamingStrategy().getCgmesId(twt), en2.getEndNumberEnd2(), p.getEnd2R(), p.getEnd2X(), p.getEnd2G(), p.getEnd2B(),
                     twt.getRatedS(), twt.getRatedU2(), exportedTerminalId(mapTerminal2Id, twt.getTerminal2()), baseVoltage2.getId(), cimNamespace, writer, context);
 
             // Export tap changers:
@@ -512,17 +511,127 @@ public final class EquipmentExport {
                                                       String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(), twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), cimNamespace, writer, context);
-            double ratedU0 = twt.getLeg1().getRatedU();
+            double ratedU0 = twt.getRatedU0();
+
+            EndNumber3 en3 = new EndNumber3(twt);
+
             String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 1);
-            writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_1", end1Id, 1, twt.getLeg1(), ratedU0, exportedTerminalId(mapTerminal2Id, twt.getLeg1().getTerminal()), regulatingControlsWritten, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+            writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_1", end1Id, en3.getEndNumberLeg1(), 1, twt.getLeg1(), ratedU0, exportedTerminalId(mapTerminal2Id, twt.getLeg1().getTerminal()), regulatingControlsWritten, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
             String end2Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 2);
-            writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_2", end2Id, 2, twt.getLeg2(), ratedU0, exportedTerminalId(mapTerminal2Id, twt.getLeg2().getTerminal()), regulatingControlsWritten, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+            writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_2", end2Id, en3.getEndNumberLeg2(), 2, twt.getLeg2(), ratedU0, exportedTerminalId(mapTerminal2Id, twt.getLeg2().getTerminal()), regulatingControlsWritten, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
             String end3Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 3);
-            writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_3", end3Id, 3, twt.getLeg3(), ratedU0, exportedTerminalId(mapTerminal2Id, twt.getLeg3().getTerminal()), regulatingControlsWritten, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
+            writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_3", end3Id, en3.getEndNumberLeg3(), 3, twt.getLeg3(), ratedU0, exportedTerminalId(mapTerminal2Id, twt.getLeg3().getTerminal()), regulatingControlsWritten, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
         }
     }
 
-    private static void writeThreeWindingsTransformerEnd(ThreeWindingsTransformer twt, String twtId, String twtName, String endId, int endNumber, ThreeWindingsTransformer.Leg leg, double ratedU0, String terminalId, Set<String> regulatingControlsWritten, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static class EndNumber2 {
+
+        EndNumber2(TwoWindingsTransformer twt) {
+            this.twt = twt;
+            endNumbers = new ArrayList<>();
+            endNumbers.add(Pair.of(twt.getTerminal1().getVoltageLevel().getNominalV(), 1));
+            endNumbers.add(Pair.of(twt.getTerminal2().getVoltageLevel().getNominalV(), 2));
+            endNumbers.sort(endNumberComparator);
+        }
+
+        private int getEndNumberEnd1() {
+            return endNumbers.indexOf(Pair.of(twt.getTerminal1().getVoltageLevel().getNominalV(), 1)) + 1;
+        }
+
+        private int getEndNumberEnd2() {
+            return endNumbers.indexOf(Pair.of(twt.getTerminal2().getVoltageLevel().getNominalV(), 2)) + 1;
+        }
+
+        private final TwoWindingsTransformer twt;
+        private final List<Pair<Double, Integer>> endNumbers;
+    }
+
+    private static class EndNumber3 {
+
+        EndNumber3(ThreeWindingsTransformer twt) {
+            this.twt = twt;
+            endNumbers = new ArrayList<>();
+            endNumbers.add(Pair.of(twt.getLeg1().getTerminal().getVoltageLevel().getNominalV(), 1));
+            endNumbers.add(Pair.of(twt.getLeg2().getTerminal().getVoltageLevel().getNominalV(), 2));
+            endNumbers.add(Pair.of(twt.getLeg3().getTerminal().getVoltageLevel().getNominalV(), 3));
+
+            endNumbers.sort(endNumberComparator);
+        }
+
+        private int getEndNumberLeg1() {
+            return endNumbers.indexOf(Pair.of(twt.getLeg1().getTerminal().getVoltageLevel().getNominalV(), 1)) + 1;
+        }
+
+        private int getEndNumberLeg2() {
+            return endNumbers.indexOf(Pair.of(twt.getLeg2().getTerminal().getVoltageLevel().getNominalV(), 2)) + 1;
+        }
+
+        private int getEndNumberLeg3() {
+            return endNumbers.indexOf(Pair.of(twt.getLeg3().getTerminal().getVoltageLevel().getNominalV(), 3)) + 1;
+        }
+
+        private final ThreeWindingsTransformer twt;
+        private final List<Pair<Double, Integer>> endNumbers;
+    }
+
+    private static Comparator<Pair<Double, Integer>> endNumberComparator = (Pair<Double, Integer> o1,
+        Pair<Double, Integer> o2) -> {
+        if (o1.getLeft() > o2.getLeft()) {
+            return -1;
+        } else if (o1.getLeft().equals(o2.getLeft())) {
+            return Integer.compare(o1.getRight(), o2.getRight());
+        } else {
+            return 1;
+        }
+    };
+
+    private static final class PowerTransformerEndParameters {
+
+        private PowerTransformerEndParameters(TwoWindingsTransformer twt, int endNumberEnd1) {
+            this.twt = twt;
+            this.endNumberEnd1 = endNumberEnd1;
+            double a0 = twt.getRatedU1() / twt.getRatedU2();
+            a02 = a0 * a0;
+        }
+
+        private double getEnd1R() {
+            return endNumberEnd1 == 1 ? twt.getR() * a02 : 0;
+        }
+
+        private double getEnd1X() {
+            return endNumberEnd1 == 1 ? twt.getX() * a02 : 0;
+        }
+
+        private double getEnd1G() {
+            return endNumberEnd1 == 1 ? twt.getG() / a02 : 0;
+        }
+
+        private double getEnd1B() {
+            return endNumberEnd1 == 1 ? twt.getB() / a02 : 0;
+        }
+
+        private double getEnd2R() {
+            return endNumberEnd1 == 1 ? 0 : twt.getR();
+        }
+
+        private double getEnd2X() {
+            return endNumberEnd1 == 1 ? 0 : twt.getX();
+        }
+
+        private double getEnd2G() {
+            return endNumberEnd1 == 1 ? 0 : twt.getG();
+        }
+
+        private double getEnd2B() {
+            return endNumberEnd1 == 1 ? 0 : twt.getB();
+        }
+
+        private final int endNumberEnd1;
+        private final TwoWindingsTransformer twt;
+        private final double a02;
+    }
+
+    private static void writeThreeWindingsTransformerEnd(ThreeWindingsTransformer twt, String twtId, String twtName, String endId, int endNumber, int legNumber, ThreeWindingsTransformer.Leg leg, double ratedU0, String terminalId, Set<String> regulatingControlsWritten, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // structural ratio at end1
         double a0 = leg.getRatedU() / ratedU0;
         // move structural ratio from end1 to end2
@@ -533,8 +642,8 @@ public final class EquipmentExport {
         double b = leg.getB() / a02;
         BaseVoltageMapping.BaseVoltageSource baseVoltage = context.getBaseVoltageByNominalVoltage(leg.getTerminal().getVoltageLevel().getNominalV());
         PowerTransformerEq.writeEnd(endId, twtName, twtId, endNumber, r, x, g, b, leg.getRatedS(), leg.getRatedU(), terminalId, baseVoltage.getId(), cimNamespace, writer, context);
-        writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, endNumber, endId, leg.getRatedU(), regulatingControlsWritten, cimNamespace, writer, context);
-        writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, endNumber, endId, leg.getRatedU(), regulatingControlsWritten, cimNamespace, writer, context);
+        writePhaseTapChanger(twt, leg.getPhaseTapChanger(), twtName, legNumber, endId, leg.getRatedU(), regulatingControlsWritten, cimNamespace, writer, context);
+        writeRatioTapChanger(twt, leg.getRatioTapChanger(), twtName, legNumber, endId, leg.getRatedU(), regulatingControlsWritten, cimNamespace, writer, context);
         writeFlowsLimits(leg, terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
     }
 
