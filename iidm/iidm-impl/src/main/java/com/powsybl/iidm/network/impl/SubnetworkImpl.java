@@ -707,7 +707,7 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public boolean isBoundaryElements(Identifiable<?> identifiable) {
+    public boolean isBoundaryElement(Identifiable<?> identifiable) {
         //TODO subnetworks API
         throw new UnsupportedOperationException("Not yet implemented");
     }

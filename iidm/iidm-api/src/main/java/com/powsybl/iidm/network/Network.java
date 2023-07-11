@@ -1274,7 +1274,7 @@ public interface Network extends Container<Network> {
      * @param identifiable the identifiable to check
      * @return True if the identifiable is a boundary for the current network
      */
-    boolean isBoundaryElements(Identifiable<?> identifiable);
+    boolean isBoundaryElement(Identifiable<?> identifiable);
 
     void addListener(NetworkListener listener);
 

@@ -1085,7 +1085,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
      * @return false
      */
     @Override
-    public boolean isBoundaryElements(Identifiable<?> identifiable) {
+    public boolean isBoundaryElement(Identifiable<?> identifiable) {
         return false;
     }
 
