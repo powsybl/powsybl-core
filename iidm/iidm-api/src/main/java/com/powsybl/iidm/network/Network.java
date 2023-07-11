@@ -1243,26 +1243,25 @@ public interface Network extends Container<Network> {
 
     /**
      * <p>Detach the current network (including its subnetworks) from its parent network.</p>
-     * <p>Please note that this operation is "destructive": after it the current network's content
+     * <p>Note that this operation is destructive: after it the current network's content
      * couldn't be accessed from the parent networks anymore.</p>
-     * <p>The elements linking this network to a substation outside of it will be split if possible.</br>
-     * A {@link PowsyblException} will be thrown if some un-splittable links are detected. This detection is processed
-     * before any network modification. So if an un-splittable link is detected when calling this method,
-     * no networks were impacted by the operation.</p>
+     * <p>The boundary elements, i.e. linking this network to a substation outside of it will be split if possible.</br>
+     * A {@link PowsyblException} will be thrown if some un-splittable boundary elements are detected. This detection is processed
+     * before any network modification. So if an un-splittable boundary element is detected, no destructive operation will be done.</p>
      *
      * @return a fully-independent network corresponding to the current network and its subnetworks.
      */
     Network detach();
 
     /**
-     * <p>Check if the current Network can be detached from its parent network (with {@link #detach()}).</p>
+     * <p>Check if the current network can be detached from its parent network (with {@link #detach()}).</p>
      *
      * @return True if the network can be detached from its parent network.
      */
     boolean isDetachable();
 
     /**
-     * Return all the boundary elements of the current network, i.e. the elements linking the network to a substation outside of it.
+     * Return all the boundary elements of the current network, i.e. the elements linking this network and a substation outside of it.
      *
      * @return a set containing the boundary elements of the network.
      */

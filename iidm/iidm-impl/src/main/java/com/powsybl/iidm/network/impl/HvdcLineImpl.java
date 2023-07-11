@@ -79,6 +79,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public Network getParentNetwork() {
+        // the parent network is the network that contains both terminals of converter stations.
         Network subnetwork1 = converterStation1.getParentNetwork();
         Network subnetwork2 = converterStation2.getParentNetwork();
         if (subnetwork1 == subnetwork2) {

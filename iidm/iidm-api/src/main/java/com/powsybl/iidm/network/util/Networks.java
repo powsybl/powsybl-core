@@ -426,7 +426,7 @@ public final class Networks {
     }
 
     /**
-     * Check if the identifiable is <b>directly</b> in the network.<br/>
+     * Check if an identifiable is <b>directly</b> in the network.<br/>
      * If the identifiable is in a subnetwork of the network, this method will return <code>false</code>.
      *
      * @param network a network
