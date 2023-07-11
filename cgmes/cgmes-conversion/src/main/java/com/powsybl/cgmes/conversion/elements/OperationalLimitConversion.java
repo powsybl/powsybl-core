@@ -206,6 +206,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 convertPatl(value);
             } else if (isTatl()) { // Temporary Admissible Transmission Loading
                 convertTatl(value);
+            } else if (isTc()) { // Tripping Current
+                convertTc(value);
             }
         }
     }
@@ -328,6 +330,30 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         } else {
             context.invalid(TEMPORARY_LIMIT, () -> String.format("TATL %s does not have a valid direction", id));
         }
+    }
+
+    private boolean isTc() {
+        String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
+        String limitType = p.getLocal(LIMIT_TYPE);
+        return limitTypeName.equals("TC") || "LimitTypeKind.tc".equals(limitType) || "LimitKind.tc".equals(limitType);
+    }
+
+    private void convertTc(double value) {
+        if (loadingLimitsAdder != null) {
+            addTc(value, loadingLimitsAdder);
+        } else {
+            if (loadingLimitsAdder1 != null) {
+                addTc(value, loadingLimitsAdder1);
+            }
+            if (loadingLimitsAdder2 != null) {
+                addTc(value, loadingLimitsAdder2);
+            }
+        }
+    }
+
+    private void addTc(double value, LoadingLimitsAdder<?, ?> adder) {
+        String name = Optional.ofNullable(p.getId("shortName")).orElse(p.getId("name"));
+        addTatl(name, value, 0, adder);
     }
 
     private void notAssigned() {
