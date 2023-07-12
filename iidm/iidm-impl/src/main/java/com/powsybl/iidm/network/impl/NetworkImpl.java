@@ -166,6 +166,10 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return refByNetworkId.get(id);
     }
 
+    RefChain<NetworkImpl> getRef(String subnetworkId) {
+        return refByNetworkId.get(subnetworkId);
+    }
+
     RefChain<NetworkImpl> removeRef(String networkId) {
         return refByNetworkId.remove(networkId);
     }
@@ -374,7 +378,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     TwoWindingsTransformerAdderImpl newTwoWindingsTransformer(String subnetwork) {
-        return new TwoWindingsTransformerAdderImpl(Optional.ofNullable(subnetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subnetwork);
+        return new TwoWindingsTransformerAdderImpl(this, subnetwork);
     }
 
     @Override
@@ -403,7 +407,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer(String subnetwork) {
-        return new ThreeWindingsTransformerAdderImpl(Optional.ofNullable(subnetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subnetwork);
+        return new ThreeWindingsTransformerAdderImpl(this, subnetwork);
     }
 
     @Override
@@ -684,7 +688,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     HvdcLineAdder newHvdcLine(String subnetwork) {
-        return new HvdcLineAdderImpl(Optional.ofNullable(subnetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subnetwork);
+        return new HvdcLineAdderImpl(this, subnetwork);
     }
 
     @Override

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
     private String dl2Id;
 
     TieLineAdderImpl(NetworkImpl network, String subnetwork) {
-        this.network = network;
+        this.network = Objects.requireNonNull(network);
         this.subnetwork = subnetwork;
     }
 
@@ -74,7 +75,8 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
                     subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
         }
 
-        TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious());
+        Ref<NetworkImpl> networkRef = computeNetworkRef(network, voltageLevel1, voltageLevel2);
+        TieLineImpl line = new TieLineImpl(networkRef, id, getName(), isFictitious());
 
         line.attachDanglingLines(dl1, dl2);
 

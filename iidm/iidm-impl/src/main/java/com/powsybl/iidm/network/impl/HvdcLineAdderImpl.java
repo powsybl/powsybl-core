@@ -22,7 +22,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
     private static final Logger LOG = LoggerFactory.getLogger(HvdcLineAdderImpl.class);
 
-    private final Ref<NetworkImpl> networkRef;
+    private final NetworkImpl network;
     private final String subnetwork;
 
     private double r = Double.NaN;
@@ -39,14 +39,14 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
     private String converterStationId2;
 
-    public HvdcLineAdderImpl(Ref<NetworkImpl> networkRef, String subnetwork) {
-        this.networkRef = Objects.requireNonNull(networkRef);
+    public HvdcLineAdderImpl(NetworkImpl network, String subnetwork) {
+        this.network = Objects.requireNonNull(network);
         this.subnetwork = subnetwork;
     }
 
     @Override
     protected NetworkImpl getNetwork() {
-        return networkRef.get();
+        return network;
     }
 
     @Override
@@ -123,6 +123,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
             throw new ValidationException(this, "HVDC Line '" + id + "' is not contained in sub-network '" +
                     subnetwork + "'. Create this HVDC line from the parent network '" + getNetwork().getId() + "'");
         }
+        Ref<NetworkImpl> networkRef = computeNetworkRef(network, vl1, vl2);
         HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, isFictitious(), r, nominalV, maxP, convertersMode, activePowerSetpoint,
                                                  converterStation1, converterStation2, networkRef);
         network.getIndex().checkAndAdd(hvdcLine);

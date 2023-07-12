@@ -187,7 +187,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
     }
 
-    private final Ref<NetworkImpl> networkRef;
+    private final NetworkImpl network;
     private final SubstationImpl substation;
     private final String subnetwork;
 
@@ -200,24 +200,23 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     private double ratedU0 = Double.NaN;
 
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
-        networkRef = null;
+        network = null;
         this.substation = substation;
         subnetwork = substation.getSubnetwork();
     }
 
-    ThreeWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef, String subnetwork) {
-        this.networkRef = networkRef;
-        substation = null;
-        this.subnetwork = subnetwork;
-    }
-
     @Override
     protected NetworkImpl getNetwork() {
-        return Optional.ofNullable(networkRef)
-                .map(Ref::get)
+        return Optional.ofNullable(network)
                 .orElseGet(() -> Optional.ofNullable(substation)
                         .map(SubstationImpl::getNetwork)
                         .orElseThrow(() -> new PowsyblException("Three windings transformer has no container")));
+    }
+
+    ThreeWindingsTransformerAdderImpl(NetworkImpl network, String subnetwork) {
+        this.network = network;
+        substation = null;
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -317,7 +316,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
-        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation != null ? substation.getNetwork().getRef() : networkRef, id, getName(), isFictitious(), leg1, leg2, leg3,
+        NetworkImpl n = substation != null ? substation.getNetwork() : network;
+        Ref<NetworkImpl> networkRef = computeNetworkRef(n, voltageLevel1, voltageLevel2, voltageLevel3);
+
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(networkRef, id, getName(), isFictitious(), leg1, leg2, leg3,
             ratedU0);
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);

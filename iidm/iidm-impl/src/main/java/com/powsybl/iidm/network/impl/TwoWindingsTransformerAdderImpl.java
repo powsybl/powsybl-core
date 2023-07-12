@@ -21,7 +21,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private static final Logger LOG = LoggerFactory.getLogger(TwoWindingsTransformerAdderImpl.class);
 
-    private final Ref<NetworkImpl> networkRef;
+    private final NetworkImpl network;
     private final SubstationImpl substation;
     private final String subnetwork;
 
@@ -40,21 +40,20 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     private double ratedS = Double.NaN;
 
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
-        networkRef = null;
+        network = null;
         this.substation = substation;
         this.subnetwork = substation.getSubnetwork();
     }
 
-    TwoWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef, String subnetwork) {
-        this.networkRef = networkRef;
+    TwoWindingsTransformerAdderImpl(NetworkImpl network, String subnetwork) {
+        this.network = network;
         substation = null;
         this.subnetwork = subnetwork;
     }
 
     @Override
     protected NetworkImpl getNetwork() {
-        return Optional.ofNullable(networkRef)
-                .map(Ref::get)
+        return Optional.ofNullable(network)
                 .orElseGet(() -> Optional.ofNullable(substation)
                         .map(SubstationImpl::getNetwork)
                         .orElseThrow(() -> new PowsyblException("Two windings transformer has no container")));
@@ -150,8 +149,10 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         ValidationUtil.checkRatedU2(this, ratedU2);
         ValidationUtil.checkRatedS(this, ratedS);
 
+        NetworkImpl n = substation != null ? substation.getNetwork() : network;
+        Ref<NetworkImpl> networkRef = computeNetworkRef(n, voltageLevel1, voltageLevel2);
         TwoWindingsTransformerImpl transformer
-                = new TwoWindingsTransformerImpl(substation != null ? substation.getNetwork().getRef() : networkRef, id, getName(), isFictitious(),
+                = new TwoWindingsTransformerImpl(networkRef, id, getName(), isFictitious(),
                 (SubstationImpl) voltageLevel1.getSubstation().orElse(null),
                 r, x, g, b,
                 ratedU1, ratedU2, ratedS);
