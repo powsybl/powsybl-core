@@ -125,6 +125,29 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
+    public void detachWithALineBetweenShouldFail() {
+        addCommonSubstationsAndVoltageLevels();
+        merge = Network.create(MERGE, n1, n2);
+        merge.newLine()
+                .setId("line1")
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("b1")
+                .setBus2("b2")
+                .setR(1)
+                .setX(1)
+                .setG1(0)
+                .setB1(0)
+                .setG2(0)
+                .setB2(0)
+                .add();
+        Network subnetwork1 = merge.getSubnetwork(N1);
+        assertFalse(subnetwork1.isDetachable());
+        PowsyblException e = assertThrows(PowsyblException.class, subnetwork1::detach);
+        assertTrue(e.getMessage().contains("Some un-splittable equipments prevent the subnetwork to be detached"));
+    }
+
+    @Test
     public void testMerge3Networks() {
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");

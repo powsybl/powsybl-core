@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -765,32 +766,31 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
-        return getIdentifiableStream()
-                .flatMap(this::withPairingElements)
+        return getPotentialBoundaryElements()
                 .filter(this::isBoundaryElement)
                 .collect(Collectors.toSet());
     }
 
     /**
-     * <p>Return a Stream containing the given identifiable and its pairing element if it exists.</p>
-     * <p>Pairing elements are the tie-line associated to a dangling-line or the HVDC line associated to an HVDC converter station.</p>
+     * Return all the potential boundary elements: elements defined in the current subnetwork or in the parent network
+     * and which type corresponds to a "linking" element (branch, transformer, ...).
      *
-     * @param identifiable an identifiable
-     * @return a stream containing <code>identifiable</code> and its pairing element if it exists.
+     * @return a {@link Stream} of the potential boundary elements
      */
-    private Stream<Identifiable<?>> withPairingElements(Identifiable<?> identifiable) {
-        if (identifiable.getType() == IdentifiableType.DANGLING_LINE) {
-            Optional<TieLine> tieLine = ((DanglingLine) identifiable).getTieLine();
-            if (tieLine.isPresent()) {
-                return Stream.of(identifiable, tieLine.get());
-            }
-        } else if (identifiable.getType() == IdentifiableType.HVDC_CONVERTER_STATION) {
-            HvdcLine hvdcLine = ((HvdcConverterStation<?>) identifiable).getHvdcLine();
-            if (hvdcLine != null) {
-                return Stream.of(identifiable, hvdcLine);
-            }
-        }
-        return Stream.of(identifiable);
+    private Stream<Identifiable<?>> getPotentialBoundaryElements() {
+        Stream<Line> lines = parent.getLineStream();
+        Stream<TwoWindingsTransformer> twoWindingsTransformerStream = parent.getTwoWindingsTransformerStream();
+        Stream<ThreeWindingsTransformer> threeWindingsTransformerStream = parent.getThreeWindingsTransformerStream();
+        Stream<TieLine> tieLineStream = parent.getTieLineStream();
+        Stream<HvdcLine> hvdcLineStream = parent.getHvdcLineStream();
+
+        Stream<Identifiable<?>> elementsToCheck = Stream.of(lines, twoWindingsTransformerStream,
+                threeWindingsTransformerStream, tieLineStream, hvdcLineStream).flatMap(Function.identity());
+
+        return elementsToCheck.filter(i -> {
+            Network network = i.getParentNetwork();
+            return network == this || network == parent;
+        });
     }
 
     @Override
