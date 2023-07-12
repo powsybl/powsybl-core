@@ -753,7 +753,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         }
         if (boundaryElements.stream().anyMatch(Predicate.not(SubnetworkImpl::isSplittable))) {
             if (throwsException) {
-                throw new PowsyblException("Some un-splittable equipments prevent the subnetwork to be detached");
+                throw new PowsyblException("Some un-splittable boundary elements prevent the subnetwork to be detached");
             }
             return false;
         }
@@ -773,19 +773,16 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     /**
      * Return all the potential boundary elements: elements defined in the current subnetwork or in the parent network
-     * and which type corresponds to a "linking" element (branch, transformer, ...).
+     * and which type corresponds to an element "linking" multiple substations (line, tie-line or HVDC line).
      *
      * @return a {@link Stream} of the potential boundary elements
      */
     private Stream<Identifiable<?>> getPotentialBoundaryElements() {
         Stream<Line> lines = parent.getLineStream();
-        Stream<TwoWindingsTransformer> twoWindingsTransformerStream = parent.getTwoWindingsTransformerStream();
-        Stream<ThreeWindingsTransformer> threeWindingsTransformerStream = parent.getThreeWindingsTransformerStream();
         Stream<TieLine> tieLineStream = parent.getTieLineStream();
         Stream<HvdcLine> hvdcLineStream = parent.getHvdcLineStream();
 
-        Stream<Identifiable<?>> elementsToCheck = Stream.of(lines, twoWindingsTransformerStream,
-                threeWindingsTransformerStream, tieLineStream, hvdcLineStream).flatMap(Function.identity());
+        Stream<Identifiable<?>> elementsToCheck = Stream.of(lines, tieLineStream, hvdcLineStream).flatMap(Function.identity());
 
         return elementsToCheck.filter(i -> {
             Network network = i.getParentNetwork();
@@ -797,12 +794,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
         switch (identifiable.getType()) {
             case LINE:
-            case TWO_WINDINGS_TRANSFORMER:
             case TIE_LINE: {
                 return isBoundary((Branch<?>) identifiable);
-            }
-            case THREE_WINDINGS_TRANSFORMER: {
-                return isBoundary((ThreeWindingsTransformer) identifiable);
             }
             case HVDC_LINE: {
                 return isBoundary((HvdcLine) identifiable);
@@ -818,19 +811,6 @@ public class SubnetworkImpl extends AbstractNetwork {
         boolean containsVoltageLevel2 = contains(branch.getTerminal2().getVoltageLevel());
         return containsVoltageLevel1 && !containsVoltageLevel2 ||
                 !containsVoltageLevel1 && containsVoltageLevel2;
-    }
-
-    private boolean isBoundary(ThreeWindingsTransformer threeWindingsTransformer) {
-        boolean containsVoltageLevel1 = contains(threeWindingsTransformer.getLeg1().getTerminal().getVoltageLevel());
-        boolean containsVoltageLevel2 = contains(threeWindingsTransformer.getLeg2().getTerminal().getVoltageLevel());
-        boolean containsVoltageLevel3 = contains(threeWindingsTransformer.getLeg3().getTerminal().getVoltageLevel());
-        boolean containsOne = containsVoltageLevel1 ||
-                containsVoltageLevel2 ||
-                containsVoltageLevel3;
-        boolean containsAll = containsVoltageLevel1 &&
-                containsVoltageLevel2 &&
-                containsVoltageLevel3;
-        return containsOne && !containsAll;
     }
 
     private boolean isBoundary(HvdcLine hvdcLine) {

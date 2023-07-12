@@ -125,7 +125,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void detachWithALineBetweenShouldFail() {
+    public void failDetachWithALineBetween2Subnetworks() {
         addCommonSubstationsAndVoltageLevels();
         merge = Network.create(MERGE, n1, n2);
         merge.newLine()
@@ -144,7 +144,19 @@ public abstract class AbstractMergeNetworkTest {
         Network subnetwork1 = merge.getSubnetwork(N1);
         assertFalse(subnetwork1.isDetachable());
         PowsyblException e = assertThrows(PowsyblException.class, subnetwork1::detach);
-        assertTrue(e.getMessage().contains("Some un-splittable equipments prevent the subnetwork to be detached"));
+        assertTrue(e.getMessage().contains("Some un-splittable boundary elements prevent the subnetwork to be detached"));
+    }
+
+    @Test
+    public void failDetachIfMultiVariants() {
+        addCommonSubstationsAndVoltageLevels();
+        merge = Network.create(MERGE, n1, n2);
+        merge.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "Totest");
+
+        Network subnetwork1 = merge.getSubnetwork(N1);
+        assertFalse(subnetwork1.isDetachable());
+        PowsyblException e = assertThrows(PowsyblException.class, subnetwork1::detach);
+        assertTrue(e.getMessage().contains("Detaching from multi-variants network is not supported"));
     }
 
     @Test
