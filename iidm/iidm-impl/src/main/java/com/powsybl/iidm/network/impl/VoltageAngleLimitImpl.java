@@ -45,7 +45,7 @@ class VoltageAngleLimitImpl implements VoltageAngleLimit {
 
     @Override
     public TerminalRef.Side getConnectableSide(Terminal terminal) {
-        Connectable c = terminal.getConnectable();
+        Connectable<?> c = terminal.getConnectable();
         if (c instanceof Injection) {
             return TerminalRef.Side.ONE;
         } else if (c instanceof Branch) {
