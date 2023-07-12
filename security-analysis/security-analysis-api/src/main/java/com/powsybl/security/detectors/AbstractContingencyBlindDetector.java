@@ -9,13 +9,11 @@ package com.powsybl.security.detectors;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageAngleLimit;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetector;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -66,18 +64,14 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
      */
     @Override
     public void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
-        Optional<Terminal> terminalFrom = voltageAngleLimit.getTerminalFrom();
-        Optional<Terminal> terminalTo = voltageAngleLimit.getTerminalTo();
-        if (terminalFrom.isPresent() && terminalTo.isPresent()) {
-            Bus busFrom = terminalFrom.get().getBusView().getBus();
-            Bus busTo = terminalTo.get().getBusView().getBus();
-            if (busFrom != null && busTo != null
-                && busFrom.getConnectedComponent().equals(busTo.getConnectedComponent())) {
+        Bus busFrom = voltageAngleLimit.getTerminalFrom().getBusView().getBus();
+        Bus busTo = voltageAngleLimit.getTerminalTo().getBusView().getBus();
+        if (busFrom != null && busTo != null
+            && busFrom.getConnectedComponent().equals(busTo.getConnectedComponent())) {
 
-                double voltageAngleDifference = terminalFrom.get().getBusView().getBus().getAngle();
-                voltageAngleDifference -= terminalTo.get().getBusView().getBus().getAngle();
-                checkVoltageAngle(voltageAngleLimit, voltageAngleDifference, consumer);
-            }
+            double voltageAngleDifference = voltageAngleLimit.getTerminalFrom().getBusView().getBus().getAngle();
+            voltageAngleDifference -= voltageAngleLimit.getTerminalTo().getBusView().getBus().getAngle();
+            checkVoltageAngle(voltageAngleLimit, voltageAngleDifference, consumer);
         }
     }
 

@@ -68,14 +68,6 @@ final class TestingNetworkFactory {
         vl4.getBusBreakerView().newBus()
             .setId("BUS4")
             .add();
-        vl4.getBusBreakerView().newBus()
-            .setId("BUS4.1")
-            .add();
-        vl4.getBusBreakerView().newSwitch()
-            .setId("SW4-4.1")
-            .setBus1("BUS4")
-            .setBus2("BUS4.1")
-            .add();
 
         network.newLine()
             .setId("LINE1")

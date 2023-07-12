@@ -42,8 +42,8 @@ public final class VoltageAngleLimitXml {
             XmlUtil.writeDouble(LIMIT, voltageAngleLimit.getLimit(), context.getWriter());
             context.getWriter().writeAttribute(FLOW_DIRECTION, voltageAngleLimit.getFlowDirection().name());
 
-            writeTerminalRef(voltageAngleLimit.getFrom(), context, FROM);
-            writeTerminalRef(voltageAngleLimit.getTo(), context, TO);
+            writeTerminalRef(voltageAngleLimit.getTerminalFrom().getConnectable().getId(), voltageAngleLimit.getConnectableSide(voltageAngleLimit.getTerminalFrom()), context, FROM);
+            writeTerminalRef(voltageAngleLimit.getTerminalTo().getConnectable().getId(), voltageAngleLimit.getConnectableSide(voltageAngleLimit.getTerminalTo()), context, TO);
 
             context.getWriter().writeEndElement();
         });
@@ -78,10 +78,10 @@ public final class VoltageAngleLimitXml {
         });
     }
 
-    private static void writeTerminalRef(TerminalRef terminalRef, NetworkXmlWriterContext context, String ft) throws XMLStreamException {
+    private static void writeTerminalRef(String id, TerminalRef.Side side, NetworkXmlWriterContext context, String ft) throws XMLStreamException {
         context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), ft);
-        context.getWriter().writeAttribute(ID, terminalRef.getId());
-        context.getWriter().writeAttribute(SIDE, terminalRef.getSide().name());
+        context.getWriter().writeAttribute(ID, id);
+        context.getWriter().writeAttribute(SIDE, side.name());
     }
 
     private static TerminalRef readTerminalRef(NetworkXmlReaderContext context) {

@@ -7,8 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Optional;
-
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -30,35 +28,25 @@ public interface VoltageAngleLimit extends OperationalLimits {
      * Get the id
      */
     default String getId() {
-        return getFrom().getId();
+        return getTerminalFrom().getConnectable().getId();
     }
 
     /**
      * Get the side
      */
     default TerminalRef.Side getSide() {
-        return getFrom().getSide();
+        return getConnectableSide(getTerminalFrom());
     }
-
-    /**
-     * Get the TerminalRef from
-     */
-    TerminalRef getFrom();
 
     /**
      * Get the Terminal from
      */
-    Optional<Terminal> getTerminalFrom();
-
-    /**
-     * Get the TerminalRef to
-     */
-    TerminalRef getTo();
+    Terminal getTerminalFrom();
 
     /**
      * Get the Terminal to
      */
-    Optional<Terminal> getTerminalTo();
+    Terminal getTerminalTo();
 
     /**
      * Get the VoltageAngle limit value
@@ -69,4 +57,9 @@ public interface VoltageAngleLimit extends OperationalLimits {
      * Get the flow direction
      */
     FlowDirection getFlowDirection();
+
+    /**
+     * Get the terminal side
+     */
+    TerminalRef.Side getConnectableSide(Terminal terminal);
 }

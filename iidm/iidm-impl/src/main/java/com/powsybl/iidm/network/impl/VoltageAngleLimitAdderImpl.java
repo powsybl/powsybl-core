@@ -69,10 +69,8 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
             throw new IllegalStateException("Identifiable to not found: " + to.getId());
         }
         Terminal terminalFrom = getTerminal(identifiableFrom.get(), from.getSide());
-        Switch switchFrom = getSwitch(identifiableFrom.get());
         Terminal terminalTo = getTerminal(identifiableTo.get(), to.getSide());
-        Switch switchTo = getSwitch(identifiableTo.get());
-        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(from, to, terminalFrom, terminalTo, switchFrom, switchTo, limit, flowDirection);
+        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(terminalFrom, terminalTo, limit, flowDirection);
         networkRef.get().getVoltageAngleLimits().add(voltageAngleLimit);
         return voltageAngleLimit;
     }
@@ -81,19 +79,11 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
         return Optional.ofNullable(network.getIdentifiable(terminalRef.getId()));
     }
 
-    private static Switch getSwitch(Identifiable<?> identifiable) {
-        if (identifiable instanceof Switch) {
-            return (Switch) identifiable;
-        } else {
-            return null;
-        }
-    }
-
     private static Terminal getTerminal(Identifiable<?> identifiable, Side side) {
         if (identifiable instanceof Switch) {
-            return null;
+            throw new IllegalStateException("VoltageAngleLimit can not be defined on switches : " + identifiable.getId());
         } else if (identifiable instanceof HvdcLine) {
-            throw new IllegalStateException("HvdcLines do not have terminales : " + identifiable.getId());
+            throw new IllegalStateException("VoltageAngleLimit can not be defined on HvdcLines : " + identifiable.getId());
         } else if (identifiable instanceof Connectable) {
             return getTerminal((Connectable<?>) identifiable, side);
         } else {

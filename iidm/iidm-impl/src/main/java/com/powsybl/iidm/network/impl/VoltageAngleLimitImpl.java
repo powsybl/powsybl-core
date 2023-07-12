@@ -7,11 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import java.util.Optional;
-
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.TerminalRef.Side;
-import com.powsybl.iidm.network.util.SwitchTerminalForVoltage;
 
 /**
  *
@@ -20,48 +16,21 @@ import com.powsybl.iidm.network.util.SwitchTerminalForVoltage;
  */
 class VoltageAngleLimitImpl implements VoltageAngleLimit {
 
-    VoltageAngleLimitImpl(TerminalRef from, TerminalRef to, Terminal terminalFrom, Terminal terminalTo,
-        Switch switchFrom, Switch switchTo, double limit, FlowDirection flowDirection) {
-        this.from = from;
+    VoltageAngleLimitImpl(Terminal terminalFrom, Terminal terminalTo, double limit, FlowDirection flowDirection) {
         this.terminalFrom = terminalFrom;
-        this.switchFrom = switchFrom;
-        this.to = to;
         this.terminalTo = terminalTo;
-        this.switchTo = switchTo;
         this.limit = limit;
         this.flowDirection = flowDirection;
     }
 
     @Override
-    public TerminalRef getFrom() {
-        return from;
+    public Terminal getTerminalFrom() {
+        return terminalFrom;
     }
 
     @Override
-    public Optional<Terminal> getTerminalFrom() {
-        if (terminalFrom != null) {
-            return Optional.of(terminalFrom);
-        }
-        if (switchFrom != null) {
-            return getTerminal(switchFrom, from.getSide());
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public TerminalRef getTo() {
-        return to;
-    }
-
-    @Override
-    public Optional<Terminal> getTerminalTo() {
-        if (terminalTo != null) {
-            return Optional.of(terminalTo);
-        }
-        if (switchTo != null) {
-            return getTerminal(switchTo, to.getSide());
-        }
-        return Optional.empty();
+    public Terminal getTerminalTo() {
+        return terminalTo;
     }
 
     @Override
@@ -74,22 +43,40 @@ class VoltageAngleLimitImpl implements VoltageAngleLimit {
         return flowDirection;
     }
 
-    private static Optional<Terminal> getTerminal(Switch sw, Side side) {
-        if (side.equals(Side.ONE)) {
-            return new SwitchTerminalForVoltage(sw).getTerminal1();
-        } else if (side.equals(Side.TWO)) {
-            return new SwitchTerminalForVoltage(sw).getTerminal1();
+    @Override
+    public TerminalRef.Side getConnectableSide(Terminal terminal) {
+        Connectable c = terminal.getConnectable();
+        if (c instanceof Injection) {
+            return TerminalRef.Side.ONE;
+        } else if (c instanceof Branch) {
+            return toSide(((Branch) c).getSide(terminal));
+        } else if (c instanceof ThreeWindingsTransformer) {
+            return toSide(((ThreeWindingsTransformer) c).getSide(terminal));
         } else {
-            return Optional.empty();
+            throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
         }
     }
 
-    private TerminalRef from;
-    private TerminalRef to;
+    private static TerminalRef.Side toSide(Branch.Side side) {
+        if (side.equals(Branch.Side.ONE)) {
+            return TerminalRef.Side.ONE;
+        } else {
+            return TerminalRef.Side.TWO;
+        }
+    }
+
+    private static TerminalRef.Side toSide(ThreeWindingsTransformer.Side side) {
+        if (side.equals(ThreeWindingsTransformer.Side.ONE)) {
+            return TerminalRef.Side.ONE;
+        } else if (side.equals(ThreeWindingsTransformer.Side.TWO)) {
+            return TerminalRef.Side.TWO;
+        } else {
+            return TerminalRef.Side.THREE;
+        }
+    }
+
     private Terminal terminalFrom;
-    private Switch switchFrom;
     private Terminal terminalTo;
-    private Switch switchTo;
     private double limit;
     private FlowDirection flowDirection;
 }
