@@ -47,56 +47,33 @@ class VoltageAngleLimitTest {
 
         VoltageAngleLimit val0 = network.getVoltageAngleLimits().get(0);
         assertEquals("LINE_S2S3", val0.getTerminalFrom().getConnectable().getId());
-        assertEquals(Side.ONE, val0.getConnectableSide(val0.getTerminalFrom()));
+        assertEquals(Side.ONE, TerminalRef.getConnectableSide(val0.getTerminalFrom()));
         assertEquals("LINE_S2S3", val0.getTerminalTo().getConnectable().getId());
-        assertEquals(Side.TWO, val0.getConnectableSide(val0.getTerminalTo()));
+        assertEquals(Side.TWO, TerminalRef.getConnectableSide(val0.getTerminalTo()));
         assertEquals(1.0, val0.getLimit());
         assertEquals(FlowDirection.FROM_TO, val0.getFlowDirection());
 
         VoltageAngleLimit val1 = network.getVoltageAngleLimits().get(1);
         assertEquals("LD1", val1.getTerminalFrom().getConnectable().getId());
-        assertEquals(Side.ONE, val1.getConnectableSide(val1.getTerminalFrom()));
+        assertEquals(Side.ONE, TerminalRef.getConnectableSide(val1.getTerminalFrom()));
         assertEquals("LD6", val1.getTerminalTo().getConnectable().getId());
-        assertEquals(Side.ONE, val1.getConnectableSide(val1.getTerminalTo()));
+        assertEquals(Side.ONE, TerminalRef.getConnectableSide(val1.getTerminalTo()));
         assertEquals(1.0, val1.getLimit());
         assertEquals(FlowDirection.TO_FROM, val1.getFlowDirection());
     }
 
     @Test
-    void threeWindingsTransformerVoltageAngleLimitTest() {
+    void badThreeWindingsTransformerVoltageAngleLimitTest() {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
 
-        network.newVoltageAngleLimit()
+        VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
             .from(TerminalRef.create("3WT", Side.ONE))
             .to(TerminalRef.create("3WT", Side.TWO))
             .withLimit(1.0)
-            .withFlowDirection(FlowDirection.FROM_TO)
-            .add();
+            .withFlowDirection(FlowDirection.FROM_TO);
 
-        network.newVoltageAngleLimit()
-            .from(TerminalRef.create("3WT", Side.ONE))
-            .to(TerminalRef.create("3WT", Side.THREE))
-            .withLimit(1.1)
-            .withFlowDirection(FlowDirection.FROM_TO)
-            .add();
-
-        assertEquals(2, network.getVoltageAngleLimits().size());
-
-        VoltageAngleLimit val0 = network.getVoltageAngleLimits().get(0);
-        assertEquals("3WT", val0.getTerminalFrom().getConnectable().getId());
-        assertEquals(Side.ONE, val0.getConnectableSide(val0.getTerminalFrom()));
-        assertEquals("3WT", val0.getTerminalTo().getConnectable().getId());
-        assertEquals(Side.TWO, val0.getConnectableSide(val0.getTerminalTo()));
-        assertEquals(1.0, val0.getLimit());
-        assertEquals(FlowDirection.FROM_TO, val0.getFlowDirection());
-
-        VoltageAngleLimit val1 = network.getVoltageAngleLimits().get(1);
-        assertEquals("3WT", val1.getTerminalFrom().getConnectable().getId());
-        assertEquals(Side.ONE, val1.getConnectableSide(val1.getTerminalFrom()));
-        assertEquals("3WT", val1.getTerminalTo().getConnectable().getId());
-        assertEquals(Side.THREE, val1.getConnectableSide(val1.getTerminalTo()));
-        assertEquals(1.1, val1.getLimit());
-        assertEquals(FlowDirection.FROM_TO, val1.getFlowDirection());
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> adder.add());
+        assertEquals("VoltageAngleLimit can not be defined on threeWindingsTransformers : 3WT", e.getMessage());
     }
 
     @Test

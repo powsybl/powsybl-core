@@ -25,20 +25,6 @@ public interface VoltageAngleLimit extends OperationalLimits {
     }
 
     /**
-     * Get the id
-     */
-    default String getId() {
-        return getTerminalFrom().getConnectable().getId();
-    }
-
-    /**
-     * Get the side
-     */
-    default TerminalRef.Side getSide() {
-        return getConnectableSide(getTerminalFrom());
-    }
-
-    /**
      * Get the Terminal from
      */
     Terminal getTerminalFrom();
@@ -57,9 +43,4 @@ public interface VoltageAngleLimit extends OperationalLimits {
      * Get the flow direction
      */
     FlowDirection getFlowDirection();
-
-    /**
-     * Get the terminal side
-     */
-    TerminalRef.Side getConnectableSide(Terminal terminal);
 }

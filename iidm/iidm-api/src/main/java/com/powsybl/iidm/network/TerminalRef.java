@@ -35,6 +35,37 @@ public final class TerminalRef {
         return new TerminalRef(id, side);
     }
 
+    public static TerminalRef.Side getConnectableSide(Terminal terminal) {
+        Connectable<?> c = terminal.getConnectable();
+        if (c instanceof Injection) {
+            return TerminalRef.Side.ONE;
+        } else if (c instanceof Branch) {
+            return toSide(((Branch) c).getSide(terminal));
+        } else if (c instanceof ThreeWindingsTransformer) {
+            return toSide(((ThreeWindingsTransformer) c).getSide(terminal));
+        } else {
+            throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
+        }
+    }
+
+    private static TerminalRef.Side toSide(Branch.Side side) {
+        if (side.equals(Branch.Side.ONE)) {
+            return TerminalRef.Side.ONE;
+        } else {
+            return TerminalRef.Side.TWO;
+        }
+    }
+
+    private static TerminalRef.Side toSide(ThreeWindingsTransformer.Side side) {
+        if (side.equals(ThreeWindingsTransformer.Side.ONE)) {
+            return TerminalRef.Side.ONE;
+        } else if (side.equals(ThreeWindingsTransformer.Side.TWO)) {
+            return TerminalRef.Side.TWO;
+        } else {
+            return TerminalRef.Side.THREE;
+        }
+    }
+
     public String getId() {
         return id;
     }

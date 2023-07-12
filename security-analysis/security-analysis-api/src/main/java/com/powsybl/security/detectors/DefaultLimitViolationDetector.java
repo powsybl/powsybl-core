@@ -102,9 +102,18 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         }
 
         if (limitViolation) {
-            consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.VOLTAGE_ANGLE,
-                voltageAngleLimit.getLimit(), limitReduction, value, convert(voltageAngleLimit.getSide())));
+            consumer.accept(new LimitViolation(getId(voltageAngleLimit), LimitViolationType.VOLTAGE_ANGLE,
+                voltageAngleLimit.getLimit(), limitReduction, value, convert(getSide(voltageAngleLimit))));
         }
+    }
+
+    // The Id must be a connectable, so we use the (Id, Side) of the terminalFrom to identify the limitViolation
+    static String getId(VoltageAngleLimit voltageAngleLimit) {
+        return voltageAngleLimit.getTerminalFrom().getConnectable().getId();
+    }
+
+    static TerminalRef.Side getSide(VoltageAngleLimit voltageAngleLimit) {
+        return TerminalRef.getConnectableSide(voltageAngleLimit.getTerminalFrom());
     }
 
     private static Branch.Side convert(TerminalRef.Side side) {

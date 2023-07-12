@@ -42,8 +42,8 @@ public final class VoltageAngleLimitXml {
             XmlUtil.writeDouble(LIMIT, voltageAngleLimit.getLimit(), context.getWriter());
             context.getWriter().writeAttribute(FLOW_DIRECTION, voltageAngleLimit.getFlowDirection().name());
 
-            writeTerminalRef(voltageAngleLimit.getTerminalFrom().getConnectable().getId(), voltageAngleLimit.getConnectableSide(voltageAngleLimit.getTerminalFrom()), context, FROM);
-            writeTerminalRef(voltageAngleLimit.getTerminalTo().getConnectable().getId(), voltageAngleLimit.getConnectableSide(voltageAngleLimit.getTerminalTo()), context, TO);
+            writeTerminalRef(voltageAngleLimit.getTerminalFrom().getConnectable().getId(), TerminalRef.getConnectableSide(voltageAngleLimit.getTerminalFrom()), context, FROM);
+            writeTerminalRef(voltageAngleLimit.getTerminalTo().getConnectable().getId(), TerminalRef.getConnectableSide(voltageAngleLimit.getTerminalTo()), context, TO);
 
             context.getWriter().writeEndElement();
         });

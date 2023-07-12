@@ -140,9 +140,9 @@ class MergeTest {
 
     private static boolean isContained(List<VoltageAngleLimit> expected, VoltageAngleLimit actual) {
         return expected.stream().filter(val -> val.getTerminalFrom().getConnectable().getId().equals(actual.getTerminalFrom().getConnectable().getId())
-            && val.getConnectableSide(val.getTerminalFrom()).equals(actual.getConnectableSide(actual.getTerminalFrom()))
+            && TerminalRef.getConnectableSide(val.getTerminalFrom()).equals(TerminalRef.getConnectableSide(actual.getTerminalFrom()))
             && val.getTerminalTo().getConnectable().getId().equals(actual.getTerminalTo().getConnectable().getId())
-            && val.getConnectableSide(val.getTerminalTo()).equals(actual.getConnectableSide(actual.getTerminalTo()))).count() == 1;
+            && TerminalRef.getConnectableSide(val.getTerminalTo()).equals(TerminalRef.getConnectableSide(actual.getTerminalTo()))).count() == 1;
     }
 
     private static Network createNodeBreakerWithVoltageAngleLimit(String nid) {
