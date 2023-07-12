@@ -124,8 +124,20 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public void remove() {
+        remove(false);
+    }
+
+    @Override
+    public void remove(boolean updateDanglingLines) {
         NetworkImpl network = getNetwork();
         network.getListeners().notifyBeforeRemoval(this);
+
+        if (updateDanglingLines) {
+            danglingLine1.setP0(danglingLine1.getBoundary().getP());
+            danglingLine1.setQ0(danglingLine1.getBoundary().getQ());
+            danglingLine2.setP0(danglingLine2.getBoundary().getP());
+            danglingLine2.setQ0(danglingLine2.getBoundary().getQ());
+        }
 
         // Remove dangling lines
         danglingLine1.removeTieLine();

@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.SV;
 import org.junit.jupiter.api.BeforeEach;
@@ -270,6 +271,33 @@ public abstract class AbstractTieLineTest {
         assertNull(network.getLine(TO_REMOVE));
         assertNotNull(line);
         assertEquals(count - 1L, network.getTieLineCount());
+    }
+
+    @Test
+    public void testRemove2() {
+        Network eurostagNetwork = EurostagTutorialExample1Factory.createWithTieLine();
+        TieLine line1 = eurostagNetwork.getTieLine("NHV1_NHV2_1");
+        TieLine line2 = eurostagNetwork.getTieLine("NHV1_NHV2_2");
+        assertNotNull(line1);
+        assertNotNull(line2);
+        assertEquals(0.0, line1.getDanglingLine1().getP0());
+        assertEquals(0.0, line1.getDanglingLine1().getQ0());
+        assertEquals(0.0, line1.getDanglingLine2().getP0());
+        assertEquals(0.0, line1.getDanglingLine2().getQ0());
+        assertEquals(0.0, line2.getDanglingLine1().getP0());
+        assertEquals(0.0, line2.getDanglingLine1().getQ0());
+        assertEquals(0.0, line2.getDanglingLine2().getP0());
+        assertEquals(0.0, line2.getDanglingLine2().getQ0());
+        line1.remove(true);
+        line2.remove(true);
+        assertEquals(-301.316, line1.getDanglingLine1().getP0(), 0.001);
+        assertEquals(-116.525, line1.getDanglingLine1().getQ0(), 0.001);
+        assertEquals(301.782, line1.getDanglingLine2().getP0(), 0.001);
+        assertEquals(116.442, line1.getDanglingLine2().getQ0(), 0.001);
+        assertEquals(-301.316, line2.getDanglingLine1().getP0(), 0.001);
+        assertEquals(-116.525, line2.getDanglingLine1().getQ0(), 0.001);
+        assertEquals(301.782, line2.getDanglingLine2().getP0(), 0.001);
+        assertEquals(116.442, line2.getDanglingLine2().getQ0(), 0.001);
     }
 
     private void createTieLineWithDanglingline2ByDefault(String id, String name, String danglingLineId, double r, double x,
