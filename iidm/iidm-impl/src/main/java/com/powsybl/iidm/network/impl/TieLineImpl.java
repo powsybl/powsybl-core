@@ -376,11 +376,18 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     private static void updateDanglingLine(DanglingLine danglingLine) {
         // Only update if we have values
-        if (!Double.isNaN(danglingLine.getBoundary().getP()) && !Double.isNaN(danglingLine.getBoundary().getQ())) {
+        if (!Double.isNaN(danglingLine.getBoundary().getP())) {
             danglingLine.setP0(-danglingLine.getBoundary().getP());
+            if (danglingLine.getGeneration() != null) {
+                // We do not reset regulation if we only have computed a dc load flow
+                danglingLine.getGeneration().setTargetP(0.0);
+            }
+        }
+        if (!Double.isNaN(danglingLine.getBoundary().getQ())) {
             danglingLine.setQ0(-danglingLine.getBoundary().getQ());
             if (danglingLine.getGeneration() != null) {
-                danglingLine.getGeneration().setTargetP(0.0).setTargetQ(0.0).setVoltageRegulationOn(false).setTargetV(Double.NaN);
+                // If q values are available a complete ac load flow has been computed, we reset regulation
+                danglingLine.getGeneration().setTargetQ(0.0).setVoltageRegulationOn(false).setTargetV(Double.NaN);
             }
         }
     }
