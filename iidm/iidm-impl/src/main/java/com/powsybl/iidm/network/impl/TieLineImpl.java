@@ -133,16 +133,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         network.getListeners().notifyBeforeRemoval(this);
 
         if (updateDanglingLines) {
-            danglingLine1.setP0(-danglingLine1.getBoundary().getP());
-            danglingLine1.setQ0(-danglingLine1.getBoundary().getQ());
-            if (danglingLine1.getGeneration() != null) {
-                danglingLine1.getGeneration().setTargetP(0.0).setTargetQ(0.0);
-            }
-            danglingLine2.setP0(-danglingLine2.getBoundary().getP());
-            danglingLine2.setQ0(-danglingLine2.getBoundary().getQ());
-            if (danglingLine2.getGeneration() != null) {
-                danglingLine2.getGeneration().setTargetP(0.0).setTargetQ(0.0);
-            }
+            updateDanglingLine(danglingLine1);
+            updateDanglingLine(danglingLine2);
         }
 
         // Remove dangling lines
@@ -380,5 +372,13 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     public double getValueForLimit(Terminal t, LimitType type) {
         return BranchUtil.getValueForLimit(t, type);
+    }
+
+    private static void updateDanglingLine(DanglingLine danglingLine) {
+        danglingLine.setP0(-danglingLine.getBoundary().getP());
+        danglingLine.setQ0(-danglingLine.getBoundary().getQ());
+        if (danglingLine.getGeneration() != null) {
+            danglingLine.getGeneration().setTargetP(0.0).setTargetQ(0.0);
+        }
     }
 }
