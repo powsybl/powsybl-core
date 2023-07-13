@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.FlowsLimitsHolder;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 
@@ -55,11 +56,16 @@ public final class LimitViolationUtils {
     }
 
     public static boolean checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double i, LimitType type) {
-        return branch.getLimits(type, side)
-                .map(l -> !Double.isNaN(l.getPermanentLimit()) &&
-                        !Double.isNaN(i) &&
-                        (i >= l.getPermanentLimit() * limitReduction))
-                .orElse(false);
+        return branch.getLimits(type, side).map(l -> checkPermanentLimit(l, limitReduction, i)).orElse(false);
     }
 
+    public static boolean checkPermanentLimit(FlowsLimitsHolder holder, float limitReduction, double i, LimitType type) {
+        return holder.getLimits(type).map(l -> checkPermanentLimit(l, limitReduction, i)).orElse(false);
+    }
+
+    public static boolean checkPermanentLimit(LoadingLimits limits, float limitReduction, double i) {
+        return !Double.isNaN(limits.getPermanentLimit()) &&
+                !Double.isNaN(i) &&
+                i >= limits.getPermanentLimit() * limitReduction;
+    }
 }
