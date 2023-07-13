@@ -290,14 +290,14 @@ public abstract class AbstractTieLineTest {
         assertEquals(0.0, line2.getDanglingLine2().getQ0());
         line1.remove(true);
         line2.remove(true);
-        assertEquals(-301.316, line1.getDanglingLine1().getP0(), 0.001);
-        assertEquals(-116.525, line1.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(301.782, line1.getDanglingLine2().getP0(), 0.001);
-        assertEquals(116.442, line1.getDanglingLine2().getQ0(), 0.001);
-        assertEquals(-301.316, line2.getDanglingLine1().getP0(), 0.001);
-        assertEquals(-116.525, line2.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(301.782, line2.getDanglingLine2().getP0(), 0.001);
-        assertEquals(116.442, line2.getDanglingLine2().getQ0(), 0.001);
+        assertEquals(301.316, line1.getDanglingLine1().getP0(), 0.001);
+        assertEquals(116.525, line1.getDanglingLine1().getQ0(), 0.001);
+        assertEquals(-301.782, line1.getDanglingLine2().getP0(), 0.001);
+        assertEquals(-116.442, line1.getDanglingLine2().getQ0(), 0.001);
+        assertEquals(301.316, line2.getDanglingLine1().getP0(), 0.001);
+        assertEquals(116.525, line2.getDanglingLine1().getQ0(), 0.001);
+        assertEquals(-301.782, line2.getDanglingLine2().getP0(), 0.001);
+        assertEquals(-116.442, line2.getDanglingLine2().getQ0(), 0.001);
     }
 
     private void createTieLineWithDanglingline2ByDefault(String id, String name, String danglingLineId, double r, double x,
