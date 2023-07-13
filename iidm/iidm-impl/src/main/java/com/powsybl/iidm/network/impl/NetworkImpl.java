@@ -1051,6 +1051,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
         Network subnetwork = new SubnetworkImpl(this, subnetworkId, name, sourceFormat);
         subnetworks.put(subnetworkId, subnetwork);
+        refByNetworkId.put(subnetworkId, new RefChain<>(new RefObj<>(this)));
         return subnetwork;
     }
 

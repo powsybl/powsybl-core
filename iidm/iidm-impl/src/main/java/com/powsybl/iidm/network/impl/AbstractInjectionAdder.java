@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.impl.util.Ref;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,8 +35,10 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
         return (T) this;
     }
 
+    protected abstract Ref<? extends VariantManagerHolder> getVariantManagerHolder();
+
     protected TerminalExt checkAndGetTerminal() {
-        return new TerminalBuilder(getNetwork().getRef(), this)
+        return new TerminalBuilder(getVariantManagerHolder(), this)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)

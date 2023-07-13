@@ -230,6 +230,7 @@ public final class ValidationUtil {
     }
 
     public static void checkRegulatingTerminal(Validable validable, Terminal regulatingTerminal, Network network) {
+        //TODO subnetworks: Modify this method to check with getParentNetwork()? Beware of potential side-effects
         if (regulatingTerminal != null && regulatingTerminal.getVoltageLevel().getNetwork() != network) {
             throw new ValidationException(validable, "regulating terminal is not part of the network");
         }
@@ -503,6 +504,7 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, errorOrWarningForRtc(validable, loadTapChangingCapabilities, "a regulation terminal has to be set for a regulating ratio tap changer", throwException, reporter));
             }
         }
+        //TODO subnetworks: Modify this method to check with getParentNetwork()? Beware of potential side-effects
         if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
             throw new ValidationException(validable, "regulation terminal is not part of the network");
         }
@@ -537,6 +539,7 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
             }
         }
+        //TODO subnetworks: Modify this method to check with getParentNetwork()? Beware of potential side-effects
         if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
             throw new ValidationException(validable, "phase regulation terminal is not part of the network");
         }
@@ -625,9 +628,11 @@ public final class ValidationUtil {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
             if (leg.hasRatioTapChanger()) {
+                //TODO subnetworks: Modify this method to check with getParentNetwork()? Beware of potential side-effects
                 validationLevel = ValidationLevel.min(validationLevel, checkRtc(validable, leg.getRatioTapChanger(), twt.getNetwork(), throwException, reporter));
             }
             if (leg.hasPhaseTapChanger()) {
+                //TODO subnetworks: Modify this method to check with getParentNetwork()? Beware of potential side-effects
                 validationLevel = ValidationLevel.min(validationLevel, checkPtc(validable, leg.getPhaseTapChanger(), twt.getNetwork(), throwException, reporter));
             }
         }
@@ -650,9 +655,11 @@ public final class ValidationUtil {
     private static ValidationLevel checkTwoWindingsTransformer(Validable validable, TwoWindingsTransformer twt, boolean throwException, Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
         if (twt.hasRatioTapChanger()) {
+            //TODO subnetworks: Modify this method to check with getParentNetwork()? Beware of potential side-effects
             validationLevel = ValidationLevel.min(validationLevel, checkRtc(validable, twt.getRatioTapChanger(), twt.getNetwork(), throwException, reporter));
         }
         if (twt.hasPhaseTapChanger()) {
+            //TODO subnetworks: Modify this method to check with getParentNetwork()? Beware of potential side-effects
             validationLevel = ValidationLevel.min(validationLevel, checkPtc(validable, twt.getPhaseTapChanger(), twt.getNetwork(), throwException, reporter));
         }
         if (twt.getOptionalRatioTapChanger().map(TapChanger::isRegulating).orElse(false)

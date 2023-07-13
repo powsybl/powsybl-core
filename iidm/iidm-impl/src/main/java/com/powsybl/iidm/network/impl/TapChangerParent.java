@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import java.util.Set;
 
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Validable;
 
@@ -18,6 +19,8 @@ import com.powsybl.iidm.network.Validable;
 interface TapChangerParent extends Validable {
 
     NetworkImpl getNetwork();
+
+    Network getParentNetwork();
 
     Identifiable getTransformer();
 

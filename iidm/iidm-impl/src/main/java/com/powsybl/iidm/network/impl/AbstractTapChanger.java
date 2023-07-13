@@ -38,10 +38,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final TDoubleArrayList targetDeadband;
 
-    protected AbstractTapChanger(Ref<? extends VariantManagerHolder> network, H parent,
+    protected AbstractTapChanger(H parent,
                                  int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
                                  Integer tapPosition, boolean regulating, double targetDeadband, String type) {
-        this.network = network;
+        this.network = NetworkUtil.getRef(parent.getNetwork(), parent.getParentNetwork());
         this.parent = parent;
         this.lowTapPosition = lowTapPosition;
         this.steps = steps;
@@ -63,6 +63,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected NetworkImpl getNetwork() {
         return parent.getNetwork();
+    }
+
+    protected Network getParentNetwork() {
+        return parent.getParentNetwork();
     }
 
     protected abstract Integer getRelativeNeutralPosition();

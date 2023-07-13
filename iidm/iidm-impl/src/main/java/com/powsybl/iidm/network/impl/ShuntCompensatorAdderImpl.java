@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -208,6 +209,15 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
+    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
+        return getNetworkRef();
+    }
+
+    private Ref<NetworkImpl> getNetworkRef() {
+        return voltageLevel.getNetworkRef();
+    }
+
+    @Override
     public ShuntCompensatorImpl add() {
         NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
@@ -217,12 +227,12 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
 
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, voltageLevel.getParentNetwork());
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(), network.getMinValidationLevel()));
 
-        ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(network.getRef(),
+        ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetworkRef(),
                 id, getName(), isFictitious(), modelBuilder.build(), sectionCount,
                 regulatingTerminal == null ? terminal : regulatingTerminal,
                 voltageRegulatorOn, targetV, targetDeadband);

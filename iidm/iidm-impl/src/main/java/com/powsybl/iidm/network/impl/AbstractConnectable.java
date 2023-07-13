@@ -145,7 +145,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the given voltage level and to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(voltageLevel.getNetworkRef(), this)
                 .setNode(node)
                 .build();
 
@@ -167,7 +167,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the voltage level of the given bus and links it to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(((VoltageLevelExt) bus.getVoltageLevel()).getNetworkRef(), this)
                 .setBus(connected ? bus.getId() : null)
                 .setConnectableBus(bus.getId())
                 .build();

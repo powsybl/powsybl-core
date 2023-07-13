@@ -731,6 +731,8 @@ public class SubnetworkImpl extends AbstractNetwork {
             detachedNetwork.getIndex().checkAndAdd(i);
         });
 
+        //TODO subnetworks: Retrieve parent ValidationLevels?
+
         LOGGER.info("Detaching of {} done in {} ms", id, System.currentTimeMillis() - start);
         return detachedNetwork;
     }

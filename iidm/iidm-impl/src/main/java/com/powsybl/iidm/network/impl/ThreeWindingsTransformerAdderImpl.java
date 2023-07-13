@@ -122,7 +122,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
 
         protected TerminalExt checkAndGetTerminal() {
-            return new TerminalBuilder(getNetwork().getRef(), this)
+            VoltageLevelExt voltageLevel = checkAndGetVoltageLevel();
+            return new TerminalBuilder(voltageLevel.getNetworkRef(), this)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)

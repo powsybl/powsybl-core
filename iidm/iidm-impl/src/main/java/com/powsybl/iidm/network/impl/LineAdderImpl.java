@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.impl.util.RefChain;
+import com.powsybl.iidm.network.impl.util.Ref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,14 +111,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         ValidationUtil.checkB1(this, b1);
         ValidationUtil.checkB2(this, b2);
 
-        RefChain<NetworkImpl> networkRef;
-        String subnetworkId1 = voltageLevel1.getSubnetwork();
-        String subnetworkId2 = voltageLevel2.getSubnetwork();
-        if (subnetworkId1 != null && subnetworkId1.equals(subnetworkId2)) {
-            networkRef = network.getRef(subnetworkId1);
-        } else {
-            networkRef = network.getRef();
-        }
+        Ref<NetworkImpl> networkRef = computeNetworkRef(getNetwork(), voltageLevel1, voltageLevel2);
 
         LineImpl line = new LineImpl(networkRef, id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
         terminal1.setNum(1);

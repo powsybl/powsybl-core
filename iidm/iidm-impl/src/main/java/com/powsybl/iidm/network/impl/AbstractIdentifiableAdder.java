@@ -103,6 +103,9 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
         if (voltageLevels.length == 0) {
             return network.getRef();
         }
+        if (voltageLevels.length == 1) {
+            return voltageLevels[0].getNetworkRef();
+        }
         // We accept only one level of subnetworks for now.
         // Thus, if the subnetworkIds of all the voltageLevels are the same (and not null), the ref is the one of
         // the subnetwork. Else, it is the root network's one.
