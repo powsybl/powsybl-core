@@ -375,10 +375,13 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     private static void updateDanglingLine(DanglingLine danglingLine) {
-        danglingLine.setP0(-danglingLine.getBoundary().getP());
-        danglingLine.setQ0(-danglingLine.getBoundary().getQ());
-        if (danglingLine.getGeneration() != null) {
-            danglingLine.getGeneration().setTargetP(0.0).setTargetQ(0.0).setVoltageRegulationOn(false).setTargetV(Double.NaN);
+        // Only update if we have values
+        if (!Double.isNaN(danglingLine.getBoundary().getP()) && !Double.isNaN(danglingLine.getBoundary().getQ())) {
+            danglingLine.setP0(-danglingLine.getBoundary().getP());
+            danglingLine.setQ0(-danglingLine.getBoundary().getQ());
+            if (danglingLine.getGeneration() != null) {
+                danglingLine.getGeneration().setTargetP(0.0).setTargetQ(0.0).setVoltageRegulationOn(false).setTargetV(Double.NaN);
+            }
         }
     }
 }
