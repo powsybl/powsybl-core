@@ -162,6 +162,13 @@ class EquipmentExportTest extends AbstractConverterTest {
 
         // Import EQ & TP file, no additional information (boundaries) are required
         Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
+
+        // The xiidm file does not contain ratedS values, but during the cgmes export process default values
+        // are exported for each transformer that are reading in the import process.
+        // we reset the default imported ratedS values before comparing
+        TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
+        network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
+
         compareNetworksEQdata(network, actual);
     }
 
