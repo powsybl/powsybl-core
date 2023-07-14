@@ -43,7 +43,7 @@ public final class VoltageAngleLimitXml {
     }
 
     public static void read(Network network, NetworkXmlReaderContext context) {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
 
             double limit = XmlUtil.readDoubleAttribute(context.getReader(), LIMIT);
             String flowDirectionString = context.getReader().getAttributeValue(null, FLOW_DIRECTION);

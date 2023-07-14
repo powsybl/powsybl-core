@@ -24,7 +24,7 @@ class VoltageAngleLimitXmlTest extends AbstractXmlConverterTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("voltageAngleLimit.xiidm", IidmXmlVersion.V_1_10);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("voltageAngleLimit.xiidm", IidmXmlVersion.V_1_11);
 
         roundTripXmlTest(EurostagTutorialExample1Factory.createWithVoltageAngleLimit(),
                 NetworkXml::writeAndValidate,
