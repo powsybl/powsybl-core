@@ -29,7 +29,7 @@ public final class VoltageAngleLimitXml {
     private static final String TO = "to";
 
     public static void write(VoltageAngleLimit voltageAngleLimit, NetworkXmlWriterContext context) {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_10, context, () -> {
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
 
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), VOLTAGE_ANGLE_LIMIT);
             XmlUtil.writeDouble(LIMIT, voltageAngleLimit.getLimit(), context.getWriter());
