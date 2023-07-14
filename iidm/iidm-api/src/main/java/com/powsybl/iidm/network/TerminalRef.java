@@ -61,7 +61,7 @@ public final class TerminalRef {
     }
 
     public static Terminal resolve(String id, Side side, Network network) {
-        Identifiable identifiable = network.getIdentifiable(id);
+        Identifiable<?> identifiable = network.getIdentifiable(id);
         if (identifiable == null) {
             throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
         }
