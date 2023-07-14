@@ -55,21 +55,44 @@ public final class TerminalRef {
     // In the future ...
     // a Terminal ref specified for a switch could be resolved to different terminals depending on the topology
     // This could also be written as TerminalRef.create(id , side).resolve(network)
-    public static Terminal resolve(String id, String side, Network network) {
+    public static Terminal resolve(String id, String sideText, Network network) {
+        Side side = sideText == null ? Side.ONE : Side.valueOf(sideText);
+        return resolve(id, side, network);
+    }
+
+    public static Terminal resolve(String id, Side side, Network network) {
         Identifiable identifiable = network.getIdentifiable(id);
         if (identifiable == null) {
             throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
         }
-        if (identifiable instanceof Injection) {
-            return ((Injection) identifiable).getTerminal();
-        } else if (identifiable instanceof Branch) {
-            return side.equals(Branch.Side.ONE.name()) ? ((Branch) identifiable).getTerminal1()
-                    : ((Branch) identifiable).getTerminal2();
-        } else if (identifiable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
-            return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
+        if (identifiable instanceof Connectable) {
+            return getTerminal((Connectable<?>) identifiable, side);
         } else {
             throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
+        }
+    }
+
+    private static Terminal getTerminal(Connectable<?> connectable, Side side) {
+        if (connectable instanceof Injection) {
+            return ((Injection<?>) connectable).getTerminal();
+        } else if (connectable instanceof Branch) {
+            if (side.equals(Side.ONE)) {
+                return ((Branch<?>) connectable).getTerminal1();
+            } else if (side.equals(Side.TWO)) {
+                return ((Branch<?>) connectable).getTerminal2();
+            } else {
+                throw new IllegalStateException("Unexpected Branch side: " + side.name());
+            }
+        } else if (connectable instanceof ThreeWindingsTransformer) {
+            if (side.equals(Side.ONE)) {
+                return ((ThreeWindingsTransformer) connectable).getLeg1().getTerminal();
+            } else if (side.equals(Side.TWO)) {
+                return ((ThreeWindingsTransformer) connectable).getLeg2().getTerminal();
+            } else {
+                return ((ThreeWindingsTransformer) connectable).getLeg3().getTerminal();
+            }
+        } else {
+            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + connectable.getClass());
         }
     }
 

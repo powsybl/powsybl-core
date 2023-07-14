@@ -7,10 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import java.util.Optional;
-
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.TerminalRef.Side;
 import com.powsybl.iidm.network.VoltageAngleLimit.FlowDirection;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -60,52 +57,18 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
         if (limit <= 0) {
             throw new IllegalStateException("Limit <= 0: " + Double.toString(limit));
         }
-        Optional<Identifiable<?>> identifiableFrom = getIdentifiable(networkRef.get(), from);
-        if (identifiableFrom.isEmpty()) {
-            throw new IllegalStateException("Identifiable from not found: " + from.getId());
+        Terminal terminalFrom = TerminalRef.resolve(from.getId(), from.getSide(), networkRef.get());
+        Terminal terminalTo = TerminalRef.resolve(to.getId(), to.getSide(), networkRef.get());
+
+        if (terminalFrom.getConnectable().getType().equals(IdentifiableType.THREE_WINDINGS_TRANSFORMER)) {
+            throw new IllegalStateException("VoltageAngleLimit can not be defined on threeWindingsTransformers : " + terminalFrom.getConnectable().getId());
         }
-        Optional<Identifiable<?>> identifiableTo = getIdentifiable(networkRef.get(), to);
-        if (identifiableTo.isEmpty()) {
-            throw new IllegalStateException("Identifiable to not found: " + to.getId());
+        if (terminalTo.getConnectable().getType().equals(IdentifiableType.THREE_WINDINGS_TRANSFORMER)) {
+            throw new IllegalStateException("VoltageAngleLimit can not be defined on threeWindingsTransformers : " + terminalTo.getConnectable().getId());
         }
-        Terminal terminalFrom = getTerminal(identifiableFrom.get(), from.getSide());
-        Terminal terminalTo = getTerminal(identifiableTo.get(), to.getSide());
+
         VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(terminalFrom, terminalTo, limit, flowDirection);
         networkRef.get().getVoltageAngleLimits().add(voltageAngleLimit);
         return voltageAngleLimit;
-    }
-
-    private static Optional<Identifiable<?>> getIdentifiable(Network network, TerminalRef terminalRef) {
-        return Optional.ofNullable(network.getIdentifiable(terminalRef.getId()));
-    }
-
-    private static Terminal getTerminal(Identifiable<?> identifiable, Side side) {
-        if (identifiable instanceof Switch) {
-            throw new IllegalStateException("VoltageAngleLimit can not be defined on switches : " + identifiable.getId());
-        } else if (identifiable instanceof HvdcLine) {
-            throw new IllegalStateException("VoltageAngleLimit can not be defined on HvdcLines : " + identifiable.getId());
-        } else if (identifiable instanceof Connectable) {
-            return getTerminal((Connectable<?>) identifiable, side);
-        } else {
-            throw new IllegalStateException();
-        }
-    }
-
-    private static Terminal getTerminal(Connectable<?> connectable, Side side) {
-        if (connectable instanceof Injection) {
-            return ((Injection<?>) connectable).getTerminal();
-        } else if (connectable instanceof Branch) {
-            if (side.equals(Side.ONE)) {
-                return ((Branch<?>) connectable).getTerminal1();
-            } else if (side.equals(Side.TWO)) {
-                return ((Branch<?>) connectable).getTerminal2();
-            } else {
-                throw new IllegalStateException("Unexpected Branch side: " + side.name());
-            }
-        } else if (connectable instanceof ThreeWindingsTransformer) {
-            throw new IllegalStateException("VoltageAngleLimit can not be defined on threeWindingsTransformers : " + connectable.getId());
-        } else {
-            throw new IllegalStateException();
-        }
     }
 }

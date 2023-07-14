@@ -51,17 +51,7 @@ public final class TerminalRefXml {
         }
         writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
         if (c.getTerminals().size() > 1) {
-            if (c instanceof Injection) {
-                // nothing to do
-            } else if (c instanceof Branch) {
-                Branch branch = (Branch) c;
-                writer.writeAttribute("side", branch.getSide(t).name());
-            } else if (c instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) c;
-                writer.writeAttribute("side", twt.getSide(t).name());
-            } else {
-                throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
-            }
+            writer.writeAttribute("side", TerminalRef.getConnectableSide(t).name());
         }
     }
 

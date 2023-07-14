@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.TerminalRef.Side;
 import com.powsybl.iidm.network.VoltageAngleLimit.FlowDirection;
@@ -85,8 +86,8 @@ class VoltageAngleLimitTest {
             .to(TerminalRef.create("S1VL1_LD1_BREAKER", Side.TWO))
             .withLimit(1.0)
             .withFlowDirection(FlowDirection.BOTH_DIRECTIONS);
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> adder.add());
-        assertEquals("VoltageAngleLimit can not be defined on switches : S1VL1_LD1_BREAKER", e.getMessage());
+        PowsyblException e = assertThrows(PowsyblException.class, () -> adder.add());
+        assertEquals("Unexpected terminal reference identifiable instance: class com.powsybl.iidm.network.impl.SwitchImpl", e.getMessage());
     }
 
     @Test
@@ -124,7 +125,7 @@ class VoltageAngleLimitTest {
             .to(TerminalRef.create("LINE_S2S3", Side.THREE))
             .withLimit(1.0)
             .withFlowDirection(FlowDirection.FROM_TO);
-        IllegalStateException e = assertThrows(IllegalStateException.class, () -> adder.add());
-        assertEquals("Identifiable from not found: LIN_S2S3", e.getMessage());
+        PowsyblException e = assertThrows(PowsyblException.class, () -> adder.add());
+        assertEquals("Terminal reference identifiable not found: 'LIN_S2S3'", e.getMessage());
     }
 }
