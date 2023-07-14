@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.network.TerminalRef;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
@@ -91,8 +92,8 @@ class VscConverterStationXml extends AbstractSimpleIdentifiableXml<VscConverterS
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
-                    context.getEndTasks().add(() -> cs.setRegulatingTerminal(TerminalRefXml
-                            .readTerminalRef(cs.getNetwork(), id, side)));
+                    context.getEndTasks().add(() -> cs.setRegulatingTerminal(TerminalRef
+                            .resolve(id, side, cs.getNetwork())));
                     break;
                 default:
                     super.readSubElements(cs, context);

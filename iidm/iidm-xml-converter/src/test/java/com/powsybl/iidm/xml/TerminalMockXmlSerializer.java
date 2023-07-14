@@ -15,6 +15,7 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TerminalRef;
 import com.powsybl.iidm.network.test.TerminalMockExt;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 
@@ -95,7 +96,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                 String side = networkContext.getReader().getAttributeValue(null, "side");
                 networkContext.getEndTasks().add(() -> {
                     Network network = extendable.getNetwork();
-                    terminalMockExt.setTerminal(TerminalRefXml.readTerminalRef(network, id, side));
+                    terminalMockExt.setTerminal(TerminalRef.resolve(id, side, network));
                 });
             } else {
                 throw new IllegalStateException("Unexpected element: " + networkContext.getReader().getLocalName());

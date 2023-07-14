@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -19,8 +21,8 @@ public final class TerminalRef {
         THREE
     }
 
-    private String id;
-    private Side side;
+    private final String id;
+    private final Side side;
 
     private TerminalRef(String id, Side side) {
         this.id = id;
@@ -45,6 +47,29 @@ public final class TerminalRef {
             return toSide(((ThreeWindingsTransformer) c).getSide(terminal));
         } else {
             throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
+        }
+    }
+
+    // FIXME(Luma) This has been moved from TerminalRefXml,
+    // Makes sense to have it here,
+    // In the future ...
+    // a Terminal ref specified for a switch could be resolved to different terminals depending on the topology
+    // This could also be written as TerminalRef.create(id , side).resolve(network)
+    public static Terminal resolve(String id, String side, Network network) {
+        Identifiable identifiable = network.getIdentifiable(id);
+        if (identifiable == null) {
+            throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
+        }
+        if (identifiable instanceof Injection) {
+            return ((Injection) identifiable).getTerminal();
+        } else if (identifiable instanceof Branch) {
+            return side.equals(Branch.Side.ONE.name()) ? ((Branch) identifiable).getTerminal1()
+                    : ((Branch) identifiable).getTerminal2();
+        } else if (identifiable instanceof ThreeWindingsTransformer) {
+            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
+            return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
+        } else {
+            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }
     }
 

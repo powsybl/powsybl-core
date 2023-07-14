@@ -9,6 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
+import com.powsybl.iidm.network.TerminalRef;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
@@ -103,8 +104,8 @@ public class StaticVarCompensatorXml extends AbstractSimpleIdentifiableXml<Stati
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
                 String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                 String side = context.getReader().getAttributeValue(null, "side");
-                context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRefXml
-                        .readTerminalRef(svc.getNetwork(), id, side)));
+                context.getEndTasks().add(() -> svc.setRegulatingTerminal(TerminalRef
+                        .resolve(id, side, svc.getNetwork())));
             } else {
                 super.readSubElements(svc, context);
             }

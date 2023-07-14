@@ -125,7 +125,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                 case "terminal":
                     id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
                     side = networkContext.getReader().getAttributeValue(null, "side");
-                    cgmesControlArea.add(TerminalRefXml.readTerminalRef(network, id, side));
+                    cgmesControlArea.add(TerminalRef.resolve(id, side, network));
                     break;
                 default:
                     throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <controlArea>");

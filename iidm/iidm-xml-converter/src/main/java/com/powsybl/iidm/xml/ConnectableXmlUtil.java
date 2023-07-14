@@ -280,10 +280,10 @@ public final class ConnectableXmlUtil {
     }
 
     /**
-     * @deprecated Use {@link TerminalRefXml#readTerminalRef(Network, String, String)} instead.
+     * @deprecated Use {@link TerminalRef#resolve(String, String, Network)} instead.
      */
     @Deprecated
     public static Terminal readTerminalRef(Network network, String id, String side) {
-        return TerminalRefXml.readTerminalRef(network, id, side);
+        return TerminalRef.resolve(id, side, network);
     }
 }

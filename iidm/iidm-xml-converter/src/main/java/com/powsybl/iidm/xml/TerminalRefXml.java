@@ -18,6 +18,9 @@ import javax.xml.stream.XMLStreamWriter;
  */
 public final class TerminalRefXml {
 
+    private static final String ID = "id";
+    private static final String SIDE = "side";
+
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
         writeTerminalRef(t, context, context.getVersion().getNamespaceURI(context.isValid()), elementName);
     }
@@ -62,22 +65,25 @@ public final class TerminalRefXml {
         }
     }
 
-    public static Terminal readTerminalRef(Network network, String id, String side) {
-        Identifiable identifiable = network.getIdentifiable(id);
-        if (identifiable == null) {
-            throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
-        }
-        if (identifiable instanceof Injection) {
-            return ((Injection) identifiable).getTerminal();
-        } else if (identifiable instanceof Branch) {
-            return side.equals(Branch.Side.ONE.name()) ? ((Branch) identifiable).getTerminal1()
-                    : ((Branch) identifiable).getTerminal2();
-        } else if (identifiable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
-            return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
+    // FIXME(Luma) write and read are not exactly symmetrical at this point
+    // write terminal ref writes the name of the Branch.Side or ThreeWindingTransformer.Side,
+    // but read is interpreting this name as TerminalRef.Side, that unifies both names
+    public static TerminalRef readTerminalRef(NetworkXmlReaderContext context) {
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, ID));
+        String side = context.getReader().getAttributeValue(null, SIDE);
+        if (side == null) {
+            return TerminalRef.create(id);
         } else {
-            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
+            return TerminalRef.create(id, TerminalRef.Side.valueOf(side));
         }
+    }
+
+    /**
+     * @deprecated Use {@link TerminalRef#resolve(String, String, Network)} instead.
+     */
+    @Deprecated(since = "5.4.0", forRemoval = true)
+    public static Terminal readTerminalRef(Network network, String id, String side) {
+        return TerminalRef.resolve(id, side, network);
     }
 
     private TerminalRefXml() {
