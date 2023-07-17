@@ -41,6 +41,8 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     private String fictitiousSubstationId;
     private String fictitiousSubstationName;
 
+    private final NamingStrategy namingStrategy;
+
     /**
      * Constructor.
      *
@@ -66,14 +68,16 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * NB: This constructor is package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
-                            boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
-                            String line1Id, String line1Name, String line2Id, String line2Name, Line line, LineAdder lineAdder) {
+                     boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
+                     String line1Id, String line1Name, String line2Id, String line2Name, NamingStrategy namingStrategy,
+                     Line line, LineAdder lineAdder) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
         this.fictitiousVlName = fictitiousVlName;
         this.createFictSubstation = createFictSubstation;
         this.fictitiousSubstationId = fictitiousSubstationId;
         this.fictitiousSubstationName = fictitiousSubstationName;
+        this.namingStrategy = namingStrategy;
         this.lineAdder = Objects.requireNonNull(lineAdder);
     }
 
@@ -193,11 +197,11 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(originalLineId + "_BUS")
+                    .setId(namingStrategy.getBusId(originalLineId))
                     .add();
             lineAdder.setBus2(bus1.getId());
             voltageLevel.getBusBreakerView().newSwitch()
-                    .setId(originalLineId + "_SW")
+                    .setId(namingStrategy.getSwitchId(originalLineId))
                     .setOpen(false)
                     .setBus1(bus1.getId())
                     .setBus2(bus.getId())

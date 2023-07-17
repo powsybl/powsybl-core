@@ -113,7 +113,7 @@ public class CreateVoltageLevelTopologyBuilder {
     /**
      * Set the naming strategy to be used. By default, the DefaultNamingStrategy is used.
      *
-     * @param namingStrategy
+     * @param namingStrategy Naming strategy to be used for the different elements created with the present builder
      */
     public CreateVoltageLevelTopologyBuilder withNamingStrategy(NamingStrategy namingStrategy) {
         this.namingStrategy = namingStrategy;

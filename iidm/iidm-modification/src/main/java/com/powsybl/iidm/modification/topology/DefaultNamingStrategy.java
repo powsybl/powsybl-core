@@ -10,6 +10,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
     private static final String DISCONNECTOR_NAMEBASE = "DISCONNECTOR";
     private static final String BREAKER_NAMEBASE = "BREAKER";
     private static final String SWITCH_NAMEBASE = "SW";
+    private static final String BUS_NAMEBASE = "BUS";
 
     @Override
     public String getName() {
@@ -134,6 +135,11 @@ public class DefaultNamingStrategy implements NamingStrategy {
     @Override
     public String getBusbarId(String prefixId, int id1Num, int id2Num) {
         return getBusbarIdPrefix(prefixId) + SEPARATOR + getBusbarIdSuffix(id1Num, id2Num);
+    }
+
+    @Override
+    public String getBusId(String prefixId) {
+        return prefixId + SEPARATOR + BUS_NAMEBASE;
     }
 
     @Override

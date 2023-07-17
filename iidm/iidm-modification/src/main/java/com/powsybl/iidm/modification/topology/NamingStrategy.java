@@ -55,5 +55,7 @@ public interface NamingStrategy {
 
     String getBusbarId(String id, int id1Num, int id2Num);
 
+    String getBusId(String id);
+
     String getFeederId(String id, String voltageLevelId);
 }
