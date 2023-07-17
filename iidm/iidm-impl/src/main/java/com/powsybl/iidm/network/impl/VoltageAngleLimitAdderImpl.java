@@ -64,10 +64,10 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
         if (limit <= 0) {
             throw new IllegalStateException("Limit <= 0: " + Double.toString(limit));
         }
-        TerminalRef.Side sideFrom = from.getSide().isPresent() ? from.getSide().get() : TerminalRef.Side.ONE;
+        TerminalRef.Side sideFrom = from.getSide().orElse(TerminalRef.Side.ONE);
         Terminal terminalFrom = TerminalRef.resolve(from.getId(), sideFrom, networkRef.get());
 
-        TerminalRef.Side sideTo = to.getSide().isPresent() ? to.getSide().get() : TerminalRef.Side.ONE;
+        TerminalRef.Side sideTo = to.getSide().orElse(TerminalRef.Side.ONE);
         Terminal terminalTo = TerminalRef.resolve(to.getId(), sideTo, networkRef.get());
 
         if (terminalFrom.getConnectable().getType().equals(IdentifiableType.THREE_WINDINGS_TRANSFORMER)) {
