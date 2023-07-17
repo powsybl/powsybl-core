@@ -68,7 +68,9 @@ class RemoveSubstationTest extends AbstractConverterTest {
 
     @Test
     void testRemoveUnknownSubstation() {
-        RemoveSubstation removeUnknown = new RemoveSubstation("UNKNOWN");
+        RemoveSubstation removeUnknown = new RemoveSubstationBuilder()
+                .withSubstationId("UNKNOWN")
+                .build();
         Network network = EurostagTutorialExample1Factory.create();
         removeUnknown.apply(network, false, Reporter.NO_OP);
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, Reporter.NO_OP));

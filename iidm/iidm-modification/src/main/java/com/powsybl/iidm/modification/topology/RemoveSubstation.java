@@ -32,7 +32,7 @@ public class RemoveSubstation extends AbstractNetworkModification {
 
     private final String substationId;
 
-    public RemoveSubstation(String substationId) {
+    RemoveSubstation(String substationId) {
         this.substationId = Objects.requireNonNull(substationId);
     }
 
