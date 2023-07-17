@@ -140,7 +140,6 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     /**
      * Set the connectable bus/node on the injection or branch adder for each side of the Feeder Bay(s)
-     * <br><b>TODO: add a better description of this method</b>
      * @return true if the connectable bus(es) or node(s) has(have) been set, else return false
      */
     private boolean setAdderConnectivity(Network network, Reporter reporter, boolean throwException) {
