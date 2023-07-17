@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +32,7 @@ class VoltageAngleLimitTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
 
         network.newVoltageAngleLimit()
+        .setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
             .from(TerminalRef.create("LINE_S2S3", Side.ONE))
             .to(TerminalRef.create("LINE_S2S3", Side.TWO))
             .withLimit(1.0)
@@ -47,6 +49,8 @@ class VoltageAngleLimitTest {
         assertEquals(2, network.getVoltageAngleLimits().size());
 
         VoltageAngleLimit val0 = network.getVoltageAngleLimits().get(0);
+        assertTrue(val0.getOptionalName().isPresent());
+        val0.getOptionalName().ifPresent(name -> assertEquals("VOLTAGE_ANGLE_LIMIT_LINE_S2S3", name));
         assertEquals("LINE_S2S3", val0.getTerminalFrom().getConnectable().getId());
         assertEquals(Side.ONE, TerminalRef.getConnectableSide(val0.getTerminalFrom()));
         assertEquals("LINE_S2S3", val0.getTerminalTo().getConnectable().getId());
@@ -55,6 +59,7 @@ class VoltageAngleLimitTest {
         assertEquals(FlowDirection.FROM_TO, val0.getFlowDirection());
 
         VoltageAngleLimit val1 = network.getVoltageAngleLimits().get(1);
+        assertTrue(val1.getOptionalName().isEmpty());
         assertEquals("LD1", val1.getTerminalFrom().getConnectable().getId());
         assertEquals(Side.ONE, TerminalRef.getConnectableSide(val1.getTerminalFrom()));
         assertEquals("LD6", val1.getTerminalTo().getConnectable().getId());

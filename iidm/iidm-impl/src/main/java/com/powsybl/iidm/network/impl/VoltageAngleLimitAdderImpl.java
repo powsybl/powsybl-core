@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
 
     private final Ref<NetworkImpl> networkRef;
+    private String name;
     private TerminalRef from;
     private TerminalRef to;
     private double limit = Double.NaN;
@@ -26,6 +27,12 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
 
     VoltageAngleLimitAdderImpl(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;
+    }
+
+    @Override
+    public VoltageAngleLimitAdderImpl setName(String name) {
+        this.name = name;
+        return this;
     }
 
     @Override
@@ -67,7 +74,7 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
             throw new IllegalStateException("VoltageAngleLimit can not be defined on threeWindingsTransformers : " + terminalTo.getConnectable().getId());
         }
 
-        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(terminalFrom, terminalTo, limit, flowDirection);
+        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(name, terminalFrom, terminalTo, limit, flowDirection);
         networkRef.get().getVoltageAngleLimits().add(voltageAngleLimit);
         return voltageAngleLimit;
     }

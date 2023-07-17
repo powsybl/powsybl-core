@@ -47,7 +47,7 @@
         <iidm:from id="NHV1_NHV2_2" side="ONE"/>
         <iidm:to id="NHV1_NHV2_2" side="TWO"/>
     </iidm:voltageAngleLimit>
-    <iidm:voltageAngleLimit limit="0.35" flowDirection="BOTH_DIRECTIONS">
+    <iidm:voltageAngleLimit name="VOLTAGE_ANGLE_LIMIT_NGEN_NHV1" limit="0.35" flowDirection="BOTH_DIRECTIONS">
         <iidm:from id="NGEN_NHV1" side="ONE"/>
         <iidm:to id="NGEN_NHV1" side="TWO"/>
     </iidm:voltageAngleLimit>

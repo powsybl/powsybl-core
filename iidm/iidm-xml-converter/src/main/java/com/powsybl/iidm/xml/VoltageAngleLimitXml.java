@@ -8,6 +8,9 @@
 
 package com.powsybl.iidm.xml;
 
+import javax.xml.stream.XMLStreamException;
+
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageAngleLimit;
@@ -23,6 +26,7 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 public final class VoltageAngleLimitXml {
 
     private static final String VOLTAGE_ANGLE_LIMIT = "voltageAngleLimit";
+    private static final String NAME = "name";
     private static final String LIMIT = "limit";
     private static final String FLOW_DIRECTION = "flowDirection";
     private static final String FROM = "from";
@@ -32,6 +36,13 @@ public final class VoltageAngleLimitXml {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
 
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), VOLTAGE_ANGLE_LIMIT);
+            voltageAngleLimit.getOptionalName().ifPresent(name -> {
+                try {
+                    context.getWriter().writeAttribute(NAME, context.getAnonymizer().anonymizeString(name));
+                } catch (XMLStreamException e) {
+                    throw new UncheckedXmlStreamException(e);
+                }
+            });
             XmlUtil.writeDouble(LIMIT, voltageAngleLimit.getLimit(), context.getWriter());
             context.getWriter().writeAttribute(FLOW_DIRECTION, voltageAngleLimit.getFlowDirection().name());
 
@@ -45,11 +56,13 @@ public final class VoltageAngleLimitXml {
     public static void read(Network network, NetworkXmlReaderContext context) {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
 
+            String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, NAME));
             double limit = XmlUtil.readDoubleAttribute(context.getReader(), LIMIT);
             String flowDirectionString = context.getReader().getAttributeValue(null, FLOW_DIRECTION);
 
             VoltageAngleLimitAdder adder = network.newVoltageAngleLimit();
             adder
+                .setName(name)
                 .withLimit(limit)
                 .withFlowDirection(FlowDirection.valueOf(flowDirectionString));
 

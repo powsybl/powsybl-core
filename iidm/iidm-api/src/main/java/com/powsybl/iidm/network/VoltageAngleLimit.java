@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -23,6 +25,11 @@ public interface VoltageAngleLimit extends OperationalLimits {
     default LimitType getLimitType() {
         return LimitType.VOLTAGE_ANGLE;
     }
+
+    /**
+     * Return an optional containing the name of the object if it exists. If not, return an empty optional.
+     */
+    Optional<String> getOptionalName();
 
     /**
      * Get the Terminal from

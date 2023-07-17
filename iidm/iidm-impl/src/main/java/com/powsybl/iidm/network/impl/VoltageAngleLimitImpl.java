@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import java.util.Optional;
+
 import com.powsybl.iidm.network.*;
 
 /**
@@ -16,11 +18,17 @@ import com.powsybl.iidm.network.*;
  */
 class VoltageAngleLimitImpl implements VoltageAngleLimit {
 
-    VoltageAngleLimitImpl(Terminal terminalFrom, Terminal terminalTo, double limit, FlowDirection flowDirection) {
+    VoltageAngleLimitImpl(String name, Terminal terminalFrom, Terminal terminalTo, double limit, FlowDirection flowDirection) {
+        this.name = name;
         this.terminalFrom = terminalFrom;
         this.terminalTo = terminalTo;
         this.limit = limit;
         this.flowDirection = flowDirection;
+    }
+
+    @Override
+    public Optional<String> getOptionalName() {
+        return Optional.ofNullable(name);
     }
 
     @Override
@@ -43,6 +51,7 @@ class VoltageAngleLimitImpl implements VoltageAngleLimit {
         return flowDirection;
     }
 
+    private String name;
     private Terminal terminalFrom;
     private Terminal terminalTo;
     private double limit;

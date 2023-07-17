@@ -16,6 +16,8 @@ import com.powsybl.iidm.network.VoltageAngleLimit.FlowDirection;
 
 public interface VoltageAngleLimitAdder extends OperationalLimitsAdder<VoltageAngleLimit, VoltageAngleLimitAdder> {
 
+    VoltageAngleLimitAdder setName(String name);
+
     VoltageAngleLimitAdder from(TerminalRef from);
 
     VoltageAngleLimitAdder to(TerminalRef to);

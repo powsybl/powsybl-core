@@ -636,6 +636,7 @@
             <xs:element name="from" type="iidm:TerminalRef"/>
             <xs:element name="to" type="iidm:TerminalRef"/>
         </xs:sequence>
+		<xs:attribute name="name" use="optional" type="xs:string"/>
         <xs:attribute name="limit" use="required" type="xs:double"/>
         <xs:attribute name="flowDirection" use="required" type="xs:string"/>
     </xs:complexType>
