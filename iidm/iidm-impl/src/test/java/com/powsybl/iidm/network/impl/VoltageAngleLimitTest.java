@@ -51,19 +51,22 @@ class VoltageAngleLimitTest {
         VoltageAngleLimit val0 = network.getVoltageAngleLimits().get(0);
         assertTrue(val0.getOptionalName().isPresent());
         val0.getOptionalName().ifPresent(name -> assertEquals("VOLTAGE_ANGLE_LIMIT_LINE_S2S3", name));
+
         assertEquals("LINE_S2S3", val0.getTerminalFrom().getConnectable().getId());
-        assertEquals(Side.ONE, TerminalRef.getConnectableSide(val0.getTerminalFrom()));
+        assertTrue(TerminalRef.getConnectableSide(val0.getTerminalFrom()).isPresent());
+        TerminalRef.getConnectableSide(val0.getTerminalFrom()).ifPresent(side -> assertEquals(Side.ONE, side));
         assertEquals("LINE_S2S3", val0.getTerminalTo().getConnectable().getId());
-        assertEquals(Side.TWO, TerminalRef.getConnectableSide(val0.getTerminalTo()));
+        assertTrue(TerminalRef.getConnectableSide(val0.getTerminalTo()).isPresent());
+        TerminalRef.getConnectableSide(val0.getTerminalTo()).ifPresent(side -> assertEquals(Side.TWO, side));
         assertEquals(1.0, val0.getLimit());
         assertEquals(FlowDirection.FROM_TO, val0.getFlowDirection());
 
         VoltageAngleLimit val1 = network.getVoltageAngleLimits().get(1);
         assertTrue(val1.getOptionalName().isEmpty());
         assertEquals("LD1", val1.getTerminalFrom().getConnectable().getId());
-        assertEquals(Side.ONE, TerminalRef.getConnectableSide(val1.getTerminalFrom()));
+        assertTrue(TerminalRef.getConnectableSide(val1.getTerminalFrom()).isEmpty());
         assertEquals("LD6", val1.getTerminalTo().getConnectable().getId());
-        assertEquals(Side.ONE, TerminalRef.getConnectableSide(val1.getTerminalTo()));
+        assertTrue(TerminalRef.getConnectableSide(val1.getTerminalTo()).isEmpty());
         assertEquals(1.0, val1.getLimit());
         assertEquals(FlowDirection.TO_FROM, val1.getFlowDirection());
     }

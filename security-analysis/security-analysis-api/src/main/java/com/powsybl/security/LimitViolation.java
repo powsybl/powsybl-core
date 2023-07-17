@@ -225,9 +225,10 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     private static Branch.Side checkSide(LimitViolationType limitType, Branch.Side side) {
         if (limitType == LimitViolationType.ACTIVE_POWER
             || limitType == LimitViolationType.APPARENT_POWER
-            || limitType == LimitViolationType.CURRENT
-            || limitType == LimitViolationType.VOLTAGE_ANGLE) {
+            || limitType == LimitViolationType.CURRENT) {
             return Objects.requireNonNull(side);
+        } else if (limitType == LimitViolationType.VOLTAGE_ANGLE) { // Could be null depending on the type of connectable
+            return side;
         } else {
             return null;
         }

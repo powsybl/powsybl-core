@@ -15,6 +15,7 @@ import com.powsybl.security.LimitViolationType;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -103,7 +104,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
 
         if (limitViolation) {
             consumer.accept(new LimitViolation(getId(voltageAngleLimit), LimitViolationType.VOLTAGE_ANGLE,
-                voltageAngleLimit.getLimit(), limitReduction, value, convert(getSide(voltageAngleLimit))));
+                voltageAngleLimit.getLimit(), limitReduction, value, getSide(voltageAngleLimit)));
         }
     }
 
@@ -112,8 +113,9 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         return voltageAngleLimit.getTerminalFrom().getConnectable().getId();
     }
 
-    static TerminalRef.Side getSide(VoltageAngleLimit voltageAngleLimit) {
-        return TerminalRef.getConnectableSide(voltageAngleLimit.getTerminalFrom());
+    static Branch.Side getSide(VoltageAngleLimit voltageAngleLimit) {
+        Optional<TerminalRef.Side> side = TerminalRef.getConnectableSide(voltageAngleLimit.getTerminalFrom());
+        return side.isEmpty() ? null : convert(side.get());
     }
 
     private static Branch.Side convert(TerminalRef.Side side) {

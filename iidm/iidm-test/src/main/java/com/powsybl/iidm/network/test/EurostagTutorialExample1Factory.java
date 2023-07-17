@@ -865,7 +865,7 @@ public final class EurostagTutorialExample1Factory {
 
         network.newVoltageAngleLimit()
             .setName("VOLTAGE_ANGLE_LIMIT_NGEN_NHV1")
-            .from(TerminalRef.create("NGEN_NHV1", Side.ONE))
+            .from(TerminalRef.create("GEN"))
             .to(TerminalRef.create("NGEN_NHV1", Side.TWO))
             .withLimit(0.35)
             .withFlowDirection(FlowDirection.BOTH_DIRECTIONS)

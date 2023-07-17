@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
+
 import com.powsybl.commons.PowsyblException;
 
 /**
@@ -30,21 +32,21 @@ public final class TerminalRef {
     }
 
     public static TerminalRef create(String id) {
-        return new TerminalRef(id, Side.ONE);
+        return new TerminalRef(id, null);
     }
 
     public static TerminalRef create(String id, Side side) {
         return new TerminalRef(id, side);
     }
 
-    public static TerminalRef.Side getConnectableSide(Terminal terminal) {
+    public static Optional<TerminalRef.Side> getConnectableSide(Terminal terminal) {
         Connectable<?> c = terminal.getConnectable();
         if (c instanceof Injection) {
-            return TerminalRef.Side.ONE;
+            return Optional.empty();
         } else if (c instanceof Branch) {
-            return toSide(((Branch) c).getSide(terminal));
+            return Optional.of(toSide(((Branch) c).getSide(terminal)));
         } else if (c instanceof ThreeWindingsTransformer) {
-            return toSide(((ThreeWindingsTransformer) c).getSide(terminal));
+            return Optional.of(toSide(((ThreeWindingsTransformer) c).getSide(terminal)));
         } else {
             throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
         }
@@ -118,7 +120,7 @@ public final class TerminalRef {
         return id;
     }
 
-    public Side getSide() {
-        return side;
+    public Optional<Side> getSide() {
+        return Optional.ofNullable(side);
     }
 }

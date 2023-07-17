@@ -8,6 +8,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
@@ -50,9 +51,13 @@ public final class TerminalRefXml {
                     t.getConnectable().getId()));
         }
         writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
-        if (c.getTerminals().size() > 1) {
-            writer.writeAttribute("side", TerminalRef.getConnectableSide(t).name());
-        }
+        TerminalRef.getConnectableSide(t).ifPresent(side -> {
+            try {
+                writer.writeAttribute("side", side.name());
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
     }
 
     // FIXME(Luma) write and read are not exactly symmetrical at this point

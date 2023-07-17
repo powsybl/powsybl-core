@@ -275,7 +275,7 @@ class DefaultLimitViolationDetectorTest {
                 assertEquals(LimitViolationType.VOLTAGE_ANGLE, v.getLimitType());
                 assertEquals(0.35, v.getLimit(), 0d);
                 assertEquals(-0.40, v.getValue(), 0d);
-                assertEquals(Branch.Side.ONE, v.getSide());
+                assertNull(v.getSide());
                 assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
             });
     }
