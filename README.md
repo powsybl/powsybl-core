@@ -43,7 +43,7 @@ https://github.com/powsybl/powsybl-gse page.
 
 Powsybl-core project is fully written in Java, so you only need few requirements:
 - JDK *(11 or greater)*
-- Maven *(3.3.9 or greater)*
+- Maven *(3.3.9 or greater)* - you could use the embedded maven wrapper instead if you prefer (see [Using Maven Wrapper](#using-maven-wrapper))
 
 To run all the tests, simply launch the following command from the root of the repository:
 ```
@@ -93,9 +93,55 @@ updated each time you use the `install.sh` script.
 | ------ | ----------- | ------------- |
 | --help | Display this help | |
 | --prefix | Set the installation directory | $HOME/powsybl |
+| --mvn | Set the maven command to use | mvn | 
 
 ### Default configuration file
 ```
 #  -- Global options --
 powsybl_prefix=$HOME/powsybl
+powsybl_mvn=mvn
 ```
+
+## Using Maven Wrapper
+If you don't have a proper Maven installed, you could use the [Apache Maven Wrapper](https://maven.apache.org/wrapper/)
+scripts provided. They will download a compatible maven distribution and use it automatically.
+
+### Configuration
+#### Configure the access to the maven distributions
+In order to work properly, Maven Wrapper needs to download 2 artifacts: the maven distribution and the maven wrapper
+distribution. By default, these are downloaded from the online Maven repository.
+
+##### Internet access authentication
+If your internet access requires a Basic Authentication, you should define the following variables in your environment:
+- `MVNW_USERNAME`: the username;
+- `MVNW_PASSWORD`: the password.
+
+##### Using a Maven Repository Manager
+If you prefer to use an internal Maven Repository Manager, you should define the following variable in your environment:
+- `MVNW_REPOURL`: the URL to your repository manager (for instance `https://my_server/repository/maven-public`)
+
+Note that if you need to use this variable, it must be set for **each maven command**. Else, the Maven Wrapper will try to
+retrieve the maven distribution from the online Maven repository (even if one was already downloaded from another location).
+
+##### Checking your access configuration
+You could check your configuration with the following command:
+```shell
+./mvnw -version
+```
+
+If you encounter any problem, you could specify `MVNW_VERBOSE=true` and relaunch the command to have
+further information.
+
+#### Configuring `install.sh` to use maven wrapper
+To indicate `install.sh` to use Maven Wrapper, you need to configure it with the `--mvn` option:
+```shell
+./install.sh clean --mvn ./mvnw
+```
+
+You can revert this configuration with the following command:
+```shell
+./install.sh clean --mvn mvn
+```
+
+### Usage
+Once the configuration is done, you just need to use `./mvnw` instead of `mvn` in your commands.
