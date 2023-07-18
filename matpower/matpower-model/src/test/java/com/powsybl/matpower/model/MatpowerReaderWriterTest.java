@@ -43,7 +43,7 @@ class MatpowerReaderWriterTest {
     private void testMatpowerFile(MatpowerModel model) throws IOException {
         // write the model to a bin file
         Path file = fileSystem.getPath("/work/newmodel.mat");
-        MatpowerWriter.write(model, file);
+        MatpowerWriter.write(model, file, true);
 
         // read the bin model back
         MatpowerModel model2 = MatpowerReader.read(file, model.getCaseName());
