@@ -39,88 +39,17 @@ public class DanglingLineData {
     public DanglingLineData(DanglingLine danglingLine, boolean splitShuntAdmittance) {
         this.danglingLine = Objects.requireNonNull(danglingLine);
 
+        if (isZ0(danglingLine)) {
+            dlDataZ0(danglingLine);
+        } else {
+            dlData(danglingLine, splitShuntAdmittance);
+        }
+    }
+
+    private void dlDataZ0(DanglingLine danglingLine) {
         double networkU = getV(danglingLine);
         double networkTheta = getTheta(danglingLine);
-
-        if (isDcApproximation(networkU, networkTheta)) {
-            danglingLineDataDcApproximation(networkTheta, splitShuntAdmittance);
-        } else {
-            danglingLineData(networkU, networkTheta, splitShuntAdmittance);
-        }
-    }
-
-    private boolean isDcApproximation(double networkU, double networkTheta) {
-        return Double.isNaN(networkU) && !Double.isNaN(networkTheta);
-    }
-
-    private void danglingLineData(double networkU, double networkTheta, boolean splitShuntAdmittance) {
         Complex networkFlow = new Complex(danglingLine.getTerminal().getP(), danglingLine.getTerminal().getQ());
-
-        if (!isVoltageValid(networkU, networkTheta)) {
-            dlDataWhenThereIsNotVoltageAtNetworkSide(networkFlow);
-            return;
-        }
-
-        if (isZ0(danglingLine)) {
-            dlDataWhenThereIsVoltageAtNetworkSideAndIsZ0(networkU, networkTheta, networkFlow);
-            return;
-        }
-
-        // boundary voltage from properties, paired and not paired danglingLines are considered
-        double boundaryV = getDoubleProperty(danglingLine, PROPERTY_V);
-        double boundaryTheta = Math.toRadians(getDoubleProperty(danglingLine, PROPERTY_ANGLE));
-
-        if (isVoltageValid(boundaryV, boundaryTheta)) {
-            dlDataWhenThereAreVoltagesAtBothSides(networkU, networkTheta, boundaryV, boundaryTheta, networkFlow, splitShuntAdmittance);
-            return;
-        }
-
-        // Voltage and flow at the network side are available
-        if (isFlowValid(networkFlow)) {
-            dlDataWhenThereAreVoltageAndFlowAtNetworkSide(networkU, networkTheta, networkFlow, splitShuntAdmittance);
-            return;
-        }
-
-        dlDataNotSupportedCases(networkFlow);
-    }
-
-    private void danglingLineDataDcApproximation(double networkTheta, boolean splitShuntAdmittance) {
-
-        double networkFlow = danglingLine.getTerminal().getP();
-
-        if (isZ0(danglingLine)) {
-            dcApproximationDlDataWhenThereIsVoltageAtNetworkSideAndIsZ0(networkTheta, networkFlow);
-            return;
-        }
-
-        // boundary voltage angle from properties, paired and not paired danglingLines are considered
-        double boundaryTheta = Math.toRadians(getDoubleProperty(danglingLine, PROPERTY_ANGLE));
-
-        if (isDcVoltageValid(boundaryTheta)) {
-            dcApproximationDlDataWhenThereAreVoltagesAtBothSides(networkTheta, boundaryTheta, networkFlow);
-            return;
-        }
-
-        // Voltage and flow at the network side are available
-        if (isDcFlowValid(networkFlow)) {
-            dcApproximationDlDataWhenThereAreVoltageAndFlowAtNetworkSide(networkTheta, networkFlow, splitShuntAdmittance);
-            return;
-        }
-
-        dcApproximationDlDataNotSupportedCases(networkFlow);
-    }
-
-    private void dlDataWhenThereIsNotVoltageAtNetworkSide(Complex networkFlow) {
-
-        boundaryBusU = Double.NaN;
-        boundaryBusTheta = Double.NaN;
-        boundaryFlowP = isZ0(danglingLine) ? -networkFlow.getReal() : Double.NaN;
-        boundaryFlowQ = isZ0(danglingLine) ? -networkFlow.getImaginary() : Double.NaN;
-        networkFlowP = networkFlow.getReal();
-        networkFlowQ = networkFlow.getImaginary();
-    }
-
-    private void dlDataWhenThereIsVoltageAtNetworkSideAndIsZ0(double networkU, double networkTheta, Complex networkFlow) {
 
         boundaryBusU = networkU;
         boundaryBusTheta = networkTheta;
@@ -128,6 +57,41 @@ public class DanglingLineData {
         boundaryFlowQ = -networkFlow.getImaginary();
         networkFlowP = networkFlow.getReal();
         networkFlowQ = networkFlow.getImaginary();
+    }
+
+    private void dlData(DanglingLine danglingLine, boolean splitShuntAdmittance) {
+        double networkU = getV(danglingLine);
+        double networkTheta = getTheta(danglingLine);
+
+        Complex networkFlow = new Complex(danglingLine.getTerminal().getP(), danglingLine.getTerminal().getQ());
+
+        // boundary voltage from properties, paired and not paired danglingLines are considered
+        double boundaryV = getDoubleProperty(danglingLine, PROPERTY_V);
+        double boundaryTheta = Math.toRadians(getDoubleProperty(danglingLine, PROPERTY_ANGLE));
+
+        if (isVoltageValid(networkU, networkTheta) && isVoltageValid(boundaryV, boundaryTheta)) {
+            dlDataWhenThereAreVoltagesAtBothSides(networkU, networkTheta, boundaryV, boundaryTheta, networkFlow, splitShuntAdmittance);
+            return;
+        }
+
+        // Voltage and flow at the network side are available
+        if (isVoltageValid(networkU, networkTheta) && isFlowValid(networkFlow)) {
+            dlDataWhenThereAreVoltageAndFlowAtNetworkSide(networkU, networkTheta, networkFlow, splitShuntAdmittance);
+            return;
+        }
+
+        // DcApproximation
+        if (isDcVoltageValid(networkTheta) && isDcVoltageValid(boundaryTheta)) {
+            dcApproximationDlDataWhenThereAreVoltagesAtBothSides(networkTheta, boundaryTheta, networkFlow);
+            return;
+        }
+
+        if (isDcVoltageValid(networkTheta) && isDcFlowValid(networkFlow.getReal())) {
+            dcApproximationDlDataWhenThereAreVoltageAndFlowAtNetworkSide(networkTheta, networkFlow, splitShuntAdmittance);
+            return;
+        }
+
+        dlDataNotSupportedCases(networkFlow);
     }
 
     private void dlDataWhenThereAreVoltagesAtBothSides(double networkU, double networkTheta, double vBoundary,
@@ -165,30 +129,8 @@ public class DanglingLineData {
         networkFlowQ = networkFlow.getImaginary();
     }
 
-    // it is possible to calculate the boundary voltage by knowing the network side voltage
-    // and the boundary injection (with and without voltage control), nevertheless
-    // these configurations are not considered in the current version
-    private void dlDataNotSupportedCases(Complex networkFlow) {
-        boundaryBusU = Double.NaN;
-        boundaryBusTheta = Double.NaN;
-        boundaryFlowP = Double.NaN;
-        boundaryFlowQ = Double.NaN;
-        networkFlowP = networkFlow.getReal();
-        networkFlowQ = networkFlow.getImaginary();
-    }
-
-    private void dcApproximationDlDataWhenThereIsVoltageAtNetworkSideAndIsZ0(double networkTheta, double networkFlow) {
-
-        boundaryBusU = Double.NaN;
-        boundaryBusTheta = networkTheta;
-        boundaryFlowP = -networkFlow;
-        boundaryFlowQ = Double.NaN;
-        networkFlowP = networkFlow;
-        networkFlowQ = Double.NaN;
-    }
-
     private void dcApproximationDlDataWhenThereAreVoltagesAtBothSides(double networkTheta, double boundaryTheta,
-        double networkFlow) {
+        Complex networkFlow) {
 
         double xpu = danglingLine.getX() / (danglingLine.getTerminal().getVoltageLevel().getNominalV()
             * danglingLine.getTerminal().getVoltageLevel().getNominalV());
@@ -199,31 +141,34 @@ public class DanglingLineData {
         boundaryBusTheta = boundaryTheta;
         boundaryFlowP = boundaryflow;
         boundaryFlowQ = Double.NaN;
-        networkFlowP = Double.isNaN(networkFlow) ? -boundaryflow : networkFlow;
-        networkFlowQ = Double.NaN;
+        networkFlowP = Double.isNaN(networkFlow.getReal()) ? -boundaryflow : networkFlow.getReal();
+        networkFlowQ = networkFlow.getImaginary();
     }
 
-    private void dcApproximationDlDataWhenThereAreVoltageAndFlowAtNetworkSide(double networkTheta, double networkFlow,
+    private void dcApproximationDlDataWhenThereAreVoltageAndFlowAtNetworkSide(double networkTheta, Complex networkFlow,
         boolean splitShuntAdmittance) {
 
-        SV sv = new SV(networkFlow, Double.NaN, Double.NaN, Math.toDegrees(networkTheta), Branch.Side.ONE)
+        SV sv = new SV(networkFlow.getReal(), Double.NaN, Double.NaN, Math.toDegrees(networkTheta), Branch.Side.ONE)
             .otherSide(danglingLine, splitShuntAdmittance);
 
         boundaryBusU = sv.getU();
         boundaryBusTheta = Math.toRadians(sv.getA());
         boundaryFlowP = sv.getP();
         boundaryFlowQ = sv.getQ();
-        networkFlowP = networkFlow;
-        networkFlowQ = Double.NaN;
+        networkFlowP = networkFlow.getReal();
+        networkFlowQ = networkFlow.getImaginary();
     }
 
-    private void dcApproximationDlDataNotSupportedCases(double networkFlow) {
+    // it is possible to calculate the boundary voltage by knowing the network side voltage
+    // and the boundary injection (with and without voltage control), nevertheless
+    // these configurations are not considered in the current version
+    private void dlDataNotSupportedCases(Complex networkFlow) {
         boundaryBusU = Double.NaN;
         boundaryBusTheta = Double.NaN;
         boundaryFlowP = Double.NaN;
         boundaryFlowQ = Double.NaN;
-        networkFlowP = networkFlow;
-        networkFlowQ = Double.NaN;
+        networkFlowP = networkFlow.getReal();
+        networkFlowQ = networkFlow.getImaginary();
     }
 
     private static double getDoubleProperty(DanglingLine danglingLine, String name) {
@@ -291,4 +236,3 @@ public class DanglingLineData {
         return networkFlowQ;
     }
 }
-
