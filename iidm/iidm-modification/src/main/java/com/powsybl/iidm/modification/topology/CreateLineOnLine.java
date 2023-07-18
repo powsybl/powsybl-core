@@ -211,7 +211,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
             lineAdder.setNode2(firstAvailableNode);
-            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, originalLineId, voltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, namingStrategy, originalLineId, voltageLevel.getNodeBreakerView());
         } else {
             throw new IllegalStateException();
         }
