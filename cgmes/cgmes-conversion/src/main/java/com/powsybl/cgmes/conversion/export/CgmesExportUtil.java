@@ -53,20 +53,28 @@ public final class CgmesExportUtil {
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
 
-    private static double fixValue(double value) {
-        return Double.isNaN(value) ? 0.0 : value; // disconnected equipment in general, a bit dangerous.
+    private static double fixValue(double value, double defaultValue) {
+        return Double.isNaN(value) ? defaultValue : value;
     }
 
     public static String format(double value) {
+        return format(value, 0.0); // disconnected equipment in general, a bit dangerous.
+    }
+
+    public static String format(double value, double defaultValue) {
         // Always use scientific format for extreme values
         if (value == Double.MAX_VALUE || value == -Double.MAX_VALUE) {
-            return scientificFormat(value);
+            return scientificFormat(value, defaultValue);
         }
-        return DOUBLE_FORMAT.format(fixValue(value));
+        return DOUBLE_FORMAT.format(fixValue(value, defaultValue));
     }
 
     public static String scientificFormat(double value) {
-        return SCIENTIFIC_FORMAT.format(fixValue(value));
+        return scientificFormat(value, 0.0); // disconnected equipment in general, a bit dangerous.
+    }
+
+    private static String scientificFormat(double value, double defaultValue) {
+        return SCIENTIFIC_FORMAT.format(fixValue(value, defaultValue));
     }
 
     public static String format(int value) {
@@ -218,7 +226,14 @@ public final class CgmesExportUtil {
         if (c.getTerminals().size() == 1) {
             if (c instanceof DanglingLine) {
                 DanglingLine dl = (DanglingLine) c;
-                return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
+                if (dl.isPaired()) {
+                    // TODO(Luma) Export tie line components instead of a single equipment
+                    // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
+                    // We need to return the proper terminal of the single tie line that will be exported
+                    // When we change the export and write the two dangling lines as separate equipment,
+                    // then we should always return 1 and forget about special case
+                    return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
+                }
             }
             return 1;
         } else {
@@ -297,8 +312,10 @@ public final class CgmesExportUtil {
     public static String getTerminalId(Terminal t, CgmesExportContext context) {
         String aliasType;
         Connectable<?> c = t.getConnectable();
-        if (c instanceof DanglingLine && !((DanglingLine) c).isPaired()) {
-            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL;
+        // For dangling lines terminal id is always stored at TERMINAL1 alias,
+        // it doesn't matter if it is paired or not
+        if (c instanceof DanglingLine) {
+            aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
         } else {
             int sequenceNumber = getTerminalSequenceNumber(t);
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
