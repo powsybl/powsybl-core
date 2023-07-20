@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.VoltageAngleLimit.FlowDirection;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
@@ -22,8 +21,9 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
     private String name;
     private TerminalRef from;
     private TerminalRef to;
-    private double limit = Double.NaN;
-    private FlowDirection flowDirection = FlowDirection.BOTH_DIRECTIONS;
+    private double lowLimit = Double.NaN;
+
+    private double highLimit = Double.NaN;
 
     VoltageAngleLimitAdderImpl(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;
@@ -36,33 +36,36 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
     }
 
     @Override
-    public VoltageAngleLimitAdderImpl from(TerminalRef from) {
+    public VoltageAngleLimitAdderImpl setReferenceTerminal(TerminalRef from) {
         this.from = from;
         return this;
     }
 
     @Override
-    public VoltageAngleLimitAdderImpl to(TerminalRef to) {
+    public VoltageAngleLimitAdderImpl setOtherTerminal(TerminalRef to) {
         this.to = to;
         return this;
     }
 
     @Override
-    public VoltageAngleLimitAdderImpl withLimit(double limit) {
-        this.limit = limit;
+    public VoltageAngleLimitAdderImpl setLowLimit(double lowLimit) {
+        this.lowLimit = lowLimit;
         return this;
     }
 
     @Override
-    public VoltageAngleLimitAdderImpl withFlowDirection(FlowDirection flowDirection) {
-        this.flowDirection = flowDirection;
+    public VoltageAngleLimitAdderImpl setHighLimit(double highLimit) {
+        this.highLimit = highLimit;
         return this;
     }
 
     @Override
     public VoltageAngleLimit add() {
-        if (limit <= 0) {
-            throw new IllegalStateException("Limit <= 0: " + Double.toString(limit));
+        if (name == null) {
+            throw new IllegalStateException("VoltageAngleLimit name is mandatory.");
+        }
+        if (!Double.isNaN(lowLimit) && !Double.isNaN(highLimit) && lowLimit >= highLimit) {
+            throw new IllegalStateException("VoltageAngleLimit lowLimit must be inferior to highLimit.");
         }
         TerminalRef.Side sideFrom = from.getSide().orElse(TerminalRef.Side.ONE);
         Terminal terminalFrom = TerminalRef.resolve(from.getId(), sideFrom, networkRef.get());
@@ -77,7 +80,7 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
             throw new IllegalStateException("VoltageAngleLimit can not be defined on threeWindingsTransformers : " + terminalTo.getConnectable().getId());
         }
 
-        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(name, terminalFrom, terminalTo, limit, flowDirection);
+        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(name, terminalFrom, terminalTo, lowLimit, highLimit);
         networkRef.get().getVoltageAngleLimits().add(voltageAngleLimit);
         return voltageAngleLimit;
     }

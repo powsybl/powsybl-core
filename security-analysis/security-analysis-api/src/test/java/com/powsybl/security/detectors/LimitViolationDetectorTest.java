@@ -103,16 +103,16 @@ class LimitViolationDetectorTest {
 
     private void doCheckVoltageAngle(Contingency contingency, VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
         if (voltageAngleLimit == voltageAngleLimit0) {
-            consumer.accept(LimitViolations.voltageAngle()
-                .subject(voltageAngleLimit.getTerminalFrom().getConnectable().getId())
+            consumer.accept(LimitViolations.highVoltageAngle()
+                .subject(voltageAngleLimit.getReferenceTerminal().getConnectable().getId())
                 .side(Branch.Side.ONE)
                 .value(0.30)
                 .limit(0.25)
                 .build());
         }
         if (contingency == contingency1 && voltageAngleLimit == voltageAngleLimit1) {
-            consumer.accept(LimitViolations.voltageAngle()
-                .subject(voltageAngleLimit.getTerminalFrom().getConnectable().getId())
+            consumer.accept(LimitViolations.lowVoltageAngle()
+                .subject(voltageAngleLimit.getReferenceTerminal().getConnectable().getId())
                 .side(Branch.Side.ONE)
                 .value(-0.22)
                 .limit(0.20)
@@ -205,7 +205,7 @@ class LimitViolationDetectorTest {
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
         assertEquals(3, collectedViolations.stream().filter(l -> l.getSubjectId().equals("NHV1_NHV2_1")).count());
-        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.VOLTAGE_ANGLE).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE).count());
     }
 
     @Test
@@ -238,7 +238,7 @@ class LimitViolationDetectorTest {
     void voltageAngleLimit0Has1Violation() {
         contingencyBasedDetector().checkVoltageAngle(network.getVoltageAngleLimits().get(0), collectedViolations::add);
         assertEquals(1, collectedViolations.size());
-        assertSame(LimitViolationType.VOLTAGE_ANGLE, collectedViolations.get(0).getLimitType());
+        assertSame(LimitViolationType.HIGH_VOLTAGE_ANGLE, collectedViolations.get(0).getLimitType());
     }
 
     @Test
@@ -248,7 +248,8 @@ class LimitViolationDetectorTest {
         assertEquals(4, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(2, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
-        assertEquals(2, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.VOLTAGE_ANGLE).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE_ANGLE).count());
     }
 
     @Test
@@ -258,7 +259,7 @@ class LimitViolationDetectorTest {
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
-        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.VOLTAGE_ANGLE).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE).count());
     }
 
     @Test
@@ -268,7 +269,7 @@ class LimitViolationDetectorTest {
         assertEquals(3, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.CURRENT).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.LOW_VOLTAGE).count());
         assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE).count());
-        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.VOLTAGE_ANGLE).count());
+        assertEquals(1, collectedViolations.stream().filter(l -> l.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE).count());
     }
 
     @Test

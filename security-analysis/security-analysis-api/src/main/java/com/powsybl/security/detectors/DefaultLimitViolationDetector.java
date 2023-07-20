@@ -79,42 +79,34 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
 
     @Override
     public void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, double value, Consumer<LimitViolation> consumer) {
-        if (Double.isNaN(voltageAngleLimit.getLimit()) || Double.isNaN(value)) {
+        if (Double.isNaN(value)) {
             return;
         }
-
-        boolean limitViolation = false;
-        switch (voltageAngleLimit.getFlowDirection()) {
-            case FROM_TO:
-                if (value >= 0.0 && Math.abs(value) >= voltageAngleLimit.getLimit()) {
-                    limitViolation = true;
+        voltageAngleLimit.getLowLimit().ifPresent(
+            lowLimit -> {
+                if (value <= lowLimit) {
+                    //FIXME subjectId to replace by name ?
+                    consumer.accept(new LimitViolation(getId(voltageAngleLimit), LimitViolationType.LOW_VOLTAGE_ANGLE, lowLimit,
+                            limitReduction, value, getSide(voltageAngleLimit)));
                 }
-                break;
-            case TO_FROM:
-                if (value <= 0.0 && Math.abs(value) >= voltageAngleLimit.getLimit()) {
-                    limitViolation = true;
+            });
+        voltageAngleLimit.getHighLimit().ifPresent(
+            highLimit -> {
+                if (value >= highLimit) {
+                    //FIXME subjectId to replace by name ?
+                    consumer.accept(new LimitViolation(getId(voltageAngleLimit), LimitViolationType.HIGH_VOLTAGE_ANGLE, highLimit,
+                            limitReduction, value, getSide(voltageAngleLimit)));
                 }
-                break;
-            case BOTH_DIRECTIONS:
-                if (Math.abs(value) >= voltageAngleLimit.getLimit()) {
-                    limitViolation = true;
-                }
-                break;
-        }
-
-        if (limitViolation) {
-            consumer.accept(new LimitViolation(getId(voltageAngleLimit), LimitViolationType.VOLTAGE_ANGLE,
-                voltageAngleLimit.getLimit(), limitReduction, value, getSide(voltageAngleLimit)));
-        }
+            });
     }
 
     // The Id must be a connectable, so we use the (Id, Side) of the terminalFrom to identify the limitViolation
     static String getId(VoltageAngleLimit voltageAngleLimit) {
-        return voltageAngleLimit.getTerminalFrom().getConnectable().getId();
+        return voltageAngleLimit.getReferenceTerminal().getConnectable().getId();
     }
 
     static Branch.Side getSide(VoltageAngleLimit voltageAngleLimit) {
-        Optional<TerminalRef.Side> side = TerminalRef.getConnectableSide(voltageAngleLimit.getTerminalFrom());
+        Optional<TerminalRef.Side> side = TerminalRef.getConnectableSide(voltageAngleLimit.getReferenceTerminal());
         return side.isEmpty() ? null : convert(side.get());
     }
 

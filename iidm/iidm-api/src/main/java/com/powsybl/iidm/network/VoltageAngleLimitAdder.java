@@ -7,8 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.VoltageAngleLimit.FlowDirection;
-
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -18,11 +16,11 @@ public interface VoltageAngleLimitAdder extends OperationalLimitsAdder<VoltageAn
 
     VoltageAngleLimitAdder setName(String name);
 
-    VoltageAngleLimitAdder from(TerminalRef from);
+    VoltageAngleLimitAdder setReferenceTerminal(TerminalRef from);
 
-    VoltageAngleLimitAdder to(TerminalRef to);
+    VoltageAngleLimitAdder setOtherTerminal(TerminalRef to);
 
-    VoltageAngleLimitAdder withLimit(double limit);
+    VoltageAngleLimitAdder setLowLimit(double lowLimit);
 
-    VoltageAngleLimitAdder withFlowDirection(FlowDirection flowDirection);
+    VoltageAngleLimitAdder setHighLimit(double highLimit);
 }

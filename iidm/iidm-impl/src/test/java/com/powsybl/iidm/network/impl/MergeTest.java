@@ -30,7 +30,6 @@ import com.powsybl.iidm.network.TerminalRef;
 import com.powsybl.iidm.network.TerminalRef.Side;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageAngleLimit;
-import com.powsybl.iidm.network.VoltageAngleLimit.FlowDirection;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 
@@ -139,10 +138,10 @@ class MergeTest {
     }
 
     private static boolean isContained(List<VoltageAngleLimit> expected, VoltageAngleLimit actual) {
-        return expected.stream().filter(val -> val.getTerminalFrom().getConnectable().getId().equals(actual.getTerminalFrom().getConnectable().getId())
-            && TerminalRef.getConnectableSide(val.getTerminalFrom()).equals(TerminalRef.getConnectableSide(actual.getTerminalFrom()))
-            && val.getTerminalTo().getConnectable().getId().equals(actual.getTerminalTo().getConnectable().getId())
-            && TerminalRef.getConnectableSide(val.getTerminalTo()).equals(TerminalRef.getConnectableSide(actual.getTerminalTo()))).count() == 1;
+        return expected.stream().filter(val -> val.getReferenceTerminal().getConnectable().getId().equals(actual.getReferenceTerminal().getConnectable().getId())
+            && TerminalRef.getConnectableSide(val.getReferenceTerminal()).equals(TerminalRef.getConnectableSide(actual.getReferenceTerminal()))
+            && val.getOtherTerminal().getConnectable().getId().equals(actual.getOtherTerminal().getConnectable().getId())
+            && TerminalRef.getConnectableSide(val.getOtherTerminal()).equals(TerminalRef.getConnectableSide(actual.getOtherTerminal()))).count() == 1;
     }
 
     private static Network createNodeBreakerWithVoltageAngleLimit(String nid) {
@@ -195,10 +194,10 @@ class MergeTest {
         createLine(network, id("S1VL1", nid), id("S2VL1", nid), id("Line-2-2", nid), 2, 2);
 
         network.newVoltageAngleLimit()
-            .from(TerminalRef.create(id("Line-2-2", nid), Side.ONE))
-            .to(TerminalRef.create(id("Dl-3", nid)))
-            .withLimit(0.25)
-            .withFlowDirection(FlowDirection.FROM_TO)
+            .setName("VoltageAngleLimit_Line-2-2_Dl-3")
+            .setReferenceTerminal(TerminalRef.create(id("Line-2-2", nid), Side.ONE))
+            .setOtherTerminal(TerminalRef.create(id("Dl-3", nid)))
+            .setHighLimit(0.25)
             .add();
 
         return network;

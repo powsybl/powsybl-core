@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.TerminalRef.Side;
-import com.powsybl.iidm.network.VoltageAngleLimit.FlowDirection;
 
 import org.joda.time.DateTime;
 
@@ -850,25 +849,25 @@ public final class EurostagTutorialExample1Factory {
         network.setCaseDate(DateTime.parse("2023-06-28T23:11:51.614+02:00"));
 
         network.newVoltageAngleLimit()
-            .from(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
-            .to(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
-            .withLimit(0.25)
-            .withFlowDirection(FlowDirection.FROM_TO)
+            .setName("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_1")
+            .setReferenceTerminal(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
+            .setOtherTerminal(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
+            .setHighLimit(0.25)
             .add();
 
         network.newVoltageAngleLimit()
-            .from(TerminalRef.create("NHV1_NHV2_2", Side.ONE))
-            .to(TerminalRef.create("NHV1_NHV2_2", Side.TWO))
-            .withLimit(0.20)
-            .withFlowDirection(FlowDirection.TO_FROM)
+            .setName("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_2")
+            .setReferenceTerminal(TerminalRef.create("NHV1_NHV2_2", Side.ONE))
+            .setOtherTerminal(TerminalRef.create("NHV1_NHV2_2", Side.TWO))
+            .setLowLimit(0.20)
             .add();
 
         network.newVoltageAngleLimit()
             .setName("VOLTAGE_ANGLE_LIMIT_NGEN_NHV1")
-            .from(TerminalRef.create("GEN"))
-            .to(TerminalRef.create("NGEN_NHV1", Side.TWO))
-            .withLimit(0.35)
-            .withFlowDirection(FlowDirection.BOTH_DIRECTIONS)
+            .setReferenceTerminal(TerminalRef.create("GEN"))
+            .setOtherTerminal(TerminalRef.create("NGEN_NHV1", Side.TWO))
+            .setLowLimit(-0.20)
+            .setHighLimit(0.35)
             .add();
 
         return network;

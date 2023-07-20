@@ -18,42 +18,42 @@ import com.powsybl.iidm.network.*;
  */
 class VoltageAngleLimitImpl implements VoltageAngleLimit {
 
-    VoltageAngleLimitImpl(String name, Terminal terminalFrom, Terminal terminalTo, double limit, FlowDirection flowDirection) {
+    VoltageAngleLimitImpl(String name, Terminal terminalFrom, Terminal terminalTo, double lowLimit, double highLimit) {
         this.name = name;
         this.terminalFrom = terminalFrom;
         this.terminalTo = terminalTo;
-        this.limit = limit;
-        this.flowDirection = flowDirection;
+        this.lowLimit = lowLimit;
+        this.highLimit = highLimit;
     }
 
     @Override
-    public Optional<String> getOptionalName() {
-        return Optional.ofNullable(name);
+    public String getName() {
+        return name;
     }
 
     @Override
-    public Terminal getTerminalFrom() {
+    public Terminal getReferenceTerminal() {
         return terminalFrom;
     }
 
     @Override
-    public Terminal getTerminalTo() {
+    public Terminal getOtherTerminal() {
         return terminalTo;
     }
 
     @Override
-    public double getLimit() {
-        return limit;
+    public Optional<Double> getLowLimit() {
+        return Double.isNaN(lowLimit) ? Optional.empty() : Optional.of(lowLimit);
     }
 
     @Override
-    public FlowDirection getFlowDirection() {
-        return flowDirection;
+    public Optional<Double> getHighLimit() {
+        return Double.isNaN(highLimit) ? Optional.empty() : Optional.of(highLimit);
     }
 
-    private String name;
-    private Terminal terminalFrom;
-    private Terminal terminalTo;
-    private double limit;
-    private FlowDirection flowDirection;
+    private final String name;
+    private final Terminal terminalFrom;
+    private final Terminal terminalTo;
+    private final double lowLimit;
+    private final double highLimit;
 }

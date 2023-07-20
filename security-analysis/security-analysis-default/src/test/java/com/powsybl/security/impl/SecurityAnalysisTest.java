@@ -21,7 +21,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TerminalRef;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.TerminalRef.Side;
-import com.powsybl.iidm.network.VoltageAngleLimit.FlowDirection;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
@@ -103,10 +102,10 @@ class SecurityAnalysisTest {
                 .endTemporaryLimit()
                 .add();
         network.newVoltageAngleLimit()
-            .from(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
-            .to(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
-            .withLimit(0.25)
-            .withFlowDirection(FlowDirection.FROM_TO)
+            .setName("VoltageAngleLimit_NHV1_NHV2_1")
+            .setReferenceTerminal(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
+            .setOtherTerminal(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
+            .setHighLimit(0.25)
             .add();
 
         ComputationManager computationManager = createMockComputationManager();
@@ -157,7 +156,7 @@ class SecurityAnalysisTest {
         assertEquals(1192.5631358010583, extension2.getPreContingencyValue(), 0.0);
 
         LimitViolation violation1 = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(1);
-        assertEquals(LimitViolationType.VOLTAGE_ANGLE, violation1.getLimitType());
+        assertEquals(LimitViolationType.HIGH_VOLTAGE_ANGLE, violation1.getLimitType());
         assertEquals("NHV1_NHV2_1", violation1.getSubjectId());
         assertEquals(Branch.Side.ONE, violation1.getSide());
 

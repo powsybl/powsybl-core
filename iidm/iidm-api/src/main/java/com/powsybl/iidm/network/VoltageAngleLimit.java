@@ -15,39 +15,35 @@ import java.util.Optional;
  */
 public interface VoltageAngleLimit extends OperationalLimits {
 
-    public enum FlowDirection {
-        FROM_TO,
-        TO_FROM,
-        BOTH_DIRECTIONS
-    }
-
     @Override
     default LimitType getLimitType() {
         return LimitType.VOLTAGE_ANGLE;
     }
 
     /**
-     * Return an optional containing the name of the object if it exists. If not, return an empty optional.
+     * Return the mandatory name.
      */
-    Optional<String> getOptionalName();
+    String getName();
 
     /**
-     * Get the Terminal from
+     * If the Reference terminal is associated to a bus REFERENCE and the terminal OTHER is associated to bus OTHER,
+     * the limit violation is checked on the difference between Bus OTHER and Bus REFERENCE (OTHER minus REFERENCE)
      */
-    Terminal getTerminalFrom();
+    Terminal getReferenceTerminal();
 
     /**
-     * Get the Terminal to
+     * If the Reference terminal is associated to a bus REFERENCE and the terminal OTHER is associated to bus OTHER,
+     * the limit violation is checked on the difference between Bus OTHER and Bus REFERENCE (OTHER minus REFERENCE)
      */
-    Terminal getTerminalTo();
+    Terminal getOtherTerminal();
 
     /**
-     * Get the VoltageAngle limit value
+     * Get the low voltage angle limit value
      */
-    double getLimit();
+    Optional<Double> getLowLimit();
 
     /**
-     * Get the flow direction
+     * Get the high voltage angle limit value
      */
-    FlowDirection getFlowDirection();
+    Optional<Double> getHighLimit();
 }
