@@ -127,10 +127,6 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         return parent.getNetwork();
     }
 
-    Network getParentNetwork() {
-        return parent.getParentNetwork();
-    }
-
     @Override
     public PhaseTapChangerAdder setLowTapPosition(int lowTapPosition) {
         this.lowTapPosition = lowTapPosition;
@@ -198,7 +194,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating,
-                regulationTerminal, getParentNetwork(), network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
+                regulationTerminal, network, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "phase tap changer", regulating,
                 targetDeadband, network.getMinValidationLevel()));
         PhaseTapChangerImpl tapChanger

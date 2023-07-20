@@ -116,10 +116,6 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         return parent.getNetwork();
     }
 
-    Network getParentNetwork() {
-        return parent.getParentNetwork();
-    }
-
     @Override
     public RatioTapChangerAdder setLowTapPosition(int lowTapPosition) {
         this.lowTapPosition = lowTapPosition;
@@ -187,7 +183,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
-                targetV, getParentNetwork(), network.getMinValidationLevel()));
+                targetV, network, network.getMinValidationLevel()));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband,
                 network.getMinValidationLevel()));
         RatioTapChangerImpl tapChanger

@@ -94,7 +94,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         NetworkImpl network = getNetwork();
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
                 reactivePowerSetpoint, network.getMinValidationLevel()));
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getVoltageLevel().getParentNetwork());
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
     }
 
 }

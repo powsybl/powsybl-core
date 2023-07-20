@@ -116,7 +116,6 @@ public abstract class AbstractSubnetworksTest {
         //TODO
         // - between 2 subnetworks
         // - between a subnetwork and the main network
-        // - with phase and ratio tap changers
 
         // Detach all
         assertTrue(subnetwork1.isDetachable());

@@ -69,7 +69,6 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     public PhaseTapChangerImpl setRegulating(boolean regulating) {
         NetworkImpl n = getNetwork();
-        //TODO subnetworks: Modify this method to check with getParentNetwork()
         ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(),
                 n, n.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
         Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
@@ -88,7 +87,6 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     public PhaseTapChangerImpl setRegulationMode(RegulationMode regulationMode) {
         NetworkImpl n = getNetwork();
-        //TODO subnetworks: Modify this method to check with getParentNetwork()
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(),
                 isRegulating(), getRegulationTerminal(), n, n.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
         RegulationMode oldValue = this.regulationMode;
@@ -106,7 +104,6 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     public PhaseTapChangerImpl setRegulationValue(double regulationValue) {
         NetworkImpl n = getNetwork();
-        //TODO subnetworks: Modify this method to check with getParentNetwork()
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue,
                 isRegulating(), getRegulationTerminal(), n, n.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
         int variantIndex = network.get().getVariantIndex();
@@ -120,7 +117,6 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     public PhaseTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
         NetworkImpl n = getNetwork();
-        //TODO subnetworks: Modify this method to check with getParentNetwork()
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(),
                 regulationTerminal, n, n.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
         n.invalidateValidationLevel();

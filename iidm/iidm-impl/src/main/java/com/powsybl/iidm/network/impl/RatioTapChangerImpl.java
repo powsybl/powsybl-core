@@ -68,7 +68,6 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
         NetworkImpl n = getNetwork();
-        //TODO subnetworks: Modify this method to check with getParentNetwork()
         ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities,
                 regulatingPoint.getRegulatingTerminal(), getTargetV(), n, n.getMinValidationLevel());
         Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
@@ -87,7 +86,6 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
         NetworkImpl n = getNetwork();
-        //TODO subnetworks: Modify this method to check with getParentNetwork()
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities, regulatingPoint.getRegulatingTerminal(),
                 getTargetV(), n, n.getMinValidationLevel());
         boolean oldValue = this.loadTapChangingCapabilities;
@@ -105,7 +103,6 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setTargetV(double targetV) {
         NetworkImpl n = getNetwork();
-        //TODO subnetworks: Modify this method to check with getParentNetwork()
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities, regulatingPoint.getRegulatingTerminal(),
                 targetV, n, n.getMinValidationLevel());
         int variantIndex = network.get().getVariantIndex();
@@ -119,7 +116,6 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
         NetworkImpl n = getNetwork();
-        //TODO subnetworks: Modify this method to check with getParentNetwork()
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(),
                 loadTapChangingCapabilities, regulationTerminal, getTargetV(), n, n.getMinValidationLevel());
         n.invalidateValidationLevel();

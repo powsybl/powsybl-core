@@ -65,10 +65,6 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return parent.getNetwork();
     }
 
-    protected Network getParentNetwork() {
-        return parent.getParentNetwork();
-    }
-
     protected abstract Integer getRelativeNeutralPosition();
 
     public int getStepCount() {

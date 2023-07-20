@@ -731,6 +731,13 @@ public class SubnetworkImpl extends AbstractNetwork {
             detachedNetwork.getIndex().checkAndAdd(i);
         });
 
+        // We don't control that regulating terminals and phase/ratio regulation terminals are in the same subnetwork
+        // as their network elements (generators, PSTs, ...). It is unlikely that those terminals and their elements
+        // are in different subnetworks but nothing prevents it. For now, we ignore this case, but it may be necessary
+        // to handle it later. If so, note that there are 2 possibles cases:
+        // - the element is in the subnetwork to detach and its regulating or phase/ratio regulation terminal is not
+        // - the terminal is in the subnetwork, but not its element (this si trickier)
+
         //TODO subnetworks: Retrieve parent ValidationLevels?
 
         LOGGER.info("Detaching of {} done in {} ms", id, System.currentTimeMillis() - start);
