@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -34,13 +35,22 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
     }
 
     @Override
+    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
+        return getNetworkRef();
+    }
+
+    private Ref<NetworkImpl> getNetworkRef() {
+        return getVoltageLevel().getNetworkRef();
+    }
+
+    @Override
     public LccConverterStation add() {
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
         validate();
         LccConverterStationImpl converterStation
-                = new LccConverterStationImpl(getNetwork().getRef(), id, name, isFictitious(), getLossFactor(), powerFactor);
+                = new LccConverterStationImpl(getNetworkRef(), id, name, isFictitious(), getLossFactor(), powerFactor);
         converterStation.addTerminal(terminal);
         getVoltageLevel().attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(converterStation);

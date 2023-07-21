@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
     private String dl2Id;
 
     TieLineAdderImpl(NetworkImpl network, String subnetwork) {
-        this.network = network;
+        this.network = Objects.requireNonNull(network);
         this.subnetwork = subnetwork;
     }
 
@@ -70,11 +71,12 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
         VoltageLevelExt voltageLevel1 = dl1.getTerminal().getVoltageLevel();
         VoltageLevelExt voltageLevel2 = dl2.getTerminal().getVoltageLevel();
         if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()))) {
-            throw new ValidationException(this, "Line '" + id + "' is not contained in sub-network '" +
-                    subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+            throw new ValidationException(this, "The involved dangling lines are not in the subnetwork '" +
+                    subnetwork + "'. Create this tie line from the parent network '" + getNetwork().getId() + "'");
         }
 
-        TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious());
+        Ref<NetworkImpl> networkRef = computeNetworkRef(network, voltageLevel1, voltageLevel2);
+        TieLineImpl line = new TieLineImpl(networkRef, id, getName(), isFictitious());
 
         line.attachDanglingLines(dl1, dl2);
 

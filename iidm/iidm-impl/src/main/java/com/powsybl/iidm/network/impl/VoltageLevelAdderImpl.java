@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevelAdder;
@@ -34,9 +33,9 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
     private TopologyKind topologyKind;
 
     VoltageLevelAdderImpl(SubstationImpl substation) {
-        networkRef = null;
         this.substation = substation;
         this.subnetwork = substation.getSubnetwork();
+        this.networkRef = substation.getNetworkRef();
     }
 
     VoltageLevelAdderImpl(Ref<NetworkImpl> networkRef, String subnetwork) {
@@ -47,11 +46,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
 
     @Override
     protected NetworkImpl getNetwork() {
-        return Optional.ofNullable(networkRef)
-                .map(Ref::get)
-                .orElseGet(() -> Optional.ofNullable(substation)
-                        .map(SubstationImpl::getNetwork)
-                        .orElseThrow(() -> new PowsyblException("Voltage level has no container")));
+        return networkRef.get();
     }
 
     @Override

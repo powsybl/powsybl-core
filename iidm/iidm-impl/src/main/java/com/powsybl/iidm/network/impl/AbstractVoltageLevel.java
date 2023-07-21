@@ -72,6 +72,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public Ref<NetworkImpl> getNetworkRef() {
+        return networkRef;
+    }
+
+    @Override
     public ContainerType getContainerType() {
         return ContainerType.VOLTAGE_LEVEL;
     }
