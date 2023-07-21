@@ -71,8 +71,8 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
         VoltageLevelExt voltageLevel1 = dl1.getTerminal().getVoltageLevel();
         VoltageLevelExt voltageLevel2 = dl2.getTerminal().getVoltageLevel();
         if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()))) {
-            throw new ValidationException(this, "Line '" + id + "' is not contained in sub-network '" +
-                    subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+            throw new ValidationException(this, "The involved dangling lines are not in the subnetwork '" +
+                    subnetwork + "'. Create this tie line from the parent network '" + getNetwork().getId() + "'");
         }
 
         Ref<NetworkImpl> networkRef = computeNetworkRef(network, voltageLevel1, voltageLevel2);

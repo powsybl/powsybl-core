@@ -19,8 +19,6 @@ import java.util.Optional;
  */
 class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTransformerAdderImpl> implements TwoWindingsTransformerAdder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TwoWindingsTransformerAdderImpl.class);
-
     private final NetworkImpl network;
     private final SubstationImpl substation;
     private final String subnetwork;
@@ -118,8 +116,8 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
                             + voltageLevel1.getParentNetwork().getId() + "', '" + voltageLevel2.getParentNetwork().getId() + "')");
         }
         if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()))) {
-            throw new ValidationException(this, "Transformer '" + id + "' is not contained in sub-network '" +
-                    subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+            throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
+                    subnetwork + "'. Create this transformer from the parent network '" + getNetwork().getId() + "'");
         }
         if (substation != null) {
             if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true)) {

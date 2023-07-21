@@ -10,8 +10,6 @@ import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -92,7 +90,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
         if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()))) {
-            throw new ValidationException(this, "The voltage levels are not in the subnetwork '" +
+            throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
                     subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
         }
         TerminalExt terminal1 = checkAndGetTerminal1();

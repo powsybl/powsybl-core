@@ -893,7 +893,10 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private static void checkIndependentNetwork(Network network) {
         if (network instanceof SubnetworkImpl) {
-            throw new IllegalArgumentException("The network " + network.getId() + " is a subnetwork");
+            throw new IllegalArgumentException("The network " + network.getId() + " is already a subnetwork");
+        }
+        if (!network.getSubnetworks().isEmpty()) {
+            throw new IllegalArgumentException("The network " + network.getId() + " already contains subnetworks: not supported");
         }
     }
 
@@ -933,20 +936,9 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubnetwork(id));
         getVoltageLevelStream().filter(v -> v.getParentNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(id));
 
-        otherNetwork.getSubstationStream().forEach(s -> {
-            Network subnetwork = s.getParentNetwork();
-            if (subnetwork == otherNetwork) {
-                ((SubstationImpl) s).setSubnetwork(otherNetwork.id);
-            }
-            subnetworks.computeIfAbsent(subnetwork.getId(), id -> createSubnetwork(this, subnetwork));
-        });
-        otherNetwork.getVoltageLevelStream().forEach(vl -> {
-            Network subnetwork = vl.getParentNetwork();
-            if (subnetwork == otherNetwork) {
-                ((VoltageLevelExt) vl).setSubnetwork(otherNetwork.id);
-            }
-            subnetworks.computeIfAbsent(subnetwork.getId(), id -> createSubnetwork(this, subnetwork));
-        });
+        subnetworks.computeIfAbsent(otherNetwork.getId(), id -> createSubnetwork(this, otherNetwork));
+        otherNetwork.getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(otherNetwork.id));
+        otherNetwork.getVoltageLevelStream().forEach(vl -> ((VoltageLevelExt) vl).setSubnetwork(otherNetwork.id));
 
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
@@ -973,7 +965,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             refByNetworkId.put(snId, ref);
         });
 
-        replaceDanglingLineByLine(lines);
+        replaceDanglingLineByTieLine(lines);
 
         // update the source format
         if (!sourceFormat.equals(otherNetwork.sourceFormat)) {
@@ -1013,7 +1005,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
     }
 
-    private void replaceDanglingLineByLine(List<DanglingLinePair> lines) {
+    private void replaceDanglingLineByTieLine(List<DanglingLinePair> lines) {
         for (DanglingLinePair danglingLinePair : lines) {
             LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
                     danglingLinePair.id, danglingLinePair.dl1Id, danglingLinePair.dl2Id);

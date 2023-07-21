@@ -686,12 +686,12 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public void merge(Network other) {
-        throw new UnsupportedOperationException("Network " + id + " is already merged in network " + parent.getId());
+        throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
     }
 
     @Override
     public void merge(Network... others) {
-        throw new UnsupportedOperationException("Network " + id + " is already merged in network " + parent.getId());
+        throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
     }
 
     @Override
@@ -714,7 +714,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         // Memorize the network identifiables before moving references (to use them latter)
         Collection<Identifiable<?>> identifiables = getIdentifiables();
 
-        // Move the substations and voltageLevels to the new Network
+        // Move the substations and voltageLevels to the new network
         getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(null));
         getVoltageLevelStream().forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(null));
 
@@ -782,11 +782,12 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     /**
      * Return all the potential boundary elements: elements defined in the current subnetwork or in the parent network
-     * and which type corresponds to an element "linking" multiple substations (line, tie-line or HVDC line).
+     * and which type corresponds to an element linking multiple substations (line, tie line or Hvdc line).
      *
      * @return a {@link Stream} of the potential boundary elements
      */
     private Stream<Identifiable<?>> getPotentialBoundaryElements() {
+        // transformers cannot link to different subnetworks for the moment.
         Stream<Line> lines = parent.getLineStream();
         Stream<TieLine> tieLineStream = parent.getTieLineStream();
         Stream<HvdcLine> hvdcLineStream = parent.getHvdcLineStream();
@@ -795,7 +796,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
         return elementsToCheck.filter(i -> {
             Network network = i.getParentNetwork();
-            return network == this || network == parent;
+            return network == parent;
         });
     }
 
@@ -803,15 +804,12 @@ public class SubnetworkImpl extends AbstractNetwork {
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
         switch (identifiable.getType()) {
             case LINE:
-            case TIE_LINE: {
+            case TIE_LINE:
                 return isBoundary((Branch<?>) identifiable);
-            }
-            case HVDC_LINE: {
+            case HVDC_LINE:
                 return isBoundary((HvdcLine) identifiable);
-            }
-            default: {
+            default:
                 return false;
-            }
         }
     }
 
