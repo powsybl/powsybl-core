@@ -19,8 +19,6 @@ import org.slf4j.LoggerFactory;
  */
 class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAdder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LineAdderImpl.class);
-
     private final NetworkImpl network;
     private final String subnetwork;
 
@@ -93,12 +91,8 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
-        if (voltageLevel1.getParentNetwork() != voltageLevel2.getParentNetwork()) {
-            LOG.warn("Line '{}' is between two different sub-networks: splitting back the network will not be possible." +
-                    " If you want to be able to split the network, delete this line and create a tie-line instead", id);
-        }
         if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()))) {
-            throw new ValidationException(this, "Line '" + id + "' is not contained in sub-network '" +
+            throw new ValidationException(this, "The voltage levels are not in the subnetwork '" +
                     subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
         }
         TerminalExt terminal1 = checkAndGetTerminal1();
