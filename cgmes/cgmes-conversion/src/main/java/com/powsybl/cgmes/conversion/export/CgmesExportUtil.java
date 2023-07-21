@@ -311,8 +311,8 @@ public final class CgmesExportUtil {
     }
 
     public static List<DanglingLine> getUnpairedDanglingLines(Network network) {
-        // For this network, the unpaired dangling lines are the ones with unpaired status
-        // or the ones which closest network if different that this network.
+        // For this network, an unpaired dangling line has an unpaired status
+        // or its parent network different that this network.
         return network.getDanglingLineStream()
                 .filter(danglingLine -> isUnpaired(network, danglingLine))
                 .collect(Collectors.toList());
@@ -320,7 +320,7 @@ public final class CgmesExportUtil {
 
     public static boolean isUnpaired(Network network, DanglingLine danglingLine) {
         // For this network, an unpaired dangling line has an unpaired status
-        // or its closest network different that this network.
-        return !danglingLine.isPaired() || (danglingLine.isPaired() && danglingLine.getTieLine().orElseThrow().getClosestNetwork() != network);
+        // or its parent network different that this network.
+        return !danglingLine.isPaired() || (danglingLine.isPaired() && danglingLine.getTieLine().orElseThrow().getParentNetwork() != network);
     }
 }

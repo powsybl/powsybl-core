@@ -9,8 +9,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
@@ -19,11 +17,9 @@ import java.util.Optional;
  */
 class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTransformerAdderImpl> implements TwoWindingsTransformerAdder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TwoWindingsTransformerAdderImpl.class);
-
-    private final Ref<NetworkImpl> networkRef;
+    private final NetworkImpl network;
     private final SubstationImpl substation;
-    private final String subNetwork;
+    private final String subnetwork;
 
     private double r = Double.NaN;
 
@@ -40,21 +36,20 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     private double ratedS = Double.NaN;
 
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
-        networkRef = null;
+        network = null;
         this.substation = substation;
-        this.subNetwork = substation.getSubNetwork();
+        this.subnetwork = substation.getSubnetwork();
     }
 
-    TwoWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef, String subNetwork) {
-        this.networkRef = networkRef;
+    TwoWindingsTransformerAdderImpl(NetworkImpl network, String subnetwork) {
+        this.network = network;
         substation = null;
-        this.subNetwork = subNetwork;
+        this.subnetwork = subnetwork;
     }
 
     @Override
     protected NetworkImpl getNetwork() {
-        return Optional.ofNullable(networkRef)
-                .map(Ref::get)
+        return Optional.ofNullable(network)
                 .orElseGet(() -> Optional.ofNullable(substation)
                         .map(SubstationImpl::getNetwork)
                         .orElseThrow(() -> new PowsyblException("Two windings transformer has no container")));
@@ -113,13 +108,14 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
-        if (voltageLevel1.getClosestNetwork() != voltageLevel2.getClosestNetwork()) {
-            LOG.warn("Transformer '{}' is between two different sub-networks: splitting back the network will not be possible." +
-                    " If you want to be able to split the network, delete this transformer and create a tie-line instead", id);
+        if (voltageLevel1.getParentNetwork() != voltageLevel2.getParentNetwork()) {
+            throw new ValidationException(this,
+                    "The 2 windings of the transformer shall belong to the same subnetwork ('"
+                            + voltageLevel1.getParentNetwork().getId() + "', '" + voltageLevel2.getParentNetwork().getId() + "')");
         }
-        if (subNetwork != null && (!subNetwork.equals(voltageLevel1.getSubNetwork()) || !subNetwork.equals(voltageLevel2.getSubNetwork()))) {
-            throw new ValidationException(this, "Transformer '" + id + "' is not contained in sub-network '" +
-                    subNetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+        if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()))) {
+            throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
+                    subnetwork + "'. Create this transformer from the parent network '" + getNetwork().getId() + "'");
         }
         if (substation != null) {
             if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true)) {
@@ -150,8 +146,10 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         ValidationUtil.checkRatedU2(this, ratedU2);
         ValidationUtil.checkRatedS(this, ratedS);
 
+        NetworkImpl n = substation != null ? substation.getNetwork() : network;
+        Ref<NetworkImpl> networkRef = computeNetworkRef(n, voltageLevel1, voltageLevel2);
         TwoWindingsTransformerImpl transformer
-                = new TwoWindingsTransformerImpl(substation != null ? substation.getNetwork().getRef() : networkRef, id, getName(), isFictitious(),
+                = new TwoWindingsTransformerImpl(networkRef, id, getName(), isFictitious(),
                 (SubstationImpl) voltageLevel1.getSubstation().orElse(null),
                 r, x, g, b,
                 ratedU1, ratedU2, ratedS);

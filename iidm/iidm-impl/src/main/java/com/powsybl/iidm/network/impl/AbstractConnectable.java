@@ -43,10 +43,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     }
 
     @Override
-    public Network getClosestNetwork() {
-        List<Network> subNetworks = terminals.stream().map(t -> t.getVoltageLevel().getClosestNetwork()).distinct().collect(Collectors.toList());
-        if (subNetworks.size() == 1) {
-            return subNetworks.get(0);
+    public Network getParentNetwork() {
+        // the parent network is the network that contains all terminals of the connectable.
+        List<Network> subnetworks = terminals.stream().map(t -> t.getVoltageLevel().getParentNetwork()).distinct().collect(Collectors.toList());
+        if (subnetworks.size() == 1) {
+            return subnetworks.get(0);
         }
         return getNetwork();
     }
@@ -144,7 +145,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the given voltage level and to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(voltageLevel.getNetworkRef(), this)
                 .setNode(node)
                 .build();
 
@@ -166,7 +167,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // create the new terminal and attach it to the voltage level of the given bus and links it to the connectable
-        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+        TerminalExt terminalExt = new TerminalBuilder(((VoltageLevelExt) bus.getVoltageLevel()).getNetworkRef(), this)
                 .setBus(connected ? bus.getId() : null)
                 .setConnectableBus(bus.getId())
                 .build();

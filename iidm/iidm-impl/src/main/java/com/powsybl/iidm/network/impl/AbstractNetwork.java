@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,11 +7,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ContainerType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -68,5 +69,20 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
     @Override
     protected String getTypeDescription() {
         return "Network";
+    }
+
+    /**
+     * Transfer the extensions of a network to another one.
+     * @param from the network whose extensions must be transferred
+     * @param to the destination network
+     */
+    protected static void transferExtensions(Network from, Network to) {
+        new ArrayList<>(from.getExtensions())
+                .forEach(e -> Arrays.stream(e.getClass().getInterfaces())
+                        .filter(c -> Objects.nonNull(from.getExtension(c)))
+                        .forEach(clazz -> {
+                            from.removeExtension((Class<? extends Extension<Network>>) clazz);
+                            to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
+                        }));
     }
 }

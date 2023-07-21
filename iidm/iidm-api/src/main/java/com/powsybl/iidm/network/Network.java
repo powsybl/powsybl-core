@@ -99,12 +99,20 @@ import java.util.stream.Stream;
  */
 public interface Network extends Container<Network> {
 
-    default Collection<Network> getSubNetworks() {
+    default Collection<Network> getSubnetworks() {
         return Collections.emptyList();
     }
 
-    default Network getSubNetwork(String id) {
+    default Collection<String> getSubnetworkIds() {
+        return getSubnetworks().stream().map(Identifiable::getId).collect(Collectors.toList());
+    }
+
+    default Network getSubnetwork(String id) {
         return null;
+    }
+
+    default Optional<Network> getOptionalSubnetwork(String subnetworkId) {
+        return Optional.ofNullable(getSubnetwork(subnetworkId));
     }
 
     /**
@@ -498,6 +506,17 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Create a network (using default implementation) as the result of the merge of the given networks. Each underlying
+     * network becomes a subnetwork.
+     *
+     * @param id id of the network to create
+     * @return the merged network with subnetworks inside.
+     */
+    static Network create(String id, Network... networks) {
+        return NetworkFactory.findDefault().createNetwork(id, networks);
+    }
+
+    /**
      * Just being able to name method create et not createNetwork. Create is not available in {@link NetworkFactory} for backward
      * compatibility reason. To cleanup when {@link NetworkFactory#create(String, String)} will be removed.
      */
@@ -558,6 +577,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new substation.
+     * @return a builder to create a new substation
      */
     SubstationAdder newSubstation();
 
@@ -611,6 +631,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a builder to create a new voltage level (without substation).
      * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     * @return a builder to create a new voltage level
      */
     default VoltageLevelAdder newVoltageLevel() {
         return newSubstation()
@@ -645,6 +666,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new AC line.
+     * @return a builder to create a new line
      */
     LineAdder newLine();
 
@@ -715,6 +737,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new AC tie line.
+     * @return a builder to create a new AC tie line
      */
     TieLineAdder newTieLine();
 
@@ -723,6 +746,7 @@ public interface Network extends Container<Network> {
      * Only use if at least one of the transformer's ends does not belong to any substation.
      * Else use {@link Substation#newTwoWindingsTransformer()}.
      * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     * @return a builder to create a new two windings transformer
      */
     default TwoWindingsTransformerAdder newTwoWindingsTransformer() {
         return newSubstation()
@@ -760,7 +784,8 @@ public interface Network extends Container<Network> {
      * Only use this builder if at least one of the transformer's ends does not belong to any substation.
      * Else use {@link Substation#newThreeWindingsTransformer()}.
      * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
-     */
+     * @return a builder to create a new three windings transformer
+     * */
     default ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
         return newSubstation()
                 .setId("FICTITIOUS_SUBSTATION")
@@ -1104,6 +1129,7 @@ public interface Network extends Container<Network> {
      */
     HvdcLineAdder newHvdcLine();
 
+
     /**
      * Get an equipment by its ID or alias
      *
@@ -1199,13 +1225,57 @@ public interface Network extends Container<Network> {
     BusView getBusView();
 
     /**
-     * Merge with an other network. At the end of the merge the other network
-     * is empty.
+     * Create an empty subnetwork in the current network.
+     *
+     * @param subnetworkId id of the subnetwork
+     * @param name subnetwork's name
+     * @param sourceFormat source format
+     * @return the created subnetwork
+     */
+    Network createSubnetwork(String subnetworkId, String name, String sourceFormat);
+
+    /**
+     * Merge the current network with another one. At the end of this operation, <code>other</code>
+     * is empty (destructive merge) and the current network contains two subnetworks.
      * @param other the other network
      */
     void merge(Network other);
 
     void merge(Network... others);
+
+    /**
+     * <p>Detach the current network (including its subnetworks) from its parent network.</p>
+     * <p>Note that this operation is destructive: after it the current network's content
+     * couldn't be accessed from the parent networks anymore.</p>
+     * <p>The boundary elements, i.e. linking this network to an external voltage level are split if possible.</br>
+     * A {@link PowsyblException} is thrown if some un-splittable boundary elements are detected. This detection is processed
+     * before any network modification. So if an un-splittable boundary element is detected, no destructive operation will be done.</p>
+     *
+     * @return a fully-independent network corresponding to the current network and its subnetworks.
+     */
+    Network detach();
+
+    /**
+     * <p>Check if the current network can be detached from its parent network (with {@link #detach()}).</p>
+     *
+     * @return True if the network can be detached from its parent network.
+     */
+    boolean isDetachable();
+
+    /**
+     * Return all the boundary elements of the current network, i.e. the elements linking this network and an external voltage level.
+     *
+     * @return a set containing the boundary elements of the network.
+     */
+    Set<Identifiable<?>> getBoundaryElements();
+
+    /**
+     * Check if an identifiable is a boundary element for the current network.
+     *
+     * @param identifiable the identifiable to check
+     * @return True if the identifiable is a boundary element for the current network
+     */
+    boolean isBoundaryElement(Identifiable<?> identifiable);
 
     void addListener(NetworkListener listener);
 

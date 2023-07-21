@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
@@ -58,7 +59,9 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     void invalidateCache(boolean exceptBusBreakerView);
 
-    void setSubNetwork(String subNetwork);
+    void setSubnetwork(String subnetwork);
 
-    String getSubNetwork();
+    String getSubnetwork();
+
+    Ref<NetworkImpl> getNetworkRef();
 }
