@@ -24,18 +24,23 @@ jobs:
         with:
           java-version: 17
 
-      - name: Build with Maven
+      - name: Build with Maven (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
-        run: mvn --batch-mode -Dpowsybl.docker-unit-tests.skip=false -Pjacoco install
+        run: ./mvnw --batch-mode -Dpowsybl.docker-unit-tests.skip=false -Pjacoco install
 
-      - name: Build with Maven
-        if: matrix.os != 'ubuntu-latest'
-        run: mvn --batch-mode install
+      - name: Build with Maven (Windows)
+        if: matrix.os == 'windows-latest'
+        run: mvnw.cmd --batch-mode install
+        shell: cmd
+
+      - name: Build with Maven (MacOS)
+        if: matrix.os == 'macos-latest'
+        run: ./mvnw --batch-mode install
 
       - name: Run SonarCloud analysis
         if: matrix.os == 'ubuntu-latest'
         run: >
-          mvn --batch-mode -DskipTests sonar:sonar
+          ./mvnw --batch-mode -DskipTests sonar:sonar
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.organization=powsybl-ci-github
           -Dsonar.projectKey=com.powsybl:powsybl-core
