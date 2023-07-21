@@ -230,9 +230,13 @@ public abstract class AbstractMergeNetworkTest {
                 .setId(substationId)
                 .setCountry(country)
                 .add();
-        VoltageLevel vl = s.newVoltageLevel()
+        addVoltageLevel(s.newVoltageLevel(), vlId, 380, busId);
+    }
+
+    private static void addVoltageLevel(VoltageLevelAdder s, String vlId, int nominalV, String busId) {
+        VoltageLevel vl = s
                 .setId(vlId)
-                .setNominalV(380)
+                .setNominalV(nominalV)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl.getBusBreakerView().newBus()

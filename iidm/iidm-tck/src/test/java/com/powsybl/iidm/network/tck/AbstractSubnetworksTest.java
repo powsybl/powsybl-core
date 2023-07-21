@@ -110,12 +110,33 @@ public abstract class AbstractSubnetworksTest {
         PowsyblException e = assertThrows(ValidationException.class, () -> addLine(subnetwork1, "l2", "vl2_0", "vl2_1"));
         assertTrue(e.getMessage().contains("Create this line from the parent network"));
 
-        //On subnetwork2, voltage levels both in subnetwork2
-        addLine(subnetwork2, "l2", "vl2_0", "vl2_1");
+        // On subnetwork2, voltage levels both in subnetwork2
+        Line l2 = addLine(subnetwork2, "l2", "vl2_0", "vl2_1");
 
-        //TODO
-        // - between 2 subnetworks
-        // - between a subnetwork and the main network
+        // On main network, voltage levels in different subnetworks
+        Line l3 = addLine(network, "l3", "vl1_0", "vl2_0");
+
+        // On subnetwork2, voltage levels in main network and subnetwork2 => should fail
+        e = assertThrows(ValidationException.class, () -> addLine(subnetwork2, "l4", "vl0_0", "vl2_0"));
+        assertTrue(e.getMessage().contains("Create this line from the parent network"));
+
+        // On main network, voltage levels in main network and subnetwork2
+        Line l4 = addLine(network, "l4", "vl0_0", "vl2_0");
+
+        // Try to detach all. Some elements prevent it.
+        assertFalse(subnetwork1.isDetachable());
+        assertFalse(subnetwork2.isDetachable());
+        assertBoundaryElements(subnetwork1, "l3");
+        assertBoundaryElements(subnetwork2, "l3", "l4");
+        assertTrue(subnetwork1.isBoundaryElement(l3));
+        assertFalse(network.isBoundaryElement(l3));
+        assertTrue(subnetwork2.isBoundaryElement(l4));
+        assertFalse(network.isBoundaryElement(l4));
+        assertFalse(subnetwork2.isBoundaryElement(l2));
+        assertFalse(network.isBoundaryElement(l2));
+        // Remove problematic elements
+        l3.remove();
+        l4.remove();
 
         // Detach all
         assertTrue(subnetwork1.isDetachable());
@@ -186,4 +207,10 @@ public abstract class AbstractSubnetworksTest {
         assertEquals(expectedNetwork, identifiable.getNetwork());
         assertEquals(expectedParentNetwork, identifiable.getParentNetwork());
     }
+
+    void assertBoundaryElements(Network subnetwork2, String... expectedBoundaryElementIds) {
+        assertArrayEquals(expectedBoundaryElementIds,
+                subnetwork2.getBoundaryElements().stream().map(Identifiable::getId).sorted().toArray());
+    }
+
 }
