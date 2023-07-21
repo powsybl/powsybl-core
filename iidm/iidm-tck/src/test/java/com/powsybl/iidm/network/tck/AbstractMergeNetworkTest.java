@@ -78,9 +78,10 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void testMergeNewAPI() {
+    public void testMergeAndDetach() {
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
+        // merge(n1, n2)
         merge = Network.create(MERGE, n1, n2);
         TieLine tieLine = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine);
@@ -92,10 +93,70 @@ public abstract class AbstractMergeNetworkTest {
         checkDanglingLineStatusCount(merge, 0, 2);
         checkDanglingLineStatusCount(subnetwork1, 0, 1);
         checkDanglingLineStatusCount(subnetwork2, 0, 1);
+        checkSubstationAndVoltageLevelCounts(merge, 2, 2);
 
         assertEquals(merge, tieLine.getParentNetwork());
         assertEquals(subnetwork1, merge.getDanglingLine("dl1").getParentNetwork());
         assertEquals(subnetwork2, merge.getDanglingLine("dl2").getParentNetwork());
+
+        // detach(n1)
+        assertTrue(subnetwork1.isDetachable());
+        Network detachedN1 = subnetwork1.detach();
+        checkDanglingLineStatusCount(merge, 1, 0);
+        checkDanglingLineStatusCount(detachedN1, 1, 0);
+        checkDanglingLineStatusCount(subnetwork2, 1, 0);
+        checkSubstationAndVoltageLevelCounts(merge, 1, 1);
+        checkSubstationAndVoltageLevelCounts(detachedN1, 1, 1);
+
+        // detach(n2)
+        assertTrue(subnetwork2.isDetachable());
+        Network detachedN2 = subnetwork2.detach();
+        checkDanglingLineStatusCount(merge, 0, 0);
+        checkDanglingLineStatusCount(detachedN1, 1, 0);
+        checkDanglingLineStatusCount(detachedN2, 1, 0);
+        checkSubstationAndVoltageLevelCounts(merge, 0, 0);
+        checkSubstationAndVoltageLevelCounts(detachedN1, 1, 1);
+        checkSubstationAndVoltageLevelCounts(detachedN2, 1, 1);
+    }
+
+    private void checkSubstationAndVoltageLevelCounts(Network n, long substationCount, long voltageLevelCount) {
+        assertEquals(substationCount, n.getSubstationCount());
+        assertEquals(voltageLevelCount, n.getVoltageLevelCount());
+    }
+
+    @Test
+    public void failDetachWithALineBetween2Subnetworks() {
+        addCommonSubstationsAndVoltageLevels();
+        merge = Network.create(MERGE, n1, n2);
+        merge.newLine()
+                .setId("line1")
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("b1")
+                .setBus2("b2")
+                .setR(1)
+                .setX(1)
+                .setG1(0)
+                .setB1(0)
+                .setG2(0)
+                .setB2(0)
+                .add();
+        Network subnetwork1 = merge.getSubnetwork(N1);
+        assertFalse(subnetwork1.isDetachable());
+        PowsyblException e = assertThrows(PowsyblException.class, subnetwork1::detach);
+        assertTrue(e.getMessage().contains("Some un-splittable boundary elements prevent the subnetwork to be detached"));
+    }
+
+    @Test
+    public void failDetachIfMultiVariants() {
+        addCommonSubstationsAndVoltageLevels();
+        merge = Network.create(MERGE, n1, n2);
+        merge.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "Totest");
+
+        Network subnetwork1 = merge.getSubnetwork(N1);
+        assertFalse(subnetwork1.isDetachable());
+        PowsyblException e = assertThrows(PowsyblException.class, subnetwork1::detach);
+        assertTrue(e.getMessage().contains("Detaching from multi-variants network is not supported"));
     }
 
     @Test
@@ -169,9 +230,13 @@ public abstract class AbstractMergeNetworkTest {
                 .setId(substationId)
                 .setCountry(country)
                 .add();
-        VoltageLevel vl = s.newVoltageLevel()
+        addVoltageLevel(s.newVoltageLevel(), vlId, 380, busId);
+    }
+
+    private static void addVoltageLevel(VoltageLevelAdder s, String vlId, int nominalV, String busId) {
+        VoltageLevel vl = s
                 .setId(vlId)
-                .setNominalV(380)
+                .setNominalV(nominalV)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         vl.getBusBreakerView().newBus()

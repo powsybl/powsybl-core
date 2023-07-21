@@ -9,16 +9,13 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAdder {
-
-    private static final Logger LOG = LoggerFactory.getLogger(LineAdderImpl.class);
 
     private final NetworkImpl network;
     private final String subnetwork;
@@ -92,12 +89,8 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
-        if (voltageLevel1.getParentNetwork() != voltageLevel2.getParentNetwork()) {
-            LOG.warn("Line '{}' is between two different sub-networks: splitting back the network will not be possible." +
-                    " If you want to be able to split the network, delete this line and create a tie-line instead", id);
-        }
         if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()))) {
-            throw new ValidationException(this, "Line '" + id + "' is not contained in sub-network '" +
+            throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
                     subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
         }
         TerminalExt terminal1 = checkAndGetTerminal1();
@@ -110,7 +103,9 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         ValidationUtil.checkB1(this, b1);
         ValidationUtil.checkB2(this, b2);
 
-        LineImpl line = new LineImpl(network.getRef(), id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
+        Ref<NetworkImpl> networkRef = computeNetworkRef(getNetwork(), voltageLevel1, voltageLevel2);
+
+        LineImpl line = new LineImpl(networkRef, id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
         terminal1.setNum(1);
         terminal2.setNum(2);
         line.addTerminal(terminal1);

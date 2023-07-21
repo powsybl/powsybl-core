@@ -144,6 +144,11 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
+        public Network getParentNetwork() {
+            return transformer.getParentNetwork();
+        }
+
+        @Override
         public void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger) {
             RatioTapChangerImpl oldValue = this.ratioTapChanger;
             this.ratioTapChanger = ratioTapChanger;

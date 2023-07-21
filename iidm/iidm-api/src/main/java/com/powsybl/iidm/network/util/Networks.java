@@ -438,11 +438,11 @@ public final class Networks {
     }
 
     /**
-     * Check if the network contains the identifiable or another network containing it.
+     * Check if the network contains the identifiable.
      *
      * @param network a network
      * @param identifiable the identifiable to check
-     * @return true is the identifiable is in the network or in one of its subnetworks
+     * @return true is the identifiable is in the network
      */
     public static boolean contains(Network network, Identifiable<?> identifiable) {
         if (containsDirectly(network, identifiable)) {

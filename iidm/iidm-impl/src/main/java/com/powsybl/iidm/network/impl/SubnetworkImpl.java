@@ -7,11 +7,16 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.network.impl.util.RefChain;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -20,6 +25,8 @@ import java.util.stream.StreamSupport;
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
 public class SubnetworkImpl extends AbstractNetwork {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SubnetworkImpl.class);
 
     private final NetworkImpl parent;
 
@@ -49,7 +56,7 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     private boolean contains(Identifiable<?> identifiable) {
-        return Networks.contains(this, identifiable);
+        return identifiable != null && identifiable.getParentNetwork() == this;
     }
 
     @Override
@@ -546,7 +553,11 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Collection<Identifiable<?>> getIdentifiables() {
-        return parent.getIdentifiables().stream().filter(this::contains).collect(Collectors.toList());
+        return getIdentifiableStream().collect(Collectors.toList());
+    }
+
+    Stream<Identifiable<?>> getIdentifiableStream() {
+        return parent.getIdentifiables().stream().filter(this::contains);
     }
 
     @Override
@@ -669,25 +680,68 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public Network createSubnetwork(String subnetworkId, String sourceFormat) {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+    public Network createSubnetwork(String subnetworkId, String name, String sourceFormat) {
+        throw new UnsupportedOperationException("Inner subnetworks are not yet supported");
     }
 
     @Override
     public void merge(Network other) {
-        throw new UnsupportedOperationException("Network " + id + " is already merged in network " + parent.getId());
+        throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
     }
 
     @Override
     public void merge(Network... others) {
-        throw new UnsupportedOperationException("Network " + id + " is already merged in network " + parent.getId());
+        throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
     }
 
     @Override
     public Network detach() {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+        Set<Identifiable<?>> boundaryElements = getBoundaryElements();
+        checkDetachable(boundaryElements, true);
+
+        long start = System.currentTimeMillis();
+
+        // Remove tie-lines
+        boundaryElements.stream()
+                .filter(i -> i.getType() == IdentifiableType.TIE_LINE)
+                .map(TieLineImpl.class::cast)
+                .forEach(TieLineImpl::remove);
+
+        // Create a new NetworkImpl and transfer the extensions to it
+        NetworkImpl detachedNetwork = new NetworkImpl(getId(), getNameOrId(), getSourceFormat());
+        transferExtensions(this, detachedNetwork);
+
+        // Memorize the network identifiables before moving references (to use them latter)
+        Collection<Identifiable<?>> identifiables = getIdentifiables();
+
+        // Move the substations and voltageLevels to the new network
+        getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(null));
+        getVoltageLevelStream().forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(null));
+
+        // Change network back reference of the network objects
+        RefChain<NetworkImpl> refChain = parent.removeRef(getId());
+        refChain.setRef(detachedNetwork.getRef());
+
+        // Remove the old subnetwork from the subnetworks list of the current parent network
+        parent.removeFromSubnetworks(getId());
+
+        // Remove all the identifiers from the parent's index and add them to the detached network's index
+        identifiables.forEach(i -> {
+            parent.getIndex().remove(i);
+            detachedNetwork.getIndex().checkAndAdd(i);
+        });
+
+        // We don't control that regulating terminals and phase/ratio regulation terminals are in the same subnetwork
+        // as their network elements (generators, PSTs, ...). It is unlikely that those terminals and their elements
+        // are in different subnetworks but nothing prevents it. For now, we ignore this case, but it may be necessary
+        // to handle it later. If so, note that there are 2 possible cases:
+        // - the element is in the subnetwork to detach and its regulating or phase/ratio regulation terminal is not
+        // - the terminal is in the subnetwork, but not its element (this is trickier)
+
+        //TODO subnetworks: Retrieve parent ValidationLevels?
+
+        LOGGER.info("Detaching of {} done in {} ms", id, System.currentTimeMillis() - start);
+        return detachedNetwork;
     }
 
     /**
@@ -696,20 +750,81 @@ public class SubnetworkImpl extends AbstractNetwork {
      */
     @Override
     public boolean isDetachable() {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+        return checkDetachable(getBoundaryElements(), false);
+    }
+
+    private boolean checkDetachable(Set<Identifiable<?>> boundaryElements, boolean throwsException) {
+        if (parent.getVariantManager().getVariantArraySize() != 1) {
+            if (throwsException) {
+                throw new PowsyblException("Detaching from multi-variants network is not supported");
+            }
+            return false;
+        }
+        if (boundaryElements.stream().anyMatch(Predicate.not(SubnetworkImpl::isSplittable))) {
+            if (throwsException) {
+                throw new PowsyblException("Some un-splittable boundary elements prevent the subnetwork to be detached");
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isSplittable(Identifiable<?> identifiable) {
+        return identifiable.getType() == IdentifiableType.TIE_LINE;
     }
 
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+        return getPotentialBoundaryElements()
+                .filter(this::isBoundaryElement)
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Return all the potential boundary elements: elements defined in the current subnetwork or in the parent network
+     * and which type corresponds to an element linking multiple substations (line, tie line or Hvdc line).
+     *
+     * @return a {@link Stream} of the potential boundary elements
+     */
+    private Stream<Identifiable<?>> getPotentialBoundaryElements() {
+        // transformers cannot link to different subnetworks for the moment.
+        Stream<Line> lines = parent.getLineStream();
+        Stream<TieLine> tieLineStream = parent.getTieLineStream();
+        Stream<HvdcLine> hvdcLineStream = parent.getHvdcLineStream();
+
+        Stream<Identifiable<?>> elementsToCheck = Stream.of(lines, tieLineStream, hvdcLineStream).flatMap(Function.identity());
+
+        return elementsToCheck.filter(i -> {
+            Network network = i.getParentNetwork();
+            return network == parent;
+        });
     }
 
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
-        //TODO subnetworks API
-        throw new UnsupportedOperationException("Not yet implemented");
+        switch (identifiable.getType()) {
+            case LINE:
+            case TIE_LINE:
+                return isBoundary((Branch<?>) identifiable);
+            case HVDC_LINE:
+                return isBoundary((HvdcLine) identifiable);
+            default:
+                return false;
+        }
+    }
+
+    private boolean isBoundary(Branch<?> branch) {
+        boolean containsVoltageLevel1 = contains(branch.getTerminal1().getVoltageLevel());
+        boolean containsVoltageLevel2 = contains(branch.getTerminal2().getVoltageLevel());
+        return containsVoltageLevel1 && !containsVoltageLevel2 ||
+                !containsVoltageLevel1 && containsVoltageLevel2;
+    }
+
+    private boolean isBoundary(HvdcLine hvdcLine) {
+        boolean containsVoltageLevel1 = contains(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel());
+        boolean containsVoltageLevel2 = contains(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel());
+        return containsVoltageLevel1 && !containsVoltageLevel2 ||
+                !containsVoltageLevel1 && containsVoltageLevel2;
     }
 
     @Override

@@ -506,10 +506,11 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * Create a network (using default implementation) as the result of the merge of the given networks.
+     * Create a network (using default implementation) as the result of the merge of the given networks. Each underlying
+     * network becomes a subnetwork.
      *
      * @param id id of the network to create
-     * @return the merged network
+     * @return the merged network with subnetworks inside.
      */
     static Network create(String id, Network... networks) {
         return NetworkFactory.findDefault().createNetwork(id, networks);
@@ -1227,14 +1228,15 @@ public interface Network extends Container<Network> {
      * Create an empty subnetwork in the current network.
      *
      * @param subnetworkId id of the subnetwork
+     * @param name subnetwork's name
      * @param sourceFormat source format
      * @return the created subnetwork
      */
-    Network createSubnetwork(String subnetworkId, String sourceFormat);
+    Network createSubnetwork(String subnetworkId, String name, String sourceFormat);
 
     /**
      * Merge the current network with another one. At the end of this operation, <code>other</code>
-     * is empty (destructive merge).
+     * is empty (destructive merge) and the current network contains two subnetworks.
      * @param other the other network
      */
     void merge(Network other);
@@ -1245,8 +1247,8 @@ public interface Network extends Container<Network> {
      * <p>Detach the current network (including its subnetworks) from its parent network.</p>
      * <p>Note that this operation is destructive: after it the current network's content
      * couldn't be accessed from the parent networks anymore.</p>
-     * <p>The boundary elements, i.e. linking this network to a substation outside of it will be split if possible.</br>
-     * A {@link PowsyblException} will be thrown if some un-splittable boundary elements are detected. This detection is processed
+     * <p>The boundary elements, i.e. linking this network to an external voltage level are split if possible.</br>
+     * A {@link PowsyblException} is thrown if some un-splittable boundary elements are detected. This detection is processed
      * before any network modification. So if an un-splittable boundary element is detected, no destructive operation will be done.</p>
      *
      * @return a fully-independent network corresponding to the current network and its subnetworks.
@@ -1261,17 +1263,17 @@ public interface Network extends Container<Network> {
     boolean isDetachable();
 
     /**
-     * Return all the boundary elements of the current network, i.e. the elements linking this network and a substation outside of it.
+     * Return all the boundary elements of the current network, i.e. the elements linking this network and an external voltage level.
      *
      * @return a set containing the boundary elements of the network.
      */
     Set<Identifiable<?>> getBoundaryElements();
 
     /**
-     * Check if an identifiable is a boundary for the current network.
+     * Check if an identifiable is a boundary element for the current network.
      *
      * @param identifiable the identifiable to check
-     * @return True if the identifiable is a boundary for the current network
+     * @return True if the identifiable is a boundary element for the current network
      */
     boolean isBoundaryElement(Identifiable<?> identifiable);
 

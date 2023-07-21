@@ -96,6 +96,10 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         return networkRef.get();
     }
 
+    protected Ref<NetworkImpl> getNetworkRef() {
+        return networkRef;
+    }
+
     @Override
     public Network getParentNetwork() {
         Network network = getNetwork();
