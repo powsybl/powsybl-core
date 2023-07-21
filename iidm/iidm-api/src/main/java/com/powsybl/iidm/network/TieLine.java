@@ -123,5 +123,10 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
 
     void remove();
 
+    /**
+     * Remove the tie line with an update of underlying dangling lines to reflect the tie line flows.
+     */
+    void remove(boolean updateDanglingLines);
+
     Network getNetwork();
 }
