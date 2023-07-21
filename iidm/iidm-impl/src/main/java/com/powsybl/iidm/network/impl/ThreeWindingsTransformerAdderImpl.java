@@ -287,10 +287,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             throw new ValidationException(this, "Leg3 is not set");
         }
 
-        if (voltageLevel1.getParentNetwork() != voltageLevel2.getParentNetwork() || voltageLevel2.getParentNetwork() != voltageLevel3.getParentNetwork() ||
-                voltageLevel1.getParentNetwork() != voltageLevel3.getParentNetwork()) {
-            LOGGER.warn("Transformer '{}' is between several different sub-networks: splitting back the network will not be possible." +
-                    " If you want to be able to split the network, delete this transformer and create tie-lines instead", id);
+        if (voltageLevel1.getParentNetwork() != voltageLevel2.getParentNetwork() || voltageLevel2.getParentNetwork() != voltageLevel3.getParentNetwork()) {
+            throw new ValidationException(this,
+                    "The 3 windings of the transformer shall belong to the same subnetwork ('"
+                            + voltageLevel1.getParentNetwork().getId() + "', '"
+                            + voltageLevel2.getParentNetwork().getId() + "', '"
+                            + voltageLevel3.getParentNetwork().getId() + "')");
         }
         if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()) ||
                 !subnetwork.equals(voltageLevel3.getSubnetwork()))) {
