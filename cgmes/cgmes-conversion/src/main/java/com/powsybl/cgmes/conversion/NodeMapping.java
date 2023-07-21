@@ -77,6 +77,7 @@ public class NodeMapping {
                     .setNode2(iidmNodeForConnectivityNode)
                     .setOpen(true)
                     .setKind(SwitchKind.BREAKER)
+                    .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                     .add();
             sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
         }
