@@ -258,6 +258,7 @@ public final class NetworkDataframes {
             .doubles("max_q_at_target_p", getMaxQ(Generator::getTargetP), false)
             .doubles("min_q_at_p", getMinQ(getOppositeP()), false)
             .doubles("max_q_at_p", getMaxQ(getOppositeP()), false)
+            .doubles("rated_s", Generator::getRatedS, Generator::setRatedS)
             .strings("reactive_limits_kind", NetworkDataframes::getReactiveLimitsKind)
             .doubles("target_v", Generator::getTargetV, Generator::setTargetV)
             .doubles("target_q", Generator::getTargetQ, Generator::setTargetQ)
