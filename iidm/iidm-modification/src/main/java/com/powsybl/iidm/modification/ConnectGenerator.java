@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.util.RegulationUtils;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -52,8 +53,7 @@ public final class ConnectGenerator extends AbstractNetworkModification {
             Bus bus = g.getRegulatingTerminal().getBusView().getBus();
             if (bus != null) {
                 // set voltage setpoint to the same as other generators regulating this bus
-                double targetV = g.getNetwork().getGeneratorStream()
-                    .filter(gen -> bus.equals(gen.getRegulatingTerminal().getBusView().getBus()))
+                double targetV = RegulationUtils.getRegulatingGenerators(g.getNetwork(), bus)
                     .filter(g2 -> !g2.getId().equals(g.getId()))
                     .findFirst().map(Generator::getTargetV).orElse(Double.NaN);
                 if (!Double.isNaN(targetV)) {
