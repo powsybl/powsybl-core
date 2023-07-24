@@ -8,6 +8,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -80,6 +81,22 @@ class ShuntCompensatorModificationTest {
         new ShuntCompensatorModification(shunt.getId(), true, 1).apply(network);
         Assertions.assertTrue(shunt.getTerminal().isConnected());
         Assertions.assertEquals(1, shunt.getSectionCount());
+    }
+
+    @Test
+    void testConnectionOnRegulatingTerminal() {
+        network.getGenerator("GH1").getTerminal().disconnect();
+        network.getGenerator("GH2").getTerminal().disconnect();
+        Generator g3 = network.getGenerator("GH3");
+        g3.setTargetV(33.);
+        shunt.getTerminal().disconnect();
+        shunt.setRegulatingTerminal(g3.getRegulatingTerminal());
+        shunt.setTargetV(2);
+        shunt.setTargetDeadband(1);
+        shunt.setVoltageRegulatorOn(true);
+        new ShuntCompensatorModification(shunt.getId(), true, null).apply(network);
+        Assertions.assertTrue(shunt.getTerminal().isConnected());
+        Assertions.assertEquals(33, shunt.getTargetV(), 0.1);
     }
 
 }

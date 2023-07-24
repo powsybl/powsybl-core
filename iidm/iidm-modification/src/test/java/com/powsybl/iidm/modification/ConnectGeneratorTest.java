@@ -61,4 +61,13 @@ class ConnectGeneratorTest {
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(99., g2.getTargetV(), 0.01);
     }
+
+    @Test
+    void testConnectGeneratorCorrectSetPoint() {
+        g2.setVoltageRegulatorOn(true);
+        g2.setRegulatingTerminal(g3.getTerminal());
+        new ConnectGenerator(g2.getId()).apply(network);
+        assertTrue(g2.getTerminal().isConnected());
+        assertEquals(33., g2.getTargetV(), 0.01);
+    }
 }

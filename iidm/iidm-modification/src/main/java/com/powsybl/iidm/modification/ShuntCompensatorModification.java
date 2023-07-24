@@ -8,9 +8,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
@@ -44,15 +42,32 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         if (connect != null) {
             Terminal t = shuntCompensator.getTerminal();
             if (connect.booleanValue()) {
-                // FIXME just as for generators, when reconnecting a shunt with voltage regulation on,
-                // the voltage setpoint must be set
                 t.connect();
+                setTargetV(shuntCompensator);
             } else {
                 t.disconnect();
             }
         }
         if (sectionCount != null) {
             shuntCompensator.setSectionCount(sectionCount);
+        }
+    }
+
+    private static void setTargetV(ShuntCompensator shuntCompensator) {
+        if (shuntCompensator.isVoltageRegulatorOn()) {
+            Bus bus = shuntCompensator.getRegulatingTerminal().getBusView().getBus();
+            if (bus != null) {
+                // set voltage setpoint to the same as other generators regulating this bus
+                double targetV = shuntCompensator.getNetwork().getGeneratorStream()
+                    .filter(gen -> bus.equals(gen.getRegulatingTerminal().getBusView().getBus()))
+                    .findFirst().map(Generator::getTargetV).orElse(Double.NaN);
+                if (!Double.isNaN(targetV)) {
+                    shuntCompensator.setTargetV(targetV);
+                } else if (!Double.isNaN(bus.getV())) {
+                    // if no generators are connected to the bus, set voltage setpoint to network voltage
+                    shuntCompensator.setTargetV(bus.getV());
+                }
+            }
         }
     }
 

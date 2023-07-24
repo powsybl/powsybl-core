@@ -48,12 +48,14 @@ public final class ConnectGenerator extends AbstractNetworkModification {
         Terminal t = g.getTerminal();
         t.connect();
         if (g.isVoltageRegulatorOn()) {
-            Bus bus = t.getBusView().getBus();
+            // We look at the bus regulated by the generator
+            Bus bus = g.getRegulatingTerminal().getBusView().getBus();
             if (bus != null) {
-                // set voltage setpoint to the same as other generators connected to the bus
-                double targetV = bus.getGeneratorStream()
-                        .filter(g2 -> !g2.getId().equals(g.getId()))
-                        .findFirst().map(Generator::getTargetV).orElse(Double.NaN);
+                // set voltage setpoint to the same as other generators regulating this bus
+                double targetV = g.getNetwork().getGeneratorStream()
+                    .filter(gen -> bus.equals(gen.getRegulatingTerminal().getBusView().getBus()))
+                    .filter(g2 -> !g2.getId().equals(g.getId()))
+                    .findFirst().map(Generator::getTargetV).orElse(Double.NaN);
                 if (!Double.isNaN(targetV)) {
                     g.setTargetV(targetV);
                 } else if (!Double.isNaN(bus.getV())) {
