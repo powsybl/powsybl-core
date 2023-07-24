@@ -167,5 +167,18 @@
     "id" : "id22",
     "shuntCompensatorId" : "shuntId1",
     "sectionCount" : 5
+  }, {
+    "type" : "STATIC_VAC_COMPENSATOR",
+    "id" : "id23",
+    "staticVarCompensatorId" : "svc",
+    "regulationMode" : "VOLTAGE",
+    "regulatingTerminal" : "terminal",
+    "voltageSetPoint" : 56.0
+  }, {
+    "type" : "STATIC_VAC_COMPENSATOR",
+    "id" : "id24",
+    "staticVarCompensatorId" : "svc",
+    "regulationMode" : "REACTIVE_POWER",
+    "reactiveSetPoint" : 120.0
   } ]
 }
