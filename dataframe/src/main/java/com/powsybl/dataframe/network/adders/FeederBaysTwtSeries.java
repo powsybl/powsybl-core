@@ -25,9 +25,6 @@ public class FeederBaysTwtSeries extends AbstractFeederBaysSeries {
         SeriesMetadata.doubles("rated_s")
     );
 
-    public FeederBaysTwtSeries() {
-    }
-
     public static List<SeriesMetadata> getSeriesMetadata() {
         return METADATA;
     }

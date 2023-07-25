@@ -22,8 +22,6 @@ import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlZone;
 import java.util.*;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
-
 /**
  * @author Hugo Kulesza <hugo.kulesza@rte-france.com>
  */
@@ -56,15 +54,11 @@ public class SecondaryVoltageControlDataframeProvider implements NetworkExtensio
         List<ControlUnitWithZone> units = new ArrayList<>();
         network.getExtension(SecondaryVoltageControl.class)
             .getControlZones()
-            .forEach(zone -> {
-                units.addAll(zone.getControlUnits()
-                    .stream()
-                    .map(unit -> {
-                        return new ControlUnitWithZone(unit, zone.getName());
-                    })
-                    .collect(toList())
-                );
-            });
+            .forEach(zone -> units.addAll(zone.getControlUnits()
+                .stream()
+                .map(unit -> new ControlUnitWithZone(unit, zone.getName()))
+                .toList()
+            ));
         return units.stream();
     }
 
@@ -78,9 +72,7 @@ public class SecondaryVoltageControlDataframeProvider implements NetworkExtensio
             }
             String name = updatingDataframe.getStringValue("name", lineNumber).orElse(null);
             ControlZone zone = ext.getControlZones().stream()
-                .filter(controlZone -> {
-                    return controlZone.getName().equals(name);
-                })
+                .filter(controlZone -> controlZone.getName().equals(name))
                 .findAny()
                 .orElse(null);
             if (zone == null) {
@@ -101,12 +93,8 @@ public class SecondaryVoltageControlDataframeProvider implements NetworkExtensio
             }
             String id = updatingDataframe.getStringValue("unit_id", lineNumber).orElse(null);
             ControlZone zone = ext.getControlZones().stream()
-                .filter(controlZone -> {
-                    return controlZone.getControlUnits().stream()
-                        .anyMatch(controlUnit -> {
-                            return controlUnit.getId().equals(id);
-                        });
-                })
+                .filter(controlZone -> controlZone.getControlUnits().stream()
+                    .anyMatch(controlUnit -> controlUnit.getId().equals(id)))
                 .findAny()
                 .orElse(null);
             if (zone == null) {

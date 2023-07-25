@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.Network;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -26,7 +25,7 @@ public abstract class AbstractNetworkDataframeMapper<T> extends AbstractDatafram
 
     private final boolean addProperties;
 
-    public AbstractNetworkDataframeMapper(List<SeriesMapper<T>> seriesMappers, boolean addProperties) {
+    protected AbstractNetworkDataframeMapper(List<SeriesMapper<T>> seriesMappers, boolean addProperties) {
         super(seriesMappers);
         this.addProperties = addProperties;
     }
@@ -50,11 +49,11 @@ public abstract class AbstractNetworkDataframeMapper<T> extends AbstractDatafram
             UpdatingDataframe selectedDataframe = optSelectDf.get();
             return IntStream.range(0, selectedDataframe.getRowCount())
                 .mapToObj(i -> getItem(network, selectedDataframe, i))
-                .collect(Collectors.toList());
+                .toList();
         }
     }
 
-    private List<SeriesMapper<T>> getPropertiesSeries(List<T> items, DataframeFilter dataframeFilter) {
+    private List<? extends SeriesMapper<T>> getPropertiesSeries(List<T> items, DataframeFilter dataframeFilter) {
         Stream<String> propertyNames = items.stream()
             .map(Identifiable.class::cast)
             .filter(Identifiable::hasProperty)
@@ -63,6 +62,6 @@ public abstract class AbstractNetworkDataframeMapper<T> extends AbstractDatafram
         return propertyNames
             .map(property -> new StringSeriesMapper<T>(property, t -> ((Identifiable) t).getProperty(property), false))
             .filter(mapper -> filterMapper(mapper, dataframeFilter))
-            .collect(Collectors.toList());
+            .toList();
     }
 }

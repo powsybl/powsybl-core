@@ -8,6 +8,8 @@ package com.powsybl.dataframe.network.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.dataframe.NetworkUtil;
+import com.powsybl.dataframe.SideEnum;
 import com.powsybl.dataframe.network.ExtensionInformation;
 import com.powsybl.dataframe.network.NetworkDataframeMapper;
 import com.powsybl.dataframe.network.NetworkDataframeMapperBuilder;
@@ -17,8 +19,6 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
-import com.powsybl.dataframe.NetworkUtil;
-import com.powsybl.dataframe.SideEnum;
 
 import java.util.List;
 import java.util.Objects;
@@ -48,8 +48,8 @@ public class ConnectablePositionDataframeProvider extends AbstractSingleDatafram
             .orElse("");
         Identifiable identifiable = network.getIdentifiable(id);
         Connectable connectable;
-        if (identifiable instanceof Connectable) {
-            connectable = (Connectable) identifiable;
+        if (identifiable instanceof Connectable connectableCasted) {
+            connectable = connectableCasted;
         } else {
             throw new PowsyblException("id must be an id of a Connectable");
         }
@@ -90,7 +90,7 @@ public class ConnectablePositionDataframeProvider extends AbstractSingleDatafram
         ids.stream().filter(Objects::nonNull)
             .map(network::getIdentifiable)
             .filter(Objects::nonNull)
-            .filter(identifiable -> identifiable instanceof Connectable)
+            .filter(Connectable.class::isInstance)
             .forEach(connectable -> connectable.removeExtension(ConnectablePosition.class));
     }
 

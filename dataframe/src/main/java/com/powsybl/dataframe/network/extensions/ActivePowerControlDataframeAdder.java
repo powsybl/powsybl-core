@@ -39,18 +39,18 @@ public class ActivePowerControlDataframeAdder extends AbstractSimpleAdder {
 
     private static class ActivePowerControlSeries {
 
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final DoubleSeries droop;
         private final IntSeries participate;
 
         ActivePowerControlSeries(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.droop = dataframe.getDoubles("droop");
             this.participate = dataframe.getInts("participate");
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = idSeries.get(row);
             Generator g = network.getGenerator(id);
             if (g == null) {
                 throw new PowsyblException("Invalid generator id : could not find " + id);

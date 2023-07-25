@@ -64,7 +64,7 @@ public class MeasurementsDataframeProvider extends AbstractSingleDataframeNetwor
         ids.stream().filter(Objects::nonNull)
             .map(network::getIdentifiable)
             .filter(Objects::nonNull)
-            .filter(identifiable -> identifiable instanceof Connectable)
+            .filter(Connectable.class::isInstance)
             .forEach(c -> c.removeExtension(Measurements.class));
     }
 

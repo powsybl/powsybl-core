@@ -23,9 +23,6 @@ public class FeederBaysLineSeries extends AbstractFeederBaysSeries {
         SeriesMetadata.strings("direction_2")
     );
 
-    public FeederBaysLineSeries() {
-    }
-
     public static List<SeriesMetadata> getSeriesMetadata() {
         return METADATA;
     }

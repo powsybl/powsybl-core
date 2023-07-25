@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.stream.Collectors;
 
 import static com.powsybl.dataframe.network.adders.SeriesUtils.applyIfPresent;
 
@@ -52,7 +51,7 @@ public class VoltageLevelTopologyCreation implements DataframeNetworkModificatio
             switchKindOptionalStr.get();
         List<SwitchKind> switchKindList = Arrays.stream(switchKindStr.split(","))
             .map(SwitchKind::valueOf)
-            .collect(Collectors.toList());
+            .toList();
         applyIfPresent(dataframe.getStrings("id"), row, builder::withVoltageLevelId);
         applyIfPresent(dataframe.getInts("low_bus_or_busbar_index"), row, builder::withLowBusOrBusbarIndex);
         applyIfPresent(dataframe.getInts("aligned_buses_or_busbar_count"), row, builder::withAlignedBusesOrBusbarCount);

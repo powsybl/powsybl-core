@@ -37,16 +37,16 @@ public class EntsoeAreaDataframeAdder extends AbstractSimpleAdder {
 
     private static class EntsoeAreaSeries {
 
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final StringSeries code;
 
         EntsoeAreaSeries(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.code = dataframe.getStrings("code");
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = this.idSeries.get(row);
             Substation s = network.getSubstation(id);
             if (s == null) {
                 throw new PowsyblException("Invalid substation id : could not find " + id);

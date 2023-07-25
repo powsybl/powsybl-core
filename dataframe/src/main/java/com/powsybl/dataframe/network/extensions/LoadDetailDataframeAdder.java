@@ -41,14 +41,14 @@ public class LoadDetailDataframeAdder extends AbstractSimpleAdder {
     }
 
     private static class LoadDetailSeries {
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final DoubleSeries fixedActivePower;
         private final DoubleSeries variableActivePower;
         private final DoubleSeries fixedReactivePower;
         private final DoubleSeries variableReactivePower;
 
         LoadDetailSeries(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.fixedActivePower = dataframe.getDoubles(FIXED_P);
             this.variableActivePower = dataframe.getDoubles(VARIABLE_P);
             this.fixedReactivePower = dataframe.getDoubles(FIXED_Q);
@@ -56,7 +56,7 @@ public class LoadDetailDataframeAdder extends AbstractSimpleAdder {
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = this.idSeries.get(row);
             Load l = network.getLoad(id);
             if (l == null) {
                 throw new PowsyblException("Invalid load id : could not find " + id);

@@ -34,20 +34,20 @@ public class GeneratorShortCircuitDataframeAdder extends AbstractSimpleAdder {
 
     private static class GeneratorShortCircuitSeries {
 
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final DoubleSeries directSubTransX;
         private final DoubleSeries directTransX;
         private final DoubleSeries stepUpTransformerX;
 
         GeneratorShortCircuitSeries(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.directSubTransX = dataframe.getDoubles("direct_sub_trans_x");
             this.directTransX = dataframe.getDoubles("direct_trans_x");
             this.stepUpTransformerX = dataframe.getDoubles("step_up_transformer_x");
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = this.idSeries.get(row);
             Generator g = network.getGenerator(id);
             if (g == null) {
                 throw new PowsyblException("Invalid generator id : could not find " + id);

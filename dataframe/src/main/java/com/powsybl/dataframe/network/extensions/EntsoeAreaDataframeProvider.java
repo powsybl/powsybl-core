@@ -67,7 +67,7 @@ public class EntsoeAreaDataframeProvider extends AbstractSingleDataframeNetworkE
     @Override
     public void removeExtensions(Network network, List<String> ids) {
         ids.stream().filter(Objects::nonNull)
-            .map(id -> network.getSubstation(id))
+            .map(network::getSubstation)
             .filter(Objects::nonNull)
             .forEach(g -> g.removeExtension(EntsoeArea.class));
     }

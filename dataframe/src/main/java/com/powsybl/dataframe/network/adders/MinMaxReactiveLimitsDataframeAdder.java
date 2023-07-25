@@ -77,8 +77,8 @@ public class MinMaxReactiveLimitsDataframeAdder implements NetworkElementAdder {
 
     private static void createLimits(Network network, String elementId, double minQ, double maxQ) {
         Identifiable<?> identifiable = getIdentifiableOrThrow(network, elementId);
-        if (identifiable instanceof ReactiveLimitsHolder) {
-            ((ReactiveLimitsHolder) identifiable).newMinMaxReactiveLimits().setMinQ(minQ).setMaxQ(maxQ).add();
+        if (identifiable instanceof ReactiveLimitsHolder reactiveLimitsHolder) {
+            reactiveLimitsHolder.newMinMaxReactiveLimits().setMinQ(minQ).setMaxQ(maxQ).add();
         } else {
             throw new PowsyblException("Element " + elementId + " does not have reactive limits.");
         }

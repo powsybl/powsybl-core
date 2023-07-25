@@ -50,22 +50,22 @@ public abstract class AbstractSimpleAdder implements NetworkElementAdder {
     }
 
     private void add(InjectionAdder<?, ?> injectionAdder) {
-        if (injectionAdder instanceof LoadAdder) {
-            ((LoadAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof BatteryAdder) {
-            ((BatteryAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof DanglingLineAdder) {
-            ((DanglingLineAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof GeneratorAdder) {
-            ((GeneratorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof ShuntCompensatorAdder) {
-            ((ShuntCompensatorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof StaticVarCompensatorAdder) {
-            ((StaticVarCompensatorAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof LccConverterStationAdder) {
-            ((LccConverterStationAdder) injectionAdder).add();
-        } else if (injectionAdder instanceof VscConverterStationAdder) {
-            ((VscConverterStationAdder) injectionAdder).add();
+        if (injectionAdder instanceof LoadAdder loadAdder) {
+            loadAdder.add();
+        } else if (injectionAdder instanceof BatteryAdder batteryAdder) {
+            batteryAdder.add();
+        } else if (injectionAdder instanceof DanglingLineAdder danglingLineAdder) {
+            danglingLineAdder.add();
+        } else if (injectionAdder instanceof GeneratorAdder generatorAdder) {
+            generatorAdder.add();
+        } else if (injectionAdder instanceof ShuntCompensatorAdder shuntCompensatorAdder) {
+            shuntCompensatorAdder.add();
+        } else if (injectionAdder instanceof StaticVarCompensatorAdder staticVarCompensatorAdder) {
+            staticVarCompensatorAdder.add();
+        } else if (injectionAdder instanceof LccConverterStationAdder lccConverterStationAdder) {
+            lccConverterStationAdder.add();
+        } else if (injectionAdder instanceof VscConverterStationAdder vscConverterStationAdder) {
+            vscConverterStationAdder.add();
         } else {
             throw new AssertionError("Given InjectionAdder not supported: " + injectionAdder.getClass().getName());
         }

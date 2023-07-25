@@ -60,10 +60,14 @@ public final class SeriesUtils {
         }
     }
 
+    private static PowsyblException missingColumn(String name) {
+        return new PowsyblException("Required column " + name + " is missing.");
+    }
+
     public static StringSeries getRequiredStrings(UpdatingDataframe dataframe, String name) {
         StringSeries series = dataframe.getStrings(name);
         if (series == null) {
-            throw new PowsyblException("Required column " + name + " is missing.");
+            throw missingColumn(name);
         }
         return series;
     }
@@ -71,7 +75,7 @@ public final class SeriesUtils {
     public static IntSeries getRequiredInts(UpdatingDataframe dataframe, String name) {
         IntSeries series = dataframe.getInts(name);
         if (series == null) {
-            throw new PowsyblException("Required column " + name + " is missing.");
+            throw missingColumn(name);
         }
         return series;
     }
@@ -79,7 +83,7 @@ public final class SeriesUtils {
     public static DoubleSeries getRequiredDoubles(UpdatingDataframe dataframe, String name) {
         DoubleSeries series = dataframe.getDoubles(name);
         if (series == null) {
-            throw new PowsyblException("Required column " + name + " is missing.");
+            throw missingColumn(name);
         }
         return series;
     }

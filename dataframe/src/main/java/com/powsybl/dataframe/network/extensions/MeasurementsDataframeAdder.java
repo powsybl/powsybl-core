@@ -17,9 +17,15 @@ import com.powsybl.dataframe.update.UpdatingDataframe;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.extensions.MeasurementAdder;
+import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.powsybl.dataframe.network.extensions.MeasurementsDataframeProvider.*;
 
@@ -40,7 +46,7 @@ public class MeasurementsDataframeAdder extends AbstractSimpleAdder {
 
     private static class MeasurementsSeries {
         private final StringSeries id;
-        private final StringSeries elementId;
+        private final StringSeries elementIdSeries;
         private final StringSeries type;
         private final StringSeries side;
         private final DoubleSeries value;
@@ -49,7 +55,7 @@ public class MeasurementsDataframeAdder extends AbstractSimpleAdder {
         private final Map<String, Measurements> measurementsMap = new HashMap<>();
 
         MeasurementsSeries(UpdatingDataframe dataframe) {
-            this.elementId = dataframe.getStrings(ELEMENT_ID);
+            this.elementIdSeries = dataframe.getStrings(ELEMENT_ID);
             this.id = dataframe.getStrings(ID);
             this.type = dataframe.getStrings(TYPE);
             this.side = dataframe.getStrings(SIDE);
@@ -59,12 +65,12 @@ public class MeasurementsDataframeAdder extends AbstractSimpleAdder {
         }
 
         void create(int row) {
-            String elementId = this.elementId.get(row);
+            String elementId = this.elementIdSeries.get(row);
             Measurements measurements = measurementsMap.get(elementId);
             MeasurementAdder adder = measurements.newMeasurement();
             SeriesUtils.applyIfPresent(id, row, adder::setId);
-            SeriesUtils.applyIfPresent(type, row, type -> adder.setType(Measurement.Type.valueOf(type)));
-            SeriesUtils.applyIfPresent(side, row, side -> adder.setSide(Measurement.Side.valueOf(side)));
+            SeriesUtils.applyIfPresent(type, row, t -> adder.setType(Measurement.Type.valueOf(t)));
+            SeriesUtils.applyIfPresent(side, row, s -> adder.setSide(Measurement.Side.valueOf(s)));
             SeriesUtils.applyIfPresent(value, row, adder::setValue);
             SeriesUtils.applyIfPresent(standardDeviation, row, adder::setStandardDeviation);
             SeriesUtils.applyBooleanIfPresent(valid, row, adder::setValid);
@@ -72,7 +78,7 @@ public class MeasurementsDataframeAdder extends AbstractSimpleAdder {
         }
 
         void removeAndInitialize(Network network, int row) {
-            String elementId = this.elementId.get(row);
+            String elementId = this.elementIdSeries.get(row);
             if (!this.measurementsMap.containsKey(elementId)) {
                 Identifiable identifiable = network.getIdentifiable(elementId);
                 if (identifiable == null) {

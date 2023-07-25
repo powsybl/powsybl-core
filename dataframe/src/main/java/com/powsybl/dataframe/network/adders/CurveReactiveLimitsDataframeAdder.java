@@ -11,7 +11,10 @@ import com.powsybl.dataframe.SeriesMetadata;
 import com.powsybl.dataframe.update.DoubleSeries;
 import com.powsybl.dataframe.update.StringSeries;
 import com.powsybl.dataframe.update.UpdatingDataframe;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
+import com.powsybl.iidm.network.ReactiveLimitsHolder;
 
 import java.util.*;
 
@@ -62,30 +65,7 @@ public class CurveReactiveLimitsDataframeAdder implements NetworkElementAdder {
         }
     }
 
-    private static final class CurvePoint {
-
-        private final double p;
-        private final double minQ;
-        private final double maxQ;
-
-        CurvePoint(double p, double minQ, double maxQ) {
-            this.p = p;
-            this.minQ = minQ;
-            this.maxQ = maxQ;
-        }
-
-        public double getP() {
-            return p;
-        }
-
-        public double getMinQ() {
-            return minQ;
-        }
-
-        public double getMaxQ() {
-            return maxQ;
-        }
-
+    private record CurvePoint(double p, double minQ, double maxQ) {
     }
 
     @Override
@@ -111,14 +91,14 @@ public class CurveReactiveLimitsDataframeAdder implements NetworkElementAdder {
 
     private static void createLimits(Network network, String elementId, List<CurvePoint> curvePoints) {
         Identifiable identifiable = getIdentifiableOrThrow(network, elementId);
-        if (identifiable instanceof ReactiveLimitsHolder) {
-            ReactiveCapabilityCurveAdder curveAdder = ((ReactiveLimitsHolder) identifiable)
+        if (identifiable instanceof ReactiveLimitsHolder reactiveLimitsHolder) {
+            ReactiveCapabilityCurveAdder curveAdder = reactiveLimitsHolder
                 .newReactiveCapabilityCurve();
             for (CurvePoint curvePoint : curvePoints) {
                 curveAdder.beginPoint()
-                    .setP(curvePoint.getP())
-                    .setMaxQ(curvePoint.getMaxQ())
-                    .setMinQ(curvePoint.getMinQ())
+                    .setP(curvePoint.p())
+                    .setMaxQ(curvePoint.maxQ())
+                    .setMinQ(curvePoint.minQ())
                     .endPoint();
             }
             curveAdder.add();

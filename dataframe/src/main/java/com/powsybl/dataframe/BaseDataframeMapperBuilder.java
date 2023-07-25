@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -44,7 +43,7 @@ public class BaseDataframeMapperBuilder<T, U, B extends BaseDataframeMapperBuild
     }
 
     public B itemsStreamProvider(Function<T, Stream<U>> itemsProvider) {
-        return this.itemsProvider(object -> itemsProvider.apply(object).collect(Collectors.toList()));
+        return this.itemsProvider(object -> itemsProvider.apply(object).toList());
     }
 
     public B itemGetter(BiFunction<T, String, U> itemGetter) {

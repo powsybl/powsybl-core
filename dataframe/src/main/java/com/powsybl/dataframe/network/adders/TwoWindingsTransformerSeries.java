@@ -13,6 +13,7 @@ import static com.powsybl.dataframe.network.adders.SeriesUtils.applyIfPresent;
 
 public class TwoWindingsTransformerSeries extends AbstractBranchSeries {
 
+    public static final String COULD_NOT_CREATE_TRANSFORMER = "Could not create transformer ";
     private final DoubleSeries ratedU1;
     private final DoubleSeries ratedU2;
     private final DoubleSeries ratedS;
@@ -39,12 +40,12 @@ public class TwoWindingsTransformerSeries extends AbstractBranchSeries {
         VoltageLevel vl2 = getVoltageLevelOrThrowWithBusOrBusbarSectionId(network, row, voltageLevels2,
             busOrBusbarSections2);
         Substation s1 = vl1.getSubstation()
-            .orElseThrow(() -> new PowsyblException("Could not create transformer " + id + ": no substation."));
+            .orElseThrow(() -> new PowsyblException(COULD_NOT_CREATE_TRANSFORMER + id + ": no substation."));
         Substation s2 = vl2.getSubstation()
-            .orElseThrow(() -> new PowsyblException("Could not create transformer " + id + ": no substation."));
+            .orElseThrow(() -> new PowsyblException(COULD_NOT_CREATE_TRANSFORMER + id + ": no substation."));
         if (s1 != s2) {
             throw new PowsyblException(
-                "Could not create transformer " + id + ": both voltage ids must be on the same substation");
+                COULD_NOT_CREATE_TRANSFORMER + id + ": both voltage ids must be on the same substation");
         }
 
         var adder = s1.newTwoWindingsTransformer();

@@ -66,7 +66,7 @@ public class GeneratorEntsoeCategoryDataframeProvider extends AbstractSingleData
     @Override
     public void removeExtensions(Network network, List<String> ids) {
         ids.stream().filter(Objects::nonNull)
-            .map(id -> network.getGenerator(id))
+            .map(network::getGenerator)
             .filter(Objects::nonNull)
             .forEach(g -> g.removeExtension(GeneratorEntsoeCategory.class));
     }

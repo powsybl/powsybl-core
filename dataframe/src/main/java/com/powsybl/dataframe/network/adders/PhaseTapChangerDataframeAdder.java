@@ -1,6 +1,7 @@
 package com.powsybl.dataframe.network.adders;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.dataframe.ConstantsUtils;
 import com.powsybl.dataframe.SeriesMetadata;
 import com.powsybl.dataframe.update.DoubleSeries;
 import com.powsybl.dataframe.update.IntSeries;
@@ -103,7 +104,7 @@ public class PhaseTapChangerDataframeAdder implements NetworkElementAdder {
             String transformerId = ids.get(row);
             TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(transformerId);
             if (transformer == null) {
-                throw new PowsyblException("Transformer " + transformerId + " does not exist.");
+                throw new PowsyblException("Transformer " + transformerId + ConstantsUtils.DOES_NOT_EXIST);
             }
             PhaseTapChangerAdder adder = transformer.newPhaseTapChanger();
             applyIfPresent(regulationModes, row, PhaseTapChanger.RegulationMode.class, adder::setRegulationMode);

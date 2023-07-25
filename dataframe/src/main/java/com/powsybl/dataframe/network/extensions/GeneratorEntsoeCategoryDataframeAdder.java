@@ -37,16 +37,16 @@ public class GeneratorEntsoeCategoryDataframeAdder extends AbstractSimpleAdder {
 
     private static class GeneratorEntsoeCategorySeries {
 
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final IntSeries code;
 
         GeneratorEntsoeCategorySeries(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.code = dataframe.getInts("code");
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = this.idSeries.get(row);
             Generator g = network.getGenerator(id);
             if (g == null) {
                 throw new PowsyblException("Invalid generator id : could not find " + id);

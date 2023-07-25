@@ -34,18 +34,18 @@ public class IdentifiableShortCircuitDataframeAdder extends AbstractSimpleAdder 
 
     private static class IdentifiableShortCircuitSeries {
 
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final DoubleSeries ipMin;
         private final DoubleSeries ipMax;
 
         IdentifiableShortCircuitSeries(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.ipMin = dataframe.getDoubles("ip_min");
             this.ipMax = dataframe.getDoubles("ip_max");
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = this.idSeries.get(row);
             Identifiable identifiable = network.getIdentifiable(id);
             if (identifiable == null) {
                 throw new PowsyblException("Invalid identifiable id : could not find " + id);

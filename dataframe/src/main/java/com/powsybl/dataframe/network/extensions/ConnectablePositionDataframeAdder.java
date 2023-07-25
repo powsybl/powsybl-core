@@ -9,6 +9,7 @@ package com.powsybl.dataframe.network.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.dataframe.SeriesMetadata;
+import com.powsybl.dataframe.SideEnum;
 import com.powsybl.dataframe.network.adders.AbstractSimpleAdder;
 import com.powsybl.dataframe.update.IntSeries;
 import com.powsybl.dataframe.update.StringSeries;
@@ -18,7 +19,6 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
-import com.powsybl.dataframe.SideEnum;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,8 +65,8 @@ public class ConnectablePositionDataframeAdder extends AbstractSimpleAdder {
             } else {
                 Identifiable identifiable = network.getIdentifiable(this.id.get(row));
                 Connectable connectable;
-                if (identifiable instanceof Connectable) {
-                    connectable = (Connectable) identifiable;
+                if (identifiable instanceof Connectable connectableCasted) {
+                    connectable = connectableCasted;
                 } else {
                     throw new PowsyblException("id must be an id of a Connectable");
                 }

@@ -30,7 +30,7 @@ public final class NetworkExtensions {
     private static Map<String, NetworkExtensionDataframeProvider> createExtensionsProviders() {
         return Suppliers
             .memoize(() -> ServiceLoader.load(NetworkExtensionDataframeProvider.class)
-                .stream().map(ServiceLoader.Provider::get).collect(Collectors.toList()))
+                .stream().map(ServiceLoader.Provider::get).toList())
             .get().stream()
             .collect(ImmutableSortedMap.toImmutableSortedMap(String::compareTo,
                 NetworkExtensionDataframeProvider::getExtensionName, Function.identity()));

@@ -30,12 +30,12 @@ public class SlackTerminalDataframeAdder extends AbstractSimpleAdder {
     private static class SlackTerminalSeries {
         private final StringSeries voltageLevelId;
         private final StringSeries elementId;
-        private final StringSeries busId;
+        private final StringSeries busIdSeries;
 
         SlackTerminalSeries(UpdatingDataframe dataframe) {
             this.voltageLevelId = dataframe.getStrings("voltage_level_id");
             this.elementId = dataframe.getStrings("element_id");
-            this.busId = dataframe.getStrings("bus_id");
+            this.busIdSeries = dataframe.getStrings("bus_id");
         }
 
         void create(Network network, int row) {
@@ -44,18 +44,18 @@ public class SlackTerminalDataframeAdder extends AbstractSimpleAdder {
                 throw new PowsyblException("voltage_level_id : " + this.voltageLevelId.get(row) +
                     " does not correspond to any voltage level");
             }
-            if (this.elementId != null && this.busId == null) {
+            if (this.elementId != null && this.busIdSeries == null) {
                 Identifiable identifiable = network.getIdentifiable(this.elementId.get(row));
-                if (identifiable instanceof Injection) {
-                    Terminal terminal = ((Injection) identifiable).getTerminal();
+                if (identifiable instanceof Injection injection) {
+                    Terminal terminal = injection.getTerminal();
                     SlackTerminal.reset(terminal.getVoltageLevel(), terminal);
-                } else if (identifiable instanceof Bus) {
-                    SlackTerminal.attach((Bus) identifiable);
+                } else if (identifiable instanceof Bus bus) {
+                    SlackTerminal.attach(bus);
                 } else {
                     throw new PowsyblException("only injections or configured buses are handled as an \"element_id\"");
                 }
-            } else if (this.busId != null && this.elementId == null) {
-                String busId = this.busId.get(row);
+            } else if (this.busIdSeries != null && this.elementId == null) {
+                String busId = this.busIdSeries.get(row);
                 Bus bus = network.getBusView().getBus(busId);
                 if (bus == null) {
                     throw new PowsyblException("bus id : " + busId + " does not match any existing bus");

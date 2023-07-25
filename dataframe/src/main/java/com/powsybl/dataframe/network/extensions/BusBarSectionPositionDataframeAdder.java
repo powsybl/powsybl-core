@@ -37,18 +37,18 @@ public class BusBarSectionPositionDataframeAdder extends AbstractSimpleAdder {
     }
 
     private static class BusbarSectionPositionSerie {
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final IntSeries busbarIndex;
         private final IntSeries sectionIndex;
 
         BusbarSectionPositionSerie(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.busbarIndex = dataframe.getInts("busbar_index");
             this.sectionIndex = dataframe.getInts("section_index");
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = this.idSeries.get(row);
             BusbarSection busbarSection = network.getBusbarSection(id);
             if (busbarSection == null) {
                 throw new PowsyblException("Invalid busbar id : could not find " + id);

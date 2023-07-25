@@ -38,18 +38,18 @@ public class HvdcOperatorActivePowerRangeDataframeAdder extends AbstractSimpleAd
 
     private static class HvdcOperatorActivePowerRangeSeries {
 
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final DoubleSeries oprFromCS1toCS2;
         private final DoubleSeries oprFromCS2toCS1;
 
         HvdcOperatorActivePowerRangeSeries(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.oprFromCS1toCS2 = dataframe.getDoubles("opr_from_cs1_to_cs2");
             this.oprFromCS2toCS1 = dataframe.getDoubles("opr_from_cs2_to_cs1");
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = this.idSeries.get(row);
             HvdcLine l = network.getHvdcLine(id);
             if (l == null) {
                 throw new PowsyblException("Invalid hvdc line id : could not find " + id);

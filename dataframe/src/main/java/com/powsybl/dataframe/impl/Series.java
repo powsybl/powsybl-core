@@ -64,23 +64,27 @@ public class Series {
         return name;
     }
 
+    private PowsyblException invalidType(String typeStr) {
+        return new PowsyblException("Series " + getName() + " is not of type " + typeStr);
+    }
+
     public double[] getDoubles() {
         return Optional.ofNullable(doubles)
-            .orElseThrow(() -> new PowsyblException("Series " + getName() + " is not of type double"));
+            .orElseThrow(() -> invalidType("double"));
     }
 
     public int[] getInts() {
         return Optional.ofNullable(ints)
-            .orElseThrow(() -> new PowsyblException("Series " + getName() + " is not of type int"));
+            .orElseThrow(() -> invalidType("int"));
     }
 
     public boolean[] getBooleans() {
         return Optional.ofNullable(booleans)
-            .orElseThrow(() -> new PowsyblException("Series " + getName() + " is not of type boolean"));
+            .orElseThrow(() -> invalidType("boolean"));
     }
 
     public String[] getStrings() {
         return Optional.ofNullable(strings)
-            .orElseThrow(() -> new PowsyblException("Series " + getName() + " is not of type string"));
+            .orElseThrow(() -> invalidType("string"));
     }
 }

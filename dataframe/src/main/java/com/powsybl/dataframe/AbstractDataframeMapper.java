@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableMap.toImmutableMap;
 
@@ -28,14 +27,14 @@ public abstract class AbstractDataframeMapper<T, U> implements DataframeMapper<T
 
     protected final Map<String, SeriesMapper<U>> seriesMappers;
 
-    public AbstractDataframeMapper(List<SeriesMapper<U>> seriesMappers) {
+    protected AbstractDataframeMapper(List<SeriesMapper<U>> seriesMappers) {
         this.seriesMappers = seriesMappers.stream()
             .collect(toImmutableMap(mapper -> mapper.getMetadata().getName(), Function.identity()));
     }
 
     @Override
     public List<SeriesMetadata> getSeriesMetadata() {
-        return seriesMappers.values().stream().map(SeriesMapper::getMetadata).collect(Collectors.toList());
+        return seriesMappers.values().stream().map(SeriesMapper::getMetadata).toList();
     }
 
     @Override
@@ -148,7 +147,7 @@ public abstract class AbstractDataframeMapper<T, U> implements DataframeMapper<T
         Collection<SeriesMapper<U>> mappers = seriesMappers.values();
         return mappers.stream()
             .filter(mapper -> filterMapper(mapper, dataframeFilter))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     protected boolean filterMapper(SeriesMapper<U> mapper, DataframeFilter dataframeFilter) {

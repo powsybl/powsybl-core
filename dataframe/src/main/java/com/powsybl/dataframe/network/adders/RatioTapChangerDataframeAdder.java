@@ -1,12 +1,16 @@
 package com.powsybl.dataframe.network.adders;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.dataframe.ConstantsUtils;
 import com.powsybl.dataframe.SeriesMetadata;
 import com.powsybl.dataframe.update.DoubleSeries;
 import com.powsybl.dataframe.update.IntSeries;
 import com.powsybl.dataframe.update.StringSeries;
 import com.powsybl.dataframe.update.UpdatingDataframe;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RatioTapChangerAdder;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.util.HashMap;
@@ -88,7 +92,7 @@ public class RatioTapChangerDataframeAdder implements NetworkElementAdder {
             String transformerId = ids.get(row);
             TwoWindingsTransformer transformer = network.getTwoWindingsTransformer(transformerId);
             if (transformer == null) {
-                throw new PowsyblException("Transformer " + transformerId + " does not exist.");
+                throw new PowsyblException("Transformer " + transformerId + ConstantsUtils.DOES_NOT_EXIST);
             }
             RatioTapChangerAdder adder = transformer.newRatioTapChanger();
             applyIfPresent(targetDeadband, row, adder::setTargetDeadband);

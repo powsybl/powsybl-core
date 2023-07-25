@@ -29,7 +29,7 @@ public class InjectionObservabilityDataframeProvider extends AbstractSingleDataf
 
     private Stream<InjectionObservability> itemsStream(Network network) {
         return network.getIdentifiables().stream().filter(Objects::nonNull)
-            .filter(identifiable -> identifiable instanceof Injection)
+            .filter(Injection.class::isInstance)
             .map(inj -> (InjectionObservability) inj.getExtension(InjectionObservability.class))
             .filter(Objects::nonNull);
     }
@@ -114,7 +114,7 @@ public class InjectionObservabilityDataframeProvider extends AbstractSingleDataf
         ids.stream().filter(Objects::nonNull)
             .map(network::getIdentifiable)
             .filter(Objects::nonNull)
-            .filter(identifiable -> identifiable instanceof Injection)
+            .filter(Injection.class::isInstance)
             .forEach(inj -> inj.removeExtension(InjectionObservability.class));
     }
 

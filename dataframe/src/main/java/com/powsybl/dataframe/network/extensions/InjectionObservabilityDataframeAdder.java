@@ -45,7 +45,7 @@ public class InjectionObservabilityDataframeAdder extends AbstractSimpleAdder {
 
     private static class InjectionObservabilitySeries {
 
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final IntSeries observable;
         private final DoubleSeries pStandardDeviation;
         private final IntSeries pRedundant;
@@ -55,7 +55,7 @@ public class InjectionObservabilityDataframeAdder extends AbstractSimpleAdder {
         private final IntSeries vRedundant;
 
         InjectionObservabilitySeries(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.observable = dataframe.getInts("observable");
             this.pStandardDeviation = dataframe.getDoubles("p_standard_deviation");
             this.pRedundant = dataframe.getInts("p_redundant");
@@ -66,7 +66,7 @@ public class InjectionObservabilityDataframeAdder extends AbstractSimpleAdder {
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = this.idSeries.get(row);
             Identifiable identifiable = network.getIdentifiable(id);
             if (identifiable == null) {
                 throw new PowsyblException("Invalid injection id : could not find " + id);

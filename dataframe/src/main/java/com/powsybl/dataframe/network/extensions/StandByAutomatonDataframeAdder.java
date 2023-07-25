@@ -38,7 +38,7 @@ public class StandByAutomatonDataframeAdder extends AbstractSimpleAdder {
     );
 
     private static class StandByAutomatonSeries {
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final IntSeries standBy;
         private final DoubleSeries b0;
         private final DoubleSeries lowVoltageThreshold;
@@ -47,7 +47,7 @@ public class StandByAutomatonDataframeAdder extends AbstractSimpleAdder {
         private final DoubleSeries highVoltageSetpoint;
 
         StandByAutomatonSeries(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.standBy = dataframe.getInts("standby");
             this.b0 = dataframe.getDoubles("b0");
             this.lowVoltageThreshold = dataframe.getDoubles("low_voltage_threshold");
@@ -57,7 +57,7 @@ public class StandByAutomatonDataframeAdder extends AbstractSimpleAdder {
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = this.idSeries.get(row);
             StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(id);
             if (staticVarCompensator == null) {
                 throw new PowsyblException("Invalid static var compensator id : could not find " + id);

@@ -7,6 +7,7 @@
 package com.powsybl.dataframe.network.adders;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.dataframe.ConstantsUtils;
 import com.powsybl.dataframe.update.StringSeries;
 import com.powsybl.iidm.network.*;
 
@@ -21,7 +22,7 @@ public final class NetworkUtils {
     public static VoltageLevel getVoltageLevelOrThrow(Network network, String id) {
         VoltageLevel voltageLevel = network.getVoltageLevel(id);
         if (voltageLevel == null) {
-            throw new PowsyblException("Voltage level " + id + " does not exist.");
+            throw new PowsyblException("Voltage level " + id + ConstantsUtils.DOES_NOT_EXIST);
         }
         return voltageLevel;
     }
@@ -36,10 +37,10 @@ public final class NetworkUtils {
                     throw new PowsyblException(
                         String.format("Bus or busbar section %s not found.", busOrBusbarSections.get(row)));
                 }
-                if (busOrBusbarSection instanceof BusbarSection) {
-                    return ((BusbarSection) busOrBusbarSection).getTerminal().getVoltageLevel();
-                } else if (busOrBusbarSection instanceof Bus) {
-                    return ((Bus) busOrBusbarSection).getVoltageLevel();
+                if (busOrBusbarSection instanceof BusbarSection busbarSection) {
+                    return busbarSection.getTerminal().getVoltageLevel();
+                } else if (busOrBusbarSection instanceof Bus bus) {
+                    return bus.getVoltageLevel();
                 } else {
                     throw new PowsyblException(
                         String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(),
@@ -56,15 +57,15 @@ public final class NetworkUtils {
     public static Substation getSubstationOrThrow(Network network, String id) {
         Substation substation = network.getSubstation(id);
         if (substation == null) {
-            throw new PowsyblException("Substation " + id + " does not exist.");
+            throw new PowsyblException("Substation " + id + ConstantsUtils.DOES_NOT_EXIST);
         }
         return substation;
     }
 
-    public static Identifiable<?> getIdentifiableOrThrow(Network network, String id) {
+    public static Identifiable getIdentifiableOrThrow(Network network, String id) {
         Identifiable<?> identifiable = network.getIdentifiable(id);
         if (identifiable == null) {
-            throw new PowsyblException("Network element " + id + " does not exist.");
+            throw new PowsyblException("Network element " + id + ConstantsUtils.DOES_NOT_EXIST);
         }
         return identifiable;
     }

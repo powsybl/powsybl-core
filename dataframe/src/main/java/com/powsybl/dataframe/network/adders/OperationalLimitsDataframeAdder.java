@@ -1,13 +1,14 @@
 package com.powsybl.dataframe.network.adders;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.dataframe.ConstantsUtils;
 import com.powsybl.dataframe.SeriesMetadata;
+import com.powsybl.dataframe.TemporaryLimitData;
 import com.powsybl.dataframe.update.DoubleSeries;
 import com.powsybl.dataframe.update.IntSeries;
 import com.powsybl.dataframe.update.StringSeries;
 import com.powsybl.dataframe.update.UpdatingDataframe;
 import com.powsybl.iidm.network.*;
-import com.powsybl.dataframe.TemporaryLimitData;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.util.*;
@@ -210,17 +211,16 @@ public class OperationalLimitsDataframeAdder implements NetworkElementAdder {
     private static FlowsLimitsHolder getLimitsHolder(Network network, IdentifiableType identifiableType,
                                                      String elementId, TemporaryLimitData.Side side) {
         switch (identifiableType) {
-            case LINE:
-            case TWO_WINDINGS_TRANSFORMER:
+            case LINE, TWO_WINDINGS_TRANSFORMER:
                 Branch<?> branch = network.getBranch(elementId);
                 if (branch == null) {
-                    throw new PowsyblException("Branch " + elementId + " does not exist.");
+                    throw new PowsyblException("Branch " + elementId + ConstantsUtils.DOES_NOT_EXIST);
                 }
                 return getBranchAsFlowsLimitsHolder(branch, toBranchSide(side));
             case DANGLING_LINE:
                 DanglingLine dl = network.getDanglingLine(elementId);
                 if (dl == null) {
-                    throw new PowsyblException("Dangling line " + elementId + " does not exist.");
+                    throw new PowsyblException("Dangling line " + elementId + ConstantsUtils.DOES_NOT_EXIST);
                 }
                 if (side != TemporaryLimitData.Side.NONE) {
                     throw new PowsyblException("Invalid value for dangling line side: " + side + ", must be NONE");
@@ -229,7 +229,8 @@ public class OperationalLimitsDataframeAdder implements NetworkElementAdder {
             case THREE_WINDINGS_TRANSFORMER:
                 ThreeWindingsTransformer transformer = network.getThreeWindingsTransformer(elementId);
                 if (transformer == null) {
-                    throw new PowsyblException("Three windings transformer " + elementId + " does not exist.");
+                    throw new PowsyblException(
+                        "Three windings transformer " + elementId + ConstantsUtils.DOES_NOT_EXIST);
                 }
                 switch (side) {
                     case ONE:

@@ -42,20 +42,20 @@ public class HvdcAngleDroopActivePowerControlDataframeAdder extends AbstractSimp
 
     private static class HvdcAngleDroopActivePowerControlSeries {
 
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final DoubleSeries droop;
         private final DoubleSeries p0;
         private final IntSeries enabled;
 
         HvdcAngleDroopActivePowerControlSeries(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.droop = dataframe.getDoubles("droop");
             this.p0 = dataframe.getDoubles("p0");
             this.enabled = dataframe.getInts("enabled");
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = this.idSeries.get(row);
             HvdcLine l = network.getHvdcLine(id);
             if (l == null) {
                 throw new PowsyblException("Invalid hvdc line id : could not find " + id);

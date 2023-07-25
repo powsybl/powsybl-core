@@ -46,7 +46,7 @@ public class BranchObservabilityDataframeAdder extends AbstractSimpleAdder {
 
     private static class BranchObservabilitySeries {
 
-        private final StringSeries id;
+        private final StringSeries idSeries;
         private final IntSeries observable;
         private final DoubleSeries p1StandardDeviation;
         private final IntSeries p1Redundant;
@@ -58,7 +58,7 @@ public class BranchObservabilityDataframeAdder extends AbstractSimpleAdder {
         private final IntSeries q2Redundant;
 
         BranchObservabilitySeries(UpdatingDataframe dataframe) {
-            this.id = dataframe.getStrings("id");
+            this.idSeries = dataframe.getStrings("id");
             this.observable = dataframe.getInts("observable");
             this.p1StandardDeviation = dataframe.getDoubles("p1_standard_deviation");
             this.p1Redundant = dataframe.getInts("p1_redundant");
@@ -71,7 +71,7 @@ public class BranchObservabilityDataframeAdder extends AbstractSimpleAdder {
         }
 
         void create(Network network, int row) {
-            String id = this.id.get(row);
+            String id = this.idSeries.get(row);
             Branch branch = network.getBranch(id);
             if (branch == null) {
                 throw new PowsyblException("Invalid branch id : could not find " + id);
