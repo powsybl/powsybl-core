@@ -1,6 +1,6 @@
 package com.powsybl.dataframe;
 
-public class ConstantsUtils {
+public final class ConstantsUtils {
     public static final String DOES_NOT_EXIST = " does not exist.";
     public static final String MAX_P = "max_p";
     public static final String MIN_Q = "min_q";
