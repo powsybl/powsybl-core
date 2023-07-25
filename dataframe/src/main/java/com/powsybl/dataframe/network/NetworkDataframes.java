@@ -286,10 +286,10 @@ public final class NetworkDataframes {
                 ConstantsUtils.MAX_Q,
                 ifExistsDouble(NetworkDataframes::getMinMaxReactiveLimits, MinMaxReactiveLimits::getMaxQ),
                 setMaxQ())
-            .doubles(ConstantsUtils.MIN_Q + "at" + ConstantsUtils.TARGET_P, getMinQ(Generator::getTargetP), false)
-            .doubles(ConstantsUtils.MAX_Q + "at" + ConstantsUtils.TARGET_P, getMaxQ(Generator::getTargetP), false)
-            .doubles(ConstantsUtils.MIN_Q + "at_p", getMinQ(getOppositeP()), false)
-            .doubles(ConstantsUtils.MAX_Q + "at_p", getMaxQ(getOppositeP()), false)
+            .doubles(ConstantsUtils.MIN_Q + "_at_" + ConstantsUtils.TARGET_P, getMinQ(Generator::getTargetP), false)
+            .doubles(ConstantsUtils.MAX_Q + "_at_" + ConstantsUtils.TARGET_P, getMaxQ(Generator::getTargetP), false)
+            .doubles(ConstantsUtils.MIN_Q + "_at_p", getMinQ(getOppositeP()), false)
+            .doubles(ConstantsUtils.MAX_Q + "_at_p", getMaxQ(getOppositeP()), false)
             .doubles("rated_s", Generator::getRatedS, Generator::setRatedS)
             .strings(ConstantsUtils.REACTIVE_LIMITS_KIND, NetworkDataframes::getReactiveLimitsKind)
             .doubles(ConstantsUtils.TARGET_V, Generator::getTargetV, Generator::setTargetV)
