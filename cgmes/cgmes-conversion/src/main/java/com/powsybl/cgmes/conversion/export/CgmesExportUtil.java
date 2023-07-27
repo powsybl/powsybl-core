@@ -224,8 +224,7 @@ public final class CgmesExportUtil {
     public static int getTerminalSequenceNumber(Terminal t) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
-            if (c instanceof DanglingLine) {
-                DanglingLine dl = (DanglingLine) c;
+            if (c instanceof DanglingLine dl) {
                 if (dl.isPaired()) {
                     // TODO(Luma) Export tie line components instead of a single equipment
                     // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
@@ -246,8 +245,8 @@ public final class CgmesExportUtil {
                     default:
                         throw new IllegalStateException("Incorrect branch side " + ((Branch<?>) c).getSide(t));
                 }
-            } else if (c instanceof ThreeWindingsTransformer) {
-                switch (((ThreeWindingsTransformer) c).getSide(t)) {
+            } else if (c instanceof ThreeWindingsTransformer twt) {
+                switch (twt.getSide(t)) {
                     case ONE:
                         return 1;
                     case TWO:
@@ -255,7 +254,7 @@ public final class CgmesExportUtil {
                     case THREE:
                         return 3;
                     default:
-                        throw new IllegalStateException("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
+                        throw new IllegalStateException("Incorrect three-windings transformer side " + twt.getSide(t));
                 }
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());

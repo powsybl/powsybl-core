@@ -361,8 +361,7 @@ public final class Security {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof LimitViolationKey) {
-                LimitViolationKey other = (LimitViolationKey) obj;
+            if (obj instanceof LimitViolationKey other) {
                 return id.equals(other.id) && limitType == other.limitType && limit == other.limit;
             }
             return false;

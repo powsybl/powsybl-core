@@ -208,8 +208,8 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     public void add(TripleStore source) {
         Objects.requireNonNull(source);
         Repository sourceRepo;
-        if (source instanceof TripleStoreRDF4J) {
-            sourceRepo = ((TripleStoreRDF4J) source).repo;
+        if (source instanceof TripleStoreRDF4J tripleStoreRDF4J) {
+            sourceRepo = tripleStoreRDF4J.repo;
             try (RepositoryConnection sourceConn = sourceRepo.getConnection()) {
                 try (RepositoryConnection targetConn = repo.getConnection()) {
                     copyNamespacesToRepository(sourceConn, targetConn);

@@ -144,12 +144,12 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 ModificationLogs.busOrBbsDoesNotExist(busOrBusbarSectionId, reporter, throwException);
                 return false;
             }
-            if (busOrBusbarSection instanceof Bus) {
-                Bus bus = (Bus) busOrBusbarSection; // if bus is an identifiable, the voltage level is BUS_BREAKER
+            if (busOrBusbarSection instanceof Bus bus) {
+                // if bus is an identifiable, the voltage level is BUS_BREAKER
                 checkOrders(side, bus.getVoltageLevel(), reporter, throwException); // is always true, can only return a warning
                 setBus(side, bus, bus.getVoltageLevel().getId());
-            } else if (busOrBusbarSection instanceof BusbarSection) {
-                BusbarSection bbs = (BusbarSection) busOrBusbarSection; // if bbs exists, the voltage level is NODE_BREAKER: no necessary topology kind check
+            } else if (busOrBusbarSection instanceof BusbarSection bbs) {
+                // if bbs exists, the voltage level is NODE_BREAKER: no necessary topology kind check
                 VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
                 if (!checkOrders(side, voltageLevel, reporter, throwException)) {
                     return false;

@@ -139,11 +139,11 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected ThreeWindingsTransformerAdder createAdder(Container<? extends Identifiable<?>> c) {
-        if (c instanceof Network) {
-            return ((Network) c).newThreeWindingsTransformer();
+        if (c instanceof Network network) {
+            return network.newThreeWindingsTransformer();
         }
-        if (c instanceof Substation) {
-            return ((Substation) c).newThreeWindingsTransformer();
+        if (c instanceof Substation substation) {
+            return substation.newThreeWindingsTransformer();
         }
         throw new IllegalStateException();
     }

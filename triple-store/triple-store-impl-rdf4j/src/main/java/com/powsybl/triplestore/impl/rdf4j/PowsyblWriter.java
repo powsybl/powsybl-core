@@ -141,8 +141,7 @@ public class PowsyblWriter extends RDFXMLWriter {
     private void writeResource(Value obj) throws IOException {
         Resource objRes = (Resource) obj;
 
-        if (objRes instanceof BNode) {
-            BNode bNode = (BNode) objRes;
+        if (objRes instanceof BNode bNode) {
             writeAttribute(RDF.NAMESPACE, "nodeID", getValidNodeId(bNode));
         } else {
             IRI uri = (IRI) objRes;

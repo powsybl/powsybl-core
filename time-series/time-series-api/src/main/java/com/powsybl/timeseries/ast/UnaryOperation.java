@@ -143,8 +143,8 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UnaryOperation) {
-            return (((UnaryOperation) obj).child).equals(child) && ((UnaryOperation) obj).operator == operator;
+        if (obj instanceof UnaryOperation unaryOperation) {
+            return (unaryOperation.child).equals(child) && unaryOperation.operator == operator;
         }
         return false;
     }

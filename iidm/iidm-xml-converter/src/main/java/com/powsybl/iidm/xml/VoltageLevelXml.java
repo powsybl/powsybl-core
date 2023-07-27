@@ -240,11 +240,11 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
 
     @Override
     protected VoltageLevelAdder createAdder(Container<? extends Identifiable<?>> c) {
-        if (c instanceof Network) {
-            return ((Network) c).newVoltageLevel();
+        if (c instanceof Network network) {
+            return network.newVoltageLevel();
         }
-        if (c instanceof Substation) {
-            return ((Substation) c).newVoltageLevel();
+        if (c instanceof Substation substation) {
+            return substation.newVoltageLevel();
         }
         throw new IllegalStateException();
     }

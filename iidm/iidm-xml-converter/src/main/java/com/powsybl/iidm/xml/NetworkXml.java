@@ -197,8 +197,7 @@ public final class NetworkXml {
     }
 
     private static String getNamespaceUri(ExtensionXmlSerializer extensionXmlSerializer, ExportOptions options, IidmXmlVersion networkVersion) {
-        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer) {
-            AbstractVersionableNetworkExtensionXmlSerializer networkExtensionXmlSerializer = (AbstractVersionableNetworkExtensionXmlSerializer) extensionXmlSerializer;
+        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer networkExtensionXmlSerializer) {
             return options.getExtensionVersion(networkExtensionXmlSerializer.getExtensionName())
                     .map(extensionVersion -> {
                         networkExtensionXmlSerializer.checkWritingCompatibility(extensionVersion, networkVersion);
@@ -236,8 +235,7 @@ public final class NetworkXml {
             return false;
         }
         boolean versionExist = true;
-        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer) {
-            AbstractVersionableNetworkExtensionXmlSerializer networkExtensionXmlSerializer = (AbstractVersionableNetworkExtensionXmlSerializer) extensionXmlSerializer;
+        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer networkExtensionXmlSerializer) {
             versionExist = networkExtensionXmlSerializer.versionExists(version);
         }
         if (!versionExist) {

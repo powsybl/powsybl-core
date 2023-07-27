@@ -125,11 +125,9 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
     }
 
     private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, Reporter reporter, Logger logger) {
-        if (identifiable instanceof Bus) {
-            Bus bus = (Bus) identifiable;
+        if (identifiable instanceof Bus bus) {
             return bus.getVoltageLevel();
-        } else if (identifiable instanceof BusbarSection) {
-            BusbarSection bbs = (BusbarSection) identifiable;
+        } else if (identifiable instanceof BusbarSection bbs) {
             return bbs.getTerminal().getVoltageLevel();
         } else {
             logger.error("Unexpected type of identifiable {}: {}", identifiable.getId(), identifiable.getType());

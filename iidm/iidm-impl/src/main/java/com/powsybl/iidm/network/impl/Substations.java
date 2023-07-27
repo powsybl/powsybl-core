@@ -50,12 +50,12 @@ final class Substations {
     static void checkRemovability(Substation substation) {
         for (VoltageLevel vl : substation.getVoltageLevels()) {
             for (Connectable connectable : vl.getConnectables()) {
-                if (connectable instanceof Branch) {
-                    checkRemovability(substation, (Branch) connectable);
-                } else if (connectable instanceof ThreeWindingsTransformer) {
-                    checkRemovability(substation, (ThreeWindingsTransformer) connectable);
-                } else if (connectable instanceof HvdcConverterStation) {
-                    checkRemovability(substation, (HvdcConverterStation) connectable);
+                if (connectable instanceof Branch branch) {
+                    checkRemovability(substation, branch);
+                } else if (connectable instanceof ThreeWindingsTransformer twt) {
+                    checkRemovability(substation, twt);
+                } else if (connectable instanceof HvdcConverterStation hvdcConverterStation) {
+                    checkRemovability(substation, hvdcConverterStation);
                 }
             }
         }
