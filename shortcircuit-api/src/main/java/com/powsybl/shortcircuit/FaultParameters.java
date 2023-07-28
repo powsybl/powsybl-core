@@ -26,7 +26,7 @@ public class FaultParameters {
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
-    // VERSION = 1.2 subTransientCoefficient
+    // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition
     public static final String VERSION = "1.2";
 
     private final String id;
@@ -44,6 +44,14 @@ public class FaultParameters {
     private final double minVoltageDropProportionalThreshold;
 
     private final double subTransientCoefficient;
+
+    private final boolean withLoads;
+
+    private final boolean withShuntCompensators;
+
+    private final boolean withVSCConverterStations;
+
+    private final boolean withNeutralPosition;
 
     /** Fault id */
     public String getId() {
@@ -85,6 +93,26 @@ public class FaultParameters {
         return subTransientCoefficient;
     }
 
+    /** Override general parameter withLoads from {@link com.powsybl.shortcircuit.ShortCircuitParameters} */
+    public boolean isWithLoads() {
+        return withLoads;
+    }
+
+    /** Override general parameter withShuntCompensators from {@link com.powsybl.shortcircuit.ShortCircuitParameters} */
+    public boolean isWithShuntCompensators() {
+        return withShuntCompensators;
+    }
+
+    /** Override general parameter withVSCConverterStations from {@link com.powsybl.shortcircuit.ShortCircuitParameters} */
+    public boolean isWithVSCConverterStations() {
+        return withVSCConverterStations;
+    }
+
+    /** Override general parameter withNeutralPosition from {@link com.powsybl.shortcircuit.ShortCircuitParameters} */
+    public boolean isWithNeutralPosition() {
+        return withNeutralPosition;
+    }
+
     public FaultParameters(String id,
                            boolean withLimitViolations,
                            boolean withVoltageResult,
@@ -92,7 +120,11 @@ public class FaultParameters {
                            StudyType studyType,
                            double minVoltageDropProportionalThreshold,
                            boolean withFortescueResult,
-                           double subTransientCoefficient) {
+                           double subTransientCoefficient,
+                           boolean withLoads,
+                           boolean withShuntCompensators,
+                           boolean withVSCConverterStations,
+                           boolean withNeutralPosition) {
         this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
         this.withVoltageResult = withVoltageResult;
@@ -101,6 +133,10 @@ public class FaultParameters {
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
         this.withFortescueResult = withFortescueResult;
         this.subTransientCoefficient = subTransientCoefficient;
+        this.withLoads = withLoads;
+        this.withShuntCompensators = withShuntCompensators;
+        this.withVSCConverterStations = withVSCConverterStations;
+        this.withNeutralPosition = withNeutralPosition;
     }
 
     @Override
@@ -119,12 +155,18 @@ public class FaultParameters {
                 Objects.equals(studyType, that.studyType) &&
                 Objects.equals(minVoltageDropProportionalThreshold, that.minVoltageDropProportionalThreshold) &&
                 Objects.equals(withFortescueResult, that.withFortescueResult) &&
-                Objects.equals(subTransientCoefficient, that.subTransientCoefficient);
+                Objects.equals(subTransientCoefficient, that.subTransientCoefficient) &&
+                Objects.equals(withLoads, that.withLoads) &&
+                Objects.equals(withShuntCompensators, that.withShuntCompensators) &&
+                Objects.equals(withVSCConverterStations, that.withVSCConverterStations) &&
+                Objects.equals(withNeutralPosition, that.withNeutralPosition);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, withLimitViolations, withVoltageResult, withFeederResult, studyType, minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient);
+        return Objects.hash(id, withLimitViolations, withVoltageResult, withFeederResult, studyType,
+                minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient,
+                withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition);
     }
 
     @Override
@@ -138,6 +180,10 @@ public class FaultParameters {
                 ", minVoltageDropProportionalThreshold=" + minVoltageDropProportionalThreshold +
                 ", withFortescueResult=" + withFortescueResult +
                 ", subTransientCoefficient=" + subTransientCoefficient +
+                ", withLoads=" + withLoads +
+                ", withShuntCompensators=" + withShuntCompensators +
+                ", withVSCConverterStations=" + withVSCConverterStations +
+                ", withNeutralPosition=" + withNeutralPosition +
                 '}';
     }
 

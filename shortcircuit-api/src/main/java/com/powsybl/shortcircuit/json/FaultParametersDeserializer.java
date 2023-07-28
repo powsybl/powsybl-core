@@ -38,6 +38,10 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         double minVoltageDropProportionalThreshold = Double.NaN;
         boolean withFortescueResult = false;
         double subTransientCoefficient = Double.NaN;
+        boolean withLoads = false;
+        boolean withShuntCompensators = false;
+        boolean withVSCConverterStations = false;
+        boolean withNeutralPosition = false;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -95,10 +99,36 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     subTransientCoefficient = parser.readValueAs(Double.class);
                     break;
 
+                case "withLoads":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withLoads", version, "1.2");
+                    parser.nextToken();
+                    withLoads = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "withShuntCompensators":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withShuntCompensators", version, "1.2");
+                    parser.nextToken();
+                    withShuntCompensators = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "withVSCConverterStations":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVSCConverterStations", version, "1.2");
+                    parser.nextToken();
+                    withVSCConverterStations = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "withNeutralPosition":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withNeutralPosition", version, "1.2");
+                    parser.nextToken();
+                    withNeutralPosition = parser.readValueAs(Boolean.class);
+                    break;
+
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
-        return new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type, minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient);
+        return new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type,
+                minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient, withLoads,
+                withShuntCompensators, withVSCConverterStations, withNeutralPosition);
     }
 }

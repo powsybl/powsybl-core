@@ -171,6 +171,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /**
+     * TODO
+     * @return
+     */
     public boolean isWithLoads() {
         return withLoads;
     }
@@ -180,6 +184,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /**
+     * TODO
+     * @return
+     */
     public boolean isWithShuntCompensators() {
         return withShuntCompensators;
     }
@@ -189,6 +197,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /**
+     * TODO
+     * @return
+     */
     public boolean isWithVSCConverterStations() {
         return withVSCConverterStations;
     }
@@ -198,6 +210,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /**
+     * TODO
+     * @return
+     */
     public boolean isWithNeutralPosition() {
         return withNeutralPosition;
     }

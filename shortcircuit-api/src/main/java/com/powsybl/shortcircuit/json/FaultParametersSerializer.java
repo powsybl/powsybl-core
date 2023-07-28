@@ -41,6 +41,10 @@ public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
         if (parameters.getStudyType() == StudyType.SUB_TRANSIENT) {
             JsonUtil.writeOptionalDoubleField(jsonGenerator, "subTransientCoefficient", parameters.getSubTransientCoefficient());
         }
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withLoads", parameters.isWithLoads(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withShuntCompensators", parameters.isWithShuntCompensators(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVSCConverterStations", parameters.isWithVSCConverterStations(), false);
+        JsonUtil.writeOptionalBooleanField(jsonGenerator, "withNeutralPosition", parameters.isWithNeutralPosition(), false);
         jsonGenerator.writeEndObject();
     }
 }
