@@ -83,6 +83,26 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     parameters.setSubTransientCoefficient(parser.readValueAs(Double.class));
                     break;
+                case "withLoads":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withLoads", version, "1.2");
+                    parser.nextToken();
+                    parameters.setWithLoads(parser.readValueAs(Boolean.class));
+                    break;
+                case "withShuntCompensators":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withShuntCompensators", version, "1.2");
+                    parser.nextToken();
+                    parameters.setWithShuntCompensators(parser.readValueAs(Boolean.class));
+                    break;
+                case "withVSCConverterStations":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVSCConverterStations", version, "1.2");
+                    parser.nextToken();
+                    parameters.setWithVSCConverterStations(parser.readValueAs(Boolean.class));
+                    break;
+                case "withNeutralPosition":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withNeutralPosition", version, "1.2");
+                    parser.nextToken();
+                    parameters.setWithNeutralPosition(parser.readValueAs(Boolean.class));
+                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);

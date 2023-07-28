@@ -37,6 +37,10 @@ public class ShortCircuitParametersSerializer extends StdSerializer<ShortCircuit
         if (parameters.getStudyType() == StudyType.SUB_TRANSIENT) {
             JsonUtil.writeOptionalDoubleField(jsonGenerator, "subTransientCoefficient", parameters.getSubTransientCoefficient());
         }
+        jsonGenerator.writeBooleanField("withLoads", parameters.isWithLoads());
+        jsonGenerator.writeBooleanField("withShuntCompensators", parameters.isWithShuntCompensators());
+        jsonGenerator.writeBooleanField("withVSCConverterStations", parameters.isWithVSCConverterStations());
+        jsonGenerator.writeBooleanField("withNeutralPosition", parameters.isWithNeutralPosition());
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonShortCircuitParameters.getExtensionSerializers()::get);
         jsonGenerator.writeEndObject();
     }

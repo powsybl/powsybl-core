@@ -6,6 +6,10 @@
   "studyType" : "TRANSIENT",
   "minVoltageDropProportionalThreshold" : 0.0,
   "withFortescueResult" : true,
+  "withLoads" : true,
+  "withShuntCompensators" : true,
+  "withVSCConverterStations" : true,
+  "withNeutralPosition" : true,
   "extensions" : {
     "dummy-extension" : { }
   }

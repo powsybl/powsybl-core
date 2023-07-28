@@ -24,7 +24,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
-    // VERSION = 1.2 subTransientCoefficient
+    // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition
     public static final String VERSION = "1.2";
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
@@ -34,6 +34,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withVoltageResult = DEFAULT_WITH_VOLTAGE_RESULT;
     private double minVoltageDropProportionalThreshold = DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD;
     private double subTransientCoefficient = DEFAULT_SUB_TRANSIENT_COEFFICIENT;
+    private boolean withLoads = DEFAULT_WITH_LOADS;
+    private boolean withShuntCompensators = DEFAULT_WITH_SHUNT_COMPENSATORS;
+    private boolean withVSCConverterStations = DEFAULT_WITH_VSC_CONVERTER_STATIONS;
+    private boolean withNeutralPosition = DEFAULT_WITH_NEUTRAL_POSITION;
 
     /**
      * Load parameters from platform default config.
@@ -54,7 +58,11 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setStudyType(config.getEnumProperty("study-type", StudyType.class, DEFAULT_STUDY_TYPE))
                         .setWithFortescueResult(config.getBooleanProperty("with-fortescue-result", DEFAULT_WITH_FORTESCUE_RESULT))
                         .setMinVoltageDropProportionalThreshold(config.getDoubleProperty("min-voltage-drop-proportional-threshold", DEFAULT_MIN_VOLTAGE_DROP_PROPORTIONAL_THRESHOLD))
-                        .setSubTransientCoefficient(config.getDoubleProperty("sub-transient-coefficient", DEFAULT_SUB_TRANSIENT_COEFFICIENT)));
+                        .setSubTransientCoefficient(config.getDoubleProperty("sub-transient-coefficient", DEFAULT_SUB_TRANSIENT_COEFFICIENT))
+                        .setWithLoads(config.getBooleanProperty("with-loads", DEFAULT_WITH_LOADS))
+                        .setWithShuntCompensators(config.getBooleanProperty("with-shunt-compensators", DEFAULT_WITH_SHUNT_COMPENSATORS))
+                        .setWithVSCConverterStations(config.getBooleanProperty("with-vsc-converter-stations", DEFAULT_WITH_VSC_CONVERTER_STATIONS))
+                        .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION)));
 
         parameters.readExtensions(platformConfig);
 
@@ -151,7 +159,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    /** In case of a subtransient study, a multiplicative coefficient to obtain the subtransient reactance of generators
+    /** In case of a subtransient study, a multiplicative coefficient to obtain the subtransient reactance of the generators
      * from the transient reactance.
      */
     public double getSubTransientCoefficient() {
@@ -160,6 +168,42 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     public ShortCircuitParameters setSubTransientCoefficient(double subTransientCoefficient) {
         this.subTransientCoefficient = subTransientCoefficient;
+        return this;
+    }
+
+    public boolean isWithLoads() {
+        return withLoads;
+    }
+
+    public ShortCircuitParameters setWithLoads(boolean withLoads) {
+        this.withLoads = withLoads;
+        return this;
+    }
+
+    public boolean isWithShuntCompensators() {
+        return withShuntCompensators;
+    }
+
+    public ShortCircuitParameters setWithShuntCompensators(boolean withShuntCompensators) {
+        this.withShuntCompensators = withShuntCompensators;
+        return this;
+    }
+
+    public boolean isWithVSCConverterStations() {
+        return withVSCConverterStations;
+    }
+
+    public ShortCircuitParameters setWithVSCConverterStations(boolean withVSCConverterStations) {
+        this.withVSCConverterStations = withVSCConverterStations;
+        return this;
+    }
+
+    public boolean isWithNeutralPosition() {
+        return withNeutralPosition;
+    }
+
+    public ShortCircuitParameters setWithNeutralPosition(boolean withNeutralPosition) {
+        this.withNeutralPosition = withNeutralPosition;
         return this;
     }
 }
