@@ -17,38 +17,38 @@
             <xs:minLength value='1'/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:element name="network">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />
-                <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-                <xs:element name="voltageLevel" type="iidm:VoltageLevel" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
-                <xs:choice minOccurs="0" maxOccurs="unbounded">
-                    <xs:element name="twoWindingsTransformer" type="iidm:TwoWindingsTransformer"/>
-                    <xs:element name="threeWindingsTransformer" type="iidm:ThreeWindingsTransformer"/>
-                </xs:choice>
-                <xs:choice minOccurs="0" maxOccurs="unbounded">
-                    <xs:element name="line" type="iidm:Line"/>
-                    <xs:element name="tieLine" type="iidm:TieLine"/>
-                    <xs:element name="hvdcLine" type="iidm:HvdcLine"/>
-                </xs:choice>
-                <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:any minOccurs="1" maxOccurs="unbounded"/>
-                        </xs:sequence>
-                        <xs:attribute name="id" use="required" type="xs:string"/>
-                    </xs:complexType>
-                </xs:element>
-            </xs:sequence>
-            <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
-            <xs:attribute name="caseDate" use="required" type="xs:dateTime"/>
-            <xs:attribute name="forecastDistance" use="required" type="xs:int"/>
-            <xs:attribute name="sourceFormat" use="required" type="iidm:nonEmptyString"/>
-            <xs:attribute name="minimumValidationLevel" use="required" type="iidm:nonEmptyString"/>
-        </xs:complexType>
-    </xs:element>
+    <xs:element name="network" type="iidm:Network"/>
+    <xs:complexType name="Network">
+        <xs:sequence>
+            <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="subnetwork" type="iidm:Network" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="voltageLevel" type="iidm:VoltageLevel" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="twoWindingsTransformer" type="iidm:TwoWindingsTransformer"/>
+                <xs:element name="threeWindingsTransformer" type="iidm:ThreeWindingsTransformer"/>
+            </xs:choice>
+            <xs:choice minOccurs="0" maxOccurs="unbounded">
+                <xs:element name="line" type="iidm:Line"/>
+                <xs:element name="tieLine" type="iidm:TieLine"/>
+                <xs:element name="hvdcLine" type="iidm:HvdcLine"/>
+            </xs:choice>
+            <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:any minOccurs="1" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                    <xs:attribute name="id" use="required" type="xs:string"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="caseDate" use="required" type="xs:dateTime"/>
+        <xs:attribute name="forecastDistance" use="required" type="xs:int"/>
+        <xs:attribute name="sourceFormat" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="minimumValidationLevel" use="required" type="iidm:nonEmptyString"/>
+    </xs:complexType>
     <xs:complexType name="Identifiable">
         <xs:sequence>
             <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />

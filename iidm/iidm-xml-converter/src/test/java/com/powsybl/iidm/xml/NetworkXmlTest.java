@@ -17,14 +17,10 @@ import com.powsybl.iidm.network.test.BusbarSectionExt;
 import com.powsybl.iidm.network.test.ScadaNetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.joda.time.DateTime;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -154,7 +150,6 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
         assertNotNull(bb2.getExtension(BusbarSectionExt.class));
     }
 
-    @Disabled
     @Test
     void roundTripWithSubNetworksTest() throws IOException {
         Network merged = Network.create("Merged", "hybrid");
@@ -166,15 +161,17 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
         merged.merge(n1, n2);
 
         //TODO
-        // - Read network files with subnetworks
-        // - Ensure backward compatibility
-        roundTripXmlTest(merged,
-            (n, p) -> NetworkXml.writeAndValidate(n, new ExportOptions().setSorted(true), p),
-            NetworkXml::read,
-            getVersionedNetworkPath("subnetworks.xml", CURRENT_IIDM_XML_VERSION));
+        // - Remove the "xmlns:iidm" attribute for subnetworks
 
-        // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("subnetworks.xml");
+        for (IidmXmlVersion version : IidmXmlVersion.values()) {
+            if (version.compareTo(IidmXmlVersion.V_1_5) >= 0) {
+                roundTripXmlTest(merged,
+                    (n, p) -> NetworkXml.writeAndValidate(n,
+                        new ExportOptions().setSorted(true).setVersion(version.toString(".")), p),
+                    NetworkXml::read,
+                    getVersionedNetworkPath("subnetworks.xml", version));
+            }
+        }
     }
 
     private Network createNetwork(int num) {

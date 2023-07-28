@@ -57,6 +57,7 @@ public final class NetworkXml {
 
     private static final String EXTENSION_CATEGORY_NAME = "network";
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
+    static final String SUBNETWORK_ROOT_ELEMENT_NAME = "subnetwork";
     private static final String EXTENSION_ELEMENT_NAME = "extension";
     private static final String CASE_DATE = "caseDate";
     private static final String FORECAST_DISTANCE = "forecastDistance";
@@ -270,8 +271,9 @@ public final class NetworkXml {
         String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
         IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
 
+        boolean isSubnetwork = n.getParentNetwork() != n;
         context.getWriter().setPrefix(IIDM_PREFIX, namespaceUri);
-        context.getWriter().writeStartElement(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
+        context.getWriter().writeStartElement(namespaceUri, isSubnetwork ? SUBNETWORK_ROOT_ELEMENT_NAME : NETWORK_ROOT_ELEMENT_NAME);
         context.getWriter().writeNamespace(IIDM_PREFIX, namespaceUri);
         if (!options.withNoExtension()) {
             writeExtensionNamespaces(n, context);
@@ -285,7 +287,7 @@ public final class NetworkXml {
         AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
-        writeSubNetworks(n, context);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> writeSubNetworks(n, context));
 
         writeVoltageLevels(n, context);
         writeSubstations(n, context);
@@ -295,7 +297,7 @@ public final class NetworkXml {
     }
 
     private static void writeSubNetworks(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (Network subNetwork : IidmXmlUtil.sorted(n.getSubNetworks(), context.getOptions())) {
+        for (Network subNetwork : IidmXmlUtil.sorted(n.getSubnetworks(), context.getOptions())) {
             IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
                     IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_11, context);
             write(subNetwork, context);
@@ -304,7 +306,7 @@ public final class NetworkXml {
 
     private static void writeVoltageLevels(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (VoltageLevel voltageLevel : IidmXmlUtil.sorted(n.getVoltageLevels(), context.getOptions())) {
-            if (voltageLevel.getSubstation().isEmpty()) {
+            if (retain(voltageLevel, n, context) && voltageLevel.getSubstation().isEmpty()) {
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
                         IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
                 VoltageLevelXml.INSTANCE.write(voltageLevel, n, context);
@@ -314,7 +316,7 @@ public final class NetworkXml {
 
     private static void writeSubstations(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
-            if (s.getClosestNetwork() == n) {
+            if (retain(s, n, context)) {
                 SubstationXml.INSTANCE.write(s, n, context);
             }
         }
@@ -323,7 +325,7 @@ public final class NetworkXml {
     private static void writeLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         BusFilter filter = context.getFilter();
         for (Line l : IidmXmlUtil.sorted(n.getLines(), context.getOptions())) {
-            if (l.getClosestNetwork() != n || !filter.test(l)) {
+            if (!retain(l, n, context) || !filter.test(l)) {
                 continue;
             }
             LineXml.INSTANCE.write(l, n, context);
@@ -333,7 +335,7 @@ public final class NetworkXml {
     private static void writeTieLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         BusFilter filter = context.getFilter();
         for (TieLine l : IidmXmlUtil.sorted(n.getTieLines(), context.getOptions())) {
-            if (l.getClosestNetwork() != n || !filter.test(l)) {
+            if (!retain(l, n, context) || !filter.test(l)) {
                 continue;
             }
             TieLineXml.INSTANCE.write(l, n, context);
@@ -343,7 +345,7 @@ public final class NetworkXml {
     private static void writeHvdcLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         BusFilter filter = context.getFilter();
         for (HvdcLine l : IidmXmlUtil.sorted(n.getHvdcLines(), context.getOptions())) {
-            if (l.getClosestNetwork() != n || !filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
+            if (!retain(l, n, context) || !filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
                 continue;
             }
             HvdcLineXml.INSTANCE.write(l, n, context);
@@ -369,6 +371,10 @@ public final class NetworkXml {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    private static boolean retain(Identifiable<?> equipment, Network n, NetworkXmlWriterContext context) {
+        return context.getVersion().compareTo(IidmXmlVersion.V_1_11) < 0 || equipment.getParentNetwork() == n;
     }
 
     private static NetworkXmlWriterContext createContext(Network n, ExportOptions options, XMLStreamWriter writer) {
@@ -439,78 +445,18 @@ public final class NetworkXml {
             IidmXmlVersion version = IidmXmlVersion.fromNamespaceURI(reader.getNamespaceURI());
             NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
 
-            String id = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, ID));
-            DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
-            int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
-            String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
-
-            Network network = networkFactory.createNetwork(id, sourceFormat);
-            network.setCaseDate(date);
-            network.setForecastDistance(forecastDistance);
-
-            ValidationLevel[] minValidationLevel = new ValidationLevel[1];
-            minValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> minValidationLevel[0] = ValidationLevel.valueOf(reader.getAttributeValue(null, MINIMUM_VALIDATION_LEVEL)));
-
-            IidmXmlUtil.assertMinimumVersionIfNotDefault(minValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, context);
-            network.setMinimumAcceptableValidationLevel(minValidationLevel[0]);
+            Network network = initNetwork(networkFactory, context, reader, null);
 
             if (!config.withNoExtension()) {
                 context.buildExtensionNamespaceUriList(EXTENSIONS_SUPPLIER.get().getProviders().stream());
             }
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
+            Deque<Network> networks = new ArrayDeque<>(2);
+            networks.push(network);
 
-            XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
-                switch (reader.getLocalName()) {
-                    case AliasesXml.ALIAS:
-                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                        AliasesXml.read(network, context);
-                        break;
-
-                    case PropertiesXml.PROPERTY:
-                        PropertiesXml.read(network, context);
-                        break;
-
-                    case VoltageLevelXml.ROOT_ELEMENT_NAME:
-                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
-                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                        VoltageLevelXml.INSTANCE.read(network, context);
-                        break;
-
-                    case SubstationXml.ROOT_ELEMENT_NAME:
-                        SubstationXml.INSTANCE.read(network, context);
-                        break;
-
-                    case LineXml.ROOT_ELEMENT_NAME:
-                        LineXml.INSTANCE.read(network, context);
-                        break;
-
-                    case TieLineXml.ROOT_ELEMENT_NAME:
-                        TieLineXml.INSTANCE.read(network, context);
-                        break;
-
-                    case HvdcLineXml.ROOT_ELEMENT_NAME:
-                        HvdcLineXml.INSTANCE.read(network, context);
-                        break;
-
-                    case VOLTAGE_ANGLE_LIMIT_ELEMENT_NAME:
-                        VoltageAngleLimitXml.read(network, context);
-                        break;
-
-                    case EXTENSION_ELEMENT_NAME:
-                        String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
-                        Identifiable identifiable = network.getIdentifiable(id2);
-                        if (identifiable == null) {
-                            throw new PowsyblException("Identifiable " + id2 + " not found");
-                        }
-                        readExtensions(identifiable, context, extensionNamesNotFound);
-                        break;
-
-                    default:
-                        throw new IllegalStateException();
-                }
-            });
+            XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader,
+                () -> readElements(networkFactory, reader, context, networks, extensionNamesNotFound));
 
             checkExtensionsNotFound(context, extensionNamesNotFound);
 
@@ -521,6 +467,96 @@ public final class NetworkXml {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    private static void readElements(NetworkFactory networkFactory, XMLStreamReader reader, NetworkXmlReaderContext context,
+                                     Deque<Network> networks, Set<String> extensionNamesNotFound) throws XMLStreamException {
+        String localName = reader.getLocalName();
+        switch (localName) {
+            case AliasesXml.ALIAS:
+                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+                AliasesXml.read(networks.peek(), context);
+                break;
+
+            case PropertiesXml.PROPERTY:
+                PropertiesXml.read(networks.peek(), context);
+                break;
+
+            case SUBNETWORK_ROOT_ELEMENT_NAME:
+                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, SUBNETWORK_ROOT_ELEMENT_NAME,
+                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_11, context);
+                // Create a new subnetwork and push it in the deque to be used as the network to update
+                Network subnetwork = initNetwork(networkFactory, context, reader, networks.peek());
+                networks.push(subnetwork);
+                // Read subnetwork content
+                XmlUtil.readUntilEndElement(SUBNETWORK_ROOT_ELEMENT_NAME, reader,
+                    () -> readElements(networkFactory, reader, context, networks, extensionNamesNotFound));
+                // Pop the subnetwork. We will now work with its parent.
+                networks.pop();
+                break;
+
+            case VoltageLevelXml.ROOT_ELEMENT_NAME:
+                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
+                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+                VoltageLevelXml.INSTANCE.read(networks.peek(), context);
+                break;
+
+            case SubstationXml.ROOT_ELEMENT_NAME:
+                SubstationXml.INSTANCE.read(networks.peek(), context);
+                break;
+
+            case LineXml.ROOT_ELEMENT_NAME:
+                LineXml.INSTANCE.read(networks.peek(), context);
+                break;
+
+            case TieLineXml.ROOT_ELEMENT_NAME:
+                TieLineXml.INSTANCE.read(networks.peek(), context);
+                break;
+
+            case HvdcLineXml.ROOT_ELEMENT_NAME:
+                HvdcLineXml.INSTANCE.read(networks.peek(), context);
+                break;
+
+            case VOLTAGE_ANGLE_LIMIT_ELEMENT_NAME:
+                VoltageAngleLimitXml.read(networks.peek(), context);
+                break;
+
+            case EXTENSION_ELEMENT_NAME:
+                String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
+                Identifiable identifiable = networks.peek().getIdentifiable(id2);
+                if (identifiable == null) {
+                    throw new PowsyblException("Identifiable " + id2 + " not found");
+                }
+                readExtensions(identifiable, context, extensionNamesNotFound);
+                break;
+
+            default:
+                throw new IllegalStateException();
+        }
+    }
+
+    private static Network initNetwork(NetworkFactory networkFactory, NetworkXmlReaderContext context, XMLStreamReader reader, Network rootNetwork) {
+        String id = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, ID));
+        DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
+        int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
+        String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
+
+        Network network;
+        if (rootNetwork == null) {
+            network = networkFactory.createNetwork(id, sourceFormat);
+        } else {
+            network = rootNetwork.createSubnetwork(id, id, sourceFormat);
+        }
+        network.setCaseDate(date);
+        network.setForecastDistance(forecastDistance);
+
+        ValidationLevel[] minValidationLevel = new ValidationLevel[1];
+        minValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> minValidationLevel[0] = ValidationLevel.valueOf(reader.getAttributeValue(null, MINIMUM_VALIDATION_LEVEL)));
+
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(minValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, context);
+        network.setMinimumAcceptableValidationLevel(minValidationLevel[0]);
+        return network;
     }
 
     private static void checkExtensionsNotFound(NetworkXmlReaderContext context, Set<String> extensionNamesNotFound) {
@@ -627,6 +663,7 @@ public final class NetworkXml {
                         break;
 
                     case HvdcLineXml.ROOT_ELEMENT_NAME:
+                    case NetworkXml.SUBNETWORK_ROOT_ELEMENT_NAME:
                         // Nothing to do
                         break;
 
