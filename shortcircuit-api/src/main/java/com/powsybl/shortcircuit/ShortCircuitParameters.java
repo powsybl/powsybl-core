@@ -172,8 +172,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * TODO
-     * @return
+     * Whether the loads should be taken into account for the computation.
+     * If false, the loads P0 and Q0 are considered to be set to 0.
      */
     public boolean isWithLoads() {
         return withLoads;
@@ -185,8 +185,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * TODO
-     * @return
+     * Whether the shunt compensators should be taken into account in the computation.
+     * If true, the shunt admittance will be used in the admittance matrix. If false,
+     * the shunts will be ignored.
      */
     public boolean isWithShuntCompensators() {
         return withShuntCompensators;
@@ -198,8 +199,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * TODO
-     * @return
+     * Whether the VSC converter stations should be taken into account in the computation.
+     * If true, the VSC converter stations are modeled as equivalent reactances. If false,
+     * they are ignored.
      */
     public boolean isWithVSCConverterStations() {
         return withVSCConverterStations;
@@ -211,8 +213,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * TODO
-     * @return
+     * Defines which step of the tap changer should be used for the computation.
+     * If false, the step defined in the network model will be used. If true,
+     * the neutral step will be used.
      */
     public boolean isWithNeutralPosition() {
         return withNeutralPosition;
