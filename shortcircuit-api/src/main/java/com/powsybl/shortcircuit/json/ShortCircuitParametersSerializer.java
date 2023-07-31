@@ -32,11 +32,11 @@ public class ShortCircuitParametersSerializer extends StdSerializer<ShortCircuit
         jsonGenerator.writeBooleanField("withVoltageResult", parameters.isWithVoltageResult());
         jsonGenerator.writeBooleanField("withFeederResult", parameters.isWithFeederResult());
         jsonGenerator.writeStringField("studyType", parameters.getStudyType().name());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
-        jsonGenerator.writeBooleanField("withFortescueResult", parameters.isWithFortescueResult());
         if (parameters.getStudyType() == StudyType.SUB_TRANSIENT) {
             JsonUtil.writeOptionalDoubleField(jsonGenerator, "subTransientCoefficient", parameters.getSubTransientCoefficient());
         }
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "minVoltageDropProportionalThreshold", parameters.getMinVoltageDropProportionalThreshold());
+        jsonGenerator.writeBooleanField("withFortescueResult", parameters.isWithFortescueResult());
         jsonGenerator.writeBooleanField("withLoads", parameters.isWithLoads());
         jsonGenerator.writeBooleanField("withShuntCompensators", parameters.isWithShuntCompensators());
         jsonGenerator.writeBooleanField("withVSCConverterStations", parameters.isWithVSCConverterStations());

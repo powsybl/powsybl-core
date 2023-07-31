@@ -118,4 +118,14 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Unexpected field: unexpected (through reference chain: java.util.ArrayList[0])", e.getMessage());
     }
+
+    @Test
+    void readParameters() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFile.json"), fileSystem.getPath("/FaultParametersFile.json"));
+        List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFile.json"));
+        assertEquals(5, parameters.size());
+
+        FaultParameters param = new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true);
+        assertEquals(parameters.get(0), param);
+    }
 }
