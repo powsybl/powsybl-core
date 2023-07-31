@@ -49,6 +49,8 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
 
     private static final String NETWORK_FILE = "network.xiidm";
     private static final String CONTINGENCIES_FILE = "contingencies.groovy";
+    private static final String DYNAMIC_MODELS_FILE = "dynamicModels.groovy";
+    private static final String EVENT_MODELS_FILE = "eventModels.groovy";
     private static final String PARAMETERS_FILE = "parameters.json";
     private static final String ACTIONS_FILE = "actions.json";
     private static final String STRATEGIES_FILE = "strategies.json";
@@ -151,6 +153,13 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
 
         addCaseFile(options, workingDir, input.getNetworkVariant());
         addParametersFile(options, workingDir, input.getParameters());
+
+        input.getDynamicModelsSource().ifPresent(
+            source -> addDynamicModelsFile(options, workingDir, source)
+        );
+        input.getEventModelsSource().ifPresent(
+            source -> addEventModelsFile(options, workingDir, source)
+        );
         input.getContingenciesSource().ifPresent(
             source -> addContingenciesFile(options, workingDir, source)
         );
@@ -188,6 +197,14 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
         return workingDir.resolve(CONTINGENCIES_FILE);
     }
 
+    private static Path getDynamicModelsPath(Path workingDir) {
+        return workingDir.resolve(DYNAMIC_MODELS_FILE);
+    }
+
+    private static Path getEventModelsPath(Path workingDir) {
+        return workingDir.resolve(EVENT_MODELS_FILE);
+    }
+
     /**
      * Add case file option, and write network to working directory.
      */
@@ -196,6 +213,20 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
         options.caseFile(dest);
         LOGGER.debug("Copying network to file {}", dest);
         NetworkXml.write(variant.getVariant(), dest);
+    }
+
+    private static void addDynamicModelsFile(SecurityAnalysisCommandOptions options, Path workingDir, ByteSource source) {
+        Path dest = getDynamicModelsPath(workingDir);
+        options.dynamicModelsFile(dest);
+        LOGGER.debug("Writing dynamic models to file {}", dest);
+        copySourceToPath(source, dest);
+    }
+
+    private static void addEventModelsFile(SecurityAnalysisCommandOptions options, Path workingDir, ByteSource source) {
+        Path dest = getEventModelsPath(workingDir);
+        options.eventModelsFile(dest);
+        LOGGER.debug("Writing event models to file {}", dest);
+        copySourceToPath(source, dest);
     }
 
     /**

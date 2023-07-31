@@ -31,10 +31,13 @@ import java.util.*;
  * while others are more in their "source" format as they do not support serialization out of the box.
  *
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Laurent Issertial <laurent.issertial at rte-france.com>
  */
 public class SecurityAnalysisExecutionInput {
 
     private NetworkVariant networkVariant;
+    private ByteSource dynamicModelsSource;
+    private ByteSource eventModelsSource;
     private ByteSource contingenciesSource;
     private SecurityAnalysisParameters parameters;
     private final List<String> resultExtensions = new ArrayList<>();
@@ -43,6 +46,14 @@ public class SecurityAnalysisExecutionInput {
     private final List<OperatorStrategy> operatorStrategies = new ArrayList<>();
     private final List<Action> actions = new ArrayList<>();
     private final List<StateMonitor> monitors = new ArrayList<>();
+
+    public Optional<ByteSource> getDynamicModelsSource() {
+        return Optional.ofNullable(dynamicModelsSource);
+    }
+
+    public Optional<ByteSource> getEventModelsSource() {
+        return Optional.ofNullable(eventModelsSource);
+    }
 
     public Optional<ByteSource> getContingenciesSource() {
         return Optional.ofNullable(contingenciesSource);
@@ -78,6 +89,16 @@ public class SecurityAnalysisExecutionInput {
 
     public boolean isWithLogs() {
         return withLogs;
+    }
+
+    public SecurityAnalysisExecutionInput setDynamicModelsSource(ByteSource dynamicModelsSource) {
+        this.dynamicModelsSource = Objects.requireNonNull(dynamicModelsSource);
+        return this;
+    }
+
+    public SecurityAnalysisExecutionInput setEventModelsSource(ByteSource eventModelsSource) {
+        this.eventModelsSource = Objects.requireNonNull(eventModelsSource);
+        return this;
     }
 
     public SecurityAnalysisExecutionInput setContingenciesSource(ByteSource contingenciesSource) {

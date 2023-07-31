@@ -8,6 +8,7 @@ package com.powsybl.security.tools;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableSet;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
@@ -94,6 +95,16 @@ public class SecurityAnalysisTool implements Tool {
                     .argName("FILE")
                     .required()
                     .build());
+                options.addOption(Option.builder().longOpt(DYNAMIC_MODELS_FILE_OPTION)
+                    .desc("dynamic models description as a Groovy file: defines the dynamic models to be associated to chosen equipments of the network")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
+                options.addOption(Option.builder().longOpt(EVENT_MODELS_FILE_OPTION)
+                    .desc("dynamic event models description as a Groovy file: defines the dynamic event models to be associated to chosen equipments of the network")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE_OPTION)
                     .desc("loadflow parameters as JSON file")
                     .hasArg()
@@ -162,9 +173,23 @@ public class SecurityAnalysisTool implements Tool {
         };
     }
 
+    static void checkDataCoherence(CommandLine line) {
+        if (line.hasOption(EVENT_MODELS_FILE_OPTION) && !line.hasOption(DYNAMIC_MODELS_FILE_OPTION)) {
+            throw new PowsyblException("Event model supplier cannot be set without a dynamic model supplier");
+        }
+    }
+
     static void updateInput(ToolOptions options, SecurityAnalysisExecutionInput inputs) {
         options.getPath(PARAMETERS_FILE_OPTION)
             .ifPresent(f -> JsonSecurityAnalysisParameters.update(inputs.getParameters(), f));
+
+        options.getPath(DYNAMIC_MODELS_FILE_OPTION)
+                .map(FileUtil::asByteSource)
+                .ifPresent(inputs::setDynamicModelsSource);
+
+        options.getPath(EVENT_MODELS_FILE_OPTION)
+                .map(FileUtil::asByteSource)
+                .ifPresent(inputs::setEventModelsSource);
 
         options.getPath(CONTINGENCIES_FILE_OPTION)
             .map(FileUtil::asByteSource)
@@ -208,6 +233,26 @@ public class SecurityAnalysisTool implements Tool {
             input.getFilter().setViolationTypes(ImmutableSet.copyOf(executionInput.getViolationTypes()));
         }
 
+        executionInput.getDynamicModelsSource().ifPresent(
+            ds -> {
+                try {
+                    input.setDynamicModelsSupplier(ds.openBufferedStream());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        );
+
+        executionInput.getEventModelsSource().ifPresent(
+            es -> {
+                try {
+                    input.setEventModelsSupplier(es.openBufferedStream());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        );
+
         executionInput.getContingenciesSource()
             .map(preprocessorFactory::newPreprocessor)
             .ifPresent(p -> p.preprocess(input));
@@ -216,6 +261,7 @@ public class SecurityAnalysisTool implements Tool {
     }
 
     private static SecurityAnalysisExecutionBuilder createBuilder(PlatformConfig platformConfig) {
+        //TODO handle dynamic provider name
         String providerName = platformConfig.getOptionalModuleConfig(MODULE_CONFIG_NAME_PROPERTY)
                 .flatMap(c -> c.getOptionalStringProperty(DEFAULT_SERVICE_IMPL_NAME_PROPERTY))
                 .orElse(null);
@@ -283,6 +329,8 @@ public class SecurityAnalysisTool implements Tool {
              Supplier<SecurityAnalysisParameters> parametersLoader,
              ImportersLoader importersLoader,
              Supplier<TableFormatterConfig> tableFormatterConfigLoader) throws Exception {
+
+        checkDataCoherence(line);
         ToolOptions options = new ToolOptions(line, context);
 
         // Output file and output format

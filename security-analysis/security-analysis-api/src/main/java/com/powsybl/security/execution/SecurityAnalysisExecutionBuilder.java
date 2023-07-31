@@ -8,7 +8,6 @@ package com.powsybl.security.execution;
 
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProviders;
-import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisInput;
 import com.powsybl.security.distributed.DistributedSecurityAnalysisExecution;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
@@ -26,7 +25,8 @@ import java.util.function.Supplier;
 public class SecurityAnalysisExecutionBuilder {
 
     private final Supplier<ExternalSecurityAnalysisConfig> externalConfig;
-    private final String providerName;
+    private final String staticProviderName;
+    private final String dynamicProviderName;
     private final SecurityAnalysisInputBuildStrategy inputBuildStrategy;
 
     private boolean forward = false;
@@ -37,15 +37,23 @@ public class SecurityAnalysisExecutionBuilder {
      * Create a new builder.
      *
      * @param externalConfig     The method to load an external security analysis config, only used for forwarded and distributed executions.
-     * @param providerName       The named security-analysis implementation to use. If {@literal null}, the default would be used.
+     * @param staticProviderName       The named security-analysis implementation to use. If {@literal null}, the default would be used.
      * @param inputBuildStrategy The method to translates execution inputs into actual security analysis inputs. Only used for local executions.
      */
     public SecurityAnalysisExecutionBuilder(Supplier<ExternalSecurityAnalysisConfig> externalConfig,
-                                            String providerName,
+                                            String staticProviderName,
+                                            String dynamicProviderName,
                                             SecurityAnalysisInputBuildStrategy inputBuildStrategy) {
         this.externalConfig = Objects.requireNonNull(externalConfig);
-        this.providerName = providerName;
+        this.staticProviderName = staticProviderName;
+        this.dynamicProviderName = dynamicProviderName;
         this.inputBuildStrategy = Objects.requireNonNull(inputBuildStrategy);
+    }
+
+    public SecurityAnalysisExecutionBuilder(Supplier<ExternalSecurityAnalysisConfig> externalConfig,
+                                            String staticProviderName,
+                                            SecurityAnalysisInputBuildStrategy inputBuildStrategy) {
+        this(externalConfig, staticProviderName, null, inputBuildStrategy);
     }
 
     public SecurityAnalysisExecutionBuilder forward(boolean forward) {
@@ -69,7 +77,7 @@ public class SecurityAnalysisExecutionBuilder {
         } else if (taskCount != null) {
             return new DistributedSecurityAnalysisExecution(externalConfig.get(), taskCount);
         } else {
-            return new SecurityAnalysisExecutionImpl(SecurityAnalysis.find(providerName), inputBuildStrategy());
+            return new SecurityAnalysisExecutionImpl(staticProviderName, dynamicProviderName, inputBuildStrategy());
         }
     }
 

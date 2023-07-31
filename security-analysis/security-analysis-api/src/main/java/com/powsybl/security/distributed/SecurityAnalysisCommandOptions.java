@@ -42,6 +42,8 @@ public class SecurityAnalysisCommandOptions {
     private String id;
     private Path caseFile;
     private Path contingenciesFile;
+    private Path dynamicModelsFile;
+    private Path eventModelsFile;
     private Path parametersFile;
     private Path actionsFile;
     private Path strategiesFile;
@@ -79,6 +81,16 @@ public class SecurityAnalysisCommandOptions {
 
     public SecurityAnalysisCommandOptions caseFile(Path caseFile) {
         this.caseFile = requireNonNull(caseFile);
+        return this;
+    }
+
+    public SecurityAnalysisCommandOptions dynamicModelsFile(Path dynamicModelsFile) {
+        this.dynamicModelsFile = requireNonNull(dynamicModelsFile);
+        return this;
+    }
+
+    public SecurityAnalysisCommandOptions eventModelsFile(Path eventModelsFile) {
+        this.eventModelsFile = requireNonNull(eventModelsFile);
         return this;
     }
 
@@ -184,6 +196,8 @@ public class SecurityAnalysisCommandOptions {
         setOptionIfPresent(commandBuilder, PARAMETERS_FILE_OPTION, parametersFile, this::pathToString);
         setOptionIfPresent(commandBuilder, ACTIONS_FILE, actionsFile, this::pathToString);
         setOptionIfPresent(commandBuilder, STRATEGIES_FILE, strategiesFile, this::pathToString);
+        setOptionIfPresent(commandBuilder, DYNAMIC_MODELS_FILE_OPTION, dynamicModelsFile, this::pathToString);
+        setOptionIfPresent(commandBuilder, EVENT_MODELS_FILE_OPTION, eventModelsFile, this::pathToString);
         setOptionIfPresent(commandBuilder, CONTINGENCIES_FILE_OPTION, contingenciesFile, this::pathToString);
         setOptionIfPresent(commandBuilder, OUTPUT_FILE_OPTION, outputFile, this::pathToString);
         setOptionIfPresent(commandBuilder, OUTPUT_FORMAT_OPTION, outputFileFormat);
