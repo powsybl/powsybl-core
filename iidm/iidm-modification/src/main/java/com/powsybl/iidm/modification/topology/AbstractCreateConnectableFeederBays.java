@@ -238,7 +238,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             parallelBbsNumber = bbsList.size();
             createTopologyFromBusbarSectionList(voltageLevel, forkNode, baseId, bbsList);
         }
-        LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector" +
+        LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector " +
                 "and on {} parallel busbar sections with an open disconnector.", connectable.getId(), connectable.getType(), voltageLevel.getId(), bbsId, parallelBbsNumber);
         createdNodeBreakerFeederBay(reporter, voltageLevel.getId(), bbsId, connectable, parallelBbsNumber);
     }

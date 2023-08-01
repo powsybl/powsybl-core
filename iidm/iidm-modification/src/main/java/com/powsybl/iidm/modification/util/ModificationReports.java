@@ -40,7 +40,7 @@ public final class ModificationReports {
     public static void createdNodeBreakerFeederBay(Reporter reporter, String voltageLevelId, String bbsId, Connectable<?> connectable, int parallelBbsNumber) {
         reporter.report(Report.builder()
                 .withKey("newConnectableAdded")
-                .withDefaultMessage("New feeder bay associated to ${connectableId} of type ${connectableType} was created and connected to voltage level ${voltageLevelId} on busbar section ${bbsId} with a closed disconnector" +
+                .withDefaultMessage("New feeder bay associated to ${connectableId} of type ${connectableType} was created and connected to voltage level ${voltageLevelId} on busbar section ${bbsId} with a closed disconnector " +
                         "and on ${parallelBbsNumber} parallel busbar sections with an open disconnector.")
                 .withValue(CONNECTABLE_ID, connectable.getId())
                 .withValue("connectableType", connectable.getType().toString())

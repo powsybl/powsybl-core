@@ -176,9 +176,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     private static boolean checkBranchContingency(Contingency contingency, BranchContingency element, Network network) {
         Branch branch = network.getBranch(element.getId());
-        if (branch == null || (element.getVoltageLevelId() != null &&
-                !(element.getVoltageLevelId().equals(branch.getTerminal1().getVoltageLevel().getId()) ||
-                        element.getVoltageLevelId().equals(branch.getTerminal2().getVoltageLevel().getId())))) {
+        if (branch == null
+                || element.getVoltageLevelId() != null
+                    && !(element.getVoltageLevelId().equals(branch.getTerminal1().getVoltageLevel().getId())
+                        || element.getVoltageLevelId().equals(branch.getTerminal2().getVoltageLevel().getId()))) {
             LOGGER.warn("Branch '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }
@@ -187,9 +188,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     private static boolean checkLineContingency(Contingency contingency, LineContingency element, Network network) {
         Line line = network.getLine(element.getId());
-        if (line == null || (element.getVoltageLevelId() != null &&
-                !(element.getVoltageLevelId().equals(line.getTerminal1().getVoltageLevel().getId()) ||
-                        element.getVoltageLevelId().equals(line.getTerminal2().getVoltageLevel().getId())))) {
+        if (line == null
+                || element.getVoltageLevelId() != null
+                    && !(element.getVoltageLevelId().equals(line.getTerminal1().getVoltageLevel().getId())
+                        || element.getVoltageLevelId().equals(line.getTerminal2().getVoltageLevel().getId()))) {
             LOGGER.warn("Line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }
@@ -198,9 +200,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     private static boolean checkTwoWindingsTransformerContingency(Contingency contingency, TwoWindingsTransformerContingency element, Network network) {
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer(element.getId());
-        if (twt == null || (element.getVoltageLevelId() != null &&
-                !(element.getVoltageLevelId().equals(twt.getTerminal1().getVoltageLevel().getId()) ||
-                        element.getVoltageLevelId().equals(twt.getTerminal2().getVoltageLevel().getId())))) {
+        if (twt == null
+                || element.getVoltageLevelId() != null
+                    && !(element.getVoltageLevelId().equals(twt.getTerminal1().getVoltageLevel().getId())
+                        || element.getVoltageLevelId().equals(twt.getTerminal2().getVoltageLevel().getId()))) {
             LOGGER.warn("TwoWindingsTransformer '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }
@@ -209,9 +212,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     private static boolean checkHvdcLineContingency(Contingency contingency, HvdcLineContingency element, Network network) {
         HvdcLine hvdcLine = network.getHvdcLine(element.getId());
-        if (hvdcLine == null || (element.getVoltageLevelId() != null &&
-                !(element.getVoltageLevelId().equals(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getId()) ||
-                        element.getVoltageLevelId().equals(hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getId())))) {
+        if (hvdcLine == null
+                || element.getVoltageLevelId() != null
+                    && !(element.getVoltageLevelId().equals(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getId())
+                        || element.getVoltageLevelId().equals(hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getId()))) {
             LOGGER.warn("HVDC line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }
@@ -260,9 +264,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     private static boolean checkTieLineContingency(Contingency contingency, TieLineContingency element, Network network) {
         TieLine tieLine = network.getTieLine(element.getId());
-        if (tieLine == null || (element.getVoltageLevelId() != null &&
-                !(element.getVoltageLevelId().equals(tieLine.getDanglingLine1().getTerminal().getVoltageLevel().getId()) ||
-                        element.getVoltageLevelId().equals(tieLine.getDanglingLine2().getTerminal().getVoltageLevel().getId())))) {
+        if (tieLine == null
+                || element.getVoltageLevelId() != null
+                    && !(element.getVoltageLevelId().equals(tieLine.getDanglingLine1().getTerminal().getVoltageLevel().getId())
+                        || element.getVoltageLevelId().equals(tieLine.getDanglingLine2().getTerminal().getVoltageLevel().getId()))) {
             LOGGER.warn("Tie line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }

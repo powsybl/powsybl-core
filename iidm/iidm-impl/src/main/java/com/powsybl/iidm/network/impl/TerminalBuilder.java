@@ -66,7 +66,7 @@ class TerminalBuilder {
 
     private String getConnectionBus() {
         if (bus != null) {
-            if ((connectableBus != null) && (!bus.equals(connectableBus))) {
+            if (connectableBus != null && !bus.equals(connectableBus)) {
                 throw new ValidationException(validable, "connection bus is different to connectable bus");
             }
 
