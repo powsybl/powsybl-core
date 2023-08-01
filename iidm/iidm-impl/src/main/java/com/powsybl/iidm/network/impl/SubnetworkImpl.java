@@ -705,7 +705,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         boundaryElements.stream()
                 .filter(i -> i.getType() == IdentifiableType.TIE_LINE)
                 .map(TieLineImpl.class::cast)
-                .forEach(TieLineImpl::remove);
+                .forEach(t -> t.remove(true));
 
         // Create a new NetworkImpl and transfer the extensions to it
         NetworkImpl detachedNetwork = new NetworkImpl(getId(), getNameOrId(), getSourceFormat());
