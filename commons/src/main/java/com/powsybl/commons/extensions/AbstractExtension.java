@@ -28,7 +28,7 @@ public abstract class AbstractExtension<T> implements Extension<T> {
     }
 
     public void setExtendable(T extendable) {
-        if ((extendable != null) && (this.extendable != null) && (this.extendable != extendable)) {
+        if (extendable != null && this.extendable != null && this.extendable != extendable) {
             throw new PowsyblException("Extension is already associated to the extendable " + this.extendable);
         }
 
