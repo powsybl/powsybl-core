@@ -71,8 +71,8 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
         if (value == null) {
             return Optional.empty();
         } else {
-            if (value instanceof String string) {
-                String trimmedString = string.trim();
+            if (value instanceof String val) {
+                String trimmedString = val.trim();
                 if (trimmedString.isEmpty()) {
                     return Optional.of(Collections.emptyList());
                 } else {
@@ -95,9 +95,9 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
         }
         if (value instanceof Integer) {
             return OptionalInt.of((int) value);
-        } else if (value instanceof String string) {
+        } else if (value instanceof String val) {
             try {
-                return OptionalInt.of(Integer.parseInt(string));
+                return OptionalInt.of(Integer.parseInt(val));
             } catch (NumberFormatException e) {
                 throw createPropertyIsNotException(name, "an integer", e);
             }
@@ -113,13 +113,13 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
         if (value == null) {
             return OptionalLong.empty();
         }
-        if (value instanceof Long longValue) {
-            return OptionalLong.of(longValue);
-        } else if (value instanceof Integer integerValue) {
-            return OptionalLong.of(integerValue);
-        } else if (value instanceof String string) {
+        if (value instanceof Long val) {
+            return OptionalLong.of(val);
+        } else if (value instanceof Integer val) {
+            return OptionalLong.of(val);
+        } else if (value instanceof String val) {
             try {
-                return OptionalLong.of(Long.parseLong(string));
+                return OptionalLong.of(Long.parseLong(val));
             } catch (NumberFormatException e) {
                 throw createPropertyIsNotException(name, "a long", e);
             }
@@ -135,11 +135,11 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
         if (value == null) {
             return Optional.empty();
         }
-        if (value instanceof Number number) {
-            return Optional.of(number.floatValue());
-        } else if (value instanceof String string) {
+        if (value instanceof Number val) {
+            return Optional.of(val.floatValue());
+        } else if (value instanceof String val) {
             try {
-                return Optional.of(Float.parseFloat(string));
+                return Optional.of(Float.parseFloat(val));
             } catch (NumberFormatException e) {
                 throw createPropertyIsNotException(name, "a float", e);
             }
@@ -155,11 +155,11 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
         if (value == null) {
             return OptionalDouble.empty();
         }
-        if (value instanceof Number number) {
-            return OptionalDouble.of(number.doubleValue());
-        } else if (value instanceof String string) {
+        if (value instanceof Number val) {
+            return OptionalDouble.of(val.doubleValue());
+        } else if (value instanceof String val) {
             try {
-                return OptionalDouble.of(Double.parseDouble(string));
+                return OptionalDouble.of(Double.parseDouble(val));
             } catch (NumberFormatException e) {
                 throw createPropertyIsNotException(name, "a double", e);
             }
@@ -175,10 +175,10 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
         if (value == null) {
             return Optional.empty();
         }
-        if (value instanceof Boolean bool) {
-            return Optional.of(bool);
-        } else if (value instanceof String string) {
-            return Optional.of(Boolean.parseBoolean(string));
+        if (value instanceof Boolean val) {
+            return Optional.of(val);
+        } else if (value instanceof String val) {
+            return Optional.of(Boolean.parseBoolean(val));
         } else {
             throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Boolean.class, String.class});
         }
@@ -193,9 +193,9 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
         }
         if (value instanceof Date) {
             return Optional.of(new DateTime(value));
-        } else if (value instanceof String string) {
+        } else if (value instanceof String val) {
             try {
-                return Optional.of(DateTime.parse(string));
+                return Optional.of(DateTime.parse(val));
             } catch (IllegalArgumentException e) {
                 throw createPropertyIsNotException(name, "an ISO date time", e);
             }

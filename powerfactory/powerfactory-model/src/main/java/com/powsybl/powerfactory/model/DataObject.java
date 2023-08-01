@@ -577,11 +577,11 @@ public class DataObject {
     }
 
     private static boolean writeValue(JsonGenerator generator, Object value) throws IOException {
-        if (value instanceof String string) {
-            generator.writeString(string);
+        if (value instanceof String stringValue) {
+            generator.writeString(stringValue);
             return true;
-        } else if (value instanceof Integer integer) {
-            generator.writeNumber(integer);
+        } else if (value instanceof Integer integerValue) {
+            generator.writeNumber(integerValue);
             return true;
         } else if (value instanceof Long longValue) {
             generator.writeNumber(longValue);
