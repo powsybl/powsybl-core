@@ -105,8 +105,9 @@ public class PowsyblWriter extends RDFXMLWriter {
             }
         }
         if (prefix != null && prefix.equals("data")) {
-            if (ctxt.contains("_SSH_") || (ctxt.contains("_DY_") && objLocalName.equals("EnergyConsumer"))
-                    || (ctxt.contains("_TP_") && !objLocalName.equals("TopologicalNode"))) {
+            if (ctxt.contains("_SSH_")
+                    || ctxt.contains("_DY_") && objLocalName.equals("EnergyConsumer")
+                    || ctxt.contains("_TP_") && !objLocalName.equals("TopologicalNode")) {
                 attName = "about";
                 value = "#" + uri.getLocalName();
             } else {

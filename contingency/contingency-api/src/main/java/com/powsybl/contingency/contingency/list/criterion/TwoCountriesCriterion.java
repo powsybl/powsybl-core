@@ -61,11 +61,11 @@ public class TwoCountriesCriterion implements Criterion {
         if (countrySide1 == null && !countries1.isEmpty() || countrySide2 == null && !countries2.isEmpty()) {
             return false;
         }
-        return (countries1.isEmpty() && countries2.isEmpty()) ||
-                (countries1.isEmpty() && (countries2.contains(countrySide2) || countries2.contains(countrySide1))) ||
-                (countries2.isEmpty() && (countries1.contains(countrySide2) || countries1.contains(countrySide1))) ||
-                (countries1.contains(countrySide1) && countries2.contains(countrySide2)) ||
-                (countries1.contains(countrySide2) && countries2.contains(countrySide1));
+        return countries1.isEmpty() && countries2.isEmpty()
+                || countries1.isEmpty() && (countries2.contains(countrySide2) || countries2.contains(countrySide1))
+                || countries2.isEmpty() && (countries1.contains(countrySide2) || countries1.contains(countrySide1))
+                || countries1.contains(countrySide1) && countries2.contains(countrySide2)
+                || countries1.contains(countrySide2) && countries2.contains(countrySide1);
     }
 
     public List<Country> getCountries1() {
