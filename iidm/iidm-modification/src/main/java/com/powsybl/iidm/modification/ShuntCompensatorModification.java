@@ -9,7 +9,9 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.util.RegulationUtils;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
 
@@ -56,18 +58,7 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
 
     private static void setTargetV(ShuntCompensator shuntCompensator) {
         if (shuntCompensator.isVoltageRegulatorOn()) {
-            Bus bus = shuntCompensator.getRegulatingTerminal().getBusView().getBus();
-            if (bus != null) {
-                // set voltage setpoint to the same as other generators regulating this bus
-                double targetV = RegulationUtils.getRegulatingGenerators(shuntCompensator.getNetwork(), bus)
-                    .findFirst().map(Generator::getTargetV).orElse(Double.NaN);
-                if (!Double.isNaN(targetV)) {
-                    shuntCompensator.setTargetV(targetV);
-                } else if (!Double.isNaN(bus.getV())) {
-                    // if no generators are connected to the bus, set voltage setpoint to network voltage
-                    shuntCompensator.setTargetV(bus.getV());
-                }
-            }
+            RegulationUtils.getTargetVForRegulatingShunt(shuntCompensator).ifPresent(shuntCompensator::setTargetV);
         }
     }
 
