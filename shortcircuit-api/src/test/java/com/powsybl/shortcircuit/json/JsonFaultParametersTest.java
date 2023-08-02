@@ -133,5 +133,8 @@ class JsonFaultParametersTest extends AbstractConverterTest {
 
         FaultParameters param = new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfile.NOMINAL, null);
         assertEquals(parameters.get(0), param);
+
+        FaultParameters param2 = new FaultParameters("f01", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfile.NOMINAL, null);
+        assertNotEquals(parameters.get(0), param2);
     }
 }

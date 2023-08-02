@@ -21,6 +21,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
+import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -206,14 +207,11 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         List<ConfiguredInitialVoltageProfileCoefficient> coefficients = parameters.getConfiguredInitialVoltageProfileCoefficients();
         assertEquals(3, coefficients.size());
         assertEquals(1, coefficients.get(0).getRangeCoefficient());
-        assertEquals(380, coefficients.get(0).getMinimumVoltage());
-        assertEquals(420, coefficients.get(0).getMaximumVoltage());
+        assertEquals(Range.between(380., 420.), coefficients.get(0).getVoltageRange());
         assertEquals(1.2, coefficients.get(1).getRangeCoefficient());
-        assertEquals(215, coefficients.get(1).getMinimumVoltage());
-        assertEquals(235, coefficients.get(1).getMaximumVoltage());
+        assertEquals(Range.between(215., 235.), coefficients.get(1).getVoltageRange());
         assertEquals(1.3, coefficients.get(2).getRangeCoefficient());
-        assertEquals(80, coefficients.get(2).getMinimumVoltage());
-        assertEquals(100, coefficients.get(2).getMaximumVoltage());
+        assertEquals(Range.between(80., 100.), coefficients.get(2).getVoltageRange());
     }
 
     @Test
