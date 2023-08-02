@@ -7,7 +7,9 @@
 package com.powsybl.shortcircuit.json;
 
 import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.shortcircuit.ConfiguredInitialVoltageProfileCoefficient;
 import com.powsybl.shortcircuit.FaultParameters;
+import com.powsybl.shortcircuit.InitialVoltageProfile;
 import com.powsybl.shortcircuit.StudyType;
 import org.junit.jupiter.api.Test;
 
@@ -28,11 +30,14 @@ class JsonFaultParametersTest extends AbstractConverterTest {
     @Test
     void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
-        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true));
-        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false));
-        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN, false, true, false, false));
-        parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, Double.NaN, false, false, false, false));
-        parameters.add(new FaultParameters("f12", true, false, false, StudyType.SUB_TRANSIENT, Double.NaN, false, 80.0, true, false, false, false));
+        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfile.NOMINAL, null));
+        List<ConfiguredInitialVoltageProfileCoefficient> coefficients = new ArrayList<>();
+        coefficients.add(new ConfiguredInitialVoltageProfileCoefficient(0, 230, 1));
+        coefficients.add(new ConfiguredInitialVoltageProfileCoefficient(235, 400, 1.05));
+        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false, InitialVoltageProfile.CONFIGURED, coefficients));
+        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN, false, true, false, false, InitialVoltageProfile.NOMINAL, null));
+        parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, Double.NaN, false, false, false, false, null, null));
+        parameters.add(new FaultParameters("f12", true, false, false, StudyType.SUB_TRANSIENT, Double.NaN, false, 80.0, true, false, false, false, InitialVoltageProfile.PREVIOUS_VALUE, null));
         roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
 
         assertNotNull(parameters.get(0));
@@ -40,6 +45,7 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         assertNotEquals(parameters.get(0).hashCode(), parameters.get(2).hashCode());
     }
 
+    //
     @Test
     void readVersion10() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultParametersFileVersion10.json"), fileSystem.getPath("/FaultParametersFileVersion10.json"));
@@ -125,7 +131,7 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFile.json"));
         assertEquals(5, parameters.size());
 
-        FaultParameters param = new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true);
+        FaultParameters param = new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfile.NOMINAL, null);
         assertEquals(parameters.get(0), param);
     }
 }

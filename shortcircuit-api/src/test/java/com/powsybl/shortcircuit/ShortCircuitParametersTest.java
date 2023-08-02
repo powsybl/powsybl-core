@@ -26,6 +26,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -195,6 +197,23 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertTrue(parameters.isWithFortescueResult());
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertEquals(1.2, parameters.getMinVoltageDropProportionalThreshold(), 0.0);
+        assertEquals(80, parameters.getSubTransientCoefficient());
+        assertTrue(parameters.isWithLoads());
+        assertTrue(parameters.isWithShuntCompensators());
+        assertFalse(parameters.isWithVSCConverterStations());
+        assertTrue(parameters.isWithNeutralPosition());
+        assertEquals(InitialVoltageProfile.CONFIGURED, parameters.getInitialVoltageProfile());
+        List<ConfiguredInitialVoltageProfileCoefficient> coefficients = parameters.getConfiguredInitialVoltageProfileCoefficients();
+        assertEquals(3, coefficients.size());
+        assertEquals(1, coefficients.get(0).getRangeCoefficient());
+        assertEquals(380, coefficients.get(0).getMinimumVoltage());
+        assertEquals(420, coefficients.get(0).getMaximumVoltage());
+        assertEquals(1.2, coefficients.get(1).getRangeCoefficient());
+        assertEquals(215, coefficients.get(1).getMinimumVoltage());
+        assertEquals(235, coefficients.get(1).getMaximumVoltage());
+        assertEquals(1.3, coefficients.get(2).getRangeCoefficient());
+        assertEquals(80, coefficients.get(2).getMinimumVoltage());
+        assertEquals(100, coefficients.get(2).getMaximumVoltage());
     }
 
     @Test
@@ -203,6 +222,12 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         parameters.setWithVoltageResult(false);
         parameters.setWithLimitViolations(false);
         parameters.setStudyType(StudyType.SUB_TRANSIENT);
+        parameters.setInitialVoltageProfile(InitialVoltageProfile.CONFIGURED);
+        List<ConfiguredInitialVoltageProfileCoefficient> coefficients = new ArrayList<>();
+        coefficients.add(new ConfiguredInitialVoltageProfileCoefficient(380, 410, 1.05));
+        coefficients.add(new ConfiguredInitialVoltageProfileCoefficient(0, 225, 1.1));
+        coefficients.add(new ConfiguredInitialVoltageProfileCoefficient(230, 375, 1.09));
+        parameters.setConfiguredInitialVoltageProfileCoefficients(coefficients);
         roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
                 "/ShortCircuitParameters.json");
     }
@@ -284,5 +309,11 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
             IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonShortCircuitParameters.read(is));
             assertEquals("Unexpected field: unexpected", e.getMessage());
         }
+    }
+
+    @Test
+    void testConfiguredInitialVoltageProfile() {
+        ConfiguredInitialVoltageProfileCoefficient coeff = new ConfiguredInitialVoltageProfileCoefficient(380, 410, 1.1);
+        assertEquals(380, coeff.getMinimumVoltage());
     }
 }

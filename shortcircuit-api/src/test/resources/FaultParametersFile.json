@@ -8,19 +8,31 @@
   "withLoads" : true,
   "withShuntCompensators" : true,
   "withVSCConverterStations" : true,
-  "withNeutralPosition" : true
+  "withNeutralPosition" : true,
+  "initialVoltageProfile" : "NOMINAL"
 }, {
   "version" : "1.2",
   "id" : "f01",
   "withVoltageResult" : true,
   "withFortescueResult" : true,
   "withLoads" : true,
-  "withShuntCompensators" : true
+  "withShuntCompensators" : true,
+  "initialVoltageProfile" : "CONFIGURED",
+  "configuredInitialVoltageRangeCoefficients" : [ {
+    "minimumVoltage" : 0.0,
+    "maximumVoltage" : 230.0,
+    "voltageRangeCoefficient" : 1.0
+  }, {
+    "minimumVoltage" : 235.0,
+    "maximumVoltage" : 400.0,
+    "voltageRangeCoefficient" : 1.05
+  } ]
 }, {
   "version" : "1.2",
   "id" : "f10",
   "withLimitViolations" : true,
-  "withShuntCompensators" : true
+  "withShuntCompensators" : true,
+  "initialVoltageProfile" : "NOMINAL"
 }, {
   "version" : "1.2",
   "id" : "f11",
@@ -32,5 +44,6 @@
   "withLimitViolations" : true,
   "studyType" : "SUB_TRANSIENT",
   "subTransientCoefficient" : 80.0,
-  "withLoads" : true
+  "withLoads" : true,
+  "initialVoltageProfile" : "PREVIOUS_VALUE"
 } ]

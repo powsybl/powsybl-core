@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FaultParameters;
+import com.powsybl.shortcircuit.InitialVoltageProfile;
 import com.powsybl.shortcircuit.StudyType;
 
 import java.io.IOException;
@@ -45,6 +46,10 @@ public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withShuntCompensators", parameters.isWithShuntCompensators(), false);
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withVSCConverterStations", parameters.isWithVSCConverterStations(), false);
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withNeutralPosition", parameters.isWithNeutralPosition(), false);
+        JsonUtil.writeOptionalStringField(jsonGenerator, "initialVoltageProfile", parameters.getInitialVoltageProfile() != null ? parameters.getInitialVoltageProfile().name() : null);
+        if (parameters.getInitialVoltageProfile() == InitialVoltageProfile.CONFIGURED) {
+            serializerProvider.defaultSerializeField("configuredInitialVoltageRangeCoefficients", parameters.getConfiguredInitialVoltageProfileCoefficients(), jsonGenerator);
+        }
         jsonGenerator.writeEndObject();
     }
 }

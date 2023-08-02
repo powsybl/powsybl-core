@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,7 +27,7 @@ public class FaultParameters {
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
-    // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition
+    // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition, initialVoltageProfile
     public static final String VERSION = "1.2";
 
     private final String id;
@@ -52,6 +53,10 @@ public class FaultParameters {
     private final boolean withVSCConverterStations;
 
     private final boolean withNeutralPosition;
+
+    private final InitialVoltageProfile initialVoltageProfile;
+
+    private final List<ConfiguredInitialVoltageProfileCoefficient> configuredInitialVoltageProfileCoefficients;
 
     /** Fault id */
     public String getId() {
@@ -113,6 +118,16 @@ public class FaultParameters {
         return withNeutralPosition;
     }
 
+    /** Override general parameter initialVoltageProfile from {@link com.powsybl.shortcircuit.ShortCircuitParameters} */
+    public InitialVoltageProfile getInitialVoltageProfile() {
+        return initialVoltageProfile;
+    }
+
+    /** Override general parameter configuredInitialVoltageProfileCoefficients from {@link ShortCircuitParameters}*/
+    public List<ConfiguredInitialVoltageProfileCoefficient> getConfiguredInitialVoltageProfileCoefficients() {
+        return configuredInitialVoltageProfileCoefficients;
+    }
+
     public FaultParameters(String id,
                            boolean withLimitViolations,
                            boolean withVoltageResult,
@@ -124,7 +139,9 @@ public class FaultParameters {
                            boolean withLoads,
                            boolean withShuntCompensators,
                            boolean withVSCConverterStations,
-                           boolean withNeutralPosition) {
+                           boolean withNeutralPosition,
+                           InitialVoltageProfile initialVoltageProfile,
+                           List<ConfiguredInitialVoltageProfileCoefficient> coefficients) {
         this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
         this.withVoltageResult = withVoltageResult;
@@ -137,6 +154,12 @@ public class FaultParameters {
         this.withShuntCompensators = withShuntCompensators;
         this.withVSCConverterStations = withVSCConverterStations;
         this.withNeutralPosition = withNeutralPosition;
+        this.initialVoltageProfile = initialVoltageProfile;
+        this.configuredInitialVoltageProfileCoefficients = new ArrayList<>();
+        if (coefficients != null) {
+            this.configuredInitialVoltageProfileCoefficients.addAll(coefficients);
+        }
+
     }
 
     @Override
@@ -159,14 +182,17 @@ public class FaultParameters {
                 Objects.equals(withLoads, that.withLoads) &&
                 Objects.equals(withShuntCompensators, that.withShuntCompensators) &&
                 Objects.equals(withVSCConverterStations, that.withVSCConverterStations) &&
-                Objects.equals(withNeutralPosition, that.withNeutralPosition);
+                Objects.equals(withNeutralPosition, that.withNeutralPosition) &&
+                Objects.equals(initialVoltageProfile, that.initialVoltageProfile) &&
+                Objects.equals(configuredInitialVoltageProfileCoefficients, that.configuredInitialVoltageProfileCoefficients);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(id, withLimitViolations, withVoltageResult, withFeederResult, studyType,
                 minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient,
-                withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition);
+                withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition,
+                initialVoltageProfile, configuredInitialVoltageProfileCoefficients);
     }
 
     @Override
@@ -184,6 +210,8 @@ public class FaultParameters {
                 ", withShuntCompensators=" + withShuntCompensators +
                 ", withVSCConverterStations=" + withVSCConverterStations +
                 ", withNeutralPosition=" + withNeutralPosition +
+                ", initialVoltageProfile=" + initialVoltageProfile +
+                ", configuredInitialVoltageProfileCoefficients=" + configuredInitialVoltageProfileCoefficients +
                 '}';
     }
 

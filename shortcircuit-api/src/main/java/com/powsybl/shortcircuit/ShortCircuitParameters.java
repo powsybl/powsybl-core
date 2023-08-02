@@ -6,10 +6,14 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
@@ -24,7 +28,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
-    // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition
+    // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition, initialVoltageProfile
     public static final String VERSION = "1.2";
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
@@ -38,6 +42,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withShuntCompensators = DEFAULT_WITH_SHUNT_COMPENSATORS;
     private boolean withVSCConverterStations = DEFAULT_WITH_VSC_CONVERTER_STATIONS;
     private boolean withNeutralPosition = DEFAULT_WITH_NEUTRAL_POSITION;
+    private InitialVoltageProfile initialVoltageProfile = DEFAULT_INITIAL_VOLTAGE_PROFILE;
+    private List<ConfiguredInitialVoltageProfileCoefficient> configuredInitialVoltageProfileCoefficients = Collections.emptyList();
 
     /**
      * Load parameters from platform default config.
@@ -62,11 +68,24 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithLoads(config.getBooleanProperty("with-loads", DEFAULT_WITH_LOADS))
                         .setWithShuntCompensators(config.getBooleanProperty("with-shunt-compensators", DEFAULT_WITH_SHUNT_COMPENSATORS))
                         .setWithVSCConverterStations(config.getBooleanProperty("with-vsc-converter-stations", DEFAULT_WITH_VSC_CONVERTER_STATIONS))
-                        .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION)));
+                        .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION))
+                        .setInitialVoltageProfile(config.getEnumProperty("initial-voltage-profile", InitialVoltageProfile.class, DEFAULT_INITIAL_VOLTAGE_PROFILE))
+                        .setConfiguredInitialVoltageProfileCoefficients(getCoefficientsFromConfig(config)));
 
         parameters.readExtensions(platformConfig);
 
         return parameters;
+    }
+
+    private static List<ConfiguredInitialVoltageProfileCoefficient> getCoefficientsFromConfig(ModuleConfig config) {
+        List<ConfiguredInitialVoltageProfileCoefficient> coefficients = new ArrayList<>();
+        config.getStringListProperty("configured-initial-voltage-range-coefficients").forEach(voltageCoefficient -> {
+            String[] voltageCoefficientArray = voltageCoefficient.split(" -> ");
+            String[] voltages = voltageCoefficientArray[0].split("-");
+            coefficients.add(new ConfiguredInitialVoltageProfileCoefficient(Integer.parseInt(voltages[0]), Integer.parseInt(voltages[1]), Double.parseDouble(voltageCoefficientArray[1])));
+        });
+        return coefficients;
+
     }
 
     private void readExtensions(PlatformConfig platformConfig) {
@@ -223,6 +242,31 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     public ShortCircuitParameters setWithNeutralPosition(boolean withNeutralPosition) {
         this.withNeutralPosition = withNeutralPosition;
+        return this;
+    }
+
+    /**
+     * The initial voltage profile: nominal, configured or previous value.
+     */
+    public InitialVoltageProfile getInitialVoltageProfile() {
+        return initialVoltageProfile;
+    }
+
+    public ShortCircuitParameters setInitialVoltageProfile(InitialVoltageProfile initialVoltageProfile) {
+        this.initialVoltageProfile = initialVoltageProfile;
+        return this;
+    }
+
+    /**
+     * In case of CONFIGURED initial voltage profile, the coefficients to apply to each nominal voltage. By default, empty.
+     * @return a list with voltage ranges and associated coefficients
+     */
+    public List<ConfiguredInitialVoltageProfileCoefficient> getConfiguredInitialVoltageProfileCoefficients() {
+        return configuredInitialVoltageProfileCoefficients;
+    }
+
+    public ShortCircuitParameters setConfiguredInitialVoltageProfileCoefficients(List<ConfiguredInitialVoltageProfileCoefficient> configuredInitialVoltageProfileCoefficients) {
+        this.configuredInitialVoltageProfileCoefficients = configuredInitialVoltageProfileCoefficients;
         return this;
     }
 }

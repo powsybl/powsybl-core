@@ -3,5 +3,15 @@ short-circuit-parameters:
   with-fortescue-result: true
   with-voltage-result: false
   study-type: "SUB_TRANSIENT"
+  sub-transient-coefficient: 80
   with-feeder-result: false
   min-voltage-drop-proportional-threshold: 1.2
+  with-loads: true
+  with-shunt-compensators: true
+  with-vsc-converter-stations: false
+  with-neutral-position: true
+  initial-voltage-profile: "CONFIGURED"
+  configured-initial-voltage-range-coefficients:
+    - 380-420 -> 1
+    - 215-235 -> 1.2
+    - 80-100 -> 1.3
