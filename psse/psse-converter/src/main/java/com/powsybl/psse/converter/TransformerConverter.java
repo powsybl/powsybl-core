@@ -389,7 +389,8 @@ class TransformerConverter extends AbstractConverter {
             if (distanceRatio == 0.0 && distanceAngle == 0.0) {
                 return i;
             }
-            if (distanceAngle > 0.0 || (distanceAngle == 0.0 && distanceRatio > 0.0)) {
+            if (distanceAngle > 0.0
+                    || distanceAngle == 0.0 && distanceRatio > 0.0) {
                 tapChanger.getSteps().add(i, new TapChangerStep(complexRatio.getRatio(), complexRatio.getAngle()));
                 return i;
             }
