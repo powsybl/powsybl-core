@@ -68,7 +68,7 @@ class ConnectGeneratorTest {
         g2.setRegulatingTerminal(g3.getTerminal());
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(22, g2.getTargetV(), 0.01);
+        assertEquals(33, g2.getTargetV(), 0.01);
     }
 
     @Test

@@ -25,8 +25,8 @@ public final class RegulationUtils {
 
     private static OptionalDouble getTargetVForRegulatingElement(Network network, Bus regulatingBus, String shuntId,
                                                                  String generatorId) {
-        Optional<Double> optDouble = getRegulatingShuntCompensators(network, regulatingBus).filter(
-                sc -> !sc.getId().equals(shuntId)).map(ShuntCompensator::getTargetV).findFirst()
+        Optional<Double> optDouble = getRegulatingShuntCompensators(network, regulatingBus)
+            .filter(sc -> !sc.getId().equals(shuntId)).map(ShuntCompensator::getTargetV).findFirst()
             .or(() -> getRegulatingGenerators(network, regulatingBus).filter(
                 generator -> !generator.getId().equals(generatorId)).map(Generator::getTargetV).findFirst())
             .or(() -> Double.isNaN(regulatingBus.getV()) ? Optional.empty() : Optional.of(regulatingBus.getV()));
