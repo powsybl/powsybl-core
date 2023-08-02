@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationFilter;
-import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
@@ -43,7 +42,7 @@ class DynamicSecurityAnalysisTest {
     private static ContingenciesProvider contingenciesProvider;
     private static LimitViolationFilter filter;
     private static LimitViolationDetector detector;
-    private static SecurityAnalysisParameters parameters;
+    private static DynamicSecurityAnalysisParameters parameters;
     private static List<SecurityAnalysisInterceptor> interceptors;
     private static List<OperatorStrategy> strategies;
     private static List<Action> actions;
@@ -60,7 +59,7 @@ class DynamicSecurityAnalysisTest {
         contingenciesProvider = Mockito.mock(ContingenciesProvider.class);
         filter = Mockito.mock(LimitViolationFilter.class);
         detector = Mockito.mock(LimitViolationDetector.class);
-        parameters = Mockito.mock(SecurityAnalysisParameters.class);
+        parameters = Mockito.mock(DynamicSecurityAnalysisParameters.class);
         interceptors = List.of(Mockito.mock(SecurityAnalysisInterceptor.class));
         strategies = List.of(Mockito.mock(OperatorStrategy.class));
         actions = List.of(Mockito.mock(Action.class));

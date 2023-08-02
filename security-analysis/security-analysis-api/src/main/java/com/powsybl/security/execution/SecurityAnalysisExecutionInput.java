@@ -10,6 +10,7 @@ import com.google.common.io.ByteSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisParameters;
+import com.powsybl.security.SecurityAnalysisParametersInterface;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
@@ -39,7 +40,7 @@ public class SecurityAnalysisExecutionInput {
     private ByteSource dynamicModelsSource;
     private ByteSource eventModelsSource;
     private ByteSource contingenciesSource;
-    private SecurityAnalysisParameters parameters;
+    private SecurityAnalysisParametersInterface parameters;
     private final List<String> resultExtensions = new ArrayList<>();
     private final Set<LimitViolationType> violationTypes = EnumSet.noneOf(LimitViolationType.class);
     private boolean withLogs = false;
@@ -67,7 +68,7 @@ public class SecurityAnalysisExecutionInput {
         return Collections.unmodifiableSet(violationTypes);
     }
 
-    public SecurityAnalysisParameters getParameters() {
+    public SecurityAnalysisParametersInterface getParameters() {
         return parameters;
     }
 
@@ -136,7 +137,7 @@ public class SecurityAnalysisExecutionInput {
         return this;
     }
 
-    public SecurityAnalysisExecutionInput setParameters(SecurityAnalysisParameters parameters) {
+    public SecurityAnalysisExecutionInput setParameters(SecurityAnalysisParametersInterface parameters) {
         this.parameters = Objects.requireNonNull(parameters);
         return this;
     }

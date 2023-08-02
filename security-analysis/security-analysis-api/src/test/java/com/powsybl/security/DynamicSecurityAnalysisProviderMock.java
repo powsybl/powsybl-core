@@ -5,23 +5,30 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.dynamic;
+package com.powsybl.security;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.*;
 import com.powsybl.security.action.Action;
+import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
+import com.powsybl.security.dynamic.DynamicSecurityAnalysisProvider;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.json.JsonDynamicSecurityAnalysisParametersTest;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.results.PreContingencyResult;
 import com.powsybl.security.strategy.OperatorStrategy;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -36,7 +43,7 @@ import static org.mockito.Mockito.when;
 public class DynamicSecurityAnalysisProviderMock implements DynamicSecurityAnalysisProvider {
 
     @Override
-    public CompletableFuture<SecurityAnalysisReport> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, Reporter reporter) {
+    public CompletableFuture<SecurityAnalysisReport> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, DynamicSecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, Reporter reporter) {
         CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
         SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
         when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));
@@ -53,6 +60,16 @@ public class DynamicSecurityAnalysisProviderMock implements DynamicSecurityAnaly
     }
 
     @Override
+    public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
+        return Optional.of(new JsonDynamicSecurityAnalysisParametersTest.DummySerializer());
+    }
+
+    @Override
+    public Optional<Extension<DynamicSecurityAnalysisParameters>> loadSpecificParameters(PlatformConfig config) {
+        return Optional.of(new JsonDynamicSecurityAnalysisParametersTest.DummyExtension());
+    }
+
+    @Override
     public String getName() {
         return "DynamicSecurityAnalysisMock";
     }
@@ -60,5 +77,15 @@ public class DynamicSecurityAnalysisProviderMock implements DynamicSecurityAnaly
     @Override
     public String getVersion() {
         return "1.0";
+    }
+
+    @Override
+    public Optional<Extension<DynamicSecurityAnalysisParameters>> loadSpecificParameters(Map<String, String> properties) {
+        return Optional.of(new JsonDynamicSecurityAnalysisParametersTest.DummyExtension());
+    }
+
+    @Override
+    public List<String> getSpecificParametersNames() {
+        return Collections.singletonList("dummy-extension");
     }
 }

@@ -21,7 +21,6 @@ import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationFilter;
-import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
@@ -62,7 +61,7 @@ public final class DynamicSecurityAnalysis {
                                                                   EventModelsSupplier eventModelsSupplier,
                                                                   String workingStateId,
                                                                   ContingenciesProvider contingenciesProvider,
-                                                                  SecurityAnalysisParameters parameters,
+                                                                  DynamicSecurityAnalysisParameters parameters,
                                                                   ComputationManager computationManager,
                                                                   LimitViolationFilter filter,
                                                                   LimitViolationDetector detector,
@@ -89,7 +88,7 @@ public final class DynamicSecurityAnalysis {
                                           DynamicModelsSupplier dynamicModelsSupplier,
                                           String workingStateId,
                                           ContingenciesProvider contingenciesProvider,
-                                          SecurityAnalysisParameters parameters,
+                                          DynamicSecurityAnalysisParameters parameters,
                                           ComputationManager computationManager,
                                           LimitViolationFilter filter,
                                           LimitViolationDetector detector,
@@ -99,20 +98,20 @@ public final class DynamicSecurityAnalysis {
             return runAsync(network, dynamicModelsSupplier, EventModelsSupplier.empty(), workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, Collections.emptyList(), Reporter.NO_OP);
         }
 
-        public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, ComputationManager computationManager, LimitViolationFilter filter) {
+        public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisParameters parameters, ComputationManager computationManager, LimitViolationFilter filter) {
             return runAsync(network, dynamicModelsSupplier, EventModelsSupplier.empty(), network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, new DefaultLimitViolationDetector(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Reporter.NO_OP);
         }
 
-        public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, ComputationManager computationManager) {
+        public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisParameters parameters, ComputationManager computationManager) {
             return runAsync(network, dynamicModelsSupplier, contingenciesProvider, parameters, computationManager, LimitViolationFilter.load());
         }
 
-        public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, List<Contingency> contingencies, SecurityAnalysisParameters parameters) {
+        public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, List<Contingency> contingencies, DynamicSecurityAnalysisParameters parameters) {
             return runAsync(network, dynamicModelsSupplier, n -> contingencies, parameters, LocalComputationManager.getDefault());
         }
 
         public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, List<Contingency> contingencies) {
-            return runAsync(network, dynamicModelsSupplier, contingencies, SecurityAnalysisParameters.load());
+            return runAsync(network, dynamicModelsSupplier, contingencies, DynamicSecurityAnalysisParameters.load());
         }
 
         public SecurityAnalysisReport run(Network network,
@@ -120,7 +119,7 @@ public final class DynamicSecurityAnalysis {
                                           EventModelsSupplier eventModelsSupplier,
                                           String workingStateId,
                                           ContingenciesProvider contingenciesProvider,
-                                          SecurityAnalysisParameters parameters,
+                                          DynamicSecurityAnalysisParameters parameters,
                                           ComputationManager computationManager,
                                           LimitViolationFilter filter,
                                           LimitViolationDetector detector,
@@ -136,7 +135,7 @@ public final class DynamicSecurityAnalysis {
                                           DynamicModelsSupplier dynamicModelsSupplier,
                                           String workingStateId,
                                           ContingenciesProvider contingenciesProvider,
-                                          SecurityAnalysisParameters parameters,
+                                          DynamicSecurityAnalysisParameters parameters,
                                           ComputationManager computationManager,
                                           LimitViolationFilter filter,
                                           LimitViolationDetector detector,
@@ -146,20 +145,20 @@ public final class DynamicSecurityAnalysis {
             return runAsync(network, dynamicModelsSupplier, EventModelsSupplier.empty(), workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, Collections.emptyList(), Reporter.NO_OP).join();
         }
 
-        public SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, ComputationManager computationManager, LimitViolationFilter filter) {
+        public SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisParameters parameters, ComputationManager computationManager, LimitViolationFilter filter) {
             return run(network, dynamicModelsSupplier, network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, new DefaultLimitViolationDetector(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
         }
 
-        public SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, ComputationManager computationManager) {
+        public SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisParameters parameters, ComputationManager computationManager) {
             return run(network, dynamicModelsSupplier, contingenciesProvider, parameters, computationManager, LimitViolationFilter.load());
         }
 
-        public SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, List<Contingency> contingencies, SecurityAnalysisParameters parameters) {
+        public SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, List<Contingency> contingencies, DynamicSecurityAnalysisParameters parameters) {
             return run(network, dynamicModelsSupplier, n -> contingencies, parameters, LocalComputationManager.getDefault());
         }
 
         public SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, List<Contingency> contingencies) {
-            return run(network, dynamicModelsSupplier, contingencies, SecurityAnalysisParameters.load());
+            return run(network, dynamicModelsSupplier, contingencies, DynamicSecurityAnalysisParameters.load());
         }
 
         @Override
@@ -201,7 +200,7 @@ public final class DynamicSecurityAnalysis {
                                                                      EventModelsSupplier eventModelsSupplier,
                                                                      String workingStateId,
                                                                      ContingenciesProvider contingenciesProvider,
-                                                                     SecurityAnalysisParameters parameters,
+                                                                     DynamicSecurityAnalysisParameters parameters,
                                                                      ComputationManager computationManager,
                                                                      LimitViolationFilter filter,
                                                                      LimitViolationDetector detector,
@@ -217,7 +216,7 @@ public final class DynamicSecurityAnalysis {
                                              DynamicModelsSupplier dynamicModelsSupplier,
                                              String workingStateId,
                                              ContingenciesProvider contingenciesProvider,
-                                             SecurityAnalysisParameters parameters,
+                                             DynamicSecurityAnalysisParameters parameters,
                                              ComputationManager computationManager,
                                              LimitViolationFilter filter,
                                              LimitViolationDetector detector,
@@ -228,18 +227,18 @@ public final class DynamicSecurityAnalysis {
     }
 
     public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider,
-                                                                     SecurityAnalysisParameters parameters, ComputationManager computationManager,
+                                                                     DynamicSecurityAnalysisParameters parameters, ComputationManager computationManager,
                                                                      LimitViolationFilter filter) {
         return find().runAsync(network, dynamicModelsSupplier, contingenciesProvider, parameters, computationManager, filter);
     }
 
     public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider,
-                                                                     SecurityAnalysisParameters parameters, ComputationManager computationManager) {
+                                                                     DynamicSecurityAnalysisParameters parameters, ComputationManager computationManager) {
         return find().runAsync(network, dynamicModelsSupplier, contingenciesProvider, parameters, computationManager);
     }
 
     public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier,
-                                                                     List<Contingency> contingencies, SecurityAnalysisParameters parameters) {
+                                                                     List<Contingency> contingencies, DynamicSecurityAnalysisParameters parameters) {
         return find().runAsync(network, dynamicModelsSupplier, contingencies, parameters);
     }
 
@@ -252,7 +251,7 @@ public final class DynamicSecurityAnalysis {
                                              EventModelsSupplier eventModelsSupplier,
                                              String workingStateId,
                                              ContingenciesProvider contingenciesProvider,
-                                             SecurityAnalysisParameters parameters,
+                                             DynamicSecurityAnalysisParameters parameters,
                                              ComputationManager computationManager,
                                              LimitViolationFilter filter,
                                              LimitViolationDetector detector,
@@ -268,7 +267,7 @@ public final class DynamicSecurityAnalysis {
                                              DynamicModelsSupplier dynamicModelsSupplier,
                                              String workingStateId,
                                              ContingenciesProvider contingenciesProvider,
-                                             SecurityAnalysisParameters parameters,
+                                             DynamicSecurityAnalysisParameters parameters,
                                              ComputationManager computationManager,
                                              LimitViolationFilter filter,
                                              LimitViolationDetector detector,
@@ -278,15 +277,15 @@ public final class DynamicSecurityAnalysis {
         return find().run(network, dynamicModelsSupplier, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions);
     }
 
-    public static SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, ComputationManager computationManager, LimitViolationFilter filter) {
+    public static SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisParameters parameters, ComputationManager computationManager, LimitViolationFilter filter) {
         return find().run(network, dynamicModelsSupplier, contingenciesProvider, parameters, computationManager, filter);
     }
 
-    public static SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, ComputationManager computationManager) {
+    public static SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisParameters parameters, ComputationManager computationManager) {
         return find().run(network, dynamicModelsSupplier, contingenciesProvider, parameters, computationManager);
     }
 
-    public static SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, List<Contingency> contingencies, SecurityAnalysisParameters parameters) {
+    public static SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, List<Contingency> contingencies, DynamicSecurityAnalysisParameters parameters) {
         return find().run(network, dynamicModelsSupplier, contingencies, parameters);
     }
 

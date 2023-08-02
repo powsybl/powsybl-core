@@ -73,13 +73,13 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
                     DynamicSimulationSupplierFactory.createDynamicModelsSupplier(input.getDynamicModels(), runner.getName()),
                     input.hasEventModels() ? DynamicSimulationSupplierFactory.createEventModelsSupplier(input.getEventModels(), runner.getName()) : EventModelsSupplier.empty(),
                     input.getNetworkVariant().getVariantId(),
-                    input.getContingenciesProvider(), input.getParameters(), computationManager, input.getFilter(), input.getLimitViolationDetector(),
+                    input.getContingenciesProvider(), input.getDynamicParameters(), computationManager, input.getFilter(), input.getLimitViolationDetector(),
                     new ArrayList<>(input.getInterceptors()), data.getOperatorStrategies(), data.getActions(), data.getMonitors(), Reporter.NO_OP);
         } else {
             SecurityAnalysis.Runner runner = SecurityAnalysis.find(staticProviderName);
             return runner.runAsync(input.getNetworkVariant().getNetwork(),
                     input.getNetworkVariant().getVariantId(),
-                    input.getContingenciesProvider(), input.getParameters(), computationManager, input.getFilter(), input.getLimitViolationDetector(),
+                    input.getContingenciesProvider(), input.getStaticParameters(), computationManager, input.getFilter(), input.getLimitViolationDetector(),
                     new ArrayList<>(input.getInterceptors()), data.getOperatorStrategies(), data.getActions(), data.getMonitors(), Reporter.NO_OP);
 
         }

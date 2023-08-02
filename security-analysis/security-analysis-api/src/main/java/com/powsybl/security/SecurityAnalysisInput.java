@@ -11,6 +11,7 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
+import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
@@ -39,7 +40,7 @@ public class SecurityAnalysisInput {
     private InputStream dynamicModels;
     private InputStream eventModels;
     private ContingenciesProvider contingencies;
-    private SecurityAnalysisParameters parameters;
+    private SecurityAnalysisParametersInterface parameters;
 
     public SecurityAnalysisInput(Network network, String variantId) {
         this(new NetworkVariant(network, variantId));
@@ -59,8 +60,18 @@ public class SecurityAnalysisInput {
     /**
      * Get specified {@link SecurityAnalysisParameters}.
      */
-    public SecurityAnalysisParameters getParameters() {
-        return parameters;
+    public SecurityAnalysisParameters getStaticParameters() {
+        if (!isDynamic() && parameters instanceof SecurityAnalysisParameters) {
+            return (SecurityAnalysisParameters) parameters;
+        }
+        throw new PowsyblException("The security analysis is dynamic : SecurityAnalysisInput cannot return static parameter");
+    }
+
+    public DynamicSecurityAnalysisParameters getDynamicParameters() {
+        if (isDynamic() && parameters instanceof DynamicSecurityAnalysisParameters) {
+            return (DynamicSecurityAnalysisParameters) parameters;
+        }
+        throw new PowsyblException("The security analysis is static : SecurityAnalysisInput cannot return dynamic parameter");
     }
 
     public InputStream getDynamicModels() {
@@ -121,7 +132,7 @@ public class SecurityAnalysisInput {
         return this;
     }
 
-    public SecurityAnalysisInput setParameters(SecurityAnalysisParameters parameters) {
+    public SecurityAnalysisInput setParameters(SecurityAnalysisParametersInterface parameters) {
         Objects.requireNonNull(parameters);
         this.parameters = parameters;
         return this;

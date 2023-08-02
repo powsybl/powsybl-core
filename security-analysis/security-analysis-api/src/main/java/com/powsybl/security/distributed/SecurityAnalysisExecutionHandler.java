@@ -10,12 +10,11 @@ import com.google.common.io.ByteSource;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.security.SecurityAnalysisParameters;
+import com.powsybl.security.SecurityAnalysisParametersInterface;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.action.ActionList;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
-import com.powsybl.security.json.JsonSecurityAnalysisParameters;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
@@ -242,11 +241,11 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
     /**
      * Add parameters file option, and write it as JSON to working directory.
      */
-    private static void addParametersFile(SecurityAnalysisCommandOptions options, Path workingDir, SecurityAnalysisParameters parameters) {
+    private static void addParametersFile(SecurityAnalysisCommandOptions options, Path workingDir, SecurityAnalysisParametersInterface parameters) {
         Path parametersPath = getParametersPath(workingDir);
         options.parametersFile(parametersPath);
         LOGGER.debug("Writing parameters to file {}", parametersPath);
-        JsonSecurityAnalysisParameters.write(parameters, parametersPath);
+        parameters.write(parametersPath);
     }
 
     /**

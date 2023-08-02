@@ -21,7 +21,6 @@ import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationFilter;
-import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
@@ -47,7 +46,7 @@ public interface DynamicSecurityAnalysisProvider extends Versionable, PlatformCo
                                                   LimitViolationDetector detector,
                                                   LimitViolationFilter filter,
                                                   ComputationManager computationManager,
-                                                  SecurityAnalysisParameters parameters,
+                                                  DynamicSecurityAnalysisParameters parameters,
                                                   ContingenciesProvider contingenciesProvider,
                                                   List<SecurityAnalysisInterceptor> interceptors,
                                                   List<OperatorStrategy> operatorStrategies,
@@ -59,15 +58,15 @@ public interface DynamicSecurityAnalysisProvider extends Versionable, PlatformCo
         return Optional.empty();
     }
 
-    default Optional<Extension<SecurityAnalysisParameters>> loadSpecificParameters(PlatformConfig config) {
+    default Optional<Extension<DynamicSecurityAnalysisParameters>> loadSpecificParameters(PlatformConfig config) {
         return Optional.empty();
     }
 
-    default Optional<Extension<SecurityAnalysisParameters>> loadSpecificParameters(Map<String, String> properties) {
+    default Optional<Extension<DynamicSecurityAnalysisParameters>> loadSpecificParameters(Map<String, String> properties) {
         return Optional.empty();
     }
 
-    default void updateSpecificParameters(Extension<SecurityAnalysisParameters> extension, Map<String, String> properties) {
+    default void updateSpecificParameters(Extension<DynamicSecurityAnalysisParameters> extension, Map<String, String> properties) {
     }
 
     default Optional<String> getLoadFlowProviderName() {

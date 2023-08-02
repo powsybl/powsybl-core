@@ -28,12 +28,12 @@ import com.powsybl.security.*;
 import com.powsybl.security.action.ActionList;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
+import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import com.powsybl.security.execution.SecurityAnalysisExecution;
 import com.powsybl.security.execution.SecurityAnalysisExecutionBuilder;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.execution.SecurityAnalysisInputBuildStrategy;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
-import com.powsybl.security.json.JsonSecurityAnalysisParameters;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategyList;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
@@ -181,7 +181,7 @@ public class SecurityAnalysisTool implements Tool {
 
     static void updateInput(ToolOptions options, SecurityAnalysisExecutionInput inputs) {
         options.getPath(PARAMETERS_FILE_OPTION)
-            .ifPresent(f -> JsonSecurityAnalysisParameters.update(inputs.getParameters(), f));
+            .ifPresent(f -> inputs.getParameters().update(f));
 
         options.getPath(DYNAMIC_MODELS_FILE_OPTION)
                 .map(FileUtil::asByteSource)
@@ -319,14 +319,14 @@ public class SecurityAnalysisTool implements Tool {
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         run(line, context,
             createBuilder(PlatformConfig.defaultConfig()),
-            SecurityAnalysisParameters::load,
+            isDynamic(line) ? SecurityAnalysisParameters::load : DynamicSecurityAnalysisParameters::load,
             new ImportersServiceLoader(),
             TableFormatterConfig::load);
     }
 
     void run(CommandLine line, ToolRunningContext context,
              SecurityAnalysisExecutionBuilder executionBuilder,
-             Supplier<SecurityAnalysisParameters> parametersLoader,
+             Supplier<SecurityAnalysisParametersInterface> parametersLoader,
              ImportersLoader importersLoader,
              Supplier<TableFormatterConfig> tableFormatterConfigLoader) throws Exception {
 
@@ -377,5 +377,9 @@ public class SecurityAnalysisTool implements Tool {
             Writer writer = new OutputStreamWriter(context.getOutputStream());
             Security.print(result, network, writer, new AsciiTableFormatterFactory(), tableFormatterConfigLoader.get());
         }
+    }
+
+    private boolean isDynamic(CommandLine line) {
+        return line.hasOption(DYNAMIC_MODELS_FILE_OPTION);
     }
 }

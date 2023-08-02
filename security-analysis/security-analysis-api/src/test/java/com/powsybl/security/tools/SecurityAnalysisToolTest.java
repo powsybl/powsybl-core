@@ -173,7 +173,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
         SecurityAnalysisInput input = SecurityAnalysisTool.buildPreprocessedInput(executionInput, LimitViolationFilter::new, factory);
 
-        assertSame(executionInput.getParameters(), input.getParameters());
+        assertSame(executionInput.getParameters(), input.getStaticParameters());
         assertSame(executionInput.getNetworkVariant(), input.getNetworkVariant());
 
         verify(factory, times(0)).newPreprocessor(any());

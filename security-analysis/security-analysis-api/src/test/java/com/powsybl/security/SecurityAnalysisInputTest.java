@@ -47,12 +47,11 @@ class SecurityAnalysisInputTest {
                 .isSameAs(network);
         assertThat(inputs.getNetworkVariant().getVariantId())
                 .isEqualTo(INITIAL_VARIANT_ID);
-        assertThat(inputs.getParameters())
+        assertThat(inputs.getStaticParameters())
                 .isSameAs(params);
         assertThat(inputs.getContingenciesProvider())
                 .isSameAs(provider);
         assertThat(inputs.getLimitViolationDetector())
                 .isSameAs(detector);
     }
-
 }
