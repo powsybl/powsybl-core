@@ -599,6 +599,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public int getBusCount() {
+            return graph.getVertexCount();
+        }
+
+        @Override
         public ConfiguredBus getBus(String id) {
             return BusBreakerVoltageLevel.this.getBus(id, false);
         }

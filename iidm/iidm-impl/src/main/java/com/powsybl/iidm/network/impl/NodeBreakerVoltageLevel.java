@@ -229,6 +229,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return id2bus.values();
         }
 
+        private int getBusCount() {
+            return id2bus.size();
+        }
+
         private CalculatedBus getBus(int node) {
             return node2bus[node];
         }
@@ -319,6 +323,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         Collection<CalculatedBus> getBuses() {
             updateCache();
             return busCache.getBuses();
+        }
+
+        int getBusCount() {
+            updateCache();
+            return busCache.getBusCount();
         }
 
         CalculatedBus getBus(int node) {
@@ -983,6 +992,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public Stream<Bus> getBusStream() {
             return variants.get().calculatedBusBreakerTopology.getBuses().stream().map(Function.identity());
+        }
+
+        @Override
+        public int getBusCount() {
+            return variants.get().calculatedBusBreakerTopology.getBusCount();
         }
 
         @Override
