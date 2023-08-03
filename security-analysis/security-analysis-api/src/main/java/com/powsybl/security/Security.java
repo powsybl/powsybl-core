@@ -418,7 +418,7 @@ public final class Security {
                     // pre-contingency violations filtering
                     List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
                             .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
-                            .collect(Collectors.toList());
+                            .toList();
 
                     return filteredLimitViolations2.size();
                 }
@@ -471,7 +471,7 @@ public final class Security {
                 // pre-contingency violations filtering
                 List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
                         .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
-                        .collect(Collectors.toList());
+                        .toList();
 
                 if (!filteredLimitViolations2.isEmpty() || postContingencyResult.getStatus() != PostContingencyComputationStatus.CONVERGED) {
                     formatter.writeCell(postContingencyResult.getContingency().getId())

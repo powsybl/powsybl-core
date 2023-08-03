@@ -182,14 +182,14 @@ public class TimeSeriesTable {
 
             for (DoubleTimeSeries timeSeries : doubleTimeSeries.stream()
                                                                .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
-                                                               .collect(Collectors.toList())) {
+                                                               .toList()) {
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = doubleTimeSeriesNames.add(timeSeries.getMetadata().getName());
                 timeSeriesIndexDoubleOrString.add(i);
             }
             for (StringTimeSeries timeSeries : stringTimeSeries.stream()
                                                                .sorted(Comparator.comparing(ts -> ts.getMetadata().getName()))
-                                                               .collect(Collectors.toList())) {
+                                                               .toList()) {
                 timeSeriesMetadata.add(timeSeries.getMetadata());
                 int i = stringTimeSeriesNames.add(timeSeries.getMetadata().getName());
                 timeSeriesIndexDoubleOrString.add(i);

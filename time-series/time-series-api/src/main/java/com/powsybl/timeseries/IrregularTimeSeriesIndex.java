@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -114,7 +113,6 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public String toString() {
-        return "IrregularTimeSeriesIndex(times=" + stream().collect(Collectors.toList())
-                + ")";
+        return "IrregularTimeSeriesIndex(times=" + stream().toList() + ")";
     }
 }

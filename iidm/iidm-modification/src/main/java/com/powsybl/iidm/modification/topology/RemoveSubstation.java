@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.notFoundSubstationReport;
 import static com.powsybl.iidm.modification.util.ModificationReports.removedSubstationReport;
@@ -47,7 +46,7 @@ public class RemoveSubstation extends AbstractNetworkModification {
             }
             return;
         }
-        List<String> vlIds = substation.getVoltageLevelStream().map(VoltageLevel::getId).collect(Collectors.toList());
+        List<String> vlIds = substation.getVoltageLevelStream().map(VoltageLevel::getId).toList();
         vlIds.forEach(id -> new RemoveVoltageLevel(id).apply(network, true, reporter));
         substation.remove();
         removedSubstationReport(reporter, substationId);

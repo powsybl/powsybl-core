@@ -74,7 +74,7 @@ public final class ExtensionAdderProviders {
         }
         List<ExtensionAdderProvider> providers = providersForName.stream()
                 .filter(typeFilter)
-                .collect(Collectors.toList());
+                .toList();
 
         if (providers.isEmpty()) {
             LOGGER.error(
