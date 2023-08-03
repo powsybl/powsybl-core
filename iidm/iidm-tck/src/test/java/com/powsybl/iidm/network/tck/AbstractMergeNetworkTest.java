@@ -45,6 +45,20 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
+    public void failMergeValidationLevelLowerThanMin() {
+        n1.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        addSubstationAndVoltageLevel();
+        n1.getVoltageLevel("vl1").newLoad()
+                .setId("unchecked1")
+                .setBus("b1")
+                .setConnectableBus("b1")
+                .add();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n1));
+        assertTrue(e.getMessage().contains("cannot be merged: its validation level is lower than the minimum acceptable " +
+                "validation level of network"));
+    }
+
+    @Test
     public void xnodeNonCompatible() {
         addSubstationAndVoltageLevel();
         addDanglingLines("dl", "code", "dl", "deco");
