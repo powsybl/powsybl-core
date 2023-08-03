@@ -24,9 +24,9 @@ public final class LimitViolationHelper {
         Objects.requireNonNull(limitViolation);
 
         Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
-        if (identifiable instanceof Branch branch) {
+        if (identifiable instanceof Branch<?> branch) {
             return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();
-        } else if (identifiable instanceof Injection injection) {
+        } else if (identifiable instanceof Injection<?> injection) {
             return injection.getTerminal().getVoltageLevel();
         } else if (identifiable instanceof VoltageLevel voltageLevel) {
             return voltageLevel;

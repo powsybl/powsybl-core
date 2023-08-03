@@ -208,7 +208,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof AbstractTimeSeries other) {
+        if (obj instanceof AbstractTimeSeries<?, ?, ?> other) {
             return metadata.equals(other.metadata) && chunks.equals(other.chunks);
         }
         return false;

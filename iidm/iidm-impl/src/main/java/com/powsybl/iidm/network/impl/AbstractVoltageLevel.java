@@ -142,10 +142,10 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         T connectable = getNetwork().getIndex().get(id, aClass);
         if (connectable == null) {
             return null;
-        } else if (connectable instanceof Injection injection) {
+        } else if (connectable instanceof Injection<?> injection) {
             return injection.getTerminal().getVoltageLevel() == this
                     ? connectable : null;
-        } else if (connectable instanceof Branch branch) {
+        } else if (connectable instanceof Branch<?> branch) {
             return branch.getTerminal1().getVoltageLevel() == this
                     || branch.getTerminal2().getVoltageLevel() == this
                     ? connectable : null;
@@ -424,7 +424,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         Objects.requireNonNull(otherTerminal);
         Objects.requireNonNull(nextTerminals);
         Connectable otherConnectable = otherTerminal.getConnectable();
-        if (otherConnectable instanceof Branch branch) {
+        if (otherConnectable instanceof Branch<?> branch) {
             if (branch.getTerminal1() == otherTerminal) {
                 nextTerminals.add((TerminalExt) branch.getTerminal2());
             } else if (branch.getTerminal2() == otherTerminal) {

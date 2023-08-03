@@ -7,14 +7,8 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Optional;
@@ -61,7 +55,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 Identifiable<?> i = context.network().getIdentifiable(equipmentId);
                 if (i == null) {
                     vl = context.network().getVoltageLevel(p.getId("EquipmentContainer")); // happens in BusBranch when the voltage limit is linked to a busbarSection
-                } else if (i instanceof Injection injection) {
+                } else if (i instanceof Injection<?> injection) {
                     vl = injection.getTerminal().getVoltageLevel();
                 }
             }
