@@ -577,6 +577,26 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public Bus getConfiguredBus(String id) {
+        return index.get(id, ConfiguredBusImpl.class);
+    }
+
+    @Override
+    public Iterable<Bus> getConfiguredBuses() {
+        return Collections.unmodifiableCollection(index.getAll(ConfiguredBusImpl.class));
+    }
+
+    @Override
+    public Stream<Bus> getConfiguredBusStream() {
+        return index.getAll(ConfiguredBusImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getConfiguredBusCount() {
+        return index.getAll(ConfiguredBusImpl.class).size();
+    }
+
+    @Override
     public AbstractHvdcConverterStation<?> getHvdcConverterStation(String id) {
         AbstractHvdcConverterStation<?> converterStation = getLccConverterStation(id);
         if (converterStation == null) {

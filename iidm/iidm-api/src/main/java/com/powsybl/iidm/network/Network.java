@@ -990,6 +990,31 @@ public interface Network extends Container<Network> {
     int getBusbarSectionCount();
 
     /**
+     * Get a configured bus from its id or an alias.
+     * @param id the id or an alias of the configured bus
+     * @return the configured bus
+     */
+    Bus getConfiguredBus(String id);
+
+    /**
+     * Get all configured buses.
+     * @return all configured buses
+     */
+    Iterable<Bus> getConfiguredBuses();
+
+    /**
+     * Get all configured buses.
+     * @return all configured buses
+     */
+    Stream<Bus> getConfiguredBusStream();
+
+    /**
+     * Get the configured bus count.
+     * @return the configured bus count.
+     */
+    int getConfiguredBusCount();
+
+    /**
      * Get all HVDC converter stations.
      * @return all HVDC converter stations
      */
