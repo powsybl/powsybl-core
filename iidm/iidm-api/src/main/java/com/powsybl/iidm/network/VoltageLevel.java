@@ -716,6 +716,59 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          */
         int getBusCount();
 
+        // XXX hack, should we add an API to get the topologykind from the view ?
+        // determine if we are in busbreakertopology by creating a bus adder
+        // and catching the exception
+        private void throwIfNotSupportedNodeBreakerTopologyException() {
+            try {
+                newBus();
+            } catch (PowsyblException e) {
+                // don't use the exception from newBus(), it's an implementation detail
+                throw new PowsyblException("Not supported in a node/breaker topology");
+            }
+        }
+
+        /**
+         * Get configured buses.
+         *
+         * @throws com.powsybl.commons.PowsyblException if topology kind is NODE_BREAKER.
+         */
+        default Iterable<Bus> getConfiguredBuses() {
+            throwIfNotSupportedNodeBreakerTopologyException();
+            return getBuses();
+        }
+
+        /**
+         * Get configured buses.
+         *
+         * @throws com.powsybl.commons.PowsyblException if topology kind is NODE_BREAKER.
+         */
+        default Stream<Bus> getConfiguredBusStream() {
+            throwIfNotSupportedNodeBreakerTopologyException();
+            return getBusStream();
+        }
+
+        /**
+         * Get configured bus count.
+         *
+         * @throws com.powsybl.commons.PowsyblException if topology kind is NODE_BREAKER.
+         */
+        default int getConfiguredBusCount() {
+            throwIfNotSupportedNodeBreakerTopologyException();
+            return getBusCount();
+        }
+
+        /**
+         * Get a configured bus.
+         *
+         * @param id the id of the configured bus
+         * @throws com.powsybl.commons.PowsyblException if topology kind is NODE_BREAKER.
+         */
+        default Bus getConfiguredBus(String id) {
+            throwIfNotSupportedNodeBreakerTopologyException();
+            return getBus(id);
+        }
+
         /**
          * Get a bus.
          * <p>
