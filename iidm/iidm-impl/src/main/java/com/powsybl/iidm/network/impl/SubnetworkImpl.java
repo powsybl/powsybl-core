@@ -738,8 +738,6 @@ public class SubnetworkImpl extends AbstractNetwork {
         // - the element is in the subnetwork to detach and its regulating or phase/ratio regulation terminal is not
         // - the terminal is in the subnetwork, but not its element (this is trickier)
 
-        //TODO subnetworks: Retrieve parent ValidationLevels?
-
         LOGGER.info("Detaching of {} done in {} ms", id, System.currentTimeMillis() - start);
         return detachedNetwork;
     }

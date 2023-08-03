@@ -227,6 +227,79 @@ public abstract class AbstractMergeNetworkTest {
         assertEquals("dl_name", merge.getTieLine("dl").getNameOrId());
     }
 
+    @Test
+    public void testValidationLevelWhenMerging2Eq() {
+        addCommonSubstationsAndVoltageLevels();
+        n1.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        n1.getVoltageLevel("vl1").newLoad()
+                .setId("unchecked1")
+                .setBus("b1")
+                .setConnectableBus("b1")
+                .add();
+        n2.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        n2.getVoltageLevel("vl2").newLoad()
+                .setId("unchecked2")
+                .setBus("b2")
+                .setConnectableBus("b2")
+                .add();
+
+        // merge(n1, n2)
+        merge = Network.create(MERGE, n1, n2);
+
+        assertValidationLevels(ValidationLevel.EQUIPMENT);
+    }
+
+    @Test
+    public void testValidationLevelWhenMergingEqAndSsh() {
+        addCommonSubstationsAndVoltageLevels();
+        n1.getVoltageLevel("vl1").newLoad()
+                .setId("unchecked1")
+                .setBus("b1")
+                .setConnectableBus("b1")
+                .setP0(1.0).setQ0(1.0)
+                .add();
+        n2.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        n2.getVoltageLevel("vl2").newLoad()
+                .setId("unchecked2")
+                .setBus("b2")
+                .setConnectableBus("b2")
+                .add();
+
+        // merge(n1, n2)
+        merge = Network.create(MERGE, n1, n2);
+
+        assertValidationLevels(ValidationLevel.EQUIPMENT);
+    }
+
+    @Test
+    public void testValidationLevelWhenMerging2Ssh() {
+        addCommonSubstationsAndVoltageLevels();
+        n1.getVoltageLevel("vl1").newLoad()
+                .setId("unchecked1")
+                .setBus("b1")
+                .setConnectableBus("b1")
+                .setP0(1.0).setQ0(1.0)
+                .add();
+        n2.getVoltageLevel("vl2").newLoad()
+                .setId("unchecked2")
+                .setBus("b2")
+                .setConnectableBus("b2")
+                .setP0(1.0).setQ0(1.0)
+                .add();
+
+        // merge(n1, n2)
+        merge = Network.create(MERGE, n1, n2);
+
+        assertValidationLevels(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+    }
+
+    void assertValidationLevels(ValidationLevel expected) {
+        // The validation level must be the same between the root network and its subnetworks
+        assertEquals(expected, merge.getValidationLevel());
+        assertEquals(expected, merge.getSubnetwork(N1).getValidationLevel());
+        assertEquals(expected, merge.getSubnetwork(N2).getValidationLevel());
+    }
+
     private void addSubstation(Network network, String substationId) {
         network.newSubstation()
                             .setId(substationId)
