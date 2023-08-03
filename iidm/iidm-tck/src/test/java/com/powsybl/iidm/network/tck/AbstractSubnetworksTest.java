@@ -11,6 +11,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -268,6 +273,50 @@ public abstract class AbstractSubnetworksTest {
         PowsyblException e = assertThrows(ValidationException.class, () -> addThreeWindingsTransformer(subnetwork1, "twt",
                 "vl1_0", 380, "vl1_1", 90, "vl2_0", 90));
         assertTrue(e.getMessage().contains("The 3 windings of the transformer shall belong to the same subnetwork"));
+    }
+
+    @ParameterizedTest()
+    @MethodSource("networkParameters")
+    public void testValidationWithSubnetworkChanges(String networkId) {
+        Network validationOperationsNetwork = network.getId().equals(networkId) ? network : network.getSubnetwork(networkId);
+        VoltageLevel voltageLevel1 = addVoltageLevel(subnetwork1.newVoltageLevel().setTopologyKind(TopologyKind.BUS_BREAKER), "vl1");
+
+        assertValidationLevels(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        validationOperationsNetwork.runValidationChecks();
+        validationOperationsNetwork.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        assertValidationLevels(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        String bus = getBusId("vl1");
+        voltageLevel1.newLoad()
+                .setId("unchecked")
+                .setP0(1.0).setQ0(1.0)
+                .setBus(bus)
+                .setConnectableBus(bus)
+                .add();
+        assertValidationLevels(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        validationOperationsNetwork.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        Load unchecked2 = voltageLevel1.newLoad()
+                .setId("unchecked2")
+                .setBus(bus)
+                .setConnectableBus(bus)
+                .add();
+        assertValidationLevels(ValidationLevel.EQUIPMENT);
+        unchecked2.setP0(0.0).setQ0(0.0);
+        assertValidationLevels(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+    }
+
+    void assertValidationLevels(ValidationLevel expected) {
+        // The validation level must be the same between the root network and its subnetworks
+        assertEquals(expected, network.getValidationLevel());
+        assertEquals(expected, subnetwork1.getValidationLevel());
+        assertEquals(expected, subnetwork2.getValidationLevel());
+    }
+
+    static Stream<Arguments> networkParameters() {
+        return Stream.of(
+                Arguments.of("Root"),
+                Arguments.of("Sub1"),
+                Arguments.of("Sub2")
+        );
     }
 
     private Substation addSubstation(Network network, String substationId) {
