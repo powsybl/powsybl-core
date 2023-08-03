@@ -221,9 +221,18 @@ public final class TopologyModificationUtils {
         createNodeBreakerSwitches(node1, middleNode, node2, namingStrategy, prefix, view, false);
     }
 
+    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, NamingStrategy namingStrategy, String prefix, int idNum, VoltageLevel.NodeBreakerView view) {
+        createNodeBreakerSwitches(node1, middleNode, node2, namingStrategy, prefix, idNum, view, false);
+    }
+
     static void createNodeBreakerSwitches(int node1, int middleNode, int node2, NamingStrategy namingStrategy, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
         createNBBreaker(node1, middleNode, namingStrategy.getBreakerId(prefix), view, open);
         createNBDisconnector(middleNode, node2, namingStrategy.getDisconnectorId(prefix), view, open);
+    }
+
+    static void createNodeBreakerSwitches(int node1, int middleNode, int node2, NamingStrategy namingStrategy, String prefix, int idNum, VoltageLevel.NodeBreakerView view, boolean open) {
+        createNBBreaker(node1, middleNode, namingStrategy.getBreakerId(prefix, idNum), view, open);
+        createNBDisconnector(middleNode, node2, namingStrategy.getDisconnectorId(prefix, idNum), view, open);
     }
 
     static void createNodeBreakerSwitches(int node1, int middleNode, int node2, String prefix, VoltageLevel.NodeBreakerView view) {

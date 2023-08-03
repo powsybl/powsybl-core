@@ -62,6 +62,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * @param line1Name                When the initial line is cut, the line segment at side 1 has a given name.
      * @param line2Id                  When the initial line is cut, the line segment at side 2 has a non-null given ID.
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
+     * @param namingStrategy           The naming strategy to use.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
      * <p>

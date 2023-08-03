@@ -143,6 +143,16 @@ public class DefaultNamingStrategy implements NamingStrategy {
     }
 
     @Override
+    public String getBusId(String prefixId, String suffixId) {
+        return prefixId + SEPARATOR + BUS_NAMEBASE + SEPARATOR + suffixId;
+    }
+
+    @Override
+    public String getBusId(String prefixId, int idNum) {
+        return prefixId + SEPARATOR + BUS_NAMEBASE + SEPARATOR + idNum;
+    }
+
+    @Override
     public String getFeederId(String id, String voltageLevelId) {
         return id + SEPARATOR + voltageLevelId;
     }

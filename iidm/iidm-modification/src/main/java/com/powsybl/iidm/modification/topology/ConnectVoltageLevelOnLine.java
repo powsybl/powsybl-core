@@ -26,6 +26,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
 public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModification<ConnectVoltageLevelOnLine> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectVoltageLevelOnLine.class);
+    private final NamingStrategy namingStrategy;
 
     /**
      * Constructor.
@@ -39,12 +40,14 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
      * @param line2Id        The non-null ID of the line segment at side 2.
      * @param line2Name      The name of the line segment at side 2.
      * @param line           The line on which the voltage level is to be attached.
+     * @param namingStrategy           The naming strategy to use.
      *
      * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     ConnectVoltageLevelOnLine(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
-                              String line2Id, String line2Name, Line line) {
+                              String line2Id, String line2Name, Line line, NamingStrategy namingStrategy) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
+        this.namingStrategy = namingStrategy;
     }
 
     @Override
@@ -69,11 +72,11 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
             Bus bus = network.getBusBreakerView().getBus(bbsOrBusId);
             Bus bus1 = voltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(line.getId() + "_BUS_1")
+                    .setId(namingStrategy.getBusId(line.getId(), 1))
                     .add();
             Bus bus2 = voltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(line.getId() + "_BUS_2")
+                    .setId(namingStrategy.getBusId(line.getId(), 2))
                     .add();
             createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), line.getId(), voltageLevel.getBusBreakerView());
             adder1.setBus2(bus1.getId());
@@ -82,8 +85,8 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
             BusbarSection bbs = network.getBusbarSection(bbsOrBusId);
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", line.getId(), voltageLevel.getNodeBreakerView());
-            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, "_2", line.getId(), voltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, namingStrategy, line.getId(), 1, voltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, namingStrategy, line.getId(), 2, voltageLevel.getNodeBreakerView());
             adder1.setNode2(firstAvailableNode);
             adder2.setNode1(firstAvailableNode + 3);
         } else {

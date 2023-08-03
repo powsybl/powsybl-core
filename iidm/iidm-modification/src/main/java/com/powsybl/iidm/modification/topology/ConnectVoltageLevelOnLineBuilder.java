@@ -24,9 +24,11 @@ public class ConnectVoltageLevelOnLineBuilder {
 
     private Line line = null;
 
+    private NamingStrategy namingStrategy = new DefaultNamingStrategy();
+
     public ConnectVoltageLevelOnLine build() {
         return new ConnectVoltageLevelOnLine(positionPercent, bbsOrBusId, line1Id, line1Name,
-                line2Id, line2Name, line);
+                line2Id, line2Name, line, namingStrategy);
     }
 
     public ConnectVoltageLevelOnLineBuilder withPositionPercent(double positionPercent) {
@@ -67,6 +69,16 @@ public class ConnectVoltageLevelOnLineBuilder {
         if (line2Id == null) {
             line2Id = line.getId() + "_2";
         }
+        return this;
+    }
+
+    /**
+     * Set the naming strategy to be used. By default, the DefaultNamingStrategy is used.
+     *
+     * @param namingStrategy Naming strategy to be used for the different elements created with the present builder
+     */
+    public ConnectVoltageLevelOnLineBuilder withNamingStrategy(NamingStrategy namingStrategy) {
+        this.namingStrategy = namingStrategy;
         return this;
     }
 }

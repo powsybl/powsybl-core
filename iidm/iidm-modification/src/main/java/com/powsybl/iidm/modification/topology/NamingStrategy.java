@@ -57,5 +57,9 @@ public interface NamingStrategy {
 
     String getBusId(String id);
 
+    String getBusId(String prefixId, String suffixId);
+
+    String getBusId(String prefixId, int idNum);
+
     String getFeederId(String id, String voltageLevelId);
 }
