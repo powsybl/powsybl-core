@@ -14,8 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  */
@@ -25,9 +23,14 @@ class NodeBreakerPropertiesOnBusTest extends AbstractXmlConverterTest {
         Network network = FictitiousSwitchFactory.create();
         network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.getVoltageLevel("C").getBusView().getBus("C_0").setProperty("key_test", "value_test");
-        roundTripTest(network,
-                NetworkXml::writeAndValidate,
-                NetworkXml::validateAndRead,
-                getVersionedNetworkPath("nodebreaker-busproperties.xml", CURRENT_IIDM_XML_VERSION));
+
+        // can export and reload a network in current and older XIIDM versions
+        for (IidmXmlVersion version : IidmXmlVersion.values()) {
+            roundTripXmlTest(network,
+                (n, p) -> NetworkXml.writeAndValidate(n,
+                        new ExportOptions().setVersion(version.toString(".")), p),
+                NetworkXml::read,
+                getVersionedNetworkPath("nodebreaker-busproperties.xml", version));
+        }
     }
 }

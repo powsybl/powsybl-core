@@ -126,7 +126,8 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
 
     private static void writeCalculatedBus(Bus bus, Set<Integer> nodes, NetworkXmlWriterContext context) {
         try {
-            if (bus.hasProperty()) {
+            boolean writeProperties = context.getVersion().compareTo(IidmXmlVersion.V_1_11) >= 0 && bus.hasProperty();
+            if (writeProperties) {
                 context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), "bus");
             } else {
                 context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "bus");
@@ -134,7 +135,7 @@ class VoltageLevelXml extends AbstractSimpleIdentifiableXml<VoltageLevel, Voltag
             XmlUtil.writeDouble("v", bus.getV(), context.getWriter());
             XmlUtil.writeDouble("angle", bus.getAngle(), context.getWriter());
             context.getWriter().writeAttribute("nodes", StringUtils.join(nodes.toArray(), ','));
-            if (bus.hasProperty()) {
+            if (writeProperties) {
                 PropertiesXml.write(bus, context);
                 context.getWriter().writeEndElement();
             }
