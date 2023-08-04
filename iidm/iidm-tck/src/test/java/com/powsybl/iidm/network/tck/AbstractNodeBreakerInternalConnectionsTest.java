@@ -31,10 +31,10 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         createNetwork(network, all);
         VoltageLevel vl = network.getVoltageLevel(S5_10K_V);
 
-        assertEquals(6, vl.getNodeBreakerView().getInternalConnectionCount());
+        assertEquals(10, vl.getNodeBreakerView().getInternalConnectionCount());
         List<InternalConnection> internalConnections = vl.getNodeBreakerView().getInternalConnectionStream().collect(Collectors.toList());
-        int[] expecteds1 = new int[]{7, 6, 4, 5, 9, 8};
-        int[] expecteds2 = new int[]{0, 3, 3, 2, 2, 1};
+        int[] expecteds1 = new int[]{7, 6, 4, 5, 9, 8, 1, 3, 2, 2};
+        int[] expecteds2 = new int[]{0, 3, 3, 2, 2, 1, 10, 11, 12, 13};
         assertEquals(expecteds1.length, expecteds2.length);
         for (int i = 0; i < expecteds1.length; i++) {
             assertEquals(expecteds1[i], internalConnections.get(i).getNode1());
@@ -48,24 +48,26 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         Iterator<Integer> nodeIterator2 = vl.getNodeBreakerView().getNodesInternalConnectedTo(2).iterator();
         assertEquals(5, (int) nodeIterator2.next());
         assertEquals(9, (int) nodeIterator2.next());
+        assertEquals(12, (int) nodeIterator2.next());
+        assertEquals(13, (int) nodeIterator2.next());
         assertFalse(nodeIterator2.hasNext());
 
         List<Integer> nodesInternallyConnectedTo3 = vl.getNodeBreakerView().getNodeInternalConnectedToStream(3).boxed().collect(Collectors.toList());
-        assertEquals(Arrays.asList(6, 4), nodesInternallyConnectedTo3);
+        assertEquals(Arrays.asList(6, 4, 11), nodesInternallyConnectedTo3);
 
         // Find the first internal connection encountered
         InternalConnections firstInternalConnectionFound = findFirstInternalConnections(vl);
         assertEquals(new InternalConnections().add(0, 7), firstInternalConnectionFound);
 
-        // Find the internal connections encountered before encountering a terminal
-        InternalConnections foundStoppingAtTerminals = findInternalConnectionsTraverseStoppingAtTerminals(vl);
-        // If we stop traversal at terminals
-        // some internal connections are expected to be missing
+        // Find the internal connections not connected to 2 and 3 with the help of a traverser
+        InternalConnections someInternalConnections = findSomeInternalConnections(vl);
+
+        // Following internal connections are expected to be missing
         InternalConnections expectedMissing = new InternalConnections().add(6, 3).add(9, 2).add(4, 3);
 
         // Compute all missing connections
         Set<String> actualMissing = all.stream()
-                .filter(c -> !foundStoppingAtTerminals.contains(c))
+                .filter(c -> !someInternalConnections.contains(c))
                 .collect(Collectors.toSet());
         assertEquals(expectedMissing, actualMissing);
 
@@ -186,14 +188,22 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         addInternalConnection(topo, internalConnections, 5, 2);
         addInternalConnection(topo, internalConnections, 9, 2);
         addInternalConnection(topo, internalConnections, 8, 1);
+        addInternalConnection(topo, internalConnections, 1, 10);
+        addInternalConnection(topo, internalConnections, 3, 11);
+        addInternalConnection(topo, internalConnections, 2, 12);
+        addInternalConnection(topo, internalConnections, 2, 13);
         Substation s4 = network.newSubstation()
                 .setId("S4")
                 .setCountry(Country.FR)
                 .add();
-        s4.newVoltageLevel()
+        VoltageLevel vl2 = s4.newVoltageLevel()
                 .setId("S4 10kV")
                 .setNominalV(10.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl2.getNodeBreakerView().newBusbarSection()
+                .setId("NODE40")
+                .setNode(1)
                 .add();
         network.newLine()
                 .setId("L6")
@@ -207,6 +217,12 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
                 .setB1(0)
                 .setG2(0)
                 .setB2(0)
+                .add();
+        vl2.getNodeBreakerView().newSwitch()
+                .setId("DISCONNECTOR1")
+                .setNode1(0)
+                .setNode2(1)
+                .setKind(SwitchKind.DISCONNECTOR)
                 .add();
     }
 
@@ -230,12 +246,12 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         }
     }
 
-    private InternalConnections findInternalConnectionsTraverseStoppingAtTerminals(VoltageLevel vl) {
+    private InternalConnections findSomeInternalConnections(VoltageLevel vl) {
         InternalConnections cs = new InternalConnections();
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
         topo.traverse(topo.getNodes(), (n1, sw, n2) -> {
-            if (topo.getTerminal(n2) == null) {
+            if (n2 != 3 && n2 != 2) {
                 if (sw == null) {
                     cs.add(n1, n2);
                 }

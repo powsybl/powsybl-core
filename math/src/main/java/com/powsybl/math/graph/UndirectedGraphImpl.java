@@ -454,6 +454,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             throw new PowsyblException("Encountered array is too small");
         }
 
+        if (encountered[v]) {
+            return true;
+        }
         TIntArrayList[] adjacencyList = getAdjacencyList();
         TIntArrayList adjacentEdges = adjacencyList[v];
         encountered[v] = true;
@@ -463,18 +466,16 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             Edge<E> edge = edges.get(e);
             int v1 = edge.getV1();
             int v2 = edge.getV2();
-            if (!encountered[v1]) {
+            if (v == v2) {
                 TraverseResult traverserResult = traverser.traverse(v2, e, v1);
                 if (traverserResult == TraverseResult.CONTINUE) {
-                    encountered[v1] = true;
                     keepGoing = traverse(v1, traverser, encountered);
                 } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                     keepGoing = false;
                 }
-            } else if (!encountered[v2]) {
+            } else if (v == v1) {
                 TraverseResult traverserResult = traverser.traverse(v1, e, v2);
                 if (traverserResult == TraverseResult.CONTINUE) {
-                    encountered[v2] = true;
                     keepGoing = traverse(v2, traverser, encountered);
                 } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                     keepGoing = false;
