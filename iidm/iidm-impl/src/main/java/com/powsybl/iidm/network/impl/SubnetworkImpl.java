@@ -705,7 +705,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         boundaryElements.stream()
                 .filter(i -> i.getType() == IdentifiableType.TIE_LINE)
                 .map(TieLineImpl.class::cast)
-                .forEach(TieLineImpl::remove);
+                .forEach(t -> t.remove(true));
 
         // Create a new NetworkImpl and transfer the extensions to it
         NetworkImpl detachedNetwork = new NetworkImpl(getId(), getNameOrId(), getSourceFormat());
@@ -737,8 +737,6 @@ public class SubnetworkImpl extends AbstractNetwork {
         // to handle it later. If so, note that there are 2 possible cases:
         // - the element is in the subnetwork to detach and its regulating or phase/ratio regulation terminal is not
         // - the terminal is in the subnetwork, but not its element (this is trickier)
-
-        //TODO subnetworks: Retrieve parent ValidationLevels?
 
         LOGGER.info("Detaching of {} done in {} ms", id, System.currentTimeMillis() - start);
         return detachedNetwork;
@@ -775,29 +773,18 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
-        return getPotentialBoundaryElements()
-                .filter(this::isBoundaryElement)
-                .collect(Collectors.toSet());
-    }
-
-    /**
-     * Return all the potential boundary elements: elements defined in the current subnetwork or in the parent network
-     * and which type corresponds to an element linking multiple substations (line, tie line or Hvdc line).
-     *
-     * @return a {@link Stream} of the potential boundary elements
-     */
-    private Stream<Identifiable<?>> getPotentialBoundaryElements() {
-        // transformers cannot link to different subnetworks for the moment.
+        // transformers cannot link different subnetworks for the moment.
         Stream<Line> lines = parent.getLineStream();
         Stream<TieLine> tieLineStream = parent.getTieLineStream();
         Stream<HvdcLine> hvdcLineStream = parent.getHvdcLineStream();
 
-        Stream<Identifiable<?>> elementsToCheck = Stream.of(lines, tieLineStream, hvdcLineStream).flatMap(Function.identity());
-
-        return elementsToCheck.filter(i -> {
-            Network network = i.getParentNetwork();
-            return network == parent;
-        });
+        return Stream.of(lines, tieLineStream, hvdcLineStream)
+                .flatMap(Function.identity())
+                .map(o -> (Identifiable<?>) o)
+                // Boundary elements are not entirely contained by the subnetwork => they are registered in the parent network
+                .filter(i -> i.getParentNetwork() == parent)
+                .filter(this::isBoundaryElement)
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -814,15 +801,17 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     private boolean isBoundary(Branch<?> branch) {
-        boolean containsVoltageLevel1 = contains(branch.getTerminal1().getVoltageLevel());
-        boolean containsVoltageLevel2 = contains(branch.getTerminal2().getVoltageLevel());
-        return containsVoltageLevel1 && !containsVoltageLevel2 ||
-                !containsVoltageLevel1 && containsVoltageLevel2;
+        return isBoundary(branch.getTerminal1(), branch.getTerminal2());
     }
 
     private boolean isBoundary(HvdcLine hvdcLine) {
-        boolean containsVoltageLevel1 = contains(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel());
-        boolean containsVoltageLevel2 = contains(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel());
+        return isBoundary(hvdcLine.getConverterStation1().getTerminal(),
+                hvdcLine.getConverterStation2().getTerminal());
+    }
+
+    private boolean isBoundary(Terminal terminal1, Terminal terminal2) {
+        boolean containsVoltageLevel1 = contains(terminal1.getVoltageLevel());
+        boolean containsVoltageLevel2 = contains(terminal2.getVoltageLevel());
         return containsVoltageLevel1 && !containsVoltageLevel2 ||
                 !containsVoltageLevel1 && containsVoltageLevel2;
     }

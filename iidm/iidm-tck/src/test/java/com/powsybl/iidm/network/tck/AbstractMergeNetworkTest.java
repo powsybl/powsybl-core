@@ -87,6 +87,10 @@ public abstract class AbstractMergeNetworkTest {
         assertNotNull(tieLine);
         assertEquals("dl1_name + dl2_name", tieLine.getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", tieLine.getNameOrId());
+        assertEquals(0.0, tieLine.getDanglingLine1().getP0());
+        assertEquals(0.0, tieLine.getDanglingLine1().getQ0());
+        assertEquals(0.0, tieLine.getDanglingLine2().getP0());
+        assertEquals(0.0, tieLine.getDanglingLine2().getQ0());
 
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network subnetwork2 = merge.getSubnetwork(N2);
@@ -107,6 +111,13 @@ public abstract class AbstractMergeNetworkTest {
         checkDanglingLineStatusCount(subnetwork2, 1, 0);
         checkSubstationAndVoltageLevelCounts(merge, 1, 1);
         checkSubstationAndVoltageLevelCounts(detachedN1, 1, 1);
+        DanglingLine dl1 = detachedN1.getDanglingLine("dl1");
+        DanglingLine dl2 = merge.getDanglingLine("dl2");
+        // - P0 and Q0 of the removed tie line's underlying dangling lines were updated:
+        assertEquals(-1724.437, dl1.getP0(), 0.001);
+        assertEquals(1605.281, dl1.getQ0(), 0.001);
+        assertEquals(-1724.437, dl2.getP0(), 0.001);
+        assertEquals(1605.281, dl2.getQ0(), 0.001);
 
         // detach(n2)
         assertTrue(subnetwork2.isDetachable());
@@ -122,6 +133,11 @@ public abstract class AbstractMergeNetworkTest {
     private void checkSubstationAndVoltageLevelCounts(Network n, long substationCount, long voltageLevelCount) {
         assertEquals(substationCount, n.getSubstationCount());
         assertEquals(voltageLevelCount, n.getVoltageLevelCount());
+    }
+
+    private void checkValidPAndQ(DanglingLine dl) {
+        assertEquals(0.0, dl.getP0());
+        assertEquals(0.0, dl.getQ0());
     }
 
     @Test
@@ -211,6 +227,79 @@ public abstract class AbstractMergeNetworkTest {
         assertEquals("dl_name", merge.getTieLine("dl").getNameOrId());
     }
 
+    @Test
+    public void testValidationLevelWhenMerging2Eq() {
+        addCommonSubstationsAndVoltageLevels();
+        n1.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        n1.getVoltageLevel("vl1").newLoad()
+                .setId("unchecked1")
+                .setBus("b1")
+                .setConnectableBus("b1")
+                .add();
+        n2.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        n2.getVoltageLevel("vl2").newLoad()
+                .setId("unchecked2")
+                .setBus("b2")
+                .setConnectableBus("b2")
+                .add();
+
+        // merge(n1, n2)
+        merge = Network.create(MERGE, n1, n2);
+
+        assertValidationLevels(ValidationLevel.EQUIPMENT);
+    }
+
+    @Test
+    public void testValidationLevelWhenMergingEqAndSsh() {
+        addCommonSubstationsAndVoltageLevels();
+        n1.getVoltageLevel("vl1").newLoad()
+                .setId("unchecked1")
+                .setBus("b1")
+                .setConnectableBus("b1")
+                .setP0(1.0).setQ0(1.0)
+                .add();
+        n2.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        n2.getVoltageLevel("vl2").newLoad()
+                .setId("unchecked2")
+                .setBus("b2")
+                .setConnectableBus("b2")
+                .add();
+
+        // merge(n1, n2)
+        merge = Network.create(MERGE, n1, n2);
+
+        assertValidationLevels(ValidationLevel.EQUIPMENT);
+    }
+
+    @Test
+    public void testValidationLevelWhenMerging2Ssh() {
+        addCommonSubstationsAndVoltageLevels();
+        n1.getVoltageLevel("vl1").newLoad()
+                .setId("unchecked1")
+                .setBus("b1")
+                .setConnectableBus("b1")
+                .setP0(1.0).setQ0(1.0)
+                .add();
+        n2.getVoltageLevel("vl2").newLoad()
+                .setId("unchecked2")
+                .setBus("b2")
+                .setConnectableBus("b2")
+                .setP0(1.0).setQ0(1.0)
+                .add();
+
+        // merge(n1, n2)
+        merge = Network.create(MERGE, n1, n2);
+
+        assertValidationLevels(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+    }
+
+    void assertValidationLevels(ValidationLevel expected) {
+        // The validation level must be the same between the root network and its subnetworks
+        assertEquals(expected, merge.getValidationLevel());
+        assertEquals(expected, merge.getSubnetwork(N1).getValidationLevel());
+        assertEquals(expected, merge.getSubnetwork(N2).getValidationLevel());
+    }
+
     private void addSubstation(Network network, String substationId) {
         network.newSubstation()
                             .setId(substationId)
@@ -254,7 +343,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     private static void addDanglingLine(Network n, String voltageLevelId, String id, String code, String connectableBus, String bus) {
-        n.getVoltageLevel(voltageLevelId).newDanglingLine()
+        DanglingLine dl = n.getVoltageLevel(voltageLevelId).newDanglingLine()
                 .setId(id)
                 .setName(id + "_name")
                 .setConnectableBus(connectableBus)
@@ -267,6 +356,14 @@ public abstract class AbstractMergeNetworkTest {
                 .setB(5.0)
                 .setUcteXnodeCode(code)
                 .add();
+        Terminal t = dl.getTerminal();
+        t.setP(1.);
+        t.setQ(2.);
+        Bus b = t.getBusView().getBus();
+        if (b != null) {
+            b.setAngle(3.);
+            b.setV(4.);
+        }
     }
 
     @Test

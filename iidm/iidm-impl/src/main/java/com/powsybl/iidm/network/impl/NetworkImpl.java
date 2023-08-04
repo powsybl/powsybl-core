@@ -157,8 +157,22 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         if (networks == null || networks.length < 2) {
             throw new IllegalArgumentException("At least 2 networks are expected");
         }
-        Network mergedNetwork = new NetworkImpl(id, name, networks[0].getSourceFormat());
+
+        NetworkImpl mergedNetwork = new NetworkImpl(id, name, networks[0].getSourceFormat());
+
+        // Use the less restrictive validation level for the merged network
+        ValidationLevel minLevel = mergedNetwork.getMinValidationLevel(); // default min validation level
+        for (Network n : networks) {
+            if (n instanceof NetworkImpl) {
+                minLevel = ValidationLevel.min(minLevel, ((NetworkImpl) n).getMinValidationLevel());
+            }
+        }
+        mergedNetwork.setMinimumAcceptableValidationLevel(minLevel);
+
         mergedNetwork.merge(networks);
+
+        //TODO The following line won't be necessary anymore once the TODO in "merge(Network)" is resolved.
+        mergedNetwork.invalidateValidationLevel();
         return mergedNetwork;
     }
 
@@ -907,7 +921,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         // this check must not be done on the number of variants but on the size
         // of the internal variant array because the network can have only
-        // one variant but an internal array with a size greater that one and
+        // one variant but an internal array with a size greater than one and
         // some re-usable variants
         if (variantManager.getVariantArraySize() != 1 || otherNetwork.variantManager.getVariantArraySize() != 1) {
             throw new PowsyblException("Merging of multi-variants network is not supported");
@@ -915,7 +929,12 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         long start = System.currentTimeMillis();
 
-        // check mergeability
+        //TODO This merge method doesn't consider validation levels. What is the best option among the following
+        // when we try to merge a network which validation level is lower than the current network's minimal validation level?
+        // - (1) Throw an Exception,
+        // - (2) or decrease the current network's minimal validation level and compute (or invalidate) the validation level?
+
+        // check there's no id existing in both networks
         Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
