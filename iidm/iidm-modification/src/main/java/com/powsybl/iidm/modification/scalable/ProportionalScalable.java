@@ -6,12 +6,12 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -61,6 +61,11 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     private final List<ScalablePercentage> scalablePercentageList;
 
+    private ProportionalScalable(){
+        // Initialisation if the list
+        this.scalablePercentageList = new ArrayList<>();
+    }
+
     ProportionalScalable(List<Float> percentages, List<Scalable> scalables) {
         checkPercentages(percentages, scalables);
         this.scalablePercentageList = new ArrayList<>();
@@ -69,8 +74,85 @@ class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
+    public ProportionalScalable onLoads(VariationParameters variationParameters, Collection<Load> loads) {
+        // Initialisation of the ProportionalScalable
+        ProportionalScalable proportionalScalable = new ProportionalScalable();
+
+        // The variation mode chosen changes how the percentages are computed
+        switch (variationParameters.getVariationMode()) {
+            case PROPORTIONAL_TO_P0 -> {
+                // Proportional to the P0 of the loads
+                AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
+                loads.forEach(load ->
+                    sumP0.set(sumP0.get() + load.getP0())
+                );
+                loads.forEach(load ->
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onLoad(load.getId()), (float) (load.getP0() * 100.0 / sumP0.get()))));
+            }
+            case REGULAR_DISTRIBUTION ->
+                // Each load get the same
+                loads.forEach(load ->
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onLoad(load.getId()), (float) (100.0 / loads.size()))));
+            default ->
+                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for LoadScalables", variationParameters.getVariationMode()));
+        }
+        return proportionalScalable;
+    }
+
+    public ProportionalScalable onGenerators(VariationParameters variationParameters, Collection<Generator> generators) {
+        // Initialisation of the ProportionalScalable
+        ProportionalScalable proportionalScalable = new ProportionalScalable();
+
+        // The variation mode chosen changes how the percentages are computed
+        switch (variationParameters.getVariationMode()) {
+            case PROPORTIONAL_TO_TARGETP -> {
+                // Proportional to the target power of each generator
+                AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
+                generators.forEach(generator ->
+                    sumP0.set(sumP0.get() + generator.getTargetP())
+                );
+                generators.forEach(generator ->
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (generator.getTargetP() * 100.0 / sumP0.get()))));
+            }
+            case PROPORTIONAL_TO_PMAX -> {
+                // Proportional to the maximal power of each generator
+                AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
+                generators.forEach(generator ->
+                    sumP0.set(sumP0.get() + generator.getMaxP())
+                );
+                generators.forEach(generator ->
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (generator.getMaxP() * 100.0 / sumP0.get()))));
+            }
+            case PROPORTIONAL_TO_DIFF_PMAX_TARGETP -> {
+                // Proportional to the available power (Pmax - targetP) of each generator
+                AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
+                generators.forEach(generator ->
+                    sumP0.set(sumP0.get() + (generator.getMaxP() - generator.getTargetP()))
+                );
+                generators.forEach(generator ->
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) ((generator.getMaxP() - generator.getTargetP()) * 100.0 / sumP0.get()))));
+            }
+            case PROPORTIONAL_TO_DIFF_TARGETP_PMIN -> {
+                // Proportional to the used power (targetP - Pmin) of each generator
+                AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
+                generators.forEach(generator ->
+                    sumP0.set(sumP0.get() + (generator.getTargetP() - generator.getMinP()))
+                );
+                generators.forEach(generator ->
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) ((generator.getTargetP() - generator.getMinP()) * 100.0 / sumP0.get()))));
+            }
+            case REGULAR_DISTRIBUTION ->
+                // Each load get the same
+                generators.forEach(generator ->
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (100.0 / generators.size()))));
+            default ->
+                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for LoadScalables", variationParameters.getVariationMode()));
+        }
+        return proportionalScalable;
+    }
+
     Collection<Scalable> getScalables() {
-        return scalablePercentageList.stream().map(ScalablePercentage::getScalable).collect(Collectors.toList());
+        return scalablePercentageList.stream().map(ScalablePercentage::getScalable).toList();
     }
 
     private static void checkPercentages(List<Float> percentages, List<Scalable> scalables) {
