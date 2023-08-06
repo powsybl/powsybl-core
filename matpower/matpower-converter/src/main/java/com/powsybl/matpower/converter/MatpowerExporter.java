@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.matpower.model.*;
-
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -220,11 +220,112 @@ public class MatpowerExporter implements Exporter {
         createTransformerStarBuses(network, model, context);
     }
 
+    private static Optional<LoadingLimits.TemporaryLimit> findShortTermLimit(Stream<LoadingLimits.TemporaryLimit> limitStream) {
+        return limitStream.filter(limit -> limit.getAcceptableDuration() > 60)
+                .max(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
+    }
+
+    private static Optional<LoadingLimits.TemporaryLimit> findEmergencyLimit(Stream<LoadingLimits.TemporaryLimit> limitStream) {
+        return limitStream.filter(limit -> limit.getAcceptableDuration() <= 60)
+                .min(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
+    }
+
+    private static double toMva(double ampere, VoltageLevel vl) {
+        return ampere * vl.getNominalV() / 1000d;
+    }
+
+    private static void createLimits(FlowsLimitsHolder limitsHolder, VoltageLevel vl, MBranch mBranch) {
+        limitsHolder.getApparentPowerLimits().ifPresentOrElse(limits -> {
+            if (!Double.isNaN(limits.getPermanentLimit())) {
+                mBranch.setRateA(limits.getPermanentLimit());
+            }
+            findShortTermLimit(limits.getTemporaryLimits().stream())
+                    .ifPresent(limit -> mBranch.setRateB(limit.getValue()));
+            findEmergencyLimit(limits.getTemporaryLimits().stream())
+                    .ifPresent(limit -> mBranch.setRateC(limit.getValue()));
+        }, () -> {
+            // convert from current limits if present
+            limitsHolder.getCurrentLimits().ifPresent(limits -> {
+                if (!Double.isNaN(limits.getPermanentLimit())) {
+                    mBranch.setRateA(toMva(limits.getPermanentLimit(), vl));
+                }
+                findShortTermLimit(limits.getTemporaryLimits().stream())
+                        .ifPresent(limit -> mBranch.setRateB(toMva(limit.getValue(), vl)));
+                findEmergencyLimit(limits.getTemporaryLimits().stream())
+                        .ifPresent(limit -> mBranch.setRateC(toMva(limit.getValue(), vl)));
+            });
+        });
+    }
+
+    /**
+     * Arbitrary adapted on side one.
+     */
+    private static class FlowsLimitsHolderBranchAdapter implements FlowsLimitsHolder {
+
+        private final Branch<?> branch;
+
+        private final Branch.Side side;
+
+        public FlowsLimitsHolderBranchAdapter(Branch<?> branch, Branch.Side side) {
+            this.branch = branch;
+            this.side = side;
+        }
+
+        @Override
+        public Optional<CurrentLimits> getCurrentLimits() {
+            return branch.getCurrentLimits(side);
+        }
+
+        @Override
+        public CurrentLimits getNullableCurrentLimits() {
+            return branch.getNullableCurrentLimits(side);
+        }
+
+        @Override
+        public Optional<ActivePowerLimits> getActivePowerLimits() {
+            return branch.getActivePowerLimits(side);
+        }
+
+        @Override
+        public ActivePowerLimits getNullableActivePowerLimits() {
+            return branch.getNullableActivePowerLimits(side);
+        }
+
+        @Override
+        public Optional<ApparentPowerLimits> getApparentPowerLimits() {
+            return branch.getApparentPowerLimits(side);
+        }
+
+        @Override
+        public ApparentPowerLimits getNullableApparentPowerLimits() {
+            return branch.getNullableApparentPowerLimits(side);
+        }
+
+        @Override
+        public CurrentLimitsAdder newCurrentLimits() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ApparentPowerLimitsAdder newApparentPowerLimits() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public ActivePowerLimitsAdder newActivePowerLimits() {
+            throw new UnsupportedOperationException();
+        }
+    }
+
     private void createLines(Network network, MatpowerModel model, Context context) {
         for (Line l : network.getLines()) {
             Terminal t1 = l.getTerminal1();
             Terminal t2 = l.getTerminal2();
-            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context).ifPresent(model::addBranch);
+            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
+                    .ifPresent(branch -> {
+                        createLimits(new FlowsLimitsHolderBranchAdapter(l, Branch.Side.ONE), t1.getVoltageLevel(), branch);
+                        model.addBranch(branch);
+                    });
         }
     }
 
@@ -265,6 +366,7 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setR(r / zb);
                 mBranch.setX(x / zb);
                 mBranch.setB(b * zb);
+                createLimits(new FlowsLimitsHolderBranchAdapter(twt, Branch.Side.ONE), t1.getVoltageLevel(), mBranch);
                 model.addBranch(mBranch);
             }
         }
@@ -274,7 +376,11 @@ public class MatpowerExporter implements Exporter {
         for (TieLine l : network.getTieLines()) {
             Terminal t1 = l.getDanglingLine1().getTerminal();
             Terminal t2 = l.getDanglingLine2().getTerminal();
-            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context).ifPresent(model::addBranch);
+            createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
+                    .ifPresent(branch -> {
+                        createLimits(new FlowsLimitsHolderBranchAdapter(l, Branch.Side.ONE), t1.getVoltageLevel(), branch);
+                        model.addBranch(branch);
+                    });
         }
     }
 
@@ -336,6 +442,7 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setR(dl.getR() / zb);
                 mBranch.setX(dl.getX() / zb);
                 mBranch.setB(dl.getB() * zb);
+                createLimits(dl, t.getVoltageLevel(), mBranch);
                 model.addBranch(mBranch);
             }
         }
@@ -389,6 +496,7 @@ public class MatpowerExporter implements Exporter {
         mBranch.setX(x / zb);
         mBranch.setB(b * zb);
         mBranch.setRatio(1d / rho);
+        createLimits(leg, leg.getTerminal().getVoltageLevel(), mBranch);
         return mBranch;
     }
 
