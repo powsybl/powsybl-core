@@ -985,6 +985,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
 
         @Override
+        public boolean isComputed() {
+            return true;
+        }
+
+        @Override
         public Iterable<Bus> getBuses() {
             return Collections.unmodifiableCollection(variants.get().calculatedBusBreakerTopology.getBuses());
         }

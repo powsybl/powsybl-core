@@ -589,6 +589,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
 
         @Override
+        public boolean isComputed() {
+            return false;
+        }
+
+        @Override
         public Iterable<Bus> getBuses() {
             return Iterables.unmodifiableIterable(Iterables.transform(graph.getVerticesObj(), Functions.identity()));
         }
