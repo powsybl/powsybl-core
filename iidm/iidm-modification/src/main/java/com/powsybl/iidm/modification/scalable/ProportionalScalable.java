@@ -6,13 +6,14 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * Scalable that divides scale proportionally between multiple scalable.
@@ -74,81 +75,133 @@ class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    public ProportionalScalable onLoads(VariationParameters variationParameters, Collection<Load> loads) {
+    public double scaleOnLoads(Network network,
+                               Reporter subReporter,
+                               VariationParameters variationParameters,
+                               Collection<Load> loads) {
         // Initialisation of the ProportionalScalable
         ProportionalScalable proportionalScalable = new ProportionalScalable();
 
+        // Global current value
+        AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
+
         // The variation mode chosen changes how the percentages are computed
-        switch (variationParameters.getVariationMode()) {
+        switch (variationParameters.getDistributionMode()) {
             case PROPORTIONAL_TO_P0 -> {
                 // Proportional to the P0 of the loads
-                AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
                 loads.forEach(load ->
                     sumP0.set(sumP0.get() + load.getP0())
                 );
                 loads.forEach(load ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onLoad(load.getId()), (float) (load.getP0() * 100.0 / sumP0.get()))));
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onLoad(load.getId()), (float) (load.getP0() * 100.0 / sumP0.get())))
+                );
             }
             case REGULAR_DISTRIBUTION ->
                 // Each load get the same
-                loads.forEach(load ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onLoad(load.getId()), (float) (100.0 / loads.size()))));
+                loads.forEach(load -> {
+                    sumP0.set(sumP0.get() + load.getP0());
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onLoad(load.getId()), (float) (100.0 / loads.size())));
+                });
             default ->
-                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for LoadScalables", variationParameters.getVariationMode()));
+                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for LoadScalables", variationParameters.getDistributionMode()));
         }
-        return proportionalScalable;
+
+        // Variation asked globally
+        double variationAsked = Scalable.getVariationAsked(variationParameters, sumP0);
+
+        // Do the repartition
+        double variationDone;
+        switch (variationParameters.getReactiveVariationMode()) {
+            case CONSTANT_Q ->
+                variationDone = proportionalScalable.scale(network, variationAsked, new ScalingParameters().setScalingConvention(Scalable.ScalingConvention.LOAD));
+            case TAN_PHI_FIXED ->
+                variationDone = proportionalScalable.scale(network, variationAsked, new ScalingParameters().setScalingConvention(Scalable.ScalingConvention.LOAD).setConstantPowerFactor(true));
+            default ->
+                throw new IllegalArgumentException(String.format("Reactive Variation mode %s not recognised", variationParameters.getReactiveVariationMode()));
+        }
+
+        // Report
+        Scalable.createReport(subReporter,
+            "scalingApplied",
+            String.format("Successfully scaled on loads using mode %s with a variation value asked of %s. Variation done is %s",
+                variationParameters.getDistributionMode(), variationAsked, variationDone),
+            TypedValue.INFO_SEVERITY);
+        return variationDone;
     }
 
-    public ProportionalScalable onGenerators(VariationParameters variationParameters, Collection<Generator> generators) {
+    public double scaleOnGenerators(Network network,
+                                    Reporter subReporter,
+                                    VariationParameters variationParameters,
+                                    Collection<Generator> generators) {
         // Initialisation of the ProportionalScalable
         ProportionalScalable proportionalScalable = new ProportionalScalable();
 
+        // Global current power
+        AtomicReference<Double> sumP = new AtomicReference<>(0D);
+
         // The variation mode chosen changes how the percentages are computed
-        switch (variationParameters.getVariationMode()) {
+        switch (variationParameters.getDistributionMode()) {
             case PROPORTIONAL_TO_TARGETP -> {
                 // Proportional to the target power of each generator
-                AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
                 generators.forEach(generator ->
-                    sumP0.set(sumP0.get() + generator.getTargetP())
+                    sumP.set(sumP.get() + generator.getTargetP())
                 );
                 generators.forEach(generator ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (generator.getTargetP() * 100.0 / sumP0.get()))));
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (generator.getTargetP() * 100.0 / sumP.get()))));
             }
             case PROPORTIONAL_TO_PMAX -> {
                 // Proportional to the maximal power of each generator
-                AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
                 generators.forEach(generator ->
-                    sumP0.set(sumP0.get() + generator.getMaxP())
+                    sumP.set(sumP.get() + generator.getMaxP())
                 );
                 generators.forEach(generator ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (generator.getMaxP() * 100.0 / sumP0.get()))));
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (generator.getMaxP() * 100.0 / sumP.get()))));
             }
             case PROPORTIONAL_TO_DIFF_PMAX_TARGETP -> {
                 // Proportional to the available power (Pmax - targetP) of each generator
-                AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
                 generators.forEach(generator ->
-                    sumP0.set(sumP0.get() + (generator.getMaxP() - generator.getTargetP()))
+                    sumP.set(sumP.get() + (generator.getMaxP() - generator.getTargetP()))
                 );
                 generators.forEach(generator ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) ((generator.getMaxP() - generator.getTargetP()) * 100.0 / sumP0.get()))));
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) ((generator.getMaxP() - generator.getTargetP()) * 100.0 / sumP.get()))));
             }
             case PROPORTIONAL_TO_DIFF_TARGETP_PMIN -> {
                 // Proportional to the used power (targetP - Pmin) of each generator
-                AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
                 generators.forEach(generator ->
-                    sumP0.set(sumP0.get() + (generator.getTargetP() - generator.getMinP()))
+                    sumP.set(sumP.get() + (generator.getTargetP() - generator.getMinP()))
                 );
                 generators.forEach(generator ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) ((generator.getTargetP() - generator.getMinP()) * 100.0 / sumP0.get()))));
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) ((generator.getTargetP() - generator.getMinP()) * 100.0 / sumP.get()))));
             }
             case REGULAR_DISTRIBUTION ->
                 // Each load get the same
-                generators.forEach(generator ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (100.0 / generators.size()))));
+                generators.forEach(generator -> {
+                    sumP.set(sumP.get() + (generator.getTargetP() - generator.getMinP()));
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (100.0 / generators.size())));
+                });
             default ->
-                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for LoadScalables", variationParameters.getVariationMode()));
+                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for LoadScalables", variationParameters.getDistributionMode()));
         }
-        return proportionalScalable;
+
+        // Variation asked globally
+        double variationAsked = Scalable.getVariationAsked(variationParameters, sumP);
+
+        // Do the repartition
+        double variationDone = proportionalScalable.scale(
+            network,
+            variationAsked,
+            new ScalingParameters()
+                .setScalingConvention(ScalingConvention.GENERATOR)
+                .setIterative(true));
+
+        // Report
+        Scalable.createReport(subReporter,
+            "scalingApplied",
+            String.format("Successfully scaled on generators using mode %s with a variation value asked of %s. Variation done is %s",
+                variationParameters.getDistributionMode(), variationAsked, variationDone),
+            TypedValue.INFO_SEVERITY);
+
+        return variationDone;
     }
 
     Collection<Scalable> getScalables() {
@@ -210,8 +263,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
             Scalable s = scalablePercentage.getScalable();
             double iterationPercentage = scalablePercentage.getIterationPercentage();
             double askedOnScalable = iterationPercentage / 100 * asked;
-            double doneOnScalable = 0;
-            doneOnScalable = s.scale(n, askedOnScalable, parameters);
+            double doneOnScalable = s.scale(n, askedOnScalable, parameters);
             if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
                 scalablePercentage.setIterationPercentage(0);
             }
