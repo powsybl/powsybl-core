@@ -17,6 +17,9 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.DistributionMode.*;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.VariationType.DELTA_P;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.VariationType.TARGET_P;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -61,18 +64,39 @@ class ScalingParametersTest {
     }
 
     @Test
+    void fullSecondConstructorTest() {
+        ScalingParameters parameters = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, true, true, true,
+            PROPORTIONAL_TO_P0, DELTA_P, 100.0);
+        assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
+        assertTrue(parameters.isConstantPowerFactor());
+        assertTrue(parameters.isIterative());
+        assertTrue(parameters.isReconnect());
+        assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertEquals(PROPORTIONAL_TO_P0, parameters.getDistributionMode());
+        assertEquals(DELTA_P, parameters.getVariationType());
+        assertEquals(100.0, parameters.getVariationValue(), 0.0);
+    }
+
+    @Test
     void settersTest() {
         ScalingParameters parameters = new ScalingParameters()
                 .setScalingConvention(Scalable.ScalingConvention.LOAD)
                 .setConstantPowerFactor(true)
                 .setIterative(true)
                 .setReconnect(true)
-                .setAllowsGeneratorOutOfActivePowerLimits(true);
+                .setAllowsGeneratorOutOfActivePowerLimits(true)
+                .setDistributionMode(PROPORTIONAL_TO_P0)
+                .setVariationType(TARGET_P)
+                .setVariationValue(100.0);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertTrue(parameters.isConstantPowerFactor());
         assertTrue(parameters.isIterative());
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertEquals(PROPORTIONAL_TO_P0, parameters.getDistributionMode());
+        assertEquals(TARGET_P, parameters.getVariationType());
+        assertEquals(100.0, parameters.getVariationValue(), 0.0);
     }
 
     @Test

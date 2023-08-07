@@ -90,7 +90,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
                                Collection<Load> loads) {
         // Check that scalingParameters is coherent with the type of elements given
         if (scalingParameters.getScalingConvention() != ScalingConvention.LOAD) {
-            throw new PowsyblException(String.format("Scaling convention in the parameters cannot be %s for generators", scalingParameters.getScalingConvention()));
+            throw new PowsyblException(String.format("Scaling convention in the parameters cannot be %s for loads", scalingParameters.getScalingConvention()));
         }
 
         // Initialisation of the ProportionalScalable
@@ -106,9 +106,17 @@ class ProportionalScalable extends AbstractCompoundScalable {
                 loads.forEach(load ->
                     sumP0.set(sumP0.get() + load.getP0())
                 );
-                loads.forEach(load ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onLoad(load.getId()), (float) (load.getP0() * 100.0 / sumP0.get())))
-                );
+                if (sumP0.get() > 0.0) {
+                    loads.forEach(load ->
+                        proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onLoad(load.getId()), (float) (load.getP0() * 100.0 / sumP0.get())))
+                    );
+                } else {
+                    // If no power is currently configured, a regular distribution is used
+                    loads.forEach(load -> {
+                        sumP0.set(sumP0.get() + load.getP0());
+                        proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onLoad(load.getId()), (float) (100.0 / loads.size())));
+                    });
+                }
             }
             case REGULAR_DISTRIBUTION ->
                 // Each load get the same
@@ -156,54 +164,84 @@ class ProportionalScalable extends AbstractCompoundScalable {
         ProportionalScalable proportionalScalable = new ProportionalScalable();
 
         // Global current power
-        AtomicReference<Double> sumP = new AtomicReference<>(0D);
+        AtomicReference<Double> sumTargetP = new AtomicReference<>(0D);
 
         // The variation mode chosen changes how the percentages are computed
         switch (scalingParameters.getDistributionMode()) {
             case PROPORTIONAL_TO_TARGETP -> {
                 // Proportional to the target power of each generator
                 generators.forEach(generator ->
-                    sumP.set(sumP.get() + generator.getTargetP())
+                    sumTargetP.set(sumTargetP.get() + generator.getTargetP())
                 );
-                generators.forEach(generator ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (generator.getTargetP() * 100.0 / sumP.get()))));
+                if (sumTargetP.get() > 0.0) {
+                    generators.forEach(generator ->
+                        proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (generator.getTargetP() * 100.0 / sumTargetP.get()))));
+                } else {
+                    // If no power is currently configured, a regular distribution is used
+                    generators.forEach(generator ->
+                        proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (100.0 / generators.size())))
+                    );
+                }
             }
             case PROPORTIONAL_TO_PMAX -> {
                 // Proportional to the maximal power of each generator
+                // Global max power
+                AtomicReference<Double> sumPMax = new AtomicReference<>(0D);
+                generators.forEach(generator -> {
+                    sumTargetP.set(sumTargetP.get() + generator.getTargetP());
+                    sumPMax.set(sumPMax.get() + generator.getMaxP());
+                });
                 generators.forEach(generator ->
-                    sumP.set(sumP.get() + generator.getMaxP())
-                );
-                generators.forEach(generator ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (generator.getMaxP() * 100.0 / sumP.get()))));
+                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (generator.getMaxP() * 100.0 / sumPMax.get()))));
             }
             case PROPORTIONAL_TO_DIFF_PMAX_TARGETP -> {
                 // Proportional to the available power (Pmax - targetP) of each generator
-                generators.forEach(generator ->
-                    sumP.set(sumP.get() + (generator.getMaxP() - generator.getTargetP()))
-                );
-                generators.forEach(generator ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) ((generator.getMaxP() - generator.getTargetP()) * 100.0 / sumP.get()))));
+                // Global available power
+                AtomicReference<Double> sumAvailableP = new AtomicReference<>(0D);
+                generators.forEach(generator -> {
+                    sumTargetP.set(sumTargetP.get() + generator.getTargetP());
+                    sumAvailableP.set(sumAvailableP.get() + (generator.getMaxP() - generator.getTargetP()));
+                });
+                if (sumAvailableP.get() > 0.0) {
+                    generators.forEach(generator ->
+                        proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) ((generator.getMaxP() - generator.getTargetP()) * 100.0 / sumAvailableP.get()))));
+                } else {
+                    // If no power is currently available, a regular distribution is used
+                    generators.forEach(generator ->
+                        proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (100.0 / generators.size())))
+                    );
+                }
             }
             case PROPORTIONAL_TO_DIFF_TARGETP_PMIN -> {
                 // Proportional to the used power (targetP - Pmin) of each generator
-                generators.forEach(generator ->
-                    sumP.set(sumP.get() + (generator.getTargetP() - generator.getMinP()))
-                );
-                generators.forEach(generator ->
-                    proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) ((generator.getTargetP() - generator.getMinP()) * 100.0 / sumP.get()))));
+                // Global used power
+                AtomicReference<Double> sumUsedP = new AtomicReference<>(0D);
+                generators.forEach(generator -> {
+                    sumTargetP.set(sumTargetP.get() + generator.getTargetP());
+                    sumUsedP.set(sumUsedP.get() + (generator.getTargetP() - generator.getMinP()));
+                });
+                if (sumUsedP.get() > 0.0) {
+                    generators.forEach(generator ->
+                        proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) ((generator.getTargetP() - generator.getMinP()) * 100.0 / sumUsedP.get()))));
+                } else {
+                    // If no power is currently used, a regular distribution is used
+                    generators.forEach(generator ->
+                        proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (100.0 / generators.size())))
+                    );
+                }
             }
             case REGULAR_DISTRIBUTION ->
                 // Each load get the same
                 generators.forEach(generator -> {
-                    sumP.set(sumP.get() + (generator.getTargetP() - generator.getMinP()));
+                    sumTargetP.set(sumTargetP.get() + generator.getTargetP());
                     proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (100.0 / generators.size())));
                 });
             default ->
-                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for LoadScalables", scalingParameters.getDistributionMode()));
+                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for GeneratorScalables", scalingParameters.getDistributionMode()));
         }
 
         // Variation asked globally
-        double variationAsked = Scalable.getVariationAsked(scalingParameters, sumP);
+        double variationAsked = Scalable.getVariationAsked(scalingParameters, sumTargetP);
 
         // Do the repartition
         double variationDone = proportionalScalable.scale(

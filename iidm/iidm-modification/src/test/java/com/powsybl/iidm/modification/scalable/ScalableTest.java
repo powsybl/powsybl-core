@@ -15,9 +15,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
+import static com.powsybl.iidm.modification.scalable.Scalable.getVariationAsked;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.VariationType.DELTA_P;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.VariationType.TARGET_P;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -570,16 +574,20 @@ class ScalableTest {
     }
 
     @Test
-    void testParameters() {
-        // Default
-        ScalingParameters parameters = new ScalingParameters();
-        assertFalse(parameters.isConstantPowerFactor());
-        assertFalse(parameters.isReconnect());
-        assertEquals(GENERATOR, parameters.getScalingConvention());
-
-        ScalingParameters parameters1 = new ScalingParameters().setScalingConvention(LOAD).setReconnect(true);
-        assertEquals(LOAD, parameters1.getScalingConvention());
-        assertTrue(parameters1.isReconnect());
-        assertFalse(parameters1.isConstantPowerFactor());
+    void testGetVariationAsked() {
+        assertEquals(
+            100.0,
+            getVariationAsked(new ScalingParameters()
+                .setVariationValue(100.0)
+                .setVariationType(DELTA_P),
+                new AtomicReference<>(80.0)),
+            0.0);
+        assertEquals(
+            20.0,
+            getVariationAsked(new ScalingParameters()
+                    .setVariationValue(100.0)
+                    .setVariationType(TARGET_P),
+                new AtomicReference<>(80.0)),
+            0.0);
     }
 }

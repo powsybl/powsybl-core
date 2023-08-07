@@ -32,10 +32,6 @@ public class ScalingParameters {
         TARGET_P
     }
 
-    private DistributionMode distributionMode = null;
-    private VariationType variationType = null;
-    private double variationValue = 0.0;
-
     public static final Scalable.ScalingConvention DEFAULT_SCALING_CONVENTION = Scalable.ScalingConvention.GENERATOR;
     public static final boolean DEFAULT_CONSTANT_POWER_FACTOR = false;
     public static final boolean DEFAULT_RECONNECT = false;
@@ -51,6 +47,10 @@ public class ScalingParameters {
     private boolean iterative = DEFAULT_ITERATIVE;
 
     private boolean allowsGeneratorOutOfActivePowerLimits = DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS;
+
+    private DistributionMode distributionMode = null;
+    private VariationType variationType = null;
+    private double variationValue = 0.0;
 
     public ScalingParameters() {
     }
@@ -141,16 +141,34 @@ public class ScalingParameters {
         return this;
     }
 
+    /**
+     * @return the mode of distribution used to allocate the power to the different elements (loads, generators, etc.)
+     */
     public DistributionMode getDistributionMode() {
         return distributionMode;
+    }
+
+    public ScalingParameters setDistributionMode(DistributionMode distributionMode) {
+        this.distributionMode = distributionMode;
+        return this;
     }
 
     public VariationType getVariationType() {
         return variationType;
     }
 
+    public ScalingParameters setVariationType(VariationType variationType) {
+        this.variationType = variationType;
+        return this;
+    }
+
     public Double getVariationValue() {
         return variationValue;
+    }
+
+    public ScalingParameters setVariationValue(double variationValue) {
+        this.variationValue = variationValue;
+        return this;
     }
 
     public static ScalingParameters load() {
