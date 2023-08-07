@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.modification.scalable.VariationParameters.VariationType.DELTA_P;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.VariationType.DELTA_P;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -238,14 +238,14 @@ public interface Scalable {
 
     /**
      * Returns the value that has to be added to the network, depending on the type of variation chosen in the parameters
-     * @param variationParameters Variation parameters including a variation type (DELTA_P or TARGET_P) and a variation value
+     * @param scalingParameters Scaling parameters including a variation type (DELTA_P or TARGET_P) and a variation value
      * @param sum current global value
      * @return the variation value if the type is DELTA_P, else the difference between the variation value and the current global value sum
      */
-    static double getVariationAsked(VariationParameters variationParameters, AtomicReference<Double> sum) {
-        return variationParameters.getVariationType() == DELTA_P
-            ? variationParameters.getVariationValue()
-            : variationParameters.getVariationValue() - sum.get();
+    static double getVariationAsked(ScalingParameters scalingParameters, AtomicReference<Double> sum) {
+        return scalingParameters.getVariationType() == DELTA_P
+            ? scalingParameters.getVariationValue()
+            : scalingParameters.getVariationValue() - sum.get();
     }
 
     public static void createReport(Reporter reporter, String reporterKey, String message, TypedValue errorSeverity) {

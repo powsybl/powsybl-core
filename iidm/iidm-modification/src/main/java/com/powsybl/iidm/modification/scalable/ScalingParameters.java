@@ -18,6 +18,24 @@ public class ScalingParameters {
 
     public static final String VERSION = "1.0";
 
+    public enum DistributionMode {
+        PROPORTIONAL_TO_TARGETP,
+        PROPORTIONAL_TO_PMAX,
+        PROPORTIONAL_TO_DIFF_PMAX_TARGETP,
+        PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
+        PROPORTIONAL_TO_P0,
+        REGULAR_DISTRIBUTION
+    }
+
+    public enum VariationType {
+        DELTA_P,
+        TARGET_P
+    }
+
+    private DistributionMode distributionMode = null;
+    private VariationType variationType = null;
+    private double variationValue = 0.0;
+
     public static final Scalable.ScalingConvention DEFAULT_SCALING_CONVENTION = Scalable.ScalingConvention.GENERATOR;
     public static final boolean DEFAULT_CONSTANT_POWER_FACTOR = false;
     public static final boolean DEFAULT_RECONNECT = false;
@@ -44,6 +62,20 @@ public class ScalingParameters {
         this.constantPowerFactor = constantPowerFactor;
         this.iterative = iterative;
         this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
+    }
+
+    public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,
+                             boolean iterative, boolean allowsGeneratorOutOfActivePowerLimits,
+                             DistributionMode distributionMode, VariationType variationType,
+                             double variationValue) {
+        this.scalingConvention = scalingConvention;
+        this.reconnect = reconnect;
+        this.constantPowerFactor = constantPowerFactor;
+        this.iterative = iterative;
+        this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
+        this.distributionMode = distributionMode;
+        this.variationType = variationType;
+        this.variationValue = variationValue;
     }
 
     /**
@@ -107,6 +139,18 @@ public class ScalingParameters {
     public ScalingParameters setAllowsGeneratorOutOfActivePowerLimits(boolean allowsGeneratorOutOfActivePowerLimits) {
         this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
         return this;
+    }
+
+    public DistributionMode getDistributionMode() {
+        return distributionMode;
+    }
+
+    public VariationType getVariationType() {
+        return variationType;
+    }
+
+    public Double getVariationValue() {
+        return variationValue;
     }
 
     public static ScalingParameters load() {

@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.Generator;
@@ -62,7 +63,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     private final List<ScalablePercentage> scalablePercentageList;
 
-    private ProportionalScalable(){
+    private ProportionalScalable() {
         // Initialisation if the list
         this.scalablePercentageList = new ArrayList<>();
     }
@@ -75,10 +76,23 @@ class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    public double scaleOnLoads(Network network,
+    /**
+     * Computes and applies a scaling variation of power on a list of loads, using variation parameters defined by the user
+     * @param network The network on which the scaling variation is applied
+     * @param subReporter The reporter
+     * @param scalingParameters The parameters for the scaling
+     * @param loads The loads on which the scaling will be done
+     * @return the value of the power that was finally allocated on the loads
+     */
+    public static double scaleOnLoads(Network network,
                                Reporter subReporter,
-                               VariationParameters variationParameters,
+                               ScalingParameters scalingParameters,
                                Collection<Load> loads) {
+        // Check that scalingParameters is coherent with the type of elements given
+        if (scalingParameters.getScalingConvention() != ScalingConvention.LOAD) {
+            throw new PowsyblException(String.format("Scaling convention in the parameters cannot be %s for generators", scalingParameters.getScalingConvention()));
+        }
+
         // Initialisation of the ProportionalScalable
         ProportionalScalable proportionalScalable = new ProportionalScalable();
 
@@ -86,7 +100,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
         AtomicReference<Double> sumP0 = new AtomicReference<>(0D);
 
         // The variation mode chosen changes how the percentages are computed
-        switch (variationParameters.getDistributionMode()) {
+        switch (scalingParameters.getDistributionMode()) {
             case PROPORTIONAL_TO_P0 -> {
                 // Proportional to the P0 of the loads
                 loads.forEach(load ->
@@ -103,36 +117,41 @@ class ProportionalScalable extends AbstractCompoundScalable {
                     proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onLoad(load.getId()), (float) (100.0 / loads.size())));
                 });
             default ->
-                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for LoadScalables", variationParameters.getDistributionMode()));
+                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for LoadScalables", scalingParameters.getDistributionMode()));
         }
 
         // Variation asked globally
-        double variationAsked = Scalable.getVariationAsked(variationParameters, sumP0);
+        double variationAsked = Scalable.getVariationAsked(scalingParameters, sumP0);
 
         // Do the repartition
-        double variationDone;
-        switch (variationParameters.getReactiveVariationMode()) {
-            case CONSTANT_Q ->
-                variationDone = proportionalScalable.scale(network, variationAsked, new ScalingParameters().setScalingConvention(Scalable.ScalingConvention.LOAD));
-            case TAN_PHI_FIXED ->
-                variationDone = proportionalScalable.scale(network, variationAsked, new ScalingParameters().setScalingConvention(Scalable.ScalingConvention.LOAD).setConstantPowerFactor(true));
-            default ->
-                throw new IllegalArgumentException(String.format("Reactive Variation mode %s not recognised", variationParameters.getReactiveVariationMode()));
-        }
+        double variationDone = proportionalScalable.scale(network, variationAsked, scalingParameters);
 
         // Report
         Scalable.createReport(subReporter,
             "scalingApplied",
             String.format("Successfully scaled on loads using mode %s with a variation value asked of %s. Variation done is %s",
-                variationParameters.getDistributionMode(), variationAsked, variationDone),
+                scalingParameters.getDistributionMode(), variationAsked, variationDone),
             TypedValue.INFO_SEVERITY);
         return variationDone;
     }
 
-    public double scaleOnGenerators(Network network,
+    /**
+     * Computes and applies a scaling variation of power on a list of generators, using variation parameters defined by the user
+     * @param network The network on which the scaling variation is applied
+     * @param subReporter The reporter
+     * @param scalingParameters The parameters for the scaling
+     * @param generators The generators on which the scaling will be done
+     * @return the value of the power that was finally allocated on the generators
+     */
+    public static double scaleOnGenerators(Network network,
                                     Reporter subReporter,
-                                    VariationParameters variationParameters,
+                                    ScalingParameters scalingParameters,
                                     Collection<Generator> generators) {
+        // Check that scalingParameters is coherent with the type of elements given
+        if (scalingParameters.getScalingConvention() != ScalingConvention.GENERATOR) {
+            throw new PowsyblException(String.format("Scaling convention in the parameters cannot be %s for generators", scalingParameters.getScalingConvention()));
+        }
+
         // Initialisation of the ProportionalScalable
         ProportionalScalable proportionalScalable = new ProportionalScalable();
 
@@ -140,7 +159,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
         AtomicReference<Double> sumP = new AtomicReference<>(0D);
 
         // The variation mode chosen changes how the percentages are computed
-        switch (variationParameters.getDistributionMode()) {
+        switch (scalingParameters.getDistributionMode()) {
             case PROPORTIONAL_TO_TARGETP -> {
                 // Proportional to the target power of each generator
                 generators.forEach(generator ->
@@ -180,25 +199,23 @@ class ProportionalScalable extends AbstractCompoundScalable {
                     proportionalScalable.scalablePercentageList.add(new ScalablePercentage(Scalable.onGenerator(generator.getId()), (float) (100.0 / generators.size())));
                 });
             default ->
-                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for LoadScalables", variationParameters.getDistributionMode()));
+                throw new IllegalArgumentException(String.format("Variation mode cannot be %s for LoadScalables", scalingParameters.getDistributionMode()));
         }
 
         // Variation asked globally
-        double variationAsked = Scalable.getVariationAsked(variationParameters, sumP);
+        double variationAsked = Scalable.getVariationAsked(scalingParameters, sumP);
 
         // Do the repartition
         double variationDone = proportionalScalable.scale(
             network,
             variationAsked,
-            new ScalingParameters()
-                .setScalingConvention(ScalingConvention.GENERATOR)
-                .setIterative(true));
+            scalingParameters);
 
         // Report
         Scalable.createReport(subReporter,
             "scalingApplied",
             String.format("Successfully scaled on generators using mode %s with a variation value asked of %s. Variation done is %s",
-                variationParameters.getDistributionMode(), variationAsked, variationDone),
+                scalingParameters.getDistributionMode(), variationAsked, variationDone),
             TypedValue.INFO_SEVERITY);
 
         return variationDone;
