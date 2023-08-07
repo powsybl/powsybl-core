@@ -51,81 +51,80 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
+                case "version" -> {
                     parser.nextToken();
                     version = parser.getValueAsString();
-                    break;
-                case "id":
+                }
+                case "id" -> {
                     parser.nextToken();
                     id = parser.readValueAs(String.class);
-                    break;
-                case "withLimitViolations":
+                }
+                case "withLimitViolations" -> {
                     parser.nextToken();
                     withLimitViolations = parser.readValueAs(Boolean.class);
-                    break;
-                case "withVoltageMap":
+                }
+                case "withVoltageMap" -> {
                     JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: voltageMap", version, "1.1");
                     parser.nextToken();
                     withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);
-                    break;
-                case "withVoltageResult":
+                }
+                case "withVoltageResult" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: withVoltageAndVoltageDropProfileResult", version, "1.1");
                     parser.nextToken();
                     withVoltageAndVoltageDropProfileResult = parser.readValueAs(Boolean.class);
-                    break;
-                case "withFeederResult":
+                }
+                case "withFeederResult" -> {
                     parser.nextToken();
                     withFeederResult = parser.readValueAs(Boolean.class);
-                    break;
-                case "studyType":
+                }
+                case "studyType" -> {
                     parser.nextToken();
                     type = StudyType.valueOf(parser.readValueAs(String.class));
-                    break;
-                case "minVoltageDropProportionalThreshold":
+                }
+                case "minVoltageDropProportionalThreshold" -> {
                     parser.nextToken();
                     minVoltageDropProportionalThreshold = parser.readValueAs(Double.class);
-                    break;
-                case "withFortescueResult":
+                }
+                case "withFortescueResult" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
                     withFortescueResult = parser.readValueAs(Boolean.class);
-                    break;
-                case "subTransientCoefficient":
+                }
+                case "subTransientCoefficient" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     subTransientCoefficient = parser.readValueAs(Double.class);
-                    break;
-                case "withLoads":
+                }
+                case "withLoads" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     withLoads = parser.readValueAs(Boolean.class);
-                    break;
-                case "withShuntCompensators":
+                }
+                case "withShuntCompensators" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     withShuntCompensators = parser.readValueAs(Boolean.class);
-                    break;
-                case "withVSCConverterStations":
+                }
+                case "withVSCConverterStations" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     withVSCConverterStations = parser.readValueAs(Boolean.class);
-                    break;
-                case "withNeutralPosition":
+                }
+                case "withNeutralPosition" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     withNeutralPosition = parser.readValueAs(Boolean.class);
-                    break;
-                case "initialVoltageProfile":
+                }
+                case "initialVoltageProfile" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     initialVoltageProfile = InitialVoltageProfile.valueOf(parser.readValueAs(String.class));
-                    break;
-                case "configuredInitialVoltageRangeCoefficients":
+                }
+                case "configuredInitialVoltageRangeCoefficients" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     coefficients = new ConfiguredInitialVoltageProfileCoefficientDeserializer().deserialize(parser);
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         return new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type,

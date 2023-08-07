@@ -30,20 +30,19 @@ public class ConfiguredInitialVoltageProfileCoefficientDeserializer {
 
             while (parser.nextToken() != JsonToken.END_OBJECT) {
                 switch (parser.getCurrentName()) {
-                    case "minimumVoltage":
+                    case "minimumVoltage" -> {
                         parser.nextToken();
                         minimumVoltage = parser.readValueAs(Double.class);
-                        break;
-                    case "maximumVoltage":
+                    }
+                    case "maximumVoltage" -> {
                         parser.nextToken();
                         maximumVoltage = parser.readValueAs(Double.class);
-                        break;
-                    case "voltageRangeCoefficient":
+                    }
+                    case "voltageRangeCoefficient" -> {
                         parser.nextToken();
                         coefficient = parser.readValueAs(Double.class);
-                        break;
-                    default:
-                        throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    }
+                    default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
                 }
             }
             coefficientList.add(new ConfiguredInitialVoltageProfileCoefficient(minimumVoltage, maximumVoltage, coefficient));

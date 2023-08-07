@@ -37,41 +37,39 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
         double proportionalLocation = Double.NaN;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "type":
+                case "type" -> {
                     parser.nextToken();
                     type = Fault.Type.valueOf(parser.readValueAs(String.class));
-                    break;
-                case "id":
+                }
+                case "id" -> {
                     parser.nextToken();
                     id = parser.readValueAs(String.class);
-                    break;
-                case "elementId":
+                }
+                case "elementId" -> {
                     parser.nextToken();
                     elementId = parser.readValueAs(String.class);
-                    break;
-                case "r":
+                }
+                case "r" -> {
                     parser.nextToken();
                     r = parser.readValueAs(Double.class);
-                    break;
-                case "x":
+                }
+                case "x" -> {
                     parser.nextToken();
                     x = parser.readValueAs(Double.class);
-                    break;
-                case "connection":
+                }
+                case "connection" -> {
                     parser.nextToken();
                     connection = Fault.ConnectionType.valueOf(parser.readValueAs(String.class));
-                    break;
-                case "faultType":
+                }
+                case "faultType" -> {
                     parser.nextToken();
                     faultType = Fault.FaultType.valueOf(parser.readValueAs(String.class));
-                    break;
-                case "proportionalLocation":
+                }
+                case "proportionalLocation" -> {
                     parser.nextToken();
                     proportionalLocation = parser.readValueAs(Double.class);
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         if (null == type) {

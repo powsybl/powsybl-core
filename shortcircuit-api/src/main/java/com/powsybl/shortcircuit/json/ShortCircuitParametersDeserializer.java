@@ -45,81 +45,80 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
         List<Extension<ShortCircuitParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
+                case "version" -> {
                     parser.nextToken();
                     version = parser.getValueAsString();
-                    break;
-                case "withLimitViolations":
+                }
+                case "withLimitViolations" -> {
                     parser.nextToken();
                     parameters.setWithLimitViolations(parser.readValueAs(Boolean.class));
-                    break;
-                case "withVoltageMap":
+                }
+                case "withVoltageMap" -> {
                     JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setWithVoltageResult(parser.readValueAs(Boolean.class));
-                    break;
-                case "withVoltageResult":
+                }
+                case "withVoltageResult" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setWithVoltageResult(parser.readValueAs(Boolean.class));
-                    break;
-                case "withFeederResult":
+                }
+                case "withFeederResult" -> {
                     parser.nextToken();
                     parameters.setWithFeederResult(parser.readValueAs(Boolean.class));
-                    break;
-                case "studyType":
+                }
+                case "studyType" -> {
                     parser.nextToken();
                     parameters.setStudyType(JsonUtil.readValue(deserializationContext, parser, StudyType.class));
-                    break;
-                case "minVoltageDropProportionalThreshold":
+                }
+                case "minVoltageDropProportionalThreshold" -> {
                     parser.nextToken();
                     parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));
-                    break;
-                case "withFortescueResult":
+                }
+                case "withFortescueResult" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setWithFortescueResult(parser.readValueAs(Boolean.class));
-                    break;
-                case "subTransientCoefficient":
+                }
+                case "subTransientCoefficient" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setSubTransientCoefficient(parser.readValueAs(Double.class));
-                    break;
-                case "withLoads":
+                }
+                case "withLoads" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithLoads(parser.readValueAs(Boolean.class));
-                    break;
-                case "withShuntCompensators":
+                }
+                case "withShuntCompensators" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithShuntCompensators(parser.readValueAs(Boolean.class));
-                    break;
-                case "withVSCConverterStations":
+                }
+                case "withVSCConverterStations" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithVSCConverterStations(parser.readValueAs(Boolean.class));
-                    break;
-                case "withNeutralPosition":
+                }
+                case "withNeutralPosition" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithNeutralPosition(parser.readValueAs(Boolean.class));
-                    break;
-                case "initialVoltageProfile":
+                }
+                case "initialVoltageProfile" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setInitialVoltageProfile(JsonUtil.readValue(deserializationContext, parser, InitialVoltageProfile.class));
-                    break;
-                case "configuredInitialVoltageRangeCoefficients":
+                }
+                case "configuredInitialVoltageRangeCoefficients" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parameters.setConfiguredInitialVoltageProfileCoefficients(new ConfiguredInitialVoltageProfileCoefficientDeserializer().deserialize(parser));
-                    break;
-                case "extensions":
+                }
+                case "extensions" -> {
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));

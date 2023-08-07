@@ -36,10 +36,10 @@ public class ShortCircuitBusResultsSerializer extends StdSerializer<ShortCircuit
         if (!Double.isNaN(busResults.getInitialVoltageMagnitude())) {
             serializerProvider.defaultSerializeField("initialVoltageMagnitude", busResults.getInitialVoltageMagnitude(), jsonGenerator);
         }
-        if (busResults instanceof FortescueShortCircuitBusResults && ((FortescueShortCircuitBusResults) busResults).getVoltage() != null) {
+        if (busResults instanceof FortescueShortCircuitBusResults fortescueShortCircuitBusResults && fortescueShortCircuitBusResults.getVoltage() != null) {
             serializerProvider.defaultSerializeField("voltage", ((FortescueShortCircuitBusResults) busResults).getVoltage(), jsonGenerator);
         }
-        if (busResults instanceof MagnitudeShortCircuitBusResults && !Double.isNaN(((MagnitudeShortCircuitBusResults) busResults).getVoltage())) {
+        if (busResults instanceof MagnitudeShortCircuitBusResults magnitudeShortCircuitBusResults && !Double.isNaN(magnitudeShortCircuitBusResults.getVoltage())) {
             serializerProvider.defaultSerializeField("voltageMagnitude", ((MagnitudeShortCircuitBusResults) busResults).getVoltage(), jsonGenerator);
         }
         if (!Double.isNaN(busResults.getVoltageDropProportional())) {
