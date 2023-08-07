@@ -89,6 +89,7 @@ class ShuntCompensatorModificationTest {
         network.getGenerator("GH2").getTerminal().disconnect();
         Generator g3 = network.getGenerator("GH3");
         g3.setTargetV(33.);
+        g3.setVoltageRegulatorOn(true);
         shunt.getTerminal().disconnect();
         shunt.setRegulatingTerminal(g3.getRegulatingTerminal());
         shunt.setTargetV(2);
