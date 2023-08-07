@@ -85,4 +85,16 @@ class ConnectGeneratorTest {
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(shuntTargetV, g2.getTargetV(), 0.01);
     }
+
+    @Test
+    void testConnectGeneratorCorrectSetPointWithNoRegulatingElmt() {
+        double busV = 123;
+        g3.getTerminal().getBusView().getBus().setV(busV);
+        g3.setVoltageRegulatorOn(false);
+        g2.setVoltageRegulatorOn(true);
+        g2.setRegulatingTerminal(g3.getTerminal());
+        new ConnectGenerator(g2.getId()).apply(network);
+        assertTrue(g2.getTerminal().isConnected());
+        assertEquals(busV, g2.getTargetV(), 0.01);
+    }
 }
