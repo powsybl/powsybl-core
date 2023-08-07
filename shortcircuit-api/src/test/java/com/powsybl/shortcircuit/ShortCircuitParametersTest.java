@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.YamlModuleConfigRepository;
 import com.powsybl.commons.extensions.AbstractExtension;
@@ -313,5 +314,15 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
     void testConfiguredInitialVoltageProfile() {
         ConfiguredInitialVoltageProfileCoefficient coeff = new ConfiguredInitialVoltageProfileCoefficient(380, 410, 1.1);
         assertEquals(380, coeff.getMinimumVoltage());
+    }
+
+    @Test
+    void testLoadFromConfigButCoefficientsMissing() throws IOException {
+        Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
+        Path cfgFile = cfgDir.resolve("wrongConfig.yml");
+
+        Files.copy(getClass().getResourceAsStream("/wrongConfig.yml"), cfgFile);
+        PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
+        assertThrows(PowsyblException.class, () -> ShortCircuitParameters.load(platformConfig));
     }
 }

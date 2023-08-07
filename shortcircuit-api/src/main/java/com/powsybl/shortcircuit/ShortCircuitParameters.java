@@ -6,6 +6,7 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
@@ -28,7 +29,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
-    // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition, initialVoltageProfile
+    // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition,
+    //                initialVoltageProfile, configuredInitialVoltageProfileCoefficients
     public static final String VERSION = "1.2";
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
@@ -72,6 +74,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setInitialVoltageProfile(config.getEnumProperty("initial-voltage-profile", InitialVoltageProfile.class, DEFAULT_INITIAL_VOLTAGE_PROFILE))
                         .setConfiguredInitialVoltageProfileCoefficients(getCoefficientsFromConfig(config)));
 
+        if (parameters.initialVoltageProfile == InitialVoltageProfile.CONFIGURED && parameters.configuredInitialVoltageProfileCoefficients.isEmpty()) {
+            throw new PowsyblException("Configured initial voltage profile but coefficients are missing.");
+        }
+
         parameters.readExtensions(platformConfig);
 
         return parameters;
@@ -79,7 +85,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     private static List<ConfiguredInitialVoltageProfileCoefficient> getCoefficientsFromConfig(ModuleConfig config) {
         List<ConfiguredInitialVoltageProfileCoefficient> coefficients = new ArrayList<>();
-        config.getStringListProperty("configured-initial-voltage-range-coefficients").forEach(voltageCoefficient -> {
+        config.getOptionalStringProperty("configured-initial-voltage-range-coefficients").ifPresent(voltageCoefficient -> {
             String[] voltageCoefficientArray = voltageCoefficient.split(" -> ");
             String[] voltages = voltageCoefficientArray[0].split("-");
             coefficients.add(new ConfiguredInitialVoltageProfileCoefficient(Integer.parseInt(voltages[0]), Integer.parseInt(voltages[1]), Double.parseDouble(voltageCoefficientArray[1])));
