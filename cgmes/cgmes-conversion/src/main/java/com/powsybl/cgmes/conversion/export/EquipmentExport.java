@@ -277,14 +277,23 @@ public final class EquipmentExport {
             if (context.isExportedEquipment(load)) {
                 LoadDetail loadDetail = load.getExtension(LoadDetail.class);
                 String className = CgmesExportUtil.loadClassName(loadDetail);
-                String loadGroup = loadGroups.groupFor(className);
-                EnergyConsumerEq.write(className,
-                        context.getNamingStrategy().getCgmesId(load),
-                        load.getNameOrId(), loadGroup,
-                        context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()),
-                        cimNamespace, writer, context);
+                String loadId = context.getNamingStrategy().getCgmesId(load);
+                if (load.getP0() < 0) {
+                    // As negative loads are not allowed, they are modeled as energy source.
+                    // Note that negative loads can be the result of network reduction and could be modeled
+                    // as equivalent injections.
+                    writeEnergySource(loadId, load.getNameOrId(), cimNamespace, writer, context);
+                } else {
+                    String loadGroup = loadGroups.groupFor(className);
+                    EnergyConsumerEq.write(className, loadId, load.getNameOrId(), loadGroup, context.getNamingStrategy().getCgmesId(load.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
+                }
             }
         }
+    }
+
+    public static void writeEnergySource(String id, String name, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("EnergySource", id, name, cimNamespace, writer, context);
+        writer.writeEndElement();
     }
 
     private static void writeGenerators(Network network, Map<Terminal, String> mapTerminal2Id, Set<String> regulatingControlsWritten, String cimNamespace, boolean writeInitialP,
@@ -360,9 +369,10 @@ public final class EquipmentExport {
             default:
                 throw new PowsyblException("Unexpected type of ReactiveLimits on the generator " + i.getNameOrId());
         }
+        double defaultRatedS = computeDefaultRatedS(i, minP, maxP);
         SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
                 context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel()),
-                generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, ratedS, kind, cimNamespace, writer, context);
+                generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, ratedS, defaultRatedS, kind, cimNamespace, writer, context);
         if (!generatingUnitsWritten.contains(generatingUnit)) {
             // We have not preserved the names of generating units
             // We name generating units based on the first machine found
@@ -371,6 +381,28 @@ public final class EquipmentExport {
                     i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), writer, context);
             generatingUnitsWritten.add(generatingUnit);
         }
+    }
+
+    private static <I extends ReactiveLimitsHolder & Injection<I>> double computeDefaultRatedS(I i, double minP, double maxP) {
+        List<Double> values = new ArrayList<>();
+        values.add(Math.abs(minP));
+        values.add(Math.abs(maxP));
+        ReactiveLimits limits = i.getReactiveLimits();
+        if (limits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+            values.add(Math.abs(i.getReactiveLimits(MinMaxReactiveLimits.class).getMinQ()));
+            values.add(Math.abs(i.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ()));
+        } else { // reactive capability curve
+            ReactiveCapabilityCurve curve = i.getReactiveLimits(ReactiveCapabilityCurve.class);
+            for (ReactiveCapabilityCurve.Point p : curve.getPoints()) {
+                values.add(Math.abs(p.getP()));
+                values.add(Math.abs(p.getMinQ()));
+                values.add(Math.abs(p.getMaxQ()));
+                values.add(Math.sqrt(p.getP() * p.getP() + p.getMinQ() * p.getMinQ()));
+                values.add(Math.sqrt(p.getP() * p.getP() + p.getMaxQ() * p.getMaxQ()));
+            }
+        }
+        values.sort(Double::compareTo);
+        return values.get(values.size() - 1);
     }
 
     private static void writeShuntCompensators(Network network, Map<Terminal, String> mapTerminal2Id, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -1036,6 +1068,11 @@ public final class EquipmentExport {
     private static void writeTerminal(Terminal t, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
                                       String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
+        // TODO(Luma) Export tie line components instead of a single equipment
+        // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
+        // We need to write the proper terminal of the single tie line that will be exported
+        // When we change the export and write the two dangling lines as separate equipment,
+        // then we should always return 1 and forget about this special case
         if (t.getConnectable() instanceof DanglingLine && ((DanglingLine) t.getConnectable()).isPaired()) {
             equipmentId = context.getNamingStrategy().getCgmesId(((DanglingLine) t.getConnectable()).getTieLine().orElseThrow(IllegalStateException::new));
         }

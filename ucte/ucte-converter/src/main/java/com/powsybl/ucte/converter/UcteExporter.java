@@ -360,8 +360,8 @@ public class UcteExporter implements Exporter {
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
         UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getUcteXnodeCode());
-        String geographicalName = tieLine.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
-        UcteNodeStatus ucteNodeStatus = getXnodeStatus(tieLine);
+        String geographicalName = mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
+        UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), STATUS_PROPERTY_KEY + "_XNode"));
         convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
     }
 
@@ -464,7 +464,7 @@ public class UcteExporter implements Exporter {
         // Create dangling line 1
         DanglingLine danglingLine1 = tieLine.getDanglingLine1();
         UcteElementId ucteElementId1 = context.getNamingStrategy().getUcteElementId(danglingLine1.getId());
-        String elementName1 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
+        String elementName1 = danglingLine1.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status1 = getStatusHalf(tieLine, Branch.Side.ONE);
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
@@ -479,7 +479,7 @@ public class UcteExporter implements Exporter {
         // Create dangling line2
         DanglingLine danglingLine2 = tieLine.getDanglingLine2();
         UcteElementId ucteElementId2 = context.getNamingStrategy().getUcteElementId(danglingLine2.getId());
-        String elementName2 = tieLine.getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
+        String elementName2 = danglingLine2.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus status2 = getStatusHalf(tieLine, Branch.Side.TWO);
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
@@ -529,8 +529,34 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addLine(ucteLine);
     }
 
+    private static String mergedProperty(Identifiable<?> identifiable1, Identifiable<?> identifiable2, String key) {
+        String value;
+        String value1 = identifiable1.getProperty(key, "");
+        String value2 = identifiable2.getProperty(key, "");
+        if (value1.equals(value2)) {
+            value = value1;
+        } else if (value1.isEmpty()) {
+            value = value2;
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", key, value2);
+        } else if (value2.isEmpty()) {
+            value = value1;
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", key, value1);
+        } else {
+            // Inconsistent values, declare the result value empty
+            value = "";
+            LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Ignoring the property on the merged line",
+                    key,
+                    value1,
+                    value2);
+        }
+        return value;
+    }
+
     private static UcteNodeStatus getXnodeStatus(Identifiable<?> identifiable) {
-        String statusNode = identifiable.getProperty(STATUS_PROPERTY_KEY + "_XNode");
+        return getXnodeStatus(identifiable.getProperty(STATUS_PROPERTY_KEY + "_XNode"));
+    }
+
+    private static UcteNodeStatus getXnodeStatus(String statusNode) {
         UcteNodeStatus ucteNodeStatus = UcteNodeStatus.REAL;
         if (statusNode != null && statusNode.equals(UcteNodeStatus.EQUIVALENT.toString())) {
             ucteNodeStatus = UcteNodeStatus.EQUIVALENT;

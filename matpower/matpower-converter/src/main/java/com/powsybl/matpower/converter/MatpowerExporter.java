@@ -7,8 +7,11 @@
 package com.powsybl.matpower.converter;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.parameters.Parameter;
+import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
+import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
@@ -40,6 +43,23 @@ public class MatpowerExporter implements Exporter {
     private static final String V_PROP = "v";
     private static final String ANGLE_PROP = "angle";
 
+    public static final String WITH_BUS_NAMES = "matpower.export.with-bus-names";
+
+    private static final Parameter WITH_BUS_NAMES_PARAMETER
+            = new Parameter(WITH_BUS_NAMES, ParameterType.BOOLEAN, "Export bus names", false);
+
+    private static final List<Parameter> PARAMETERS = List.of(WITH_BUS_NAMES_PARAMETER);
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public MatpowerExporter() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public MatpowerExporter(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
+
     @Override
     public String getFormat() {
         return MatpowerConstants.FORMAT;
@@ -52,7 +72,7 @@ public class MatpowerExporter implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return Collections.emptyList();
+        return PARAMETERS;
     }
 
     private static boolean hasSlackExtension(Bus bus) {
@@ -66,7 +86,8 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static MBus.Type getType(Bus bus, Context context) {
-        if ((context.refBusId != null && context.refBusId.equals(bus.getId())) || hasSlackExtension(bus)) {
+        if (context.refBusId != null && context.refBusId.equals(bus.getId())
+                || hasSlackExtension(bus)) {
             return MBus.Type.REF;
         }
         for (Generator g : bus.getGenerators()) {
@@ -479,30 +500,43 @@ public class MatpowerExporter implements Exporter {
     private static void addMgen(MatpowerModel model, Context context, Bus bus, VoltageLevel vl,
                                 String id, double targetV, double targetP, double minP, double maxP, double targetQ,
                                 double minQ, double maxQ, Bus regulatedBus, boolean voltageRegulation, double ratedS) {
-        MGen mGen = new MGen();
-        mGen.setNumber(context.mBusesNumbersByIds.get(bus.getId()));
-        mGen.setStatus(CONNECTED_STATUS);
-        mGen.setRealPowerOutput(targetP);
-        mGen.setReactivePowerOutput(targetQ);
-        if (voltageRegulation && regulatedBus != null) {
-            double targetVpu = targetV / vl.getNominalV();
-            if (!regulatedBus.getId().equals(bus.getId())) {
-                double oldTargetV = targetVpu;
-                targetVpu *= vl.getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
-                LOGGER.warn(
-                    "Generator remote voltage control not supported in Matpower model, rescale targetV of '{}' from {} to {}",
-                    id, oldTargetV, targetVpu);
-            }
-            mGen.setVoltageMagnitudeSetpoint(targetVpu);
+        int busNum = context.mBusesNumbersByIds.get(bus.getId());
+        MBus mBus = model.getBusByNum(busNum);
+        boolean validVoltageRegulation = voltageRegulation && regulatedBus != null;
+        // Matpower power flow does not support bus with multiple generators that do not have the same voltage regulation
+        // status. if the bus has PV type, all of its generator must have a valid voltage set point.
+        if (!validVoltageRegulation && mBus.getType() == MBus.Type.PV) {
+            // convert to load
+            mBus.setRealPowerDemand(mBus.getRealPowerDemand() - targetP);
+            mBus.setReactivePowerDemand(mBus.getReactivePowerDemand() - targetQ);
         } else {
-            mGen.setVoltageMagnitudeSetpoint(0);
+            MGen mGen = new MGen();
+            mGen.setNumber(busNum);
+            mGen.setStatus(CONNECTED_STATUS);
+            mGen.setRealPowerOutput(targetP);
+            mGen.setReactivePowerOutput(targetQ);
+            if (validVoltageRegulation) {
+                double targetVpu = targetV / vl.getNominalV();
+                if (!regulatedBus.getId().equals(bus.getId())) {
+                    double oldTargetV = targetVpu;
+                    targetVpu *= vl.getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
+                    LOGGER.warn(
+                            "Generator remote voltage control not supported in Matpower model, rescale targetV of '{}' from {} to {}",
+                            id, oldTargetV, targetVpu);
+                }
+                mGen.setVoltageMagnitudeSetpoint(targetVpu);
+            } else {
+                // we can safely set voltage setpoint to zero, because a PQ bus never go back to PV even if reactive limits
+                // are activated in Matpower power flow
+                mGen.setVoltageMagnitudeSetpoint(0);
+            }
+            mGen.setMinimumRealPowerOutput(minP);
+            mGen.setMaximumRealPowerOutput(maxP);
+            mGen.setMinimumReactivePowerOutput(minQ);
+            mGen.setMaximumReactivePowerOutput(maxQ);
+            mGen.setTotalMbase(Double.isNaN(ratedS) ? 0 : ratedS);
+            model.addGenerator(mGen);
         }
-        mGen.setMinimumRealPowerOutput(minP);
-        mGen.setMaximumRealPowerOutput(maxP);
-        mGen.setMinimumReactivePowerOutput(minQ);
-        mGen.setMaximumReactivePowerOutput(maxQ);
-        mGen.setTotalMbase(Double.isNaN(ratedS) ? 0 : ratedS);
-        model.addGenerator(mGen);
     }
 
     private static int getBranchCount(Bus bus) {
@@ -537,6 +571,8 @@ public class MatpowerExporter implements Exporter {
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(reporter);
 
+        boolean withBusNames = Parameter.readBoolean(getFormat(), parameters, WITH_BUS_NAMES_PARAMETER, defaultValueConfig);
+
         MatpowerModel model = new MatpowerModel(network.getId());
         model.setBaseMva(BASE_MVA);
         model.setVersion(FORMAT_VERSION);
@@ -558,7 +594,7 @@ public class MatpowerExporter implements Exporter {
         createVSCs(network, model, context);
 
         try (OutputStream os = dataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
-            MatpowerWriter.write(model, os);
+            MatpowerWriter.write(model, os, withBusNames);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

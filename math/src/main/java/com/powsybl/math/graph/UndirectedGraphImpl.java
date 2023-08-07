@@ -398,8 +398,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         for (int i = 0; i < adjacentEdges.size(); i++) {
             int e = adjacentEdges.getQuick(i);
             Edge<E> edge = edges.get(e);
-            if ((edge.getV1() == v1 && edge.getV2() == v2)
-                    || (edge.getV1() == v2 && edge.getV2() == v1)) {
+            if (edge.getV1() == v1 && edge.getV2() == v2
+                    || edge.getV1() == v2 && edge.getV2() == v1) {
                 edgeObjects.add(edge.getObject());
             }
         }
