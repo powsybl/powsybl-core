@@ -6,9 +6,13 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
@@ -22,6 +26,9 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
@@ -329,5 +336,76 @@ class CreateBranchFeederBaysTest extends AbstractConverterTest {
 
         ConnectablePosition<Line> position = line.getExtension(ConnectablePosition.class);
         assertNull(position);
+    }
+
+    @Test
+    void testWithReporter() throws IOException {
+        LineAdder lineAdder = nbNetwork.newLine()
+                .setId("lineTest")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0);
+        NetworkModification modification = new CreateBranchFeederBaysBuilder()
+                .withBranchAdder(lineAdder)
+                .withBusOrBusbarSectionId1("bbs5")
+                .withPositionOrder1(85)
+                .withDirection1(BOTTOM)
+                .withFeederName1("lineTestFeeder1")
+                .withBusOrBusbarSectionId2("bbs1")
+                .withPositionOrder2(75)
+                .withFeederName2("lineTestFeeder2")
+                .withDirection2(TOP)
+                .build();
+        ReporterModel reporter = new ReporterModel("reportTest", "Testing creating line reporter");
+        modification.apply(nbNetwork, reporter);
+        Optional<Report> report = reporter.getReports().stream().findFirst();
+        assertTrue(report.isPresent());
+
+        StringWriter sw = new StringWriter();
+        reporter.export(sw);
+
+        InputStream refStream = getClass().getResourceAsStream("/reporter/create-line-NB-report.txt");
+        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
+        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
+        assertEquals(refLogExport, logExport);
+    }
+
+    @Test
+    void testReporterWithoutExtension() throws IOException {
+        Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        LineAdder lineAdder = network.newLine()
+                .setId("lineTest")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0);
+        ReporterModel reporter = new ReporterModel("reportTest", "Testing creating line reporter");
+        new CreateBranchFeederBaysBuilder()
+                .withBranchAdder(lineAdder)
+                .withBusOrBusbarSectionId1("bbs5")
+                .withPositionOrder1(115)
+                .withDirection1(BOTTOM)
+                .withBusOrBusbarSectionId2("bbs1")
+                .withPositionOrder2(121)
+                .withDirection2(TOP)
+                .build()
+                .apply(network, false, reporter);
+
+        Optional<Report> report = reporter.getReports().stream().findFirst();
+        assertTrue(report.isPresent());
+
+        StringWriter sw = new StringWriter();
+        reporter.export(sw);
+
+        InputStream refStream = getClass().getResourceAsStream("/reporter/create-line-NB-without-extensions-report.txt");
+        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
+        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
+        assertEquals(refLogExport, logExport);
+
     }
 }

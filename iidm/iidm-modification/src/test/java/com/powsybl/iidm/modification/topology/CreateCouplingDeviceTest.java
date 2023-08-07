@@ -6,9 +6,13 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -22,10 +26,13 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
@@ -130,6 +137,27 @@ class CreateCouplingDeviceTest extends AbstractConverterTest {
                 .build();
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
         assertEquals(message, e2.getMessage());
+    }
+
+    @Test
+    void testReporter() throws IOException {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        new CreateCouplingDeviceBuilder()
+                .withBusOrBusbarSectionId1("bbs1")
+                .withBusOrBusbarSectionId2("bbs3")
+                .withSwitchPrefixId("sw")
+                .build().apply(network, reporter);
+        Optional<Report> report = reporter.getReports().stream().findFirst();
+        assertTrue(report.isPresent());
+
+        StringWriter sw = new StringWriter();
+        reporter.export(sw);
+
+        InputStream refStream = getClass().getResourceAsStream("/reporter/create-coupling-device-report.txt");
+        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
+        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
+        assertEquals(refLogExport, logExport);
     }
 
     private static Stream<Arguments> parameters() {

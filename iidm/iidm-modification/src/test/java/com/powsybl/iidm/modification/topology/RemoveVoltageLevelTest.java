@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.DefaultNetworkListener;
@@ -23,7 +23,8 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createBbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -56,6 +57,7 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
     @Test
     void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
+        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL1").build().apply(network);
@@ -76,9 +78,10 @@ class RemoveVoltageLevelTest extends AbstractConverterTest {
         assertNull(network.getVscConverterStation("VSC2"));
 
         RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN");
-        removeUnknown.apply(network, false, Reporter.NO_OP);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, Reporter.NO_OP));
+        removeUnknown.apply(network, false, reporter);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reporter));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
+        assertEquals("voltageLevelNotFound", reporter.getReports().iterator().next().getReportKey());
     }
 
     @Test

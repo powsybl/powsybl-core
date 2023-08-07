@@ -1,0 +1,2 @@
++ Testing reporter
+   New line testLine was created and connected on a tee point to lines CJ_1 and CJ_2 replacing line CJ.
