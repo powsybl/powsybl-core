@@ -86,7 +86,8 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static MBus.Type getType(Bus bus, Context context) {
-        if ((context.refBusId != null && context.refBusId.equals(bus.getId())) || hasSlackExtension(bus)) {
+        if (context.refBusId != null && context.refBusId.equals(bus.getId())
+                || hasSlackExtension(bus)) {
             return MBus.Type.REF;
         }
         for (Generator g : bus.getGenerators()) {
