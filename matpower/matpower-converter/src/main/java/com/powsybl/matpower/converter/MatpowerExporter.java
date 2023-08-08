@@ -220,14 +220,28 @@ public class MatpowerExporter implements Exporter {
         createTransformerStarBuses(network, model, context);
     }
 
+    private static boolean isEmergencyLimit(LoadingLimits.TemporaryLimit limit) {
+        return limit.getAcceptableDuration() <= 60;
+    }
+
     private static Optional<LoadingLimits.TemporaryLimit> findShortTermLimit(Stream<LoadingLimits.TemporaryLimit> limitStream) {
-        return limitStream.filter(limit -> limit.getAcceptableDuration() > 60)
+        return limitStream.filter(limit -> !isEmergencyLimit(limit))
                 .max(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
     }
 
     private static Optional<LoadingLimits.TemporaryLimit> findEmergencyLimit(Stream<LoadingLimits.TemporaryLimit> limitStream) {
-        return limitStream.filter(limit -> limit.getAcceptableDuration() <= 60)
+        return limitStream.filter(MatpowerExporter::isEmergencyLimit)
                 .min(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
+    }
+
+    private static Optional<LoadingLimits.TemporaryLimit> previousLimit(Collection<LoadingLimits.TemporaryLimit> limits, LoadingLimits.TemporaryLimit limit) {
+        return limits.stream().filter(l -> l.getAcceptableDuration() > limit.getAcceptableDuration())
+                .min(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
+    }
+
+    private static Optional<LoadingLimits.TemporaryLimit> nextLimit(Collection<LoadingLimits.TemporaryLimit> limits, LoadingLimits.TemporaryLimit limit) {
+        return limits.stream().filter(l -> l.getAcceptableDuration() < limit.getAcceptableDuration())
+                .max(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
     }
 
     private static double toMva(double ampere, VoltageLevel vl) {
@@ -239,20 +253,34 @@ public class MatpowerExporter implements Exporter {
             if (!Double.isNaN(limits.getPermanentLimit())) {
                 mBranch.setRateA(limits.getPermanentLimit());
             }
-            findShortTermLimit(limits.getTemporaryLimits().stream())
-                    .ifPresent(limit -> mBranch.setRateB(limit.getValue()));
+            LoadingLimits.TemporaryLimit limitB = findShortTermLimit(limits.getTemporaryLimits().stream())
+                    .flatMap(limit -> nextLimit(limits.getTemporaryLimits(), limit))
+                    .filter(limit -> !isEmergencyLimit(limit))
+                    .orElse(null);
+            if (limitB != null) {
+                mBranch.setRateB(limitB.getValue());
+            }
             findEmergencyLimit(limits.getTemporaryLimits().stream())
-                    .ifPresent(limit -> mBranch.setRateC(limit.getValue()));
+                    .flatMap(limit -> previousLimit(limits.getTemporaryLimits(), limit))
+                    .filter(limit -> limitB == null || limit.getAcceptableDuration() != limitB.getAcceptableDuration())
+                    .ifPresent(limitC -> mBranch.setRateC(limitC.getValue()));
         }, () -> {
             // convert from current limits if present
             limitsHolder.getCurrentLimits().ifPresent(limits -> {
                 if (!Double.isNaN(limits.getPermanentLimit())) {
                     mBranch.setRateA(toMva(limits.getPermanentLimit(), vl));
                 }
-                findShortTermLimit(limits.getTemporaryLimits().stream())
-                        .ifPresent(limit -> mBranch.setRateB(toMva(limit.getValue(), vl)));
+                LoadingLimits.TemporaryLimit limitB = findShortTermLimit(limits.getTemporaryLimits().stream())
+                        .flatMap(limit -> nextLimit(limits.getTemporaryLimits(), limit))
+                        .filter(limit -> !isEmergencyLimit(limit))
+                        .orElse(null);
+                if (limitB != null) {
+                    mBranch.setRateB(toMva(limitB.getValue(), vl));
+                }
                 findEmergencyLimit(limits.getTemporaryLimits().stream())
-                        .ifPresent(limit -> mBranch.setRateC(toMva(limit.getValue(), vl)));
+                        .flatMap(limit -> previousLimit(limits.getTemporaryLimits(), limit))
+                        .filter(limit -> limitB == null || limit.getAcceptableDuration() != limitB.getAcceptableDuration())
+                        .ifPresent(limitC -> mBranch.setRateC(toMva(limitC.getValue(), vl)));
             });
         });
     }

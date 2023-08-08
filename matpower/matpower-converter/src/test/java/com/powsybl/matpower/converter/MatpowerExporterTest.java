@@ -127,4 +127,25 @@ class MatpowerExporterTest extends AbstractConverterTest {
                 .add();
         exportToMatAndCompareTo(network, "/sim1-with-non-regulating-gen.json");
     }
+
+    @Test
+    void testWithCurrentLimits() throws IOException {
+        var network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        exportToMatAndCompareTo(network, "/sim1-with-current-limits.json");
+    }
+
+    @Test
+    void testWithApparentPowerLimits() throws IOException {
+        var network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        var l = network.getLine("NHV1_NHV2_1");
+        l.newApparentPowerLimits1()
+                .setPermanentLimit(1000)
+                .beginTemporaryLimit()
+                    .setName("1'")
+                    .setAcceptableDuration(60)
+                    .setValue(1500)
+                .endTemporaryLimit()
+                .add();
+        exportToMatAndCompareTo(network, "/sim1-with-apparent-power-limits.json");
+    }
 }
