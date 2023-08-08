@@ -14,11 +14,12 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.powsybl.iidm.modification.scalable.ProportionalScalable.scaleOnGenerators;
-import static com.powsybl.iidm.modification.scalable.ProportionalScalable.scaleOnLoads;
+import static com.powsybl.iidm.modification.scalable.Scalable.scaleOnGenerators;
+import static com.powsybl.iidm.modification.scalable.Scalable.scaleOnLoads;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.DistributionMode.*;
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.VariationType.DELTA_P;
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.VariationType.TARGET_P;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.*;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.TARGET_P;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -171,7 +172,7 @@ class ProportionalScalableTest {
 
         // Proportional to P0
         ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-            true, true, true, true,
+            true, true, VOLUME, true,
             PROPORTIONAL_TO_P0, DELTA_P, 100.0);
         variationDone = scaleOnLoads(network, reporterModel, scalingParametersProportional, loadList);
         assertEquals(100.0, variationDone, 1e-5);
@@ -182,7 +183,7 @@ class ProportionalScalableTest {
 
         // Regular distribution
         ScalingParameters scalingParametersRegular = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-            true, false, true, true,
+            true, false, VOLUME, true,
             REGULAR_DISTRIBUTION, TARGET_P, 100.0);
         variationDone = scaleOnLoads(network, reporterModel, scalingParametersRegular, loadList);
         assertEquals(100.0, variationDone, 1e-5);
@@ -193,7 +194,7 @@ class ProportionalScalableTest {
 
         // Error in other cases
         ScalingParameters scalingParametersError = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-            true, false, true, true,
+            true, false, VOLUME, true,
             PROPORTIONAL_TO_PMAX, TARGET_P, 100.0);
         IllegalArgumentException e0 = assertThrows(IllegalArgumentException.class, () -> scaleOnLoads(
             network,
@@ -211,7 +212,7 @@ class ProportionalScalableTest {
 
         // Proportional to Target P
         ScalingParameters scalingParametersProportionalTarget = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, true, true,
+            true, true, VOLUME, true,
             PROPORTIONAL_TO_TARGETP, DELTA_P, 100.0);
         variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalTarget, generatorList);
         assertEquals(100.0, variationDone, 1e-5);
@@ -222,7 +223,7 @@ class ProportionalScalableTest {
 
         // Proportional to P_max
         ScalingParameters scalingParametersProportionalPMax = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, true, true,
+            true, true, VOLUME, true,
             PROPORTIONAL_TO_PMAX, DELTA_P, 100.0);
         variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalPMax, generatorList);
         assertEquals(100.0, variationDone, 1e-5);
@@ -233,7 +234,7 @@ class ProportionalScalableTest {
 
         // Proportional to the available P
         ScalingParameters scalingParametersProportionalAvailableP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, true, true,
+            true, true, VOLUME, true,
             PROPORTIONAL_TO_DIFF_PMAX_TARGETP, DELTA_P, 100.0);
         variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalAvailableP, generatorList);
         assertEquals(100.0, variationDone, 1e-5);
@@ -244,7 +245,7 @@ class ProportionalScalableTest {
 
         // Regular distribution
         ScalingParameters scalingParametersRegular = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, false, true, true,
+            true, false, VOLUME, true,
             REGULAR_DISTRIBUTION, TARGET_P, 100.0);
         variationDone = scaleOnGenerators(network, reporterModel, scalingParametersRegular, generatorList);
         assertEquals(100.0, variationDone, 1e-5);
@@ -255,7 +256,7 @@ class ProportionalScalableTest {
 
         // Error in other cases
         ScalingParameters scalingParametersError = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, false, true, true,
+            true, false, VOLUME, true,
             PROPORTIONAL_TO_P0, TARGET_P, 100.0);
         IllegalArgumentException e0 = assertThrows(IllegalArgumentException.class, () -> scaleOnGenerators(
             network,
@@ -273,7 +274,7 @@ class ProportionalScalableTest {
 
         // Proportional to the used P
         ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, true, true,
+            true, true, VOLUME, true,
             PROPORTIONAL_TO_DIFF_TARGETP_PMIN, DELTA_P, 100.0);
         variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
         assertEquals(100.0, variationDone, 1e-5);
@@ -284,13 +285,49 @@ class ProportionalScalableTest {
     }
 
     @Test
+    void testScaleOnGeneratorsVentilationPriority() {
+        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        double variationDone;
+
+        // Proportional to the used P
+        ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, VENTILATION, true,
+            PROPORTIONAL_TO_TARGETP, DELTA_P, 200.0);
+        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
+        assertEquals(200.0 * 0.7, variationDone, 1e-5);
+        assertEquals(80.0 * (1.0 + 200.0 * 0.7 / 160.0), network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(50.0 * (1.0 + 200.0 * 0.7 / 160.0), network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(30.0 * (1.0 + 200.0 * 0.7 / 160.0), network.getGenerator("g3").getTargetP(), 1e-5);
+        reset();
+    }
+
+    @Test
+    void testScaleOnGeneratorsStackingUp() {
+        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        double variationDone;
+
+        // Proportional to the used P
+        ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, ONESHOT, true,
+            STACKING_UP, DELTA_P, 100.0);
+        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
+        assertEquals(100.0, variationDone, 1e-5);
+        assertEquals(150.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(80.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(30.0, network.getGenerator("g3").getTargetP(), 1e-5);
+        reset();
+    }
+
+    @Test
     void testScaleOnGeneratorsWithWrongParameter() {
         ReporterModel reporterModel = new ReporterModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
 
         // Set of parameter for loads
         ScalingParameters scalingParametersError = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-            true, false, true, true,
+            true, false, VOLUME, true,
             REGULAR_DISTRIBUTION, TARGET_P, 100.0);
 
         // Error raised
@@ -309,7 +346,7 @@ class ProportionalScalableTest {
 
         // Set of parameter for loads
         ScalingParameters scalingParametersError = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, false, true, true,
+            true, false, VOLUME, true,
             REGULAR_DISTRIBUTION, TARGET_P, 100.0);
 
         // Error raised
@@ -335,7 +372,7 @@ class ProportionalScalableTest {
 
         // Proportional to the used P
         ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, true, true,
+            true, true, VOLUME, true,
             PROPORTIONAL_TO_TARGETP, DELTA_P, 100.0);
         variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
         assertEquals(100.0, variationDone, 1e-5);
@@ -358,7 +395,7 @@ class ProportionalScalableTest {
 
         // Proportional to the used P
         ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, true, true,
+            true, true, VOLUME, true,
             PROPORTIONAL_TO_DIFF_TARGETP_PMIN, DELTA_P, 100.0);
         variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
         assertEquals(100.0, variationDone, 1e-5);
@@ -381,7 +418,7 @@ class ProportionalScalableTest {
 
         // Proportional to the used P
         ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, true, true,
+            true, true, VOLUME, true,
             PROPORTIONAL_TO_DIFF_PMAX_TARGETP, DELTA_P, 100.0);
         variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
         assertEquals(0.0, variationDone, 1e-5);
@@ -404,7 +441,7 @@ class ProportionalScalableTest {
 
         // Proportional to P0
         ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-            true, false, true, true,
+            true, false, VOLUME, true,
             PROPORTIONAL_TO_P0, DELTA_P, 100.0);
         variationDone = scaleOnLoads(network, reporterModel, scalingParametersProportional, loadList);
         assertEquals(100.0, variationDone, 1e-5);

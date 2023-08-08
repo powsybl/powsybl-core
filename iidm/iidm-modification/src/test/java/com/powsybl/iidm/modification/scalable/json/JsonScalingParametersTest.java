@@ -10,12 +10,12 @@ package com.powsybl.iidm.modification.scalable.json;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -28,6 +28,14 @@ class JsonScalingParametersTest extends AbstractConverterTest {
                 .setScalingConvention(Scalable.ScalingConvention.LOAD)
                 .setReconnect(true);
         roundTripTest(parameters, JsonScalingParameters::write, JsonScalingParameters::read, "/json/ScalingParameters.json");
+    }
+
+    @Test
+    @Disabled("TODO")
+    void testDeserializerV1dot1() throws IOException {
+        // TODO
+        assertTrue(true);
+//        ScalingParameters scalingParameters = deserialize("/json/ScalingParameters_v1.0.json")
     }
 
     @Test

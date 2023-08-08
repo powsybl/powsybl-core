@@ -20,8 +20,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
 import static com.powsybl.iidm.modification.scalable.Scalable.getVariationAsked;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.VariationType.DELTA_P;
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.VariationType.TARGET_P;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VOLUME;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -494,7 +494,7 @@ class ScalableTest {
         assertEquals(70.0, done, 0.0);
         assertEquals(70.0, network.getGenerator("g1").getTargetP(), 1e-5);
 
-        ScalingParameters parameters = new ScalingParameters().setIterative(true);
+        ScalingParameters parameters = new ScalingParameters().setPriority(VOLUME);
 
         reset();
         done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, s, unknownGenerator)).scale(network, 100.0, parameters);
@@ -545,7 +545,7 @@ class ScalableTest {
         assertEquals(54, network.getGenerator("g2").getTargetP(), 1e-3);
         assertEquals(27, network.getGenerator("g3").getTargetP(), 1e-3);
 
-        ScalingParameters parameters = new ScalingParameters().setIterative(true);
+        ScalingParameters parameters = new ScalingParameters().setPriority(VOLUME);
 
         reset();
         done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3)).scale(network, 270.0, parameters);
@@ -558,7 +558,7 @@ class ScalableTest {
     @Test
     void testScalableReuse() {
         Scalable scalable = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, g2, g3));
-        ScalingParameters parameters = new ScalingParameters().setIterative(true);
+        ScalingParameters parameters = new ScalingParameters().setPriority(VOLUME);
         double done = scalable.scale(network, 270.0, parameters);
         assertEquals(270.0, done, 0.0);
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-3);
@@ -578,15 +578,15 @@ class ScalableTest {
         assertEquals(
             100.0,
             getVariationAsked(new ScalingParameters()
-                .setVariationValue(100.0)
-                .setVariationType(DELTA_P),
+                .setScalingValue(100.0)
+                .setScalingType(DELTA_P),
                 new AtomicReference<>(80.0)),
             0.0);
         assertEquals(
             20.0,
             getVariationAsked(new ScalingParameters()
-                    .setVariationValue(100.0)
-                    .setVariationType(TARGET_P),
+                    .setScalingValue(100.0)
+                    .setScalingType(TARGET_P),
                 new AtomicReference<>(80.0)),
             0.0);
     }

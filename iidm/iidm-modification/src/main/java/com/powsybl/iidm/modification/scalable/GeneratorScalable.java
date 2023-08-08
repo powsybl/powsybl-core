@@ -154,4 +154,11 @@ class GeneratorScalable extends AbstractInjectionScalable {
 
         return done;
     }
+
+    double availablePowerInPercentageOfAsked(Network network, double asked, double scalingPercentage) {
+        var generator = network.getGenerator(id);
+        var availablePower = generator.getMaxP() - generator.getTargetP();
+        var askedPower = asked * scalingPercentage / 100;
+        return askedPower > availablePower ? availablePower / askedPower : 100.0;
+    }
 }
