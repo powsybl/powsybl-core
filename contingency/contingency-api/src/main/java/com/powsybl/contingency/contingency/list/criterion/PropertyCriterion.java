@@ -118,9 +118,9 @@ public class PropertyCriterion implements Criterion {
                 return filterSubstationOrVoltageLevel(voltageLevel1) || filterSubstationOrVoltageLevel(voltageLevel2) ||
                         filterSubstationOrVoltageLevel(voltageLevel3);
             case BOTH:
-                return (filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2)) ||
-                        (filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel3)) ||
-                        (filterSubstationOrVoltageLevel(voltageLevel2) && filterSubstationOrVoltageLevel(voltageLevel3));
+                return filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2)
+                        || filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel3)
+                        || filterSubstationOrVoltageLevel(voltageLevel2) && filterSubstationOrVoltageLevel(voltageLevel3);
             case ALL_THREE:
                 return filterSubstationOrVoltageLevel(voltageLevel1) && filterSubstationOrVoltageLevel(voltageLevel2) &&
                         filterSubstationOrVoltageLevel(voltageLevel3);

@@ -61,7 +61,7 @@ public class BusFilter {
             if (options.getTopologyLevel() == TopologyLevel.BUS_BRANCH) {
                 Bus b1 = t1.getBusView().getConnectableBus();
                 Bus b2 = t2.getBusView().getConnectableBus();
-                if ((b1 != null && b1.isInMainConnectedComponent()) && b2 != null && !b2.isInMainConnectedComponent()) {
+                if (b1 != null && b1.isInMainConnectedComponent() && b2 != null && !b2.isInMainConnectedComponent()) {
                     buses.add(b2.getId());
                 } else if (b1 != null && !b1.isInMainConnectedComponent() && b2 != null && b2.isInMainConnectedComponent()) {
                     buses.add(b1.getId());

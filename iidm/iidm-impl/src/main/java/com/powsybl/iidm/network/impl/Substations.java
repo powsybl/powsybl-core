@@ -64,7 +64,7 @@ final class Substations {
     private static void checkRemovability(Substation substation, Branch branch) {
         Substation s1 = branch.getTerminal1().getVoltageLevel().getSubstation().orElse(null);
         Substation s2 = branch.getTerminal2().getVoltageLevel().getSubstation().orElse(null);
-        if ((s1 != substation) || (s2 != substation)) {
+        if (s1 != substation || s2 != substation) {
             throw createIsolationException(substation);
         }
     }
@@ -73,7 +73,7 @@ final class Substations {
         Substation s1 = twt.getLeg1().getTerminal().getVoltageLevel().getSubstation().orElse(null);
         Substation s2 = twt.getLeg2().getTerminal().getVoltageLevel().getSubstation().orElse(null);
         Substation s3 = twt.getLeg3().getTerminal().getVoltageLevel().getSubstation().orElse(null);
-        if ((s1 != substation) || (s2 != substation) || (s3 != substation)) {
+        if (s1 != substation || s2 != substation || s3 != substation) {
             throw createIsolationException(substation);
         }
     }
@@ -83,7 +83,7 @@ final class Substations {
         if (hvdcLine != null) {
             Substation s1 = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation().orElse(null);
             Substation s2 = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getSubstation().orElse(null);
-            if ((s1 != substation) || (s2 != substation)) {
+            if (s1 != substation || s2 != substation) {
                 throw createIsolationException(substation);
             }
         }
