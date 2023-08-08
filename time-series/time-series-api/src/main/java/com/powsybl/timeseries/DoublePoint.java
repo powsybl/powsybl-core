@@ -35,7 +35,8 @@ public class DoublePoint extends AbstractPoint {
         if (obj instanceof DoublePoint) {
             DoublePoint other = (DoublePoint) obj;
             return index == other.index && time == other.time
-                    && ((Double.isNaN(value) && Double.isNaN(other.value)) || value == other.value);
+                    && (Double.isNaN(value) && Double.isNaN(other.value)
+                        || value == other.value);
         }
         return false;
     }
