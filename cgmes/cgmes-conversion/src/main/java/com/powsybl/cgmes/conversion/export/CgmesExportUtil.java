@@ -321,6 +321,7 @@ public final class CgmesExportUtil {
     public static boolean isUnpaired(Network network, DanglingLine danglingLine) {
         // For this network, an unpaired dangling line has an unpaired status
         // or its parent network different that this network.
-        return !danglingLine.isPaired() || (danglingLine.isPaired() && danglingLine.getTieLine().orElseThrow().getParentNetwork() != network);
+        return !danglingLine.isPaired()
+                || danglingLine.isPaired() && danglingLine.getTieLine().orElseThrow().getParentNetwork() != network;
     }
 }
