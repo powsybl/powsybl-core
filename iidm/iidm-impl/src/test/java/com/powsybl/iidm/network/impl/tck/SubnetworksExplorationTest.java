@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network.impl.tck;
 
-import com.powsybl.iidm.network.tck.AbstractSubnetworksTest;
+import com.powsybl.iidm.network.tck.AbstractSubnetworksExplorationTest;
 
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-class SubnetworksTest extends AbstractSubnetworksTest { }
+class SubnetworksExplorationTest extends AbstractSubnetworksExplorationTest { }

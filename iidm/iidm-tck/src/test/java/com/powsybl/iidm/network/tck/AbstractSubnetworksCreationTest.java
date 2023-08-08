@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public abstract class AbstractSubnetworksTest {
+public abstract class AbstractSubnetworksCreationTest {
 
     private Network network;
     private Network subnetwork1;
