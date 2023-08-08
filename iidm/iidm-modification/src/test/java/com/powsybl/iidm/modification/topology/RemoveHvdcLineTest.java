@@ -70,7 +70,7 @@ class RemoveHvdcLineTest extends AbstractConverterTest {
     @Test
     void testRemoveHvdcLineUnknownShunt() {
         Network network = HvdcTestNetwork.createLcc();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReporterModel reporter = new ReporterModel("reportTestRemoveHvdcLineWithUnknownShunt", "Testing reporter on removing a HVDC line with unknown shunt");
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds("UnknownShunt").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reporter));
         assertEquals("Shunt UnknownShunt not found", e.getMessage());
@@ -80,7 +80,7 @@ class RemoveHvdcLineTest extends AbstractConverterTest {
     @Test
     void testRemoveHvdcLineUnknownLine() {
         Network network = Network.create("empty", "test");
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReporterModel reporter = new ReporterModel("reportTestRemoveHvdcLineUnknownLine", "Testing reporter on removing a HVDC line with wrong line ID");
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reporter));
         assertEquals("Hvdc Line L not found", e.getMessage());

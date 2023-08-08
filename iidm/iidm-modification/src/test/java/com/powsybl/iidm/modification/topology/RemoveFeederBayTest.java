@@ -139,7 +139,7 @@ class RemoveFeederBayTest {
     @Test
     void testRemoveBbs() {
         Network network = createNetwork2Feeders();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReporterModel reporter = new ReporterModel("reportTestRemoveBbs", "Testing reporter when trying to remove a busbar section");
         RemoveFeederBay removeBbs = new RemoveFeederBay("BBS_TEST_1_1");
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, reporter));
         assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());

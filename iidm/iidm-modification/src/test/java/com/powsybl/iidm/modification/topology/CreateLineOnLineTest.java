@@ -6,12 +6,9 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
@@ -20,10 +17,6 @@ import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -143,7 +136,6 @@ class CreateLineOnLineTest extends AbstractConverterTest {
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);
         ReporterModel reporter1 = new ReporterModel("reportTestBbsNotExistingNB", "Testing reporter if busbar section does not exist in node/breaker");
-
         NetworkModification modification1 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line1)
@@ -202,24 +194,14 @@ class CreateLineOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    void testWithReporter() throws IOException {
+    void testWithReporter() {
         Network network = createNbNetworkWithBusbarSection();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReporterModel reporter = new ReporterModel("reportTestCreateLineOnLine", "Testing reporter for creation of a line on line");
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         modification.apply(network, reporter);
-
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/create-line-on-line-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+        testReporter(reporter, "/reporter/create-line-on-line-report.txt");
     }
 
     private static LineAdder createLineAdder(Line line, Network network) {

@@ -6,12 +6,9 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
@@ -24,13 +21,8 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -219,9 +211,9 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     }
 
     @Test
-    void testWithReporter() throws IOException {
+    void testWithReporter() {
         Network network = createNbNetwork();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReporterModel reporter = new ReporterModel("reportTestCreateVoltageLevelTopology", "Testing reporter for voltage level topology creation");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
@@ -229,17 +221,7 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
         modification.apply(network, reporter);
-
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/create-voltage-level-topology-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+        testReporter(reporter, "/reporter/create-voltage-level-topology-report.txt");
     }
 
 }

@@ -6,13 +6,9 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -26,13 +22,11 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.testReporter;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
@@ -68,26 +62,32 @@ class CreateCouplingDeviceTest extends AbstractConverterTest {
     void createCouplingDeviceThrowsException() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
 
+        ReporterModel reporter1 = new ReporterModel("testReporterWrongBbs", "Testing reporter with wrong busbar section ID");
         NetworkModification couplingDeviceModifWrongBbs = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs")
                 .withBusOrBusbarSectionId2("bbs2")
                 .build();
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> couplingDeviceModifWrongBbs.apply(network, true, Reporter.NO_OP));
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> couplingDeviceModifWrongBbs.apply(network, true, reporter1));
         assertEquals("Bus or busbar section bbs not found", e0.getMessage());
+        assertEquals("notFoundBusOrBusbarSection", reporter1.getReports().iterator().next().getReportKey());
 
+        ReporterModel reporter2 = new ReporterModel("testReporterBbsInDifferentVl", "Testing reporter with busbar sections in different voltage levels");
         NetworkModification couplingDeviceModifBbsInDifferentVl = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs5")
                 .build();
-        PowsyblException e1 = assertThrows(PowsyblException.class, () -> couplingDeviceModifBbsInDifferentVl.apply(network, true, Reporter.NO_OP));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> couplingDeviceModifBbsInDifferentVl.apply(network, true, reporter2));
         assertEquals("bbs1 and bbs5 are in two different voltage levels.", e1.getMessage());
+        assertEquals("unexpectedDifferentVoltageLevels", reporter2.getReports().iterator().next().getReportKey());
 
+        ReporterModel reporter3 = new ReporterModel("testReporterSameBbs", "Testing reporter with same busbar section");
         NetworkModification sameBusbarSection = new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs1")
                 .build();
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> sameBusbarSection.apply(network, true, Reporter.NO_OP));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> sameBusbarSection.apply(network, true, reporter3));
         assertEquals("No coupling device can be created on a same bus or busbar section (bbs1)", e2.getMessage());
+        assertEquals("noCouplingDeviceOnSameBusOrBusbarSection", reporter3.getReports().iterator().next().getReportKey());
     }
 
     @Test
@@ -127,44 +127,37 @@ class CreateCouplingDeviceTest extends AbstractConverterTest {
                 "/network_test_bus_breaker_with_coupling_device.xiidm");
     }
 
-    @ParameterizedTest
-    @MethodSource("parameters")
-    void createCouplingDeviceThrowsException(String bbs1, String bbs2, String message) {
-        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        NetworkModification modification = new CreateCouplingDeviceBuilder()
-                .withBusOrBusbarSectionId1(bbs1)
-                .withBusOrBusbarSectionId2(bbs2)
-                .build();
-        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
-        assertEquals(message, e2.getMessage());
-    }
-
     @Test
-    void testReporter() throws IOException {
+    void testWithReporter() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReporterModel reporter = new ReporterModel("reportTestCreateCouplingDevice", "Testing reporter for coupling device creation");
         new CreateCouplingDeviceBuilder()
                 .withBusOrBusbarSectionId1("bbs1")
                 .withBusOrBusbarSectionId2("bbs3")
                 .withSwitchPrefixId("sw")
-                .build().apply(network, reporter);
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
+                .build().apply(network, true, reporter);
+        testReporter(reporter, "/reporter/create-coupling-device-report.txt");
+    }
 
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/create-coupling-device-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+    @ParameterizedTest
+    @MethodSource("parameters")
+    void createCouplingDeviceThrowsException(String bbs1, String bbs2, String message, String reporterKey) {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        ReporterModel reporter = new ReporterModel("ReporterTest", "Testing reporter");
+        NetworkModification modification = new CreateCouplingDeviceBuilder()
+                .withBusOrBusbarSectionId1(bbs1)
+                .withBusOrBusbarSectionId2(bbs2)
+                .build();
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reporter));
+        assertEquals(message, e2.getMessage());
+        assertEquals(reporterKey, reporter.getReports().iterator().next().getReportKey());
     }
 
     private static Stream<Arguments> parameters() {
         return Stream.of(
-                Arguments.of("bbs1", "gen1", "Unexpected type of identifiable gen1: GENERATOR"),
-                Arguments.of("bb1", "bbs2", "Bus or busbar section bb1 not found"),
-                Arguments.of("bbs1", "bb2", "Bus or busbar section bb2 not found")
+                Arguments.of("bbs1", "gen1", "Unexpected type of identifiable gen1: GENERATOR", "unexpectedIdentifiableType"),
+                Arguments.of("bb1", "bbs2", "Bus or busbar section bb1 not found", "notFoundBusOrBusbarSection"),
+                Arguments.of("bbs1", "bb2", "Bus or busbar section bb2 not found", "notFoundBusOrBusbarSection")
         );
     }
 

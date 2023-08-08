@@ -168,16 +168,7 @@ class RevertCreateLineOnLineTest extends AbstractConverterTest {
         modification.apply(network, true, reporter);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-revert-create-line-on-line-nb-l.xml");
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/revert-create-line-on-line-nb-bb-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+        testReporter(reporter, "/reporter/revert-create-line-on-line-nb-bb-report.txt");
     }
 
     @Test
@@ -198,16 +189,7 @@ class RevertCreateLineOnLineTest extends AbstractConverterTest {
         modification.apply(network, true, reporter);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-revert-create-line-on-line-bb-l.xml");
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/revert-create-line-on-line-bb-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+        testReporter(reporter, "/reporter/revert-create-line-on-line-bb-report.txt");
     }
 
     @Test

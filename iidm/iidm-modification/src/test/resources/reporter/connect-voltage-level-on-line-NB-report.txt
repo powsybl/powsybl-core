@@ -1,2 +1,2 @@
-+ Testing reporter
++ Testing reporter for connecting voltage level on line
    Voltage level VLTEST connected to lines CJ_1 and CJ_2 replacing line CJ.

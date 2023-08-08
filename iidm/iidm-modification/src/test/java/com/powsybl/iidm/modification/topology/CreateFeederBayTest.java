@@ -6,13 +6,10 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.commons.test.TestUtil;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
@@ -28,13 +25,11 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsAfter;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.getUnusedOrderPositionsBefore;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.testReporter;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.BOTTOM;
 import static com.powsybl.iidm.network.extensions.ConnectablePosition.Direction.TOP;
 import static org.junit.jupiter.api.Assertions.*;
@@ -450,27 +445,31 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .setQ0(10);
 
         //negative order position
+        ReporterModel reporter1 = new ReporterModel("reportTestNegativeOrderPosition", "Testing reporter for a load creation with negative position order");
         CreateFeederBay negativeOrderCreate = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId(bbs.getId())
                 .withInjectionPositionOrder(-2)
                 .build();
-        PowsyblException eNeg = assertThrows(PowsyblException.class, () -> negativeOrderCreate.apply(network, true, computationManager, Reporter.NO_OP));
+        PowsyblException eNeg = assertThrows(PowsyblException.class, () -> negativeOrderCreate.apply(network, true, computationManager, reporter1));
         assertEquals("Position order is negative for attachment in node-breaker voltage level vl: -2", eNeg.getMessage());
+        assertEquals("unexpectedNegativePositionOrder", reporter1.getReports().iterator().next().getReportKey());
 
         //null order position
+        ReporterModel reporter2 = new ReporterModel("reportTestNullOrderPosition", "Testing reporter for a load creation with null order position");
         CreateFeederBay nullOrderCreate = new CreateFeederBayBuilder()
                 .withInjectionAdder(loadAdder)
                 .withBusOrBusbarSectionId(bbs.getId())
                 .build();
-        PowsyblException eNull = assertThrows(PowsyblException.class, () -> nullOrderCreate.apply(network, true, computationManager, Reporter.NO_OP));
+        PowsyblException eNull = assertThrows(PowsyblException.class, () -> nullOrderCreate.apply(network, true, computationManager, reporter2));
         assertEquals("Position order is null for attachment in node-breaker voltage level vl", eNull.getMessage());
+        assertEquals("unexpectedNullPositionOrder", reporter2.getReports().iterator().next().getReportKey());
     }
 
     @Test
-    void testCreateLoadWithReporter() throws IOException {
+    void testCreateLoadWithReporter() {
         Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReporterModel reporter = new ReporterModel("reportTestCreateLoad", "Testing reporter for a load creation");
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
                 .setLoadType(LoadType.UNDEFINED)
@@ -483,23 +482,13 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionFeederName("newLoadFeeder")
                 .withInjectionDirection(BOTTOM)
                 .build().apply(network, reporter);
-
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/create-load-NB-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+        testReporter(reporter, "/reporter/create-load-NB-report.txt");
     }
 
     @Test
-    void testCreateLoadWithReporterWithoutExtensions() throws IOException {
+    void testCreateLoadWithReporterWithoutExtensions() {
         Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        ReporterModel reporter = new ReporterModel("reportTestCreateLoadWithoutExtensions", "Testing reporter for a load creation in a network without extensions");
         LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
                 .setId("newLoad")
                 .setLoadType(LoadType.UNDEFINED)
@@ -511,17 +500,6 @@ class CreateFeederBayTest extends AbstractConverterTest {
                 .withInjectionPositionOrder(115)
                 .build()
                 .apply(network, reporter);
-
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/create-load-NB-without-extensions-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
-
+        testReporter(reporter, "/reporter/create-load-NB-without-extensions-report.txt");
     }
 }

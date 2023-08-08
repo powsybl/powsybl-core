@@ -1,2 +1,0 @@
-+ Testing reporter
-   Bus or busbar section NOT_EXISTING not found

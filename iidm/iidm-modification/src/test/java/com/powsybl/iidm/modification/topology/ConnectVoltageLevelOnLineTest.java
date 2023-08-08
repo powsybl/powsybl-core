@@ -6,13 +6,10 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -22,10 +19,6 @@ import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -135,20 +128,29 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     void testExceptions() {
         Network network1 = createNbNetworkWithBusbarSection();
 
+        ReporterModel reporter = new ReporterModel("reportTestUndefinedBbs", "Testing reporter with undefined busbar section");
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network1.getLine("CJ"))
                 .build();
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, Reporter.NO_OP));
+        Reporter subReporterNb = reporter.createSubReporter("nodeBreaker", "Test on node/breaker network");
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, subReporterNb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
+        ReporterModel firstReport = reporter.getSubReporters().get(0);
+        assertEquals("notFoundBusOrBusbarSection", firstReport.getReports().iterator().next().getReportKey());
+        assertEquals("nodeBreaker", firstReport.getTaskKey());
 
         Network network2 = createBbNetwork();
         NetworkModification modification3 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network2.getLine("NHV1_NHV2_1"))
                 .build();
-        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, Reporter.NO_OP));
+        Reporter subReporterBb = reporter.createSubReporter("busBreaker", "Test on bus/breaker network");
+        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, subReporterBb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception3.getMessage());
+        ReporterModel secondReport = reporter.getSubReporters().get(1);
+        assertEquals("notFoundBusOrBusbarSection", secondReport.getReports().iterator().next().getReportKey());
+        assertEquals("busBreaker", secondReport.getTaskKey());
     }
 
     @Test
@@ -169,45 +171,13 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     }
 
     @Test
-    void testWithReporter() throws IOException {
+    void testWithReporter() {
         Network network = createNbNetworkWithBusbarSection();
-        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+        ReporterModel reporter = new ReporterModel("reportTestConnectVoltageLevelOnLine", "Testing reporter for connecting voltage level on line");
+        new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
-                .build();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
-        modification.apply(network, reporter);
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/connect-voltage-level-on-line-NB-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
-    }
-
-    @Test
-    void testWithReporterFailed() throws IOException {
-        Network network = createNbNetworkWithBusbarSection();
-
-        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
-                .withBusbarSectionOrBusId("NOT_EXISTING")
-                .withLine(network.getLine("CJ"))
-                .build();
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
-        modification.apply(network, reporter);
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/connect-voltage-level-on-line-failed-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+                .build().apply(network, true, reporter);
+        testReporter(reporter, "/reporter/connect-voltage-level-on-line-NB-report.txt");
     }
 }

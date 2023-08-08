@@ -167,17 +167,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
         modification.apply(network, true, reporter);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-replace-tee-point-by-voltage-level-on-line-nbbb.xml");
-
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/replace-tee-point-by-vl-on-line-nb-bb-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+        testReporter(reporter, "/reporter/replace-tee-point-by-vl-on-line-nb-bb-report.txt");
     }
 
     @Test
