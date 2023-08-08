@@ -163,13 +163,15 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         // Use the less restrictive validation level for the merged network
         ValidationLevel minLevel = mergedNetwork.getMinValidationLevel(); // default min validation level
         for (Network n : networks) {
-            if (n instanceof NetworkImpl) {
-                minLevel = ValidationLevel.min(minLevel, ((NetworkImpl) n).getMinValidationLevel());
+            if (n instanceof NetworkImpl networkImpl) {
+                minLevel = ValidationLevel.min(minLevel, networkImpl.getMinValidationLevel());
             }
         }
         mergedNetwork.setMinimumAcceptableValidationLevel(minLevel);
 
-        mergedNetwork.merge(networks);
+        for (Network other : networks) {
+            mergedNetwork.merge(other, false);
+        }
 
         //TODO The following line won't be necessary anymore once the TODO in "merge(Network)" is resolved.
         mergedNetwork.invalidateValidationLevel();
@@ -916,6 +918,10 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public void merge(Network other) {
+        merge(other, true);
+    }
+
+    private void merge(Network other, boolean allowSubnetworkCreationForMyself) {
         checkIndependentNetwork(other);
         NetworkImpl otherNetwork = (NetworkImpl) other;
 
@@ -949,12 +955,15 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             }
         }
 
-        // create subnetworks
-        Network n = createSubnetwork(this, this);
-        subnetworks.put(id, n);
-        getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubnetwork(id));
-        getVoltageLevelStream().filter(v -> v.getParentNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(id));
+        // create the subnetwork corresponding to the current network (if it doesn't already exist)
+        if (allowSubnetworkCreationForMyself && !subnetworks.containsKey(id)) {
+            Network n = createSubnetwork(this, this);
+            subnetworks.put(id, n);
+            getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubnetwork(id));
+            getVoltageLevelStream().filter(v -> v.getParentNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(id));
+        }
 
+        // create subnetworks for the other networks
         subnetworks.computeIfAbsent(otherNetwork.getId(), id -> createSubnetwork(this, otherNetwork));
         otherNetwork.getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(otherNetwork.id));
         otherNetwork.getVoltageLevelStream().forEach(vl -> ((VoltageLevelExt) vl).setSubnetwork(otherNetwork.id));

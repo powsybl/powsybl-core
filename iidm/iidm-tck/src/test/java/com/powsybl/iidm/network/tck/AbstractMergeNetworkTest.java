@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public abstract class AbstractMergeNetworkTest {
 
@@ -59,8 +60,14 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void testMerge() {
         addCommonSubstationsAndVoltageLevels();
+        addSubstationAndVoltageLevel(merge, "s0", Country.FR, "vl0", "b0");
         addCommonDanglingLines("dl1", "code", "dl2", "code");
         merge.merge(n1, n2);
+        assertEquals(3, merge.getSubnetworks().size());
+        assertEquals(1, merge.getSubnetwork(MERGE).getVoltageLevelCount());
+        assertEquals(1, merge.getSubnetwork(N1).getVoltageLevelCount());
+        assertEquals(1, merge.getSubnetwork(N2).getVoltageLevelCount());
+
         TieLine tieLine = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine);
         assertEquals("dl1_name + dl2_name", tieLine.getOptionalName().orElse(null));
@@ -298,6 +305,21 @@ public abstract class AbstractMergeNetworkTest {
         assertEquals(expected, merge.getValidationLevel());
         assertEquals(expected, merge.getSubnetwork(N1).getValidationLevel());
         assertEquals(expected, merge.getSubnetwork(N2).getValidationLevel());
+    }
+
+    @Test
+    void failMergeOnlyOneNetwork() {
+        Exception e = assertThrows(IllegalArgumentException.class, () -> Network.create(MERGE, n1));
+        assertTrue(e.getMessage().contains("At least 2 networks are expected"));
+    }
+
+    @Test
+    void testNoEmptyAdditionalSubnetworkIsCreated() {
+        merge = Network.create(MERGE, n1, n2);
+        assertEquals(2, merge.getSubnetworks().size());
+        assertNull(merge.getSubnetwork(MERGE));
+        assertNotNull(merge.getSubnetwork(N1));
+        assertNotNull(merge.getSubnetwork(N2));
     }
 
     private void addSubstation(Network network, String substationId) {
