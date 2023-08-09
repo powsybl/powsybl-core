@@ -6,23 +6,16 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -138,16 +131,7 @@ class RevertCreateLineOnLineTest extends AbstractConverterTest {
         modification.apply(network, true, reporter);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-revert-create-line-on-line-l.xml");
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/revert-create-line-on-line-nb-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+        testReporter(reporter, "/reporter/revert-create-line-on-line-nb-report.txt");
     }
 
     @Test

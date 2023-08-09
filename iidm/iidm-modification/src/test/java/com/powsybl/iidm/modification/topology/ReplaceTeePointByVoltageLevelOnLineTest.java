@@ -6,22 +6,15 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Optional;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -136,16 +129,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
         modification.apply(network, true, reporter);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-replace-tee-point-by-voltage-level-on-line-nb.xml");
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/replace-tee-point-by-vl-on-line-nb-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+        testReporter(reporter, "/reporter/replace-tee-point-by-vl-on-line-nb-report.txt");
     }
 
     @Test
@@ -214,16 +198,7 @@ class ReplaceTeePointByVoltageLevelOnLineTest extends AbstractConverterTest {
         modification.apply(network, true, reporter3);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-replace-tee-point-by-voltage-level-on-line-bb.xml");
-        Optional<Report> report = reporter3.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
-
-        StringWriter sw = new StringWriter();
-        reporter3.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/reporter/replace-tee-point-by-vl-on-line-bb-report.txt");
-        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
+        testReporter(reporter3, "/reporter/replace-tee-point-by-vl-on-line-bb-report.txt");
     }
 
     @Test
