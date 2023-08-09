@@ -146,5 +146,13 @@ class ScalingParametersTest {
         assertEquals(VOLUME, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+
+        parameters = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, true, false, true);
+        assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
+        assertTrue(parameters.isConstantPowerFactor());
+        assertEquals(ONESHOT, parameters.getPriority());
+        assertTrue(parameters.isReconnect());
+        assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
     }
 }
