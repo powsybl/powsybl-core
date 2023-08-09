@@ -21,8 +21,7 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Distribut
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.*;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.TARGET_P;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -135,5 +134,17 @@ class ScalingParametersTest {
         ScalingParameters parameters = new ScalingParameters()
             .setIterative(true);
         assertTrue(parameters.isIterative());
+
+        parameters = new ScalingParameters()
+            .setIterative(false);
+        assertFalse(parameters.isIterative());
+
+        parameters = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, true, true, true);
+        assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
+        assertTrue(parameters.isConstantPowerFactor());
+        assertEquals(VOLUME, parameters.getPriority());
+        assertTrue(parameters.isReconnect());
+        assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
     }
 }
