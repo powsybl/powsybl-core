@@ -7,9 +7,7 @@
 package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Load;
@@ -23,6 +21,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
+import static com.powsybl.iidm.modification.util.ModificationReports.scalingReport;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -252,14 +251,6 @@ public interface Scalable {
             : scalingParameters.getScalingValue() - sum.get();
     }
 
-    public static void createReport(Reporter reporter, String reporterKey, String message, TypedValue errorSeverity) {
-        reporter.report(Report.builder()
-            .withKey(reporterKey)
-            .withDefaultMessage(message)
-            .withSeverity(errorSeverity)
-            .build());
-    }
-
     /**
      * Computes and applies a scaling variation of power on a list of loads, using variation parameters defined by the user.
      * Depending on the distribution mode chosen, the distribution percentage for each load will be computed differently:
@@ -325,11 +316,10 @@ public interface Scalable {
         double variationDone = proportionalScalable.scale(network, variationAsked, scalingParameters);
 
         // Report
-        Scalable.createReport(subReporter,
-            "scalingApplied",
-            String.format("Successfully scaled on loads using mode %s with a variation value asked of %s. Variation done is %s",
-                scalingParameters.getDistributionMode(), variationAsked, variationDone),
-            TypedValue.INFO_SEVERITY);
+        scalingReport(subReporter,
+            "loads",
+            scalingParameters.getDistributionMode(),
+            variationAsked, variationDone);
         return variationDone;
     }
 
@@ -470,11 +460,10 @@ public interface Scalable {
             scalingParameters);
 
         // Report
-        Scalable.createReport(subReporter,
-            "scalingApplied",
-            String.format("Successfully scaled on generators using mode %s with a variation value asked of %s. Variation done is %s",
-                scalingParameters.getDistributionMode(), variationAsked, variationDone),
-            TypedValue.INFO_SEVERITY);
+        scalingReport(subReporter,
+            "generators",
+            scalingParameters.getDistributionMode(),
+            variationAsked, variationDone);
 
         return variationDone;
     }

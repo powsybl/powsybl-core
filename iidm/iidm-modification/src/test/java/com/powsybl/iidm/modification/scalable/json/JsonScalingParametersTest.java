@@ -10,11 +10,12 @@ package com.powsybl.iidm.modification.scalable.json;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
+import static com.powsybl.iidm.modification.scalable.json.JsonScalingParameters.read;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -31,17 +32,19 @@ class JsonScalingParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    @Disabled("TODO")
-    void testDeserializerV1dot1() throws IOException {
-        // TODO
-        assertTrue(true);
-//        ScalingParameters scalingParameters = deserialize("/json/ScalingParameters_v1.0.json")
+    void testDeserializerV1dot1() {
+        ScalingParameters parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.0.json"));
+        assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
+        assertFalse(parameters.isConstantPowerFactor());
+        assertEquals(ONESHOT, parameters.getPriority());
+        assertTrue(parameters.isReconnect());
+        assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
     }
 
     @Test
     void error() throws IOException {
         try (var is = getClass().getResourceAsStream("/json/ScalingParametersError.json")) {
-            IllegalStateException e = assertThrows(IllegalStateException.class, () -> JsonScalingParameters.read(is));
+            IllegalStateException e = assertThrows(IllegalStateException.class, () -> read(is));
             assertEquals("Unexpected field: error", e.getMessage());
         }
     }

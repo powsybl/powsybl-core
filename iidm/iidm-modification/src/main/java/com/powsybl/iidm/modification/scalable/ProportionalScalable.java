@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Network;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.DistributionMode.STACKING_UP;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VENTILATION;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VOLUME;
 
@@ -165,14 +164,15 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     /**
      * Compute the power that can be scaled on the network while keeping the ventilation percentages valid.
-     * This method is only used if the distribution is not STACKING_UP and if the scaling priority is VENTILATION.
+     * This method is only used if the distribution is not STACKING_UP (cannot happen since it's a
+     * {@link ProportionalScalable} and if the scaling priority is VENTILATION.
      * @param asked power that shall be scaled on the network
      * @param scalingParameters scaling parameters
      * @param network network on which the scaling shall be done
      * @return the effective power value that can be safely scaled while keeping the ventilation percentages valid
      */
     double resizeAskedForVentilation(Network network, double asked, ScalingParameters scalingParameters) {
-        if (scalingParameters.getDistributionMode() != STACKING_UP && scalingParameters.getPriority() == VENTILATION) {
+        if (scalingParameters.getPriority() == VENTILATION) {
             AtomicReference<Double> resizingPercentage = new AtomicReference<>(1.0);
             scalablePercentageList.forEach(scalablePercentage ->
                 resizingPercentage.set(Math.min(((GeneratorScalable) scalablePercentage.getScalable()).availablePowerInPercentageOfAsked(network, asked, scalablePercentage.getPercentage()), resizingPercentage.get()))

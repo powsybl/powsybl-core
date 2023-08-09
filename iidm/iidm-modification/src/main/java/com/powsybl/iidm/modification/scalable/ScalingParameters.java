@@ -13,6 +13,8 @@ import java.util.Objects;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VOLUME;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.DistributionMode.REGULAR_DISTRIBUTION;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 
 /**
  * @author Coline Piloquet <coline.piloquet@rte-france.fr>
@@ -47,6 +49,8 @@ public class ScalingParameters {
     public static final boolean DEFAULT_RECONNECT = false;
     public static final boolean DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS = false;
     public static final Priority DEFAULT_PRIORITY = ONESHOT;
+    public static final DistributionMode DEFAULT_DISTRIBUTION_MODE = REGULAR_DISTRIBUTION;
+    public static final ScalingType DEFAULT_SCALING_TYPE = DELTA_P;
 
     private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
 
@@ -56,8 +60,8 @@ public class ScalingParameters {
 
     private boolean allowsGeneratorOutOfActivePowerLimits = DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS;
 
-    private DistributionMode distributionMode = null;
-    private ScalingType scalingType = null;
+    private DistributionMode distributionMode = DEFAULT_DISTRIBUTION_MODE;
+    private ScalingType scalingType = DEFAULT_SCALING_TYPE;
     private double scalingValue = 0.0;
     private Priority priority = DEFAULT_PRIORITY;
 
@@ -85,27 +89,6 @@ public class ScalingParameters {
         this.constantPowerFactor = constantPowerFactor;
         this.priority = priority;
         this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
-    }
-
-    /**
-     * @deprecated : replace with (Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,
-     *                              Priority priority, boolean allowsGeneratorOutOfActivePowerLimits,
-     *                              DistributionMode distributionMode, ScalingType scalingType,
-     *                              double scalingValue)
-     */
-    @Deprecated(since = "v6.0.0")
-    public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,
-                             boolean iterative, boolean allowsGeneratorOutOfActivePowerLimits,
-                             DistributionMode distributionMode, ScalingType scalingType,
-                             double scalingValue) {
-        this.scalingConvention = scalingConvention;
-        this.reconnect = reconnect;
-        this.constantPowerFactor = constantPowerFactor;
-        this.priority = iterative ? VOLUME : ONESHOT;
-        this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
-        this.distributionMode = distributionMode;
-        this.scalingType = scalingType;
-        this.scalingValue = scalingValue;
     }
 
     public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,

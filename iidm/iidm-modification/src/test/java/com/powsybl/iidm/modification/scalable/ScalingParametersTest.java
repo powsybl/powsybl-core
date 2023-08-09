@@ -126,4 +126,14 @@ class ScalingParametersTest {
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
     }
+
+    /**
+     * This test will have to be deleted when the depreciated methods are deleted.
+     */
+    @Test
+    void depreciatedMethodsTest() {
+        ScalingParameters parameters = new ScalingParameters()
+            .setIterative(true);
+        assertTrue(parameters.isIterative());
+    }
 }
