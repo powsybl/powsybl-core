@@ -56,16 +56,28 @@ public final class CgmesModelFactory {
         Objects.requireNonNull(reporter);
         Objects.requireNonNull(tripleStoreOptions);
 
-        CgmesModel cgmes = createImplementation(implementation, tripleStoreOptions, mainDataSource);
+        CgmesModel cgmes = createImplementation(implementation, tripleStoreOptions, mainDataSource, alternativeDataSourceForBoundary);
         cgmes.read(mainDataSource, alternativeDataSourceForBoundary, reporter);
         return cgmes;
     }
 
-    private static CgmesModel createImplementation(String implementation, TripleStoreOptions tripleStoreOptions, ReadOnlyDataSource ds) {
+    private static CgmesModel createImplementation(String implementation, TripleStoreOptions tripleStoreOptions, ReadOnlyDataSource ds, ReadOnlyDataSource alternativeDataSourceForBoundary) {
         // Only triple store implementations are available
         TripleStore tripleStore = TripleStoreFactory.create(implementation, tripleStoreOptions);
-        String cimNamespace = new CgmesOnDataSource(ds).cimNamespace();
+        String cimNamespace = obtainCimNamespace(ds, alternativeDataSourceForBoundary);
         return new CgmesModelTripleStore(cimNamespace, tripleStore);
+    }
+
+    private static String obtainCimNamespace(ReadOnlyDataSource ds, ReadOnlyDataSource dsBoundary) {
+        try {
+            return new CgmesOnDataSource(ds).cimNamespace();
+        } catch (CgmesModelException x) {
+            try {
+                return new CgmesOnDataSource(dsBoundary).cimNamespace();
+            } catch (CgmesModelException x2) {
+                throw x;
+            }
+        }
     }
 
     public static CgmesModel copy(CgmesModel cgmes) {

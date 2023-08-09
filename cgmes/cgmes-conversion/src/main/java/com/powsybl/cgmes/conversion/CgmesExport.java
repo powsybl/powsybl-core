@@ -9,9 +9,12 @@ package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.export.*;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
@@ -22,6 +25,8 @@ import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +50,12 @@ public class CgmesExport implements Exporter {
     private static final String INDENT = "    ";
 
     private final ParameterDefaultValueConfig defaultValueConfig;
+    private final CgmesImport importer;
 
     public CgmesExport(PlatformConfig platformConfig) {
         defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+        // We may need to import the boundaries to be able to export proper references
+        importer = new CgmesImport(platformConfig);
     }
 
     public CgmesExport() {
@@ -67,6 +75,11 @@ public class CgmesExport implements Exporter {
         String filenameTp = baseName + "_TP.xml";
         String filenameSsh = baseName + "_SSH.xml";
         String filenameSv = baseName + "_SV.xml";
+
+        // If we have receive sourcing actor from parameters,
+        // make an attempt to import boundaries and obtain its related data
+        PropertyBag sourcingActor = determineSourcingActor(params);
+
         CgmesExportContext context = new CgmesExportContext(
                 network,
                 NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)))
@@ -76,10 +89,17 @@ public class CgmesExport implements Exporter {
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER))
                 .setReporter(reporter);
-        context.getEqModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
-        context.getTpModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
-        context.getSshModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
-        context.getSvModelDescription().setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig));
+
+        // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
+        String masUri = Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig);
+        if (sourcingActor.containsKey("masUri") && masUri.equals(DEFAULT_MODELING_AUTHORITY_SET_VALUE)) {
+            masUri = sourcingActor.get("masUri");
+        }
+
+        context.getEqModelDescription().setModelingAuthoritySet(masUri);
+        context.getTpModelDescription().setModelingAuthoritySet(masUri);
+        context.getSshModelDescription().setModelingAuthoritySet(masUri);
+        context.getSvModelDescription().setModelingAuthoritySet(masUri);
         String modelDescription = Parameter.readString(getFormat(), params, MODEL_DESCRIPTION_PARAMETER, defaultValueConfig);
         if (modelDescription != null) {
             context.getEqModelDescription().setDescription(modelDescription);
@@ -131,6 +151,22 @@ public class CgmesExport implements Exporter {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    private PropertyBag determineSourcingActor(Properties params) {
+        PropertyBag sourcingActor = new PropertyBag(Collections.emptyList(), true);
+        String sourcingActorName = Parameter.readString(getFormat(), params, SOURCING_ACTOR_PARAMETER, defaultValueConfig);
+        if (sourcingActorName != null && !sourcingActorName.isEmpty()) {
+            ReadOnlyDataSource emptyDataSource = new ReadOnlyMemDataSource();
+            CgmesModel boundaries = importer.readCgmes(emptyDataSource, params, Reporter.NO_OP);
+            PropertyBags sourcingActorRecords = boundaries.sourcingActor(sourcingActorName);
+            if (sourcingActorRecords.size() > 1 && LOG.isWarnEnabled()) {
+                LOG.warn("Multiple records found for sourcing actor {}. Will consider only first one", sourcingActorName);
+                LOG.warn(sourcingActorRecords.tabulateLocals());
+            }
+            sourcingActor = sourcingActorRecords.get(0);
+        }
+        return sourcingActor;
     }
 
     private String getBoundaryId(String profile, Network network, Properties params, Parameter parameter) {
@@ -190,6 +226,8 @@ public class CgmesExport implements Exporter {
     public static final String PROFILES = "iidm.export.cgmes.profiles";
     public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
     public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
+    public static final String SOURCING_ACTOR = "iidm.export.cgmes.sourcing-actor";
+    private static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -239,17 +277,20 @@ public class CgmesExport implements Exporter {
             ParameterType.STRING,
             "Boundary TP model identifier",
             null);
-
     private static final Parameter MODELING_AUTHORITY_SET_PARAMETER = new Parameter(
             MODELING_AUTHORITY_SET,
             ParameterType.STRING,
             "Modeling authority set",
-            "powsybl.org");
-
+            DEFAULT_MODELING_AUTHORITY_SET_VALUE);
     private static final Parameter MODEL_DESCRIPTION_PARAMETER = new Parameter(
             MODEL_DESCRIPTION,
             ParameterType.STRING,
             "Model description",
+            null);
+    private static final Parameter SOURCING_ACTOR_PARAMETER = new Parameter(
+            SOURCING_ACTOR,
+            ParameterType.STRING,
+            "Sourcing actor name (for CGM business processes)",
             null);
 
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
@@ -262,7 +303,8 @@ public class CgmesExport implements Exporter {
             BOUNDARY_EQ_ID_PARAMETER,
             BOUNDARY_TP_ID_PARAMETER,
             MODELING_AUTHORITY_SET_PARAMETER,
-            MODEL_DESCRIPTION_PARAMETER);
+            MODEL_DESCRIPTION_PARAMETER,
+            SOURCING_ACTOR_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }
