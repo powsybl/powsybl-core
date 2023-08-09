@@ -29,7 +29,7 @@ public final class RegulationUtils {
     }
 
     /**
-     * Get the stream of all shunts compensators of the network regulating the bus.
+     * Get the stream of all shunt compensators of the network regulating the bus.
      */
     public static Stream<ShuntCompensator> getRegulatingShuntCompensators(Network network, Bus regulatingBus) {
         return network.getShuntCompensatorStream().filter(ShuntCompensator::isVoltageRegulatorOn)
@@ -42,8 +42,7 @@ public final class RegulationUtils {
      * @param regulatingBus       the regulating bus on which the regulating element will be connected.
      * @param shuntToIgnoreId     allow to ignore one shunt in the search, useful when we have reconnected a shunt and want to set its target v
      * @param generatorToIgnoreId same as param shuntToIgnoreId, but for a generator
-     * @return the targetV, if there is no regulating shunts, generators, and the regulating bus does not have a valid voltage,
-     * then it returns {@link OptionalDouble#empty()}
+     * @return the targetV, or {@link OptionalDouble#empty()} if there are no regulating shunts, generators, and the regulating bus does not have a valid voltage
      */
     private static OptionalDouble getTargetVForRegulatingElement(Network network, Bus regulatingBus,
                                                                  String shuntToIgnoreId,
@@ -65,7 +64,7 @@ public final class RegulationUtils {
     /**
      * Tries to find the regulating voltage for a regulating shunt on the given regulating bus.
      *
-     * @return {@link OptionalDouble#empty()} If no valid values are found (no regulating elements and NaN network voltage on the bus)
+     * @return the targetV, or {@link OptionalDouble#empty()} if no valid values are found (no regulating elements and NaN network voltage on the bus)
      */
     public static OptionalDouble getTargetVForRegulatingShunt(Network network, Bus regulatingBus,
                                                               String shuntToIgnoreId) {
@@ -75,7 +74,7 @@ public final class RegulationUtils {
     /**
      * Tries to find the regulating voltage for a regulating generator on the given regulating bus.
      *
-     * @return {@link OptionalDouble#empty()} If no valid values are found (no regulating elements and NaN network voltage on the bus)
+     * @return the targetV, or {@link OptionalDouble#empty()} if no valid values are found (no regulating elements and NaN network voltage on the bus)
      */
     public static OptionalDouble getTargetVForRegulatingGenerator(Network network, Bus regulatingBus,
                                                                   String generatorToIgnoreId) {
@@ -85,7 +84,7 @@ public final class RegulationUtils {
     /**
      * Tries to find the regulating voltage for a regulating shunt.
      *
-     * @return {@link OptionalDouble#empty()} If no valid values are found (no regulating elements and NaN network voltage on the bus)
+     * @return the targetV, or {@link OptionalDouble#empty()} if no valid values are found (no regulating elements and NaN network voltage on the bus)
      */
     public static OptionalDouble getTargetVForRegulatingShunt(ShuntCompensator shuntCompensator) {
         Bus regulatingBus = shuntCompensator.getRegulatingTerminal().getBusView().getBus();
@@ -99,7 +98,7 @@ public final class RegulationUtils {
     /**
      * Tries to find the regulating voltage for a regulating generator.
      *
-     * @return {@link OptionalDouble#empty()} If no valid values are found (no regulating elements and NaN network voltage on the bus)
+     * @return the targetV, or {@link OptionalDouble#empty()} if no valid values are found (no regulating elements and NaN network voltage on the bus)
      */
     public static OptionalDouble getTargetVForRegulatingGenerator(Generator generator) {
         Bus regulatingBus = generator.getRegulatingTerminal().getBusView().getBus();
