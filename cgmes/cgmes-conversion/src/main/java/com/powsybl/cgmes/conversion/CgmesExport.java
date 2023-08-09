@@ -9,12 +9,9 @@ package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.export.*;
-import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
@@ -26,7 +23,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,12 +72,16 @@ public class CgmesExport implements Exporter {
         String filenameSsh = baseName + "_SSH.xml";
         String filenameSv = baseName + "_SV.xml";
 
+        // Reference data (if required) will come from imported boundaries
+        ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(importer, params);
+
         // If we have receive sourcing actor from parameters,
-        // make an attempt to import boundaries and obtain its related data
-        PropertyBag sourcingActor = determineSourcingActor(params);
+        // make an attempt to obtain its related data
+        PropertyBag sourcingActor = determineSourcingActor(params, referenceDataProvider);
 
         CgmesExportContext context = new CgmesExportContext(
                 network,
+                referenceDataProvider,
                 NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)))
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
@@ -153,18 +153,11 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private PropertyBag determineSourcingActor(Properties params) {
+    private PropertyBag determineSourcingActor(Properties params, ReferenceDataProvider referenceDataProvider) {
         PropertyBag sourcingActor = new PropertyBag(Collections.emptyList(), true);
         String sourcingActorName = Parameter.readString(getFormat(), params, SOURCING_ACTOR_PARAMETER, defaultValueConfig);
         if (sourcingActorName != null && !sourcingActorName.isEmpty()) {
-            ReadOnlyDataSource emptyDataSource = new ReadOnlyMemDataSource();
-            CgmesModel boundaries = importer.readCgmes(emptyDataSource, params, Reporter.NO_OP);
-            PropertyBags sourcingActorRecords = boundaries.sourcingActor(sourcingActorName);
-            if (sourcingActorRecords.size() > 1 && LOG.isWarnEnabled()) {
-                LOG.warn("Multiple records found for sourcing actor {}. Will consider only first one", sourcingActorName);
-                LOG.warn(sourcingActorRecords.tabulateLocals());
-            }
-            sourcingActor = sourcingActorRecords.get(0);
+            sourcingActor = referenceDataProvider.getSourcingActor(sourcingActorName);
         }
         return sourcingActor;
     }

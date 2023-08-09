@@ -71,6 +71,7 @@ public class CgmesExportContext {
     private final BiMap<String, String> subRegionsIdsBySubRegionName = HashBiMap.create();
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
+    private final ReferenceDataProvider referenceDataProvider;
 
     // Update dependencies in a way that:
     // [EQ.dependentOn EQ_BD]
@@ -209,13 +210,19 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext() {
+        referenceDataProvider = null;
     }
 
     public CgmesExportContext(Network network) {
-        this(network, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY));
+        this(network, null, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY));
     }
 
-    public CgmesExportContext(Network network, NamingStrategy namingStrategy) {
+    public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider) {
+        this(network, referenceDataProvider, NamingStrategyFactory.create(NamingStrategyFactory.IDENTITY));
+    }
+
+    public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, NamingStrategy namingStrategy) {
+        this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
@@ -307,10 +314,25 @@ public class CgmesExportContext {
 
     private void addIidmMappingsBaseVoltages(BaseVoltageMapping mapping, Network network) {
         if (mapping.isBaseVoltageEmpty()) {
+            // Here we do not have previous information about base voltages
+            // (The mapping is filled when the Network has been imported from CGMES)
+            // Now that we want to export, we may find some base voltages are defined in the reference data
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 double nominalV = vl.getNominalV();
-                String baseVoltageId = CgmesExportUtil.getUniqueId();
-                mapping.addBaseVoltage(nominalV, baseVoltageId, Source.IGM);
+                // Only create a new unique id if no reference data exists
+                String baseVoltageId = null;
+                Source source = null;
+                if (referenceDataProvider != null) {
+                    baseVoltageId = referenceDataProvider.getBaseVoltage(nominalV);
+                    if (baseVoltageId != null) {
+                        source = Source.BOUNDARY;
+                    }
+                }
+                if (baseVoltageId == null) {
+                    baseVoltageId = CgmesExportUtil.getUniqueId();
+                    source = Source.IGM;
+                }
+                mapping.addBaseVoltage(nominalV, baseVoltageId, source);
             }
         }
         Map<Double, BaseVoltageMapping.BaseVoltageSource> bvByNominalVoltage = mapping.baseVoltagesByNominalVoltageMap();
