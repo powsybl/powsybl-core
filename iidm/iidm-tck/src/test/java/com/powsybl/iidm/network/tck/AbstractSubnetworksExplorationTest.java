@@ -7,16 +7,14 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -29,47 +27,172 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public abstract class AbstractSubnetworksExplorationTest {
 
+    public static final String ID_1 = "1";
+    public static final String ID_2 = "2";
     private static Network merged;
     private static Network subnetwork1;
     private static Network subnetwork2;
 
     @BeforeAll
     static void setUpClass() {
-        Network n1 = NetworkTest1Factory.create("1");
-        n1.newSubstation()
-                .setId(id("substation2", "1"))
-                .setCountry(Country.ES)
-                .setTso(id("TSO2", "1"))
-                .setGeographicalTags(id("region2", "1"))
-                .add();
-        n1.getVoltageLevel(id("voltageLevel1", "1")).newBattery()
-                .setId(id("battery1", "1"))
-                .setMaxP(20.0)
-                .setMinP(10.0)
-                .setTargetP(15.0)
-                .setTargetQ(10.0)
-                .setNode(4)
-                .add();
-
-        Network n2 = NetworkTest1Factory.create("2");
-        n2.newSubstation()
-                .setId(id("substation2", "2"))
-                .setCountry(Country.BE)
-                .setTso(id("TSO2", "2"))
-                .setGeographicalTags(id("region2", "2"))
-                .add();
-        n2.getVoltageLevel(id("voltageLevel1", "2")).newBattery()
-                .setId(id("battery1", "2"))
-                .setMaxP(20.0)
-                .setMinP(10.0)
-                .setTargetP(15.0)
-                .setTargetQ(10.0)
-                .setNode(4)
-                .add();
+        Network n1 = createNetwork(ID_1, Country.ES);
+        Network n2 = createNetwork(ID_2, Country.BE);
 
         merged = Network.create("merged", n1, n2);
-        subnetwork1 = merged.getSubnetwork(id("network", "1"));
-        subnetwork2 = merged.getSubnetwork(id("network", "2"));
+        subnetwork1 = merged.getSubnetwork(id("network", ID_1));
+        subnetwork2 = merged.getSubnetwork(id("network", ID_2));
+    }
+
+    private static Network createNetwork(String networkId, Country otherSubstationCountry) {
+        Network n = NetworkTest1Factory.create(networkId);
+        VoltageLevel voltageLevel1 = n.getVoltageLevel(id("voltageLevel1", networkId));
+        voltageLevel1.newBattery()
+                .setId(id("battery1", networkId))
+                .setMaxP(20.0)
+                .setMinP(10.0)
+                .setTargetP(15.0)
+                .setTargetQ(10.0)
+                .setNode(4)
+                .add();
+        voltageLevel1.newShuntCompensator()
+                .setId(id("shuntCompensator1", networkId))
+                .setNode(7)
+                .setSectionCount(0)
+                .newLinearModel()
+                    .setBPerSection(1e-5)
+                    .setMaximumSectionCount(1)
+                    .add()
+                .add();
+        voltageLevel1.newStaticVarCompensator()
+                .setId(id("svc1", networkId))
+                .setNode(12)
+                .setBmin(-5e-2)
+                .setBmax(5e-2)
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setVoltageSetpoint(400)
+                .add();
+        voltageLevel1.newLccConverterStation()
+                .setId(id("lcc1", networkId))
+                .setNode(8)
+                .setPowerFactor(0.95f)
+                .setLossFactor(0.99f)
+                .add();
+        voltageLevel1.newVscConverterStation()
+                .setId(id("vsc1", networkId))
+                .setNode(10)
+                .setLossFactor(1.1f)
+                .setVoltageSetpoint(405.0)
+                .setVoltageRegulatorOn(true)
+                .add();
+
+        Substation substation2 = n.newSubstation()
+                .setId(id("substation2", networkId))
+                .setCountry(otherSubstationCountry)
+                .setTso(id("TSO2", networkId))
+                .setGeographicalTags(id("region2", networkId))
+                .add();
+        VoltageLevel voltageLevel2 = substation2.newVoltageLevel()
+                .setId(id("voltageLevel2", networkId))
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        voltageLevel2.newLccConverterStation()
+                .setId(id("lcc2", networkId))
+                .setNode(9)
+                .setPowerFactor(0.95f)
+                .setLossFactor(0.99f)
+                .add();
+        voltageLevel2.newVscConverterStation()
+                .setId(id("vsc2", networkId))
+                .setNode(11)
+                .setLossFactor(1.1f)
+                .setReactivePowerSetpoint(123)
+                .setVoltageRegulatorOn(false)
+                .add();
+
+        n.newHvdcLine()
+                .setId(id("hvdcLine1", networkId))
+                .setR(1)
+                .setNominalV(400)
+                .setConverterStationId1(id("lcc1", networkId))
+                .setConverterStationId2(id("lcc2", networkId))
+                .setMaxP(2000)
+                .setActivePowerSetpoint(50)
+                .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+                .add();
+        n.newHvdcLine()
+                .setId(id("hvdcLine2", networkId))
+                .setR(5.0)
+                .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER)
+                .setNominalV(440.0)
+                .setMaxP(50.0)
+                .setActivePowerSetpoint(20.0)
+                .setConverterStationId1(id("vsc1", networkId))
+                .setConverterStationId2(id("vsc2", networkId))
+                .add();
+
+        Substation substation3 = n.newSubstation()
+                .setId(id("substation3", networkId))
+                .setCountry(Country.DE)
+                .setTso(id("TSO3", networkId))
+                .add();
+        substation3.newVoltageLevel()
+                .setId(id("voltageLevel3", networkId))
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        substation3.newVoltageLevel()
+                .setId(id("voltageLevel4", networkId))
+                .setNominalV(225)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        substation3.newVoltageLevel()
+                .setId(id("voltageLevel5", networkId))
+                .setNominalV(90)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        ThreeWindingsTransformerAdder threeWindingsTransformerAdder1 = substation3.newThreeWindingsTransformer()
+                .setId(id("threeWindingsTransformer1", networkId))
+                .setRatedU0(400);
+        threeWindingsTransformerAdder1.newLeg1()
+                .setNode(1)
+                .setR(0.001).setX(0.000001).setB(0).setG(0)
+                .setRatedU(400)
+                .setVoltageLevel(id("voltageLevel3", networkId))
+                .add();
+        threeWindingsTransformerAdder1.newLeg2()
+                .setNode(1)
+                .setR(0.1).setX(0.00001).setB(0).setG(0)
+                .setRatedU(225)
+                .setVoltageLevel(id("voltageLevel4", networkId))
+                .add();
+        threeWindingsTransformerAdder1.newLeg3()
+                .setNode(1)
+                .setR(0.01).setX(0.0001).setB(0).setG(0)
+                .setRatedU(90)
+                .setVoltageLevel(id("voltageLevel5", networkId))
+                .add();
+        threeWindingsTransformerAdder1.add();
+        substation3.newTwoWindingsTransformer()
+                .setId(id("twoWindingsTransformer1", networkId))
+                .setVoltageLevel1(id("voltageLevel3", networkId))
+                .setNode1(2)
+                .setRatedU1(400)
+                .setVoltageLevel2(id("voltageLevel4", networkId))
+                .setNode2(2)
+                .setRatedU2(225)
+                .setR(0.24 / 1300 * (38 * 38)).setX(Math.sqrt(10 * 10 - 0.24 * 0.24) / 1300 * (38 * 38))
+                .setG(0.0).setB(0.0)
+                .add();
+        n.newLine()
+                .setId(id("line1", networkId))
+                .setVoltageLevel1(id("voltageLevel1", networkId))
+                .setNode1(13)
+                .setVoltageLevel2(id("voltageLevel2", networkId))
+                .setNode2(14)
+                .setR(1).setX(1).setG1(0).setG2(0).setB1(0).setB2(0)
+                .add();
+        return n;
     }
 
     @Test
@@ -78,11 +201,11 @@ public abstract class AbstractSubnetworksExplorationTest {
         assertEquals(0, subnetwork1.getSubnetworks().size());
         assertEquals(0, subnetwork2.getSubnetworks().size());
         assertNull(subnetwork1.getSubnetwork("merged"));
-        assertNull(subnetwork1.getSubnetwork(id("network", "1")));
-        assertNull(subnetwork1.getSubnetwork(id("network", "2")));
+        assertNull(subnetwork1.getSubnetwork(id("network", ID_1)));
+        assertNull(subnetwork1.getSubnetwork(id("network", ID_2)));
         assertNull(subnetwork2.getSubnetwork("merged"));
-        assertNull(subnetwork2.getSubnetwork(id("network", "1")));
-        assertNull(subnetwork2.getSubnetwork(id("network", "2")));
+        assertNull(subnetwork2.getSubnetwork(id("network", ID_1)));
+        assertNull(subnetwork2.getSubnetwork(id("network", ID_2)));
     }
 
     @Test
@@ -100,32 +223,28 @@ public abstract class AbstractSubnetworksExplorationTest {
 
     @Test
     public void testExploreCountries() {
-        assertEquals(3, merged.getCountryCount());
-        assertEquals(2, subnetwork1.getCountryCount());
-        assertEquals(2, subnetwork2.getCountryCount());
-        assertCollection(List.of(Country.FR, Country.ES, Country.BE), merged.getCountries());
-        assertCollection(List.of(Country.FR, Country.ES), subnetwork1.getCountries());
-        assertCollection(List.of(Country.FR, Country.BE), subnetwork2.getCountries());
+        assertEquals(4, merged.getCountryCount());
+        assertEquals(3, subnetwork1.getCountryCount());
+        assertEquals(3, subnetwork2.getCountryCount());
+        assertCollection(List.of(Country.FR, Country.ES, Country.BE, Country.DE), merged.getCountries());
+        assertCollection(List.of(Country.FR, Country.ES, Country.DE), subnetwork1.getCountries());
+        assertCollection(List.of(Country.FR, Country.BE, Country.DE), subnetwork2.getCountries());
     }
 
     @Test
     public void testExploreSubstations() {
-        String n1Substation1 = id("substation1", "1");
-        String n1Substation2 = id("substation2", "1");
-        String n2Substation1 = id("substation1", "2");
-        String n2Substation2 = id("substation2", "2");
-        var expectedIdsForMerged = List.of(n1Substation1, n1Substation2, n2Substation1, n2Substation2);
-        var expectedIdsForSubnetwork1 = List.of(n1Substation1, n1Substation2);
-        var expectedIdsForSubnetwork2 = List.of(n2Substation1, n2Substation2);
-        assertIds(expectedIdsForMerged, merged.getSubstations());
-        assertIds(expectedIdsForSubnetwork1, subnetwork1.getSubstations());
-        assertIds(expectedIdsForSubnetwork2, subnetwork2.getSubstations());
-        assertIds(expectedIdsForMerged, merged.getSubstationStream());
-        assertIds(expectedIdsForSubnetwork1, subnetwork1.getSubstationStream());
-        assertIds(expectedIdsForSubnetwork2, subnetwork2.getSubstationStream());
-        assertEquals(4, merged.getSubstationCount());
-        assertEquals(2, subnetwork1.getSubstationCount());
-        assertEquals(2, subnetwork2.getSubstationCount());
+        String n1Substation1 = id("substation1", ID_1);
+        String n1Substation2 = id("substation2", ID_1);
+        String n2Substation1 = id("substation1", ID_2);
+        String n2Substation2 = id("substation2", ID_2);
+        var expectedIdsForSubnetwork1 = List.of(n1Substation1, n1Substation2, id("substation3", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(n2Substation1, n2Substation2, id("substation3", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getSubstations,
+                Network::getSubstationStream,
+                Network::getSubstationCount,
+                Network::getSubstation);
 
         assertIds(List.of(n1Substation1, n2Substation1), merged.getSubstations(Country.FR, null));
         assertIds(List.of(n1Substation1), subnetwork1.getSubstations(Country.FR, null));
@@ -138,113 +257,332 @@ public abstract class AbstractSubnetworksExplorationTest {
         assertIds(List.of(n2Substation2), merged.getSubstations(countryName, null));
         assertFalse(subnetwork1.getSubstations(countryName, null).iterator().hasNext());
         assertIds(List.of(n2Substation2), subnetwork2.getSubstations(countryName, null));
-
-        assertNotNull(merged.getSubstation(n1Substation1));
-        assertNotNull(merged.getSubstation(n2Substation1));
-        assertNotNull(subnetwork1.getSubstation(n1Substation1));
-        assertNull(subnetwork1.getSubstation(n2Substation1));
-        assertNull(subnetwork2.getSubstation(n1Substation1));
-        assertNotNull(subnetwork2.getSubstation(n2Substation1));
     }
 
     @Test
     public void testExploreVoltageLevels() {
-        String n1VoltageLevel1 = id("voltageLevel1", "1");
-        String n2VoltageLevel1 = id("voltageLevel1", "2");
-        var expectedIdsForMerged = List.of(n1VoltageLevel1, n2VoltageLevel1);
-        var expectedIdsForSubnetwork1 = List.of(n1VoltageLevel1);
-        var expectedIdsForSubnetwork2 = List.of(n2VoltageLevel1);
-        assertIds(expectedIdsForMerged, merged.getVoltageLevels());
-        assertIds(expectedIdsForSubnetwork1, subnetwork1.getVoltageLevels());
-        assertIds(expectedIdsForSubnetwork2, subnetwork2.getVoltageLevels());
-        assertIds(expectedIdsForMerged, merged.getVoltageLevelStream());
-        assertIds(expectedIdsForSubnetwork1, subnetwork1.getVoltageLevelStream());
-        assertIds(expectedIdsForSubnetwork2, subnetwork2.getVoltageLevelStream());
-        assertEquals(2, merged.getVoltageLevelCount());
-        assertEquals(1, subnetwork1.getVoltageLevelCount());
-        assertEquals(1, subnetwork2.getVoltageLevelCount());
+        var expectedIdsForSubnetwork1 = List.of(id("voltageLevel1", ID_1),
+                id("voltageLevel2", ID_1), id("voltageLevel3", ID_1),
+                id("voltageLevel4", ID_1), id("voltageLevel5", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("voltageLevel1", ID_2),
+                id("voltageLevel2", ID_2), id("voltageLevel3", ID_2),
+                id("voltageLevel4", ID_2), id("voltageLevel5", ID_2));
 
-        assertNotNull(merged.getVoltageLevel(n1VoltageLevel1));
-        assertNotNull(merged.getVoltageLevel(n2VoltageLevel1));
-        assertNotNull(subnetwork1.getVoltageLevel(n1VoltageLevel1));
-        assertNull(subnetwork1.getVoltageLevel(n2VoltageLevel1));
-        assertNull(subnetwork2.getVoltageLevel(n1VoltageLevel1));
-        assertNotNull(subnetwork2.getVoltageLevel(n2VoltageLevel1));
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getVoltageLevels,
+                Network::getVoltageLevelStream,
+                Network::getVoltageLevelCount,
+                Network::getVoltageLevel);
     }
 
     @Test
     public void testExploreGenerators() {
-        String n1Generator1 = id("generator1", "1");
-        String n2Generator1 = id("generator1", "2");
-        var expectedIdsForMerged = List.of(n1Generator1, n2Generator1);
-        var expectedIdsForSubnetwork1 = List.of(n1Generator1);
-        var expectedIdsForSubnetwork2 = List.of(n2Generator1);
-        assertIds(expectedIdsForMerged, merged.getGenerators());
-        assertIds(expectedIdsForSubnetwork1, subnetwork1.getGenerators());
-        assertIds(expectedIdsForSubnetwork2, subnetwork2.getGenerators());
-        assertIds(expectedIdsForMerged, merged.getGeneratorStream());
-        assertIds(expectedIdsForSubnetwork1, subnetwork1.getGeneratorStream());
-        assertIds(expectedIdsForSubnetwork2, subnetwork2.getGeneratorStream());
-        assertEquals(2, merged.getGeneratorCount());
-        assertEquals(1, subnetwork1.getGeneratorCount());
-        assertEquals(1, subnetwork2.getGeneratorCount());
+        var expectedIdsForSubnetwork1 = List.of(id("generator1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("generator1", ID_2));
 
-        assertNotNull(merged.getGenerator(n1Generator1));
-        assertNotNull(merged.getGenerator(n2Generator1));
-        assertNotNull(subnetwork1.getGenerator(n1Generator1));
-        assertNull(subnetwork1.getGenerator(n2Generator1));
-        assertNull(subnetwork2.getGenerator(n1Generator1));
-        assertNotNull(subnetwork2.getGenerator(n2Generator1));
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getGenerators,
+                Network::getGeneratorStream,
+                Network::getGeneratorCount,
+                Network::getGenerator);
     }
 
     @Test
     public void testExploreLoads() {
-        String n1Load1 = id("load1", "1");
-        String n2Load1 = id("load1", "2");
-        var expectedIdsForMerged = List.of(n1Load1, n2Load1);
-        var expectedIdsForSubnetwork1 = List.of(n1Load1);
-        var expectedIdsForSubnetwork2 = List.of(n2Load1);
-        assertIds(expectedIdsForMerged, merged.getLoads());
-        assertIds(expectedIdsForSubnetwork1, subnetwork1.getLoads());
-        assertIds(expectedIdsForSubnetwork2, subnetwork2.getLoads());
-        assertIds(expectedIdsForMerged, merged.getLoadStream());
-        assertIds(expectedIdsForSubnetwork1, subnetwork1.getLoadStream());
-        assertIds(expectedIdsForSubnetwork2, subnetwork2.getLoadStream());
-        assertEquals(2, merged.getLoadCount());
-        assertEquals(1, subnetwork1.getLoadCount());
-        assertEquals(1, subnetwork2.getLoadCount());
+        var expectedIdsForSubnetwork1 = List.of(id("load1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("load1", ID_2));
 
-        assertNotNull(merged.getLoad(n1Load1));
-        assertNotNull(merged.getLoad(n2Load1));
-        assertNotNull(subnetwork1.getLoad(n1Load1));
-        assertNull(subnetwork1.getLoad(n2Load1));
-        assertNull(subnetwork2.getLoad(n1Load1));
-        assertNotNull(subnetwork2.getLoad(n2Load1));
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getLoads,
+                Network::getLoadStream,
+                Network::getLoadCount,
+                Network::getLoad);
     }
 
     @Test
     public void testExploreBatteries() {
-        String n1Battery1 = id("battery1", "1");
-        String n2Battery1 = id("battery1", "2");
-        var expectedIdsForMerged = List.of(n1Battery1, n2Battery1);
-        var expectedIdsForSubnetwork1 = List.of(n1Battery1);
-        var expectedIdsForSubnetwork2 = List.of(n2Battery1);
-        assertIds(expectedIdsForMerged, merged.getBatteries());
-        assertIds(expectedIdsForSubnetwork1, subnetwork1.getBatteries());
-        assertIds(expectedIdsForSubnetwork2, subnetwork2.getBatteries());
-        assertIds(expectedIdsForMerged, merged.getBatteryStream());
-        assertIds(expectedIdsForSubnetwork1, subnetwork1.getBatteryStream());
-        assertIds(expectedIdsForSubnetwork2, subnetwork2.getBatteryStream());
-        assertEquals(2, merged.getBatteryCount());
-        assertEquals(1, subnetwork1.getBatteryCount());
-        assertEquals(1, subnetwork2.getBatteryCount());
+        var expectedIdsForSubnetwork1 = List.of(id("battery1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("battery1", ID_2));
 
-        assertNotNull(merged.getBattery(n1Battery1));
-        assertNotNull(merged.getBattery(n2Battery1));
-        assertNotNull(subnetwork1.getBattery(n1Battery1));
-        assertNull(subnetwork1.getBattery(n2Battery1));
-        assertNull(subnetwork2.getBattery(n1Battery1));
-        assertNotNull(subnetwork2.getBattery(n2Battery1));
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getBatteries,
+                Network::getBatteryStream,
+                Network::getBatteryCount,
+                Network::getBattery);
+    }
+
+    @Test
+    public void testExploreShuntCompensators() {
+        var expectedIdsForSubnetwork1 = List.of(id("shuntCompensator1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("shuntCompensator1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getShuntCompensators,
+                Network::getShuntCompensatorStream,
+                Network::getShuntCompensatorCount,
+                Network::getShuntCompensator);
+    }
+
+    @Test
+    public void testExploreStaticVarCompensators() {
+        var expectedIdsForSubnetwork1 = List.of(id("svc1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("svc1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getStaticVarCompensators,
+                Network::getStaticVarCompensatorStream,
+                Network::getStaticVarCompensatorCount,
+                Network::getStaticVarCompensator);
+    }
+
+    @Test
+    public void testExploreBusbarSections() {
+        var expectedIdsForSubnetwork1 = List.of(id("voltageLevel1BusbarSection1", ID_1),
+                id("voltageLevel1BusbarSection2", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("voltageLevel1BusbarSection1", ID_2),
+                id("voltageLevel1BusbarSection2", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getBusbarSections,
+                Network::getBusbarSectionStream,
+                Network::getBusbarSectionCount,
+                Network::getBusbarSection);
+    }
+
+    @Test
+    public void testExploreSwitches() {
+        var expectedIdsForSubnetwork1 = List.of(id("voltageLevel1Breaker1", ID_1),
+                id("load1Disconnector1", ID_1),
+                id("load1Breaker1", ID_1),
+                id("generator1Disconnector1", ID_1),
+                id("generator1Breaker1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("voltageLevel1Breaker1", ID_2),
+                id("load1Disconnector1", ID_2),
+                id("load1Breaker1", ID_2),
+                id("generator1Disconnector1", ID_2),
+                id("generator1Breaker1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getSwitches,
+                Network::getSwitchStream,
+                Network::getSwitchCount,
+                Network::getSwitch);
+    }
+
+    @Test
+    public void testExploreHvdcConverterStations() {
+        var lccIdsForSubnetwork1 = List.of(id("lcc1", ID_1),
+                id("lcc2", ID_1));
+        var lccIdsForSubnetwork2 = List.of(id("lcc1", ID_2),
+                id("lcc2", ID_2));
+        testExploreElements(lccIdsForSubnetwork1, lccIdsForSubnetwork2,
+                Network::getLccConverterStations,
+                Network::getLccConverterStationStream,
+                Network::getLccConverterStationCount,
+                Network::getLccConverterStation);
+
+        var vscIdsForSubnetwork1 = List.of(id("vsc1", ID_1),
+                id("vsc2", ID_1));
+        var vscIdsForSubnetwork2 = List.of(id("vsc1", ID_2),
+                id("vsc2", ID_2));
+        testExploreElements(vscIdsForSubnetwork1, vscIdsForSubnetwork2,
+                Network::getVscConverterStations,
+                Network::getVscConverterStationStream,
+                Network::getVscConverterStationCount,
+                Network::getVscConverterStation);
+
+        var hvdcConvertersForSubnetwork1 = concat(lccIdsForSubnetwork1, vscIdsForSubnetwork1);
+        var hvdcConvertersForSubnetwork2 = concat(lccIdsForSubnetwork2, vscIdsForSubnetwork2);
+        testExploreElements(hvdcConvertersForSubnetwork1, hvdcConvertersForSubnetwork2,
+                Network::getHvdcConverterStations,
+                Network::getHvdcConverterStationStream,
+                Network::getHvdcConverterStationCount,
+                Network::getHvdcConverterStation);
+    }
+
+    @Test
+    public void testExploreHvdcLines() {
+        String n1HvdcLine1 = id("hvdcLine1", ID_1);
+        String n1HvdcLine2 = id("hvdcLine2", ID_1);
+        String n2HvdcLine1 = id("hvdcLine1", ID_2);
+        String n2HvdcLine2 = id("hvdcLine2", ID_2);
+        var expectedIdsForSubnetwork1 = List.of(n1HvdcLine1, n1HvdcLine2);
+        var expectedIdsForSubnetwork2 = List.of(n2HvdcLine1, n2HvdcLine2);
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getHvdcLines,
+                Network::getHvdcLineStream,
+                Network::getHvdcLineCount,
+                Network::getHvdcLine);
+
+        HvdcConverterStation<?> converter = merged.getLccConverterStation(id("lcc1", ID_1));
+        assertEquals(n1HvdcLine1, merged.getHvdcLine(converter).getId());
+        assertEquals(n1HvdcLine1, subnetwork1.getHvdcLine(converter).getId());
+        assertNull(subnetwork2.getHvdcLine(converter));
+
+        converter = merged.getVscConverterStation(id("vsc2", ID_1));
+        assertEquals(n1HvdcLine2, merged.getHvdcLine(converter).getId());
+        assertEquals(n1HvdcLine2, subnetwork1.getHvdcLine(converter).getId());
+        assertNull(subnetwork2.getHvdcLine(converter));
+
+        converter = merged.getVscConverterStation(id("vsc1", ID_2));
+        assertEquals(n2HvdcLine2, merged.getHvdcLine(converter).getId());
+        assertNull(subnetwork1.getHvdcLine(converter));
+        assertEquals(n2HvdcLine2, subnetwork2.getHvdcLine(converter).getId());
+
+        converter = merged.getLccConverterStation(id("lcc2", ID_2));
+        assertEquals(n2HvdcLine1, merged.getHvdcLine(converter).getId());
+        assertNull(subnetwork1.getHvdcLine(converter));
+        assertEquals(n2HvdcLine1, subnetwork2.getHvdcLine(converter).getId());
+    }
+
+    @Test
+    public void testExploreThreeWindingsTransformers() {
+        var expectedIdsForSubnetwork1 = List.of(id("threeWindingsTransformer1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("threeWindingsTransformer1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getThreeWindingsTransformers,
+                Network::getThreeWindingsTransformerStream,
+                Network::getThreeWindingsTransformerCount,
+                Network::getThreeWindingsTransformer);
+    }
+
+    @Test
+    public void testExploreTwoWindingsTransformers() {
+        var expectedIdsForSubnetwork1 = List.of(id("twoWindingsTransformer1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("twoWindingsTransformer1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getTwoWindingsTransformers,
+                Network::getTwoWindingsTransformerStream,
+                Network::getTwoWindingsTransformerCount,
+                Network::getTwoWindingsTransformer);
+    }
+
+    @Test
+    public void testExploreLines() {
+        var expectedIdsForSubnetwork1 = List.of(id("line1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("line1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getLines,
+                Network::getLineStream,
+                Network::getLineCount,
+                Network::getLine);
+    }
+
+    @Test
+    public void testExploreBranches() {
+        var expectedIdsForSubnetwork1 = List.of(id("line1", ID_1),
+                id("twoWindingsTransformer1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("line1", ID_2),
+                id("twoWindingsTransformer1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getBranches,
+                Network::getBranchStream,
+                Network::getBranchCount,
+                Network::getBranch);
+    }
+
+    @Test
+    public void testExploreConnectables() {
+        var expectedIdsForSubnetwork1 = List.of(id("battery1", ID_1),
+                id("voltageLevel1BusbarSection1", ID_1), id("voltageLevel1BusbarSection2", ID_1),
+                id("generator1", ID_1),
+                id("lcc1", ID_1), id("lcc2", ID_1),
+                id("line1", ID_1),
+                id("load1", ID_1),
+                id("shuntCompensator1", ID_1),
+                id("svc1", ID_1),
+                id("vsc1", ID_1), id("vsc2", ID_1),
+                id("threeWindingsTransformer1", ID_1),
+                id("twoWindingsTransformer1", ID_1));
+
+        var expectedIdsForSubnetwork2 = List.of(id("battery1", ID_2),
+                id("voltageLevel1BusbarSection1", ID_2), id("voltageLevel1BusbarSection2", ID_2),
+                id("generator1", ID_2),
+                id("lcc1", ID_2), id("lcc2", ID_2),
+                id("line1", ID_2),
+                id("load1", ID_2),
+                id("shuntCompensator1", ID_2),
+                id("svc1", ID_2),
+                id("vsc1", ID_2), id("vsc2", ID_2),
+                id("threeWindingsTransformer1", ID_2),
+                id("twoWindingsTransformer1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getConnectables,
+                Network::getConnectableStream,
+                Network::getConnectableCount,
+                Network::getConnectable);
+    }
+
+    private <T extends Identifiable<?>> void testExploreElements(Collection<String> expectedIdsForSubnetwork1,
+                                                                 Collection<String> expectedIdsForSubnetwork2,
+                                                                 Function<Network, Iterable<T>> getIterableFunction,
+                                                                 Function<Network, Stream<T>> getStreamFunction,
+                                                                 Function<Network, Integer> getCountFunction,
+                                                                 BiFunction<Network, String, T> getElementByIdFunction) {
+        testExploreElements(Collections.emptyList(),
+                expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                getIterableFunction, getStreamFunction, getCountFunction, getElementByIdFunction);
+    }
+
+    private <T extends Identifiable<?>> void testExploreElements(Collection<String> expectedIdsOnlyForMerged,
+                                                                 Collection<String> expectedIdsForSubnetwork1,
+                                                                 Collection<String> expectedIdsForSubnetwork2,
+                                                                 Function<Network, Iterable<T>> getIterableFunction,
+                                                                 Function<Network, Stream<T>> getStreamFunction,
+                                                                 Function<Network, Integer> getCountFunction,
+                                                                 BiFunction<Network, String, T> getElementByIdFunction) {
+
+        var expectedIdsForMerged = concat(expectedIdsOnlyForMerged, expectedIdsForSubnetwork1, expectedIdsForSubnetwork2);
+
+        // Test the function returning an Iterable of <T> elements
+        assertIds(expectedIdsForMerged, getIterableFunction.apply(merged));
+        assertIds(expectedIdsForSubnetwork1, getIterableFunction.apply(subnetwork1));
+        assertIds(expectedIdsForSubnetwork2, getIterableFunction.apply(subnetwork2));
+
+        // Test the function returning a Stream of <T> elements
+        assertIds(expectedIdsForMerged, getStreamFunction.apply(merged));
+        assertIds(expectedIdsForSubnetwork1, getStreamFunction.apply(subnetwork1));
+        assertIds(expectedIdsForSubnetwork2, getStreamFunction.apply(subnetwork2));
+
+        // Test the function returning the <T> elements count
+        assertEquals(expectedIdsForMerged.size(), getCountFunction.apply(merged));
+        assertEquals(expectedIdsForSubnetwork1.size(), getCountFunction.apply(subnetwork1));
+        assertEquals(expectedIdsForSubnetwork2.size(), getCountFunction.apply(subnetwork2));
+
+        // Test the function returning the <T> element from its id
+        String idInSubnetwork1 = findOneElement(expectedIdsForSubnetwork1);
+        String idInSubnetwork2 = findOneElement(expectedIdsForSubnetwork2);
+        assertNotNull(getElementByIdFunction.apply(merged, idInSubnetwork1));
+        assertNotNull(getElementByIdFunction.apply(merged, idInSubnetwork2));
+        assertNotNull(getElementByIdFunction.apply(subnetwork1, idInSubnetwork1));
+        assertNull(getElementByIdFunction.apply(subnetwork1, idInSubnetwork2));
+        assertNull(getElementByIdFunction.apply(subnetwork2, idInSubnetwork1));
+        assertNotNull(getElementByIdFunction.apply(subnetwork2, idInSubnetwork2));
+        if (!expectedIdsOnlyForMerged.isEmpty()) {
+            String idOnlyInMerged = findOneElement(expectedIdsOnlyForMerged);
+            assertNotNull(getElementByIdFunction.apply(merged, idOnlyInMerged));
+            assertNull(getElementByIdFunction.apply(subnetwork1, idOnlyInMerged));
+            assertNull(getElementByIdFunction.apply(subnetwork2, idOnlyInMerged));
+        }
+    }
+
+    private static String findOneElement(Collection<String> expectedIdsForSubnetwork1) {
+        // sorted, for reproducibility
+        return expectedIdsForSubnetwork1.stream().sorted().findFirst().orElseThrow();
+    }
+
+    @SafeVarargs
+    private static Collection<String> concat(Collection<String>... lists) {
+        Collection<String> res = new HashSet<>();
+        for (var l : lists) {
+            res.addAll(l);
+        }
+        return res;
     }
 
     private <T> void assertCollection(Collection<T> expected, Collection<T> actual) {
