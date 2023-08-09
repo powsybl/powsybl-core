@@ -59,7 +59,7 @@ public interface CgmesModel {
 
     PropertyBags baseVoltages();
 
-    PropertyBags geographicalRegions();
+    PropertyBags sourcingActor(String sourcingActor);
 
     PropertyBags substations();
 

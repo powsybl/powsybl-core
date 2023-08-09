@@ -119,17 +119,21 @@ SELECT *
     ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage .
 }}
 
-# query: geographicalRegions
+# query: sourcingActor
 SELECT *
 WHERE {
+    ?ModelingAuthority
+        a cgmbp:ModelingAuthority ;
+        cim:IdentifiedObject.name ?name ;
+        cgmbp:Party.sourceName "{0}" ;
+        cgmbp:Party.uri ?uri .
     ?Region
         a cim:GeographicalRegion ;
-        cim:IdentifiedObject.name ?name ;
-        entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic .
-    # The cgmbp prefix is not yet defined
-    # We will have to check if we need this data
-    # OPTIONAL { ?Region cgmbp:MARegion.ModelingAuthority ?ModelingAuthority }
-    # OPTIONAL { ?Region cgmbp:NetworkRegion.sourcingActor ?sourcingActor }
+        cim:IdentifiedObject.name ?regionName ;
+        entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic ;
+        cgmbp:MARegion.ModelingAuthority ?ModelingAuthority ;
+        cgmbp:NetworkRegion.sourcingActor "{0}" ;
+        cgmbp:NetworkRegion.masUri ?masUri .
 }
 
 # query: substations
