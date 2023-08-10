@@ -15,27 +15,32 @@ import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
- * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class ReferenceDataProvider {
+    private final String sourcingActorName;
     private final CgmesImport cgmesImport;
     private final Properties params;
+    private PropertyBag sourcingActor;
     private CgmesModel referenceData = null;
     private final Map<Double, String> baseVoltagesByNominalVoltage = new HashMap<>();
 
-    // FIXME(Luma) memoize referenceData and map of baseVoltages when they are first needed
+    // TODO(Luma) try to memoize referenceData, map of baseVoltages and sourcing actor data instead of use this flag?
     private boolean loaded = false;
 
-    public ReferenceDataProvider(CgmesImport cgmesImport, Properties params) {
+    public ReferenceDataProvider(String sourcingActorName, CgmesImport cgmesImport, Properties params) {
+        this.sourcingActorName = sourcingActorName;
         this.cgmesImport = cgmesImport;
         this.params = params;
     }
@@ -45,27 +50,42 @@ public class ReferenceDataProvider {
         return baseVoltagesByNominalVoltage.get(nominalV);
     }
 
-    public PropertyBag getSourcingActor(String sourcingActorName) {
+    public PropertyBag getSourcingActor() {
         ensureReferenceDataIsLoaded();
+        return sourcingActor;
+    }
 
-        PropertyBags sourcingActorRecords = referenceData.sourcingActor(sourcingActorName);
-        if (sourcingActorRecords.size() > 1 && LOG.isWarnEnabled()) {
-            LOG.warn("Multiple records found for sourcing actor {}. Will consider only first one", sourcingActorName);
-            LOG.warn(sourcingActorRecords.tabulateLocals());
+    public Pair<String, String> getSourcingActorRegion() {
+        ensureReferenceDataIsLoaded();
+        if (sourcingActor.containsKey("GeographicalRegion") && sourcingActor.containsKey("geographicalRegionName")) {
+            return Pair.of(sourcingActor.getId("GeographicalRegion"), sourcingActor.getLocal("geographicalRegionName"));
         }
-        return sourcingActorRecords.get(0);
+        return null;
     }
 
     private void ensureReferenceDataIsLoaded() {
         if (loaded) {
             return;
         }
+        loadReferenceData();
+        loadBaseVoltages();
+        loadSourcingActor();
+        loaded = true;
+    }
+
+    private void loadReferenceData() {
+        // Force the load of boundaries using an empty data source
         ReadOnlyDataSource emptyDataSource = new ReadOnlyMemDataSource();
         try {
             referenceData = cgmesImport.readCgmes(emptyDataSource, params, Reporter.NO_OP);
         } catch (CgmesModelException x) {
             // We have made an attempt to load it and discovered it is invalid
-            loaded = true;
+            referenceData = null;
+        }
+    }
+
+    private void loadBaseVoltages() {
+        if (referenceData == null) {
             return;
         }
         baseVoltagesByNominalVoltage.clear();
@@ -73,7 +93,19 @@ public class ReferenceDataProvider {
                 bv -> bv.asDouble("nominalVoltage"),
                 bv -> bv.getLocal("BaseVoltage")
         )));
-        loaded = true;
+    }
+
+    private void loadSourcingActor() {
+        if (referenceData != null && sourcingActorName != null && !sourcingActorName.isEmpty()) {
+            PropertyBags sourcingActorRecords = referenceData.sourcingActor(sourcingActorName);
+            if (sourcingActorRecords.size() > 1 && LOG.isWarnEnabled()) {
+                LOG.warn("Multiple records found for sourcing actor {}. Will consider only first one", sourcingActorName);
+                LOG.warn(sourcingActorRecords.tabulateLocals());
+            }
+            sourcingActor = sourcingActorRecords.get(0);
+        } else {
+            sourcingActor = new PropertyBag(Collections.emptyList(), true);
+        }
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(ReferenceDataProvider.class);

@@ -16,6 +16,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.DateTime;
 
 import java.net.URLEncoder;
@@ -284,8 +285,9 @@ public class CgmesExportContext {
         for (Substation substation : network.getSubstations()) {
             String regionName;
             if (!substation.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID)) {
-                regionName = substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
-                String regionId = regionsIdsByRegionName.computeIfAbsent(regionName, k -> CgmesExportUtil.getUniqueId());
+                Pair<String, String> region = getCreateRegion(substation);
+                String regionId = region.getLeft();
+                regionName = region.getRight();
                 substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_ID, regionId);
                 substation.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGION_NAME, regionName);
             } else {
@@ -310,6 +312,23 @@ public class CgmesExportContext {
                 subRegionsIdsBySubRegionName.computeIfAbsent(geoTag, k -> namingStrategy.getCgmesIdFromProperty(substation, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + SUB_REGION_ID));
             }
         }
+    }
+
+    private Pair<String, String> getCreateRegion(Substation substation) {
+        // The current substation does not have explicit information for geographical region,
+        // Try to obtain it from the reference data based on the current sourcing actor we are using for export
+        Pair<String, String> region = null;
+        if (referenceDataProvider != null) {
+            region = referenceDataProvider.getSourcingActorRegion();
+        }
+        if (region == null) {
+            // If no information is available from reference data,
+            // Just create a new geographical region using country name as name
+            String regionName = substation.getCountry().map(Country::name).orElse(DEFAULT_REGION);
+            String regionId = regionsIdsByRegionName.computeIfAbsent(regionName, k -> CgmesExportUtil.getUniqueId());
+            region = Pair.of(regionId, regionName);
+        }
+        return region;
     }
 
     private void addIidmMappingsBaseVoltages(BaseVoltageMapping mapping, Network network) {

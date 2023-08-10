@@ -127,9 +127,9 @@ WHERE {
         cim:IdentifiedObject.name ?name ;
         cgmbp:Party.sourceName "{0}" ;
         cgmbp:Party.uri ?uri .
-    ?Region
+    ?GeographicalRegion
         a cim:GeographicalRegion ;
-        cim:IdentifiedObject.name ?regionName ;
+        cim:IdentifiedObject.name ?geographicalRegionName ;
         entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic ;
         cgmbp:MARegion.ModelingAuthority ?ModelingAuthority ;
         cgmbp:NetworkRegion.sourcingActor "{0}" ;

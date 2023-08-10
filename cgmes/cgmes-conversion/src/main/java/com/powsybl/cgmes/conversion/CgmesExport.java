@@ -73,11 +73,9 @@ public class CgmesExport implements Exporter {
         String filenameSv = baseName + "_SV.xml";
 
         // Reference data (if required) will come from imported boundaries
-        ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(importer, params);
-
-        // If we have receive sourcing actor from parameters,
-        // make an attempt to obtain its related data
-        PropertyBag sourcingActor = determineSourcingActor(params, referenceDataProvider);
+        // We may have received a sourcing actor as a parameter
+        String sourcingActorName = Parameter.readString(getFormat(), params, SOURCING_ACTOR_PARAMETER, defaultValueConfig);
+        ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(sourcingActorName, importer, params);
 
         CgmesExportContext context = new CgmesExportContext(
                 network,
@@ -92,6 +90,7 @@ public class CgmesExport implements Exporter {
 
         // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
         String masUri = Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig);
+        PropertyBag sourcingActor = referenceDataProvider.getSourcingActor();
         if (sourcingActor.containsKey("masUri") && masUri.equals(DEFAULT_MODELING_AUTHORITY_SET_VALUE)) {
             masUri = sourcingActor.get("masUri");
         }
@@ -151,15 +150,6 @@ public class CgmesExport implements Exporter {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
-    }
-
-    private PropertyBag determineSourcingActor(Properties params, ReferenceDataProvider referenceDataProvider) {
-        PropertyBag sourcingActor = new PropertyBag(Collections.emptyList(), true);
-        String sourcingActorName = Parameter.readString(getFormat(), params, SOURCING_ACTOR_PARAMETER, defaultValueConfig);
-        if (sourcingActorName != null && !sourcingActorName.isEmpty()) {
-            sourcingActor = referenceDataProvider.getSourcingActor(sourcingActorName);
-        }
-        return sourcingActor;
     }
 
     private String getBoundaryId(String profile, Network network, Properties params, Parameter parameter) {
