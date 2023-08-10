@@ -319,7 +319,7 @@ public class SecurityAnalysisTool implements Tool {
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         run(line, context,
             createBuilder(PlatformConfig.defaultConfig()),
-            isDynamic(line) ? SecurityAnalysisParameters::load : DynamicSecurityAnalysisParameters::load,
+            isDynamic(line) ? DynamicSecurityAnalysisParameters::load : SecurityAnalysisParameters::load,
             new ImportersServiceLoader(),
             TableFormatterConfig::load);
     }

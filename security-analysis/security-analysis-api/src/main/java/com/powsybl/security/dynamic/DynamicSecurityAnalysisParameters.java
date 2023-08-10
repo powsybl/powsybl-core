@@ -8,6 +8,7 @@
 package com.powsybl.security.dynamic;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
@@ -43,6 +44,10 @@ public class DynamicSecurityAnalysisParameters extends AbstractSecurityAnalysisP
             this.contingenciesStartTime = contingenciesStartTime;
             return this;
         }
+
+        public void load(ModuleConfig config) {
+            setContingenciesStartTime(config.getIntProperty("contingencies-start-time", DEFAULT_CONTINGENCIES_START_TIME));
+        }
     }
 
     /**
@@ -62,7 +67,10 @@ public class DynamicSecurityAnalysisParameters extends AbstractSecurityAnalysisP
 
         parameters.setDynamicSimulationParameters(DynamicSimulationParameters.load(platformConfig));
         platformConfig.getOptionalModuleConfig("dynamic-security-analysis-default-parameters")
-                .ifPresent(config -> parameters.getIncreasedViolationsParameters().load(config));
+                .ifPresent(config -> {
+                    parameters.getIncreasedViolationsParameters().load(config);
+                    parameters.getDynamicContingenciesParameters().load(config);
+                });
         parameters.readExtensions(platformConfig);
         return parameters;
     }

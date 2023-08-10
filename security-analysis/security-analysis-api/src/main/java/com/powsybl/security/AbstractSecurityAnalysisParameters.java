@@ -130,11 +130,11 @@ public abstract class AbstractSecurityAnalysisParameters<T> extends AbstractExte
         }
 
         public void load(ModuleConfig config) {
-            setFlowProportionalThreshold(config.getDoubleProperty("increased-flow-violations-proportional-threshold", IncreasedViolationsParameters.DEFAULT_FLOW_PROPORTIONAL_THRESHOLD))
-                    .setLowVoltageProportionalThreshold(config.getDoubleProperty("increased-low-voltage-violations-proportional-threshold", IncreasedViolationsParameters.DEFAULT_LOW_VOLTAGE_PROPORTIONAL_THRESHOLD))
-                    .setHighVoltageProportionalThreshold(config.getDoubleProperty("increased-high-voltage-violations-proportional-threshold", IncreasedViolationsParameters.DEFAULT_HIGH_VOLTAGE_PROPORTIONAL_THRESHOLD))
-                    .setLowVoltageAbsoluteThreshold(config.getDoubleProperty("increased-low-voltage-violations-absolute-threshold", IncreasedViolationsParameters.DEFAULT_LOW_VOLTAGE_ABSOLUTE_THRESHOLD))
-                    .setHighVoltageAbsoluteThreshold(config.getDoubleProperty("increased-high-voltage-violations-absolute-threshold", IncreasedViolationsParameters.DEFAULT_HIGH_VOLTAGE_ABSOLUTE_THRESHOLD));
+            setFlowProportionalThreshold(config.getDoubleProperty("increased-flow-violations-proportional-threshold", DEFAULT_FLOW_PROPORTIONAL_THRESHOLD))
+                    .setLowVoltageProportionalThreshold(config.getDoubleProperty("increased-low-voltage-violations-proportional-threshold", DEFAULT_LOW_VOLTAGE_PROPORTIONAL_THRESHOLD))
+                    .setHighVoltageProportionalThreshold(config.getDoubleProperty("increased-high-voltage-violations-proportional-threshold", DEFAULT_HIGH_VOLTAGE_PROPORTIONAL_THRESHOLD))
+                    .setLowVoltageAbsoluteThreshold(config.getDoubleProperty("increased-low-voltage-violations-absolute-threshold", DEFAULT_LOW_VOLTAGE_ABSOLUTE_THRESHOLD))
+                    .setHighVoltageAbsoluteThreshold(config.getDoubleProperty("increased-high-voltage-violations-absolute-threshold", DEFAULT_HIGH_VOLTAGE_ABSOLUTE_THRESHOLD));
         }
     }
 
