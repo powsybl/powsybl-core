@@ -84,8 +84,8 @@ public class CgmesExport implements Exporter {
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
                 .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
-                .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER))
-                .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER))
+                .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER, referenceDataProvider))
+                .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER, referenceDataProvider))
                 .setReporter(reporter);
 
         // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
@@ -152,11 +152,20 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private String getBoundaryId(String profile, Network network, Properties params, Parameter parameter) {
+    private String getBoundaryId(String profile, Network network, Properties params, Parameter parameter, ReferenceDataProvider referenceDataProvider) {
         if (network.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_BD_ID")) {
             return network.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_BD_ID");
         }
-        return Parameter.readString(getFormat(), params, parameter, defaultValueConfig);
+        String id = Parameter.readString(getFormat(), params, parameter, defaultValueConfig);
+        // If not specified through a parameter, try to load it from reference data
+        if (id == null && referenceDataProvider != null) {
+            if ("EQ".equals(profile)) {
+                id = referenceDataProvider.getEquipmentBoundaryId();
+            } else if ("TP".equals(profile)) {
+                id = referenceDataProvider.getTopologyBoundaryId();
+            }
+        }
+        return id;
     }
 
     private static void addProfilesIdentifiers(Network network, String profile, CgmesExportContext.ModelDescription description) {

@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.export;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import com.powsybl.commons.reporter.Reporter;
@@ -35,6 +36,8 @@ public class ReferenceDataProvider {
     private PropertyBag sourcingActor;
     private CgmesModel referenceData = null;
     private final Map<Double, String> baseVoltagesByNominalVoltage = new HashMap<>();
+    private String equipmentBoundaryId = null;
+    private String topologyBoundaryId = null;
 
     // TODO(Luma) try to memoize referenceData, map of baseVoltages and sourcing actor data instead of use this flag?
     private boolean loaded = false;
@@ -63,11 +66,22 @@ public class ReferenceDataProvider {
         return null;
     }
 
+    public String getEquipmentBoundaryId() {
+        ensureReferenceDataIsLoaded();
+        return equipmentBoundaryId;
+    }
+
+    public String getTopologyBoundaryId() {
+        ensureReferenceDataIsLoaded();
+        return topologyBoundaryId;
+    }
+
     private void ensureReferenceDataIsLoaded() {
         if (loaded) {
             return;
         }
         loadReferenceData();
+        loadBoundaryModelIds();
         loadBaseVoltages();
         loadSourcingActor();
         loaded = true;
@@ -81,6 +95,27 @@ public class ReferenceDataProvider {
         } catch (CgmesModelException x) {
             // We have made an attempt to load it and discovered it is invalid
             referenceData = null;
+        }
+    }
+
+    private void loadBoundaryModelIds() {
+        if (referenceData == null) {
+            return;
+        }
+        if (!(referenceData instanceof CgmesModelTripleStore)) {
+            return;
+        }
+        CgmesModelTripleStore referenceDataTs = (CgmesModelTripleStore) referenceData;
+        PropertyBags boundaryModelIds = referenceDataTs.namedQuery("boundaryModelIds");
+        for (PropertyBag mid : boundaryModelIds) {
+            String modelId = mid.getId("FullModel");
+            String profile = mid.getLocal("profile");
+
+            if (profile.contains("EquipmentBoundary")) {
+                equipmentBoundaryId = modelId;
+            } else if (profile.contains("TopologyBoundary")) {
+                topologyBoundaryId = modelId;
+            }
         }
     }
 

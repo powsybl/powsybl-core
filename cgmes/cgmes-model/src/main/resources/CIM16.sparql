@@ -42,6 +42,19 @@ SELECT *
         && !regex(?profile, "TopologyBoundary", "i"))
 }}
 
+# query: boundaryModelIds
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    # All model identifiers related to boundaries
+    ?FullModel
+        a md:FullModel ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
+        md:Model.profile ?profile .
+    FILTER (regex(?profile, "EquipmentBoundary", "i")
+        || regex(?profile, "TopologyBoundary", "i"))
+}}
+
 # query: modelDates
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
