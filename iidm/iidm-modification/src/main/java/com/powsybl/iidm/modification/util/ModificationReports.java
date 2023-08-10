@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.*;
  */
 public final class ModificationReports {
 
+    private static final String SUBSTATION_ID = "substationId";
     private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
     private static final String LINE_ID = "lineId";
     private static final String BBS_ID = "bbsId";
@@ -39,7 +40,7 @@ public final class ModificationReports {
     public static void createdNodeBreakerFeederBay(Reporter reporter, String voltageLevelId, String bbsId, Connectable<?> connectable, int parallelBbsNumber) {
         reporter.report(Report.builder()
                 .withKey("newConnectableAdded")
-                .withDefaultMessage("New feeder bay associated to ${connectableId} of type ${connectableType} was created and connected to voltage level ${voltageLevelId} on busbar section ${bbsId} with a closed disconnector" +
+                .withDefaultMessage("New feeder bay associated to ${connectableId} of type ${connectableType} was created and connected to voltage level ${voltageLevelId} on busbar section ${bbsId} with a closed disconnector " +
                         "and on ${parallelBbsNumber} parallel busbar sections with an open disconnector.")
                 .withValue(CONNECTABLE_ID, connectable.getId())
                 .withValue("connectableType", connectable.getType().toString())
@@ -93,7 +94,7 @@ public final class ModificationReports {
         reporter.report(Report.builder()
                 .withKey("substationRemoved")
                 .withDefaultMessage("Substation ${substationId} removed")
-                .withValue("substationId", substationId)
+                .withValue(SUBSTATION_ID, substationId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
@@ -165,6 +166,15 @@ public final class ModificationReports {
                 .withValue(CONNECTABLE_ID, connectableId)
                 .withValue("node", node)
                 .withValue("otherConnectableId", otherConnectableId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .build());
+    }
+
+    public static void removedSubstationReport(Reporter reporter, String substationId) {
+        reporter.report(Report.builder()
+                .withKey("removeSubstation")
+                .withDefaultMessage("Substation ${substationId} and its voltage levels have been removed")
+                .withValue(SUBSTATION_ID, substationId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }
@@ -422,6 +432,15 @@ public final class ModificationReports {
                 .withKey("voltageLevelNotFound")
                 .withDefaultMessage("Voltage level ${voltageLevelId} is not found")
                 .withValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.ERROR_SEVERITY)
+                .build());
+    }
+
+    public static void notFoundSubstationReport(Reporter reporter, String substationId) {
+        reporter.report(Report.builder()
+                .withKey("substationNotFound")
+                .withDefaultMessage("Substation ${substationId} is not found")
+                .withValue(SUBSTATION_ID, substationId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
                 .build());
     }

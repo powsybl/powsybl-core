@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -273,6 +272,51 @@ class CriterionContingencyListTest {
         contingencies = contingencyList.getContingencies(fourSubstationNetwork);
         assertEquals(1, contingencies.size());
         assertEquals(new Contingency("GTH1", new GeneratorContingency("GTH1")), contingencies.get(0));
+
+        // three-windings transformers
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        network.getVoltageLevel("VL_132").setProperty("property", "value1");
+        network.getVoltageLevel("VL_33").setProperty("property", "value2");
+        network.getVoltageLevel("VL_11").setProperty("property", "value3");
+        values = List.of("value");
+        propertyCriterion = new PropertyCriterion("property", values,
+                PropertyCriterion.EquipmentToCheck.VOLTAGE_LEVEL);
+        contingencyList = new ThreeWindingsTransformerCriterionContingencyList("list1", null,
+                null, Collections.singletonList(propertyCriterion), null);
+        var cl = contingencyList;
+        Exception e = assertThrows(IllegalArgumentException.class, () -> cl.getContingencies(network));
+        assertTrue(e.getMessage().contains("enum to check side can not be null for threeWindingsTransformer to check their voltage level"));
+
+        assertThreeWindingsTransformerContingencies(false, network, "value0", PropertyCriterion.SideToCheck.ONE);
+        assertThreeWindingsTransformerContingencies(true, network, "value1", PropertyCriterion.SideToCheck.ONE);
+        assertThreeWindingsTransformerContingencies(true, network, "value2", PropertyCriterion.SideToCheck.ONE);
+        assertThreeWindingsTransformerContingencies(true, network, "value3", PropertyCriterion.SideToCheck.ONE);
+        assertThreeWindingsTransformerContingencies(false, network, "value1", PropertyCriterion.SideToCheck.BOTH);
+        assertThreeWindingsTransformerContingencies(false, network, "value1", PropertyCriterion.SideToCheck.ALL_THREE);
+
+        network.getVoltageLevel("VL_11").setProperty("property", "value2");
+        assertThreeWindingsTransformerContingencies(true, network, "value2", PropertyCriterion.SideToCheck.BOTH);
+        assertThreeWindingsTransformerContingencies(false, network, "value2", PropertyCriterion.SideToCheck.ALL_THREE);
+
+        network.getVoltageLevel("VL_132").setProperty("property", "value2");
+        assertThreeWindingsTransformerContingencies(true, network, "value2", PropertyCriterion.SideToCheck.BOTH);
+        assertThreeWindingsTransformerContingencies(true, network, "value2", PropertyCriterion.SideToCheck.ALL_THREE);
+
+    }
+
+    private void assertThreeWindingsTransformerContingencies(boolean successExpected, Network network, String value,
+                                                             PropertyCriterion.SideToCheck sideToCheck) {
+        PropertyCriterion propertyCriterion = new PropertyCriterion("property", List.of(value),
+                PropertyCriterion.EquipmentToCheck.VOLTAGE_LEVEL, sideToCheck);
+        ContingencyList contingencyList = new ThreeWindingsTransformerCriterionContingencyList("list1", null,
+                null, Collections.singletonList(propertyCriterion), null);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        if (successExpected) {
+            assertEquals(1, contingencies.size());
+            assertEquals(new Contingency("3WT", new ThreeWindingsTransformerContingency("3WT")), contingencies.get(0));
+        } else {
+            assertEquals(0, contingencies.size());
+        }
     }
 
     @Test

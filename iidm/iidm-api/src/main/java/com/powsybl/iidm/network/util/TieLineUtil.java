@@ -200,8 +200,10 @@ public final class TieLineUtil {
             }
         } else {
             // if dangling line with same ID present, there is only one: they are associated if the X-node code is identical (if not: throw exception)
-            if ((danglingLine.getUcteXnodeCode() != null && candidateDanglingLine.getUcteXnodeCode() != null
-                    && !danglingLine.getUcteXnodeCode().equals(candidateDanglingLine.getUcteXnodeCode())) || (danglingLine.getUcteXnodeCode() == null && candidateDanglingLine.getUcteXnodeCode() == null)) {
+            boolean nonNullAndDifferent = danglingLine.getUcteXnodeCode() != null && candidateDanglingLine.getUcteXnodeCode() != null
+                    && !danglingLine.getUcteXnodeCode().equals(candidateDanglingLine.getUcteXnodeCode());
+            boolean bothNull = danglingLine.getUcteXnodeCode() == null && candidateDanglingLine.getUcteXnodeCode() == null;
+            if (nonNullAndDifferent || bothNull) {
                 throw new PowsyblException("Dangling line couple " + danglingLine.getId()
                         + " have inconsistent Xnodes (" + danglingLine.getUcteXnodeCode()
                         + "!=" + candidateDanglingLine.getUcteXnodeCode() + ")");

@@ -124,8 +124,18 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public void remove() {
+        remove(false);
+    }
+
+    @Override
+    public void remove(boolean updateDanglingLines) {
         NetworkImpl network = getNetwork();
         network.getListeners().notifyBeforeRemoval(this);
+
+        if (updateDanglingLines) {
+            updateDanglingLine(danglingLine1);
+            updateDanglingLine(danglingLine2);
+        }
 
         // Remove dangling lines
         danglingLine1.removeTieLine();
@@ -362,5 +372,23 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     public double getValueForLimit(Terminal t, LimitType type) {
         return BranchUtil.getValueForLimit(t, type);
+    }
+
+    private static void updateDanglingLine(DanglingLine danglingLine) {
+        // Only update if we have values
+        if (!Double.isNaN(danglingLine.getBoundary().getP())) {
+            danglingLine.setP0(-danglingLine.getBoundary().getP());
+            if (danglingLine.getGeneration() != null) {
+                // We do not reset regulation if we only have computed a dc load flow
+                danglingLine.getGeneration().setTargetP(0.0);
+            }
+        }
+        if (!Double.isNaN(danglingLine.getBoundary().getQ())) {
+            danglingLine.setQ0(-danglingLine.getBoundary().getQ());
+            if (danglingLine.getGeneration() != null) {
+                // If q values are available a complete ac load flow has been computed, we reset regulation
+                danglingLine.getGeneration().setTargetQ(0.0).setVoltageRegulationOn(false).setTargetV(Double.NaN);
+            }
+        }
     }
 }
