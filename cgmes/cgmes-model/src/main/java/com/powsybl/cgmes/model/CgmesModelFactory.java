@@ -72,9 +72,13 @@ public final class CgmesModelFactory {
         try {
             return new CgmesOnDataSource(ds).cimNamespace();
         } catch (CgmesModelException x) {
-            try {
-                return new CgmesOnDataSource(dsBoundary).cimNamespace();
-            } catch (CgmesModelException x2) {
+            if (dsBoundary != null) {
+                try {
+                    return new CgmesOnDataSource(dsBoundary).cimNamespace();
+                } catch (CgmesModelException x2) {
+                    throw x;
+                }
+            } else {
                 throw x;
             }
         }
