@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.network.util.TieLineUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -29,14 +30,20 @@ public abstract class AbstractSubnetworksExplorationTest {
 
     public static final String ID_1 = "1";
     public static final String ID_2 = "2";
+    public static final String SHARED_TIE_LINE = TieLineUtil.buildMergedId(id("danglingLine3", ID_1), id("danglingLine3", ID_2));
     private static Network merged;
     private static Network subnetwork1;
     private static Network subnetwork2;
+    private static Collection<String> n1Identifiables;
+    private static Collection<String> n2Identifiables;
 
     @BeforeAll
     static void setUpClass() {
         Network n1 = createNetwork(ID_1, Country.ES);
         Network n2 = createNetwork(ID_2, Country.BE);
+
+        n1Identifiables = getIdentifiables(n1);
+        n2Identifiables = getIdentifiables(n2);
 
         merged = Network.create("merged", n1, n2);
         subnetwork1 = merged.getSubnetwork(id("network", ID_1));
@@ -136,7 +143,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setCountry(Country.DE)
                 .setTso(id("TSO3", networkId))
                 .add();
-        substation3.newVoltageLevel()
+        VoltageLevel voltageLevel3 = substation3.newVoltageLevel()
                 .setId(id("voltageLevel3", networkId))
                 .setNominalV(400)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
@@ -192,7 +199,32 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setNode2(14)
                 .setR(1).setX(1).setG1(0).setG2(0).setB1(0).setB2(0)
                 .add();
+        voltageLevel1.newDanglingLine()
+                .setId(id("danglingLine1", networkId))
+                .setNode(15)
+                .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
+                .add();
+        voltageLevel2.newDanglingLine()
+                .setId(id("danglingLine2", networkId))
+                .setNode(16)
+                .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
+                .add();
+        n.newTieLine()
+                .setId(id("tieLine1", networkId))
+                .setDanglingLine1(id("danglingLine1", networkId))
+                .setDanglingLine2(id("danglingLine2", networkId))
+                .add();
+        voltageLevel3.newDanglingLine()
+                .setId(id("danglingLine3", networkId))
+                .setNode(17)
+                .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
+                .setUcteXnodeCode("mergingKey") // when merging both networks, this key will be used to create a tie line
+                .add();
         return n;
+    }
+
+    private static Set<String> getIdentifiables(Network n1) {
+        return n1.getIdentifiables().stream().map(Identifiable::getId).collect(Collectors.toSet());
     }
 
     @Test
@@ -472,13 +504,45 @@ public abstract class AbstractSubnetworksExplorationTest {
     }
 
     @Test
-    public void testExploreBranches() {
-        var expectedIdsForSubnetwork1 = List.of(id("line1", ID_1),
-                id("twoWindingsTransformer1", ID_1));
-        var expectedIdsForSubnetwork2 = List.of(id("line1", ID_2),
-                id("twoWindingsTransformer1", ID_2));
+    public void testExploreDanglingLines() {
+        var expectedIdsForSubnetwork1 = List.of(id("danglingLine1", ID_1),
+                id("danglingLine2", ID_1),
+                id("danglingLine3", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("danglingLine1", ID_2),
+                id("danglingLine2", ID_2),
+                id("danglingLine3", ID_2));
 
         testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getDanglingLines,
+                Network::getDanglingLineStream,
+                Network::getDanglingLineCount,
+                Network::getDanglingLine);
+    }
+
+    @Test
+    public void testExploreTieLines() {
+        var expectedIdsOnlyForMerged = List.of(SHARED_TIE_LINE);
+        var expectedIdsForSubnetwork1 = List.of(id("tieLine1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("tieLine1", ID_2));
+
+        testExploreElements(expectedIdsOnlyForMerged, expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getTieLines,
+                Network::getTieLineStream,
+                Network::getTieLineCount,
+                Network::getTieLine);
+    }
+
+    @Test
+    public void testExploreBranches() {
+        var expectedIdsOnlyForMerged = List.of(SHARED_TIE_LINE);
+        var expectedIdsForSubnetwork1 = List.of(id("line1", ID_1),
+                id("twoWindingsTransformer1", ID_1),
+                id("tieLine1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("line1", ID_2),
+                id("twoWindingsTransformer1", ID_2),
+                id("tieLine1", ID_2));
+
+        testExploreElements(expectedIdsOnlyForMerged, expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
                 Network::getBranches,
                 Network::getBranchStream,
                 Network::getBranchCount,
@@ -497,7 +561,8 @@ public abstract class AbstractSubnetworksExplorationTest {
                 id("svc1", ID_1),
                 id("vsc1", ID_1), id("vsc2", ID_1),
                 id("threeWindingsTransformer1", ID_1),
-                id("twoWindingsTransformer1", ID_1));
+                id("twoWindingsTransformer1", ID_1),
+                id("danglingLine1", ID_1), id("danglingLine2", ID_1), id("danglingLine3", ID_1));
 
         var expectedIdsForSubnetwork2 = List.of(id("battery1", ID_2),
                 id("voltageLevel1BusbarSection1", ID_2), id("voltageLevel1BusbarSection2", ID_2),
@@ -509,13 +574,43 @@ public abstract class AbstractSubnetworksExplorationTest {
                 id("svc1", ID_2),
                 id("vsc1", ID_2), id("vsc2", ID_2),
                 id("threeWindingsTransformer1", ID_2),
-                id("twoWindingsTransformer1", ID_2));
+                id("twoWindingsTransformer1", ID_2),
+                id("danglingLine1", ID_2), id("danglingLine2", ID_2), id("danglingLine3", ID_2));
 
         testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
                 Network::getConnectables,
                 Network::getConnectableStream,
                 Network::getConnectableCount,
                 Network::getConnectable);
+
+        expectedIdsForSubnetwork1 = List.of(id("battery1", ID_1));
+        expectedIdsForSubnetwork2 = List.of(id("battery1", ID_2));
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                n -> n.getConnectables(Battery.class),
+                n -> n.getConnectableStream(Battery.class),
+                n -> n.getConnectableCount(Battery.class),
+                null);
+    }
+
+    @Test
+    public void testExploreIdentifiables() {
+        var expectedIdsOnlyForMerged = List.of(SHARED_TIE_LINE, "merged");
+        Collection<String> expectedIdsForSubnetwork1 = new ArrayList<>(n1Identifiables);
+        Collection<String> expectedIdsForSubnetwork2 = new ArrayList<>(n2Identifiables);
+        // The network id is part of the identifiables, but not the subnetworks' ones
+        expectedIdsForSubnetwork1.remove(id("network", ID_1));
+        expectedIdsForSubnetwork2.remove(id("network", ID_2));
+
+        testExploreElements(expectedIdsOnlyForMerged, expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getIdentifiables,
+                null,
+                null,
+                Network::getIdentifiable);
+
+        expectedIdsForSubnetwork1 = List.of(id("generator1", ID_1));
+        expectedIdsForSubnetwork2 = List.of(id("generator1", ID_2));
+        assertIds(expectedIdsForSubnetwork1, subnetwork1.getIdentifiableStream(IdentifiableType.GENERATOR));
+        assertIds(expectedIdsForSubnetwork2, subnetwork2.getIdentifiableStream(IdentifiableType.GENERATOR));
     }
 
     private <T extends Identifiable<?>> void testExploreElements(Collection<String> expectedIdsForSubnetwork1,
@@ -545,29 +640,35 @@ public abstract class AbstractSubnetworksExplorationTest {
         assertIds(expectedIdsForSubnetwork2, getIterableFunction.apply(subnetwork2));
 
         // Test the function returning a Stream of <T> elements
-        assertIds(expectedIdsForMerged, getStreamFunction.apply(merged));
-        assertIds(expectedIdsForSubnetwork1, getStreamFunction.apply(subnetwork1));
-        assertIds(expectedIdsForSubnetwork2, getStreamFunction.apply(subnetwork2));
+        if (getStreamFunction != null) {
+            assertIds(expectedIdsForMerged, getStreamFunction.apply(merged));
+            assertIds(expectedIdsForSubnetwork1, getStreamFunction.apply(subnetwork1));
+            assertIds(expectedIdsForSubnetwork2, getStreamFunction.apply(subnetwork2));
+        }
 
         // Test the function returning the <T> elements count
-        assertEquals(expectedIdsForMerged.size(), getCountFunction.apply(merged));
-        assertEquals(expectedIdsForSubnetwork1.size(), getCountFunction.apply(subnetwork1));
-        assertEquals(expectedIdsForSubnetwork2.size(), getCountFunction.apply(subnetwork2));
+        if (getCountFunction != null) {
+            assertEquals(expectedIdsForMerged.size(), getCountFunction.apply(merged));
+            assertEquals(expectedIdsForSubnetwork1.size(), getCountFunction.apply(subnetwork1));
+            assertEquals(expectedIdsForSubnetwork2.size(), getCountFunction.apply(subnetwork2));
+        }
 
         // Test the function returning the <T> element from its id
-        String idInSubnetwork1 = findOneElement(expectedIdsForSubnetwork1);
-        String idInSubnetwork2 = findOneElement(expectedIdsForSubnetwork2);
-        assertNotNull(getElementByIdFunction.apply(merged, idInSubnetwork1));
-        assertNotNull(getElementByIdFunction.apply(merged, idInSubnetwork2));
-        assertNotNull(getElementByIdFunction.apply(subnetwork1, idInSubnetwork1));
-        assertNull(getElementByIdFunction.apply(subnetwork1, idInSubnetwork2));
-        assertNull(getElementByIdFunction.apply(subnetwork2, idInSubnetwork1));
-        assertNotNull(getElementByIdFunction.apply(subnetwork2, idInSubnetwork2));
-        if (!expectedIdsOnlyForMerged.isEmpty()) {
-            String idOnlyInMerged = findOneElement(expectedIdsOnlyForMerged);
-            assertNotNull(getElementByIdFunction.apply(merged, idOnlyInMerged));
-            assertNull(getElementByIdFunction.apply(subnetwork1, idOnlyInMerged));
-            assertNull(getElementByIdFunction.apply(subnetwork2, idOnlyInMerged));
+        if (getElementByIdFunction != null) {
+            String idInSubnetwork1 = findOneElement(expectedIdsForSubnetwork1);
+            String idInSubnetwork2 = findOneElement(expectedIdsForSubnetwork2);
+            assertNotNull(getElementByIdFunction.apply(merged, idInSubnetwork1));
+            assertNotNull(getElementByIdFunction.apply(merged, idInSubnetwork2));
+            assertNotNull(getElementByIdFunction.apply(subnetwork1, idInSubnetwork1));
+            assertNull(getElementByIdFunction.apply(subnetwork1, idInSubnetwork2));
+            assertNull(getElementByIdFunction.apply(subnetwork2, idInSubnetwork1));
+            assertNotNull(getElementByIdFunction.apply(subnetwork2, idInSubnetwork2));
+            if (!expectedIdsOnlyForMerged.isEmpty()) {
+                String idOnlyInMerged = findOneElement(expectedIdsOnlyForMerged);
+                assertNotNull(getElementByIdFunction.apply(merged, idOnlyInMerged));
+                assertNull(getElementByIdFunction.apply(subnetwork1, idOnlyInMerged));
+                assertNull(getElementByIdFunction.apply(subnetwork2, idOnlyInMerged));
+            }
         }
     }
 

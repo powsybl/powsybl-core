@@ -553,11 +553,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Collection<Identifiable<?>> getIdentifiables() {
-        return getIdentifiableStream().collect(Collectors.toList());
-    }
-
-    Stream<Identifiable<?>> getIdentifiableStream() {
-        return parent.getIdentifiables().stream().filter(this::contains);
+        return parent.getIdentifiables().stream().filter(this::contains).collect(Collectors.toList());
     }
 
     @Override
