@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -320,6 +321,51 @@ public abstract class AbstractMergeNetworkTest {
         assertNull(merge.getSubnetwork(MERGE));
         assertNotNull(merge.getSubnetwork(N1));
         assertNotNull(merge.getSubnetwork(N2));
+    }
+
+    @Test
+    public void testListeners() {
+        MutableBoolean listenerCalled = new MutableBoolean(false);
+        NetworkListener listener = new DefaultNetworkListener() {
+            @Override
+            public void onCreation(Identifiable identifiable) {
+                listenerCalled.setTrue();
+            }
+        };
+
+        // The listener works on n1.
+        n1.addListener(listener);
+        addSubstation(n1, "s1");
+        assertTrue(listenerCalled.booleanValue());
+
+        merge = Network.create(MERGE, n1, n2);
+        Network subnetwork1 = merge.getSubnetwork(N1);
+        Network subnetwork2 = merge.getSubnetwork(N2);
+
+        // After the merge, changes on "merge" or on "subnetwork1" are not reported to the listener.
+        listenerCalled.setFalse();
+        addSubstation(merge, "s2");
+        assertFalse(listenerCalled.booleanValue());
+        addSubstation(subnetwork1, "s3");
+        assertFalse(listenerCalled.booleanValue());
+
+        // Add the listener to "merge". Changes on subnetwork1 are reported.
+        merge.addListener(listener);
+        addSubstation(subnetwork1, "s4");
+        assertTrue(listenerCalled.booleanValue());
+
+        // Detach "subnetwork1". Changes on the new Network aren't reported to the listener.
+        Network n = subnetwork1.detach();
+        listenerCalled.setFalse();
+        addSubstation(n, "s5");
+        assertFalse(listenerCalled.booleanValue());
+
+        // Changes on "merge" or "subnetwork2" are still reported to the listener.
+        addSubstation(merge, "s6");
+        assertTrue(listenerCalled.booleanValue());
+        listenerCalled.setFalse();
+        addSubstation(subnetwork2, "s7");
+        assertTrue(listenerCalled.booleanValue());
     }
 
     private void addSubstation(Network network, String substationId) {

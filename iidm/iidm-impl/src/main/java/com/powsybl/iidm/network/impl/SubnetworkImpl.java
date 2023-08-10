@@ -814,12 +814,14 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public void addListener(NetworkListener listener) {
-        parent.addListener(listener);
+        throw new PowsyblException("Listeners are not managed at subnetwork level." +
+                " Add this listener to the parent network '" + getNetwork().getId() + "'");
     }
 
     @Override
     public void removeListener(NetworkListener listener) {
-        parent.removeListener(listener);
+        throw new PowsyblException("Listeners are not managed at subnetwork level." +
+                " Remove this listener to the parent network '" + getNetwork().getId() + "'");
     }
 
     @Override

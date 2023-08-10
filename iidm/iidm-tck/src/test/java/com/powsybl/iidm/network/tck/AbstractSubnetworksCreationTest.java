@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -302,6 +303,34 @@ public abstract class AbstractSubnetworksCreationTest {
         assertValidationLevels(ValidationLevel.EQUIPMENT);
         unchecked2.setP0(0.0).setQ0(0.0);
         assertValidationLevels(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+    }
+
+    @Test
+    public void testListeners() {
+        MutableBoolean listenerCalled = new MutableBoolean(false);
+        NetworkListener listener = new DefaultNetworkListener() {
+            @Override
+            public void onCreation(Identifiable identifiable) {
+                listenerCalled.setTrue();
+            }
+        };
+
+        // The listener can only be added to the root network.
+        assertThrows(PowsyblException.class, () -> subnetwork1.addListener(listener));
+        network.addListener(listener);
+
+        // A listener added to the root network is called during subnetworks changes.
+        addSubstation(subnetwork1, "s0");
+        assertTrue(listenerCalled.booleanValue());
+
+        // The listener can only be removed to the root network.
+        assertThrows(PowsyblException.class, () -> subnetwork1.removeListener(listener));
+        network.removeListener(listener);
+
+        // After its removal, a listener isn't called anymore during subnetworks changes.
+        listenerCalled.setFalse();
+        addSubstation(subnetwork1, "s1");
+        assertFalse(listenerCalled.booleanValue());
     }
 
     void assertValidationLevels(ValidationLevel expected) {
