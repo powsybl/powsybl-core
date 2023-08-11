@@ -55,10 +55,10 @@ public class CalculatedTimeSeriesGroovyDslAstTransformation extends AbstractPows
 
         @Override
         public Expression transform(Expression exp) {
-            if (exp instanceof BinaryExpression) {
-                Expression binExpr = transform((BinaryExpression) exp);
-                if (binExpr != null) {
-                    return binExpr;
+            if (exp instanceof BinaryExpression binExpr) {
+                Expression transformedExpr = transform(binExpr);
+                if (transformedExpr != null) {
+                    return transformedExpr;
                 }
             }
 

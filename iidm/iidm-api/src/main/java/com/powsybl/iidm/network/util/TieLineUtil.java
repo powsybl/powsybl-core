@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.util.TieLineReports.*;
 
@@ -191,7 +190,7 @@ public final class TieLineUtil {
                         associateDanglingLines.accept(dls.get(0), candidateDanglingLine);
                     }
                     if (dls.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
-                        List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
+                        List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).toList();
                         if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
                             associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
                         }

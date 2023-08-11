@@ -32,8 +32,7 @@ public class StringPoint extends AbstractPoint {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof StringPoint) {
-            StringPoint other = (StringPoint) obj;
+        if (obj instanceof StringPoint other) {
             return index == other.index && time == other.time && Objects.equals(value, other.value);
         }
         return false;
