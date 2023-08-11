@@ -315,6 +315,41 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
+    void failMergeOnSubnetworks() {
+        merge = Network.create(MERGE, n1, n2);
+        Network subnetwork1 = merge.getSubnetwork(N1);
+        Network other1 = Network.create("other1", "format");
+        Network other2 = Network.create("other2", "format");
+
+        Exception e = assertThrows(UnsupportedOperationException.class, () -> subnetwork1.merge(other1));
+        assertTrue(e.getMessage().contains("is already a subnetwork"));
+
+        e = assertThrows(UnsupportedOperationException.class, () -> subnetwork1.merge(other1, other2));
+        assertTrue(e.getMessage().contains("is already a subnetwork"));
+    }
+
+    @Test
+    void failMergeSubnetworks() {
+        merge = Network.create(MERGE, n1, n2);
+        Network subnetwork1 = merge.getSubnetwork(N1);
+        Network other = Network.create("other", "format");
+
+        Exception e = assertThrows(IllegalArgumentException.class,
+                () -> Network.create("test", other, subnetwork1));
+        assertTrue(e.getMessage().contains("is already a subnetwork"));
+    }
+
+    @Test
+    void failMergeContainingSubnetworks() {
+        merge = Network.create(MERGE, n1, n2);
+        Network other = Network.create("other", "format");
+
+        Exception e = assertThrows(IllegalArgumentException.class,
+                () -> Network.create("test", other, merge));
+        assertTrue(e.getMessage().contains("already contains subnetworks"));
+    }
+
+    @Test
     void testNoEmptyAdditionalSubnetworkIsCreated() {
         merge = Network.create(MERGE, n1, n2);
         assertEquals(2, merge.getSubnetworks().size());
