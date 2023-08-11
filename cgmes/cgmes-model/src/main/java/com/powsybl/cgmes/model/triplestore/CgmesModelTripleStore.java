@@ -43,7 +43,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         tripleStore.defineQueryPrefix("cim", cimNamespace);
         tripleStore.defineQueryPrefix("entsoe", CgmesNamespace.ENTSOE_NAMESPACE);
         tripleStore.defineQueryPrefix("eu", CgmesNamespace.EU_NAMESPACE);
-        tripleStore.defineQueryPrefix("cgmbp", CgmesNamespace.CGMBP_NAMESPACE);
         queryCatalog = queryCatalogFor(cimVersion);
         Objects.requireNonNull(queryCatalog);
     }

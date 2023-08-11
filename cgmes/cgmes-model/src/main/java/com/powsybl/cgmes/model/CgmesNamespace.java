@@ -40,7 +40,6 @@ public final class CgmesNamespace {
 
     public static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String ENTSOE_NAMESPACE = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
-    public static final String CGMBP_NAMESPACE = "http://entsoe.eu/CIM/Extensions/CGM-BP/2020#";
     public static final String EU_NAMESPACE = "http://iec.ch/TC57/CIM100-European#";
     public static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
 
@@ -88,10 +87,6 @@ public final class CgmesNamespace {
         String getEuPrefix();
 
         String getEuNamespace();
-
-        default String getCgmbpNamespace() {
-            return "undefined";
-        }
 
         String getLimitValueAttributeName();
 
@@ -197,7 +192,6 @@ public final class CgmesNamespace {
 
         private final String euPrefix;
         private final String euNamespace;
-        private final String cgmbpNamespace;
         private final String limitValueAttributeName;
         private final String limitTypeAttributeName;
         private final String limitKindClassName;
@@ -211,11 +205,6 @@ public final class CgmesNamespace {
         @Override
         public String getEuNamespace() {
             return euNamespace;
-        }
-
-        @Override
-        public String getCgmbpNamespace() {
-            return cgmbpNamespace;
         }
 
         @Override
@@ -253,13 +242,12 @@ public final class CgmesNamespace {
             return profiles.inverse().get(profileUri);
         }
 
-        private AbstractCim16AndAbove(int version, String namespace, String euPrefix, String euNamespace, String cgmbpNamespace,
+        private AbstractCim16AndAbove(int version, String namespace, String euPrefix, String euNamespace,
                                       String limitValueAttributeName, String limitTypeAttributeName,
                                       String limitKindClassName, Map<String, String> profiles) {
             super(version, namespace);
             this.euPrefix = euPrefix;
             this.euNamespace = euNamespace;
-            this.cgmbpNamespace = cgmbpNamespace;
             this.limitValueAttributeName = limitValueAttributeName;
             this.limitTypeAttributeName = limitTypeAttributeName;
             this.limitKindClassName = limitKindClassName;
@@ -285,7 +273,7 @@ public final class CgmesNamespace {
         }
 
         private Cim16() {
-            super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE, CGMBP_NAMESPACE,
+            super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE,
                     "value",
                     "OperationalLimitType.limitType", "LimitTypeKind",
                     Map.of("EQ", CIM_16_EQ_PROFILE, "EQ_OP",
@@ -313,7 +301,7 @@ public final class CgmesNamespace {
         }
 
         private Cim100() {
-            super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE, CGMBP_NAMESPACE,
+            super(100, CIM_100_NAMESPACE, "eu", EU_NAMESPACE,
                     "normalValue",
                     "OperationalLimitType.kind", "LimitKind",
                     Map.of("EQ", CIM_100_EQ_PROFILE, "EQ_OP", CIM_100_EQ_OPERATION_PROFILE,

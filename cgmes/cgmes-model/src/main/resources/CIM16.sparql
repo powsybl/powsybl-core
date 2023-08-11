@@ -133,6 +133,7 @@ SELECT *
 }}
 
 # query: sourcingActor
+prefix cgmbp: <http://entsoe.eu/CIM/Extensions/CGM-BP/2020#>
 SELECT *
 WHERE {
     ?ModelingAuthority
