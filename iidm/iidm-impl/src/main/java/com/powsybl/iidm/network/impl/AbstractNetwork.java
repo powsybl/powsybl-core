@@ -78,6 +78,7 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
      * @param to the destination network
      */
     protected static void transferExtensions(Network from, Network to) {
+        // Only well-defined extensions (with an interface) are transferred
         new ArrayList<>(from.getExtensions())
                 .forEach(e -> Arrays.stream(e.getClass().getInterfaces())
                         .filter(c -> Objects.nonNull(from.getExtension(c)))

@@ -12,10 +12,9 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.BusbarSectionExt;
-import com.powsybl.iidm.network.test.ScadaNetworkFactory;
-import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.xml.extensions.util.NetworkSourceExtension;
+import com.powsybl.iidm.xml.extensions.util.NetworkSourceExtensionImpl;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
@@ -152,23 +151,23 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
 
     @Test
     void roundTripWithSubNetworksTest() throws IOException {
-        Network merged = Network.create("Merged", "hybrid");
         Network n1 = createNetwork(1);
         Network n2 = createNetwork(2);
-        merged.setCaseDate(DateTime.parse("2013-01-15T18:40:00+01:00"));
         n1.setCaseDate(DateTime.parse("2013-01-15T18:41:00+01:00"));
         n2.setCaseDate(DateTime.parse("2013-01-15T18:42:00+01:00"));
-        merged.merge(n1, n2);
 
-        //TODO
-        // - Remove the "xmlns:iidm" attribute for subnetworks
+        Network merged = Network.create("Merged", n1, n2);
+        merged.setCaseDate(DateTime.parse("2013-01-15T18:40:00+01:00"));
+        // add an extension at root network level
+        NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_0");
+        merged.addExtension(NetworkSourceExtension.class, source);
 
         for (IidmXmlVersion version : IidmXmlVersion.values()) {
             if (version.compareTo(IidmXmlVersion.V_1_5) >= 0) {
                 roundTripXmlTest(merged,
                     (n, p) -> NetworkXml.writeAndValidate(n,
                         new ExportOptions().setSorted(true).setVersion(version.toString(".")), p),
-                    NetworkXml::read,
+                    NetworkXml::validateAndRead,
                     getVersionedNetworkPath("subnetworks.xml", version));
             }
         }
@@ -205,6 +204,41 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
                 .setB(5.0)
                 .setUcteXnodeCode("code")
                 .add();
+
+        // Add an extension on the network and on an inner element
+        NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_" + num);
+        network.addExtension(NetworkSourceExtension.class, source);
+
+        if (num == 1) {
+            Generator generator = vl1.newGenerator()
+                    .setId("GEN")
+                    .setBus(busId)
+                    .setConnectableBus(busId)
+                    .setMinP(-9999.99)
+                    .setMaxP(9999.99)
+                    .setVoltageRegulatorOn(true)
+                    .setTargetV(24.5)
+                    .setTargetP(607.0)
+                    .setTargetQ(301.0)
+                    .add();
+            generator.newMinMaxReactiveLimits()
+                    .setMinQ(-9999.99)
+                    .setMaxQ(9999.99)
+                    .add();
+        } else if (num == 2) {
+            vl1.newLoad()
+                    .setId("LOAD")
+                    .setBus(busId)
+                    .setConnectableBus(busId)
+                    .setP0(600.0)
+                    .setQ0(200.0)
+                    .add();
+
+            // Add an extension on an inner element
+            Load load = network.getLoad("LOAD");
+            TerminalMockExt terminalMockExt = new TerminalMockExt(load);
+            load.addExtension(TerminalMockExt.class, terminalMockExt);
+        }
         return network;
     }
 }
