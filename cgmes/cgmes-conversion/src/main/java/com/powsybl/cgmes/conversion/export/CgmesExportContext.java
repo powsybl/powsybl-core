@@ -385,8 +385,7 @@ public class CgmesExportContext {
         boolean ignored = c.isFictitious() &&
                 (c instanceof Load
                         || c instanceof Switch && "true".equals(c.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL)));
-        if (c instanceof Switch) {
-            Switch ss = (Switch) c;
+        if (c instanceof Switch ss) {
             VoltageLevel.BusBreakerView view = ss.getVoltageLevel().getBusBreakerView();
             if (ss.isRetained() && view.getBus1(ss.getId()).equals(view.getBus2(ss.getId()))) {
                 ignored = true;

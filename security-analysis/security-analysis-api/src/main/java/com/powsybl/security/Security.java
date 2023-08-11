@@ -361,8 +361,7 @@ public final class Security {
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof LimitViolationKey) {
-                LimitViolationKey other = (LimitViolationKey) obj;
+            if (obj instanceof LimitViolationKey other) {
                 return id.equals(other.id) && limitType == other.limitType && limit == other.limit;
             }
             return false;
@@ -419,7 +418,7 @@ public final class Security {
                     // pre-contingency violations filtering
                     List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
                             .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
-                            .collect(Collectors.toList());
+                            .toList();
 
                     return filteredLimitViolations2.size();
                 }
@@ -472,7 +471,7 @@ public final class Security {
                 // pre-contingency violations filtering
                 List<LimitViolation> filteredLimitViolations2 = filteredLimitViolations.stream()
                         .filter(violation -> preContingencyViolations.isEmpty() || !preContingencyViolations.contains(toKey(violation)))
-                        .collect(Collectors.toList());
+                        .toList();
 
                 if (!filteredLimitViolations2.isEmpty() || postContingencyResult.getStatus() != PostContingencyComputationStatus.CONVERGED) {
                     formatter.writeCell(postContingencyResult.getContingency().getId())

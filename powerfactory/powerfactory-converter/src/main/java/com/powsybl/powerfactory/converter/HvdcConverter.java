@@ -99,7 +99,7 @@ class HvdcConverter extends AbstractConverter {
 
             List<DataObject> elmLnes = getDataObjectsConnectedToElmTerm(elmTerm)
                 .filter(dataObject -> dataObject.getDataClassName().equals("ElmLne"))
-                .collect(Collectors.toList());
+                .toList();
 
             for (DataObject elmLne : elmLnes) {
                 otherElmTerm(elmTerm, elmLne, elmVsc)

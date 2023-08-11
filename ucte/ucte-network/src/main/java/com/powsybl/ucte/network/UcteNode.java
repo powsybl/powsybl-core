@@ -575,8 +575,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof UcteNode) {
-            UcteNode ucteNode = (UcteNode) obj;
+        if (obj instanceof UcteNode ucteNode) {
             return this.compareTo(ucteNode) == 0;
         }
         return false;

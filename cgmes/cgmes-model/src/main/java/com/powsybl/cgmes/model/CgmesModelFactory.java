@@ -85,8 +85,7 @@ public final class CgmesModelFactory {
     }
 
     public static CgmesModel copy(CgmesModel cgmes) {
-        if (cgmes instanceof CgmesModelTripleStore) {
-            CgmesModelTripleStore cgmests = (CgmesModelTripleStore) cgmes;
+        if (cgmes instanceof CgmesModelTripleStore cgmests) {
             TripleStore tripleStore = TripleStoreFactory.copy(cgmests.tripleStore());
             CgmesModel cgmesCopy = new CgmesModelTripleStore(cgmests.getCimNamespace(), tripleStore);
             cgmesCopy.setBasename(cgmes.getBasename());

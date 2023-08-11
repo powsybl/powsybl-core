@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -81,10 +80,10 @@ class IslandsEnds {
     private static void addToRightEnd(NodeEquipment nodeEquipment, List<String> nodesEnd1, List<String> nodesEnd2, List<String> nodes) {
         List<String> nodesConnectedToEnd2 = nodes.stream()
             .filter(n -> nodesEnd2.stream().anyMatch(n2 -> nodeEquipment.existDcLineSegmentBetweenBothNodes(n, n2)))
-            .collect(Collectors.toList());
+            .toList();
         List<String> nodesConnectedToEnd1 = nodes.stream()
             .filter(n -> nodesEnd1.stream().anyMatch(n1 -> nodeEquipment.existDcLineSegmentBetweenBothNodes(n, n1)))
-            .collect(Collectors.toList());
+            .toList();
 
         if (nodesConnectedToEnd1.isEmpty() && !nodesConnectedToEnd2.isEmpty()) {
             nodesEnd1.addAll(nodes);
