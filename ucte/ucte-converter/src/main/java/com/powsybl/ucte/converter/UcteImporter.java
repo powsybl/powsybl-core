@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.powsybl.ucte.converter.util.UcteConstants.*;
 
@@ -836,7 +835,7 @@ public class UcteImporter implements Importer {
         String otherXnodeCode = dl1.getUcteXnodeCode();
         List<DanglingLine> matchingDanglingLines = danglingLinesByXnodeCode.get(otherXnodeCode)
                 .stream().filter(dl -> dl != dl1)
-                .collect(Collectors.toList());
+                .toList();
         if (matchingDanglingLines.isEmpty()) {
             return null;
         } else if (matchingDanglingLines.size() == 1) {
@@ -847,7 +846,7 @@ public class UcteImporter implements Importer {
             }
             List<DanglingLine> connectedMatchingDanglingLines = matchingDanglingLines.stream()
                     .filter(dl -> dl.getTerminal().isConnected())
-                    .collect(Collectors.toList());
+                    .toList();
             if (connectedMatchingDanglingLines.isEmpty()) {
                 return null;
             }

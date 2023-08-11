@@ -421,8 +421,7 @@ public class DenseMatrix extends AbstractMatrix {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DenseMatrix) {
-            DenseMatrix other = (DenseMatrix) obj;
+        if (obj instanceof DenseMatrix other) {
             return rowCount == other.rowCount && columnCount == other.columnCount && buffer.equals(other.buffer);
         }
         return false;

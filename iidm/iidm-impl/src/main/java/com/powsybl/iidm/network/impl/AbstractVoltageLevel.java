@@ -142,17 +142,17 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         T connectable = getNetwork().getIndex().get(id, aClass);
         if (connectable == null) {
             return null;
-        } else if (connectable instanceof Injection) {
-            return ((Injection) connectable).getTerminal().getVoltageLevel() == this
+        } else if (connectable instanceof Injection<?> injection) {
+            return injection.getTerminal().getVoltageLevel() == this
                     ? connectable : null;
-        } else if (connectable instanceof Branch) {
-            return ((Branch) connectable).getTerminal1().getVoltageLevel() == this
-                    || ((Branch) connectable).getTerminal2().getVoltageLevel() == this
+        } else if (connectable instanceof Branch<?> branch) {
+            return branch.getTerminal1().getVoltageLevel() == this
+                    || branch.getTerminal2().getVoltageLevel() == this
                     ? connectable : null;
-        } else if (connectable instanceof ThreeWindingsTransformer) {
-            return ((ThreeWindingsTransformer) connectable).getLeg1().getTerminal().getVoltageLevel() == this
-                    || ((ThreeWindingsTransformer) connectable).getLeg2().getTerminal().getVoltageLevel() == this
-                    || ((ThreeWindingsTransformer) connectable).getLeg3().getTerminal().getVoltageLevel() == this
+        } else if (connectable instanceof ThreeWindingsTransformer twt) {
+            return twt.getLeg1().getTerminal().getVoltageLevel() == this
+                    || twt.getLeg2().getTerminal().getVoltageLevel() == this
+                    || twt.getLeg3().getTerminal().getVoltageLevel() == this
                     ? connectable : null;
         } else {
             throw new IllegalStateException();
@@ -424,8 +424,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         Objects.requireNonNull(otherTerminal);
         Objects.requireNonNull(nextTerminals);
         Connectable otherConnectable = otherTerminal.getConnectable();
-        if (otherConnectable instanceof Branch) {
-            Branch branch = (Branch) otherConnectable;
+        if (otherConnectable instanceof Branch<?> branch) {
             if (branch.getTerminal1() == otherTerminal) {
                 nextTerminals.add((TerminalExt) branch.getTerminal2());
             } else if (branch.getTerminal2() == otherTerminal) {
@@ -433,8 +432,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             } else {
                 throw new IllegalStateException();
             }
-        } else if (otherConnectable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer ttc = (ThreeWindingsTransformer) otherConnectable;
+        } else if (otherConnectable instanceof ThreeWindingsTransformer ttc) {
             if (ttc.getLeg1().getTerminal() == otherTerminal) {
                 nextTerminals.add((TerminalExt) ttc.getLeg2().getTerminal());
                 nextTerminals.add((TerminalExt) ttc.getLeg3().getTerminal());

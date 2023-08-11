@@ -36,8 +36,8 @@ public class FaultResultSerializer extends StdSerializer<FaultResult> {
         if (faultResult.getTimeConstant() != null) {
             jsonGenerator.writeStringField("timeConstant", faultResult.getTimeConstant().toString());
         }
-        if (faultResult instanceof FortescueFaultResult) {
-            fortescueResultSerialization((FortescueFaultResult) faultResult, jsonGenerator, serializerProvider);
+        if (faultResult instanceof FortescueFaultResult fortescueFaultResult) {
+            fortescueResultSerialization(fortescueFaultResult, jsonGenerator, serializerProvider);
 
         } else if (faultResult instanceof MagnitudeFaultResult) {
             magnitudeResultSerialization(faultResult, jsonGenerator, serializerProvider);
