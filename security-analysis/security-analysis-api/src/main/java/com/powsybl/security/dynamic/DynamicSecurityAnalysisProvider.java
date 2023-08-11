@@ -69,7 +69,7 @@ public interface DynamicSecurityAnalysisProvider extends Versionable, PlatformCo
     default void updateSpecificParameters(Extension<DynamicSecurityAnalysisParameters> extension, Map<String, String> properties) {
     }
 
-    default Optional<String> getLoadFlowProviderName() {
+    default Optional<String> getDynamicSimulationProviderName() {
         return Optional.empty();
     }
 
