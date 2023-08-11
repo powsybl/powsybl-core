@@ -20,19 +20,17 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class ReferenceDataProvider {
-    private final String sourcingActorName;
+    private final String sourcingActorName; // may be null
+    private final ReadOnlyDataSource referenceDataSource; // may be null
     private final CgmesImport cgmesImport;
-    private final Properties params;
+    private final Properties params; // may be null
     private PropertyBag sourcingActor;
     private CgmesModel referenceData = null;
     private final Map<Double, String> baseVoltagesByNominalVoltage = new HashMap<>();
@@ -43,7 +41,13 @@ public class ReferenceDataProvider {
     private boolean loaded = false;
 
     public ReferenceDataProvider(String sourcingActorName, CgmesImport cgmesImport, Properties params) {
+        this(sourcingActorName, null, cgmesImport, params);
+    }
+
+    public ReferenceDataProvider(String sourcingActorName, ReadOnlyDataSource referenceDataSource, CgmesImport cgmesImport, Properties params) {
+        Objects.requireNonNull(cgmesImport);
         this.sourcingActorName = sourcingActorName;
+        this.referenceDataSource = referenceDataSource;
         this.cgmesImport = cgmesImport;
         this.params = params;
     }
@@ -88,10 +92,14 @@ public class ReferenceDataProvider {
     }
 
     private void loadReferenceData() {
-        // Force the load of boundaries using an empty data source
-        ReadOnlyDataSource emptyDataSource = new ReadOnlyMemDataSource();
+        // If no explicit data source is given,
+        // force the load of boundaries configured in the platform or received as parameeter using an empty data source
+        loadReferenceData(Objects.requireNonNullElseGet(referenceDataSource, ReadOnlyMemDataSource::new));
+    }
+
+    private void loadReferenceData(ReadOnlyDataSource ds) {
         try {
-            referenceData = cgmesImport.readCgmes(emptyDataSource, params, Reporter.NO_OP);
+            referenceData = cgmesImport.readCgmes(ds, params, Reporter.NO_OP);
         } catch (CgmesModelException x) {
             // We have made an attempt to load it and discovered it is invalid
             referenceData = null;
@@ -126,7 +134,7 @@ public class ReferenceDataProvider {
         baseVoltagesByNominalVoltage.clear();
         baseVoltagesByNominalVoltage.putAll(referenceData.baseVoltages().stream().collect(Collectors.toMap(
                 bv -> bv.asDouble("nominalVoltage"),
-                bv -> bv.getLocal("BaseVoltage")
+                bv -> bv.getId("BaseVoltage")
         )));
     }
 
@@ -136,9 +144,11 @@ public class ReferenceDataProvider {
             if (sourcingActorRecords.size() > 1 && LOG.isWarnEnabled()) {
                 LOG.warn("Multiple records found for sourcing actor {}. Will consider only first one", sourcingActorName);
                 LOG.warn(sourcingActorRecords.tabulateLocals());
+            } else if (!sourcingActorRecords.isEmpty()) {
+                sourcingActor = sourcingActorRecords.get(0);
             }
-            sourcingActor = sourcingActorRecords.get(0);
-        } else {
+        }
+        if (sourcingActor == null) {
             sourcingActor = new PropertyBag(Collections.emptyList(), true);
         }
     }
