@@ -134,7 +134,7 @@ Notes:
 
 This second step is required to download the Maven distribution.
 
-Once both distributions are retrieved, you can just use `./mvwn` or `mvnw.cmd`, without all this configuration, instead of `mvn`.
+Once both distributions are retrieved, the proxy configuration isn't needed anymore to use `./mvnw` or `mvnw.cmd` commands.
 
 
 ##### Checking your access configuration
