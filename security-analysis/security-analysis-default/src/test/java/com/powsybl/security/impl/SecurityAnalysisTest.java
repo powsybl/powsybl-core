@@ -105,6 +105,7 @@ class SecurityAnalysisTest {
             .setName("VoltageAngleLimit_NHV1_NHV2_1")
             .setReferenceTerminal(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
             .setOtherTerminal(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
+            .setLowLimit(-0.25)
             .setHighLimit(0.25)
             .add();
 
@@ -156,7 +157,7 @@ class SecurityAnalysisTest {
         assertEquals(1192.5631358010583, extension2.getPreContingencyValue(), 0.0);
 
         LimitViolation violation1 = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(1);
-        assertEquals(LimitViolationType.HIGH_VOLTAGE_ANGLE, violation1.getLimitType());
+        assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, violation1.getLimitType());
         assertEquals("NHV1_NHV2_1", violation1.getSubjectId());
         assertEquals(Branch.Side.ONE, violation1.getSide());
 
