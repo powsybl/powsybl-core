@@ -904,15 +904,15 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
-        Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
+        Map<String, List<DanglingLine>> dl1byPairingKey = new HashMap<>();
 
         for (DanglingLine dl1 : getDanglingLines(DanglingLineFilter.ALL)) {
-            if (dl1.getUcteXnodeCode() != null) {
-                dl1byXnodeCode.computeIfAbsent(dl1.getUcteXnodeCode(), k -> new ArrayList<>()).add(dl1);
+            if (dl1.getPairingKey() != null) {
+                dl1byPairingKey.computeIfAbsent(dl1.getPairingKey(), k -> new ArrayList<>()).add(dl1);
             }
         }
         for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
-            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
+            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byPairingKey::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byPairingKey));
         }
 
         // do not forget to remove the other network from its index!!!
@@ -934,10 +934,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
+    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byPairingKey) {
         if (dl1 != null) {
-            if (dl1.getUcteXnodeCode() != null) {
-                dl1byXnodeCode.get(dl1.getUcteXnodeCode()).remove(dl1);
+            if (dl1.getPairingKey() != null) {
+                dl1byPairingKey.get(dl1.getPairingKey()).remove(dl1);
             }
             DanglingLinePair l = new DanglingLinePair();
             l.id = buildMergedId(dl1.getId(), dl2.getId());

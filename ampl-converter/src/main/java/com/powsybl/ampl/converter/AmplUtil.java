@@ -55,11 +55,11 @@ public final class AmplUtil {
     }
 
     static String getXnodeBusId(TieLine tieLine) {
-        return tieLine.getUcteXnodeCode();
+        return tieLine.getPairingKey();
     }
 
     static String getXnodeVoltageLevelId(TieLine tieLine) {
-        return tieLine.getUcteXnodeCode();
+        return tieLine.getPairingKey();
     }
 
     public static void fillMapper(StringToIntMapper<AmplSubset> mapper, Network network) {

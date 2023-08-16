@@ -359,7 +359,7 @@ public class UcteExporter implements Exporter {
      * @param context The context used to store temporary data during the conversion
      */
     private static void convertXNode(UcteNetwork ucteNetwork, TieLine tieLine, UcteExporterContext context) {
-        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getUcteXnodeCode());
+        UcteNodeCode xnodeCode = context.getNamingStrategy().getUcteNodeCode(tieLine.getPairingKey());
         String geographicalName = mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), GEOGRAPHICAL_NAME_PROPERTY_KEY);
         UcteNodeStatus ucteNodeStatus = getXnodeStatus(mergedProperty(tieLine.getDanglingLine1(), tieLine.getDanglingLine2(), STATUS_PROPERTY_KEY + "_XNode"));
         convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);

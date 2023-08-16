@@ -41,7 +41,7 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
                 .setX(1)
                 .setG(0)
                 .setB(0)
-                .setUcteXnodeCode("XNODE")
+                .setPairingKey("XNODE")
                 .add();
         Network n2 = Network.create("n2", "test");
         Substation s2 = n2.newSubstation()
@@ -66,7 +66,7 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
                 .setX(1)
                 .setG(0)
                 .setB(0)
-                .setUcteXnodeCode("XNODE")
+                .setPairingKey("XNODE")
                 .add();
         assertEquals(0, n1.getLineCount());
         assertEquals(1, n1.getDanglingLineCount());

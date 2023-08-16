@@ -73,7 +73,7 @@ public abstract class AbstractTieLineTest {
                 .setX(x)
                 .setB(hl1b1 + hl1b2)
                 .setG(hl1g1 + hl1g2)
-                .setUcteXnodeCode("ucte")
+                .setPairingKey("ucte")
                 .add();
         DanglingLine dl2 = voltageLevelB.newDanglingLine()
                 .setBus("busB")
@@ -101,7 +101,7 @@ public abstract class AbstractTieLineTest {
         assertFalse(network.getDanglingLines(DanglingLineFilter.UNPAIRED).iterator().hasNext());
 
         assertEquals(IdentifiableType.TIE_LINE, tieLine.getType());
-        assertEquals("ucte", tieLine.getUcteXnodeCode());
+        assertEquals("ucte", tieLine.getPairingKey());
         assertEquals("hl1", tieLine.getDanglingLine1().getId());
         assertEquals(DANGLING1_NAME, tieLine.getDanglingLine1().getOptionalName().orElse(null));
         assertEquals("hl2", tieLine.getDanglingLine2().getId());
@@ -199,7 +199,7 @@ public abstract class AbstractTieLineTest {
                 .setG(65.0)
                 .setP0(0.0)
                 .setQ0(0.0)
-                .setUcteXnodeCode("ucte")
+                .setPairingKey("ucte")
                 .add();
         // adder
         ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
@@ -405,7 +405,7 @@ public abstract class AbstractTieLineTest {
                 .setG(8.5)
                 .setP0(0)
                 .setQ0(0)
-                .setUcteXnodeCode(code)
+                .setPairingKey(code)
                 .add();
         network.newTieLine()
                 .setId(id)

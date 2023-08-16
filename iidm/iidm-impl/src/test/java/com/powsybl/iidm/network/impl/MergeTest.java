@@ -86,8 +86,8 @@ class MergeTest {
                 .setB(0.001)
                 .setP0(10)
                 .setQ0(1)
-                // Same UCTE XnodeCode for dangling lines
-                .setUcteXnodeCode("X")
+                // Same pairing key for dangling lines
+                .setPairingKey("X")
                 .add();
         vl.getNodeBreakerView().newBreaker()
                 .setId(id("voltageLevel1BreakerDLb", nid))

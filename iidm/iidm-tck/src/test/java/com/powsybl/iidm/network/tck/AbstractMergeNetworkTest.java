@@ -45,12 +45,12 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void xnodeNonCompatible() {
+    public void pairingKeyNonCompatible() {
         addSubstationAndVoltageLevel();
         addDanglingLines("dl", "code", "dl", "deco");
         merge.merge(n1);
         PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n2));
-        assertTrue(e.getMessage().contains("Dangling line couple dl have inconsistent Xnodes (code!=deco)"));
+        assertTrue(e.getMessage().contains("Dangling line couple dl have inconsistent pairing keys (code!=deco)"));
     }
 
     @Test
@@ -128,7 +128,7 @@ public abstract class AbstractMergeNetworkTest {
                 .setX(2.0)
                 .setG(4.0)
                 .setB(5.0)
-                .setUcteXnodeCode(code)
+                .setPairingKey(code)
                 .add();
     }
 

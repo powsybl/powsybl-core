@@ -60,14 +60,14 @@ public final class ModificationReports {
                 .build());
     }
 
-    public static void removedTieLineAndAssociatedDanglingLines(Reporter reporter, String tieLineId, String danglingLineId1, String danglingLineId2, String xnode) {
+    public static void removedTieLineAndAssociatedDanglingLines(Reporter reporter, String tieLineId, String danglingLineId1, String danglingLineId2, String pairingKey) {
         reporter.report(Report.builder()
                 .withKey("removedTieLineAndAssociatedDanglingLines")
-                .withDefaultMessage("Removed tie line ${tieLineId} and associated dangling lines ${danglingLineId1} and ${danglingLineId2} at X-node ${xnode}")
+                .withDefaultMessage("Removed tie line ${tieLineId} and associated dangling lines ${danglingLineId1} and ${danglingLineId2} with pairing key ${pairingKey}")
                 .withValue("tieLineId", tieLineId)
                 .withValue("danglingLineId1", danglingLineId1)
                 .withValue("danglingLineId2", danglingLineId2)
-                .withValue("xnode", xnode == null ? "" : xnode)
+                .withValue("pairingKey", pairingKey == null ? "" : pairingKey)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .build());
     }

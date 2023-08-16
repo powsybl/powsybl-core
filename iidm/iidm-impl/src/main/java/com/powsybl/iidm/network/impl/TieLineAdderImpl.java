@@ -62,8 +62,8 @@ class TieLineAdderImpl extends AbstractIdentifiableAdder<TieLineAdderImpl> imple
         if (dl1.getTieLine().isPresent() || dl2.getTieLine().isPresent()) {
             throw new ValidationException(this, "danglingLine1 (" + dl1Id + ") and/or danglingLine2 (" + dl2Id + ") already has a tie line");
         }
-        if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null && !Objects.equals(dl1.getUcteXnodeCode(), dl2.getUcteXnodeCode())) {
-            throw new ValidationException(this, "ucteXnodeCode is not consistent");
+        if (dl1.getPairingKey() != null && dl2.getPairingKey() != null && !Objects.equals(dl1.getPairingKey(), dl2.getPairingKey())) {
+            throw new ValidationException(this, "pairingKey is not consistent");
         }
 
         TieLineImpl line = new TieLineImpl(network.getRef(), id, getName(), isFictitious());

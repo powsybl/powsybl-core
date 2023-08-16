@@ -159,33 +159,33 @@ public final class TieLineUtil {
     /**
      * If it exists, find the dangling line in the merging network that should be associated to a candidate dangling line in the network to be merged.
      * Two dangling lines in different IGM should be associated if:
-     * - they have the same ID and at least one has a non-null X-node code
+     * - they have the same ID and at least one has a non-null pairing key
      * OR
-     * - they have the same non-null X-node code and are the only dangling lines to have this X-node code in their respective networks
+     * - they have the same non-null pairing key and are the only dangling lines to have this pairing key in their respective networks
      * OR
-     * - they have the same non-null X-node code and are the only connected dangling lines to have this X-node code in their respective networks
+     * - they have the same non-null pairing key and are the only connected dangling lines to have this pairing key in their respective networks
      *
      * @param candidateDanglingLine candidate dangling line in the network to be merged
      * @param danglingLine dangling line in the merging network with same ID as the candidate dangling line. Can be null.
-     * @param getDanglingLinesByXnodeCode function to retrieve dangling lines with a given X-node code in the merging network.
+     * @param getDanglingLinesByPairingKey function to retrieve dangling lines with a given pairing key in the merging network.
      * @param associateDanglingLines function associating two dangling lines
      */
     public static void findAndAssociateDanglingLines(DanglingLine candidateDanglingLine, DanglingLine danglingLine,
-                                                     Function<String, List<DanglingLine>> getDanglingLinesByXnodeCode,
+                                                     Function<String, List<DanglingLine>> getDanglingLinesByPairingKey,
                                                      BiConsumer<DanglingLine, DanglingLine> associateDanglingLines) {
         Objects.requireNonNull(candidateDanglingLine);
-        Objects.requireNonNull(getDanglingLinesByXnodeCode);
+        Objects.requireNonNull(getDanglingLinesByPairingKey);
         Objects.requireNonNull(associateDanglingLines);
-        if (danglingLine == null) { // if dangling line with same ID not present, find dangling line(s) with same X-node code in merging network if present
-            // mapping by ucte xnode code
-            if (candidateDanglingLine.getUcteXnodeCode() != null) { // if X-node code null: no associated dangling line
+        if (danglingLine == null) { // if dangling line with same ID not present, find dangling line(s) with same pairing key in merging network if present
+            // mapping by pairing key
+            if (candidateDanglingLine.getPairingKey() != null) { // if pairing key null: no associated dangling line
                 if (candidateDanglingLine.getNetwork().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
                         .filter(d -> d != candidateDanglingLine)
-                        .filter(d -> candidateDanglingLine.getUcteXnodeCode().equals(d.getUcteXnodeCode()))
-                        .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same X-node code in the network to be merged
+                        .filter(d -> candidateDanglingLine.getPairingKey().equals(d.getPairingKey()))
+                        .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same pairing key in the network to be merged
                     return;                                         // in that case, do nothing
                 }
-                List<DanglingLine> dls = getDanglingLinesByXnodeCode.apply(candidateDanglingLine.getUcteXnodeCode());
+                List<DanglingLine> dls = getDanglingLinesByPairingKey.apply(candidateDanglingLine.getPairingKey());
                 if (dls != null) {
                     if (dls.size() == 1) { // if there is exactly one dangling line in the merging network, merge it
                         associateDanglingLines.accept(dls.get(0), candidateDanglingLine);
@@ -199,15 +199,15 @@ public final class TieLineUtil {
                 }
             }
         } else {
-            // if dangling line with same ID present, there is only one: they are associated if the X-node code is identical (if not: throw exception)
-            if ((danglingLine.getUcteXnodeCode() != null && candidateDanglingLine.getUcteXnodeCode() != null
-                    && !danglingLine.getUcteXnodeCode().equals(candidateDanglingLine.getUcteXnodeCode())) || (danglingLine.getUcteXnodeCode() == null && candidateDanglingLine.getUcteXnodeCode() == null)) {
+            // if dangling line with same ID present, there is only one: they are associated if the pairing key is identical (if not: throw exception)
+            if ((danglingLine.getPairingKey() != null && candidateDanglingLine.getPairingKey() != null
+                    && !danglingLine.getPairingKey().equals(candidateDanglingLine.getPairingKey())) || (danglingLine.getPairingKey() == null && candidateDanglingLine.getPairingKey() == null)) {
                 throw new PowsyblException("Dangling line couple " + danglingLine.getId()
-                        + " have inconsistent Xnodes (" + danglingLine.getUcteXnodeCode()
-                        + "!=" + candidateDanglingLine.getUcteXnodeCode() + ")");
+                        + " have inconsistent pairing keys (" + danglingLine.getPairingKey()
+                        + "!=" + candidateDanglingLine.getPairingKey() + ")");
             }
-            String code = Optional.ofNullable(danglingLine.getUcteXnodeCode()).orElseGet(candidateDanglingLine::getUcteXnodeCode);
-            List<DanglingLine> dls = getDanglingLinesByXnodeCode.apply(code);
+            String code = Optional.ofNullable(danglingLine.getPairingKey()).orElseGet(candidateDanglingLine::getPairingKey);
+            List<DanglingLine> dls = getDanglingLinesByPairingKey.apply(code);
             if (dls != null && dls.size() > 1) {
                 throw new PowsyblException("Should not have any dangling lines other than " + danglingLine.getId() + " linked to " + code);
             }
