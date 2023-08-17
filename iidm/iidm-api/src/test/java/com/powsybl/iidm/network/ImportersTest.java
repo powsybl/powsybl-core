@@ -7,13 +7,11 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.test.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.computation.ComputationManager;
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +25,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -190,14 +190,26 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void loadNetwork1() {
-        Network network = Network.read(path, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP);
+        Network network = Network.read(path, computationManager, importConfigMock, null, new NetworkFactoryMock(),
+            loader, Reporter.NO_OP);
+        assertNotNull(network);
+        assertNotNull(network.getLoad("LOAD"));
+    }
+
+    @Test
+    void loadNetworkInferType() {
+        Mockito.when(importConfigMock.isInferFileType()).thenReturn(true);
+        Network network = Network.read(path, computationManager, importConfigMock, null, new NetworkFactoryMock(),
+            loader, Reporter.NO_OP);
         assertNotNull(network);
         assertNotNull(network.getLoad("LOAD"));
     }
 
     @Test
     void loadNullNetwork1() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.read(badPath, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader, Reporter.NO_OP));
+        PowsyblException e = assertThrows(PowsyblException.class,
+            () -> Network.read(badPath, computationManager, importConfigMock, null, new NetworkFactoryMock(), loader,
+                Reporter.NO_OP));
         assertEquals("Unsupported file format or invalid file.", e.getMessage());
     }
 

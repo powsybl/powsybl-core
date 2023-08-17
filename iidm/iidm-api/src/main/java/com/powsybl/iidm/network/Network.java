@@ -12,6 +12,8 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,14 +111,35 @@ public interface Network extends Container<Network> {
      * @param networkFactory     Network factory
      * @param loader             Provides the list of available importers and post-processors
      * @param reporter           The reporter used for functional logs
-     * @return                   The loaded network
+     * @return The loaded network
      */
-    static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory,
+    static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters,
+                        NetworkFactory networkFactory,
                         ImportersLoader loader, Reporter reporter) {
         ReadOnlyDataSource dataSource = DataSource.fromPath(file);
-        Importer importer = Importer.find(dataSource, loader, computationManager, config);
-        if (importer != null) {
-            return importer.importData(dataSource, networkFactory, parameters, reporter);
+        if (config.isInferFileType()) {
+            Collection<Importer> importers = Importer.list(loader, computationManager, config);
+            return tryReadingWithAllImporters(importers, dataSource, networkFactory, parameters, reporter);
+        } else {
+            Importer importer = Importer.find(dataSource, loader, computationManager, config);
+            if (importer != null) {
+                return importer.importData(dataSource, networkFactory, parameters, reporter);
+            }
+            throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
+        }
+    }
+
+    private static Network tryReadingWithAllImporters(Collection<Importer> importers, ReadOnlyDataSource dataSource,
+                                                      NetworkFactory factory, Properties parameters,
+                                                      Reporter reporter) {
+        Logger logger = LoggerFactory.getLogger(Network.class);
+
+        for (Importer importer : importers) {
+            try {
+                return importer.importData(dataSource, factory, parameters, reporter);
+            } catch (Exception ignored) {
+                logger.trace("Skipping importer %s as it can't import datasource.".formatted(importer));
+            }
         }
         throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
