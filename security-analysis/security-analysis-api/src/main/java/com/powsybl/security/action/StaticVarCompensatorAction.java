@@ -9,6 +9,7 @@ package com.powsybl.security.action;
 
 import com.powsybl.iidm.network.StaticVarCompensator;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -17,7 +18,7 @@ import java.util.OptionalDouble;
  */
 public class StaticVarCompensatorAction extends AbstractAction {
 
-    public static final String NAME = "STATIC_VAC_COMPENSATOR";
+    public static final String NAME = "STATIC_VAR_COMPENSATOR";
     private final String staticVarCompensatorId;
     private final StaticVarCompensator.RegulationMode regulationMode;
     private final String regulatingTerminal;
@@ -29,7 +30,7 @@ public class StaticVarCompensatorAction extends AbstractAction {
                                          String regulatingTerminal, Double voltageSetPoint,
                                          Double reactiveSetPoint) {
         super(id);
-        this.staticVarCompensatorId = staticVarCompensatorId;
+        this.staticVarCompensatorId = Objects.requireNonNull(staticVarCompensatorId);
         this.regulationMode = regulationMode;
         this.regulatingTerminal = regulatingTerminal;
         this.voltageSetPoint = voltageSetPoint;

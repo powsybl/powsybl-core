@@ -70,15 +70,11 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
                     return false;
             }
         });
-        StaticVarCompensator.RegulationMode mode = null;
-        if (context.regulationMode != null) {
-            mode = StaticVarCompensator.RegulationMode.valueOf(context.regulationMode);
-        }
         StaticVarCompensatorActionBuilder builder = new StaticVarCompensatorActionBuilder();
         builder.withId(context.id)
                 .withStaticVarCompensatorId(context.staticVarCompensatorId);
-        if (mode != null) {
-            builder.withRegulationMode(mode);
+        if (context.regulationMode != null) {
+            builder.withRegulationMode(StaticVarCompensator.RegulationMode.valueOf(context.regulationMode));
         }
         if (context.regulatingTerminal != null) {
             builder.withRegulationTerminal(context.regulatingTerminal);
