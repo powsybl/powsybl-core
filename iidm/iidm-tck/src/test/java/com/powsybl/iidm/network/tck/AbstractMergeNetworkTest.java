@@ -8,10 +8,17 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.extensions.LoadDetailAdder;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -143,9 +150,46 @@ public abstract class AbstractMergeNetworkTest {
         assertEquals(voltageLevelCount, n.getVoltageLevelCount());
     }
 
-    private void checkValidPAndQ(DanglingLine dl) {
-        assertEquals(0.0, dl.getP0());
-        assertEquals(0.0, dl.getQ0());
+    @Test
+    public void testMergeAndDetachWithExtensions() {
+        n1 = EurostagTutorialExample1Factory.createWithMoreGenerators();
+        addSubstationAndVoltageLevel(n2, "s2", Country.BE, "vl2", "b2");
+        addDanglingLines(n1, "VLGEN", "dl1", "code", "NGEN");
+        addDanglingLines(n2, "vl2", "dl2", "code", "b2");
+
+        // Add extension at network level
+        n1.newExtension(SecondaryVoltageControlAdder.class)
+                .addControlZone(new SecondaryVoltageControl.ControlZone("z1",
+                        new SecondaryVoltageControl.PilotPoint(List.of("NLOAD"), 15d),
+                        List.of(new SecondaryVoltageControl.ControlUnit("GEN", false),
+                                new SecondaryVoltageControl.ControlUnit("GEN2"))))
+                .add();
+        // Add extension at inner element level
+        n1.getLoad("LOAD").newExtension(LoadDetailAdder.class)
+                .withFixedActivePower(40f)
+                .withFixedReactivePower(20f)
+                .withVariableActivePower(60f)
+                .withVariableReactivePower(30f)
+                .add();
+
+        merge = Network.create(MERGE, n1, n2);
+        Network subnetwork1 = merge.getSubnetwork("sim1");
+        checkExtensions(subnetwork1);
+
+        Network detachedN1 = subnetwork1.detach();
+        checkExtensions(detachedN1);
+    }
+
+    private static void checkExtensions(Network network) {
+        // Check that the Network extension is present on the subnetwork
+        assertEquals(1, network.getExtensions().size());
+        assertNotNull(network.getExtensionByName(SecondaryVoltageControl.NAME));
+        assertNotNull(network.getExtension(SecondaryVoltageControl.class));
+
+        // Check that the Load extension is visible from the subnetwork
+        assertEquals(1, network.getLoad("LOAD").getExtensions().size());
+        assertNotNull(network.getLoad("LOAD").getExtensionByName(LoadDetail.NAME));
+        assertNotNull(network.getLoad("LOAD").getExtension(LoadDetail.class));
     }
 
     @Test

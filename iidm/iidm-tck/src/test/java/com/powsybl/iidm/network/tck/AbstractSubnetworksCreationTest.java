@@ -305,6 +305,14 @@ public abstract class AbstractSubnetworksCreationTest {
         assertValidationLevels(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
+    static Stream<Arguments> networkParameters() {
+        return Stream.of(
+                Arguments.of("Root"),
+                Arguments.of("Sub1"),
+                Arguments.of("Sub2")
+        );
+    }
+
     @Test
     public void testListeners() {
         MutableBoolean listenerCalled = new MutableBoolean(false);
@@ -338,14 +346,6 @@ public abstract class AbstractSubnetworksCreationTest {
         assertEquals(expected, network.getValidationLevel());
         assertEquals(expected, subnetwork1.getValidationLevel());
         assertEquals(expected, subnetwork2.getValidationLevel());
-    }
-
-    static Stream<Arguments> networkParameters() {
-        return Stream.of(
-                Arguments.of("Root"),
-                Arguments.of("Sub1"),
-                Arguments.of("Sub2")
-        );
     }
 
     private Substation addSubstation(Network network, String substationId) {
