@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineFilter;
-import com.powsybl.iidm.network.TieLine;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.Branch;
@@ -276,18 +275,13 @@ public final class TieLineUtil {
     }
 
     /**
-     * <p>Retrieve, if it exists, the dangling line on the other side of a tie line from a given dangling line.</p>
+     * <p>Retrieve, if it exists, the dangling line paired to the given one.</p>
      *
      * @param danglingLine a dangling line
-     * @return an Optional containing the other side, if the given dangling line is paired. Else, `Optional.empty()`
+     * @return an Optional containing the dangling line paired to the given one
      */
-    public static Optional<DanglingLine> getOtherSide(DanglingLine danglingLine) {
-        Optional<TieLine> optionalTieLine = danglingLine.getTieLine();
-        if (optionalTieLine.isPresent()) {
-            TieLine tieLine = optionalTieLine.get();
-            DanglingLine otherSide = tieLine.getDanglingLine1() == danglingLine ? tieLine.getDanglingLine2() : tieLine.getDanglingLine1();
-            return Optional.of(otherSide);
-        }
-        return Optional.empty();
+    public static Optional<DanglingLine> getPairedDanglingLine(DanglingLine danglingLine) {
+        return danglingLine.getTieLine().map(t ->
+                t.getDanglingLine1() == danglingLine ? t.getDanglingLine2() : t.getDanglingLine1());
     }
 }

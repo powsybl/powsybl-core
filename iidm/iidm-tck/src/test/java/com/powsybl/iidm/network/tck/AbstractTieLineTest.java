@@ -93,9 +93,9 @@ public abstract class AbstractTieLineTest {
         assertFalse(network.getDanglingLines(DanglingLineFilter.PAIRED).iterator().hasNext());
         assertEquals(List.of(dl1, dl2), network.getDanglingLines());
 
-        // test other side retrieval - For unpaired dangling lines
-        assertFalse(TieLineUtil.getOtherSide(dl1).isPresent());
-        assertFalse(TieLineUtil.getOtherSide(dl2).isPresent());
+        // test paired dangling line retrieval - For unpaired dangling lines
+        assertFalse(TieLineUtil.getPairedDanglingLine(dl1).isPresent());
+        assertFalse(TieLineUtil.getPairedDanglingLine(dl2).isPresent());
 
         TieLineAdder adder = network.newTieLine().setId("testTie")
                 .setName("testNameTie")
@@ -180,11 +180,11 @@ public abstract class AbstractTieLineTest {
         assertEquals(expectedSV2.otherSideU(danglingLine2, true), danglingLine2.getBoundary().getV(), 0.0d);
         assertEquals(expectedSV2.otherSideA(danglingLine2, true), danglingLine2.getBoundary().getAngle(), 0.0d);
 
-        // test other side retrieval - For paired dangling lines
-        Optional<DanglingLine> otherSide1 = TieLineUtil.getOtherSide(danglingLine1);
+        // test paired dangling line retrieval - For paired dangling lines
+        Optional<DanglingLine> otherSide1 = TieLineUtil.getPairedDanglingLine(danglingLine1);
         assertTrue(otherSide1.isPresent());
         assertEquals(danglingLine2, otherSide1.orElseThrow());
-        Optional<DanglingLine> otherSide2 = TieLineUtil.getOtherSide(danglingLine2);
+        Optional<DanglingLine> otherSide2 = TieLineUtil.getPairedDanglingLine(danglingLine2);
         assertTrue(otherSide2.isPresent());
         assertEquals(danglingLine1, otherSide2.orElseThrow());
     }
