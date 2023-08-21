@@ -112,7 +112,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 }
                 case "configuredInitialVoltageRangeCoefficients" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
-                    parameters.setConfiguredInitialVoltageProfileCoefficients(new ConfiguredInitialVoltageProfileCoefficientDeserializer().deserialize(parser));
+                    parameters.setConfiguredInitialVoltageProfileCoefficients(new VoltageRangeDataDeserializer().deserialize(parser));
                 }
                 case "extensions" -> {
                     parser.nextToken();

@@ -57,7 +57,7 @@ public class FaultParameters {
 
     private final InitialVoltageProfile initialVoltageProfile;
 
-    private final List<ConfiguredInitialVoltageProfileCoefficient> configuredInitialVoltageProfileCoefficients;
+    private final List<VoltageRangeData> voltageRangeData;
 
     /** Fault id */
     public String getId() {
@@ -125,8 +125,8 @@ public class FaultParameters {
     }
 
     /** Override general parameter configuredInitialVoltageProfileCoefficients from {@link ShortCircuitParameters}*/
-    public List<ConfiguredInitialVoltageProfileCoefficient> getConfiguredInitialVoltageProfileCoefficients() {
-        return configuredInitialVoltageProfileCoefficients;
+    public List<VoltageRangeData> getConfiguredInitialVoltageProfileCoefficients() {
+        return voltageRangeData;
     }
 
     public FaultParameters(String id,
@@ -142,7 +142,7 @@ public class FaultParameters {
                            boolean withVSCConverterStations,
                            boolean withNeutralPosition,
                            InitialVoltageProfile initialVoltageProfile,
-                           List<ConfiguredInitialVoltageProfileCoefficient> coefficients) {
+                           List<VoltageRangeData> coefficients) {
         this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
         this.withVoltageResult = withVoltageResult;
@@ -156,9 +156,9 @@ public class FaultParameters {
         this.withVSCConverterStations = withVSCConverterStations;
         this.withNeutralPosition = withNeutralPosition;
         this.initialVoltageProfile = initialVoltageProfile;
-        this.configuredInitialVoltageProfileCoefficients = new ArrayList<>();
+        this.voltageRangeData = new ArrayList<>();
         if (coefficients != null) {
-            this.configuredInitialVoltageProfileCoefficients.addAll(coefficients);
+            this.voltageRangeData.addAll(coefficients);
         }
 
     }
@@ -185,7 +185,7 @@ public class FaultParameters {
                 Objects.equals(withVSCConverterStations, that.withVSCConverterStations) &&
                 Objects.equals(withNeutralPosition, that.withNeutralPosition) &&
                 Objects.equals(initialVoltageProfile, that.initialVoltageProfile) &&
-                Objects.equals(configuredInitialVoltageProfileCoefficients, that.configuredInitialVoltageProfileCoefficients);
+                Objects.equals(voltageRangeData, that.voltageRangeData);
     }
 
     @Override
@@ -193,7 +193,7 @@ public class FaultParameters {
         return Objects.hash(id, withLimitViolations, withVoltageResult, withFeederResult, studyType,
                 minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient,
                 withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition,
-                initialVoltageProfile, configuredInitialVoltageProfileCoefficients);
+                initialVoltageProfile, voltageRangeData);
     }
 
     @Override
@@ -212,7 +212,7 @@ public class FaultParameters {
                 ", withVSCConverterStations=" + withVSCConverterStations +
                 ", withNeutralPosition=" + withNeutralPosition +
                 ", initialVoltageProfile=" + initialVoltageProfile +
-                ", configuredInitialVoltageProfileCoefficients=" + configuredInitialVoltageProfileCoefficients +
+                ", configuredInitialVoltageProfileCoefficients=" + voltageRangeData +
                 '}';
     }
 

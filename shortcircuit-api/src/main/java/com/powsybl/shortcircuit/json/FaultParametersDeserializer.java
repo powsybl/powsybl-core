@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.ConfiguredInitialVoltageProfileCoefficient;
+import com.powsybl.shortcircuit.VoltageRangeData;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.InitialVoltageProfile;
 import com.powsybl.shortcircuit.StudyType;
@@ -47,7 +47,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         boolean withVSCConverterStations = false;
         boolean withNeutralPosition = false;
         InitialVoltageProfile initialVoltageProfile = null;
-        List<ConfiguredInitialVoltageProfileCoefficient> coefficients = null;
+        List<VoltageRangeData> coefficients = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -122,7 +122,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                 }
                 case "configuredInitialVoltageRangeCoefficients" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
-                    coefficients = new ConfiguredInitialVoltageProfileCoefficientDeserializer().deserialize(parser);
+                    coefficients = new VoltageRangeDataDeserializer().deserialize(parser);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }

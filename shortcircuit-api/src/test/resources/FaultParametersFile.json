@@ -19,12 +19,12 @@
   "withShuntCompensators" : true,
   "initialVoltageProfile" : "CONFIGURED",
   "configuredInitialVoltageRangeCoefficients" : [ {
-    "minimumVoltage" : 0.0,
-    "maximumVoltage" : 230.0,
+    "minimumNominalVoltage" : 0.0,
+    "maximumNominalVoltage" : 230.0,
     "voltageRangeCoefficient" : 1.0
   }, {
-    "minimumVoltage" : 235.0,
-    "maximumVoltage" : 400.0,
+    "minimumNominalVoltage" : 235.0,
+    "maximumNominalVoltage" : 400.0,
     "voltageRangeCoefficient" : 1.05
   } ]
 }, {

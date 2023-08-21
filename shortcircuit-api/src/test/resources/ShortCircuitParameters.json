@@ -13,16 +13,16 @@
   "withNeutralPosition" : true,
   "initialVoltageProfile" : "CONFIGURED",
   "configuredInitialVoltageRangeCoefficients" : [ {
-    "minimumVoltage" : 380.0,
-    "maximumVoltage" : 410.0,
+    "minimumNominalVoltage" : 380.0,
+    "maximumNominalVoltage" : 410.0,
     "voltageRangeCoefficient" : 1.05
   }, {
-    "minimumVoltage" : 0.0,
-    "maximumVoltage" : 225.0,
+    "minimumNominalVoltage" : 0.0,
+    "maximumNominalVoltage" : 225.0,
     "voltageRangeCoefficient" : 1.1
   }, {
-    "minimumVoltage" : 230.0,
-    "maximumVoltage" : 375.0,
+    "minimumNominalVoltage" : 230.0,
+    "maximumNominalVoltage" : 375.0,
     "voltageRangeCoefficient" : 1.09
   } ]
 }

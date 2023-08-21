@@ -45,7 +45,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withVSCConverterStations = DEFAULT_WITH_VSC_CONVERTER_STATIONS;
     private boolean withNeutralPosition = DEFAULT_WITH_NEUTRAL_POSITION;
     private InitialVoltageProfile initialVoltageProfile = DEFAULT_INITIAL_VOLTAGE_PROFILE;
-    private List<ConfiguredInitialVoltageProfileCoefficient> configuredInitialVoltageProfileCoefficients = Collections.emptyList();
+    private List<VoltageRangeData> voltageRangeData = Collections.emptyList();
 
     /**
      * Load parameters from platform default config.
@@ -74,7 +74,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setInitialVoltageProfile(config.getEnumProperty("initial-voltage-profile", InitialVoltageProfile.class, DEFAULT_INITIAL_VOLTAGE_PROFILE))
                         .setConfiguredInitialVoltageProfileCoefficients(getCoefficientsFromConfig(config)));
 
-        if (parameters.initialVoltageProfile == InitialVoltageProfile.CONFIGURED && parameters.configuredInitialVoltageProfileCoefficients.isEmpty()) {
+        if (parameters.initialVoltageProfile == InitialVoltageProfile.CONFIGURED && parameters.voltageRangeData.isEmpty()) {
             throw new PowsyblException("Configured initial voltage profile but coefficients are missing.");
         }
 
@@ -83,13 +83,13 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return parameters;
     }
 
-    private static List<ConfiguredInitialVoltageProfileCoefficient> getCoefficientsFromConfig(ModuleConfig config) {
-        List<ConfiguredInitialVoltageProfileCoefficient> coefficients = new ArrayList<>();
+    private static List<VoltageRangeData> getCoefficientsFromConfig(ModuleConfig config) {
+        List<VoltageRangeData> coefficients = new ArrayList<>();
         config.getOptionalStringListProperty("configured-initial-voltage-range-coefficients").ifPresent(voltageCoefficients ->
                 voltageCoefficients.forEach(coefficient -> {
                     String[] voltageCoefficientArray = coefficient.split(" -> ");
                     String[] voltages = voltageCoefficientArray[0].split("-");
-                    coefficients.add(new ConfiguredInitialVoltageProfileCoefficient(Integer.parseInt(voltages[0]), Integer.parseInt(voltages[1]), Double.parseDouble(voltageCoefficientArray[1])));
+                    coefficients.add(new VoltageRangeData(Integer.parseInt(voltages[0]), Integer.parseInt(voltages[1]), Double.parseDouble(voltageCoefficientArray[1])));
                 }));
         return coefficients;
 
@@ -268,12 +268,12 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
      * In case of CONFIGURED initial voltage profile, the coefficients to apply to each nominal voltage. By default, empty.
      * @return a list with voltage ranges and associated coefficients
      */
-    public List<ConfiguredInitialVoltageProfileCoefficient> getConfiguredInitialVoltageProfileCoefficients() {
-        return configuredInitialVoltageProfileCoefficients;
+    public List<VoltageRangeData> getConfiguredInitialVoltageProfileCoefficients() {
+        return voltageRangeData;
     }
 
-    public ShortCircuitParameters setConfiguredInitialVoltageProfileCoefficients(List<ConfiguredInitialVoltageProfileCoefficient> configuredInitialVoltageProfileCoefficients) {
-        this.configuredInitialVoltageProfileCoefficients = configuredInitialVoltageProfileCoefficients;
+    public ShortCircuitParameters setConfiguredInitialVoltageProfileCoefficients(List<VoltageRangeData> voltageRangeData) {
+        this.voltageRangeData = voltageRangeData;
         return this;
     }
 }

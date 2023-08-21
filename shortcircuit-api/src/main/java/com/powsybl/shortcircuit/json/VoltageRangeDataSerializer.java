@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.ConfiguredInitialVoltageProfileCoefficient;
+import com.powsybl.shortcircuit.VoltageRangeData;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -19,19 +19,19 @@ import java.util.Objects;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class ConfiguredInitialVoltageProfileCoefficientSerializer extends StdSerializer<ConfiguredInitialVoltageProfileCoefficient> {
+public class VoltageRangeDataSerializer extends StdSerializer<VoltageRangeData> {
 
-    ConfiguredInitialVoltageProfileCoefficientSerializer() {
-        super(ConfiguredInitialVoltageProfileCoefficient.class);
+    VoltageRangeDataSerializer() {
+        super(VoltageRangeData.class);
     }
 
     @Override
-    public void serialize(ConfiguredInitialVoltageProfileCoefficient coefficient, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
+    public void serialize(VoltageRangeData coefficient, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
         Objects.requireNonNull(coefficient);
 
         jsonGenerator.writeStartObject();
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "minimumVoltage", coefficient.getMinimumVoltage());
-        JsonUtil.writeOptionalDoubleField(jsonGenerator, "maximumVoltage", coefficient.getMaximumVoltage());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "minimumNominalVoltage", coefficient.getMinimumNominalVoltage());
+        JsonUtil.writeOptionalDoubleField(jsonGenerator, "maximumNominalVoltage", coefficient.getMaximumNominalVoltage());
         JsonUtil.writeOptionalDoubleField(jsonGenerator, "voltageRangeCoefficient", coefficient.getRangeCoefficient());
         jsonGenerator.writeEndObject();
 

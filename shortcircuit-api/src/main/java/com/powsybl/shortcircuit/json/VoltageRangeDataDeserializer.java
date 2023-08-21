@@ -9,7 +9,7 @@ package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.powsybl.shortcircuit.ConfiguredInitialVoltageProfileCoefficient;
+import com.powsybl.shortcircuit.VoltageRangeData;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,10 +18,10 @@ import java.util.List;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class ConfiguredInitialVoltageProfileCoefficientDeserializer {
+public class VoltageRangeDataDeserializer {
 
-    public List<ConfiguredInitialVoltageProfileCoefficient> deserialize(JsonParser parser) throws IOException {
-        List<ConfiguredInitialVoltageProfileCoefficient> coefficientList = new ArrayList<>();
+    public List<VoltageRangeData> deserialize(JsonParser parser) throws IOException {
+        List<VoltageRangeData> coefficientList = new ArrayList<>();
         parser.nextToken();
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             Double minimumVoltage = Double.NaN;
@@ -30,11 +30,11 @@ public class ConfiguredInitialVoltageProfileCoefficientDeserializer {
 
             while (parser.nextToken() != JsonToken.END_OBJECT) {
                 switch (parser.getCurrentName()) {
-                    case "minimumVoltage" -> {
+                    case "minimumNominalVoltage" -> {
                         parser.nextToken();
                         minimumVoltage = parser.readValueAs(Double.class);
                     }
-                    case "maximumVoltage" -> {
+                    case "maximumNominalVoltage" -> {
                         parser.nextToken();
                         maximumVoltage = parser.readValueAs(Double.class);
                     }
@@ -45,7 +45,7 @@ public class ConfiguredInitialVoltageProfileCoefficientDeserializer {
                     default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
                 }
             }
-            coefficientList.add(new ConfiguredInitialVoltageProfileCoefficient(minimumVoltage, maximumVoltage, coefficient));
+            coefficientList.add(new VoltageRangeData(minimumVoltage, maximumVoltage, coefficient));
         }
         return coefficientList;
     }

@@ -205,7 +205,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertFalse(parameters.isWithVSCConverterStations());
         assertTrue(parameters.isWithNeutralPosition());
         assertEquals(InitialVoltageProfile.CONFIGURED, parameters.getInitialVoltageProfile());
-        List<ConfiguredInitialVoltageProfileCoefficient> coefficients = parameters.getConfiguredInitialVoltageProfileCoefficients();
+        List<VoltageRangeData> coefficients = parameters.getConfiguredInitialVoltageProfileCoefficients();
         assertEquals(3, coefficients.size());
         assertEquals(1, coefficients.get(0).getRangeCoefficient());
         assertEquals(Range.between(380., 420.), coefficients.get(0).getVoltageRange());
@@ -222,10 +222,10 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         parameters.setWithLimitViolations(false);
         parameters.setStudyType(StudyType.SUB_TRANSIENT);
         parameters.setInitialVoltageProfile(InitialVoltageProfile.CONFIGURED);
-        List<ConfiguredInitialVoltageProfileCoefficient> coefficients = new ArrayList<>();
-        coefficients.add(new ConfiguredInitialVoltageProfileCoefficient(380, 410, 1.05));
-        coefficients.add(new ConfiguredInitialVoltageProfileCoefficient(0, 225, 1.1));
-        coefficients.add(new ConfiguredInitialVoltageProfileCoefficient(230, 375, 1.09));
+        List<VoltageRangeData> coefficients = new ArrayList<>();
+        coefficients.add(new VoltageRangeData(380, 410, 1.05));
+        coefficients.add(new VoltageRangeData(0, 225, 1.1));
+        coefficients.add(new VoltageRangeData(230, 375, 1.09));
         parameters.setConfiguredInitialVoltageProfileCoefficients(coefficients);
         roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
                 "/ShortCircuitParameters.json");
@@ -312,8 +312,8 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
 
     @Test
     void testConfiguredInitialVoltageProfile() {
-        ConfiguredInitialVoltageProfileCoefficient coeff = new ConfiguredInitialVoltageProfileCoefficient(380, 410, 1.1);
-        assertEquals(380, coeff.getMinimumVoltage());
+        VoltageRangeData coeff = new VoltageRangeData(380, 410, 1.1);
+        assertEquals(380, coeff.getMinimumNominalVoltage());
     }
 
     @Test

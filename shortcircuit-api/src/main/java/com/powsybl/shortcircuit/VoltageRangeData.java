@@ -10,15 +10,15 @@ package com.powsybl.shortcircuit;
 import org.apache.commons.lang3.Range;
 
 /**
- * A class that stores coefficients to be applied to a voltage range. This is used to define the user-defined initial voltage profile
+ * A class that stores coefficients to be applied to every nominal voltage in a range. This is used to define the configured initial voltage profile
  * for short circuit calculation.
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class ConfiguredInitialVoltageProfileCoefficient {
+public class VoltageRangeData {
     final Range<Double> voltageRange;
     final double rangeCoefficient;
 
-    public ConfiguredInitialVoltageProfileCoefficient(double lowVoltage, double highVoltage, double rangeCoefficient) {
+    public VoltageRangeData(double lowVoltage, double highVoltage, double rangeCoefficient) {
         this.voltageRange = Range.between(lowVoltage, highVoltage);
         this.rangeCoefficient = rangeCoefficient;
     }
@@ -38,16 +38,16 @@ public class ConfiguredInitialVoltageProfileCoefficient {
     }
 
     /**
-     * The minimum voltage of the range
+     * The minimum nominal voltage of the range
      */
-    public double getMinimumVoltage() {
+    public double getMinimumNominalVoltage() {
         return voltageRange.getMinimum();
     }
 
     /**
-     * The maximum voltage of the range
+     * The maximum nominal voltage of the range
      */
-    public double getMaximumVoltage() {
+    public double getMaximumNominalVoltage() {
         return voltageRange.getMaximum();
     }
 
