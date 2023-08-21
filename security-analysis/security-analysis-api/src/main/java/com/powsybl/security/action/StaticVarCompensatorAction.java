@@ -14,6 +14,12 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 /**
+ * An action to:
+ * <ul>
+ *     <li>change the regulationMode of a static var compensator, three options are available VOLTAGE, REACTIVE_POWER or OFF</li>
+ *     <li>change voltageSetPoint to change the voltage target if the regulation mode is set to VOLTAGE (kV) </li>
+ *     <li>change reactiveSetPoint to change the reactive power target if the regulation mode is set to REACTIVE_POWER (MVAR)</li>
+ * </ul>
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class StaticVarCompensatorAction extends AbstractAction {
@@ -21,18 +27,15 @@ public class StaticVarCompensatorAction extends AbstractAction {
     public static final String NAME = "STATIC_VAR_COMPENSATOR";
     private final String staticVarCompensatorId;
     private final StaticVarCompensator.RegulationMode regulationMode;
-    private final String regulatingTerminal;
     private final Double voltageSetPoint;
     private final Double reactiveSetPoint;
 
     protected StaticVarCompensatorAction(String id, String staticVarCompensatorId,
                                          StaticVarCompensator.RegulationMode regulationMode,
-                                         String regulatingTerminal, Double voltageSetPoint,
-                                         Double reactiveSetPoint) {
+                                         Double voltageSetPoint, Double reactiveSetPoint) {
         super(id);
         this.staticVarCompensatorId = Objects.requireNonNull(staticVarCompensatorId);
         this.regulationMode = regulationMode;
-        this.regulatingTerminal = regulatingTerminal;
         this.voltageSetPoint = voltageSetPoint;
         this.reactiveSetPoint = reactiveSetPoint;
     }
@@ -48,10 +51,6 @@ public class StaticVarCompensatorAction extends AbstractAction {
 
     public Optional<StaticVarCompensator.RegulationMode> getRegulationMode() {
         return Optional.ofNullable(regulationMode);
-    }
-
-    public Optional<String> getRegulatingTerminal() {
-        return Optional.ofNullable(regulatingTerminal);
     }
 
     public OptionalDouble getVoltageSetPoint() {

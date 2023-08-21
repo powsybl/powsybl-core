@@ -31,7 +31,6 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
         String id;
         String staticVarCompensatorId;
         String regulationMode;
-        String regulatingTerminal;
         Double voltageSetPoint;
         Double reactiveSetPoint;
     }
@@ -55,9 +54,6 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
                 case "regulationMode":
                     context.regulationMode = jsonParser.nextTextValue();
                     return true;
-                case "regulatingTerminal":
-                    context.regulatingTerminal = jsonParser.nextTextValue();
-                    return true;
                 case "voltageSetPoint":
                     jsonParser.nextToken();
                     context.voltageSetPoint = jsonParser.getValueAsDouble();
@@ -75,9 +71,6 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
                 .withStaticVarCompensatorId(context.staticVarCompensatorId);
         if (context.regulationMode != null) {
             builder.withRegulationMode(StaticVarCompensator.RegulationMode.valueOf(context.regulationMode));
-        }
-        if (context.regulatingTerminal != null) {
-            builder.withRegulationTerminal(context.regulatingTerminal);
         }
         if (context.voltageSetPoint != null) {
             builder.withVoltageSetPoint(context.voltageSetPoint);

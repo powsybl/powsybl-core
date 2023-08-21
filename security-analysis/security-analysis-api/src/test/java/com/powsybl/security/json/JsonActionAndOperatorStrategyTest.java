@@ -99,7 +99,7 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new ShuntCompensatorPositionActionBuilder().withId("id22").withShuntCompensatorId("shuntId1").withSectionCount(5).build());
         actions.add(new StaticVarCompensatorActionBuilder().withId("id23")
                 .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .withRegulationTerminal("terminal").withVoltageSetPoint(56.0).build());
+                .withVoltageSetPoint(56.0).build());
         actions.add(new StaticVarCompensatorActionBuilder().withId("id24")
                 .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
                 .withReactiveSetPoint(120.0).build());

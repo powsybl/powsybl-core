@@ -172,7 +172,6 @@
     "id" : "id23",
     "staticVarCompensatorId" : "svc",
     "regulationMode" : "VOLTAGE",
-    "regulatingTerminal" : "terminal",
     "voltageSetPoint" : 56.0
   }, {
     "type" : "STATIC_VAR_COMPENSATOR",

@@ -38,13 +38,6 @@ public class StaticVarCompensatorActionSerializer extends StdSerializer<StaticVa
                 throw new UncheckedIOException(e);
             }
         });
-        action.getRegulatingTerminal().ifPresent(regulatingTerminal -> {
-            try {
-                jsonGenerator.writeStringField("regulatingTerminal", regulatingTerminal);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
         action.getReactiveSetPoint().ifPresent(reactiveSetPoint -> {
             try {
                 jsonGenerator.writeNumberField("reactiveSetPoint", reactiveSetPoint);
