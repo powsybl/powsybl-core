@@ -7,6 +7,7 @@
  */
 package com.powsybl.security.results;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -30,7 +31,7 @@ public class ConnectivityResult {
         this.createdConnectedComponentCount = createdConnectedComponentCount;
         this.disconnectedLoadActivePower = disconnectedLoadActivePower;
         this.disconnectedGenerationActivePower = disconnectedGenerationActivePower;
-        this.disconnectedElements = lostElements;
+        this.disconnectedElements = Objects.requireNonNull(lostElements);
     }
 
     public int getCreatedSynchronousComponentCount() {
