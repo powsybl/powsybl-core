@@ -13,11 +13,11 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
+import static com.powsybl.shortcircuit.VoltageRangeData.checkVoltageRangeData;
 
 /**
  * Generic parameters for short circuit-computations.
@@ -45,7 +45,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withVSCConverterStations = DEFAULT_WITH_VSC_CONVERTER_STATIONS;
     private boolean withNeutralPosition = DEFAULT_WITH_NEUTRAL_POSITION;
     private InitialVoltageProfile initialVoltageProfile = DEFAULT_INITIAL_VOLTAGE_PROFILE;
-    private List<VoltageRangeData> voltageRangeData = Collections.emptyList();
+    private List<VoltageRangeData> voltageRangeData;
 
     /**
      * Load parameters from platform default config.
@@ -72,7 +72,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithVSCConverterStations(config.getBooleanProperty("with-vsc-converter-stations", DEFAULT_WITH_VSC_CONVERTER_STATIONS))
                         .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION))
                         .setInitialVoltageProfile(config.getEnumProperty("initial-voltage-profile", InitialVoltageProfile.class, DEFAULT_INITIAL_VOLTAGE_PROFILE))
-                        .setConfiguredInitialVoltageProfileCoefficients(getCoefficientsFromConfig(config)));
+                        .setVoltageRangeData(getCoefficientsFromConfig(config)));
 
         if (parameters.initialVoltageProfile == InitialVoltageProfile.CONFIGURED && parameters.voltageRangeData.isEmpty()) {
             throw new PowsyblException("Configured initial voltage profile but coefficients are missing.");
@@ -265,14 +265,15 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * In case of CONFIGURED initial voltage profile, the coefficients to apply to each nominal voltage. By default, empty.
+     * In case of CONFIGURED initial voltage profile, the coefficients to apply to each nominal voltage.
      * @return a list with voltage ranges and associated coefficients
      */
-    public List<VoltageRangeData> getConfiguredInitialVoltageProfileCoefficients() {
+    public List<VoltageRangeData> getVoltageRangeData() {
         return voltageRangeData;
     }
 
-    public ShortCircuitParameters setConfiguredInitialVoltageProfileCoefficients(List<VoltageRangeData> voltageRangeData) {
+    public ShortCircuitParameters setVoltageRangeData(List<VoltageRangeData> voltageRangeData) {
+        checkVoltageRangeData(voltageRangeData);
         this.voltageRangeData = voltageRangeData;
         return this;
     }

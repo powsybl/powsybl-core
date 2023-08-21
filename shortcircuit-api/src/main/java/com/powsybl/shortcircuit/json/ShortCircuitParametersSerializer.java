@@ -44,7 +44,7 @@ public class ShortCircuitParametersSerializer extends StdSerializer<ShortCircuit
         jsonGenerator.writeBooleanField("withNeutralPosition", parameters.isWithNeutralPosition());
         jsonGenerator.writeStringField("initialVoltageProfile", parameters.getInitialVoltageProfile().name());
         if (parameters.getInitialVoltageProfile() == InitialVoltageProfile.CONFIGURED) {
-            serializerProvider.defaultSerializeField("configuredInitialVoltageRangeCoefficients", parameters.getConfiguredInitialVoltageProfileCoefficients(), jsonGenerator);
+            serializerProvider.defaultSerializeField("configuredInitialVoltageRangeCoefficients", parameters.getVoltageRangeData(), jsonGenerator);
         }
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonShortCircuitParameters.getExtensionSerializers()::get);
         jsonGenerator.writeEndObject();

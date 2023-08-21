@@ -10,11 +10,12 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.VoltageRangeData;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.InitialVoltageProfile;
 import com.powsybl.shortcircuit.StudyType;
+import com.powsybl.shortcircuit.VoltageRangeData;
 
 import java.io.IOException;
 import java.util.List;
@@ -126,6 +127,9 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
+        }
+        if (initialVoltageProfile == InitialVoltageProfile.CONFIGURED && (coefficients == null || coefficients.isEmpty())) {
+            throw new PowsyblException("Configured initial voltage profile but coefficients are missing.");
         }
         return new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type,
                 minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient, withLoads,

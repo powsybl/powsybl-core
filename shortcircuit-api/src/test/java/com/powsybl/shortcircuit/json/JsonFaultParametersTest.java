@@ -7,10 +7,10 @@
 package com.powsybl.shortcircuit.json;
 
 import com.powsybl.commons.test.AbstractConverterTest;
-import com.powsybl.shortcircuit.VoltageRangeData;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.InitialVoltageProfile;
 import com.powsybl.shortcircuit.StudyType;
+import com.powsybl.shortcircuit.VoltageRangeData;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -136,5 +136,19 @@ class JsonFaultParametersTest extends AbstractConverterTest {
 
         FaultParameters param2 = new FaultParameters("f01", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfile.NOMINAL, null);
         assertNotEquals(parameters.get(0), param2);
+    }
+
+    @Test
+    void readParametersMissingCoefficients() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFileWithoutCoefficient.json"), fileSystem.getPath("/FaultParametersFileWithoutCoefficient.json"));
+        UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(fileSystem.getPath("/FaultParametersFileWithoutCoefficient.json")));
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
+    }
+
+    @Test
+    void readParametersEmptyCoefficients() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFileEmptyCoefficients.json"), fileSystem.getPath("/FaultParametersFileEmptyCoefficients.json"));
+        UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(fileSystem.getPath("/FaultParametersFileEmptyCoefficients.json")));
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
     }
 }

@@ -7,8 +7,11 @@
 package com.powsybl.shortcircuit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.json.ShortCircuitAnalysisJsonModule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,10 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.powsybl.shortcircuit.VoltageRangeData.checkVoltageRangeData;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class FaultParameters {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FaultParameters.class);
 
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
@@ -158,7 +165,16 @@ public class FaultParameters {
         this.initialVoltageProfile = initialVoltageProfile;
         this.voltageRangeData = new ArrayList<>();
         if (coefficients != null) {
-            this.voltageRangeData.addAll(coefficients);
+            if (initialVoltageProfile == InitialVoltageProfile.CONFIGURED) {
+                checkVoltageRangeData(coefficients);
+                this.voltageRangeData.addAll(coefficients);
+            } else {
+                LOGGER.warn("Nominal voltage ranges and coefficient defined but InitialVoltageProfile is not CONFIGURED: they are ignored");
+            }
+        } else {
+            if (initialVoltageProfile == InitialVoltageProfile.CONFIGURED) {
+                throw new PowsyblException("Configured initial voltage profile but coefficients are missing.");
+            }
         }
 
     }

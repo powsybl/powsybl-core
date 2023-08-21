@@ -205,7 +205,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertFalse(parameters.isWithVSCConverterStations());
         assertTrue(parameters.isWithNeutralPosition());
         assertEquals(InitialVoltageProfile.CONFIGURED, parameters.getInitialVoltageProfile());
-        List<VoltageRangeData> coefficients = parameters.getConfiguredInitialVoltageProfileCoefficients();
+        List<VoltageRangeData> coefficients = parameters.getVoltageRangeData();
         assertEquals(3, coefficients.size());
         assertEquals(1, coefficients.get(0).getRangeCoefficient());
         assertEquals(Range.between(380., 420.), coefficients.get(0).getVoltageRange());
@@ -226,7 +226,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         coefficients.add(new VoltageRangeData(380, 410, 1.05));
         coefficients.add(new VoltageRangeData(0, 225, 1.1));
         coefficients.add(new VoltageRangeData(230, 375, 1.09));
-        parameters.setConfiguredInitialVoltageProfileCoefficients(coefficients);
+        parameters.setVoltageRangeData(coefficients);
         roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
                 "/ShortCircuitParameters.json");
     }
@@ -324,5 +324,30 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/wrongConfig.yml"), cfgFile);
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         assertThrows(PowsyblException.class, () -> ShortCircuitParameters.load(platformConfig));
+    }
+
+    @Test
+    void testReadButCoefficientsMissing() {
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
+                .read(getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithoutCoefficients.json")));
+        assertEquals("Configured initial voltage profile but coefficients are missing.", e0.getMessage());
+    }
+
+    @Test
+    void testReadButCoefficientsEmpty() {
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
+                .read(getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithEmptyCoefficients.json")));
+        assertEquals("Configured initial voltage profile but coefficients are missing.", e0.getMessage());
+    }
+
+    @Test
+    void testWithOverlappingVoltageRanges() {
+        ShortCircuitParameters shortCircuitParameters = new ShortCircuitParameters();
+        shortCircuitParameters.setInitialVoltageProfile(InitialVoltageProfile.CONFIGURED);
+        List<VoltageRangeData> voltageRangeData = new ArrayList<>();
+        voltageRangeData.add(new VoltageRangeData(100, 400, 1));
+        voltageRangeData.add(new VoltageRangeData(200, 300, 1.1));
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> shortCircuitParameters.setVoltageRangeData(voltageRangeData));
+        assertEquals("Voltage ranges for configured initial voltage profile are overlapping", e0.getMessage());
     }
 }

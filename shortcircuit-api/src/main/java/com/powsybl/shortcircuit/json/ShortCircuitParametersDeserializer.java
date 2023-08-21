@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.InitialVoltageProfile;
@@ -112,7 +113,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 }
                 case "configuredInitialVoltageRangeCoefficients" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
-                    parameters.setConfiguredInitialVoltageProfileCoefficients(new VoltageRangeDataDeserializer().deserialize(parser));
+                    parameters.setVoltageRangeData(new VoltageRangeDataDeserializer().deserialize(parser));
                 }
                 case "extensions" -> {
                     parser.nextToken();
@@ -122,6 +123,9 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
+        if (parameters.getInitialVoltageProfile() == InitialVoltageProfile.CONFIGURED && (parameters.getVoltageRangeData() == null || parameters.getVoltageRangeData().isEmpty())) {
+            throw new PowsyblException("Configured initial voltage profile but coefficients are missing.");
+        }
         return parameters;
     }
 

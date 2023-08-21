@@ -7,7 +7,10 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.powsybl.commons.PowsyblException;
 import org.apache.commons.lang3.Range;
+
+import java.util.List;
 
 /**
  * A class that stores coefficients to be applied to every nominal voltage in a range. This is used to define the configured initial voltage profile
@@ -49,6 +52,19 @@ public class VoltageRangeData {
      */
     public double getMaximumNominalVoltage() {
         return voltageRange.getMaximum();
+    }
+
+    static void checkVoltageRangeData(List<VoltageRangeData> voltageRangeData) {
+        if (voltageRangeData == null) {
+            return;
+        }
+        for (int i = 0; i < voltageRangeData.size() - 1; i++) {
+            for (int j = i + 1; j < voltageRangeData.size(); j++) {
+                if (voltageRangeData.get(i).getVoltageRange().isOverlappedBy(voltageRangeData.get(j).getVoltageRange())) {
+                    throw new PowsyblException("Voltage ranges for configured initial voltage profile are overlapping");
+                }
+            }
+        }
     }
 
 }
