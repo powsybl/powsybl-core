@@ -273,4 +273,15 @@ public final class TieLineUtil {
             return adm.y21().getReal() == 0.0 && adm.y22().getImaginary() == 0.0;
         }
     }
+
+    /**
+     * <p>Retrieve, if it exists, the dangling line paired to the given one.</p>
+     *
+     * @param danglingLine a dangling line
+     * @return an Optional containing the dangling line paired to the given one
+     */
+    public static Optional<DanglingLine> getPairedDanglingLine(DanglingLine danglingLine) {
+        return danglingLine.getTieLine().map(t ->
+                t.getDanglingLine1() == danglingLine ? t.getDanglingLine2() : t.getDanglingLine1());
+    }
 }
