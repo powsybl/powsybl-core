@@ -675,16 +675,31 @@ public class SubnetworkImpl extends AbstractNetwork {
         return busView;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>This operation is not allowed on a subnetwork.</p>
+     * <p>This method throws an {@link UnsupportedOperationException}</p>
+     */
     @Override
     public Network createSubnetwork(String subnetworkId, String name, String sourceFormat) {
         throw new UnsupportedOperationException("Inner subnetworks are not yet supported");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>This operation is not allowed on a subnetwork.</p>
+     * <p>This method throws an {@link UnsupportedOperationException}</p>
+     */
     @Override
     public void merge(Network other) {
         throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>This operation is not allowed on a subnetwork.</p>
+     * <p>This method throws an {@link UnsupportedOperationException}</p>
+     */
     @Override
     public void merge(Network... others) {
         throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
@@ -812,12 +827,28 @@ public class SubnetworkImpl extends AbstractNetwork {
                 !containsVoltageLevel1 && containsVoltageLevel2;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>This method throws an {@link PowsyblException}.</p>
+     * <p>Motivation: The listeners apply to the whole network (root + subnetworks). Thus, in a network with several subnetworks,
+     * if calling <code>addListener</code> on a subnetwork registers the given listener on the root network, changes
+     * on another subnetwork will also be reported to the listener. This is counterintuitive and could lead to confusion.
+     * To avoid that, we don't allow to add or remove listeners from a subnetwork.</p>
+     */
     @Override
     public void addListener(NetworkListener listener) {
         throw new PowsyblException("Listeners are not managed at subnetwork level." +
                 " Add this listener to the parent network '" + getNetwork().getId() + "'");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>This method throws an {@link PowsyblException}.</p>
+     * <p>Motivation: The listeners apply to the whole network (root + subnetworks). Thus, in a network with several subnetworks,
+     * if calling <code>addListener</code> on a subnetwork registers the given listener on the root network, changes
+     * on another subnetwork will also be reported to the listener. This is counterintuitive and could lead to confusion.
+     * To avoid that, we don't allow to add or remove listeners from a subnetwork.</p>
+     */
     @Override
     public void removeListener(NetworkListener listener) {
         throw new PowsyblException("Listeners are not managed at subnetwork level." +

@@ -1246,7 +1246,7 @@ public interface Network extends Container<Network> {
     /**
      * <p>Detach the current network (including its subnetworks) from its parent network.</p>
      * <p>Note that this operation is destructive: after it the current network's content
-     * couldn't be accessed from the parent networks anymore.</p>
+     * couldn't be accessed from the parent network anymore.</p>
      * <p>The boundary elements, i.e. linking this network to an external voltage level are split if possible.</br>
      * A {@link PowsyblException} is thrown if some un-splittable boundary elements are detected. This detection is processed
      * before any network modification. So if an un-splittable boundary element is detected, no destructive operation will be done.</p>
@@ -1277,8 +1277,16 @@ public interface Network extends Container<Network> {
      */
     boolean isBoundaryElement(Identifiable<?> identifiable);
 
+    /**
+     * <p>Add a listener on the network.</p>
+     * @param listener the listener to add
+     */
     void addListener(NetworkListener listener);
 
+    /**
+     * <p>Remove a listener from the network.</p>
+     * @param listener the listener to remove
+     */
     void removeListener(NetworkListener listener);
 
     @Override
