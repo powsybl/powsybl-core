@@ -150,6 +150,9 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="CalculatedBus">
+        <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
         <xs:attribute name="nodes" use="required" type="xs:string"/>
         <xs:attribute name="v" use="optional" type="xs:double"/>
         <xs:attribute name="angle" use="optional" type="xs:double"/>
