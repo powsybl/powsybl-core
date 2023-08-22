@@ -390,11 +390,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer() {
-        return newTwoWindingsTransformer(null);
-    }
-
-    TwoWindingsTransformerAdderImpl newTwoWindingsTransformer(String subnetwork) {
-        return new TwoWindingsTransformerAdderImpl(this, subnetwork);
+        return new TwoWindingsTransformerAdderImpl(this);
     }
 
     @Override
@@ -419,11 +415,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
-        return newThreeWindingsTransformer(null);
-    }
-
-    ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer(String subnetwork) {
-        return new ThreeWindingsTransformerAdderImpl(this, subnetwork);
+        return new ThreeWindingsTransformerAdderImpl(this);
     }
 
     @Override

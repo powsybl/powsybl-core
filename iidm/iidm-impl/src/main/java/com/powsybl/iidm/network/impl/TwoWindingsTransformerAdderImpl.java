@@ -19,7 +19,6 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private final NetworkImpl network;
     private final SubstationImpl substation;
-    private final String subnetwork;
 
     private double r = Double.NaN;
 
@@ -38,13 +37,11 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
         network = null;
         this.substation = substation;
-        this.subnetwork = substation.getSubnetwork();
     }
 
-    TwoWindingsTransformerAdderImpl(NetworkImpl network, String subnetwork) {
+    TwoWindingsTransformerAdderImpl(NetworkImpl network) {
         this.network = network;
         substation = null;
-        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -108,26 +105,27 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
-        if (voltageLevel1.getParentNetwork() != voltageLevel2.getParentNetwork()) {
-            throw new ValidationException(this,
-                    "The 2 windings of the transformer shall belong to the same subnetwork ('"
-                            + voltageLevel1.getParentNetwork().getId() + "', '" + voltageLevel2.getParentNetwork().getId() + "')");
-        }
-        if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()))) {
-            throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
-                    subnetwork + "'. Create this transformer from the parent network '" + getNetwork().getId() + "'");
-        }
+
         if (substation != null) {
+            // The adder was created from a substation
             if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true)) {
                 throw new ValidationException(this,
                         "the 2 windings of the transformer shall belong to the substation '"
                                 + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"
                                 + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "')");
             }
-        } else if (voltageLevel1.getSubstation().isPresent() || voltageLevel2.getSubstation().isPresent()) {
-            throw new ValidationException(this,
-                    "the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
-                            + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "')");
+        } else {
+            // The adder was created from a network
+            if (voltageLevel1.getSubstation().isPresent() || voltageLevel2.getSubstation().isPresent()) {
+                throw new ValidationException(this,
+                        "the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
+                                + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "')");
+            }
+            if (voltageLevel1.getParentNetwork() != voltageLevel2.getParentNetwork()) {
+                throw new ValidationException(this,
+                        "The 2 windings of the transformer shall belong to the same parent network ('"
+                                + voltageLevel1.getParentNetwork().getId() + "', '" + voltageLevel2.getParentNetwork().getId() + "')");
+            }
         }
         if (Double.isNaN(ratedU1)) {
             ratedU1 = voltageLevel1.getNominalV();

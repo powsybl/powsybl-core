@@ -217,12 +217,11 @@ public abstract class AbstractSubnetworksCreationTest {
     @Test
     public void failCreateTwoWindingsTransformerBetweenTwoSubnetworks() {
         addVoltageLevel(subnetwork1.newVoltageLevel(), "vl1_0");
-        addSubstation(subnetwork2, "s2");
-        addVoltageLevel(network.getSubstation("s2").newVoltageLevel(), 90, "vl2_0");
+        addVoltageLevel(network.newVoltageLevel(), 90, "vl2_0");
 
         PowsyblException e = assertThrows(ValidationException.class, () -> addTwoWindingsTransformer(subnetwork1, "twt",
                 "vl1_0", 380, "vl2_0", 90));
-        assertTrue(e.getMessage().contains("The 2 windings of the transformer shall belong to the same subnetwork"));
+        assertTrue(e.getMessage().contains("The 2 windings of the transformer shall belong to the same parent network"));
     }
 
     @Test
@@ -268,12 +267,11 @@ public abstract class AbstractSubnetworksCreationTest {
     public void failCreateThreeWindingsTransformerBetweenDifferentSubnetworks() {
         addVoltageLevel(subnetwork1.newVoltageLevel(), "vl1_0");
         addVoltageLevel(subnetwork1.newVoltageLevel(), 90, "vl1_1");
-        addSubstation(subnetwork2, "s2");
-        addVoltageLevel(network.getSubstation("s2").newVoltageLevel(), 90, "vl2_0");
+        addVoltageLevel(network.newVoltageLevel(), 90, "vl2_0");
 
         PowsyblException e = assertThrows(ValidationException.class, () -> addThreeWindingsTransformer(subnetwork1, "twt",
                 "vl1_0", 380, "vl1_1", 90, "vl2_0", 90));
-        assertTrue(e.getMessage().contains("The 3 windings of the transformer shall belong to the same subnetwork"));
+        assertTrue(e.getMessage().contains("The 3 windings of the transformer shall belong to the same parent network"));
     }
 
     @ParameterizedTest()

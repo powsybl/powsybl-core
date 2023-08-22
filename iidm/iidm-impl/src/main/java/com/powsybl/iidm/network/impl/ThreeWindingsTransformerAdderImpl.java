@@ -190,7 +190,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     private final NetworkImpl network;
     private final SubstationImpl substation;
-    private final String subnetwork;
 
     private LegAdderImpl legAdder1;
 
@@ -203,7 +202,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
         network = null;
         this.substation = substation;
-        subnetwork = substation.getSubnetwork();
     }
 
     @Override
@@ -214,10 +212,9 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                         .orElseThrow(() -> new PowsyblException("Three windings transformer has no container")));
     }
 
-    ThreeWindingsTransformerAdderImpl(NetworkImpl network, String subnetwork) {
+    ThreeWindingsTransformerAdderImpl(NetworkImpl network) {
         this.network = network;
         substation = null;
-        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -287,19 +284,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             throw new ValidationException(this, "Leg3 is not set");
         }
 
-        if (voltageLevel1.getParentNetwork() != voltageLevel2.getParentNetwork() || voltageLevel2.getParentNetwork() != voltageLevel3.getParentNetwork()) {
-            throw new ValidationException(this,
-                    "The 3 windings of the transformer shall belong to the same subnetwork ('"
-                            + voltageLevel1.getParentNetwork().getId() + "', '"
-                            + voltageLevel2.getParentNetwork().getId() + "', '"
-                            + voltageLevel3.getParentNetwork().getId() + "')");
-        }
-        if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetwork()) || !subnetwork.equals(voltageLevel2.getSubnetwork()) ||
-                !subnetwork.equals(voltageLevel3.getSubnetwork()))) {
-            throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
-                    subnetwork + "'. Create this transformer from the parent network '" + getNetwork().getId() + "'");
-        }
         if (substation != null) {
+            // The adder was created from a substation
             if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
                 throw new ValidationException(this,
                         "the 3 windings of the transformer shall belong to the substation '"
@@ -307,10 +293,20 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                                 + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "', '"
                                 + voltageLevel3.getSubstation().map(Substation::getId).orElse("null") + "')");
             }
-        } else if (voltageLevel1.getSubstation().isPresent() || voltageLevel2.getSubstation().isPresent() || voltageLevel3.getSubstation().isPresent()) {
-            throw new ValidationException(this,
-                    "the 3 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
-                            + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "', '" + voltageLevel3.getId() + "')");
+        } else {
+            // The adder was created from a network
+            if (voltageLevel1.getSubstation().isPresent() || voltageLevel2.getSubstation().isPresent() || voltageLevel3.getSubstation().isPresent()) {
+                throw new ValidationException(this,
+                        "the 3 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
+                                + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "', '" + voltageLevel3.getId() + "')");
+            }
+            if (voltageLevel1.getParentNetwork() != voltageLevel2.getParentNetwork() || voltageLevel2.getParentNetwork() != voltageLevel3.getParentNetwork()) {
+                throw new ValidationException(this,
+                        "The 3 windings of the transformer shall belong to the same parent network ('"
+                                + voltageLevel1.getParentNetwork().getId() + "', '"
+                                + voltageLevel2.getParentNetwork().getId() + "', '"
+                                + voltageLevel3.getParentNetwork().getId() + "')");
+            }
         }
 
         // Define ratedU0 equal to ratedU1 if it has not been defined

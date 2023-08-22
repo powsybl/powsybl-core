@@ -217,7 +217,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public TwoWindingsTransformerAdder newTwoWindingsTransformer() {
-        return parent.newTwoWindingsTransformer(id);
+        return parent.newTwoWindingsTransformer();
     }
 
     @Override
@@ -243,7 +243,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        return parent.newThreeWindingsTransformer(id);
+        return parent.newThreeWindingsTransformer();
     }
 
     @Override
