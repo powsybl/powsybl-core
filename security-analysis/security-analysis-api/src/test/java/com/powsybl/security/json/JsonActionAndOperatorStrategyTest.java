@@ -102,7 +102,7 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 .withVoltageSetpoint(56.0).build());
         actions.add(new StaticVarCompensatorActionBuilder().withId("id24")
                 .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
-                .withReactiveSetpoint(120.0).build());
+                .withReactivePowerSetpoint(120.0).build());
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

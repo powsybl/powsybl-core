@@ -32,7 +32,7 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
         String staticVarCompensatorId;
         String regulationMode;
         Double voltageSetpoint;
-        Double reactiveSetpoint;
+        Double reactivePowerSetpoint;
     }
 
     @Override
@@ -58,9 +58,9 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
                     jsonParser.nextToken();
                     context.voltageSetpoint = jsonParser.getValueAsDouble();
                     return true;
-                case "reactiveSetpoint":
+                case "reactivePowerSetpoint":
                     jsonParser.nextToken();
-                    context.reactiveSetpoint = jsonParser.getValueAsDouble();
+                    context.reactivePowerSetpoint = jsonParser.getValueAsDouble();
                     return true;
                 default:
                     return false;
@@ -75,8 +75,8 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
         if (context.voltageSetpoint != null) {
             builder.withVoltageSetpoint(context.voltageSetpoint);
         }
-        if (context.reactiveSetpoint != null) {
-            builder.withReactiveSetpoint(context.reactiveSetpoint);
+        if (context.reactivePowerSetpoint != null) {
+            builder.withReactivePowerSetpoint(context.reactivePowerSetpoint);
         }
         return builder.build();
     }

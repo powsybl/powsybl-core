@@ -18,7 +18,7 @@ import java.util.OptionalDouble;
  * <ul>
  *     <li>change the regulationMode of a static var compensator, three options are available VOLTAGE, REACTIVE_POWER or OFF</li>
  *     <li>change voltageSetPoint to change the voltage setpoint if the regulation mode is set to VOLTAGE (kV) </li>
- *     <li>change reactiveSetPoint to change the reactive power setpoint if the regulation mode is set to REACTIVE_POWER (MVAR)</li>
+ *     <li>change reactivePowerSetpoint to change the reactive power setpoint if the regulation mode is set to REACTIVE_POWER (MVAR)</li>
  * </ul>
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
@@ -28,16 +28,16 @@ public class StaticVarCompensatorAction extends AbstractAction {
     private final String staticVarCompensatorId;
     private final StaticVarCompensator.RegulationMode regulationMode;
     private final Double voltageSetpoint;
-    private final Double reactiveSetpoint;
+    private final Double reactivePowerSetpoint;
 
     protected StaticVarCompensatorAction(String id, String staticVarCompensatorId,
                                          StaticVarCompensator.RegulationMode regulationMode,
-                                         Double voltageSetpoint, Double reactiveSetpoint) {
+                                         Double voltageSetpoint, Double reactivePowerSetpoint) {
         super(id);
         this.staticVarCompensatorId = Objects.requireNonNull(staticVarCompensatorId);
         this.regulationMode = regulationMode;
         this.voltageSetpoint = voltageSetpoint;
-        this.reactiveSetpoint = reactiveSetpoint;
+        this.reactivePowerSetpoint = reactivePowerSetpoint;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class StaticVarCompensatorAction extends AbstractAction {
         return voltageSetpoint == null ? OptionalDouble.empty() : OptionalDouble.of(voltageSetpoint);
     }
 
-    public OptionalDouble getReactiveSetpoint() {
-        return reactiveSetpoint == null ? OptionalDouble.empty() : OptionalDouble.of(reactiveSetpoint);
+    public OptionalDouble getReactivePowerSetpoint() {
+        return reactivePowerSetpoint == null ? OptionalDouble.empty() : OptionalDouble.of(reactivePowerSetpoint);
     }
 }

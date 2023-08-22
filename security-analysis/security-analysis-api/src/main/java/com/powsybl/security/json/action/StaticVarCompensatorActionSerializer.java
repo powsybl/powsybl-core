@@ -38,9 +38,9 @@ public class StaticVarCompensatorActionSerializer extends StdSerializer<StaticVa
                 throw new UncheckedIOException(e);
             }
         });
-        action.getReactiveSetpoint().ifPresent(reactiveSetpoint -> {
+        action.getReactivePowerSetpoint().ifPresent(reactivePowerSetpoint -> {
             try {
-                jsonGenerator.writeNumberField("reactiveSetpoint", reactiveSetpoint);
+                jsonGenerator.writeNumberField("reactivePowerSetpoint", reactivePowerSetpoint);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

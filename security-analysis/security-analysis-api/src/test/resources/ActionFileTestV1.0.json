@@ -178,6 +178,6 @@
     "id" : "id24",
     "staticVarCompensatorId" : "svc",
     "regulationMode" : "REACTIVE_POWER",
-    "reactiveSetpoint" : 120.0
+    "reactivePowerSetpoint" : 120.0
   } ]
 }
