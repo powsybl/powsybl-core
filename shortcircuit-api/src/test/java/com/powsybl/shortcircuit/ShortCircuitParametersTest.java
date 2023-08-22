@@ -26,6 +26,7 @@ import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -328,15 +329,17 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
 
     @Test
     void testReadButCoefficientsMissing() {
+        InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithoutCoefficients.json");
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
-                .read(getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithoutCoefficients.json")));
+                .read(stream));
         assertEquals("Configured initial voltage profile but coefficients are missing.", e0.getMessage());
     }
 
     @Test
     void testReadButCoefficientsEmpty() {
+        InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithEmptyCoefficients.json");
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
-                .read(getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithEmptyCoefficients.json")));
+                .read(stream));
         assertEquals("Configured initial voltage profile but coefficients are missing.", e0.getMessage());
     }
 

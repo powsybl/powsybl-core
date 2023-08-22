@@ -141,14 +141,16 @@ class JsonFaultParametersTest extends AbstractConverterTest {
     @Test
     void readParametersMissingCoefficients() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultParametersFileWithoutCoefficient.json"), fileSystem.getPath("/FaultParametersFileWithoutCoefficient.json"));
-        UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(fileSystem.getPath("/FaultParametersFileWithoutCoefficient.json")));
+        Path path = fileSystem.getPath("/FaultParametersFileWithoutCoefficient.json");
+        UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
     }
 
     @Test
     void readParametersEmptyCoefficients() throws IOException {
         Files.copy(getClass().getResourceAsStream("/FaultParametersFileEmptyCoefficients.json"), fileSystem.getPath("/FaultParametersFileEmptyCoefficients.json"));
-        UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(fileSystem.getPath("/FaultParametersFileEmptyCoefficients.json")));
+        Path path = fileSystem.getPath("/FaultParametersFileEmptyCoefficients.json");
+        UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
     }
 }
