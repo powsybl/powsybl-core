@@ -172,12 +172,12 @@
     "id" : "id23",
     "staticVarCompensatorId" : "svc",
     "regulationMode" : "VOLTAGE",
-    "voltageSetPoint" : 56.0
+    "voltageSetpoint" : 56.0
   }, {
     "type" : "STATIC_VAR_COMPENSATOR",
     "id" : "id24",
     "staticVarCompensatorId" : "svc",
     "regulationMode" : "REACTIVE_POWER",
-    "reactiveSetPoint" : 120.0
+    "reactiveSetpoint" : 120.0
   } ]
 }

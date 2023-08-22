@@ -99,10 +99,10 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
         actions.add(new ShuntCompensatorPositionActionBuilder().withId("id22").withShuntCompensatorId("shuntId1").withSectionCount(5).build());
         actions.add(new StaticVarCompensatorActionBuilder().withId("id23")
                 .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .withVoltageSetPoint(56.0).build());
+                .withVoltageSetpoint(56.0).build());
         actions.add(new StaticVarCompensatorActionBuilder().withId("id24")
                 .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
-                .withReactiveSetPoint(120.0).build());
+                .withReactiveSetpoint(120.0).build());
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

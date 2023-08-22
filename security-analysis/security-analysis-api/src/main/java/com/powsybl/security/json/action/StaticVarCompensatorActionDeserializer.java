@@ -31,8 +31,8 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
         String id;
         String staticVarCompensatorId;
         String regulationMode;
-        Double voltageSetPoint;
-        Double reactiveSetPoint;
+        Double voltageSetpoint;
+        Double reactiveSetpoint;
     }
 
     @Override
@@ -54,13 +54,13 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
                 case "regulationMode":
                     context.regulationMode = jsonParser.nextTextValue();
                     return true;
-                case "voltageSetPoint":
+                case "voltageSetpoint":
                     jsonParser.nextToken();
-                    context.voltageSetPoint = jsonParser.getValueAsDouble();
+                    context.voltageSetpoint = jsonParser.getValueAsDouble();
                     return true;
-                case "reactiveSetPoint":
+                case "reactiveSetpoint":
                     jsonParser.nextToken();
-                    context.reactiveSetPoint = jsonParser.getValueAsDouble();
+                    context.reactiveSetpoint = jsonParser.getValueAsDouble();
                     return true;
                 default:
                     return false;
@@ -72,11 +72,11 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
         if (context.regulationMode != null) {
             builder.withRegulationMode(StaticVarCompensator.RegulationMode.valueOf(context.regulationMode));
         }
-        if (context.voltageSetPoint != null) {
-            builder.withVoltageSetPoint(context.voltageSetPoint);
+        if (context.voltageSetpoint != null) {
+            builder.withVoltageSetpoint(context.voltageSetpoint);
         }
-        if (context.reactiveSetPoint != null) {
-            builder.withReactiveSetPoint(context.reactiveSetPoint);
+        if (context.reactiveSetpoint != null) {
+            builder.withReactiveSetpoint(context.reactiveSetpoint);
         }
         return builder.build();
     }

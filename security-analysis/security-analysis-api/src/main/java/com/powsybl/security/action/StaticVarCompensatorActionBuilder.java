@@ -17,12 +17,11 @@ public class StaticVarCompensatorActionBuilder {
     private String id;
     private String staticVarCompensatorId;
     private StaticVarCompensator.RegulationMode regulationMode;
-    private Double voltageSetPoint;
-    private Double reactiveSetPoint;
+    private Double voltageSetpoint;
+    private Double reactiveSetpoint;
 
     public StaticVarCompensatorAction build() {
-        return new StaticVarCompensatorAction(id, staticVarCompensatorId,
-            regulationMode, voltageSetPoint, reactiveSetPoint);
+        return new StaticVarCompensatorAction(id, staticVarCompensatorId, regulationMode, voltageSetpoint, reactiveSetpoint);
     }
 
     public StaticVarCompensatorActionBuilder withId(String id) {
@@ -40,13 +39,13 @@ public class StaticVarCompensatorActionBuilder {
         return this;
     }
 
-    public StaticVarCompensatorActionBuilder withVoltageSetPoint(Double voltageSetPoint) {
-        this.voltageSetPoint = voltageSetPoint;
+    public StaticVarCompensatorActionBuilder withVoltageSetpoint(Double voltageSetpoint) {
+        this.voltageSetpoint = voltageSetpoint;
         return this;
     }
 
-    public StaticVarCompensatorActionBuilder withReactiveSetPoint(Double reactiveSetPoint) {
-        this.reactiveSetPoint = reactiveSetPoint;
+    public StaticVarCompensatorActionBuilder withReactiveSetpoint(Double reactiveSetpoint) {
+        this.reactiveSetpoint = reactiveSetpoint;
         return this;
     }
 }
