@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -79,7 +78,7 @@ class GroupCommandImpl extends AbstractCommand implements GroupCommand {
     public String toString(final int executionNumber) {
         return subCommands.stream()
                 .map(subCommand -> subCommand.toString(executionNumber))
-                .collect(Collectors.toList())
+                .toList()
                 .toString();
     }
 

@@ -144,7 +144,7 @@ public class CgmesExport implements Exporter {
         description.setIds(network.getPropertyNames().stream()
                 .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID"))
                 .map(network::getProperty)
-                .collect(Collectors.toList()));
+                .toList());
     }
 
     private static void checkConsistency(List<String> profiles, Network network, CgmesExportContext context) {

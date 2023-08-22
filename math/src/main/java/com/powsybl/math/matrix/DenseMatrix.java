@@ -7,6 +7,8 @@
 package com.powsybl.math.matrix;
 
 import com.google.common.base.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
@@ -21,6 +23,10 @@ import java.util.function.Supplier;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class DenseMatrix extends AbstractMatrix {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DenseMatrix.class);
+
+    public static final int MAX_ELEMENT_COUNT = Integer.MAX_VALUE / Double.BYTES;
 
     /**
      * Dense element implementation.
@@ -61,8 +67,15 @@ public class DenseMatrix extends AbstractMatrix {
     private final ByteBuffer buffer;
 
     private static ByteBuffer createBuffer(int rowCount, int columnCount) {
-        return ByteBuffer.allocateDirect(rowCount * columnCount * Double.BYTES)
-                .order(ByteOrder.LITTLE_ENDIAN);
+        try {
+            int capacity = Math.multiplyExact(Math.multiplyExact(rowCount, columnCount), Double.BYTES);
+            return ByteBuffer.allocateDirect(capacity)
+                    .order(ByteOrder.LITTLE_ENDIAN);
+        } catch (ArithmeticException e) {
+            LOGGER.error(e.toString(), e);
+            throw new MatrixException("Too many elements for a dense matrix, maximum allowed is "
+                    + MAX_ELEMENT_COUNT);
+        }
     }
 
     public DenseMatrix(int rowCount, int columnCount, double[] values) {
@@ -408,8 +421,7 @@ public class DenseMatrix extends AbstractMatrix {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DenseMatrix) {
-            DenseMatrix other = (DenseMatrix) obj;
+        if (obj instanceof DenseMatrix other) {
             return rowCount == other.rowCount && columnCount == other.columnCount && buffer.equals(other.buffer);
         }
         return false;
