@@ -42,8 +42,7 @@ public class BranchContingency extends AbstractSidedContingency {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BranchContingency) {
-            BranchContingency other = (BranchContingency) obj;
+        if (obj instanceof BranchContingency other) {
             return id.equals(other.id) && Objects.equals(voltageLevelId, other.voltageLevelId);
         }
         return false;

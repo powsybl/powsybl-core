@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Identifiable;
 
 import java.io.PrintStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -190,7 +189,7 @@ class NetworkIndex {
             out.println(entry.getKey() + " " + System.identityHashCode(entry.getValue()));
         }
         for (Map.Entry<Class<? extends Identifiable>, Set<Identifiable<?>>> entry : objectsByClass.entrySet()) {
-            out.println(entry.getKey() + " " + entry.getValue().stream().map(System::identityHashCode).collect(Collectors.toList()));
+            out.println(entry.getKey() + " " + entry.getValue().stream().map(System::identityHashCode).toList());
         }
     }
 }

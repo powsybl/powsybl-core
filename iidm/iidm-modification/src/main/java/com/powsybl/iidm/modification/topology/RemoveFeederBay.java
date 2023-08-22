@@ -199,8 +199,8 @@ public class RemoveFeederBay extends AbstractNetworkModification {
 
     private static void removeSwitchOrInternalConnection(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
                                                          Object edge, Reporter reporter) {
-        if (edge instanceof Switch) {
-            String switchId = ((Switch) edge).getId();
+        if (edge instanceof Switch sw) {
+            String switchId = sw.getId();
             nbv.removeSwitch(switchId);
             removedSwitchReport(reporter, switchId);
             LOGGER.info("Switch {} removed", switchId);

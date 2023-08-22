@@ -247,8 +247,8 @@ public interface Importer {
 
     static Importer removePostProcessors(Importer importer) {
         Objects.requireNonNull(importer);
-        if (importer instanceof ImporterWrapper) {
-            return removePostProcessors(((ImporterWrapper) importer).getImporter());
+        if (importer instanceof ImporterWrapper importerWrapper) {
+            return removePostProcessors(importerWrapper.getImporter());
         }
         return importer;
     }

@@ -32,8 +32,7 @@ public class DoublePoint extends AbstractPoint {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DoublePoint) {
-            DoublePoint other = (DoublePoint) obj;
+        if (obj instanceof DoublePoint other) {
             return index == other.index && time == other.time
                     && (Double.isNaN(value) && Double.isNaN(other.value)
                         || value == other.value);

@@ -460,8 +460,7 @@ public class SparseMatrix extends AbstractMatrix {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof SparseMatrix) {
-            SparseMatrix other = (SparseMatrix) obj;
+        if (obj instanceof SparseMatrix other) {
             return rowCount == other.rowCount &&
                     columnCount == other.columnCount &&
                     Arrays.equals(columnStart, other.columnStart) &&
