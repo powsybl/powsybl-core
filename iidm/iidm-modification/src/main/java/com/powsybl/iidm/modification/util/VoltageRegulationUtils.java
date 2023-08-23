@@ -55,22 +55,17 @@ public final class VoltageRegulationUtils {
      */
     public static OptionalDouble getTargetVForRegulatingElement(Network network, Bus controlledBus, String regulatingElementId,
                                                                  IdentifiableType identifiableType) {
-        List<Double> targets = new ArrayList<>();
-        double regulatingElementTargetV = Double.NaN;
-        switch (identifiableType) {
-            case GENERATOR -> {
+        List<Double> targets = switch (identifiableType) {
+            case GENERATOR ->
                 targets = getRegulatingGenerators(network, controlledBus)
                         .filter(g -> !g.getId().equals(regulatingElementId))
                         .map(Generator::getTargetV).distinct().toList();
-                regulatingElementTargetV = network.getGenerator(regulatingElementId).getTargetV();
-            }
-            case SHUNT_COMPENSATOR -> {
+            case SHUNT_COMPENSATOR ->
                 targets = getRegulatingShuntCompensators(network, controlledBus)
                         .filter(g -> !g.getId().equals(regulatingElementId))
                         .map(ShuntCompensator::getTargetV).distinct().toList();
-                regulatingElementTargetV = network.getShuntCompensator(regulatingElementId).getTargetV();
-            }
-        }
+            default -> new ArrayList<>();
+        };
         if (targets.isEmpty() || targets.size() > 1) {
             // it means that the network cannot give valuable information about targetV, this field has to be given in
             // the network modification.

@@ -98,6 +98,6 @@ class ConnectGeneratorTest {
         modifs.setConnected(true);
         new GeneratorModification(g2.getId(), modifs).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(99.0, g2.getTargetV(), 0.01);
+        assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getTargetV(), 0.01);
     }
 }
