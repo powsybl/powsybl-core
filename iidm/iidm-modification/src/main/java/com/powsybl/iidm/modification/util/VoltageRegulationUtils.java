@@ -56,14 +56,12 @@ public final class VoltageRegulationUtils {
     public static OptionalDouble getTargetVForRegulatingElement(Network network, Bus controlledBus, String regulatingElementId,
                                                                  IdentifiableType identifiableType) {
         List<Double> targets = switch (identifiableType) {
-            case GENERATOR ->
-                targets = getRegulatingGenerators(network, controlledBus)
-                        .filter(g -> !g.getId().equals(regulatingElementId))
-                        .map(Generator::getTargetV).distinct().toList();
-            case SHUNT_COMPENSATOR ->
-                targets = getRegulatingShuntCompensators(network, controlledBus)
-                        .filter(g -> !g.getId().equals(regulatingElementId))
-                        .map(ShuntCompensator::getTargetV).distinct().toList();
+            case GENERATOR -> getRegulatingGenerators(network, controlledBus)
+                    .filter(g -> !g.getId().equals(regulatingElementId))
+                    .map(Generator::getTargetV).distinct().toList();
+            case SHUNT_COMPENSATOR -> getRegulatingShuntCompensators(network, controlledBus)
+                    .filter(g -> !g.getId().equals(regulatingElementId))
+                    .map(ShuntCompensator::getTargetV).distinct().toList();
             default -> new ArrayList<>();
         };
         if (targets.isEmpty() || targets.size() > 1) {
