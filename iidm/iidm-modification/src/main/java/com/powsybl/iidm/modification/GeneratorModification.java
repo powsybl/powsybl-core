@@ -8,7 +8,9 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
@@ -40,28 +42,29 @@ public class GeneratorModification extends AbstractNetworkModification {
         if (modifs.getMaxP() != null) {
             g.setMaxP(modifs.getMaxP());
         }
-
-        if (modifs.getVoltageRegulatorOn() != null) {
-            g.setVoltageRegulatorOn(modifs.getVoltageRegulatorOn());
-        }
-
-        boolean skipOtherConnectionChange = false;
-        if (modifs.getConnected() != null) {
-            changeConnectionState(g, modifs.getConnected());
-            skipOtherConnectionChange = true;
-        }
-
-        if (modifs.getTargetP() != null) {
-            setTargetPWithinBoundaries(g, modifs.getTargetP(), skipOtherConnectionChange);
-        } else if (modifs.getDeltaTargetP() != null) {
-            setTargetPWithinBoundaries(g, g.getTargetP() + modifs.getDeltaTargetP(), skipOtherConnectionChange);
-        }
-
         if (modifs.getTargetV() != null) {
             g.setTargetV(modifs.getTargetV());
         }
         if (modifs.getTargetQ() != null) {
             g.setTargetQ(modifs.getTargetQ());
+        }
+        boolean skipOtherConnectionChange = false;
+        if (modifs.getConnected() != null) {
+            changeConnectionState(g, modifs.getConnected());
+            skipOtherConnectionChange = true;
+        }
+        if (modifs.getVoltageRegulatorOn() != null) {
+            if (Double.isNaN(g.getTargetV())) {
+                double plausibleTargetV = VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(),
+                        g.getId(), IdentifiableType.GENERATOR).orElse(g.getRegulatingTerminal().getBusView().getBus().getV());
+                g.setTargetV(plausibleTargetV);
+            }
+            g.setVoltageRegulatorOn(modifs.getVoltageRegulatorOn());
+        }
+        if (modifs.getTargetP() != null) {
+            setTargetPWithinBoundaries(g, modifs.getTargetP(), skipOtherConnectionChange);
+        } else if (modifs.getDeltaTargetP() != null) {
+            setTargetPWithinBoundaries(g, g.getTargetP() + modifs.getDeltaTargetP(), skipOtherConnectionChange);
         }
     }
 

@@ -90,10 +90,14 @@ class ConnectGeneratorTest {
     @Test
     void testConnectGeneratorWithNoNetworkInformation() {
         g3.setVoltageRegulatorOn(false);
-        g2.setVoltageRegulatorOn(true);
+        g2.setVoltageRegulatorOn(false);
         g2.setRegulatingTerminal(g3.getTerminal());
-        new ConnectGenerator(g2.getId()).apply(network);
+        g2.setTargetV(Double.NaN);
+        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        modifs.setVoltageRegulatorOn(true); // no targetV provided!
+        modifs.setConnected(true);
+        new GeneratorModification(g2.getId(), modifs).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(22.0, g2.getTargetV(), 0.01);
+        assertEquals(99.0, g2.getTargetV(), 0.01);
     }
 }
