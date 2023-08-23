@@ -887,6 +887,15 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         long start = System.currentTimeMillis();
 
+        // if the validation level of other is lower than the current network's minimum validation level, we can not incorporate it
+        if (other.getValidationLevel().compareTo(getMinValidationLevel()) < 0) {
+            throw new PowsyblException("Network " + other.getNetwork() + " cannot be merged: its validation level " +
+                    "is lower than the minimum acceptable validation level of network " + getId() + " (" +
+                    other.getValidationLevel() + " < " + getMinValidationLevel() + ")");
+        }
+        // update the validation level (without recomputing it)
+        this.validationLevel = ValidationLevel.min(this.getValidationLevel(), other.getValidationLevel());
+
         // check mergeability
         Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
