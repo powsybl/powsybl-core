@@ -457,7 +457,7 @@ public class UcteImporter implements Importer {
                 createDanglingLine(ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network);
 
             } else {
-                throw new UcteException("Line between 2 Xnodes");
+                throw new UcteException("Line between 2 Xnodes: '" + nodeCode1 + "' and '" + nodeCode2 + "'");
             }
         }
     }
