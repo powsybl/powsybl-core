@@ -281,7 +281,7 @@ public class UcteImporter implements Importer {
     private static void createDanglingLine(UcteLine ucteLine, boolean connected,
                                            UcteNode xnode, UcteNodeCode nodeCode, UcteVoltageLevel ucteVoltageLevel,
                                            Network network) {
-        LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
+        LOGGER.trace("Create dangling line '{}' (X-node='{}')", ucteLine.getId(), xnode.getCode());
 
         double p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
         double q0 = isValueValid(xnode.getReactiveLoad()) ? xnode.getReactiveLoad() : 0;
@@ -457,7 +457,7 @@ public class UcteImporter implements Importer {
                 createDanglingLine(ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network);
 
             } else {
-                throw new UcteException("Line between 2 Xnodes: '" + nodeCode1 + "' and '" + nodeCode2 + "'");
+                throw new UcteException("Line between 2 X-nodes: '" + nodeCode1 + "' and '" + nodeCode2 + "'");
             }
         }
     }
@@ -664,7 +664,7 @@ public class UcteImporter implements Importer {
 
         UcteNode ucteXnode = ucteNetwork.getNode(xNodeCode);
 
-        LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to XNODE '{}')",
+        LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to X-node '{}')",
                 xNodeName, yNodeName, ucteXnode.getCode());
 
         double p0 = isValueValid(ucteXnode.getActiveLoad()) ? ucteXnode.getActiveLoad() : 0;
@@ -853,7 +853,7 @@ public class UcteImporter implements Importer {
             if (connectedMatchingDanglingLines.size() == 1) {
                 return connectedMatchingDanglingLines.get(0);
             } else {
-                throw new UcteException("More that 2 connected dangling lines have the same XNODE " + dl1.getUcteXnodeCode());
+                throw new UcteException("More that 2 connected dangling lines have the same X-node " + dl1.getUcteXnodeCode());
             }
         }
     }
