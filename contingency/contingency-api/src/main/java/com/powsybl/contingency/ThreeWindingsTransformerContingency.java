@@ -39,8 +39,7 @@ public class ThreeWindingsTransformerContingency implements ContingencyElement {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof ThreeWindingsTransformerContingency) {
-            ThreeWindingsTransformerContingency that = (ThreeWindingsTransformerContingency) o;
+        if (o instanceof ThreeWindingsTransformerContingency that) {
             return Objects.equals(id, that.id);
         }
         return false;

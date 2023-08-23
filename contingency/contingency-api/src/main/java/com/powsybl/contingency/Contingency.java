@@ -54,8 +54,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Contingency) {
-            Contingency other = (Contingency) obj;
+        if (obj instanceof Contingency other) {
             return id.equals(other.id) && elements.equals(other.elements);
         }
         return false;
