@@ -88,8 +88,8 @@ public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TimeNodeCalc) {
-            return ((TimeNodeCalc) obj).child.equals(child);
+        if (obj instanceof TimeNodeCalc timeNodeCalc) {
+            return timeNodeCalc.child.equals(child);
         }
         return false;
     }
