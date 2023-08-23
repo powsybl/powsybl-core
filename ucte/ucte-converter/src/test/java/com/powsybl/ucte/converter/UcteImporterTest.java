@@ -280,8 +280,8 @@ class UcteImporterTest {
     void lineBetweenTwoXnodesTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("lineBetweenTwoXnodes", new ResourceSet("/", "lineBetweenTwoXnodes.uct"));
         NetworkFactory networkFactory = NetworkFactory.findDefault();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> new UcteImporter().importData(dataSource, networkFactory, null));
+        UcteImporter importer = new UcteImporter();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> importer.importData(dataSource, networkFactory, null));
         assertEquals("Line between 2 X-nodes: 'XXNODE11' and 'XXNODE12'", e.getMessage());
     }
 }
-
