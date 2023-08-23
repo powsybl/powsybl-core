@@ -85,6 +85,7 @@ class ShuntCompensatorModificationTest {
 
     @Test
     void testConnectionOnRegulatingTerminal() {
+        // heterogeneous controls not taken into account yet.
         network.getGenerator("GH1").getTerminal().disconnect();
         network.getGenerator("GH2").getTerminal().disconnect();
         Generator g3 = network.getGenerator("GH3");
@@ -97,7 +98,7 @@ class ShuntCompensatorModificationTest {
         shunt.setVoltageRegulatorOn(true);
         new ShuntCompensatorModification(shunt.getId(), true, null).apply(network);
         Assertions.assertTrue(shunt.getTerminal().isConnected());
-        Assertions.assertEquals(33, shunt.getTargetV(), 0.1);
+        Assertions.assertEquals(2.0, shunt.getTargetV(), 0.1); // and not 33.
     }
 
     @Test
@@ -105,8 +106,6 @@ class ShuntCompensatorModificationTest {
         network.getGenerator("GH1").getTerminal().disconnect();
         network.getGenerator("GH2").getTerminal().disconnect();
         Generator g3 = network.getGenerator("GH3");
-        double busV = 123;
-        g3.getTerminal().getBusView().getBus().setV(busV);
         g3.setVoltageRegulatorOn(false);
         shunt.setTargetV(2);
         shunt.setTargetDeadband(1);
@@ -114,6 +113,6 @@ class ShuntCompensatorModificationTest {
         shunt.setRegulatingTerminal(g3.getTerminal());
         new ShuntCompensatorModification(shunt.getId(), true, null).apply(network);
         Assertions.assertTrue(shunt.getTerminal().isConnected());
-        Assertions.assertEquals(busV, shunt.getTargetV(), 0.1);
+        Assertions.assertEquals(2.0, shunt.getTargetV(), 0.1);
     }
 }

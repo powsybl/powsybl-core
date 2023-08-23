@@ -8,7 +8,8 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.util.RegulationUtils;
+import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
@@ -58,7 +59,8 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
 
     private static void setTargetV(ShuntCompensator shuntCompensator) {
         if (shuntCompensator.isVoltageRegulatorOn()) {
-            RegulationUtils.getTargetVForRegulatingShunt(shuntCompensator).ifPresent(shuntCompensator::setTargetV);
+            VoltageRegulationUtils.getTargetVForRegulatingElement(shuntCompensator.getNetwork(), shuntCompensator.getRegulatingTerminal().getBusView().getBus(),
+                    shuntCompensator.getId(), IdentifiableType.SHUNT_COMPENSATOR).ifPresent(shuntCompensator::setTargetV);
         }
     }
 

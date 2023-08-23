@@ -46,7 +46,7 @@ class ConnectGeneratorTest {
     }
 
     @Test
-    void testConnectVoltageRegulatorOnWithAlreadyConnectedGenerators() {
+    void testWithAlreadyConnectedGenerators() {
         g2.setVoltageRegulatorOn(true);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
@@ -54,16 +54,16 @@ class ConnectGeneratorTest {
     }
 
     @Test
-    void testConnectVoltageRegulatorOnWithoutAlreadyConnectedGenerators() {
+    void testWithoutAlreadyConnectedGenerators() {
         g3.getTerminal().disconnect();
         g2.setVoltageRegulatorOn(true);
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(99., g2.getTargetV(), 0.01);
+        assertEquals(22.0, g2.getTargetV(), 0.01);
     }
 
     @Test
-    void testConnectGeneratorCorrectSetPoint() {
+    void testConnectGeneratorWithWrongTargetV() {
         g2.setVoltageRegulatorOn(true);
         g2.setRegulatingTerminal(g3.getTerminal());
         new ConnectGenerator(g2.getId()).apply(network);
@@ -72,7 +72,8 @@ class ConnectGeneratorTest {
     }
 
     @Test
-    void testConnectGeneratorCorrectSetPointWithShunt() {
+    void testConnectGeneratorWithWrongTargetV2() {
+        // heterogeneous controls not taken into account yet.
         double shuntTargetV = 123;
         network.getShuntCompensatorStream().forEach(sc -> {
             sc.setTargetV(shuntTargetV);
@@ -83,18 +84,16 @@ class ConnectGeneratorTest {
         g2.setRegulatingTerminal(g3.getTerminal());
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(shuntTargetV, g2.getTargetV(), 0.01);
+        assertEquals(33.0, g2.getTargetV(), 0.01);
     }
 
     @Test
-    void testConnectGeneratorCorrectSetPointWithNoRegulatingElmt() {
-        double busV = 123;
-        g3.getTerminal().getBusView().getBus().setV(busV);
+    void testConnectGeneratorWithNoNetworkInformation() {
         g3.setVoltageRegulatorOn(false);
         g2.setVoltageRegulatorOn(true);
         g2.setRegulatingTerminal(g3.getTerminal());
         new ConnectGenerator(g2.getId()).apply(network);
         assertTrue(g2.getTerminal().isConnected());
-        assertEquals(busV, g2.getTargetV(), 0.01);
+        assertEquals(22.0, g2.getTargetV(), 0.01);
     }
 }
