@@ -173,8 +173,6 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             mergedNetwork.merge(other, false);
         }
 
-        //TODO The following line won't be necessary anymore once the TODO in "merge(Network)" is resolved.
-        mergedNetwork.invalidateValidationLevel();
         return mergedNetwork;
     }
 
