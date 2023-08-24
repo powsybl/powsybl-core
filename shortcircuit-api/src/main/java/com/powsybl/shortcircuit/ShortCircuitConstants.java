@@ -24,6 +24,6 @@ public final class ShortCircuitConstants {
     public static final boolean DEFAULT_WITH_LOADS = true;
     public static final boolean DEFAULT_WITH_SHUNT_COMPENSATORS = true;
     public static final boolean DEFAULT_WITH_VSC_CONVERTER_STATIONS = true;
-    public static final boolean DEFAULT_WITH_NEUTRAL_POSITION = true;
+    public static final boolean DEFAULT_WITH_NEUTRAL_POSITION = false;
     public static final InitialVoltageProfileMode DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE = InitialVoltageProfileMode.NOMINAL;
 }
