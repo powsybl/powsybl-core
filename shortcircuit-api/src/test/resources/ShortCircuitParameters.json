@@ -10,7 +10,7 @@
   "withLoads" : true,
   "withShuntCompensators" : true,
   "withVSCConverterStations" : true,
-  "withNeutralPosition" : true,
+  "withNeutralPosition" : false,
   "initialVoltageProfileMode" : "CONFIGURED",
   "voltageRangeData" : [ {
     "minimumNominalVoltage" : 380.0,
