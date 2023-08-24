@@ -55,7 +55,7 @@ public class VoltageRangeData {
     }
 
     static void checkVoltageRangeData(List<VoltageRangeData> voltageRangeData) {
-        if (voltageRangeData == null) {
+        if (voltageRangeData == null || voltageRangeData.isEmpty()) {
             return;
         }
         for (int i = 0; i < voltageRangeData.size() - 1; i++) {

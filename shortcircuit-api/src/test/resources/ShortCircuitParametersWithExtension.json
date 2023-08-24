@@ -10,7 +10,7 @@
   "withShuntCompensators" : true,
   "withVSCConverterStations" : true,
   "withNeutralPosition" : true,
-  "initialVoltageProfile" : "NOMINAL",
+  "initialVoltageProfileMode" : "NOMINAL",
   "extensions" : {
     "dummy-extension" : { }
   }

@@ -121,7 +121,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     parser.nextToken();
                     initialVoltageProfileMode = InitialVoltageProfileMode.valueOf(parser.readValueAs(String.class));
                 }
-                case "configuredInitialVoltageRangeCoefficients" -> {
+                case "voltageRangeData" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     coefficients = new VoltageRangeDataDeserializer().deserialize(parser);
                 }

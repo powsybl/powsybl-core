@@ -11,6 +11,6 @@
   "withShuntCompensators" : true,
   "withVSCConverterStations" : true,
   "withNeutralPosition" : true,
-  "initialVoltageProfile" : "CONFIGURED",
-  "configuredInitialVoltageRangeCoefficients" : []
+  "initialVoltageProfileMode" : "CONFIGURED",
+  "voltageRangeData" : []
 }

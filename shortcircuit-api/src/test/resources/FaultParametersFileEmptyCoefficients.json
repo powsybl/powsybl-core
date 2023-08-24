@@ -5,6 +5,6 @@
   "withFortescueResult" : true,
   "withLoads" : true,
   "withShuntCompensators" : true,
-  "initialVoltageProfile" : "CONFIGURED",
-  "configuredInitialVoltageRangeCoefficients" : []
+  "initialVoltageProfileMode" : "CONFIGURED",
+  "voltageRangeData" : []
 } ]

@@ -10,5 +10,5 @@ short-circuit-parameters:
   with-shunt-compensators: true
   with-vsc-converter-stations: false
   with-neutral-position: true
-  initial-voltage-profile: "CONFIGURED"
+  initial-voltage-profile-mode: "CONFIGURED"
 

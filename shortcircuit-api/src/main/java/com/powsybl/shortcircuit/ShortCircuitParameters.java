@@ -71,7 +71,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithShuntCompensators(config.getBooleanProperty("with-shunt-compensators", DEFAULT_WITH_SHUNT_COMPENSATORS))
                         .setWithVSCConverterStations(config.getBooleanProperty("with-vsc-converter-stations", DEFAULT_WITH_VSC_CONVERTER_STATIONS))
                         .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION))
-                        .setInitialVoltageProfileMode(config.getEnumProperty("initial-voltage-profile", InitialVoltageProfileMode.class, DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE))
+                        .setInitialVoltageProfileMode(config.getEnumProperty("initial-voltage-profile-mode", InitialVoltageProfileMode.class, DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE))
                         .setVoltageRangeData(getCoefficientsFromConfig(config)));
 
         if (parameters.initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && parameters.voltageRangeData.isEmpty()) {

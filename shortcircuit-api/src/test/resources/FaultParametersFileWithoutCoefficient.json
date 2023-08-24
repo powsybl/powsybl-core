@@ -9,5 +9,5 @@
   "withShuntCompensators" : true,
   "withVSCConverterStations" : true,
   "withNeutralPosition" : true,
-  "initialVoltageProfile" : "CONFIGURED"
+  "initialVoltageProfileMode" : "CONFIGURED"
 }]
