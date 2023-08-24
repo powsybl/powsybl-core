@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.InitialVoltageProfile;
+import com.powsybl.shortcircuit.InitialVoltageProfileMode;
 import com.powsybl.shortcircuit.ShortCircuitParameters;
 import com.powsybl.shortcircuit.StudyType;
 
@@ -106,10 +106,10 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     parameters.setWithNeutralPosition(parser.readValueAs(Boolean.class));
                 }
-                case "initialVoltageProfile" -> {
+                case "initialVoltageProfileMode" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
-                    parameters.setInitialVoltageProfile(JsonUtil.readValue(deserializationContext, parser, InitialVoltageProfile.class));
+                    parameters.setInitialVoltageProfileMode(JsonUtil.readValue(deserializationContext, parser, InitialVoltageProfileMode.class));
                 }
                 case "configuredInitialVoltageRangeCoefficients" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
@@ -123,8 +123,8 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
-        if (parameters.getInitialVoltageProfile() == InitialVoltageProfile.CONFIGURED && (parameters.getVoltageRangeData() == null || parameters.getVoltageRangeData().isEmpty())) {
-            throw new PowsyblException("Configured initial voltage profile but coefficients are missing.");
+        if (parameters.getInitialVoltageProfileMode() == InitialVoltageProfileMode.CONFIGURED && (parameters.getVoltageRangeData() == null || parameters.getVoltageRangeData().isEmpty())) {
+            throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");
         }
         return parameters;
     }

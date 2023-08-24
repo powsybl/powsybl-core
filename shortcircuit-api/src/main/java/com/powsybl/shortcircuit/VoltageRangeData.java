@@ -27,28 +27,28 @@ public class VoltageRangeData {
     }
 
     /**
-     * The voltage range to which the coefficient should be applied
+     * The voltage range to which the coefficient should be applied. Voltages are given in kV.
      */
     public Range<Double> getVoltageRange() {
         return voltageRange;
     }
 
     /**
-     * The coefficient by which each voltage in the range will be multiplied by (e.g. 1.1)
+     * The coefficient by which each voltage in the range will be multiplied by (e.g. 1.1). Should be between 0.8 and 1.2.
      */
     public double getRangeCoefficient() {
         return rangeCoefficient;
     }
 
     /**
-     * The minimum nominal voltage of the range
+     * The minimum nominal voltage of the range (in kV)
      */
     public double getMinimumNominalVoltage() {
         return voltageRange.getMinimum();
     }
 
     /**
-     * The maximum nominal voltage of the range
+     * The maximum nominal voltage of the range (in kV)
      */
     public double getMaximumNominalVoltage() {
         return voltageRange.getMaximum();
@@ -60,11 +60,23 @@ public class VoltageRangeData {
         }
         for (int i = 0; i < voltageRangeData.size() - 1; i++) {
             for (int j = i + 1; j < voltageRangeData.size(); j++) {
+                // Check if the range overlaps with any other range
                 if (voltageRangeData.get(i).getVoltageRange().isOverlappedBy(voltageRangeData.get(j).getVoltageRange())) {
                     throw new PowsyblException("Voltage ranges for configured initial voltage profile are overlapping");
                 }
+                // Check if coefficient is correct
+                double rangeCoefficient = voltageRangeData.get(i).getRangeCoefficient();
+                if (rangeCoefficient < 0.8 || rangeCoefficient > 1.2) {
+                    throw new PowsyblException("rangeCoefficient " + rangeCoefficient + " is out of bounds, should be between 0.8 and 1.2.");
+                }
             }
         }
+        // Check last coefficient
+        double rangeCoefficient = voltageRangeData.get(voltageRangeData.size() - 1).getRangeCoefficient();
+        if (rangeCoefficient < 0.8 || rangeCoefficient > 1.2) {
+            throw new PowsyblException("rangeCoefficient " + rangeCoefficient + " is out of bounds, should be between 0.8 and 1.2.");
+        }
+
     }
 
 }

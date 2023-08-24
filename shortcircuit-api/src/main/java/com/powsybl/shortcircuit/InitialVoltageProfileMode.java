@@ -10,7 +10,7 @@ package com.powsybl.shortcircuit;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public enum InitialVoltageProfile {
+public enum InitialVoltageProfileMode {
     NOMINAL,
     CONFIGURED, // Voltage profile given by the user
     PREVIOUS_VALUE // Voltage profile from the loadflow

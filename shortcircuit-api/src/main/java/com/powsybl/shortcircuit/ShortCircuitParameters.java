@@ -30,7 +30,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
     // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition,
-    //                initialVoltageProfile, configuredInitialVoltageProfileCoefficients
+    //                initialVoltageProfileMode, voltageRangeData
     public static final String VERSION = "1.2";
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
@@ -44,7 +44,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withShuntCompensators = DEFAULT_WITH_SHUNT_COMPENSATORS;
     private boolean withVSCConverterStations = DEFAULT_WITH_VSC_CONVERTER_STATIONS;
     private boolean withNeutralPosition = DEFAULT_WITH_NEUTRAL_POSITION;
-    private InitialVoltageProfile initialVoltageProfile = DEFAULT_INITIAL_VOLTAGE_PROFILE;
+    private InitialVoltageProfileMode initialVoltageProfileMode = DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE;
     private List<VoltageRangeData> voltageRangeData;
 
     /**
@@ -71,11 +71,11 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithShuntCompensators(config.getBooleanProperty("with-shunt-compensators", DEFAULT_WITH_SHUNT_COMPENSATORS))
                         .setWithVSCConverterStations(config.getBooleanProperty("with-vsc-converter-stations", DEFAULT_WITH_VSC_CONVERTER_STATIONS))
                         .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION))
-                        .setInitialVoltageProfile(config.getEnumProperty("initial-voltage-profile", InitialVoltageProfile.class, DEFAULT_INITIAL_VOLTAGE_PROFILE))
+                        .setInitialVoltageProfileMode(config.getEnumProperty("initial-voltage-profile", InitialVoltageProfileMode.class, DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE))
                         .setVoltageRangeData(getCoefficientsFromConfig(config)));
 
-        if (parameters.initialVoltageProfile == InitialVoltageProfile.CONFIGURED && parameters.voltageRangeData.isEmpty()) {
-            throw new PowsyblException("Configured initial voltage profile but coefficients are missing.");
+        if (parameters.initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && parameters.voltageRangeData.isEmpty()) {
+            throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");
         }
 
         parameters.readExtensions(platformConfig);
@@ -185,8 +185,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    /** In case of a subtransient study, a multiplicative coefficient to obtain the subtransient reactance of the generators
-     * from the transient reactance.
+    /** In case of a subtransient study, a multiplicative coefficient (in percent) to obtain the subtransient reactance of the generators
+     * from the transient reactance. By default, X''d = 0.7 * X'd.
      */
     public double getSubTransientCoefficient() {
         return subTransientCoefficient;
@@ -241,7 +241,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     /**
      * Defines which step of the tap changer should be used for the computation.
      * If false, the step defined in the network model will be used. If true,
-     * the neutral step will be used.
+     * the neutral step (rho = 1, alpha = 0) will be used.
      */
     public boolean isWithNeutralPosition() {
         return withNeutralPosition;
@@ -253,14 +253,17 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * The initial voltage profile: nominal, configured or previous value.
+     * The initial voltage profile mode, it can be either:
+     * - nominal: nominal voltages will be used
+     * - configured: the voltage profile is given by the user, voltage ranges and associated coefficients should be given using {@link VoltageRangeData}
+     * - previous value: the voltage profile computed from the loadflow will be used
      */
-    public InitialVoltageProfile getInitialVoltageProfile() {
-        return initialVoltageProfile;
+    public InitialVoltageProfileMode getInitialVoltageProfileMode() {
+        return initialVoltageProfileMode;
     }
 
-    public ShortCircuitParameters setInitialVoltageProfile(InitialVoltageProfile initialVoltageProfile) {
-        this.initialVoltageProfile = initialVoltageProfile;
+    public ShortCircuitParameters setInitialVoltageProfileMode(InitialVoltageProfileMode initialVoltageProfileMode) {
+        this.initialVoltageProfileMode = initialVoltageProfileMode;
         return this;
     }
 

@@ -8,7 +8,7 @@ package com.powsybl.shortcircuit.json;
 
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.shortcircuit.FaultParameters;
-import com.powsybl.shortcircuit.InitialVoltageProfile;
+import com.powsybl.shortcircuit.InitialVoltageProfileMode;
 import com.powsybl.shortcircuit.StudyType;
 import com.powsybl.shortcircuit.VoltageRangeData;
 import org.junit.jupiter.api.Test;
@@ -30,14 +30,14 @@ class JsonFaultParametersTest extends AbstractConverterTest {
     @Test
     void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
-        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfile.NOMINAL, null));
+        parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null));
         List<VoltageRangeData> coefficients = new ArrayList<>();
         coefficients.add(new VoltageRangeData(0, 230, 1));
         coefficients.add(new VoltageRangeData(235, 400, 1.05));
-        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false, InitialVoltageProfile.CONFIGURED, coefficients));
-        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN, false, true, false, false, InitialVoltageProfile.NOMINAL, null));
+        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false, InitialVoltageProfileMode.CONFIGURED, coefficients));
+        parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN, false, true, false, false, InitialVoltageProfileMode.NOMINAL, null));
         parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, Double.NaN, false, false, false, false, null, null));
-        parameters.add(new FaultParameters("f12", true, false, false, StudyType.SUB_TRANSIENT, Double.NaN, false, 80.0, true, false, false, false, InitialVoltageProfile.PREVIOUS_VALUE, null));
+        parameters.add(new FaultParameters("f12", true, false, false, StudyType.SUB_TRANSIENT, Double.NaN, false, 80.0, true, false, false, false, InitialVoltageProfileMode.PREVIOUS_VALUE, null));
         roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
 
         assertNotNull(parameters.get(0));
@@ -131,10 +131,10 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         List<FaultParameters> parameters = FaultParameters.read(fileSystem.getPath("/FaultParametersFile.json"));
         assertEquals(5, parameters.size());
 
-        FaultParameters param = new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfile.NOMINAL, null);
+        FaultParameters param = new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null);
         assertEquals(parameters.get(0), param);
 
-        FaultParameters param2 = new FaultParameters("f01", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfile.NOMINAL, null);
+        FaultParameters param2 = new FaultParameters("f01", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null);
         assertNotEquals(parameters.get(0), param2);
     }
 
@@ -143,7 +143,7 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/FaultParametersFileWithoutCoefficient.json"), fileSystem.getPath("/FaultParametersFileWithoutCoefficient.json"));
         Path path = fileSystem.getPath("/FaultParametersFileWithoutCoefficient.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
     }
 
     @Test
@@ -151,6 +151,6 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/FaultParametersFileEmptyCoefficients.json"), fileSystem.getPath("/FaultParametersFileEmptyCoefficients.json"));
         Path path = fileSystem.getPath("/FaultParametersFileEmptyCoefficients.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
+        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
     }
 }

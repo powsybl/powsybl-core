@@ -13,7 +13,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FaultParameters;
-import com.powsybl.shortcircuit.InitialVoltageProfile;
+import com.powsybl.shortcircuit.InitialVoltageProfileMode;
 import com.powsybl.shortcircuit.StudyType;
 import com.powsybl.shortcircuit.VoltageRangeData;
 
@@ -47,7 +47,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         boolean withShuntCompensators = false;
         boolean withVSCConverterStations = false;
         boolean withNeutralPosition = false;
-        InitialVoltageProfile initialVoltageProfile = null;
+        InitialVoltageProfileMode initialVoltageProfileMode = null;
         List<VoltageRangeData> coefficients = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -116,10 +116,10 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     parser.nextToken();
                     withNeutralPosition = parser.readValueAs(Boolean.class);
                 }
-                case "initialVoltageProfile" -> {
+                case "initialVoltageProfileMode" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
-                    initialVoltageProfile = InitialVoltageProfile.valueOf(parser.readValueAs(String.class));
+                    initialVoltageProfileMode = InitialVoltageProfileMode.valueOf(parser.readValueAs(String.class));
                 }
                 case "configuredInitialVoltageRangeCoefficients" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
@@ -128,11 +128,11 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                 default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
-        if (initialVoltageProfile == InitialVoltageProfile.CONFIGURED && (coefficients == null || coefficients.isEmpty())) {
-            throw new PowsyblException("Configured initial voltage profile but coefficients are missing.");
+        if (initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && (coefficients == null || coefficients.isEmpty())) {
+            throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");
         }
         return new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type,
                 minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient, withLoads,
-                withShuntCompensators, withVSCConverterStations, withNeutralPosition, initialVoltageProfile, coefficients);
+                withShuntCompensators, withVSCConverterStations, withNeutralPosition, initialVoltageProfileMode, coefficients);
     }
 }

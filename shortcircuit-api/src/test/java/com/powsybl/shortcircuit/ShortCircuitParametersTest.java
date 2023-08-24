@@ -205,7 +205,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertTrue(parameters.isWithShuntCompensators());
         assertFalse(parameters.isWithVSCConverterStations());
         assertTrue(parameters.isWithNeutralPosition());
-        assertEquals(InitialVoltageProfile.CONFIGURED, parameters.getInitialVoltageProfile());
+        assertEquals(InitialVoltageProfileMode.CONFIGURED, parameters.getInitialVoltageProfileMode());
         List<VoltageRangeData> coefficients = parameters.getVoltageRangeData();
         assertEquals(3, coefficients.size());
         assertEquals(1, coefficients.get(0).getRangeCoefficient());
@@ -222,7 +222,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         parameters.setWithVoltageResult(false);
         parameters.setWithLimitViolations(false);
         parameters.setStudyType(StudyType.SUB_TRANSIENT);
-        parameters.setInitialVoltageProfile(InitialVoltageProfile.CONFIGURED);
+        parameters.setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED);
         List<VoltageRangeData> coefficients = new ArrayList<>();
         coefficients.add(new VoltageRangeData(380, 410, 1.05));
         coefficients.add(new VoltageRangeData(0, 225, 1.1));
@@ -312,7 +312,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    void testConfiguredInitialVoltageProfile() {
+    void testConfiguredInitialVoltageProfileMode() {
         VoltageRangeData coeff = new VoltageRangeData(380, 410, 1.1);
         assertEquals(380, coeff.getMinimumNominalVoltage());
     }
@@ -332,7 +332,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithoutCoefficients.json");
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
                 .read(stream));
-        assertEquals("Configured initial voltage profile but coefficients are missing.", e0.getMessage());
+        assertEquals("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.", e0.getMessage());
     }
 
     @Test
@@ -340,17 +340,28 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithEmptyCoefficients.json");
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
                 .read(stream));
-        assertEquals("Configured initial voltage profile but coefficients are missing.", e0.getMessage());
+        assertEquals("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.", e0.getMessage());
     }
 
     @Test
     void testWithOverlappingVoltageRanges() {
         ShortCircuitParameters shortCircuitParameters = new ShortCircuitParameters();
-        shortCircuitParameters.setInitialVoltageProfile(InitialVoltageProfile.CONFIGURED);
+        shortCircuitParameters.setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED);
         List<VoltageRangeData> voltageRangeData = new ArrayList<>();
         voltageRangeData.add(new VoltageRangeData(100, 400, 1));
         voltageRangeData.add(new VoltageRangeData(200, 300, 1.1));
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> shortCircuitParameters.setVoltageRangeData(voltageRangeData));
         assertEquals("Voltage ranges for configured initial voltage profile are overlapping", e0.getMessage());
+    }
+
+    @Test
+    void testWithWrongCoefficient() {
+        ShortCircuitParameters parameters = new ShortCircuitParameters();
+        parameters.setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED);
+        List<VoltageRangeData> voltageRangeData = new ArrayList<>();
+        voltageRangeData.add(new VoltageRangeData(100, 199, 10));
+        voltageRangeData.add(new VoltageRangeData(200, 300, 1.1));
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> parameters.setVoltageRangeData(voltageRangeData));
+        assertEquals("rangeCoefficient 10.0 is out of bounds, should be between 0.8 and 1.2.", e0.getMessage());
     }
 }
