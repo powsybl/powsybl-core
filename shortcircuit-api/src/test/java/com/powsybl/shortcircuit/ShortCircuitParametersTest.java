@@ -364,4 +364,42 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> parameters.setVoltageRangeData(voltageRangeData));
         assertEquals("rangeCoefficient 10.0 is out of bounds, should be between 0.8 and 1.2.", e0.getMessage());
     }
+
+    @Test
+    void testParametersCreationWithBuilder() {
+        ShortCircuitParameters parameters = new ShortCircuitParametersBuilder()
+                .withLimitViolations(true)
+                .withFortescueResult(true)
+                .withFeederResult(true)
+                .withStudyType(StudyType.SUB_TRANSIENT)
+                .withSubTransientCoefficient(80.0)
+                .withVoltageResult(true)
+                .withMinVoltageDropProportionalThreshold(80)
+                .withLoads(false)
+                .withShuntCompensators(true)
+                .withVSCConverterStations(false)
+                .withNeutralPosition(true)
+                .withInitialVoltageProfileMode(InitialVoltageProfileMode.PREVIOUS_VALUE)
+                .build();
+        assertTrue(parameters.isWithLimitViolations());
+        assertTrue(parameters.isWithFortescueResult());
+        assertTrue(parameters.isWithFeederResult());
+        assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
+        assertEquals(80.0, parameters.getSubTransientCoefficient());
+        assertTrue(parameters.isWithVoltageResult());
+        assertEquals(80, parameters.getMinVoltageDropProportionalThreshold());
+        assertFalse(parameters.isWithLoads());
+        assertTrue(parameters.isWithShuntCompensators());
+        assertFalse(parameters.isWithVSCConverterStations());
+        assertTrue(parameters.isWithNeutralPosition());
+        assertEquals(InitialVoltageProfileMode.PREVIOUS_VALUE, parameters.getInitialVoltageProfileMode());
+    }
+
+    @Test
+    void testBuilderThrowsIfMissingCoefficients() {
+        ShortCircuitParametersBuilder builder = new ShortCircuitParametersBuilder()
+                .withInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED);
+        PowsyblException e0 = assertThrows(PowsyblException.class, builder::build);
+        assertEquals("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.", e0.getMessage());
+    }
 }
