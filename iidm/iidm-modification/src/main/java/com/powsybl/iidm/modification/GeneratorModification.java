@@ -54,7 +54,7 @@ public class GeneratorModification extends AbstractNetworkModification {
             skipOtherConnectionChange = true;
         }
         if (modifs.getVoltageRegulatorOn() != null) {
-            if (Double.isNaN(g.getTargetV())) {
+            if (Double.isNaN(g.getTargetV()) && modifs.getVoltageRegulatorOn().booleanValue()) {
                 double plausibleTargetV = VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(),
                         g.getId(), IdentifiableType.GENERATOR).orElse(g.getRegulatingTerminal().getBusView().getBus().getV());
                 g.setTargetV(plausibleTargetV);
