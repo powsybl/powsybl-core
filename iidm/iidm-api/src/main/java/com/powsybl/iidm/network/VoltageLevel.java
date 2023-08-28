@@ -716,14 +716,13 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          */
         int getBusCount();
 
-        // XXX hack, should we add an API to get the topologykind from the view ?
-        // determine if we are in busbreakertopology by creating a bus adder
-        // and catching the exception
+        /**
+         * Does the view match the voltage level definition topology or is it computed.
+         */
+        boolean isComputed();
+
         private void throwIfNotSupportedNodeBreakerTopologyException() {
-            try {
-                newBus();
-            } catch (PowsyblException e) {
-                // don't use the exception from newBus(), it's an implementation detail
+            if (isComputed()) {
                 throw new PowsyblException("Not supported in a node/breaker topology");
             }
         }
