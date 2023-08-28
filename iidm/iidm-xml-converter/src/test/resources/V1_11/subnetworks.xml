@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_11" xmlns:mock="http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_11" xmlns:extNetworkSource="http://www.itesla_project.eu/schema/iidm/ext/networksource/1_0" id="Merged" caseDate="2013-01-15T18:40:00.000+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
-    <iidm:subnetwork id="Network-1" caseDate="2013-01-15T18:41:00.000+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:network id="Network-1" caseDate="2013-01-15T18:41:00.000+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
         <iidm:substation id="s1" country="FR">
             <iidm:voltageLevel id="vl1" nominalV="380.0" topologyKind="BUS_BREAKER">
                 <iidm:busBreakerTopology>
@@ -15,8 +15,8 @@
         <iidm:extension id="Network-1">
             <extNetworkSource:networkSource sourceData="Source_1"/>
         </iidm:extension>
-    </iidm:subnetwork>
-    <iidm:subnetwork id="Network-2" caseDate="2013-01-15T18:42:00.000+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    </iidm:network>
+    <iidm:network id="Network-2" caseDate="2013-01-15T18:42:00.000+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
         <iidm:substation id="s2" country="FR">
             <iidm:voltageLevel id="vl2" nominalV="380.0" topologyKind="BUS_BREAKER">
                 <iidm:busBreakerTopology>
@@ -34,7 +34,7 @@
         <iidm:extension id="Network-2">
             <extNetworkSource:networkSource sourceData="Source_2"/>
         </iidm:extension>
-    </iidm:subnetwork>
+    </iidm:network>
     <iidm:tieLine id="dl1 + dl2" name="dl1_name + dl2_name" danglingLineId1="dl1" danglingLineId2="dl2"/>
     <iidm:extension id="Merged">
         <extNetworkSource:networkSource sourceData="Source_0"/>

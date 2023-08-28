@@ -57,7 +57,6 @@ public final class NetworkXml {
 
     private static final String EXTENSION_CATEGORY_NAME = "network";
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
-    static final String SUBNETWORK_ROOT_ELEMENT_NAME = "subnetwork";
     private static final String EXTENSION_ELEMENT_NAME = "extension";
     private static final String CASE_DATE = "caseDate";
     private static final String FORECAST_DISTANCE = "forecastDistance";
@@ -278,10 +277,9 @@ public final class NetworkXml {
         String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
         IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
 
-        boolean isSubnetwork = n.getParentNetwork() != n;
         context.getWriter().setPrefix(IIDM_PREFIX, namespaceUri);
-        context.getWriter().writeStartElement(namespaceUri, isSubnetwork ? SUBNETWORK_ROOT_ELEMENT_NAME : NETWORK_ROOT_ELEMENT_NAME);
-        if (!isSubnetwork) {
+        context.getWriter().writeStartElement(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
+        if (n.getParentNetwork() == n) { // is root network
             context.getWriter().writeNamespace(IIDM_PREFIX, namespaceUri);
             if (!options.withNoExtension()) {
                 writeExtensionNamespaces(n, context);
@@ -499,8 +497,8 @@ public final class NetworkXml {
                 PropertiesXml.read(networks.peek(), context);
                 break;
 
-            case SUBNETWORK_ROOT_ELEMENT_NAME:
-                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, SUBNETWORK_ROOT_ELEMENT_NAME,
+            case NETWORK_ROOT_ELEMENT_NAME:
+                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, NETWORK_ROOT_ELEMENT_NAME,
                         IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_11, context);
                 if (networks.size() > 1) {
                     throw new PowsyblException("Only one level of subnetworks is currently supported.");
@@ -509,7 +507,7 @@ public final class NetworkXml {
                 Network subnetwork = initNetwork(networkFactory, context, reader, networks.peek());
                 networks.push(subnetwork);
                 // Read subnetwork content
-                XmlUtil.readUntilEndElement(SUBNETWORK_ROOT_ELEMENT_NAME, reader,
+                XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader,
                     () -> readElements(networkFactory, reader, context, networks, extensionNamesNotFound));
                 // Pop the subnetwork. We will now work with its parent.
                 networks.pop();
@@ -691,7 +689,7 @@ public final class NetworkXml {
                         break;
 
                     case HvdcLineXml.ROOT_ELEMENT_NAME:
-                    case NetworkXml.SUBNETWORK_ROOT_ELEMENT_NAME:
+                    case NetworkXml.NETWORK_ROOT_ELEMENT_NAME:
                         // Nothing to do
                         break;
 

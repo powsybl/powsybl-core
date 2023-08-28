@@ -22,7 +22,7 @@
         <xs:sequence>
             <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
-            <xs:element name="subnetwork" type="iidm:Network" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="network" type="iidm:Network" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="voltageLevel" type="iidm:VoltageLevel" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
