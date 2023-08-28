@@ -62,6 +62,11 @@ class ProportionalScalable extends AbstractCompoundScalable {
     private final List<ScalablePercentage> scalablePercentageList;
 
     ProportionalScalable(List<Float> percentages, List<Scalable> scalables) {
+        this(percentages, scalables, -Double.MAX_VALUE, Double.MAX_VALUE);
+    }
+
+    ProportionalScalable(List<Float> percentages, List<Scalable> scalables, double minShift, double maxShift) {
+        super(minShift, maxShift);
         checkPercentages(percentages, scalables);
         this.scalablePercentageList = new ArrayList<>();
         for (int i = 0; i < scalables.size(); i++) {
@@ -143,10 +148,11 @@ class ProportionalScalable extends AbstractCompoundScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(parameters);
         reinitIterationPercentage();
+        double boundedAsked = Math.min(maxShift, Math.max(asked, minShift));
         if (parameters.isIterative()) {
-            return iterativeScale(n, asked, parameters);
+            return iterativeScale(n, boundedAsked, parameters);
         } else {
-            return scaleIteration(n, asked, parameters);
+            return scaleIteration(n, boundedAsked, parameters);
         }
     }
 

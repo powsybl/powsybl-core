@@ -25,7 +25,16 @@ class StackScalable extends AbstractCompoundScalable {
         this(Arrays.asList(scalables));
     }
 
+    StackScalable(double minValue, double maxValue, Scalable... scalables) {
+        this(Arrays.asList(scalables), minValue, maxValue);
+    }
+
     StackScalable(List<Scalable> scalables) {
+        this(scalables, -Double.MAX_VALUE, Double.MAX_VALUE);
+    }
+
+    StackScalable(List<Scalable> scalables, double minValue, double maxValue) {
+        super(minValue, maxValue);
         this.scalables = Objects.requireNonNull(scalables);
     }
 
@@ -39,7 +48,7 @@ class StackScalable extends AbstractCompoundScalable {
         Objects.requireNonNull(n);
 
         double done = 0;
-        double remaining = asked;
+        double remaining = Math.min(maxShift, Math.max(asked, minShift));
         for (Scalable scalable : scalables) {
             if (Math.abs(remaining) > EPSILON) {
                 double v = scalable.scale(n, remaining, parameters);

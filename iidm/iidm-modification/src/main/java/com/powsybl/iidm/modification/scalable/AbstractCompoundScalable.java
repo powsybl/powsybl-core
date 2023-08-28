@@ -18,6 +18,14 @@ import java.util.Objects;
  */
 abstract class AbstractCompoundScalable extends AbstractScalable {
 
+    protected final double minShift;
+    protected final double maxShift;
+
+    protected AbstractCompoundScalable(double minShift, double maxShift) {
+        this.minShift = minShift;
+        this.maxShift = maxShift;
+    }
+
     abstract Collection<Scalable> getScalables();
 
     @Override
@@ -52,7 +60,8 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         for (Scalable scalable : getScalables()) {
             value += scalable.maximumValue(n, powerConvention);
         }
-        return value;
+        double maxFromCompoundScalable = powerConvention == ScalingConvention.GENERATOR ? maxShift : -minShift;
+        return Math.min(maxFromCompoundScalable, value);
     }
 
     @Override
@@ -68,7 +77,8 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         for (Scalable scalable : getScalables()) {
             value += scalable.minimumValue(n, powerConvention);
         }
-        return value;
+        double minFromCompoundScalable = powerConvention == ScalingConvention.GENERATOR ? minShift : -maxShift;
+        return Math.max(minFromCompoundScalable, value);
     }
 
     @Override
