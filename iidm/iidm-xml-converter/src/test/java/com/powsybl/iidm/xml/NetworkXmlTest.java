@@ -150,7 +150,7 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    void roundTripWithSubNetworksTest() throws IOException {
+    void roundTripWithSubnetworksTest() throws IOException {
         Network n1 = createNetwork(1);
         Network n2 = createNetwork(2);
         n1.setCaseDate(DateTime.parse("2013-01-15T18:41:00+01:00"));

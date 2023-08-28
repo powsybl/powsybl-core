@@ -296,7 +296,7 @@ public final class NetworkXml {
         AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> writeSubNetworks(n, context));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> writeSubnetworks(n, context));
 
         writeVoltageLevels(n, context);
         writeSubstations(n, context);
@@ -305,11 +305,11 @@ public final class NetworkXml {
         writeHvdcLines(n, context);
     }
 
-    private static void writeSubNetworks(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (Network subNetwork : IidmXmlUtil.sorted(n.getSubnetworks(), context.getOptions())) {
+    private static void writeSubnetworks(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        for (Network subnetwork : IidmXmlUtil.sorted(n.getSubnetworks(), context.getOptions())) {
             IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
                     IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_11, context);
-            write(subNetwork, context);
+            write(subnetwork, context);
         }
     }
 
