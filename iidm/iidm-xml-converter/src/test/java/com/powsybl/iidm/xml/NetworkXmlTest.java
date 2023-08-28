@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -147,6 +149,14 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
         BusbarSection bb2 = nodeBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1");
         assertEquals(1, bb2.getExtensions().size());
         assertNotNull(bb2.getExtension(BusbarSectionExt.class));
+    }
+
+    @Test
+    void failImportWithSeveralSubnetworkLevels() throws URISyntaxException {
+        Path path = Path.of(getClass().getResource(getVersionedNetworkPath("multiple-subnetwork-levels.xml",
+                CURRENT_IIDM_XML_VERSION)).toURI());
+        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkXml.validateAndRead(path));
+        assertTrue(e.getMessage().contains("Only one level of subnetworks is currently supported."));
     }
 
     @Test

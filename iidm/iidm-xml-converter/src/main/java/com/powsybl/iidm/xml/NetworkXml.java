@@ -502,6 +502,9 @@ public final class NetworkXml {
             case SUBNETWORK_ROOT_ELEMENT_NAME:
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, SUBNETWORK_ROOT_ELEMENT_NAME,
                         IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_11, context);
+                if (networks.size() > 1) {
+                    throw new PowsyblException("Only one level of subnetworks is currently supported.");
+                }
                 // Create a new subnetwork and push it in the deque to be used as the network to update
                 Network subnetwork = initNetwork(networkFactory, context, reader, networks.peek());
                 networks.push(subnetwork);
