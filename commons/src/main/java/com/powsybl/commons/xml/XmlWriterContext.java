@@ -18,7 +18,7 @@ public interface XmlWriterContext {
     /**
      * @deprecated Use {@link #getWriter()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "4.0.0")
     default XMLStreamWriter getExtensionsWriter() {
         return getWriter();
     }

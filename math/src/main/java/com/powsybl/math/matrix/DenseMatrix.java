@@ -127,7 +127,7 @@ public class DenseMatrix extends AbstractMatrix {
     /**
      * @deprecated Use {@link #get(int, int)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     public double getValue(int i, int j) {
         return get(i, j);
     }

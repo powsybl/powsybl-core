@@ -145,7 +145,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
      * Return a list of valid contingencies.
      * @deprecated Use {@link ContingencyList#getValidContingencies(List, Network)} ()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "4.0.0")
     public static List<Contingency> checkValidity(List<Contingency> contingencies, Network network) {
         return ContingencyList.getValidContingencies(contingencies, network);
     }
