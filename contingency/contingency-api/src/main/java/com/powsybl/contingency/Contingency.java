@@ -54,8 +54,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Contingency) {
-            Contingency other = (Contingency) obj;
+        if (obj instanceof Contingency other) {
             return id.equals(other.id) && elements.equals(other.elements);
         }
         return false;
@@ -146,7 +145,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
      * Return a list of valid contingencies.
      * @deprecated Use {@link ContingencyList#getValidContingencies(List, Network)} ()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "4.0.0")
     public static List<Contingency> checkValidity(List<Contingency> contingencies, Network network) {
         return ContingencyList.getValidContingencies(contingencies, network);
     }

@@ -109,19 +109,33 @@ scripts provided. They will download a compatible maven distribution and use it 
 ### Configuration
 #### Configure the access to the maven distributions
 In order to work properly, Maven Wrapper needs to download 2 artifacts: the maven distribution and the maven wrapper
-distribution. By default, these are downloaded from the online Maven repository.
-
-##### Internet access authentication
-If your internet access requires a Basic Authentication, you should define the following variables in your environment:
-- `MVNW_USERNAME`: the username;
-- `MVNW_PASSWORD`: the password.
+distribution. By default, these are downloaded from the online Maven repository, but you could use an internal repository instead.
 
 ##### Using a Maven Repository Manager
-If you prefer to use an internal Maven Repository Manager, you should define the following variable in your environment:
+If you prefer to use an internal Maven Repository Manager instead of retrieving the artefacts from the internet, you should define the following variable in your environment:
 - `MVNW_REPOURL`: the URL to your repository manager (for instance `https://my_server/repository/maven-public`)
 
 Note that if you need to use this variable, it must be set for **each maven command**. Else, the Maven Wrapper will try to
 retrieve the maven distribution from the online Maven repository (even if one was already downloaded from another location).
+
+##### Using a proxy to access the Internet
+If you don't use an internal Maven Repository, and need to use a proxy to access the Internet, you should:
+1. configure the proxy in your terminal (on Linux/MacOS, you can do it via the `http_proxy` and `https_proxy` environment variables).
+This is needed to download the Maven Wrapper distribution ;
+
+2. execute **at least once** the following command:
+```shell
+./mvnw -DproxyHost=XXX -DproxyPort=XXX -Dhttp.proxyUser=XXX -Dhttp.proxyPassword=XXX -Djdk.http.auth.tunneling.disabledSchemes= clean
+```
+Notes:
+- The 4 `XXX` occurrences should be replaced with your configuration;
+- The `-Djdk.http.auth.tunneling.disabledSchemes=` option should be left empty;
+- Windows users should use `mvnw.cmd` instead of `./mwn`.
+
+This second step is required to download the Maven distribution.
+
+Once both distributions are retrieved, the proxy configuration isn't needed anymore to use `./mvnw` or `mvnw.cmd` commands.
+
 
 ##### Checking your access configuration
 You could check your configuration with the following command:

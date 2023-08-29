@@ -32,7 +32,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.powsybl.ucte.converter.util.UcteConstants.*;
 import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
@@ -843,7 +842,7 @@ public class UcteExporter implements Exporter {
             if (namingStrategies.size() > 1 && name == null) {
                 // several naming strategies and no information to select which one to choose, we can only throw
                 // an exception
-                List<String> namingStrategyNames = namingStrategies.stream().map(NamingStrategy::getName).collect(Collectors.toList());
+                List<String> namingStrategyNames = namingStrategies.stream().map(NamingStrategy::getName).toList();
                 throw new PowsyblException("Several naming strategy implementations found (" + namingStrategyNames
                         + "), you must add properties to select the implementation");
             }

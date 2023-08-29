@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Network;
@@ -16,9 +16,11 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.testReporter;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -67,13 +69,15 @@ class RemoveSubstationTest extends AbstractConverterTest {
     }
 
     @Test
-    void testRemoveUnknownSubstation() {
+    void testRemoveUnknownSubstation() throws IOException {
         RemoveSubstation removeUnknown = new RemoveSubstationBuilder()
                 .withSubstationId("UNKNOWN")
                 .build();
+        ReporterModel reporter = new ReporterModel("reportTestRemoveUnknownSubstation", "Testing reporter on removing unknown substation");
         Network network = EurostagTutorialExample1Factory.create();
-        removeUnknown.apply(network, false, Reporter.NO_OP);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, Reporter.NO_OP));
+        removeUnknown.apply(network, false, reporter);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reporter));
         assertEquals("Substation not found: UNKNOWN", e.getMessage());
+        testReporter(reporter, "/reporter/remove-unknown-substation-report.txt");
     }
 }
