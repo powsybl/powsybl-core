@@ -9,10 +9,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
-import com.powsybl.iidm.network.IdentifiableType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
@@ -26,11 +23,18 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
     private final String shuntCompensatorId;
     private final Boolean connect;
     private final Integer sectionCount;
+    private final Double bPerSection;
 
     public ShuntCompensatorModification(String shuntCompensatorId, Boolean connect, Integer sectionCount) {
+        this(shuntCompensatorId, connect, sectionCount, null);
+    }
+
+    public ShuntCompensatorModification(String shuntCompensatorId, Boolean connect, Integer sectionCount,
+                                        Double bPerSection) {
         this.shuntCompensatorId = Objects.requireNonNull(shuntCompensatorId);
         this.connect = connect;
         this.sectionCount = sectionCount;
+        this.bPerSection = bPerSection;
     }
 
     @Override
@@ -41,6 +45,9 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         if (shuntCompensator == null) {
             logOrThrow(throwException, "Shunt Compensator '" + shuntCompensatorId + "' not found");
             return;
+        }
+        if (shuntCompensator.getModelType().equals(ShuntCompensatorModelType.LINEAR) && Objects.nonNull(bPerSection)) {
+            ((ShuntCompensatorLinearModel) (shuntCompensator.getModel())).setBPerSection(bPerSection);
         }
 
         if (connect != null) {
