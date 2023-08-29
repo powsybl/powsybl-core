@@ -174,6 +174,50 @@ class EquipmentExportTest extends AbstractConverterTest {
         compareNetworksEQdata(network, actual);
     }
 
+    @Test
+    void nordic32SortTransformerEnds() throws IOException, XMLStreamException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
+        Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
+        exportToCgmesEQ(network, true);
+        exportToCgmesTP(network);
+        // Import EQ & TP file, no additional information (boundaries) are required
+        Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
+        // Before comparing, interchange ends in twoWindingsTransformers that do not follow the high voltage at end1 rule
+        prepareNetworkForSortedTransformerEndsComparison(network);
+        compareNetworksEQdata(network, actual);
+    }
+
+    private void prepareNetworkForSortedTransformerEndsComparison(Network network) {
+        List<Pair<String, TwtRecord>> pairs = new ArrayList<>();
+        network.getTwoWindingsTransformerStream().filter(twt -> twt
+                        .getTerminal1().getVoltageLevel().getNominalV() < twt.getTerminal2().getVoltageLevel().getNominalV())
+                .forEach(twt -> {
+                    TwtRecord twtRecord = obtainRecord(twt);
+                    pairs.add(Pair.of(twt.getId(), twtRecord));
+                });
+
+        pairs.forEach(pair -> {
+            TwoWindingsTransformer twt = network.getTwoWindingsTransformer(pair.getLeft());
+            twt.remove();
+            TwoWindingsTransformer newTwt = pair.getRight().getAdder().add();
+            Optional<CurrentLimits> currentLimits1 = pair.getRight().getCurrentLimits1();
+            if (currentLimits1.isPresent()) {
+                newTwt.newCurrentLimits1().setPermanentLimit(currentLimits1.get().getPermanentLimit()).add();
+            }
+            Optional<CurrentLimits> currentLimits2 = pair.getRight().getCurrentLimits2();
+            if (currentLimits2.isPresent()) {
+                newTwt.newCurrentLimits2().setPermanentLimit(currentLimits2.get().getPermanentLimit()).add();
+            }
+            pair.getRight().getAliases().forEach(aliasPair -> {
+                if (aliasPair.getLeft() == null) {
+                    newTwt.addAlias(aliasPair.getRight());
+                } else {
+                    newTwt.addAlias(aliasPair.getRight(), aliasPair.getLeft());
+                }
+            });
+        });
+    }
+
     private TwtRecord obtainRecord(TwoWindingsTransformer twt) {
         Substation substation = twt.getSubstation().orElseThrow();
         double a0 = twt.getRatedU1() / twt.getRatedU2();
