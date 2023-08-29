@@ -14,7 +14,8 @@ import com.powsybl.iidm.network.*;
 import java.util.Objects;
 
 /**
- * Simple {@link NetworkModification} to (dis)connect a shunt compensator and/or change its section.
+ * Simple {@link NetworkModification} to (dis)connect a shunt compensator and/or change its section,
+ * if the model is linear you can modify the b per section.
  *
  * @author Nicolas PIERRE <nicolas.pierre at artelys.com>
  */
@@ -46,8 +47,13 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
             logOrThrow(throwException, "Shunt Compensator '" + shuntCompensatorId + "' not found");
             return;
         }
+
         if (shuntCompensator.getModelType().equals(ShuntCompensatorModelType.LINEAR) && Objects.nonNull(bPerSection)) {
             ((ShuntCompensatorLinearModel) (shuntCompensator.getModel())).setBPerSection(bPerSection);
+        } else if (Objects.nonNull(bPerSection)) {
+            logOrThrow(throwException,
+                "Shunt compensator is not linear but you wanted to modify its susceptance per section.");
+            return;
         }
 
         if (connect != null) {
@@ -59,6 +65,7 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
                 t.disconnect();
             }
         }
+
         if (sectionCount != null) {
             shuntCompensator.setSectionCount(sectionCount);
         }
