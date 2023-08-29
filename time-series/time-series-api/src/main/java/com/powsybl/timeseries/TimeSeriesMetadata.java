@@ -167,8 +167,7 @@ public class TimeSeriesMetadata {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TimeSeriesMetadata) {
-            TimeSeriesMetadata other = (TimeSeriesMetadata) obj;
+        if (obj instanceof TimeSeriesMetadata other) {
             return name.equals(other.name) &&
                     dataType == other.dataType &&
                     tags.equals(other.tags) &&

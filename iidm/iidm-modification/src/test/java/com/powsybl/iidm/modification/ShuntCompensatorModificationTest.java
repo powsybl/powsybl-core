@@ -8,6 +8,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -82,4 +83,36 @@ class ShuntCompensatorModificationTest {
         Assertions.assertEquals(1, shunt.getSectionCount());
     }
 
+    @Test
+    void testConnectionOnRegulatingTerminal() {
+        // heterogeneous controls not taken into account yet.
+        network.getGenerator("GH1").getTerminal().disconnect();
+        network.getGenerator("GH2").getTerminal().disconnect();
+        Generator g3 = network.getGenerator("GH3");
+        g3.setTargetV(33.);
+        g3.setVoltageRegulatorOn(true);
+        shunt.getTerminal().disconnect();
+        shunt.setRegulatingTerminal(g3.getRegulatingTerminal());
+        shunt.setTargetV(2);
+        shunt.setTargetDeadband(1);
+        shunt.setVoltageRegulatorOn(true);
+        new ShuntCompensatorModification(shunt.getId(), true, null).apply(network);
+        Assertions.assertTrue(shunt.getTerminal().isConnected());
+        Assertions.assertEquals(2.0, shunt.getTargetV(), 0.1); // and not 33.
+    }
+
+    @Test
+    void testConnectShuntCorrectSetPointWithNoRegulatingElmt() {
+        network.getGenerator("GH1").getTerminal().disconnect();
+        network.getGenerator("GH2").getTerminal().disconnect();
+        Generator g3 = network.getGenerator("GH3");
+        g3.setVoltageRegulatorOn(false);
+        shunt.setTargetV(2);
+        shunt.setTargetDeadband(1);
+        shunt.setVoltageRegulatorOn(true);
+        shunt.setRegulatingTerminal(g3.getTerminal());
+        new ShuntCompensatorModification(shunt.getId(), true, null).apply(network);
+        Assertions.assertTrue(shunt.getTerminal().isConnected());
+        Assertions.assertEquals(2.0, shunt.getTargetV(), 0.1);
+    }
 }

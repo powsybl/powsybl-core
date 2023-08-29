@@ -208,8 +208,7 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CompressedDoubleDataChunk) {
-            CompressedDoubleDataChunk other = (CompressedDoubleDataChunk) obj;
+        if (obj instanceof CompressedDoubleDataChunk other) {
             return offset == other.offset &&
                     uncompressedLength == other.uncompressedLength &&
                     Arrays.equals(stepLengths, other.stepLengths) &&

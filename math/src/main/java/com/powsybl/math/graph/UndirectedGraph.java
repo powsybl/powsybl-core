@@ -122,7 +122,7 @@ public interface UndirectedGraph<V, E> {
      *
      * @deprecated Use {@link #getVertexCapacity} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     default int getMaxVertex() {
         return getVertexCapacity();
     }
