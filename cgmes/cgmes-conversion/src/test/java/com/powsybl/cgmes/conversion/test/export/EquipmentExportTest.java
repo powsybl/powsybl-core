@@ -25,11 +25,11 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.xml.ExportOptions;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.network.test.ThreeWindingsTransformerWithUnsortedEndsNodeBreakerNetworkFactory;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 
@@ -167,43 +167,10 @@ class EquipmentExportTest extends AbstractConverterTest {
     void nordic32() throws IOException, XMLStreamException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm"));
         Network network = new XMLImporter().importData(dataSource, NetworkFactory.findDefault(), null);
-
         exportToCgmesEQ(network);
         exportToCgmesTP(network);
-
         // Import EQ & TP file, no additional information (boundaries) are required
         Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
-
-        // Before comparing, interchange ends in unsorted twoWindingsTransformers
-        List<Pair<String, TwtRecord>> pairs = new ArrayList<>();
-        network.getTwoWindingsTransformerStream().filter(twt -> twt
-            .getTerminal1().getVoltageLevel().getNominalV() < twt.getTerminal2().getVoltageLevel().getNominalV())
-            .forEach(twt -> {
-                TwtRecord twtRecord = obtainRecord(twt);
-                pairs.add(Pair.of(twt.getId(), twtRecord));
-            });
-
-        pairs.forEach(pair -> {
-            TwoWindingsTransformer twt = network.getTwoWindingsTransformer(pair.getLeft());
-            twt.remove();
-            TwoWindingsTransformer newTwt = pair.getRight().getAdder().add();
-            Optional<CurrentLimits> currentLimits1 = pair.getRight().getCurrentLimits1();
-            if (currentLimits1.isPresent()) {
-                newTwt.newCurrentLimits1().setPermanentLimit(currentLimits1.get().getPermanentLimit()).add();
-            }
-            Optional<CurrentLimits> currentLimits2 = pair.getRight().getCurrentLimits2();
-            if (currentLimits2.isPresent()) {
-                newTwt.newCurrentLimits2().setPermanentLimit(currentLimits2.get().getPermanentLimit()).add();
-            }
-            pair.getRight().getAliases().forEach(aliasPair -> {
-                if (aliasPair.getLeft() == null) {
-                    newTwt.addAlias(aliasPair.getRight());
-                } else {
-                    newTwt.addAlias(aliasPair.getRight(), aliasPair.getLeft());
-                }
-            });
-        });
-
         compareNetworksEQdata(network, actual);
     }
 
@@ -421,7 +388,7 @@ class EquipmentExportTest extends AbstractConverterTest {
 
     @Test
     void threeWindingsTransformerCgmesExportTest() throws IOException, XMLStreamException {
-        Network network = ThreeWindingsTransformerWithUnsortedEndsNodeBreakerNetworkFactory.createWithCurrentLimits();
+        Network network = ThreeWindingsTransformerNetworkFactory.createWithUnsortedEndsAndCurrentLimits();
 
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
         assertEquals(11.0, twt.getLeg1().getTerminal().getVoltageLevel().getNominalV(), 0.0);
@@ -495,19 +462,19 @@ class EquipmentExportTest extends AbstractConverterTest {
     }
 
     private Network exportImportNodeBreaker(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
-        return exportImport(expected, dataSource, false, true);
+        return exportImport(expected, dataSource, false, true, false);
     }
 
     private Network exportImportBusBranch(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
-        return exportImport(expected, dataSource, true, true);
+        return exportImport(expected, dataSource, true, true, false);
     }
 
     private Network exportImportBusBranchNoBoundaries(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
-        return exportImport(expected, dataSource, true, false);
+        return exportImport(expected, dataSource, true, false, false);
     }
 
     private Network exportImportNodeBreakerNoBoundaries(Network expected) throws IOException, XMLStreamException {
-        return exportImport(expected, null, false, false);
+        return exportImport(expected, null, false, false, true);
     }
 
     private Network createThreeWindingTransformerNetwork() {
@@ -671,8 +638,8 @@ class EquipmentExportTest extends AbstractConverterTest {
         return network;
     }
 
-    private Network exportImport(Network expected, ReadOnlyDataSource dataSource, boolean importTP, boolean importBD) throws IOException, XMLStreamException {
-        Path exportedEq = exportToCgmesEQ(expected);
+    private Network exportImport(Network expected, ReadOnlyDataSource dataSource, boolean importTP, boolean importBD, boolean transformersWithHighestVoltageAtEnd1) throws IOException, XMLStreamException {
+        Path exportedEq = exportToCgmesEQ(expected, transformersWithHighestVoltageAtEnd1);
 
         // From reference data source we use only boundaries
         Path repackaged = tmpDir.resolve("repackaged.zip");
@@ -695,14 +662,17 @@ class EquipmentExportTest extends AbstractConverterTest {
     }
 
     private Path exportToCgmesEQ(Network network) throws IOException, XMLStreamException {
+        return exportToCgmesEQ(network, false);
+    }
+
+    private Path exportToCgmesEQ(Network network, boolean transformersWithHighestVoltageAtEnd1) throws IOException, XMLStreamException {
         // Export CGMES EQ file
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(network).setExportEquipment(true);
+            CgmesExportContext context = new CgmesExportContext(network).setExportEquipment(true).setExportTransformersWithHighestVoltageAtEnd1(transformersWithHighestVoltageAtEnd1);
             EquipmentExport.write(network, writer, context);
         }
-
         return exportedEq;
     }
 

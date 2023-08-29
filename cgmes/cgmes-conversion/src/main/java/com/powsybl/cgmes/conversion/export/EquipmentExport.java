@@ -466,8 +466,8 @@ public final class EquipmentExport {
             PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(), twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), cimNamespace, writer, context);
             String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 1);
 
-            // High voltage must always be assigned to endNumber=1
-            EndNumberAssignerForTwoWinding endNumberAssigner = new EndNumberAssignerForTwoWinding(twt);
+            // High voltage could be assigned to endNumber = 1 if parameterized.
+            EndNumberAssignerForTwoWindingsTransformer endNumberAssigner = new EndNumberAssignerForTwoWindingsTransformer(twt, context.exportTransformersWithHighestVoltageAtEnd1());
             PowerTransformerEndsParameters p = new PowerTransformerEndsParameters(twt, endNumberAssigner.getEndNumberForSide1());
 
             BaseVoltageMapping.BaseVoltageSource baseVoltage1 = context.getBaseVoltageByNominalVoltage(twt.getTerminal1().getVoltageLevel().getNominalV());
@@ -522,7 +522,7 @@ public final class EquipmentExport {
             PowerTransformerEq.write(context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId(), twt.getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), cimNamespace, writer, context);
             double ratedU0 = twt.getRatedU0();
 
-            EndNumberAssignerForThreeWinding endNumberAssigner = new EndNumberAssignerForThreeWinding(twt);
+            EndNumberAssignerForThreeWindingsTransformer endNumberAssigner = new EndNumberAssignerForThreeWindingsTransformer(twt, context.exportTransformersWithHighestVoltageAtEnd1());
 
             String end1Id = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TRANSFORMER_END + 1);
             writeThreeWindingsTransformerEnd(twt, context.getNamingStrategy().getCgmesId(twt), twt.getNameOrId() + "_1", end1Id, endNumberAssigner.getEndNumberForLeg1(), 1, twt.getLeg1(), ratedU0, exportedTerminalId(mapTerminal2Id, twt.getLeg1().getTerminal()), regulatingControlsWritten, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
@@ -558,43 +558,49 @@ public final class EquipmentExport {
         }
     }
 
-    private static class EndNumberAssignerForTwoWinding extends EndNumberAssigner {
+    private static class EndNumberAssignerForTwoWindingsTransformer extends EndNumberAssigner {
         private final TwoWindingsTransformer twt;
 
-        EndNumberAssignerForTwoWinding(TwoWindingsTransformer twt) {
+        private final boolean sorted;
+
+        EndNumberAssignerForTwoWindingsTransformer(TwoWindingsTransformer twt, boolean sorted) {
             super(twt.getTerminal1().getVoltageLevel().getNominalV(), twt.getTerminal2().getVoltageLevel().getNominalV());
             this.twt = twt;
+            this.sorted = sorted;
         }
 
         private int getEndNumberForSide1() {
-            return get(twt.getTerminal1().getVoltageLevel().getNominalV(), 1);
+            return sorted ? get(twt.getTerminal1().getVoltageLevel().getNominalV(), 1) : 1;
         }
 
         private int getEndNumberForSide2() {
-            return get(twt.getTerminal2().getVoltageLevel().getNominalV(), 2);
+            return sorted ? get(twt.getTerminal2().getVoltageLevel().getNominalV(), 2) : 2;
         }
     }
 
-    private static class EndNumberAssignerForThreeWinding extends EndNumberAssigner {
+    private static class EndNumberAssignerForThreeWindingsTransformer extends EndNumberAssigner {
         private final ThreeWindingsTransformer twt;
 
-        EndNumberAssignerForThreeWinding(ThreeWindingsTransformer twt) {
+        private final boolean sorted;
+
+        EndNumberAssignerForThreeWindingsTransformer(ThreeWindingsTransformer twt, boolean sorted) {
             super(twt.getLeg1().getTerminal().getVoltageLevel().getNominalV(),
                     twt.getLeg2().getTerminal().getVoltageLevel().getNominalV(),
                     twt.getLeg3().getTerminal().getVoltageLevel().getNominalV());
             this.twt = twt;
+            this.sorted = sorted;
         }
 
         private int getEndNumberForLeg1() {
-            return get(twt.getLeg1().getTerminal().getVoltageLevel().getNominalV(), 1);
+            return sorted ? get(twt.getLeg1().getTerminal().getVoltageLevel().getNominalV(), 1) : 1;
         }
 
         private int getEndNumberForLeg2() {
-            return get(twt.getLeg2().getTerminal().getVoltageLevel().getNominalV(), 2);
+            return sorted ? get(twt.getLeg2().getTerminal().getVoltageLevel().getNominalV(), 2) : 2;
         }
 
         private int getEndNumberForLeg3() {
-            return get(twt.getLeg3().getTerminal().getVoltageLevel().getNominalV(), 3);
+            return sorted ? get(twt.getLeg3().getTerminal().getVoltageLevel().getNominalV(), 3) : 3;
         }
     }
 
