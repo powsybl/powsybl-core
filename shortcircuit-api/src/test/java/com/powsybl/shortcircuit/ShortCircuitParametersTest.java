@@ -364,4 +364,11 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> parameters.setVoltageRangeData(voltageRangeData));
         assertEquals("rangeCoefficient 10.0 is out of bounds, should be between 0.8 and 1.2.", e0.getMessage());
     }
+
+    @Test
+    void testInvalidSubtransientCoefficient() {
+        ShortCircuitParameters parameters = new ShortCircuitParameters();
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> parameters.setSubTransientCoefficient(2.));
+        assertEquals("subTransientCoefficient > 1", e0.getMessage());
+    }
 }
