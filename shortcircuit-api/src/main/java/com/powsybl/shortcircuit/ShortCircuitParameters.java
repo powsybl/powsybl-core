@@ -285,9 +285,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     private double checkSubTransientCoefficient(double subTransientCoefficient) {
-        if (!Double.isNaN(subTransientCoefficient) && (subTransientCoefficient > 1)) {
-                throw new PowsyblException("subTransientCoefficient > 1");
-
+        if (!Double.isNaN(subTransientCoefficient) && subTransientCoefficient > 1) {
+            throw new PowsyblException("subTransientCoefficient > 1");
         }
         return subTransientCoefficient;
     }
