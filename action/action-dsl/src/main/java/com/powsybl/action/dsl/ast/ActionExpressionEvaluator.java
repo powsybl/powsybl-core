@@ -154,8 +154,8 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
 
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof BranchAndSide) {
-                return ((BranchAndSide) obj).compareTo(this) == 0;
+            if (obj instanceof BranchAndSide branchAndSide) {
+                return branchAndSide.compareTo(this) == 0;
             }
             return false;
         }

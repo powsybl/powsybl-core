@@ -129,8 +129,7 @@ public class UcteNodeCode implements Comparable<UcteNodeCode> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UcteNodeCode) {
-            UcteNodeCode other = (UcteNodeCode) obj;
+        if (obj instanceof UcteNodeCode other) {
             return ucteCountryCode == other.ucteCountryCode
                     && geographicalSpot.equals(other.geographicalSpot)
                     && voltageLevelCode == other.voltageLevelCode

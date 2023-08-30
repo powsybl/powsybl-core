@@ -105,8 +105,9 @@ public class PowsyblWriter extends RDFXMLWriter {
             }
         }
         if (prefix != null && prefix.equals("data")) {
-            if (ctxt.contains("_SSH_") || (ctxt.contains("_DY_") && objLocalName.equals("EnergyConsumer"))
-                    || (ctxt.contains("_TP_") && !objLocalName.equals("TopologicalNode"))) {
+            if (ctxt.contains("_SSH_")
+                    || ctxt.contains("_DY_") && objLocalName.equals("EnergyConsumer")
+                    || ctxt.contains("_TP_") && !objLocalName.equals("TopologicalNode")) {
                 attName = "about";
                 value = "#" + uri.getLocalName();
             } else {
@@ -141,8 +142,7 @@ public class PowsyblWriter extends RDFXMLWriter {
     private void writeResource(Value obj) throws IOException {
         Resource objRes = (Resource) obj;
 
-        if (objRes instanceof BNode) {
-            BNode bNode = (BNode) objRes;
+        if (objRes instanceof BNode bNode) {
             writeAttribute(RDF.NAMESPACE, "nodeID", getValidNodeId(bNode));
         } else {
             IRI uri = (IRI) objRes;

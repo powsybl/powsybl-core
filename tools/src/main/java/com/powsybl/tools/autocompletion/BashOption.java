@@ -93,8 +93,8 @@ public class BashOption {
     }
 
     public Object[] getPossibleValues() {
-        if (type instanceof OptionType.Enumeration) {
-            return ((OptionType.Enumeration) type).getClazz().getEnumConstants();
+        if (type instanceof OptionType.Enumeration optionType) {
+            return optionType.getClazz().getEnumConstants();
         }
         return null;
     }

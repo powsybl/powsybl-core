@@ -72,8 +72,8 @@ public class MaxNodeCalc extends AbstractMinMaxNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof MaxNodeCalc) {
-            return ((MaxNodeCalc) obj).child.equals(child) && ((MaxNodeCalc) obj).value == value;
+        if (obj instanceof MaxNodeCalc maxNodeCalc) {
+            return maxNodeCalc.child.equals(child) && maxNodeCalc.value == value;
         }
         return false;
     }

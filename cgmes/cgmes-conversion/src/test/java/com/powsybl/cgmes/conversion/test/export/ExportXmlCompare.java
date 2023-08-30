@@ -109,8 +109,8 @@ final class ExportXmlCompare {
         }
         if (attr.getLocalName().equals("value")) {
             Element e = attr.getOwnerElement();
-            return !e.getLocalName().equals("property") ||
-                    (!"CGMES.TP_ID".equals(e.getAttribute("name")) && !"CGMES.SSH_ID".equals(e.getAttribute("name")));
+            return !e.getLocalName().equals("property")
+                    || !"CGMES.TP_ID".equals(e.getAttribute("name")) && !"CGMES.SSH_ID".equals(e.getAttribute("name"));
         }
         return true;
     }
