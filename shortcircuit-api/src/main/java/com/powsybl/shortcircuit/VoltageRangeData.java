@@ -64,19 +64,19 @@ public class VoltageRangeData {
                 if (voltageRangeData.get(i).getVoltageRange().isOverlappedBy(voltageRangeData.get(j).getVoltageRange())) {
                     throw new PowsyblException("Voltage ranges for configured initial voltage profile are overlapping");
                 }
-                // Check if coefficient is correct
-                double rangeCoefficient = voltageRangeData.get(i).getRangeCoefficient();
-                if (rangeCoefficient < 0.8 || rangeCoefficient > 1.2) {
-                    throw new PowsyblException("rangeCoefficient " + rangeCoefficient + " is out of bounds, should be between 0.8 and 1.2.");
-                }
             }
+            // Check if coefficient is correct
+            checkCoefficient(voltageRangeData.get(i).getRangeCoefficient());
         }
         // Check last coefficient
-        double rangeCoefficient = voltageRangeData.get(voltageRangeData.size() - 1).getRangeCoefficient();
+        checkCoefficient(voltageRangeData.get(voltageRangeData.size() - 1).getRangeCoefficient());
+
+    }
+
+    private static void checkCoefficient(double rangeCoefficient) {
         if (rangeCoefficient < 0.8 || rangeCoefficient > 1.2) {
             throw new PowsyblException("rangeCoefficient " + rangeCoefficient + " is out of bounds, should be between 0.8 and 1.2.");
         }
-
     }
 
 }

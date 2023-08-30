@@ -157,7 +157,7 @@ public class FaultParameters {
         this.studyType = studyType;
         this.minVoltageDropProportionalThreshold = minVoltageDropProportionalThreshold;
         this.withFortescueResult = withFortescueResult;
-        this.subTransientCoefficient = subTransientCoefficient;
+        this.subTransientCoefficient = checkSubTransientCoefficient(subTransientCoefficient);
         this.withLoads = withLoads;
         this.withShuntCompensators = withShuntCompensators;
         this.withVSCConverterStations = withVSCConverterStations;
@@ -171,12 +171,17 @@ public class FaultParameters {
             } else {
                 LOGGER.warn("Nominal voltage ranges with associated coefficient are defined but InitialVoltageProfileMode is not CONFIGURED: they are ignored");
             }
-        } else {
-            if (initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED) {
-                throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");
+        }
+        this.validate();
+    }
+
+    private double checkSubTransientCoefficient(double subTransientCoefficient) {
+        if (!Double.isNaN(subTransientCoefficient)) {
+            if (subTransientCoefficient > 1) {
+                throw new PowsyblException("subTransientCoefficient > 1");
             }
         }
-
+        return subTransientCoefficient;
     }
 
     @Override
@@ -249,6 +254,12 @@ public class FaultParameters {
             return createObjectMapper().readerForListOf(FaultParameters.class).readValue(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    public void validate() {
+        if (initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && (voltageRangeData == null || voltageRangeData.isEmpty())) {
+            throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");
         }
     }
 }

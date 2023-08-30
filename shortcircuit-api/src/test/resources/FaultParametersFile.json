@@ -43,7 +43,7 @@
   "id" : "f12",
   "withLimitViolations" : true,
   "studyType" : "SUB_TRANSIENT",
-  "subTransientCoefficient" : 80.0,
+  "subTransientCoefficient" : 0.8,
   "withLoads" : true,
   "initialVoltageProfileMode" : "PREVIOUS_VALUE"
 } ]

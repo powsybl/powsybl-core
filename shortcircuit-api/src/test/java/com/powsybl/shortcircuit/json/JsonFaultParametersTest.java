@@ -37,7 +37,7 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false, InitialVoltageProfileMode.CONFIGURED, coefficients));
         parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN, false, true, false, false, InitialVoltageProfileMode.NOMINAL, null));
         parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, Double.NaN, false, false, false, false, null, null));
-        parameters.add(new FaultParameters("f12", true, false, false, StudyType.SUB_TRANSIENT, Double.NaN, false, 80.0, true, false, false, false, InitialVoltageProfileMode.PREVIOUS_VALUE, null));
+        parameters.add(new FaultParameters("f12", true, false, false, StudyType.SUB_TRANSIENT, Double.NaN, false, 0.8, true, false, false, false, InitialVoltageProfileMode.PREVIOUS_VALUE, null));
         roundTripTest(parameters, FaultParameters::write, FaultParameters::read, "/FaultParametersFile.json");
 
         assertNotNull(parameters.get(0));
@@ -113,7 +113,7 @@ class JsonFaultParametersTest extends AbstractConverterTest {
         assertTrue(firstParam.isWithFeederResult());
         assertFalse(firstParam.isWithVoltageResult());
         assertEquals(1.0, firstParam.getMinVoltageDropProportionalThreshold(), 0);
-        assertEquals(80.0, firstParam.getSubTransientCoefficient());
+        assertEquals(0.8, firstParam.getSubTransientCoefficient());
     }
 
     @Test

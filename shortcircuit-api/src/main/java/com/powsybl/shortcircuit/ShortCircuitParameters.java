@@ -74,10 +74,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setInitialVoltageProfileMode(config.getEnumProperty("initial-voltage-profile-mode", InitialVoltageProfileMode.class, DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE))
                         .setVoltageRangeData(getCoefficientsFromConfig(config)));
 
-        if (parameters.initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && parameters.voltageRangeData.isEmpty()) {
-            throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");
-        }
-
+        parameters.validate();
         parameters.readExtensions(platformConfig);
 
         return parameters;
@@ -185,7 +182,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    /** In case of a subtransient study, a multiplicative coefficient (in percent) to obtain the subtransient reactance of the generators
+    /** In case of a subtransient study, a multiplicative coefficient to obtain the subtransient reactance of the generators
      * from the transient reactance. By default, X''d = 0.7 * X'd.
      */
     public double getSubTransientCoefficient() {
@@ -193,7 +190,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     public ShortCircuitParameters setSubTransientCoefficient(double subTransientCoefficient) {
-        this.subTransientCoefficient = subTransientCoefficient;
+        this.subTransientCoefficient = checkSubTransientCoefficient(subTransientCoefficient);
         return this;
     }
 
@@ -279,5 +276,20 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         checkVoltageRangeData(voltageRangeData);
         this.voltageRangeData = voltageRangeData;
         return this;
+    }
+
+    public void validate() {
+        if (initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && (voltageRangeData == null || voltageRangeData.isEmpty())) {
+            throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");
+        }
+    }
+
+    private double checkSubTransientCoefficient(double subTransientCoefficient) {
+        if (!Double.isNaN(subTransientCoefficient)) {
+            if (subTransientCoefficient > 1) {
+                throw new PowsyblException("subTransientCoefficient > 1");
+            }
+        }
+        return subTransientCoefficient;
     }
 }

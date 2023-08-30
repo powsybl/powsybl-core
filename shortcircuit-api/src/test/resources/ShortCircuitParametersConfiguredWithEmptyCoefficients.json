@@ -4,7 +4,7 @@
   "withVoltageResult" : false,
   "withFeederResult" : true,
   "studyType" : "SUB_TRANSIENT",
-  "subTransientCoefficient" : 70.0,
+  "subTransientCoefficient" : 0.7,
   "minVoltageDropProportionalThreshold" : 0.0,
   "withFortescueResult" : true,
   "withLoads" : true,

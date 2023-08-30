@@ -4,5 +4,5 @@
   "withFeederResult" : true,
   "studyType" : "SUB_TRANSIENT",
   "minVoltageDropProportionalThreshold" : 1.0,
-  "subTransientCoefficient": 80.0
+  "subTransientCoefficient": 0.8
 } ]

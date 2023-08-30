@@ -200,7 +200,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertTrue(parameters.isWithFortescueResult());
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertEquals(1.2, parameters.getMinVoltageDropProportionalThreshold(), 0.0);
-        assertEquals(80, parameters.getSubTransientCoefficient());
+        assertEquals(0.8, parameters.getSubTransientCoefficient());
         assertTrue(parameters.isWithLoads());
         assertTrue(parameters.isWithShuntCompensators());
         assertFalse(parameters.isWithVSCConverterStations());
@@ -250,7 +250,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertTrue(parameters.isWithFeederResult());
         assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
-        assertEquals(70.0, parameters.getSubTransientCoefficient(), 0);
+        assertEquals(0.7, parameters.getSubTransientCoefficient(), 0);
     }
 
     @Test
@@ -263,7 +263,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertTrue(parameters.isWithFeederResult());
         assertEquals(StudyType.TRANSIENT, parameters.getStudyType());
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
-        assertEquals(70.0, parameters.getSubTransientCoefficient(), 0);
+        assertEquals(0.7, parameters.getSubTransientCoefficient(), 0);
     }
 
     @Test
@@ -276,7 +276,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertTrue(parameters.isWithFeederResult());
         assertEquals(StudyType.SUB_TRANSIENT, parameters.getStudyType());
         assertEquals(0, parameters.getMinVoltageDropProportionalThreshold(), 0);
-        assertEquals(80.0, parameters.getSubTransientCoefficient(), 0);
+        assertEquals(0.8, parameters.getSubTransientCoefficient(), 0);
     }
 
     @Test

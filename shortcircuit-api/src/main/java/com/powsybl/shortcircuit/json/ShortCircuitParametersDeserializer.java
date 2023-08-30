@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.InitialVoltageProfileMode;
@@ -123,9 +122,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
-        if (parameters.getInitialVoltageProfileMode() == InitialVoltageProfileMode.CONFIGURED && (parameters.getVoltageRangeData() == null || parameters.getVoltageRangeData().isEmpty())) {
-            throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");
-        }
+        parameters.validate();
         return parameters;
     }
 

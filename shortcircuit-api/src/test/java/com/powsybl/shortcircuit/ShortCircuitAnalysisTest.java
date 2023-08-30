@@ -6,6 +6,7 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -138,5 +139,13 @@ class ShortCircuitAnalysisTest {
         assertEquals(1.83823431 * pi / 180, threePhaseValue.getAngleA(), 0.00001);
         assertEquals(-118.161751 * pi / 180, threePhaseValue.getAngleB(), 0.00001);
         assertEquals(121.838219 * pi / 180, threePhaseValue.getAngleC(), 0.00001);
+    }
+
+    @Test
+    void testWithMissingCoefficientsInParameters() {
+        ShortCircuitParameters invalidShortCircuitParameter = new ShortCircuitParameters()
+                .setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED);
+        Exception e0 = assertThrows(PowsyblException.class, () -> ShortCircuitAnalysis.run(network, faults, invalidShortCircuitParameter, computationManager, faultParameters));
+        assertEquals("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.", e0.getMessage());
     }
 }
