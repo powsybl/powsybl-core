@@ -13,7 +13,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 
 /**
- * Multi-thread ReporterContext's implementation.
+ * <p>Multi-thread {@link ReporterContext}'s implementation.</p>
+ * <p>To avoid memory leaks, this context must be closed (with the {@link #close()} method) after usage.</p>
  *
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
@@ -48,4 +49,7 @@ public class MultiThreadReporterContext implements ReporterContext {
         return popped;
     }
 
+    public void close() {
+        reporters.remove();
+    }
 }
