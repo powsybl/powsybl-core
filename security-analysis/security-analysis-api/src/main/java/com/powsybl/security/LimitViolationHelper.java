@@ -24,6 +24,14 @@ public final class LimitViolationHelper {
         Objects.requireNonNull(limitViolation);
 
         Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        if (limitViolation.getLimitType() == LimitViolationType.LOW_VOLTAGE_ANGLE || limitViolation.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE) {
+            Optional<VoltageAngleLimit> limit = network.getVoltageAngleLimits().stream().filter(l -> l.getName().equals(limitViolation.getSubjectId())).findAny();
+            if (limit.isPresent()) {
+                return limit.get().getReferenceTerminal().getVoltageLevel(); // why not?
+            } else {
+                // TODO
+            }
+        }
         if (identifiable instanceof Branch) {
             Branch branch = (Branch) identifiable;
             return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();

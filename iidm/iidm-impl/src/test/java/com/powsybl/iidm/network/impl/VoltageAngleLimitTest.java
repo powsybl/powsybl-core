@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.TerminalRef.Side;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -69,20 +68,6 @@ class VoltageAngleLimitTest {
     }
 
     @Test
-    void badThreeWindingsTransformerVoltageAngleLimitTest() {
-        Network network = ThreeWindingsTransformerNetworkFactory.create();
-
-        VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
-            .setName("VOLTAGE_ANGLE_LIMIT_3WT")
-            .setReferenceTerminal(TerminalRef.create("3WT", Side.ONE))
-            .setOtherTerminal(TerminalRef.create("3WT", Side.TWO))
-            .setHighLimit(1.0);
-
-        IllegalStateException e = assertThrows(IllegalStateException.class, adder::add);
-        assertEquals("VoltageAngleLimit can not be defined on threeWindingsTransformers : 3WT", e.getMessage());
-    }
-
-    @Test
     void badSwitchVoltageAngleLimitTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
 
@@ -129,7 +114,7 @@ class VoltageAngleLimitTest {
                 .setReferenceTerminal(TerminalRef.create("LINE_S2S3", Side.ONE))
                 .setOtherTerminal(TerminalRef.create("LINE_S2S3", Side.TWO));
         IllegalStateException e = assertThrows(IllegalStateException.class, adder::add);
-        assertEquals("VoltageAngleLimit name is mandatory.", e.getMessage());
+        assertEquals("Voltage angle limit name is mandatory.", e.getMessage());
     }
 
     @Test
@@ -143,6 +128,6 @@ class VoltageAngleLimitTest {
                 .setLowLimit(20.0)
                 .setHighLimit(-20.0);
         IllegalStateException e = assertThrows(IllegalStateException.class, adder::add);
-        assertEquals("VoltageAngleLimit lowLimit must be inferior to highLimit.", e.getMessage());
+        assertEquals("Voltage angle low limit must be lower than the high limit.", e.getMessage());
     }
 }

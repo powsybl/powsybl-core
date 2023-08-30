@@ -6,7 +6,6 @@
  */
 package com.powsybl.security.impl.interceptors;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.interceptors.DefaultSecurityAnalysisInterceptor;
@@ -91,7 +90,7 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
 
         LimitViolation violation1 = postContingencyResult.getLimitViolationsResult().getLimitViolations().get(1);
         assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, violation1.getLimitType());
-        assertEquals("NHV1_NHV2_1", violation1.getSubjectId());
-        assertEquals(Branch.Side.ONE, violation1.getSide());
+        assertEquals("VoltageAngleLimit_NHV1_NHV2_1", violation1.getSubjectId());
+        assertEquals(null, violation1.getSide());
     }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.security.detectors;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.LimitViolation;
@@ -15,7 +14,6 @@ import com.powsybl.security.LimitViolationType;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -85,42 +83,17 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         voltageAngleLimit.getLowLimit().ifPresent(
             lowLimit -> {
                 if (value <= lowLimit) {
-                    //FIXME subjectId to replace by name ?
-                    consumer.accept(new LimitViolation(getId(voltageAngleLimit), LimitViolationType.LOW_VOLTAGE_ANGLE, lowLimit,
-                            limitReduction, value, getSide(voltageAngleLimit)));
+                    consumer.accept(new LimitViolation(voltageAngleLimit.getName(), LimitViolationType.LOW_VOLTAGE_ANGLE, lowLimit,
+                            limitReduction, value, null));
                 }
             });
         voltageAngleLimit.getHighLimit().ifPresent(
             highLimit -> {
                 if (value >= highLimit) {
-                    //FIXME subjectId to replace by name ?
-                    consumer.accept(new LimitViolation(getId(voltageAngleLimit), LimitViolationType.HIGH_VOLTAGE_ANGLE, highLimit,
-                            limitReduction, value, getSide(voltageAngleLimit)));
+                    consumer.accept(new LimitViolation(voltageAngleLimit.getName(), LimitViolationType.HIGH_VOLTAGE_ANGLE, highLimit,
+                            limitReduction, value, null));
                 }
             });
-    }
-
-    // The Id must be a connectable, so we use the (Id, Side) of the terminalFrom to identify the limitViolation
-    static String getId(VoltageAngleLimit voltageAngleLimit) {
-        return voltageAngleLimit.getReferenceTerminal().getConnectable().getId();
-    }
-
-    static Branch.Side getSide(VoltageAngleLimit voltageAngleLimit) {
-        Optional<TerminalRef.Side> side = TerminalRef.getConnectableSide(voltageAngleLimit.getReferenceTerminal());
-        return side.isEmpty() ? null : convert(side.get());
-    }
-
-    private static Branch.Side convert(TerminalRef.Side side) {
-        switch (side) {
-            case ONE:
-                return Branch.Side.ONE;
-            case TWO:
-                return Branch.Side.TWO;
-            case THREE:
-                throw new PowsyblException("Unsupported side: " + side);
-            default:
-                throw new PowsyblException("Unexpected side: " + side);
-        }
     }
 
     public void checkLimitViolation(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {

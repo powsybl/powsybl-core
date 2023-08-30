@@ -52,16 +52,6 @@ public final class TerminalRef {
         }
     }
 
-    // FIXME(Luma) This has been moved from TerminalRefXml,
-    // Makes sense to have it here,
-    // In the future ...
-    // a Terminal ref specified for a switch could be resolved to different terminals depending on the topology
-    // This could also be written as TerminalRef.create(id , side).resolve(network)
-    public static Terminal resolve(String id, String sideText, Network network) {
-        Side side = sideText == null ? Side.ONE : Side.valueOf(sideText);
-        return resolve(id, side, network);
-    }
-
     public static Terminal resolve(String id, Side side, Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(id);
         if (identifiable == null) {

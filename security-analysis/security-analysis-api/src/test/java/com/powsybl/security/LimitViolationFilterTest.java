@@ -16,6 +16,7 @@ import java.util.List;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TerminalRef;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,13 +83,19 @@ class LimitViolationFilterTest {
     @Test
     void apply() throws Exception {
         Network network = TestingNetworkFactory.create();
+        network.newVoltageAngleLimit()
+                .setName("val")
+                .setHighLimit(0.25)
+                .setReferenceTerminal(TerminalRef.create("LINE1", TerminalRef.Side.ONE))
+                .setOtherTerminal(TerminalRef.create("LINE1", TerminalRef.Side.TWO))
+                .add();
 
         LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 1000.0, 1, 1100.0, Branch.Side.ONE);
         LimitViolation line2Violation = new LimitViolation("LINE2", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 900.0, 1, 950.0, Branch.Side.TWO);
         LimitViolation vl1Violation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
         LimitViolation line1ViolationAcP = new LimitViolation("VL1", LimitViolationType.ACTIVE_POWER, "", Integer.MAX_VALUE, 200.0, 1, 250.0, Branch.Side.ONE);
         LimitViolation line1ViolationApP = new LimitViolation("VL1", LimitViolationType.APPARENT_POWER, "", Integer.MAX_VALUE, 200.0, 1, 250.0, Branch.Side.TWO);
-        LimitViolation voltageAngleLimit = new LimitViolation("LINE1", LimitViolationType.HIGH_VOLTAGE_ANGLE, "", Integer.MAX_VALUE, 0.25, 1, 0.26, Branch.Side.TWO);
+        LimitViolation voltageAngleLimit = new LimitViolation("val", LimitViolationType.HIGH_VOLTAGE_ANGLE, "", Integer.MAX_VALUE, 0.25, 1, 0.26, null);
 
         LimitViolationFilter filter = new LimitViolationFilter();
         List<LimitViolation> filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation, line1ViolationAcP, line1ViolationApP, voltageAngleLimit), network);
@@ -121,7 +128,7 @@ class LimitViolationFilterTest {
         filter = new LimitViolationFilter();
         filter.setViolationTypes(EnumSet.of(LimitViolationType.HIGH_VOLTAGE_ANGLE));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, voltageAngleLimit), network);
-        checkFilteredViolations(filteredViolations, network, "LINE1", LimitViolationType.HIGH_VOLTAGE_ANGLE, 380.0, Country.BE, "VL4");
+        checkFilteredViolations(filteredViolations, network, "val", LimitViolationType.HIGH_VOLTAGE_ANGLE, 380.0, Country.FR, "VL2");
     }
 
     private void checkFilteredViolations(List<LimitViolation> filteredViolations, Network network, String equipmentId, LimitViolationType violationType,

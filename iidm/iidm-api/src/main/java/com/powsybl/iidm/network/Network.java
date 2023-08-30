@@ -1194,7 +1194,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a builder to create a new VoltageAngleLimit.
      */
-    public VoltageAngleLimitAdder newVoltageAngleLimit();
+    VoltageAngleLimitAdder newVoltageAngleLimit();
 
     /**
      * Get all voltageAngleLimits.

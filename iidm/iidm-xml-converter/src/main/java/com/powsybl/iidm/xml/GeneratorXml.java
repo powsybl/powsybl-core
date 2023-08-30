@@ -91,7 +91,7 @@ class GeneratorXml extends AbstractSimpleIdentifiableXml<Generator, GeneratorAdd
                 case "regulatingTerminal":
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
-                    context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRef.resolve(id, side, g.getNetwork())));
+                    context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.resolve(id, side, g.getNetwork())));
                     break;
 
                 case "reactiveCapabilityCurve":

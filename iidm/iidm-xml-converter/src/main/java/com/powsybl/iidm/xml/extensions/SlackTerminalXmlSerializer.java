@@ -14,7 +14,6 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TerminalRef;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
@@ -85,7 +84,7 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
         String side = networkContext.getReader().getAttributeValue(null, "side");
-        Terminal terminal = TerminalRef.resolve(id, side, voltageLevel.getNetwork());
+        Terminal terminal = TerminalRefXml.resolve(id, side, voltageLevel.getNetwork());
         return voltageLevel.newExtension(SlackTerminalAdder.class)
                 .withTerminal(terminal)
                 .add();

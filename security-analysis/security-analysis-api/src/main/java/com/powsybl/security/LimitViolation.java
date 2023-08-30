@@ -227,8 +227,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
             || limitType == LimitViolationType.APPARENT_POWER
             || limitType == LimitViolationType.CURRENT) {
             return Objects.requireNonNull(side);
-        } else if (limitType == LimitViolationType.LOW_VOLTAGE_ANGLE || limitType == LimitViolationType.HIGH_VOLTAGE_ANGLE) { // Could be null depending on the type of connectable
-            return side;
         } else {
             return null;
         }

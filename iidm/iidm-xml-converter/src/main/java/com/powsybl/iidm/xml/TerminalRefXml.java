@@ -73,11 +73,8 @@ public final class TerminalRefXml {
         }
     }
 
-    /**
-     * @deprecated Use {@link TerminalRef#resolve(String, String, Network)} instead.
-     */
-    @Deprecated(since = "5.4.0", forRemoval = true)
-    public static Terminal readTerminalRef(Network network, String id, String side) {
+    public static Terminal resolve(String id, String sideText, Network network) {
+        TerminalRef.Side side = sideText == null ? TerminalRef.Side.ONE : TerminalRef.Side.valueOf(sideText);
         return TerminalRef.resolve(id, side, network);
     }
 

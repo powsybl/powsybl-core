@@ -19,8 +19,8 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
 
     private final Ref<NetworkImpl> networkRef;
     private String name;
-    private TerminalRef from;
-    private TerminalRef to;
+    private TerminalRef reference;
+    private TerminalRef other;
     private double lowLimit = Double.NaN;
 
     private double highLimit = Double.NaN;
@@ -36,14 +36,14 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
     }
 
     @Override
-    public VoltageAngleLimitAdderImpl setReferenceTerminal(TerminalRef from) {
-        this.from = from;
+    public VoltageAngleLimitAdderImpl setReferenceTerminal(TerminalRef referenceTerminal) {
+        this.reference = referenceTerminal;
         return this;
     }
 
     @Override
-    public VoltageAngleLimitAdderImpl setOtherTerminal(TerminalRef to) {
-        this.to = to;
+    public VoltageAngleLimitAdderImpl setOtherTerminal(TerminalRef otherTerminal) {
+        this.other = otherTerminal;
         return this;
     }
 
@@ -62,25 +62,18 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
     @Override
     public VoltageAngleLimit add() {
         if (name == null) {
-            throw new IllegalStateException("VoltageAngleLimit name is mandatory.");
+            throw new IllegalStateException("Voltage angle limit name is mandatory.");
         }
         if (!Double.isNaN(lowLimit) && !Double.isNaN(highLimit) && lowLimit >= highLimit) {
-            throw new IllegalStateException("VoltageAngleLimit lowLimit must be inferior to highLimit.");
+            throw new IllegalStateException("Voltage angle low limit must be lower than the high limit.");
         }
-        TerminalRef.Side sideFrom = from.getSide().orElse(TerminalRef.Side.ONE);
-        Terminal terminalFrom = TerminalRef.resolve(from.getId(), sideFrom, networkRef.get());
+        TerminalRef.Side referenceSide = reference.getSide().orElse(TerminalRef.Side.ONE);
+        Terminal referenceTerminal = TerminalRef.resolve(reference.getId(), referenceSide, networkRef.get());
 
-        TerminalRef.Side sideTo = to.getSide().orElse(TerminalRef.Side.ONE);
-        Terminal terminalTo = TerminalRef.resolve(to.getId(), sideTo, networkRef.get());
+        TerminalRef.Side otherSide = other.getSide().orElse(TerminalRef.Side.ONE);
+        Terminal otherTerminal = TerminalRef.resolve(other.getId(), otherSide, networkRef.get());
 
-        if (terminalFrom.getConnectable().getType().equals(IdentifiableType.THREE_WINDINGS_TRANSFORMER)) {
-            throw new IllegalStateException("VoltageAngleLimit can not be defined on threeWindingsTransformers : " + terminalFrom.getConnectable().getId());
-        }
-        if (terminalTo.getConnectable().getType().equals(IdentifiableType.THREE_WINDINGS_TRANSFORMER)) {
-            throw new IllegalStateException("VoltageAngleLimit can not be defined on threeWindingsTransformers : " + terminalTo.getConnectable().getId());
-        }
-
-        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(name, terminalFrom, terminalTo, lowLimit, highLimit);
+        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(name, referenceTerminal, otherTerminal, lowLimit, highLimit);
         networkRef.get().getVoltageAngleLimits().add(voltageAngleLimit);
         return voltageAngleLimit;
     }

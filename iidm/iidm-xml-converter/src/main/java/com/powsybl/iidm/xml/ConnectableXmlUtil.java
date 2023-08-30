@@ -270,20 +270,4 @@ public final class ConnectableXmlUtil {
             }
         }
     }
-
-    /**
-     * @deprecated Use {@link TerminalRefXml#writeTerminalRef(Terminal, NetworkXmlWriterContext, String)} instead.
-     */
-    @Deprecated
-    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
-        TerminalRefXml.writeTerminalRef(t, context, elementName);
-    }
-
-    /**
-     * @deprecated Use {@link TerminalRef#resolve(String, String, Network)} instead.
-     */
-    @Deprecated
-    public static Terminal readTerminalRef(Network network, String id, String side) {
-        return TerminalRef.resolve(id, side, network);
-    }
 }

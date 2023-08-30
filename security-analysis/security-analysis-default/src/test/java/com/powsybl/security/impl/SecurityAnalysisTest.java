@@ -15,7 +15,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ComputationResourcesStatus;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TerminalRef;
@@ -158,8 +157,8 @@ class SecurityAnalysisTest {
 
         LimitViolation violation1 = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(1);
         assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, violation1.getLimitType());
-        assertEquals("NHV1_NHV2_1", violation1.getSubjectId());
-        assertEquals(Branch.Side.ONE, violation1.getSide());
+        assertEquals("VoltageAngleLimit_NHV1_NHV2_1", violation1.getSubjectId());
+        assertEquals(null, violation1.getSide());
 
         assertEquals(1, interceptorMock.getOnPostContingencyResultCount());
         assertEquals(1, interceptorMock.getOnPreContingencyResultCount());

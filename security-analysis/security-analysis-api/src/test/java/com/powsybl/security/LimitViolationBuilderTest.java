@@ -109,13 +109,12 @@ class LimitViolationBuilderTest {
         LimitViolationBuilder builder = LimitViolations.lowVoltageAngle()
             .subject("id")
             .limit(0.25)
-            .value(0.30)
-            .side(Branch.Side.ONE);
+            .value(0.30);
 
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.LOW_VOLTAGE_ANGLE, violation.getLimitType());
-        assertEquals(Branch.Side.ONE, violation.getSide());
+        assertEquals(null, violation.getSide());
         assertNull(violation.getLimitName());
         assertEquals(0.25, violation.getLimit(), 0);
         assertEquals(0.30, violation.getValue(), 0);
@@ -124,13 +123,12 @@ class LimitViolationBuilderTest {
         LimitViolationBuilder builder2 = LimitViolations.highVoltageAngle()
                 .subject("id")
                 .limit(0.50)
-                .value(0.60)
-                .side(Branch.Side.ONE);
+                .value(0.60);
 
         LimitViolation violation2 = builder2.build();
         assertEquals("id", violation2.getSubjectId());
         assertSame(LimitViolationType.HIGH_VOLTAGE_ANGLE, violation2.getLimitType());
-        assertEquals(Branch.Side.ONE, violation2.getSide());
+        assertEquals(null, violation2.getSide());
         assertNull(violation2.getLimitName());
         assertEquals(0.50, violation2.getLimit(), 0);
         assertEquals(0.60, violation2.getValue(), 0);

@@ -26,14 +26,14 @@ public interface VoltageAngleLimit extends OperationalLimits {
     String getName();
 
     /**
-     * If the Reference terminal is associated to a bus REFERENCE and the terminal OTHER is associated to bus OTHER,
-     * the limit violation is checked on the difference between Bus OTHER and Bus REFERENCE (OTHER minus REFERENCE)
+     * If the reference terminal is associated to a reference bus and the other terminal is associated to another bus,
+     * the limit violation is checked on the difference between the angle at other bus and the angle at reference bus.
      */
     Terminal getReferenceTerminal();
 
     /**
-     * If the Reference terminal is associated to a bus REFERENCE and the terminal OTHER is associated to bus OTHER,
-     * the limit violation is checked on the difference between Bus OTHER and Bus REFERENCE (OTHER minus REFERENCE)
+     * If the reference terminal is associated to a reference bus and the other terminal is associated to another bus,
+     * the limit violation is checked on the difference between the angle at other bus and the angle at reference bus.
      */
     Terminal getOtherTerminal();
 
