@@ -37,7 +37,7 @@ public class PlatformConfig {
     /**
      * @deprecated Directly pass <code>PlatformConfig</code> instance to the code you want to test.
      */
-    @Deprecated
+    @Deprecated(since = "2.2.0")
     public static synchronized void setDefaultConfig(PlatformConfig defaultConfig) {
         PlatformConfig.defaultConfig = defaultConfig;
     }
@@ -102,7 +102,7 @@ public class PlatformConfig {
     /**
      * @deprecated Use the <code>Optional</code> returned by {@link #getOptionalModuleConfig(String)}
      */
-    @Deprecated
+    @Deprecated(since = "4.9.0")
     public boolean moduleExists(String name) {
         return getOptionalModuleConfig(name).isPresent();
     }
@@ -110,7 +110,7 @@ public class PlatformConfig {
     /**
      * @deprecated Use {@link #getOptionalModuleConfig(String)} instead
      */
-    @Deprecated
+    @Deprecated(since = "4.9.0")
     public ModuleConfig getModuleConfig(String name) {
         return getRepository().getModuleConfig(name).orElseThrow(() -> new PowsyblException("Module " + name + " not found"));
     }
