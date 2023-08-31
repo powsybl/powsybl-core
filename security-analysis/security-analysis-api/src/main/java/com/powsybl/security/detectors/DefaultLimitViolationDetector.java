@@ -84,14 +84,14 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
             lowLimit -> {
                 if (value <= lowLimit) {
                     consumer.accept(new LimitViolation(voltageAngleLimit.getName(), LimitViolationType.LOW_VOLTAGE_ANGLE, lowLimit,
-                            limitReduction, value, null));
+                            limitReduction, value));
                 }
             });
         voltageAngleLimit.getHighLimit().ifPresent(
             highLimit -> {
                 if (value >= highLimit) {
                     consumer.accept(new LimitViolation(voltageAngleLimit.getName(), LimitViolationType.HIGH_VOLTAGE_ANGLE, highLimit,
-                            limitReduction, value, null));
+                            limitReduction, value));
                 }
             });
     }

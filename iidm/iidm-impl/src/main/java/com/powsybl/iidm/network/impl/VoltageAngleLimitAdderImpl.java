@@ -67,10 +67,10 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
         if (!Double.isNaN(lowLimit) && !Double.isNaN(highLimit) && lowLimit >= highLimit) {
             throw new IllegalStateException("Voltage angle low limit must be lower than the high limit.");
         }
-        TerminalRef.Side referenceSide = reference.getSide().orElse(TerminalRef.Side.ONE);
+        TerminalRef.Side referenceSide = reference.getSide().orElse(null);
         Terminal referenceTerminal = TerminalRef.resolve(reference.getId(), referenceSide, networkRef.get());
 
-        TerminalRef.Side otherSide = other.getSide().orElse(TerminalRef.Side.ONE);
+        TerminalRef.Side otherSide = other.getSide().orElse(null);
         Terminal otherTerminal = TerminalRef.resolve(other.getId(), otherSide, networkRef.get());
 
         VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(name, referenceTerminal, otherTerminal, lowLimit, highLimit);
