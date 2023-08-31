@@ -136,6 +136,8 @@ class ShortCircuitAnalysisTest {
         FortescueValue fortescueValue = new FortescueValue(86.8086319, 0., 0., 1.83823431 * pi / 180, 0., 0.);
         FortescueValue.ThreePhaseValue threePhaseValue = fortescueValue.toThreePhaseValue();
         assertEquals(50.118988, threePhaseValue.getMagnitudeA(), 0.00001);
+        assertEquals(50.118988, threePhaseValue.getMagnitudeB(), 0.00001);
+        assertEquals(50.118988, threePhaseValue.getMagnitudeC(), 0.00001);
         assertEquals(1.83823431 * pi / 180, threePhaseValue.getAngleA(), 0.00001);
         assertEquals(-118.161751 * pi / 180, threePhaseValue.getAngleB(), 0.00001);
         assertEquals(121.838219 * pi / 180, threePhaseValue.getAngleC(), 0.00001);

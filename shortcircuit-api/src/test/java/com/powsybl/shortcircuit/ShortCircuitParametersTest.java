@@ -355,14 +355,12 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    void testWithWrongCoefficient() {
+    void testWithInvalidCoefficient() {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
-        parameters.setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED);
-        List<VoltageRangeData> voltageRangeData = new ArrayList<>();
-        voltageRangeData.add(new VoltageRangeData(100, 199, 10));
-        voltageRangeData.add(new VoltageRangeData(200, 300, 1.1));
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> parameters.setVoltageRangeData(voltageRangeData));
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> new VoltageRangeData(100, 199, 10));
         assertEquals("rangeCoefficient 10.0 is out of bounds, should be between 0.8 and 1.2.", e0.getMessage());
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> new VoltageRangeData(100, 199, 0.2));
+        assertEquals("rangeCoefficient 0.2 is out of bounds, should be between 0.8 and 1.2.", e1.getMessage());
     }
 
     @Test
@@ -370,5 +368,10 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> parameters.setSubTransientCoefficient(2.));
         assertEquals("subTransientCoefficient > 1", e0.getMessage());
+
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> new FaultParameters("id", true, true, true, StudyType.SUB_TRANSIENT,
+                0, true, 1.2, true, true, true, true,
+                InitialVoltageProfileMode.NOMINAL, null));
+        assertEquals("subTransientCoefficient > 1", e1.getMessage());
     }
 }

@@ -23,7 +23,7 @@ public class VoltageRangeData {
 
     public VoltageRangeData(double lowVoltage, double highVoltage, double rangeCoefficient) {
         this.voltageRange = Range.between(lowVoltage, highVoltage);
-        this.rangeCoefficient = rangeCoefficient;
+        this.rangeCoefficient = checkCoefficient(rangeCoefficient);
     }
 
     /**
@@ -65,18 +65,14 @@ public class VoltageRangeData {
                     throw new PowsyblException("Voltage ranges for configured initial voltage profile are overlapping");
                 }
             }
-            // Check if coefficient is correct
-            checkCoefficient(voltageRangeData.get(i).getRangeCoefficient());
         }
-        // Check last coefficient
-        checkCoefficient(voltageRangeData.get(voltageRangeData.size() - 1).getRangeCoefficient());
-
     }
 
-    private static void checkCoefficient(double rangeCoefficient) {
+    private static double checkCoefficient(double rangeCoefficient) {
         if (rangeCoefficient < 0.8 || rangeCoefficient > 1.2) {
             throw new PowsyblException("rangeCoefficient " + rangeCoefficient + " is out of bounds, should be between 0.8 and 1.2.");
         }
+        return rangeCoefficient;
     }
 
 }

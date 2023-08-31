@@ -76,17 +76,10 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
             throw new IllegalStateException("Required type field is missing");
         }
 
-        Fault fault;
-        switch (type) {
-            case BUS:
-                fault = new BusFault(id, elementId, r, x, connection, faultType);
-                break;
-            case BRANCH:
-                fault = new BranchFault(id, elementId, r, x, connection, faultType, proportionalLocation);
-                break;
-            default:
-                throw new IllegalStateException("Unexpected type: " + type.name());
-        }
-        return fault;
+        return switch (type) {
+            case BUS -> new BusFault(id, elementId, r, x, connection, faultType);
+            case BRANCH -> new BranchFault(id, elementId, r, x, connection, faultType, proportionalLocation);
+            default -> throw new IllegalStateException("Unexpected type: " + type.name());
+        };
     }
 }
