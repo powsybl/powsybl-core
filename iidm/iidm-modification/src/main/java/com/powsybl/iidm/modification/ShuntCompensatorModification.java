@@ -52,7 +52,7 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
             ((ShuntCompensatorLinearModel) (shuntCompensator.getModel())).setBPerSection(bPerSection);
         } else if (Objects.nonNull(bPerSection)) {
             logOrThrow(throwException,
-                "Shunt compensator is not linear but you wanted to modify its susceptance per section.");
+                "Shunt compensator model is non linear: bPerSection cannot be changed");
             return;
         }
 

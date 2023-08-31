@@ -8,9 +8,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -48,6 +46,7 @@ class ShuntCompensatorModificationTest {
     @Test
     void testApplyChecks() {
         ShuntCompensatorModification modif = new ShuntCompensatorModification(shunt.getId(), null, 1);
+        assertEquals(shunt.getId(), modif.getShuntCompensatorId());
         assertDoesNotThrow(() -> modif.apply(network, true, Reporter.NO_OP));
         assertEquals(1, shunt.getSectionCount(), "A valid apply should modify the value");
         ShuntCompensatorModification modif1 = new ShuntCompensatorModification("UNKNOWN_ID", null, 0);
@@ -102,7 +101,7 @@ class ShuntCompensatorModificationTest {
     }
 
     @Test
-    void testConnectShuntCorrectSetPointWithNoRegulatingElmt() {
+    void testConnectShuntCorrectSetPointWithNoRegulatingElement() {
         network.getGenerator("GH1").getTerminal().disconnect();
         network.getGenerator("GH2").getTerminal().disconnect();
         Generator g3 = network.getGenerator("GH3");
@@ -118,8 +117,12 @@ class ShuntCompensatorModificationTest {
 
     @Test
     void testBPerSectionModification() {
+        Assertions.assertEquals(0, shunt.getSectionCount());
+        ShuntCompensatorModel model = shunt.getModel();
+        Assertions.assertTrue(model instanceof ShuntCompensatorLinearModel);
+        Assertions.assertEquals(-0.012, ((ShuntCompensatorLinearModel) model).getBPerSection());
         new ShuntCompensatorModification(shunt.getId(), true, 1, 10.).apply(network);
         Assertions.assertEquals(1, shunt.getSectionCount());
-        Assertions.assertEquals(10., shunt.getB());
+        Assertions.assertEquals(10., ((ShuntCompensatorLinearModel) model).getBPerSection());
     }
 }
