@@ -199,7 +199,7 @@ public class MatpowerImporter implements Importer {
                     .setRatedS(mGen.getTotalMbase() != 0 ? mGen.getTotalMbase() : Double.NaN)
                     .add();
 
-            if ((mGen.getPc1() != 0) || (mGen.getPc2() != 0)) {
+            if (mGen.getPc1() != 0 || mGen.getPc2() != 0) {
                 generator.newReactiveCapabilityCurve()
                         .beginPoint()
                         .setP(mGen.getPc1())

@@ -121,7 +121,22 @@ public final class SteadyStateHypothesisExport {
         // One equivalent injection for every dangling line
         List<String> exported = new ArrayList<>();
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
-            writeEquivalentInjection(dl, exported, cimNamespace, writer, context);
+            String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            if (!exported.contains(ei) && ei != null) {
+                // Ensure equivalent injection identifier is valid
+                String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+                // regulationStatus and regulationTarget are optional,
+                // but test cases contain the attributes with disabled and 0
+                boolean regulationStatus = false;
+                double regulationTarget = 0;
+                if (dl.getGeneration() != null) {
+                    regulationStatus = dl.getGeneration().isVoltageRegulationOn();
+                    regulationTarget = dl.getGeneration().getTargetV();
+                }
+                writeEquivalentInjection(cgmesId, dl.getP0(), dl.getQ0(), regulationStatus, regulationTarget, cimNamespace, writer, context);
+                exported.add(ei);
+            }
+
         }
     }
 
@@ -279,8 +294,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static boolean isMotor(double minP, ReactiveLimits l) {
-        if (l instanceof ReactiveCapabilityCurve) {
-            ReactiveCapabilityCurve curve = (ReactiveCapabilityCurve) l;
+        if (l instanceof ReactiveCapabilityCurve curve) {
             return curve.getMinP() < 0;
         } else {
             return minP < 0;
@@ -370,19 +384,19 @@ public final class SteadyStateHypothesisExport {
         if (cgmesTc != null && cgmesTc.getControlId() != null) {
             String controlId = cgmesTc.getControlId();
             RegulatingControlView rcv = null;
-            if (tc instanceof RatioTapChanger) {
+            if (tc instanceof RatioTapChanger ratioTapChanger) {
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,
                         true,
                         tc.isRegulating(),
                         tc.getTargetDeadband(),
-                        ((RatioTapChanger) tc).getTargetV(),
+                        ratioTapChanger.getTargetV(),
                         // Unit multiplier is k for ratio tap changers (regulation value is a voltage in kV)
                         "k");
-            } else if (tc instanceof PhaseTapChanger) {
+            } else if (tc instanceof PhaseTapChanger phaseTapChanger) {
                 boolean valid;
                 String unitMultiplier;
-                switch (((PhaseTapChanger) tc).getRegulationMode()) {
+                switch (phaseTapChanger.getRegulationMode()) {
                     case CURRENT_LIMITER:
                         // Unit multiplier is none (multiply by 1), regulation value is a current in Amperes
                         valid = true;
@@ -515,46 +529,48 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeEquivalentInjection(DanglingLine dl, List<String> exported, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
-        if (exported.contains(ei)) {
-            return;
-        }
-        if (ei != null) {
-            // Ensure equivalent injection identifier is valid
-            String cgmesId = context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
-            CgmesExportUtil.writeStartAbout("EquivalentInjection", cgmesId, cimNamespace, writer, context);
-            writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
-            writer.writeCharacters(CgmesExportUtil.format(dl.getP0()));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "EquivalentInjection.q");
-            writer.writeCharacters(CgmesExportUtil.format(dl.getQ0()));
-            writer.writeEndElement();
-            // regulationStatus and regulationTarget are optional,
-            // but test cases contain the attributes with disabled and 0
-            boolean regulationStatus = false;
-            double regulationTarget = 0;
-            if (dl.getGeneration() != null) {
-                regulationStatus = dl.getGeneration().isVoltageRegulationOn();
-                regulationTarget = dl.getGeneration().getTargetV();
-            }
-            writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationStatus");
-            writer.writeCharacters(Boolean.toString(regulationStatus));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationTarget");
-            writer.writeCharacters(CgmesExportUtil.format(regulationTarget));
-            writer.writeEndElement();
-            writer.writeEndElement();
-            exported.add(ei);
-        }
+    private static void writeEquivalentInjection(String cgmesId, double p, double q, boolean regulationStatus, double regulationTarget, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout("EquivalentInjection", cgmesId, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "EquivalentInjection.q");
+        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationStatus");
+        writer.writeCharacters(Boolean.toString(regulationStatus));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationTarget");
+        writer.writeCharacters(CgmesExportUtil.format(regulationTarget));
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     private static void writeEnergyConsumers(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Load load : network.getLoads()) {
             if (context.isExportedEquipment(load)) {
-                writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
+                if (load.getP0() < 0) {
+                    // As negative loads are not allowed, they are modeled as energy source.
+                    // Note that negative loads can be the result of network reduction and could be modeled
+                    // as equivalent injections.
+                    String cgmesId = context.getNamingStrategy().getCgmesId(load);
+                    writeEnergySource(cgmesId, load.getP0(), load.getQ0(), cimNamespace, writer, context);
+                } else {
+                    writeSshEnergyConsumer(context.getNamingStrategy().getCgmesId(load), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer, context);
+                }
             }
         }
+    }
+
+    private static void writeEnergySource(String id, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout("EnergySource", id, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "EnergySource.activePower");
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "EnergySource.reactivePower");
+        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     private static void writeSshEnergyConsumer(String id, double p, double q, LoadDetail loadDetail, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -586,8 +602,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeStartElement(cimNamespace, "ACDCConverter.targetUdc");
             writer.writeCharacters(CgmesExportUtil.format(0.0));
             writer.writeEndElement();
-            if (converterStation instanceof LccConverterStation) {
-                LccConverterStation lccConverterStation = (LccConverterStation) converterStation;
+            if (converterStation instanceof LccConverterStation lccConverterStation) {
 
                 writePandQ(cimNamespace, ppcc, getQfromPowerFactor(ppcc, lccConverterStation.getPowerFactor()), writer);
                 writer.writeStartElement(cimNamespace, "CsConverter.targetAlpha");
@@ -603,8 +618,7 @@ public final class SteadyStateHypothesisExport {
                 writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterOperatingMode(converterStation));
                 writer.writeEmptyElement(cimNamespace, "CsConverter.pPccControl");
                 writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "CsPpccControlKind.activePower");
-            } else if (converterStation instanceof VscConverterStation) {
-                VscConverterStation vscConverterStation = (VscConverterStation) converterStation;
+            } else if (converterStation instanceof VscConverterStation vscConverterStation) {
 
                 writePandQ(cimNamespace, ppcc, vscConverterStation.getReactivePowerSetpoint(), writer);
                 writer.writeStartElement(cimNamespace, "VsConverter.droop");
@@ -696,7 +710,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static GeneratingUnit generatingUnitForGeneratorAndBatteries(Injection<?> i, CgmesExportContext context) {
-        if (i.hasProperty(GENERATING_UNIT_PROPERTY) && ((i.getExtension(ActivePowerControl.class) != null) || i.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"))) {
+        if (i.hasProperty(GENERATING_UNIT_PROPERTY) && (i.getExtension(ActivePowerControl.class) != null || i.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"))) {
             GeneratingUnit gu = new GeneratingUnit();
             gu.id = context.getNamingStrategy().getCgmesIdFromProperty(i, GENERATING_UNIT_PROPERTY);
             if (i.getExtension(ActivePowerControl.class) != null) {
@@ -719,8 +733,8 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static String generatingUnitClassname(Injection<?> i) {
-        if (i instanceof Generator) {
-            EnergySource energySource = ((Generator) i).getEnergySource();
+        if (i instanceof Generator generator) {
+            EnergySource energySource = generator.getEnergySource();
             if (energySource == EnergySource.HYDRO) {
                 return "HydroGeneratingUnit";
             } else if (energySource == EnergySource.NUCLEAR) {

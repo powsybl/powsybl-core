@@ -130,21 +130,6 @@ public final class ValidationUtil {
         }
     }
 
-    /**
-     * @deprecated Use {@link #checkActivePowerLimits(Validable, double, double)} instead.
-     */
-    @Deprecated(since = "4.3.0")
-    public static void checkActivePowerLimits(Validable validable, double minP, double maxP, double p) {
-        checkActivePowerLimits(validable, minP, maxP);
-
-        if (p > maxP) {
-            throw new ValidationException(validable, "invalid active power p > maxP: " + p + " > " + maxP);
-        }
-        if (p < minP) {
-            throw new ValidationException(validable, "invalid active power p < minP: " + p + " < " + minP);
-        }
-    }
-
     public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, ValidationLevel validationLevel) {
         return checkTargetDeadband(validable, validableType, regulating, targetDeadband, validationLevel, Reporter.NO_OP);
     }
@@ -679,14 +664,11 @@ public final class ValidationUtil {
 
     private static ValidationLevel checkIdentifiable(Identifiable<?> identifiable, ValidationLevel previous, boolean throwException, Reporter reporter) {
         ValidationLevel validationLevel = previous;
-        if (identifiable instanceof Validable) {
-            Validable validable = (Validable) identifiable;
-            if (identifiable instanceof Battery) {
-                Battery battery = (Battery) identifiable;
+        if (identifiable instanceof Validable validable) {
+            if (identifiable instanceof Battery battery) {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, battery.getTargetP(), throwException, reporter));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, battery.getTargetQ(), throwException, reporter));
-            } else if (identifiable instanceof DanglingLine) {
-                DanglingLine danglingLine = (DanglingLine) identifiable;
+            } else if (identifiable instanceof DanglingLine danglingLine) {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, danglingLine.getP0(), throwException, reporter));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, danglingLine.getQ0(), throwException, reporter));
                 DanglingLine.Generation generation = danglingLine.getGeneration();
@@ -694,32 +676,26 @@ public final class ValidationUtil {
                     validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generation.getTargetP(), throwException, reporter));
                     validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(), throwException, reporter));
                 }
-            } else if (identifiable instanceof Generator) {
-                Generator generator = (Generator) identifiable;
+            } else if (identifiable instanceof Generator generator) {
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), throwException, reporter));
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn(), generator.getTargetV(), generator.getTargetQ(), throwException, reporter));
-            } else if (identifiable instanceof HvdcLine) {
-                HvdcLine hvdcLine = (HvdcLine) identifiable;
+            } else if (identifiable instanceof HvdcLine hvdcLine) {
                 validationLevel = ValidationLevel.min(validationLevel, checkConvertersMode(validable, hvdcLine.getConvertersMode(), throwException, reporter));
                 validationLevel = ValidationLevel.min(validationLevel, checkHvdcActivePowerSetpoint(validable, hvdcLine.getActivePowerSetpoint(), throwException, reporter));
-            } else if (identifiable instanceof Load) {
-                Load load = (Load) identifiable;
+            } else if (identifiable instanceof Load load) {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, load.getP0(), throwException, reporter));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, load.getQ0(), throwException, reporter));
-            } else if (identifiable instanceof ShuntCompensator) {
-                ShuntCompensator shunt = (ShuntCompensator) identifiable;
+            } else if (identifiable instanceof ShuntCompensator shunt) {
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, shunt.isVoltageRegulatorOn(), shunt.getTargetV(), throwException, reporter));
                 validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "shunt compensator", shunt.isVoltageRegulatorOn(), shunt.getTargetDeadband(), throwException, reporter));
                 validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, shunt.findSectionCount().isPresent() ? shunt.getSectionCount() : null, shunt.getMaximumSectionCount(), throwException, reporter));
-            } else if (identifiable instanceof StaticVarCompensator) {
-                StaticVarCompensator svc = (StaticVarCompensator) identifiable;
+            } else if (identifiable instanceof StaticVarCompensator svc) {
                 validationLevel = ValidationLevel.min(validationLevel, checkSvcRegulator(validable, svc.getVoltageSetpoint(), svc.getReactivePowerSetpoint(), svc.getRegulationMode(), throwException, reporter));
-            } else if (identifiable instanceof ThreeWindingsTransformer) {
-                validationLevel = ValidationLevel.min(validationLevel, checkThreeWindingsTransformer(validable, (ThreeWindingsTransformer) identifiable, throwException, reporter));
-            } else if (identifiable instanceof TwoWindingsTransformer) {
-                validationLevel = ValidationLevel.min(validationLevel, checkTwoWindingsTransformer(validable, (TwoWindingsTransformer) identifiable, throwException, reporter));
-            } else if (identifiable instanceof VscConverterStation) {
-                VscConverterStation converterStation = (VscConverterStation) identifiable;
+            } else if (identifiable instanceof ThreeWindingsTransformer twt) {
+                validationLevel = ValidationLevel.min(validationLevel, checkThreeWindingsTransformer(validable, twt, throwException, reporter));
+            } else if (identifiable instanceof TwoWindingsTransformer twt) {
+                validationLevel = ValidationLevel.min(validationLevel, checkTwoWindingsTransformer(validable, twt, throwException, reporter));
+            } else if (identifiable instanceof VscConverterStation converterStation) {
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, converterStation.isVoltageRegulatorOn(), converterStation.getVoltageSetpoint(), converterStation.getReactivePowerSetpoint(), throwException, reporter));
             }
         }

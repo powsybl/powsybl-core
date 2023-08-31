@@ -251,7 +251,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         context.terminalMapping().add(terminalId(boundarySide), dl.getBoundary(), 2);
         dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
-        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal");
+        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
         dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
         Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY, tn));
         Optional.ofNullable(connectivityNodeId(boundarySide)).ifPresent(cn ->
@@ -506,7 +506,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 // its ID is composed by its connectivity node ID + '_VL' sufix
                 voltageLevel = context.network().getVoltageLevel(nodeId + "_VL");
                 if (voltageLevel != null) {
-                    iidmVoltageLevelId = t.connectivityNode() + "_VL";
+                    iidmVoltageLevelId = nodeId + "_VL";
                 } else {
                     iidmVoltageLevelId = null;
                 }
