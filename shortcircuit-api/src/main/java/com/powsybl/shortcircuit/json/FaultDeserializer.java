@@ -79,7 +79,6 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
         return switch (type) {
             case BUS -> new BusFault(id, elementId, r, x, connection, faultType);
             case BRANCH -> new BranchFault(id, elementId, r, x, connection, faultType, proportionalLocation);
-            default -> throw new IllegalStateException("Unexpected type: " + type.name());
         };
     }
 }
