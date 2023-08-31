@@ -26,16 +26,16 @@ public interface VoltageAngleLimit extends OperationalLimits {
     String getName();
 
     /**
-     * If the reference terminal is associated to a reference bus and the other terminal is associated to another bus,
-     * the limit violation is checked on the difference between the angle at other bus and the angle at reference bus.
+     * A voltage angle limit is compared to the difference between the bus angle associated to the terminal from and
+     * the bus angle associated to the terminal to. Difference = to - from.
      */
-    Terminal getReferenceTerminal();
+    Terminal getTerminalFrom();
 
     /**
-     * If the reference terminal is associated to a reference bus and the other terminal is associated to another bus,
-     * the limit violation is checked on the difference between the angle at other bus and the angle at reference bus.
+     * A voltage angle limit is compared to the difference between the bus angle associated to the terminal from and
+     * the bus angle associated to the terminal to. Difference = to - from.
      */
-    Terminal getOtherTerminal();
+    Terminal getTerminalTo();
 
     /**
      * Get the low voltage angle limit value

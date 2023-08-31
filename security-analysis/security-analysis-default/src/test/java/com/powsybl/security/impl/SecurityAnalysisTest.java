@@ -102,8 +102,8 @@ class SecurityAnalysisTest {
                 .add();
         network.newVoltageAngleLimit()
             .setName("VoltageAngleLimit_NHV1_NHV2_1")
-            .setReferenceTerminal(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
-            .setOtherTerminal(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
+            .from(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
+            .to(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
             .setLowLimit(-0.25)
             .setHighLimit(0.25)
             .add();

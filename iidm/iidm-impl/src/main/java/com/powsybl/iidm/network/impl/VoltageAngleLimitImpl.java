@@ -19,15 +19,15 @@ import com.powsybl.iidm.network.*;
 class VoltageAngleLimitImpl implements VoltageAngleLimit {
 
     private final String name;
-    private final Terminal referenceTerminal;
-    private final Terminal otherTerminal;
+    private final Terminal fromTerminal;
+    private final Terminal toTerminal;
     private final double lowLimit;
     private final double highLimit;
 
-    VoltageAngleLimitImpl(String name, Terminal referenceTerminal, Terminal otherTerminal, double lowLimit, double highLimit) {
+    VoltageAngleLimitImpl(String name, Terminal fromTerminal, Terminal toTerminal, double lowLimit, double highLimit) {
         this.name = name;
-        this.referenceTerminal = referenceTerminal;
-        this.otherTerminal = otherTerminal;
+        this.fromTerminal = fromTerminal;
+        this.toTerminal = toTerminal;
         this.lowLimit = lowLimit;
         this.highLimit = highLimit;
     }
@@ -38,13 +38,13 @@ class VoltageAngleLimitImpl implements VoltageAngleLimit {
     }
 
     @Override
-    public Terminal getReferenceTerminal() {
-        return referenceTerminal;
+    public Terminal getTerminalFrom() {
+        return fromTerminal;
     }
 
     @Override
-    public Terminal getOtherTerminal() {
-        return otherTerminal;
+    public Terminal getTerminalTo() {
+        return toTerminal;
     }
 
     @Override

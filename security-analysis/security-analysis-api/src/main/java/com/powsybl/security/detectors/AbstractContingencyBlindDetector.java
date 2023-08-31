@@ -64,8 +64,8 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
      */
     @Override
     public void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
-        Bus referenceBus = voltageAngleLimit.getReferenceTerminal().getBusView().getBus();
-        Bus otherBus = voltageAngleLimit.getOtherTerminal().getBusView().getBus();
+        Bus referenceBus = voltageAngleLimit.getTerminalFrom().getBusView().getBus();
+        Bus otherBus = voltageAngleLimit.getTerminalTo().getBusView().getBus();
         if (referenceBus != null && otherBus != null
             && referenceBus.getConnectedComponent().equals(otherBus.getConnectedComponent())) {
 

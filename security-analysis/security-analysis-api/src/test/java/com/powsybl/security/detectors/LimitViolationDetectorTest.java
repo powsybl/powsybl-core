@@ -104,7 +104,7 @@ class LimitViolationDetectorTest {
     private void doCheckVoltageAngle(Contingency contingency, VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
         if (voltageAngleLimit == voltageAngleLimit0) {
             consumer.accept(LimitViolations.highVoltageAngle()
-                .subject(voltageAngleLimit.getReferenceTerminal().getConnectable().getId())
+                .subject(voltageAngleLimit.getTerminalFrom().getConnectable().getId())
                 .side(Branch.Side.ONE)
                 .value(0.30)
                 .limit(0.25)
@@ -112,7 +112,7 @@ class LimitViolationDetectorTest {
         }
         if (contingency == contingency1 && voltageAngleLimit == voltageAngleLimit1) {
             consumer.accept(LimitViolations.lowVoltageAngle()
-                .subject(voltageAngleLimit.getReferenceTerminal().getConnectable().getId())
+                .subject(voltageAngleLimit.getTerminalFrom().getConnectable().getId())
                 .side(Branch.Side.ONE)
                 .value(-0.22)
                 .limit(0.20)

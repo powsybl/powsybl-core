@@ -28,8 +28,8 @@ public final class VoltageAngleLimitXml {
     private static final String NAME = "name";
     private static final String LOW_LIMIT = "lowLimit";
     private static final String HIGH_LIMIT = "highLimit";
-    private static final String REFERENCE = "reference";
-    private static final String OTHER = "other";
+    private static final String FROM = "from";
+    private static final String TO = "to";
 
     public static void write(VoltageAngleLimit voltageAngleLimit, NetworkXmlWriterContext context) {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
@@ -54,8 +54,8 @@ public final class VoltageAngleLimitXml {
                     throw new RuntimeException(e);
                 }
             });
-            TerminalRefXml.writeTerminalRef(voltageAngleLimit.getReferenceTerminal(), context, REFERENCE);
-            TerminalRefXml.writeTerminalRef(voltageAngleLimit.getOtherTerminal(), context, OTHER);
+            TerminalRefXml.writeTerminalRef(voltageAngleLimit.getTerminalFrom(), context, FROM);
+            TerminalRefXml.writeTerminalRef(voltageAngleLimit.getTerminalTo(), context, TO);
 
             context.getWriter().writeEndElement();
         });
@@ -77,10 +77,10 @@ public final class VoltageAngleLimitXml {
                 adder.setHighLimit(highLimit);
             }
             XmlUtil.readUntilEndElement(VOLTAGE_ANGLE_LIMIT, context.getReader(), () -> {
-                if (context.getReader().getLocalName().equals(REFERENCE)) {
-                    adder.setReferenceTerminal(TerminalRefXml.readTerminalRef(context));
-                } else if (context.getReader().getLocalName().equals(OTHER)) {
-                    adder.setOtherTerminal(TerminalRefXml.readTerminalRef(context));
+                if (context.getReader().getLocalName().equals(FROM)) {
+                    adder.from(TerminalRefXml.readTerminalRef(context));
+                } else if (context.getReader().getLocalName().equals(TO)) {
+                    adder.to(TerminalRefXml.readTerminalRef(context));
                 }
             });
 

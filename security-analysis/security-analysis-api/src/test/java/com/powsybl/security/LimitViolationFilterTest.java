@@ -86,8 +86,8 @@ class LimitViolationFilterTest {
         network.newVoltageAngleLimit()
                 .setName("val")
                 .setHighLimit(0.25)
-                .setReferenceTerminal(TerminalRef.create("LINE1", TerminalRef.Side.ONE))
-                .setOtherTerminal(TerminalRef.create("LINE1", TerminalRef.Side.TWO))
+                .from(TerminalRef.create("LINE1", TerminalRef.Side.ONE))
+                .to(TerminalRef.create("LINE1", TerminalRef.Side.TWO))
                 .add();
 
         LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 1000.0, 1, 1100.0, Branch.Side.ONE);

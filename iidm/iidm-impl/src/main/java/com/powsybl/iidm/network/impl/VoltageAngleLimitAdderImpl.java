@@ -19,8 +19,8 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
 
     private final Ref<NetworkImpl> networkRef;
     private String name;
-    private TerminalRef reference;
-    private TerminalRef other;
+    private TerminalRef from;
+    private TerminalRef to;
     private double lowLimit = Double.NaN;
 
     private double highLimit = Double.NaN;
@@ -36,14 +36,14 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
     }
 
     @Override
-    public VoltageAngleLimitAdderImpl setReferenceTerminal(TerminalRef referenceTerminal) {
-        this.reference = referenceTerminal;
+    public VoltageAngleLimitAdderImpl from(TerminalRef from) {
+        this.from = from;
         return this;
     }
 
     @Override
-    public VoltageAngleLimitAdderImpl setOtherTerminal(TerminalRef otherTerminal) {
-        this.other = otherTerminal;
+    public VoltageAngleLimitAdderImpl to(TerminalRef to) {
+        this.to = to;
         return this;
     }
 
@@ -67,13 +67,13 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
         if (!Double.isNaN(lowLimit) && !Double.isNaN(highLimit) && lowLimit >= highLimit) {
             throw new IllegalStateException("Voltage angle low limit must be lower than the high limit.");
         }
-        TerminalRef.Side referenceSide = reference.getSide().orElse(null);
-        Terminal referenceTerminal = TerminalRef.resolve(reference.getId(), referenceSide, networkRef.get());
+        TerminalRef.Side fromSide = from.getSide().orElse(null);
+        Terminal fromTerminal = TerminalRef.resolve(from.getId(), fromSide, networkRef.get());
 
-        TerminalRef.Side otherSide = other.getSide().orElse(null);
-        Terminal otherTerminal = TerminalRef.resolve(other.getId(), otherSide, networkRef.get());
+        TerminalRef.Side toSide = to.getSide().orElse(null);
+        Terminal toTerminal = TerminalRef.resolve(to.getId(), toSide, networkRef.get());
 
-        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(name, referenceTerminal, otherTerminal, lowLimit, highLimit);
+        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(name, fromTerminal, toTerminal, lowLimit, highLimit);
         networkRef.get().getVoltageAngleLimits().add(voltageAngleLimit);
         return voltageAngleLimit;
     }

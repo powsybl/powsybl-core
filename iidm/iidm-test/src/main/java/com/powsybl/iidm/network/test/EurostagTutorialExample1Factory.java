@@ -850,22 +850,22 @@ public final class EurostagTutorialExample1Factory {
 
         network.newVoltageAngleLimit()
             .setName("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_1")
-            .setReferenceTerminal(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
-            .setOtherTerminal(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
+            .from(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
+            .to(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
             .setHighLimit(0.25)
             .add();
 
         network.newVoltageAngleLimit()
             .setName("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_2")
-            .setReferenceTerminal(TerminalRef.create("NHV1_NHV2_2", Side.ONE))
-            .setOtherTerminal(TerminalRef.create("NHV1_NHV2_2", Side.TWO))
+            .from(TerminalRef.create("NHV1_NHV2_2", Side.ONE))
+            .to(TerminalRef.create("NHV1_NHV2_2", Side.TWO))
             .setLowLimit(0.20)
             .add();
 
         network.newVoltageAngleLimit()
             .setName("VOLTAGE_ANGLE_LIMIT_NGEN_NHV1")
-            .setReferenceTerminal(TerminalRef.create("GEN"))
-            .setOtherTerminal(TerminalRef.create("NGEN_NHV1", Side.TWO))
+            .from(TerminalRef.create("GEN"))
+            .to(TerminalRef.create("NGEN_NHV1", Side.TWO))
             .setLowLimit(-0.20)
             .setHighLimit(0.35)
             .add();

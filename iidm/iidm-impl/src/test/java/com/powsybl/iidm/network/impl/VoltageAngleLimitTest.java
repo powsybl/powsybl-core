@@ -31,14 +31,14 @@ class VoltageAngleLimitTest {
 
         network.newVoltageAngleLimit()
         .setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
-            .setReferenceTerminal(TerminalRef.create("LINE_S2S3", Side.ONE))
-            .setOtherTerminal(TerminalRef.create("LINE_S2S3", Side.TWO))
+            .from(TerminalRef.create("LINE_S2S3", Side.ONE))
+            .to(TerminalRef.create("LINE_S2S3", Side.TWO))
             .setHighLimit(1.0)
             .add();
 
         network.newVoltageAngleLimit().setName("VOLTAGE_ANGLE_LIMIT_LD1_LD6")
-            .setReferenceTerminal(TerminalRef.create("LD1"))
-            .setOtherTerminal(TerminalRef.create("LD6"))
+            .from(TerminalRef.create("LD1"))
+            .to(TerminalRef.create("LD6"))
             .setLowLimit(1.0)
             .add();
 
@@ -47,21 +47,21 @@ class VoltageAngleLimitTest {
         VoltageAngleLimit val0 = network.getVoltageAngleLimits().get(0);
         assertEquals("VOLTAGE_ANGLE_LIMIT_LINE_S2S3", val0.getName());
 
-        assertEquals("LINE_S2S3", val0.getReferenceTerminal().getConnectable().getId());
-        assertTrue(TerminalRef.getConnectableSide(val0.getReferenceTerminal()).isPresent());
-        TerminalRef.getConnectableSide(val0.getReferenceTerminal()).ifPresent(side -> assertEquals(Side.ONE, side));
-        assertEquals("LINE_S2S3", val0.getOtherTerminal().getConnectable().getId());
-        assertTrue(TerminalRef.getConnectableSide(val0.getOtherTerminal()).isPresent());
-        TerminalRef.getConnectableSide(val0.getOtherTerminal()).ifPresent(side -> assertEquals(Side.TWO, side));
+        assertEquals("LINE_S2S3", val0.getTerminalFrom().getConnectable().getId());
+        assertTrue(TerminalRef.getConnectableSide(val0.getTerminalFrom()).isPresent());
+        TerminalRef.getConnectableSide(val0.getTerminalFrom()).ifPresent(side -> assertEquals(Side.ONE, side));
+        assertEquals("LINE_S2S3", val0.getTerminalTo().getConnectable().getId());
+        assertTrue(TerminalRef.getConnectableSide(val0.getTerminalTo()).isPresent());
+        TerminalRef.getConnectableSide(val0.getTerminalTo()).ifPresent(side -> assertEquals(Side.TWO, side));
         assertTrue(val0.getHighLimit().isPresent());
         assertTrue(val0.getLowLimit().isEmpty());
         assertEquals(1.0, val0.getHighLimit().get());
 
         VoltageAngleLimit val1 = network.getVoltageAngleLimits().get(1);
-        assertEquals("LD1", val1.getReferenceTerminal().getConnectable().getId());
-        assertTrue(TerminalRef.getConnectableSide(val1.getReferenceTerminal()).isEmpty());
-        assertEquals("LD6", val1.getOtherTerminal().getConnectable().getId());
-        assertTrue(TerminalRef.getConnectableSide(val1.getOtherTerminal()).isEmpty());
+        assertEquals("LD1", val1.getTerminalFrom().getConnectable().getId());
+        assertTrue(TerminalRef.getConnectableSide(val1.getTerminalFrom()).isEmpty());
+        assertEquals("LD6", val1.getTerminalTo().getConnectable().getId());
+        assertTrue(TerminalRef.getConnectableSide(val1.getTerminalTo()).isEmpty());
         assertTrue(val1.getLowLimit().isPresent());
         assertTrue(val1.getHighLimit().isEmpty());
         assertEquals(1.0, val1.getLowLimit().get());
@@ -73,8 +73,8 @@ class VoltageAngleLimitTest {
 
         VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
             .setName("VOLTAGE_ANGLE_LIMIT_S1VL1_LD1_BREAKER")
-            .setReferenceTerminal(TerminalRef.create("S1VL1_LD1_BREAKER", Side.ONE))
-            .setOtherTerminal(TerminalRef.create("S1VL1_LD1_BREAKER", Side.TWO))
+            .from(TerminalRef.create("S1VL1_LD1_BREAKER", Side.ONE))
+            .to(TerminalRef.create("S1VL1_LD1_BREAKER", Side.TWO))
             .setHighLimit(1.0);
         PowsyblException e = assertThrows(PowsyblException.class, adder::add);
         assertEquals("Unexpected terminal reference identifiable instance: class com.powsybl.iidm.network.impl.SwitchImpl", e.getMessage());
@@ -86,8 +86,8 @@ class VoltageAngleLimitTest {
 
         VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
             .setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
-            .setReferenceTerminal(TerminalRef.create("LINE_S2S3", Side.ONE))
-            .setOtherTerminal(TerminalRef.create("LINE_S2S3", Side.THREE))
+            .from(TerminalRef.create("LINE_S2S3", Side.ONE))
+            .to(TerminalRef.create("LINE_S2S3", Side.THREE))
             .setHighLimit(1.0);
         IllegalStateException e = assertThrows(IllegalStateException.class, adder::add);
         assertEquals("Unexpected Branch side: THREE", e.getMessage());
@@ -99,8 +99,8 @@ class VoltageAngleLimitTest {
 
         VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
             .setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
-            .setReferenceTerminal(TerminalRef.create("LIN_S2S3", Side.ONE))
-            .setOtherTerminal(TerminalRef.create("LINE_S2S3", Side.THREE))
+            .from(TerminalRef.create("LIN_S2S3", Side.ONE))
+            .to(TerminalRef.create("LINE_S2S3", Side.THREE))
             .setHighLimit(1.0);
         PowsyblException e = assertThrows(PowsyblException.class, adder::add);
         assertEquals("Terminal reference identifiable not found: 'LIN_S2S3'", e.getMessage());
@@ -111,8 +111,8 @@ class VoltageAngleLimitTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
 
         VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
-                .setReferenceTerminal(TerminalRef.create("LINE_S2S3", Side.ONE))
-                .setOtherTerminal(TerminalRef.create("LINE_S2S3", Side.TWO));
+                .from(TerminalRef.create("LINE_S2S3", Side.ONE))
+                .to(TerminalRef.create("LINE_S2S3", Side.TWO));
         IllegalStateException e = assertThrows(IllegalStateException.class, adder::add);
         assertEquals("Voltage angle limit name is mandatory.", e.getMessage());
     }
@@ -123,8 +123,8 @@ class VoltageAngleLimitTest {
 
         VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
                 .setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
-                .setReferenceTerminal(TerminalRef.create("LINE_S2S3", Side.ONE))
-                .setOtherTerminal(TerminalRef.create("LINE_S2S3", Side.TWO))
+                .from(TerminalRef.create("LINE_S2S3", Side.ONE))
+                .to(TerminalRef.create("LINE_S2S3", Side.TWO))
                 .setLowLimit(20.0)
                 .setHighLimit(-20.0);
         IllegalStateException e = assertThrows(IllegalStateException.class, adder::add);
