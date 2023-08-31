@@ -94,7 +94,6 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
     @Override
     public HvdcLine add() {
-        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
         ValidationUtil.checkR(this, r);

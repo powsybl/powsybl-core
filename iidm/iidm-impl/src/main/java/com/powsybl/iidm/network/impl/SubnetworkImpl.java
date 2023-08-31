@@ -800,15 +800,11 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
-        switch (identifiable.getType()) {
-            case LINE:
-            case TIE_LINE:
-                return isBoundary((Branch<?>) identifiable);
-            case HVDC_LINE:
-                return isBoundary((HvdcLine) identifiable);
-            default:
-                return false;
-        }
+        return switch (identifiable.getType()) {
+            case LINE, TIE_LINE -> isBoundary((Branch<?>) identifiable);
+            case HVDC_LINE -> isBoundary((HvdcLine) identifiable);
+            default -> false;
+        };
     }
 
     private boolean isBoundary(Branch<?> branch) {
