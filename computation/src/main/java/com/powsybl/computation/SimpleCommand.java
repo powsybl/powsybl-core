@@ -42,7 +42,7 @@ public interface SimpleCommand extends Command {
      *
      * @return the timeout in milliseconds for this command execution.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     int getTimeout();
 
 }

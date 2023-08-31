@@ -99,7 +99,7 @@ public interface PlatformConfigNamedProvider {
          *
          * @return the provider
          */
-        @Deprecated
+        @Deprecated(since = "3.2.0")
         public static <T extends PlatformConfigNamedProvider> T findDefaultBackwardsCompatible(
                 String moduleName, Class<T> clazz, PlatformConfig platformConfig) {
             return find(null, moduleName,
@@ -116,7 +116,7 @@ public interface PlatformConfigNamedProvider {
          *
          * @return the provider
          */
-        @Deprecated
+        @Deprecated(since = "3.2.0")
         public static <T extends PlatformConfigNamedProvider> T findBackwardsCompatible(String name,
                 String moduleName, Class<T> clazz, PlatformConfig platformConfig) {
             return find(name, moduleName,

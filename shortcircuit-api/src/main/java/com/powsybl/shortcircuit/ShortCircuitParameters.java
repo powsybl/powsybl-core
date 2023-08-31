@@ -77,7 +77,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     /**
      * @deprecated Use {@link #isWithVoltageResult()} instead. Used for backward compatibility.
      */
-    @Deprecated
+    @Deprecated(since = "5.2.0")
     public boolean isWithVoltageMap() {
         return isWithVoltageResult();
     }
@@ -85,7 +85,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     /**
      * @deprecated Use {@link #setWithVoltageResult(boolean)} instead. Used for backward compatibility.
      */
-    @Deprecated
+    @Deprecated(since = "5.2.0")
     public ShortCircuitParameters setWithVoltageMap(boolean withVoltageMap) {
         this.withVoltageResult = withVoltageMap;
         return this;
