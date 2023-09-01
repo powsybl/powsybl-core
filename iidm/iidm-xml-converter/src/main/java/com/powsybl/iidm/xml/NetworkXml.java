@@ -439,9 +439,10 @@ public final class NetworkXml {
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
             String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
 
-            Network network = networkFactory.createNetwork(id, sourceFormat, reporter);
+            Network network = networkFactory.createNetwork(id, sourceFormat);
             network.setCaseDate(date);
             network.setForecastDistance(forecastDistance);
+            network.getReporterContext().pushReporter(reporter);
 
             ValidationLevel[] minValidationLevel = new ValidationLevel[1];
             minValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -536,6 +537,7 @@ public final class NetworkXml {
 
             reader.close();
             XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
+            network.getReporterContext().popReporter();
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);

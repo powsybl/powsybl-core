@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.reporter.Reporter;
 import org.joda.time.DateTime;
 import org.mockito.Mockito;
 
@@ -34,11 +33,5 @@ public class NetworkFactoryMock implements NetworkFactory {
                 .thenAnswer(invocationOnMock -> loadType[0]);
 
         return network;
-    }
-
-    @Override
-    //not used
-    public Network createNetwork(String id, String sourceFormat, Reporter reporter) {
-        return null;
     }
 }

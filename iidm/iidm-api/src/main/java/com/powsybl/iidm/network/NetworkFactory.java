@@ -8,7 +8,6 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.reporter.Reporter;
 
 /**
  *
@@ -24,16 +23,6 @@ public interface NetworkFactory {
      * @return a network
      */
     Network createNetwork(String id, String sourceFormat);
-
-    /**
-     * Create a network.
-     *
-     * @param id id of the network
-     * @param sourceFormat source format
-     * @param reporter reporter
-     * @return a network
-     */
-    Network createNetwork(String id, String sourceFormat, Reporter reporter);
 
     /**
      * Find a {@code NetworkFactory} instance base on its name.
