@@ -110,7 +110,7 @@ public final class TerminalRef {
         return id;
     }
 
-    public Optional<Side> getSide() {
-        return Optional.ofNullable(side);
+    public Side getSide() {
+        return side;
     }
 }
