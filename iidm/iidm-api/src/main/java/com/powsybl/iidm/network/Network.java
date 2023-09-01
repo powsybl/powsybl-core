@@ -18,12 +18,11 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -114,7 +113,7 @@ public interface Network extends Container<Network> {
      */
     static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory,
                         ImportersLoader loader, Reporter reporter) {
-        ReadOnlyDataSource dataSource = Importers.createDataSource(file);
+        ReadOnlyDataSource dataSource = DataSource.fromPath(file);
         Importer importer = Importer.find(dataSource, loader, computationManager, config);
         if (importer != null) {
             return importer.importData(dataSource, networkFactory, parameters, reporter);
@@ -318,6 +317,28 @@ public interface Network extends Container<Network> {
             return importer.importData(dataSource, NetworkFactory.findDefault(), properties, reporter);
         }
         throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
+    }
+
+    static Network read(ReadOnlyDataSource... dataSources) {
+        return read(List.of(dataSources));
+    }
+
+    static Network read(Path... files) {
+        List<ReadOnlyDataSource> dataSources = Arrays.stream(Objects.requireNonNull(files)).map(DataSource::fromPath).collect(Collectors.toList());
+        return read(dataSources);
+    }
+
+    static Network read(List<ReadOnlyDataSource> dataSources) {
+        return read(dataSources, null);
+    }
+
+    static Network read(List<ReadOnlyDataSource> dataSources, Properties properties) {
+        return read(dataSources, properties, Reporter.NO_OP);
+    }
+
+    static Network read(List<ReadOnlyDataSource> dataSources, Properties properties, Reporter reporter) {
+        Objects.requireNonNull(dataSources);
+        return read(new MultipleReadOnlyDataSource(dataSources), properties, reporter);
     }
 
     static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
@@ -625,6 +646,11 @@ public interface Network extends Container<Network> {
     Iterable<Line> getLines();
 
     /**
+     * Get all tie lines.
+     */
+    Iterable<TieLine> getTieLines();
+
+    /**
      * Get a branch
      * @param branchId the id of the branch
      */
@@ -651,9 +677,19 @@ public interface Network extends Container<Network> {
     Stream<Line> getLineStream();
 
     /**
+     * Get all tie lines.
+     */
+    Stream<TieLine> getTieLineStream();
+
+    /**
      * Get the AC line count.
      */
     int getLineCount();
+
+    /**
+     * Get the tie line count.
+     */
+    int getTieLineCount();
 
     /**
      * Get a AC line.
@@ -661,6 +697,13 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the AC line
      */
     Line getLine(String id);
+
+    /**
+     * Get a tie line.
+     *
+     * @param id the id or an alias of the AC line
+     */
+    TieLine getTieLine(String id);
 
     /**
      * Get a builder to create a new AC tie line.
@@ -830,14 +873,28 @@ public interface Network extends Container<Network> {
     ShuntCompensator getShuntCompensator(String id);
 
     /**
-     * Get all dangling lines.
+     * Get all dangling lines corresponding to given filter.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter);
 
     /**
      * Get all dangling lines.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    default Iterable<DanglingLine> getDanglingLines() {
+        return getDanglingLines(DanglingLineFilter.ALL);
+    }
+
+    /**
+     * Get the dangling lines corresponding to given filter.
+     */
+    Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter);
+
+    /**
+     * Get all the dangling lines.
+     */
+    default Stream<DanglingLine> getDanglingLineStream() {
+        return getDanglingLineStream(DanglingLineFilter.ALL);
+    }
 
     /**
      * Get the dangling line count.
@@ -1212,9 +1269,11 @@ public interface Network extends Container<Network> {
             case THREE_WINDINGS_TRANSFORMER:
                 return getThreeWindingsTransformerStream().map(Function.identity());
             case DANGLING_LINE:
-                return getDanglingLineStream().map(Function.identity());
+                return getDanglingLineStream(DanglingLineFilter.ALL).map(Function.identity());
             case LINE:
                 return getLineStream().map(Function.identity());
+            case TIE_LINE:
+                return getTieLineStream().map(Function.identity());
             case LOAD:
                 return getLoadStream().map(Function.identity());
             case BATTERY:

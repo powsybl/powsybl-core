@@ -123,6 +123,16 @@ public class ContingencyBuilder {
         return this;
     }
 
+    public ContingencyBuilder addTieLine(String id) {
+        elements.add(new TieLineContingency(id));
+        return this;
+    }
+
+    public ContingencyBuilder addTieLine(String id, String voltageLevelId) {
+        elements.add(new TieLineContingency(id, voltageLevelId));
+        return this;
+    }
+
     public ContingencyBuilder addIdentifiable(String id, Network network) {
         Identifiable<?> identifiable = network.getIdentifiable(id);
         if (identifiable == null) {

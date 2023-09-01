@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -97,7 +96,7 @@ public class UcteWriter {
         LOGGER.trace("Writing line block");
         writer.writeString("##L", 0, 3);
         writer.newLine();
-        List<UcteLine> lines = network.getLines().stream().sorted(Comparator.comparing(UcteElement::getId)).collect(Collectors.toList());
+        List<UcteLine> lines = network.getLines().stream().sorted(Comparator.comparing(UcteElement::getId)).toList();
         for (UcteLine ucteLine : lines) {
             writeElementId(ucteLine.getId(), writer);
             writer.writeInteger(ucteLine.getStatus().getCode(), 20);
@@ -115,7 +114,7 @@ public class UcteWriter {
         writer.writeString("##T", 0, 3);
         writer.newLine();
         List<UcteTransformer> transformersList =
-                network.getTransformers().stream().sorted(Comparator.comparing(UcteTransformer::getId)).collect(Collectors.toList());
+                network.getTransformers().stream().sorted(Comparator.comparing(UcteTransformer::getId)).toList();
         for (UcteTransformer t : transformersList) {
             writeElementId(t.getId(), writer);
             writer.writeInteger(t.getStatus().getCode(), 20);
@@ -152,7 +151,7 @@ public class UcteWriter {
         LOGGER.trace("Writing regulation block");
         writer.writeString("##R", 0, 3);
         writer.newLine();
-        List<UcteRegulation> regulations = network.getRegulations().stream().sorted(Comparator.comparing(UcteRegulation::getTransfoId)).collect(Collectors.toList());
+        List<UcteRegulation> regulations = network.getRegulations().stream().sorted(Comparator.comparing(UcteRegulation::getTransfoId)).toList();
         for (UcteRegulation ucteRegulation : regulations) {
             writeRegulation(writer, ucteRegulation);
         }

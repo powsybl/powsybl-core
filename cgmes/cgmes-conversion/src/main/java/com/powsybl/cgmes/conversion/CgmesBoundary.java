@@ -30,6 +30,7 @@ public class CgmesBoundary {
         PropertyBags bns = cgmes.boundaryNodes();
         nodesName = new HashMap<>();
         topologicalNodes = new HashMap<>();
+        connectivityNodes = new HashMap<>();
         lineAtNodes = new HashMap<>();
         hvdcNodes = new HashSet<>();
         if (bns != null) {
@@ -47,8 +48,10 @@ public class CgmesBoundary {
                 nodes.add(cn);
                 nodes.add(tn);
                 nodesName.put(cn, node.get("name"));
-                nodesName.put(tn, node.get("topologicalNodeName"));
-                topologicalNodes.put(node.get("topologicalNodeName"), tn);
+                String tnName = node.get("topologicalNodeName");
+                nodesName.put(tn, tnName);
+                topologicalNodes.put(tnName, tn);
+                connectivityNodes.put(tnName, cn);
                 if (node.containsKey("description") && node.getId("description").startsWith("HVDC")) {
                     hvdcNodes.add(cn);
                     hvdcNodes.add(tn);
@@ -80,18 +83,6 @@ public class CgmesBoundary {
 
     public PowerFlow powerFlowAtNode(String node) {
         return nodesPowerFlow.get(node);
-    }
-
-    /**
-     * @deprecated Not used anymore. To set an equipment at boundary node, use
-     * {@link CgmesBoundary#addAcLineSegmentAtNode(PropertyBag, String)} or
-     * {@link CgmesBoundary#addSwitchAtNode(PropertyBag, String)} or
-     * {@link CgmesBoundary#addTransformerAtNode(PropertyBags, String)} or
-     * {@link CgmesBoundary#addEquivalentBranchAtNode(PropertyBag, String)}  instead.
-     */
-    @Deprecated
-    public void addEquipmentAtNode(PropertyBag line, String node) {
-        throw new ConversionException("Deprecated. Not used anymore");
     }
 
     public void addAcLineSegmentAtNode(PropertyBag line, String node) {
@@ -145,15 +136,6 @@ public class CgmesBoundary {
         return nodesVoltage.containsKey(node) ? nodesVoltage.get(node).angle : Double.NaN;
     }
 
-    /**
-     * @deprecated Not used anymore. To get the equipment at boundary node, use
-     * {@link CgmesBoundary#boundaryEquipmentAtNode(String)} instead.
-     */
-    @Deprecated
-    public List<PropertyBag> equipmentAtNode(String node) {
-        throw new ConversionException("Deprecated. Not used anymore");
-    }
-
     public List<BoundaryEquipment> boundaryEquipmentAtNode(String node) {
         return nodesEquipment.getOrDefault(node, Collections.emptyList());
     }
@@ -182,6 +164,10 @@ public class CgmesBoundary {
         return topologicalNodes.get(xnodeName);
     }
 
+    public String connectivityNodeAtBoundary(String xnodeName) {
+        return connectivityNodes.get(xnodeName);
+    }
+
     private static class Voltage {
         double v;
         double angle;
@@ -194,6 +180,7 @@ public class CgmesBoundary {
     private final Map<String, Voltage> nodesVoltage;
     private final Map<String, String> nodesName;
     private final Map<String, String> topologicalNodes;
+    private final Map<String, String> connectivityNodes;
     private final Map<String, String> lineAtNodes;
     private final Set<String> hvdcNodes;
 

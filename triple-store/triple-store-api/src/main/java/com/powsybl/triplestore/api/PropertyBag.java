@@ -87,6 +87,13 @@ public class PropertyBag extends HashMap<String, String> {
         }
     }
 
+    public Optional<Boolean> asBoolean(String property) {
+        if (!containsKey(property)) {
+            return Optional.empty();
+        }
+        return Optional.of(Boolean.parseBoolean(get(property)));
+    }
+
     public boolean asBoolean(String property, boolean defaultValue) {
         if (!containsKey(property)) {
             return defaultValue;

@@ -1,0 +1,19 @@
+{
+  "type" : "injectionCriterion",
+  "version" : "1.0",
+  "name" : "list2",
+  "identifiableType" : "GENERATOR",
+  "countryCriterion" : {
+    "type" : "SINGLE_COUNTRY",
+    "countries" : [ "CI" ]
+  },
+  "nominalVoltageCriterion" : {
+    "type" : "SINGLE_NOMINAL_VOLTAGE",
+    "voltageInterval" : {
+      "nominalVoltageLowBound" : 200.0,
+      "nominalVoltageHighBound" : 230.0,
+      "lowClosed" : true,
+      "highClosed" : true
+    }
+  }
+}

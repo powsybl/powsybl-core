@@ -44,7 +44,6 @@ class GeneratorScalableTest {
 
         g4 = Scalable.onGenerator("g2", 0., 80);
         g5 = Scalable.onGenerator("g2", 20., 100);
-
     }
 
     @Test
@@ -91,15 +90,6 @@ class GeneratorScalableTest {
 
         assertEquals(20, g5.minimumValue(network, GENERATOR), 0);
         assertEquals(-100, g5.minimumValue(network, LOAD), 0);
-    }
-
-    @Test
-    void testListGenerators() {
-        Generator generator1 = network.getGenerator("g1");
-
-        List<Generator> generators = g1.listGenerators(network);
-        assertEquals(1, generators.size());
-        assertSame(generator1, generators.get(0));
     }
 
     @Test
@@ -168,6 +158,11 @@ class GeneratorScalableTest {
         //Case 4 : generator.getTargetP() not in interval, skipped
         assertEquals(0, generator2.getTargetP(), 1e-3);
         assertEquals(0, g5.scale(network, 50), 1e-3);
+
+        //Case 5 : generator.getTargetP() not in interval, but allowed
+        g5.reset(network);
+        assertEquals(0, generator2.getTargetP(), 1e-3);
+        assertEquals(50, g5.scale(network, 50, new ScalingParameters().setAllowsGeneratorOutOfActivePowerLimits(true)), 1e-3);
     }
 
     @Test
@@ -286,5 +281,11 @@ class GeneratorScalableTest {
         assertEquals(20.0, g1.scale(network, 20.0, parameters), 1e-3);
         assertEquals(20.0, generator.getTargetP(), 1e-3);
         assertTrue(generator.getTerminal().isConnected());
+
+        //reconnect to false
+        generator.getTerminal().disconnect();
+        assertFalse(generator.getTerminal().isConnected());
+        assertEquals(0.0, g1.scale(network, 10));
+        assertEquals(20.0, generator.getTargetP(), 1e-3);
     }
 }

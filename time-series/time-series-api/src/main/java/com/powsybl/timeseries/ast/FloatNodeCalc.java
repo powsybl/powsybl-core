@@ -78,8 +78,8 @@ public class FloatNodeCalc implements LiteralNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof FloatNodeCalc) {
-            return ((FloatNodeCalc) obj).value == value;
+        if (obj instanceof FloatNodeCalc floatNodeCalc) {
+            return floatNodeCalc.value == value;
         }
         return false;
     }

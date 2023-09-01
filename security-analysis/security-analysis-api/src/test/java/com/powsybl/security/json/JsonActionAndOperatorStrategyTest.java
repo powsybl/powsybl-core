@@ -17,6 +17,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.security.action.*;
 import com.powsybl.security.condition.AllViolationCondition;
@@ -96,6 +97,12 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
                 .withRelativeValue(true)
                 .build());
         actions.add(new ShuntCompensatorPositionActionBuilder().withId("id22").withShuntCompensatorId("shuntId1").withSectionCount(5).build());
+        actions.add(new StaticVarCompensatorActionBuilder().withId("id23")
+                .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .withVoltageSetpoint(56.0).build());
+        actions.add(new StaticVarCompensatorActionBuilder().withId("id24")
+                .withStaticVarCompensatorId("svc").withRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
+                .withReactivePowerSetpoint(120.0).build());
         ActionList actionList = new ActionList(actions);
         roundTripTest(actionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/ActionFileTest.json");
     }

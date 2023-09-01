@@ -68,7 +68,7 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractMultiVariantIdenti
     }
 
     private float checkOPR(float opr, HvdcConverterStation<?> from, HvdcConverterStation<?> to) {
-        if ((!Float.isNaN(opr)) && (opr < 0)) {
+        if (!Float.isNaN(opr) && opr < 0) {
             String message = "OPR from " + from.getId() + " to " + to.getId() + " must be greater than 0 (current value " + Float.toString(opr) + ").";
             throw new IllegalArgumentException(message);
         }

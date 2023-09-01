@@ -6,9 +6,10 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
@@ -21,8 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
-import static com.powsybl.iidm.modification.topology.TopologyTestUtils.createNbNetwork;
+import static com.powsybl.iidm.modification.topology.TopologyTestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -63,38 +63,58 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     @Test
     void testWithNullSwitchKind() {
         Network network = createNbNetwork();
+        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, null, SwitchKind.DISCONNECTOR)
                 .build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reporter));
         assertEquals("All switch kinds must be defined", e.getMessage());
+        assertEquals("undefinedSwitchKind", reporter.getReports().iterator().next().getReportKey());
+
+        // Check nothing is created if throwException is false
+        modification.apply(network);
+        assertEquals(0, network.getVoltageLevel(VLTEST).getNodeBreakerView().getBusbarSectionCount());
     }
 
     @Test
     void testWithUnsupportedSwitchKind() {
         Network network = createNbNetwork();
+        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.LOAD_BREAK_SWITCH, SwitchKind.DISCONNECTOR)
                 .build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reporter));
         assertEquals("Switch kinds must be DISCONNECTOR or BREAKER", e.getMessage());
+        assertEquals("wrongSwitchKind", reporter.getReports().iterator().next().getReportKey());
+
+        // Check nothing is created if throwException is false
+        modification.apply(network);
+        assertEquals(0, network.getVoltageLevel(VLTEST).getNodeBreakerView().getBusbarSectionCount());
     }
 
     @Test
     void testWithNegativeCount() {
-        CreateVoltageLevelTopologyBuilder modification = new CreateVoltageLevelTopologyBuilder()
+        Network network = createNbNetwork();
+        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
+        NetworkModification modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(-1)
                 .withSectionCount(4)
-                .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR);
-        PowsyblException e = assertThrows(PowsyblException.class, modification::build);
-        assertEquals("busBar count must be >= 1", e.getMessage());
+                .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
+                .build();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reporter));
+        assertEquals("busbar count must be >= 1", e.getMessage());
+        assertEquals("countLowerThanMin", reporter.getReports().iterator().next().getReportKey());
+
+        // Check nothing is created if throwException is false
+        modification.apply(network);
+        assertEquals(0, network.getVoltageLevel(VLTEST).getNodeBreakerView().getBusbarSectionCount());
     }
 
     @Test
@@ -127,27 +147,35 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     @Test
     void testWithUnexpectedSwitchKindsSize() {
         Network network = createNbNetwork();
+        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER)
                 .build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reporter));
         assertEquals("Unexpected switch kinds count (1). Should be 3", e.getMessage());
+        assertEquals("unexpectedSwitchKindsCount", reporter.getReports().iterator().next().getReportKey());
+
+        // Check nothing is created if throwException is false
+        modification.apply(network);
+        assertEquals(0, network.getVoltageLevel(VLTEST).getNodeBreakerView().getBusbarSectionCount());
     }
 
     @Test
     void testWithNotExistingVoltageLevel() {
         Network network = createNbNetwork();
+        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId("NOT_EXISTING")
                 .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
                 .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
                 .build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, Reporter.NO_OP));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reporter));
         assertEquals("Voltage level NOT_EXISTING is not found", e.getMessage());
+        assertEquals("voltageLevelNotFound", reporter.getReports().iterator().next().getReportKey());
     }
 
     @Test
@@ -171,12 +199,29 @@ class CreateVoltageLevelTopologyTest extends AbstractConverterTest {
     @Test
     void testErrorIfNotSwitchKindsDefinedAndNodeBreaker() {
         Network network = createNbNetwork();
+        ReporterModel reporter = new ReporterModel("reportTest", "Testing reporter");
         CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
                 .withVoltageLevelId(VLTEST)
                 .withAlignedBusesOrBusbarCount(3)
                 .withSectionCount(4)
                 .build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> modification.apply(network, true, reporter));
         assertEquals("Unexpected switch kinds count (0). Should be 3", e.getMessage());
+        assertEquals("unexpectedSwitchKindsCount", reporter.getReports().iterator().next().getReportKey());
     }
+
+    @Test
+    void testWithReporter() {
+        Network network = createNbNetwork();
+        ReporterModel reporter = new ReporterModel("reportTestCreateVoltageLevelTopology", "Testing reporter for voltage level topology creation");
+        CreateVoltageLevelTopology modification = new CreateVoltageLevelTopologyBuilder()
+                .withVoltageLevelId(VLTEST)
+                .withAlignedBusesOrBusbarCount(3)
+                .withSectionCount(4)
+                .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
+                .build();
+        modification.apply(network, reporter);
+        testReporter(reporter, "/reporter/create-voltage-level-topology-report.txt");
+    }
+
 }

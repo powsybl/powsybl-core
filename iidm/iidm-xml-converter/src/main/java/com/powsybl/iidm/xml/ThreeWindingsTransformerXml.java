@@ -44,12 +44,12 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected boolean hasSubElements(ThreeWindingsTransformer twt, NetworkXmlWriterContext context) {
-        return (twt.getLeg1().hasRatioTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
+        return twt.getLeg1().hasRatioTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0
                 || twt.getLeg2().hasRatioTapChanger()
                 || twt.getLeg3().hasRatioTapChanger()
-                || (twt.getLeg1().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
-                || (twt.getLeg2().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
-                || (twt.getLeg3().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
+                || twt.getLeg1().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0
+                || twt.getLeg2().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0
+                || twt.getLeg3().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0
                 || hasValidOperationalLimits(twt.getLeg1(), context)
                 || hasValidOperationalLimits(twt.getLeg2(), context)
                 || hasValidOperationalLimits(twt.getLeg3(), context);
@@ -139,17 +139,17 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected ThreeWindingsTransformerAdder createAdder(Container<? extends Identifiable<?>> c) {
-        if (c instanceof Network) {
-            return ((Network) c).newThreeWindingsTransformer();
+        if (c instanceof Network network) {
+            return network.newThreeWindingsTransformer();
         }
-        if (c instanceof Substation) {
-            return ((Substation) c).newThreeWindingsTransformer();
+        if (c instanceof Substation substation) {
+            return substation.newThreeWindingsTransformer();
         }
         throw new IllegalStateException();
     }
 
     @Override
-    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
+    protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, Container<? extends Identifiable<?>> c, NetworkXmlReaderContext context) {
         double r1 = XmlUtil.readDoubleAttribute(context.getReader(), "r1");
         double x1 = XmlUtil.readDoubleAttribute(context.getReader(), "x1");
         double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");

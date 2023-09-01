@@ -151,11 +151,11 @@ public class BaseVoltagesConfig {
         }
 
         private void checkRequiredFields(Node node, List<String> requiredFields, Class<?> aClass) {
-            if (node instanceof MappingNode) {
-                for (NodeTuple nodeTuple : ((MappingNode) node).getValue()) {
+            if (node instanceof MappingNode mappingNode) {
+                for (NodeTuple nodeTuple : mappingNode.getValue()) {
                     Node keyNode = nodeTuple.getKeyNode();
-                    if (keyNode instanceof ScalarNode) {
-                        requiredFields.remove(((ScalarNode) keyNode).getValue());
+                    if (keyNode instanceof ScalarNode scalarNode) {
+                        requiredFields.remove(scalarNode.getValue());
                     }
                 }
             }

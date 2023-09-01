@@ -44,13 +44,15 @@ class ListOfContingencyListsJsonTest extends AbstractConverterTest {
                 .VoltageInterval(200.0, 230.0, true, true),
                 new SingleNominalVoltageCriterion
                 .VoltageInterval(100.0, 120.0, true, true));
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion1 = new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion
+                .VoltageInterval(200.0, 230.0, true, true), null);
 
         ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(new SingleNominalVoltageCriterion
                 .VoltageInterval(200.0, 230.0, true, true), null,
                 new SingleNominalVoltageCriterion.VoltageInterval(380.0, 430.0,
                         true, true));
         RegexCriterion regexCriterion = new RegexCriterion("regex");
-        contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, nominalVoltageCriterion,
+        contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, twoNominalVoltageCriterion1,
                 Collections.emptyList(), regexCriterion));
         contingencyLists.add(new DefaultContingencyList(new Contingency("contingency1", new GeneratorContingency("GEN"))));
         contingencyLists.add(new InjectionCriterionContingencyList("list3", IdentifiableType.LOAD, countryCriterion,

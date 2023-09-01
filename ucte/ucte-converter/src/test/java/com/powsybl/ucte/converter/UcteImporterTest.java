@@ -6,12 +6,12 @@
  */
 package com.powsybl.ucte.converter;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
-import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.ucte.converter.util.UcteConstants;
@@ -89,23 +89,17 @@ class UcteImporterTest {
         // Test tie line
         // cannot refer to side of tieline directly cause order of half lines may change
         // at import : due to HashSet iterator on dangling lines ?
-        TieLine tieLine1 = (TieLine) network.getLineStream().filter(Line::isTieLine)
-                .filter(line -> {
-                    TieLine tl = (TieLine) line;
-                    return tl.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") || tl.getHalf2().getId().equals("XB__F_11 B_SU1_11 1");
-                }).findAny().get();
-        String expectedElementName1 = tieLine1.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
-        String expectedElementName2 = tieLine1.getHalf2().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
+        TieLine tieLine1 = network.getTieLineStream()
+                .filter(line -> line.getDanglingLine1().getId().contains("XB__F_11 B_SU1_11 1") || line.getDanglingLine2().getId().contains("XB__F_11 B_SU1_11 1")).findAny().orElseThrow();
+        String expectedElementName1 = tieLine1.getDanglingLine1().getId().contains("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
+        String expectedElementName2 = tieLine1.getDanglingLine2().getId().contains("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
         assertEquals(expectedElementName1, tieLine1.getProperty("elementName_1"));
         assertEquals(expectedElementName2, tieLine1.getProperty("elementName_2"));
 
-        TieLine tieLine2 = (TieLine) network.getLineStream().filter(Line::isTieLine)
-                .filter(line -> {
-                    TieLine tl = (TieLine) line;
-                    return tl.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") || tl.getHalf2().getId().equals("XB__F_21 B_SU1_21 1");
-                }).findAny().get();
-        expectedElementName1 = tieLine2.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
-        expectedElementName2 = tieLine2.getHalf2().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
+        TieLine tieLine2 = network.getTieLineStream()
+                .filter(line -> line.getDanglingLine1().getId().contains("XB__F_21 B_SU1_21 1") || line.getDanglingLine2().getId().contains("XB__F_21 B_SU1_21 1")).findAny().orElseThrow();
+        expectedElementName1 = tieLine2.getDanglingLine1().getId().contains("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
+        expectedElementName2 = tieLine2.getDanglingLine2().getId().contains("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
         assertEquals(expectedElementName1, tieLine2.getProperty("elementName_1"));
         assertEquals(expectedElementName2, tieLine2.getProperty("elementName_2"));
     }
@@ -117,14 +111,12 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
 
         assertEquals(2, network.getVoltageLevelCount());
-        assertEquals(1, network.getDanglingLineCount());
-        assertEquals(1, network.getLineCount());
-        Line l = network.getLineStream().findFirst().orElseThrow(IllegalStateException::new);
+        assertEquals(1, network.getDanglingLineStream(DanglingLineFilter.UNPAIRED).count());
+        assertEquals(1, network.getTieLineCount());
+        TieLine l = network.getTieLineStream().findFirst().orElseThrow(IllegalStateException::new);
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());
-        MergedXnode mergedXnode = l.getExtension(MergedXnode.class);
-        assertNotNull(mergedXnode);
-        assertTrue(l.getCurrentLimits1().isPresent());
-        assertTrue(l.getCurrentLimits2().isPresent());
+        assertTrue(l.getDanglingLine1().getCurrentLimits().isPresent());
+        assertTrue(l.getDanglingLine2().getCurrentLimits().isPresent());
     }
 
     @Test
@@ -231,7 +223,7 @@ class UcteImporterTest {
     void importOfNetworkWithXnodesConnectedToTwoClosedLineMustSucceed() {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeTwoClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
-        assertNotNull(network.getLine("BEBBBB11 XXXXXX11 1 + FFFFFF12 XXXXXX11 1"));
+        assertNotNull(network.getTieLine("BEBBBB11 XXXXXX11 1 + FFFFFF12 XXXXXX11 1"));
         assertNotNull(network.getDanglingLine("FFFFFF11 XXXXXX11 1"));
         assertNotNull(network.getDanglingLine("BEBBBB12 XXXXXX11 1"));
     }
@@ -283,5 +275,13 @@ class UcteImporterTest {
         assertEquals(1.92419, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getAlpha(), 0.001);
         assertEquals(1.00000694, network2.getTwoWindingsTransformer("BBE2AA1  BBE3AA1  1").getPhaseTapChanger().getCurrentStep().getRho(), 0.0000001); // FIXME, symmetrical no impact
     }
-}
 
+    @Test
+    void lineBetweenTwoXnodesTest() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("lineBetweenTwoXnodes", new ResourceSet("/", "lineBetweenTwoXnodes.uct"));
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        UcteImporter importer = new UcteImporter();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> importer.importData(dataSource, networkFactory, null));
+        assertEquals("Line between 2 X-nodes: 'XXNODE11' and 'XXNODE12'", e.getMessage());
+    }
+}

@@ -32,7 +32,7 @@ class CgmesExportContextTest {
     void testExporter() {
         var exporter = new CgmesExport();
         assertEquals("ENTSO-E CGMES version 2.4.15", exporter.getComment());
-        assertEquals(8, exporter.getParameters().size());
+        assertEquals(11, exporter.getParameters().size());
     }
 
     @Test

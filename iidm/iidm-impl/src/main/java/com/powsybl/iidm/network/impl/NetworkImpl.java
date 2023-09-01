@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
-import com.powsybl.iidm.network.util.ReorientedBranchCharacteristics;
 
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -307,7 +306,12 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Iterable<Line> getLines() {
-        return Iterables.concat(index.getAll(LineImpl.class), index.getAll(TieLineImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(LineImpl.class));
+    }
+
+    @Override
+    public Iterable<TieLine> getTieLines() {
+        return Collections.unmodifiableCollection(index.getAll(TieLineImpl.class));
     }
 
     @Override
@@ -316,42 +320,56 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         Branch branch = getLine(branchId);
         if (branch == null) {
             branch = getTwoWindingsTransformer(branchId);
+            if (branch == null) {
+                branch = getTieLine(branchId);
+            }
         }
         return branch;
     }
 
     @Override
     public Iterable<Branch> getBranches() {
-        return Iterables.concat(getLines(), getTwoWindingsTransformers());
+        return Iterables.concat(getLines(), getTwoWindingsTransformers(), getTieLines());
     }
 
     @Override
     public Stream<Branch> getBranchStream() {
-        return Stream.concat(getLineStream(), getTwoWindingsTransformerStream());
+        return Stream.of(getLineStream(), getTwoWindingsTransformerStream(), getTieLineStream()).flatMap(Function.identity());
     }
 
     @Override
     public int getBranchCount() {
-        return getLineCount() + getTwoWindingsTransformerCount();
+        return getLineCount() + getTwoWindingsTransformerCount() + getTieLineCount();
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        return Stream.concat(index.getAll(LineImpl.class).stream(), index.getAll(TieLineImpl.class).stream());
+        return index.getAll(LineImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public Stream<TieLine> getTieLineStream() {
+        return index.getAll(TieLineImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getLineCount() {
-        return index.getAll(LineImpl.class).size() + index.getAll(TieLineImpl.class).size();
+        return index.getAll(LineImpl.class).size();
     }
 
     @Override
-    public LineImpl getLine(String id) {
-        LineImpl line = index.get(id, LineImpl.class);
-        if (line == null) {
-            line = index.get(id, TieLineImpl.class);
-        }
-        return line;
+    public int getTieLineCount() {
+        return index.getAll(TieLineImpl.class).size();
+    }
+
+    @Override
+    public Line getLine(String id) {
+        return index.get(id, LineImpl.class);
+    }
+
+    @Override
+    public TieLine getTieLine(String id) {
+        return index.get(id, TieLineImpl.class);
     }
 
     @Override
@@ -490,13 +508,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return Collections.unmodifiableCollection(index.getAll(DanglingLineImpl.class));
+    public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
+        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return index.getAll(DanglingLineImpl.class).stream().map(Function.identity());
+    public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
+        return index.getAll(DanglingLineImpl.class).stream().filter(danglingLineFilter.getPredicate()).map(Function.identity());
     }
 
     @Override
@@ -885,13 +903,19 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         long start = System.currentTimeMillis();
 
+        // if the validation level of other is lower than the current network's minimum validation level, we can not incorporate it
+        if (other.getValidationLevel().compareTo(getMinValidationLevel()) < 0) {
+            throw new PowsyblException("Network " + other.getNetwork() + " cannot be merged: its validation level " +
+                    "is lower than the minimum acceptable validation level of network " + getId() + " (" +
+                    other.getValidationLevel() + " < " + getMinValidationLevel() + ")");
+        }
+        // update the validation level (without recomputing it)
+        this.validationLevel = ValidationLevel.min(this.getValidationLevel(), other.getValidationLevel());
+
         // check mergeability
         Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
-            if (clazz == DanglingLineImpl.class) { // fine for dangling lines
-                continue;
-            }
             Collection<String> objs = entry.getValue();
             if (!objs.isEmpty()) {
                 throw new PowsyblException("The following object(s) of type "
@@ -901,15 +925,16 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
 
         // try to find dangling lines couples
-        List<MergedLine> lines = new ArrayList<>();
+        List<DanglingLinePair> lines = new ArrayList<>();
         Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
-        for (DanglingLine dl1 : getDanglingLines()) {
+
+        for (DanglingLine dl1 : getDanglingLines(DanglingLineFilter.ALL)) {
             if (dl1.getUcteXnodeCode() != null) {
                 dl1byXnodeCode.computeIfAbsent(dl1.getUcteXnodeCode(), k -> new ArrayList<>()).add(dl1);
             }
         }
-        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
-            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> mergeDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
+        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
+            findAndAssociateDanglingLines(dl2, dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 
         // do not forget to remove the other network from its index!!!
@@ -921,13 +946,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         // fix network back reference of the other network objects
         otherNetwork.ref.setRef(ref);
 
-        Multimap<Boundary, MergedLine> mergedLineByBoundary = HashMultimap.create();
-        replaceDanglingLineByLine(lines, mergedLineByBoundary);
-
-        if (!lines.isEmpty()) {
-            LOGGER.info("{} dangling line couples have been replaced by a line: {}", lines.size(),
-                    mergedLineByBoundary.asMap().entrySet().stream().map(e -> e.getKey() + ": " + e.getValue().size()).collect(Collectors.toList()));
-        }
+        replaceDanglingLineByLine(lines);
 
         // update the source format
         if (!sourceFormat.equals(otherNetwork.sourceFormat)) {
@@ -937,177 +956,58 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
+    private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
         if (dl1 != null) {
             if (dl1.getUcteXnodeCode() != null) {
                 dl1byXnodeCode.get(dl1.getUcteXnodeCode()).remove(dl1);
             }
-
-            // Dangling line 2 must always be reoriented
-            // setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
-            ReorientedBranchCharacteristics brp2 = new ReorientedBranchCharacteristics(dl2.getR(), dl2.getX(), dl2.getG(), dl2.getB(), 0.0, 0.0);
-
-            MergedLine l = new MergedLine();
+            DanglingLinePair l = new DanglingLinePair();
             l.id = buildMergedId(dl1.getId(), dl2.getId());
-            l.aliases = new HashSet<>();
-            l.aliases.add(dl1.getId());
-            l.aliases.add(dl2.getId());
-            l.aliases.addAll(dl1.getAliases());
-            l.aliases.addAll(dl2.getAliases());
-            Terminal t1 = dl1.getTerminal();
-            Terminal t2 = dl2.getTerminal();
-            VoltageLevel vl1 = t1.getVoltageLevel();
-            VoltageLevel vl2 = t2.getVoltageLevel();
-            l.voltageLevel1 = vl1.getId();
-            l.voltageLevel2 = vl2.getId();
-            l.xnode = Optional.ofNullable(dl1.getUcteXnodeCode()).orElseGet(dl2::getUcteXnodeCode);
-            l.half1.id = dl1.getId();
-            l.half1.name = dl1.getOptionalName().orElse(null);
-            l.half1.r = dl1.getR();
-            l.half1.x = dl1.getX();
-            l.half1.g1 = dl1.getG();
-            l.half1.b1 = dl1.getB();
-            l.half1.g2 = 0;
-            l.half1.b2 = 0;
-            l.half1.fictitious = dl1.isFictitious();
-            l.half2.id = dl2.getId();
-            l.half2.name = dl2.getOptionalName().orElse(null);
-            l.half2.r = brp2.getR();
-            l.half2.x = brp2.getX();
-            l.half2.g1 = brp2.getG1();
-            l.half2.b1 = brp2.getB1();
-            l.half2.g2 = brp2.getG2();
-            l.half2.b2 = brp2.getB2();
-            l.half2.fictitious = dl2.isFictitious();
-            l.limits1 = dl1.getCurrentLimits().orElse(null);
-            l.limits2 = dl2.getCurrentLimits().orElse(null);
-            if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                Bus b1 = t1.getBusBreakerView().getBus();
-                if (b1 != null) {
-                    l.bus1 = b1.getId();
-                }
-                l.connectableBus1 = t1.getBusBreakerView().getConnectableBus().getId();
-            } else {
-                l.node1 = t1.getNodeBreakerView().getNode();
-            }
-            if (t2.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                Bus b2 = t2.getBusBreakerView().getBus();
-                if (b2 != null) {
-                    l.bus2 = b2.getId();
-                }
-                l.connectableBus2 = t2.getBusBreakerView().getConnectableBus().getId();
-            } else {
-                l.node2 = t2.getNodeBreakerView().getNode();
-            }
-            l.p1 = t1.getP();
-            l.q1 = t1.getQ();
-            l.p2 = t2.getP();
-            l.q2 = t2.getQ();
-            l.country1 = vl1.getSubstation().flatMap(Substation::getCountry).orElse(null);
-            l.country2 = vl2.getSubstation().flatMap(Substation::getCountry).orElse(null);
-            mergeProperties(dl1, dl2, l.properties);
-            lines.add(l);
+            l.name = buildMergedName(dl1.getId(), dl2.getId(), dl1.getOptionalName().orElse(null), dl2.getOptionalName().orElse(null));
+            l.dl1Id = dl1.getId();
+            l.dl2Id = dl2.getId();
+            l.aliases = new HashMap<>();
+            // No need to merge properties or aliases because we keep the original dangling lines after merge
+            danglingLinePairs.add(l);
 
-            // remove the 2 dangling lines
-            dl1.remove();
-            dl2.remove();
+            if (dl1.getId().equals(dl2.getId())) { // if identical IDs, rename dangling lines
+                ((DanglingLineImpl) dl1).replaceId(l.dl1Id + "_1");
+                ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
+                l.dl1Id = dl1.getId();
+                l.dl2Id = dl2.getId();
+            }
         }
     }
 
-    private void replaceDanglingLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
-        for (MergedLine mergedLine : lines) {
-            LOGGER.debug("Replacing dangling line couple '{}' (xnode={}, country1={}, country2={}) by a line",
-                    mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
-            TieLineAdderImpl la = newTieLine()
-                    .setId(mergedLine.id)
-                    .setName(buildMergedName(mergedLine.half1.id, mergedLine.half2.id, mergedLine.half1.name, mergedLine.half2.name))
-                    .setVoltageLevel1(mergedLine.voltageLevel1)
-                    .setVoltageLevel2(mergedLine.voltageLevel2)
-                    .newHalfLine1().setId(mergedLine.half1.id)
-                    .setName(mergedLine.half1.name)
-                    .setR(mergedLine.half1.r)
-                    .setX(mergedLine.half1.x)
-                    .setG1(mergedLine.half1.g1)
-                    .setG2(mergedLine.half1.g2)
-                    .setB1(mergedLine.half1.b1)
-                    .setB2(mergedLine.half1.b2)
-                    .setFictitious(mergedLine.half1.fictitious)
-                    .add()
-                    .newHalfLine2().setId(mergedLine.half2.id)
-                    .setName(mergedLine.half2.name)
-                    .setR(mergedLine.half2.r)
-                    .setX(mergedLine.half2.x)
-                    .setG1(mergedLine.half2.g1)
-                    .setG2(mergedLine.half2.g2)
-                    .setB1(mergedLine.half2.b1)
-                    .setB2(mergedLine.half2.b2)
-                    .setFictitious(mergedLine.half2.fictitious)
-                    .add()
-                    .setUcteXnodeCode(mergedLine.xnode);
-            if (mergedLine.bus1 != null) {
-                la.setBus1(mergedLine.bus1);
-            }
-            la.setConnectableBus1(mergedLine.connectableBus1);
-            if (mergedLine.bus2 != null) {
-                la.setBus2(mergedLine.bus2);
-            }
-            la.setConnectableBus2(mergedLine.connectableBus2);
-            if (mergedLine.node1 != null) {
-                la.setNode1(mergedLine.node1);
-            }
-            if (mergedLine.node2 != null) {
-                la.setNode2(mergedLine.node2);
-            }
-            TieLineImpl l = la.add();
-            l.getLimitsHolder1().setOperationalLimits(LimitType.CURRENT, mergedLine.limits1);
-            l.getLimitsHolder2().setOperationalLimits(LimitType.CURRENT, mergedLine.limits2);
-            l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
-            l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
-            mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
-            mergedLine.aliases.forEach(l::addAlias);
-
-            mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
+    private void replaceDanglingLineByLine(List<DanglingLinePair> lines) {
+        for (DanglingLinePair danglingLinePair : lines) {
+            LOGGER.debug("Creating tie line '{}' between dangling line couple '{}' and '{}",
+                    danglingLinePair.id, danglingLinePair.dl1Id, danglingLinePair.dl2Id);
+            TieLineImpl l = newTieLine()
+                    .setId(danglingLinePair.id)
+                    .setEnsureIdUnicity(true)
+                    .setName(danglingLinePair.name)
+                    .setDanglingLine1(danglingLinePair.dl1Id)
+                    .setDanglingLine2(danglingLinePair.dl2Id)
+                    .add();
+            danglingLinePair.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
+            danglingLinePair.aliases.forEach((alias, type) -> {
+                if (type.isEmpty()) {
+                    l.addAlias(alias);
+                } else {
+                    l.addAlias(alias, type);
+                }
+            });
         }
     }
 
-    class MergedLine {
+    class DanglingLinePair {
         String id;
-        Set<String> aliases;
-        String voltageLevel1;
-        String voltageLevel2;
-        String xnode;
-        String bus1;
-        String bus2;
-        String connectableBus1;
-        String connectableBus2;
-        Integer node1;
-        Integer node2;
+        String name;
+        String dl1Id;
+        String dl2Id;
+        Map<String, String> aliases;
         Properties properties = new Properties();
-
-        class HalfMergedLine {
-            String id;
-            String name;
-            double r;
-            double x;
-            double g1;
-            double g2;
-            double b1;
-            double b2;
-            boolean fictitious;
-        }
-
-        final HalfMergedLine half1 = new HalfMergedLine();
-        final HalfMergedLine half2 = new HalfMergedLine();
-
-        CurrentLimits limits1;
-        CurrentLimits limits2;
-        double p1;
-        double q1;
-        double p2;
-        double q2;
-
-        Country country1;
-        Country country2;
     }
 
     @Override

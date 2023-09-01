@@ -32,6 +32,10 @@ public interface LoadAdder extends InjectionAdder<Load, LoadAdder> {
 
     LoadAdder setQ0(double q0);
 
+    ZipLoadModelAdder newZipModel();
+
+    ExponentialLoadModelAdder newExponentialModel();
+
     @Override
     Load add();
 

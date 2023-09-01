@@ -32,7 +32,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.importedCgmesNetworkReport;
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
@@ -271,7 +270,7 @@ public class Conversion {
             .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
 
         // Voltage and angle in boundary buses
-        network.getDanglingLines()
+        network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
             .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
     }
 
@@ -404,10 +403,10 @@ public class Conversion {
     }
 
     private void addCimCharacteristics(Network network) {
-        if (cgmes instanceof CgmesModelTripleStore) {
+        if (cgmes instanceof CgmesModelTripleStore cgmesModelTripleStore) {
             network.newExtension(CimCharacteristicsAdder.class)
                     .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
-                    .setCimVersion(((CgmesModelTripleStore) cgmes).getCimVersion())
+                    .setCimVersion(cgmesModelTripleStore.getCimVersion())
                     .add();
         }
     }
@@ -518,6 +517,9 @@ public class Conversion {
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
         vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", vldata.lineId);
+        if (!context.nodeBreaker()) {
+            vl.getBusBreakerView().newBus().setId(vldata.nodeId).add();
+        }
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
@@ -618,11 +620,11 @@ public class Conversion {
             // In some TYNDP there are three acLineSegments at the boundary node,
             // one of them disconnected. The two connected acLineSegments are imported.
             List<BoundaryEquipment> connectedBeqs = beqs.stream()
-                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).collect(Collectors.toList());
+                .filter(beq -> !beq.isAcLineSegmentDisconnected(context)).toList();
             if (connectedBeqs.size() == 2) {
                 convertTwoEquipmentsAtBoundaryNode(context, node, connectedBeqs.get(0), connectedBeqs.get(1));
                 // There can be multiple disconnected ACLineSegment to the same X-node (for example, for planning purposes)
-                beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).collect(Collectors.toList())
+                beqs.stream().filter(beq -> !connectedBeqs.contains(beq)).toList()
                     .forEach(beq -> {
                         context.fixed("convertEquipmentAtBoundaryNode",
                                 String.format("Multiple AcLineSegments at boundary %s. Disconnected AcLineSegment %s is imported as a dangling line.", node, beq.getAcLineSegmentId()));
@@ -684,7 +686,7 @@ public class Conversion {
         network.getHvdcConverterStationStream()
                 .filter(converter -> converter.getHvdcLine() == null)
                 .peek(converter -> context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found."))
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(Connectable::remove);
     }
 

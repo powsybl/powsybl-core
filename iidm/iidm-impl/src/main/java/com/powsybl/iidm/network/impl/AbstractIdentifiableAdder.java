@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.Validable;
 
+import java.util.function.Predicate;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -53,15 +55,19 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
     }
 
     protected String checkAndGetUniqueId() {
+        return checkAndGetUniqueId(getNetwork().getIndex()::contains);
+    }
+
+    protected String checkAndGetUniqueId(Predicate<String> containsId) {
         if (id == null) {
             throw new PowsyblException(getTypeDescription() + " id is not set");
         }
         String uniqueId;
         if (ensureIdUnicity) {
-            uniqueId = Identifiables.getUniqueId(id, getNetwork().getIndex()::contains);
+            uniqueId = Identifiables.getUniqueId(id, containsId);
         } else {
-            if (getNetwork().getIndex().contains(id)) {
-                Identifiable obj = getNetwork().getIndex().get(id);
+            if (containsId.test(id)) {
+                Identifiable<?> obj = getNetwork().getIndex().get(id);
                 throw new PowsyblException("The network " + getNetwork().getId()
                         + " already contains an object '" + obj.getClass().getSimpleName()
                         + "' with the id '" + id + "'");

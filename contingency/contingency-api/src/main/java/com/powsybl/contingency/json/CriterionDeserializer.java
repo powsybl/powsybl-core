@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.Country;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
@@ -107,10 +106,10 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
             case PROPERTY:
                 return new PropertyCriterion(propertyKey, propertyValues, equipmentToCheck, sideToCheck);
             case SINGLE_COUNTRY:
-                return new SingleCountryCriterion(countries.stream().map(Country::valueOf).collect(Collectors.toList()));
+                return new SingleCountryCriterion(countries.stream().map(Country::valueOf).toList());
             case TWO_COUNTRY:
-                return new TwoCountriesCriterion(countries1.stream().map(Country::valueOf).collect(Collectors.toList()),
-                        countries2.stream().map(Country::valueOf).collect(Collectors.toList()));
+                return new TwoCountriesCriterion(countries1.stream().map(Country::valueOf).toList(),
+                        countries2.stream().map(Country::valueOf).toList());
             case SINGLE_NOMINAL_VOLTAGE:
                 return new SingleNominalVoltageCriterion(voltageInterval);
             case TWO_NOMINAL_VOLTAGE:

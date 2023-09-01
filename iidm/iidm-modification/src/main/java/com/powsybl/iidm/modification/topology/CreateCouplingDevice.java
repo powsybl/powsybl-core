@@ -20,7 +20,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.modification.topology.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationLogs.busOrBbsDoesNotExist;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*;
 
 /**
@@ -53,7 +54,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     /**
      * @deprecated Use {@link #getBusOrBbsId1()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.2.0")
     public String getBbsId1() {
         return getBusOrBbsId1();
     }
@@ -65,7 +66,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     /**
      * @deprecated Use {@link #getBusOrBbsId2()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.2.0")
     public String getBbsId2() {
         return getBusOrBbsId2();
     }
@@ -106,10 +107,8 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         if (busOrBbs1 instanceof Bus && busOrBbs2 instanceof Bus) {
             // buses are identifiable: voltage level is BUS_BREAKER
             createBusBreakerSwitch(busOrBbsId1, busOrBbsId2, switchPrefixId, "", voltageLevel1.getBusBreakerView());
-        } else if (busOrBbs1 instanceof BusbarSection && busOrBbs2 instanceof BusbarSection) {
+        } else if (busOrBbs1 instanceof BusbarSection bbs1 && busOrBbs2 instanceof BusbarSection bbs2) {
             // busbar sections exist: voltage level is NODE_BREAKER
-            BusbarSection bbs1 = (BusbarSection) busOrBbs1;
-            BusbarSection bbs2 = (BusbarSection) busOrBbs2;
             int breakerNode1 = voltageLevel1.getNodeBreakerView().getMaximumNodeIndex() + 1;
             int breakerNode2 = breakerNode1 + 1;
             int bbs1Node = bbs1.getTerminal().getNodeBreakerView().getNode();
@@ -175,20 +174,12 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         return false;
     }
 
-    private static void busOrBbsDoesNotExist(String bbsId, Reporter reporter, boolean throwException) {
-        LOGGER.error("Identifiable {} not found.", bbsId);
-        notFoundIdentifiableReport(reporter, bbsId);
-        if (throwException) {
-            throw new PowsyblException(String.format("Identifiable %s not found.", bbsId));
-        }
-    }
-
     private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, Reporter reporter, boolean throwException) {
-        if (identifiable instanceof Bus) {
-            return ((Bus) identifiable).getVoltageLevel();
+        if (identifiable instanceof Bus bus) {
+            return bus.getVoltageLevel();
         }
-        if (identifiable instanceof BusbarSection) {
-            return ((BusbarSection) identifiable).getTerminal().getVoltageLevel();
+        if (identifiable instanceof BusbarSection bbs) {
+            return bbs.getTerminal().getVoltageLevel();
         }
         LOGGER.error("Unexpected type of identifiable {}: {}", identifiable.getId(), identifiable.getType());
         unexpectedIdentifiableType(reporter, identifiable);

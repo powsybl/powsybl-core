@@ -18,9 +18,9 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import com.powsybl.iidm.xml.anonymizer.SimpleAnonymizer;
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.joda.time.DateTime;
@@ -198,8 +198,7 @@ public final class NetworkXml {
     }
 
     private static String getNamespaceUri(ExtensionXmlSerializer extensionXmlSerializer, ExportOptions options, IidmXmlVersion networkVersion) {
-        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer) {
-            AbstractVersionableNetworkExtensionXmlSerializer networkExtensionXmlSerializer = (AbstractVersionableNetworkExtensionXmlSerializer) extensionXmlSerializer;
+        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer<?, ?> networkExtensionXmlSerializer) {
             return options.getExtensionVersion(networkExtensionXmlSerializer.getExtensionName())
                     .map(extensionVersion -> {
                         networkExtensionXmlSerializer.checkWritingCompatibility(extensionVersion, networkVersion);
@@ -237,8 +236,7 @@ public final class NetworkXml {
             return false;
         }
         boolean versionExist = true;
-        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer) {
-            AbstractVersionableNetworkExtensionXmlSerializer networkExtensionXmlSerializer = (AbstractVersionableNetworkExtensionXmlSerializer) extensionXmlSerializer;
+        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer<?, ?> networkExtensionXmlSerializer) {
             versionExist = networkExtensionXmlSerializer.versionExists(version);
         }
         if (!versionExist) {
@@ -282,6 +280,7 @@ public final class NetworkXml {
         writeSubstations(n, context);
         writeTransformers(n, context);
         writeLines(n, context);
+        writeTieLines(n, context);
         writeHvdcLines(n, context);
     }
 
@@ -325,11 +324,17 @@ public final class NetworkXml {
             if (!filter.test(l)) {
                 continue;
             }
-            if (l.isTieLine()) {
-                TieLineXml.INSTANCE.write((TieLine) l, n, context);
-            } else {
-                LineXml.INSTANCE.write(l, n, context);
+            LineXml.INSTANCE.write(l, n, context);
+        }
+    }
+
+    private static void writeTieLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        BusFilter filter = context.getFilter();
+        for (TieLine l : IidmXmlUtil.sorted(n.getTieLines(), context.getOptions())) {
+            if (!filter.test(l)) {
+                continue;
             }
+            TieLineXml.INSTANCE.write(l, n, context);
         }
     }
 

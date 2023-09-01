@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import com.powsybl.commons.config.ModuleConfigRepository;
 import com.powsybl.commons.config.PlatformConfig;
@@ -78,7 +77,7 @@ public class ClassicPlatformConfigProvider implements PlatformConfigProvider {
     static ModuleConfigRepository loadModuleRepository(Path[] configDirs, String configName) {
         List<ModuleConfigRepository> repositoriesFromPath = Arrays.stream(configDirs)
                 .map(configDir -> PlatformConfig.loadModuleRepository(configDir, configName))
-                .collect(Collectors.toList());
+                .toList();
         List<ModuleConfigRepository> repositories = new ArrayList<>();
         repositories.add(new EnvironmentModuleConfigRepository(System.getenv(), FileSystems.getDefault()));
         repositories.addAll(repositoriesFromPath);

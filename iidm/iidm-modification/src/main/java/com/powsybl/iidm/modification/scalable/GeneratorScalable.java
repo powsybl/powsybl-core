@@ -118,15 +118,20 @@ class GeneratorScalable extends AbstractInjectionScalable {
         }
 
         Terminal t = g.getTerminal();
-        if (!t.isConnected() && parameters.isReconnect()) {
-            new ConnectGenerator(g.getId()).apply(n);
-            LOGGER.info("Connecting {}", g.getId());
+        if (!t.isConnected()) {
+            if (parameters.isReconnect()) {
+                new ConnectGenerator(g.getId()).apply(n);
+                LOGGER.info("Connecting {}", g.getId());
+            } else {
+                LOGGER.info("Generator {} is not connected, discarded from scaling", g.getId());
+                return 0.;
+            }
         }
 
         double oldTargetP = g.getTargetP();
         double minimumTargetP = minimumTargetP(g);
         double maximumTargetP = maximumTargetP(g);
-        if (oldTargetP < minimumTargetP || oldTargetP > maximumTargetP) {
+        if (!parameters.isAllowsGeneratorOutOfActivePowerLimits() && (oldTargetP < minimumTargetP || oldTargetP > maximumTargetP)) {
             LOGGER.error("Error scaling GeneratorScalable {}: Initial P is not in the range [Pmin, Pmax], skipped", id);
             return 0.;
         }

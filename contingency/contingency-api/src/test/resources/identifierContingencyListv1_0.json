@@ -15,7 +15,7 @@
     "type" : "LIST",
     "identifierList" : [ {
       "type" : "ID_BASED",
-      "identifier" : "identifier1"
+      "identifier" : "identifier"
     } ]
   } ]
 }

@@ -6,13 +6,14 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.*;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -58,6 +59,13 @@ class CgmesMappingTest extends AbstractConverterTest {
     @Test
     void testExportUsingCgmesNamingStrategyIEEE14() throws IOException {
         testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, "ieee14", "GEN____8_SM");
+    }
+
+    @Test
+    void testExportUsingCgmesNamingStrategyCgmesMicroGrid() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource();
+        Network network = Importers.importData("CGMES", ds, null);
+        testExportUsingCgmesNamingStrategy(NamingStrategyFactory.CGMES, network, "MicroGrid", null, Collections.emptySet(), ds);
     }
 
     @Test
@@ -272,7 +280,7 @@ class CgmesMappingTest extends AbstractConverterTest {
         for (Bus be : buses) {
             // Build an id for the bus based on the concat of ids of connected equipment
             SortedSet<String> eqIds = new TreeSet<>();
-            be.getConnectedTerminals().iterator().forEachRemaining(t -> eqIds.add(t.getConnectable().getId()));
+            be.getConnectedTerminals().iterator().forEachRemaining(t -> eqIds.add(getId(t.getConnectable())));
             // Ignore empty buses
             if (!eqIds.isEmpty()) {
                 String busId = String.join(",", eqIds);
@@ -280,6 +288,14 @@ class CgmesMappingTest extends AbstractConverterTest {
             }
         }
         return busIds;
+    }
+
+    private static String getId(Connectable<?> c) {
+        if (c instanceof DanglingLine) {
+            DanglingLine dl = (DanglingLine) c;
+            return dl.getTieLine().map(TieLine::getId).orElseGet(dl::getId);
+        }
+        return c.getId();
     }
 
     @Test
@@ -321,7 +337,9 @@ class CgmesMappingTest extends AbstractConverterTest {
                 ExportXmlCompare::ignoringFullModelAbout,
                 ExportXmlCompare::ignoringFullModelDependentOn,
                 ExportXmlCompare::ignoringOperationalLimitIds,
-                ExportXmlCompare::ignoringSVIds);
+                ExportXmlCompare::ignoringSVIds,
+                ExportXmlCompare::ignoringLoadAreaIds,
+                ExportXmlCompare::ignoringEnergyAreaIdOfControlArea);
         for (Path file : files) {
             ExportXmlCompare.compareNetworks(file, tmpDir.resolve(export2).resolve(file.getFileName().toString()), knownDiffs);
         }

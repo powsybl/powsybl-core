@@ -39,6 +39,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
             switch (parser.getCurrentName()) {
                 case "version":
                     version = parser.nextTextValue();
+                    deserializationContext.setAttribute("version", version);
                     break;
 
                 case "identifiableType":

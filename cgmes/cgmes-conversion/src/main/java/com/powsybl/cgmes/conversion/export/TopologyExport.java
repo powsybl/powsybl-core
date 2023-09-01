@@ -73,7 +73,7 @@ public final class TopologyExport {
 
     private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             writeBoundaryTerminal(dl, exported, cimNamespace, writer, context);
         }
     }
@@ -139,11 +139,15 @@ public final class TopologyExport {
             return context.getNamingStrategy().getCgmesId(selectedBus.get());
         }
 
-        return context.getNamingStrategy().getCgmesId(nodeSet.stream()
+        String disconnectedBusId = nodeSet.stream()
                 .sorted()
                 .findFirst()
                 .map(selectedNode -> vl.getId() + "_" + selectedNode)
-                .orElseThrow(() -> new PowsyblException("nodeSet is never empty")));
+                .orElseThrow(() -> new PowsyblException("nodeSet is never empty"));
+        if (vl.getNetwork().getIdentifiable(disconnectedBusId) != null) { // can happen, particularly with busbar sections - must be distinct or mRIDs will be identical
+            disconnectedBusId += "_TN";
+        }
+        return context.getNamingStrategy().getCgmesId(disconnectedBusId);
     }
 
     private static void writeTopologicalNode(String tn, String tname, Bus bus, VoltageLevel voltageLevel, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -235,7 +239,10 @@ public final class TopologyExport {
     }
 
     private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+            if (dl.isPaired()) {
+                continue;
+            }
             String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNodeId == null) {
                 // If no information about original boundary has been preserved in the IIDM model,
