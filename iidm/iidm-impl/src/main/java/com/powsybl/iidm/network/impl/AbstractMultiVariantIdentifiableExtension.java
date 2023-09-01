@@ -23,8 +23,8 @@ public abstract class AbstractMultiVariantIdentifiableExtension<T extends Identi
     protected VariantManagerHolder getVariantManagerHolder() {
         Network network = getExtendable().getNetwork();
 
-        if (network instanceof VariantManagerHolder) {
-            return (VariantManagerHolder) network;
+        if (network instanceof VariantManagerHolder variantManagerHolder) {
+            return variantManagerHolder;
         }
 
         throw new UncheckedClassCastExceptionException("network cannot be converted to VariantManagerHolder");

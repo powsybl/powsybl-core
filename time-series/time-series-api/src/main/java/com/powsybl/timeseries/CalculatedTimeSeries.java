@@ -280,8 +280,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CalculatedTimeSeries) {
-            CalculatedTimeSeries other = (CalculatedTimeSeries) obj;
+        if (obj instanceof CalculatedTimeSeries other) {
             return name.equals(other.name) && nodeCalc.equals(other.nodeCalc);
         }
         return false;

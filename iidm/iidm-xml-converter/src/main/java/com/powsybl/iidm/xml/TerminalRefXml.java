@@ -51,6 +51,7 @@ public final class TerminalRefXml {
                     t.getConnectable().getId()));
         }
         writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
+
         TerminalRef.getConnectableSide(t).ifPresent(side -> {
             try {
                 writer.writeAttribute("side", side.name());

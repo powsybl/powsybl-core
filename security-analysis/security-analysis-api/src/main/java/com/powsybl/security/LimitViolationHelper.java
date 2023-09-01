@@ -32,16 +32,13 @@ public final class LimitViolationHelper {
                 // TODO
             }
         }
-        if (identifiable instanceof Branch) {
-            Branch branch = (Branch) identifiable;
+        if (identifiable instanceof Branch<?> branch) {
             return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();
-        } else if (identifiable instanceof Injection) {
-            Injection injection = (Injection) identifiable;
+        } else if (identifiable instanceof Injection<?> injection) {
             return injection.getTerminal().getVoltageLevel();
-        } else if (identifiable instanceof VoltageLevel) {
-            return (VoltageLevel) identifiable;
-        } else if (identifiable instanceof Bus) {
-            Bus bus = (Bus) identifiable;
+        } else if (identifiable instanceof VoltageLevel voltageLevel) {
+            return voltageLevel;
+        } else if (identifiable instanceof Bus bus) {
             return bus.getVoltageLevel();
         } else {
             throw new IllegalStateException("Unexpected identifiable type: " + identifiable.getClass());

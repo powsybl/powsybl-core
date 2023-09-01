@@ -215,7 +215,7 @@ public final class ConnectableXmlUtil {
     /**
      * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, IidmXmlVersion, ExportOptions)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.2.0")
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, IidmXmlVersion version) throws XMLStreamException {
         writeCurrentLimits(index, limits, writer, version, new ExportOptions());
     }
@@ -233,7 +233,7 @@ public final class ConnectableXmlUtil {
     /**
      * @deprecated Use {@link #writeCurrentLimits(Integer, CurrentLimits, XMLStreamWriter, String, IidmXmlVersion, ExportOptions)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "3.2.0")
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version) throws XMLStreamException {
         writeCurrentLimits(index, limits, writer, nsUri, version, new ExportOptions());
     }
