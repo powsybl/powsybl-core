@@ -48,7 +48,6 @@ public class ScalingParameters {
 
     private boolean allowsGeneratorOutOfActivePowerLimits = DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS;
     private ScalingType scalingType = DEFAULT_SCALING_TYPE;
-    private double scalingValue = 0.0;
     private Priority priority = DEFAULT_PRIORITY;
 
     public ScalingParameters() {
@@ -78,15 +77,13 @@ public class ScalingParameters {
     }
 
     public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,
-                             Priority priority, boolean allowsGeneratorOutOfActivePowerLimits, ScalingType scalingType,
-                             double scalingValue) {
+                             Priority priority, boolean allowsGeneratorOutOfActivePowerLimits, ScalingType scalingType) {
         this.scalingConvention = scalingConvention;
         this.reconnect = reconnect;
         this.constantPowerFactor = constantPowerFactor;
         this.priority = priority;
         this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
         this.scalingType = scalingType;
-        this.scalingValue = scalingValue;
     }
 
     /**
@@ -166,18 +163,6 @@ public class ScalingParameters {
 
     public ScalingParameters setScalingType(ScalingType scalingType) {
         this.scalingType = scalingType;
-        return this;
-    }
-
-    /**
-     * @return the power value configured for the scaling.
-     */
-    public Double getScalingValue() {
-        return scalingValue;
-    }
-
-    public ScalingParameters setScalingValue(double scalingValue) {
-        this.scalingValue = scalingValue;
         return this;
     }
 
