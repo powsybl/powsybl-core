@@ -13,7 +13,6 @@ import java.util.Objects;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VOLUME;
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.DistributionMode.REGULAR_DISTRIBUTION;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 
 /**
@@ -22,16 +21,6 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingTy
 public class ScalingParameters {
 
     public static final String VERSION = "1.1";
-
-    public enum DistributionMode {
-        PROPORTIONAL_TO_TARGETP,
-        PROPORTIONAL_TO_PMAX,
-        PROPORTIONAL_TO_DIFF_PMAX_TARGETP,
-        PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
-        PROPORTIONAL_TO_P0,
-        REGULAR_DISTRIBUTION,
-        STACKING_UP
-    }
 
     public enum ScalingType {
         DELTA_P,
@@ -49,7 +38,6 @@ public class ScalingParameters {
     public static final boolean DEFAULT_RECONNECT = false;
     public static final boolean DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS = false;
     public static final Priority DEFAULT_PRIORITY = ONESHOT;
-    public static final DistributionMode DEFAULT_DISTRIBUTION_MODE = REGULAR_DISTRIBUTION;
     public static final ScalingType DEFAULT_SCALING_TYPE = DELTA_P;
 
     private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
@@ -59,8 +47,6 @@ public class ScalingParameters {
     private boolean constantPowerFactor = DEFAULT_CONSTANT_POWER_FACTOR;
 
     private boolean allowsGeneratorOutOfActivePowerLimits = DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS;
-
-    private DistributionMode distributionMode = DEFAULT_DISTRIBUTION_MODE;
     private ScalingType scalingType = DEFAULT_SCALING_TYPE;
     private double scalingValue = 0.0;
     private Priority priority = DEFAULT_PRIORITY;
@@ -92,15 +78,13 @@ public class ScalingParameters {
     }
 
     public ScalingParameters(Scalable.ScalingConvention scalingConvention, boolean reconnect, boolean constantPowerFactor,
-                             Priority priority, boolean allowsGeneratorOutOfActivePowerLimits,
-                             DistributionMode distributionMode, ScalingType scalingType,
+                             Priority priority, boolean allowsGeneratorOutOfActivePowerLimits, ScalingType scalingType,
                              double scalingValue) {
         this.scalingConvention = scalingConvention;
         this.reconnect = reconnect;
         this.constantPowerFactor = constantPowerFactor;
         this.priority = priority;
         this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
-        this.distributionMode = distributionMode;
         this.scalingType = scalingType;
         this.scalingValue = scalingValue;
     }
@@ -170,18 +154,6 @@ public class ScalingParameters {
 
     public ScalingParameters setAllowsGeneratorOutOfActivePowerLimits(boolean allowsGeneratorOutOfActivePowerLimits) {
         this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
-        return this;
-    }
-
-    /**
-     * @return the mode of distribution used to allocate the power to the different elements (loads, generators, etc.)
-     */
-    public DistributionMode getDistributionMode() {
-        return distributionMode;
-    }
-
-    public ScalingParameters setDistributionMode(DistributionMode distributionMode) {
-        this.distributionMode = distributionMode;
         return this;
     }
 

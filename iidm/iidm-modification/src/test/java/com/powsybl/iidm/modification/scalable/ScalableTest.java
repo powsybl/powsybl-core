@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.powsybl.iidm.modification.scalable.Scalable.ScalingConvention.*;
-import static com.powsybl.iidm.modification.scalable.Scalable.getVariationAsked;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetwork;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VOLUME;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.*;
@@ -571,23 +570,5 @@ class ScalableTest {
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-3);
         assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-3);
         assertEquals(70.0, network.getGenerator("g3").getTargetP(), 1e-3);
-    }
-
-    @Test
-    void testGetVariationAsked() {
-        assertEquals(
-            100.0,
-            getVariationAsked(new ScalingParameters()
-                .setScalingValue(100.0)
-                .setScalingType(DELTA_P),
-                new AtomicReference<>(80.0)),
-            0.0);
-        assertEquals(
-            20.0,
-            getVariationAsked(new ScalingParameters()
-                    .setScalingValue(100.0)
-                    .setScalingType(TARGET_P),
-                new AtomicReference<>(80.0)),
-            0.0);
     }
 }

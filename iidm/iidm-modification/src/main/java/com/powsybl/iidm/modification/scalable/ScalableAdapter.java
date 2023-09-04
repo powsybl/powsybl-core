@@ -20,6 +20,11 @@ class ScalableAdapter extends AbstractScalable {
         this.id = Objects.requireNonNull(id);
     }
 
+    public ScalableAdapter(Injection injection) {
+        Objects.requireNonNull(injection);
+        this.id = injection.getId();
+    }
+
     private Scalable getScalable(Network n) {
         Objects.requireNonNull(n);
         Identifiable identifiable = n.getIdentifiable(id);

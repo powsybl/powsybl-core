@@ -6,10 +6,12 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VENTILATION;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VOLUME;
@@ -23,12 +25,20 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.
 class ProportionalScalable extends AbstractCompoundScalable {
     private static final double EPSILON = 1e-2;
 
+    public enum DistributionMode {
+        PROPORTIONAL_TO_PMAX,
+        PROPORTIONAL_TO_DIFF_PMAX_TARGETP,
+        PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
+        PROPORTIONAL_TO_P0,
+        UNIFORM_DISTRIBUTION
+    }
+
     static final class ScalablePercentage {
         private final Scalable scalable;
-        private final float percentage;
+        private final double percentage;
         private double iterationPercentage;
 
-        ScalablePercentage(Scalable scalable, float percentage) {
+        ScalablePercentage(Scalable scalable, double percentage) {
             this.scalable = scalable;
             this.percentage = percentage;
             this.iterationPercentage = percentage;
@@ -38,7 +48,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
             return scalable;
         }
 
-        float getPercentage() {
+        double getPercentage() {
             return percentage;
         }
 
@@ -66,11 +76,68 @@ class ProportionalScalable extends AbstractCompoundScalable {
         this.scalablePercentageList = new ArrayList<>();
     }
 
-    ProportionalScalable(List<Float> percentages, List<Scalable> scalables) {
+    ProportionalScalable(List<Double> percentages, List<Scalable> scalables) {
         checkPercentages(percentages, scalables);
         this.scalablePercentageList = new ArrayList<>();
         for (int i = 0; i < scalables.size(); i++) {
             this.scalablePercentageList.add(new ScalablePercentage(scalables.get(i), percentages.get(i)));
+        }
+    }
+
+    public ProportionalScalable(List<Injection> injections, DistributionMode distributionMode) {
+        List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
+        double totalDistribution = computeTotalDistribution(injections, distributionMode);
+        List<Double> percentages = injections.stream().map(injection -> getIndividualDistribution(injection, distributionMode) / totalDistribution).toList();
+        checkPercentages(percentages, injectionScalables);
+        this.scalablePercentageList = new ArrayList<>();
+        for (int i = 0; i < injectionScalables.size(); i++) {
+            this.scalablePercentageList.add(new ScalablePercentage(injectionScalables.get(i), percentages.get(i)));
+        }
+    }
+
+    private double computeTotalDistribution(List<Injection> injections, DistributionMode distributionMode) {
+        return injections.stream().mapToDouble(injection -> getIndividualDistribution(injection, distributionMode)).sum();
+    }
+
+    private double getIndividualDistribution(Injection injection, DistributionMode distributionMode) {
+        return switch (distributionMode) {
+            case PROPORTIONAL_TO_P0 -> getTargetP(injection);
+            case PROPORTIONAL_TO_PMAX -> getMaxP(injection);
+            case PROPORTIONAL_TO_DIFF_PMAX_TARGETP -> getMaxP(injection) - getTargetP(injection);
+            case PROPORTIONAL_TO_DIFF_TARGETP_PMIN -> getTargetP(injection) - getMinP(injection);
+            case UNIFORM_DISTRIBUTION -> 1;
+        };
+    }
+
+    private double getTargetP(Injection injection) {
+        if (injection instanceof Load load) {
+            return load.getP0();
+        } else if (injection instanceof Generator generator) {
+            return generator.getTargetP();
+        } else if (injection instanceof DanglingLine danglingLine) {
+            return danglingLine.getP0();
+        } else {
+            throw new PowsyblException("Unable to create a scalable from " + injection.getClass());
+        }
+    }
+
+    private double getMaxP(Injection injection) {
+        if (injection instanceof Generator generator) {
+            return generator.getMaxP();
+        } else if (injection instanceof Load || injection instanceof DanglingLine) {
+            throw new PowsyblException("Injection types and distribution mode used are incompatible");
+        } else {
+            throw new PowsyblException("Unable to create a scalable from " + injection.getClass());
+        }
+    }
+
+    private double getMinP(Injection injection) {
+        if (injection instanceof Generator generator) {
+            return generator.getMinP();
+        } else if (injection instanceof Load || injection instanceof DanglingLine) {
+            throw new PowsyblException("Injection types and distribution mode used are incompatible");
+        } else {
+            throw new PowsyblException("Unable to create a scalable from " + injection.getClass());
         }
     }
 
@@ -82,7 +149,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
         return scalablePercentageList;
     }
 
-    private static void checkPercentages(List<Float> percentages, List<Scalable> scalables) {
+    private static void checkPercentages(List<Double> percentages, List<Scalable> scalables) {
         Objects.requireNonNull(percentages);
         Objects.requireNonNull(scalables);
 
@@ -92,7 +159,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
         if (scalables.isEmpty()) {
             return;
         }
-        if (percentages.stream().anyMatch(p -> Float.isNaN(p))) {
+        if (percentages.stream().anyMatch(p -> Double.isNaN(p))) {
             throw new IllegalArgumentException("There is at least one undefined percentage");
         }
         double sum = percentages.stream().mapToDouble(Double::valueOf).sum();
