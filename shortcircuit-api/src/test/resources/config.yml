@@ -11,7 +11,7 @@ short-circuit-parameters:
   with-vsc-converter-stations: false
   with-neutral-position: true
   initial-voltage-profile-mode: "CONFIGURED"
-  configured-initial-voltage-range-coefficients:
+  voltage-range-data:
     - 380 - 420 -> 1
     - 215 - 235 -> 1.2
     - 80 - 100 -> 1.05

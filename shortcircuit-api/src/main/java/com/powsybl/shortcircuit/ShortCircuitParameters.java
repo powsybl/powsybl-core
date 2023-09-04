@@ -82,7 +82,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
 
     private static List<VoltageRangeData> getCoefficientsFromConfig(ModuleConfig config) {
         List<VoltageRangeData> coefficients = new ArrayList<>();
-        config.getOptionalStringListProperty("configured-initial-voltage-range-coefficients").ifPresent(voltageCoefficients ->
+        config.getOptionalStringListProperty("voltage-range-data").ifPresent(voltageCoefficients ->
                 voltageCoefficients.forEach(coefficient -> {
                     String[] voltageCoefficientArray = coefficient.trim().split("->");
                     String[] voltages = voltageCoefficientArray[0].split("-");
