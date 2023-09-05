@@ -375,7 +375,7 @@ public final class EurostagTutorialExample1Factory {
      *             an infinite value temporary limit, which make overload detection
      *             malfunction.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     public static Network createWithCurrentLimits() {
         Network network = createWithFixedCurrentLimits();
         Line line = network.getLine("NHV1_NHV2_1");

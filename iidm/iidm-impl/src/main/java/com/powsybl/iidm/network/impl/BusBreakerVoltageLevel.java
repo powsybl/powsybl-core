@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.math.graph.UndirectedGraphImpl;
 import com.powsybl.math.graph.UndirectedGraphListener;
@@ -244,7 +245,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 if (!encountered[v]) {
                     final Set<ConfiguredBus> busSet = new LinkedHashSet<>(1);
                     busSet.add(graph.getVertexObject(v));
-                    graph.traverse(v, (v1, e, v2) -> {
+                    graph.traverse(v, TraversalType.DEPTH_FIRST, (v1, e, v2) -> {
                         SwitchImpl aSwitch = graph.getEdgeObject(e);
                         if (aSwitch.isOpen()) {
                             return TraverseResult.TERMINATE_PATH;
@@ -691,7 +692,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public void traverse(Bus bus, TopologyTraverser traverser) {
-            graph.traverse(getVertex(bus.getId(), true), adapt(traverser));
+            graph.traverse(getVertex(bus.getId(), true), TraversalType.DEPTH_FIRST, adapt(traverser));
         }
     };
 
@@ -943,8 +944,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser) {
-        traverse(terminal, traverser, new HashSet<>());
+    void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, TraversalType traversalType) {
+        traverse(terminal, traverser, new HashSet<>(), traversalType);
     }
 
     /**
@@ -953,7 +954,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
      * @return false if the traverser has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
+    boolean traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> visitedTerminals, TraversalType traversalType) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(visitedTerminals);
@@ -979,7 +980,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             // then go through other buses of the voltage level
-            boolean traversalTerminated = !graph.traverse(v, (v1, e, v2) -> {
+            boolean traversalTerminated = !graph.traverse(v, traversalType, (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 List<BusTerminal> otherBusTerminals = graph.getVertexObject(v2).getTerminals();
                 TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
@@ -998,7 +999,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             for (TerminalExt t : nextTerminals) {
-                if (!t.traverse(traverser, visitedTerminals)) {
+                if (!t.traverse(traverser, visitedTerminals, traversalType)) {
                     return false;
                 }
             }

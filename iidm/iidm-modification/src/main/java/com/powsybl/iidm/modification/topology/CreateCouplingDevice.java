@@ -54,7 +54,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     /**
      * @deprecated Use {@link #getBusOrBbsId1()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.2.0")
     public String getBbsId1() {
         return getBusOrBbsId1();
     }
@@ -66,7 +66,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     /**
      * @deprecated Use {@link #getBusOrBbsId2()} instead.
      */
-    @Deprecated
+    @Deprecated(since = "5.2.0")
     public String getBbsId2() {
         return getBusOrBbsId2();
     }
