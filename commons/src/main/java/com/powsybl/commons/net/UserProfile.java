@@ -43,8 +43,7 @@ public class UserProfile {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UserProfile) {
-            UserProfile profile = (UserProfile) obj;
+        if (obj instanceof UserProfile profile) {
             return profile.firstName.equals(firstName) && profile.lastName.equals(lastName);
         }
         return false;

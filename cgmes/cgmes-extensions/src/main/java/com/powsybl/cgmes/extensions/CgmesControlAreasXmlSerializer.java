@@ -111,12 +111,10 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                 case "boundary":
                     id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
                     Identifiable identifiable = network.getIdentifiable(id);
-                    if (identifiable instanceof DanglingLine) {
-                        DanglingLine dl = (DanglingLine) identifiable;
+                    if (identifiable instanceof DanglingLine dl) {
                         cgmesControlArea.add(dl.getBoundary());
-                    } else if (identifiable instanceof TieLine) {
+                    } else if (identifiable instanceof TieLine tl) {
                         side = networkContext.getReader().getAttributeValue(null, "side");
-                        TieLine tl = (TieLine) identifiable;
                         cgmesControlArea.add(tl.getDanglingLine(Branch.Side.valueOf(side)).getBoundary());
                     } else {
                         throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());

@@ -45,12 +45,17 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void xnodeNonCompatible() {
+    public void failMergeValidationLevelLowerThanMin() {
+        n1.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         addSubstationAndVoltageLevel();
-        addDanglingLines("dl", "code", "dl", "deco");
-        merge.merge(n1);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n2));
-        assertTrue(e.getMessage().contains("Dangling line couple dl have inconsistent Xnodes (code!=deco)"));
+        n1.getVoltageLevel("vl1").newLoad()
+                .setId("unchecked1")
+                .setBus("b1")
+                .setConnectableBus("b1")
+                .add();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n1));
+        assertTrue(e.getMessage().contains("cannot be merged: its validation level is lower than the minimum acceptable " +
+                "validation level of network"));
     }
 
     @Test
@@ -64,14 +69,11 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void testMergeSameId() {
+    public void failMergeDanglingLinesWithSameId() {
         addSubstationAndVoltageLevel();
         addDanglingLines("dl", null, "dl", "code");
-        merge.merge(n1, n2);
-        assertNotNull(merge.getTieLine("dl"));
-        assertEquals("dl", merge.getTieLine("dl").getId());
-        assertEquals("dl_name", merge.getTieLine("dl").getOptionalName().orElse(null));
-        assertEquals("dl_name", merge.getTieLine("dl").getNameOrId());
+        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n1, n2));
+        assertTrue(e.getMessage().contains("The following object(s) of type DanglingLineImpl exist(s) in both networks: [dl]"));
     }
 
     private void addSubstation(Network network, String substationId) {

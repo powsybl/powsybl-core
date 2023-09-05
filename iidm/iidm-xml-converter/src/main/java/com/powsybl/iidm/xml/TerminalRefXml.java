@@ -50,11 +50,9 @@ public final class TerminalRefXml {
         if (c.getTerminals().size() > 1) {
             if (c instanceof Injection) {
                 // nothing to do
-            } else if (c instanceof Branch) {
-                Branch branch = (Branch) c;
+            } else if (c instanceof Branch<?> branch) {
                 writer.writeAttribute("side", branch.getSide(t).name());
-            } else if (c instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) c;
+            } else if (c instanceof ThreeWindingsTransformer twt) {
                 writer.writeAttribute("side", twt.getSide(t).name());
             } else {
                 throw new IllegalStateException("Unexpected Connectable instance: " + c.getClass());
@@ -67,13 +65,12 @@ public final class TerminalRefXml {
         if (identifiable == null) {
             throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
         }
-        if (identifiable instanceof Injection) {
-            return ((Injection) identifiable).getTerminal();
-        } else if (identifiable instanceof Branch) {
-            return side.equals(Branch.Side.ONE.name()) ? ((Branch) identifiable).getTerminal1()
-                    : ((Branch) identifiable).getTerminal2();
-        } else if (identifiable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
+        if (identifiable instanceof Injection<?> injection) {
+            return injection.getTerminal();
+        } else if (identifiable instanceof Branch<?> branch) {
+            return side.equals(Branch.Side.ONE.name()) ? branch.getTerminal1()
+                    : branch.getTerminal2();
+        } else if (identifiable instanceof ThreeWindingsTransformer twt) {
             return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
         } else {
             throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
