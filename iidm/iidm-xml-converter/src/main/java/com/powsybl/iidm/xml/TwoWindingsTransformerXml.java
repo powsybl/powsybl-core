@@ -101,11 +101,11 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected TwoWindingsTransformerAdder createAdder(Container<? extends Identifiable<?>> c) {
-        if (c instanceof Network) {
-            return ((Network) c).newTwoWindingsTransformer();
+        if (c instanceof Network network) {
+            return network.newTwoWindingsTransformer();
         }
-        if (c instanceof Substation) {
-            return ((Substation) c).newTwoWindingsTransformer();
+        if (c instanceof Substation substation) {
+            return substation.newTwoWindingsTransformer();
         }
         throw new IllegalStateException();
     }

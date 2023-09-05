@@ -41,8 +41,7 @@ public class HvdcLineContingency extends AbstractSidedContingency {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof HvdcLineContingency) {
-            HvdcLineContingency other = (HvdcLineContingency) obj;
+        if (obj instanceof HvdcLineContingency other) {
             return id.equals(other.id) && Objects.equals(voltageLevelId, other.voltageLevelId);
         }
         return false;
