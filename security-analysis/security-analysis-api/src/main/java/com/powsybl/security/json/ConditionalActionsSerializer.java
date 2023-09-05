@@ -3,18 +3,18 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.security.strategy.OperatorStrategyStage;
+import com.powsybl.security.strategy.ConditionalActions;
 
 import java.io.IOException;
 
-public class OperatorStrategyStageSerializer extends StdSerializer<OperatorStrategyStage> {
+public class ConditionalActionsSerializer extends StdSerializer<ConditionalActions> {
 
-    public OperatorStrategyStageSerializer() {
-        super(OperatorStrategyStage.class);
+    public ConditionalActionsSerializer() {
+        super(ConditionalActions.class);
     }
 
     @Override
-    public void serialize(OperatorStrategyStage operatorStrategyStage, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ConditionalActions operatorStrategyStage, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("id", operatorStrategyStage.getId());
         serializerProvider.defaultSerializeField("condition", operatorStrategyStage.getCondition(), jsonGenerator);

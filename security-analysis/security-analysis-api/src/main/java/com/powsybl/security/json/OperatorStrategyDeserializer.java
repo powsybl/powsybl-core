@@ -19,7 +19,7 @@ import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.security.condition.Condition;
 import com.powsybl.security.strategy.OperatorStrategy;
-import com.powsybl.security.strategy.OperatorStrategyStage;
+import com.powsybl.security.strategy.ConditionalActions;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -46,7 +46,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
         String id;
         ContingencyContextType contingencyContextType;
         String contingencyId;
-        List<OperatorStrategyStage> stages;
+        List<ConditionalActions> stages;
         Condition condition;
         List<String> actionIds;
         List<Extension<OperatorStrategy>> extensions = Collections.emptyList();
@@ -76,7 +76,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                     parser.nextToken();
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
                             context.version, "1.5");
-                    context.stages = JsonUtil.readList(deserializationContext, parser, OperatorStrategyStage.class);
+                    context.stages = JsonUtil.readList(deserializationContext, parser, ConditionalActions.class);
                     return true;
                 case "condition":
                     parser.nextToken();

@@ -5,15 +5,15 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.condition.Condition;
-import com.powsybl.security.strategy.OperatorStrategyStage;
+import com.powsybl.security.strategy.ConditionalActions;
 
 import java.io.IOException;
 import java.util.List;
 
-public class OperatorStrategyStageDeserializer extends StdDeserializer<OperatorStrategyStage> {
+public class ConditionalActionsDeserializer extends StdDeserializer<ConditionalActions> {
 
-    public OperatorStrategyStageDeserializer() {
-        super(OperatorStrategyStage.class);
+    public ConditionalActionsDeserializer() {
+        super(ConditionalActions.class);
     }
 
     private static class ParsingContext {
@@ -23,8 +23,8 @@ public class OperatorStrategyStageDeserializer extends StdDeserializer<OperatorS
     }
 
     @Override
-    public OperatorStrategyStage deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        OperatorStrategyStageDeserializer.ParsingContext context = new OperatorStrategyStageDeserializer.ParsingContext();
+    public ConditionalActions deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        ConditionalActionsDeserializer.ParsingContext context = new ConditionalActionsDeserializer.ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {
                 case "id":
@@ -43,6 +43,6 @@ public class OperatorStrategyStageDeserializer extends StdDeserializer<OperatorS
                     return false;
             }
         });
-        return new OperatorStrategyStage(context.id, context.condition, context.actionIds);
+        return new ConditionalActions(context.id, context.condition, context.actionIds);
     }
 }

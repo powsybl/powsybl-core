@@ -25,7 +25,7 @@ import com.powsybl.security.condition.AnyViolationCondition;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
-import com.powsybl.security.strategy.OperatorStrategyStage;
+import com.powsybl.security.strategy.ConditionalActions;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -130,21 +130,21 @@ class JsonActionAndOperatorStrategyTest extends AbstractConverterTest {
     void operatorStrategyRoundTrip() throws IOException {
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
         operatorStrategies.add(new OperatorStrategy("id1", ContingencyContext.specificContingency("contingencyId1"),
-                List.of(new OperatorStrategyStage("stage1", new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3")))));
+                List.of(new ConditionalActions("stage1", new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3")))));
         operatorStrategies.add(new OperatorStrategy("id2", ContingencyContext.specificContingency("contingencyId2"),
-                List.of(new OperatorStrategyStage("stage1", new AnyViolationCondition(), List.of("actionId4")))));
+                List.of(new ConditionalActions("stage1", new AnyViolationCondition(), List.of("actionId4")))));
         operatorStrategies.add(new OperatorStrategy("id3", ContingencyContext.specificContingency("contingencyId1"),
-                List.of(new OperatorStrategyStage("stage1", new AnyViolationCondition(Collections.singleton(CURRENT)),
+                List.of(new ConditionalActions("stage1", new AnyViolationCondition(Collections.singleton(CURRENT)),
                 Arrays.asList("actionId1", "actionId3")))));
         operatorStrategies.add(new OperatorStrategy("id4", ContingencyContext.specificContingency("contingencyId3"),
-                List.of(new OperatorStrategyStage("stage1", new AnyViolationCondition(Collections.singleton(LOW_VOLTAGE)),
+                List.of(new ConditionalActions("stage1", new AnyViolationCondition(Collections.singleton(LOW_VOLTAGE)),
                 Arrays.asList("actionId1", "actionId2", "actionId4")))));
         operatorStrategies.add(new OperatorStrategy("id5", ContingencyContext.specificContingency("contingencyId4"),
-                List.of(new OperatorStrategyStage("stage1", new AllViolationCondition(Arrays.asList("violation1", "violation2"),
+                List.of(new ConditionalActions("stage1", new AllViolationCondition(Arrays.asList("violation1", "violation2"),
                         Collections.singleton(HIGH_VOLTAGE)),
                 Arrays.asList("actionId1", "actionId5")))));
         operatorStrategies.add(new OperatorStrategy("id6", ContingencyContext.specificContingency("contingencyId5"),
-                List.of(new OperatorStrategyStage("stage1", new AllViolationCondition(Arrays.asList("violation1", "violation2")),
+                List.of(new ConditionalActions("stage1", new AllViolationCondition(Arrays.asList("violation1", "violation2")),
                 List.of("actionId3")))));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);
         roundTripTest(operatorStrategyList, OperatorStrategyList::write, OperatorStrategyList::read, "/OperatorStrategyFileTest.json");

@@ -28,7 +28,7 @@ import java.util.Objects;
 public class OperatorStrategy extends AbstractExtendable<OperatorStrategy> {
     private final String id;
     private final ContingencyContext contingencyContext;
-    private final List<OperatorStrategyStage> stages;
+    private final List<ConditionalActions> stages;
 
     /**
      * Single stage operator strategy
@@ -40,7 +40,7 @@ public class OperatorStrategy extends AbstractExtendable<OperatorStrategy> {
     public OperatorStrategy(String id, ContingencyContext contingencyContext, Condition condition, List<String> actionIds) {
         this.id = Objects.requireNonNull(id);
         this.contingencyContext = Objects.requireNonNull(contingencyContext);
-        this.stages = List.of(new OperatorStrategyStage("default", condition, actionIds));
+        this.stages = List.of(new ConditionalActions("default", condition, actionIds));
     }
 
     /**
@@ -49,7 +49,7 @@ public class OperatorStrategy extends AbstractExtendable<OperatorStrategy> {
      * @param contingencyContext The contingency context in which to apply the operator strategy
      * @param stages The list of stages for this operator strategy
      */
-    public OperatorStrategy(String id, ContingencyContext contingencyContext, List<OperatorStrategyStage> stages) {
+    public OperatorStrategy(String id, ContingencyContext contingencyContext, List<ConditionalActions> stages) {
         this.id = Objects.requireNonNull(id);
         this.contingencyContext = Objects.requireNonNull(contingencyContext);
         this.stages = ImmutableList.copyOf(Objects.requireNonNull(stages));
@@ -69,7 +69,7 @@ public class OperatorStrategy extends AbstractExtendable<OperatorStrategy> {
         return contingencyContext;
     }
 
-    public List<OperatorStrategyStage> getStages() {
+    public List<ConditionalActions> getStages() {
         return stages;
     }
 }

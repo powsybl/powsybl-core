@@ -5,7 +5,7 @@ import com.powsybl.security.condition.Condition;
 import java.util.List;
 import java.util.Objects;
 
-public class OperatorStrategyStage {
+public class ConditionalActions {
 
     private final String id;
 
@@ -13,7 +13,7 @@ public class OperatorStrategyStage {
 
     private final List<String> actionIds;
 
-    public OperatorStrategyStage(String id, Condition condition, List<String> actionIds) {
+    public ConditionalActions(String id, Condition condition, List<String> actionIds) {
         this.id = Objects.requireNonNull(id);
         this.condition = Objects.requireNonNull(condition);
         this.actionIds = Objects.requireNonNull(actionIds);

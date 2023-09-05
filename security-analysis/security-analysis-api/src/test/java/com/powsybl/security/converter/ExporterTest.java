@@ -21,7 +21,7 @@ import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.results.*;
-import com.powsybl.security.strategy.OperatorStrategyStage;
+import com.powsybl.security.strategy.ConditionalActions;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -74,7 +74,7 @@ class ExporterTest extends AbstractConverterTest {
         operatorStrategyResults.add(
                 new OperatorStrategyResult(
                         new OperatorStrategy("strategyId", ContingencyContext.specificContingency("contingency1"),
-                                List.of(new OperatorStrategyStage("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),
+                                List.of(new ConditionalActions("stage1", new AtLeastOneViolationCondition(Collections.singletonList("violationId1")), Collections.singletonList("actionId1")))),
                         PostContingencyComputationStatus.CONVERGED,
                         new LimitViolationsResult(Collections.emptyList()),
                         new NetworkResult(Collections.emptyList(), Collections.emptyList(), Collections.emptyList())));
