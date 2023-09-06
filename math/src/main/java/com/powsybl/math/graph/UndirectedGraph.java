@@ -122,7 +122,7 @@ public interface UndirectedGraph<V, E> {
      *
      * @deprecated Use {@link #getVertexCapacity} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     default int getMaxVertex() {
         return getVertexCapacity();
     }
@@ -274,28 +274,28 @@ public interface UndirectedGraph<V, E> {
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(int v, Traverser traverser, boolean[] encountered);
+    boolean traverse(int v, TraversalType traversalType, Traverser traverser, boolean[] encountered);
 
     /**
      * Traverse the entire graph, starting at the specified vertex v.
-     * This method allocates a boolean array and calls {@link #traverse(int, Traverser, boolean[])}.
+     * This method allocates a boolean array and calls {@link #traverse(int, TraversalType, Traverser, boolean[])}.
      * @param v the vertex index where the traverse has to start.
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(int v, Traverser traverser);
+    boolean traverse(int v, TraversalType traversalType, Traverser traverser);
 
     /**
      * Traverse the entire graph, starting at each vertex index of the specified vertices array v.
-     * This method allocates a boolean array and calls {@link #traverse(int, Traverser, boolean[])} for each entry of
+     * This method allocates a boolean array and calls {@link #traverse(int, TraversalType, Traverser, boolean[])} for each entry of
      * the array.
      * @param v the array of vertex indices where the traverse has to start.
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
      * @return false if the whole traversing has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(int[] v, Traverser traverser);
+    boolean traverse(int[] v, TraversalType traversalType, Traverser traverser);
 
     /**
      * Find all paths from the specified vertex.
