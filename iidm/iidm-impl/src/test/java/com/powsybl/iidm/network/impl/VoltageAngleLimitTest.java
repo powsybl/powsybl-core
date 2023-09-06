@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.TerminalRef.Side;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -31,14 +30,14 @@ class VoltageAngleLimitTest {
 
         network.newVoltageAngleLimit()
         .setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
-            .from(TerminalRef.create("LINE_S2S3", Side.ONE))
-            .to(TerminalRef.create("LINE_S2S3", Side.TWO))
+            .from(network.getLine("LINE_S2S3").getTerminal1())
+            .to(network.getLine("LINE_S2S3").getTerminal2())
             .setHighLimit(1.0)
             .add();
 
         network.newVoltageAngleLimit().setName("VOLTAGE_ANGLE_LIMIT_LD1_LD6")
-            .from(TerminalRef.create("LD1"))
-            .to(TerminalRef.create("LD6"))
+            .from(network.getLoad("LD1").getTerminal())
+            .to(network.getLoad("LD6").getTerminal())
             .setLowLimit(1.0)
             .add();
 
@@ -68,51 +67,12 @@ class VoltageAngleLimitTest {
     }
 
     @Test
-    void badSwitchVoltageAngleLimitTest() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
-
-        VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
-            .setName("VOLTAGE_ANGLE_LIMIT_S1VL1_LD1_BREAKER")
-            .from(TerminalRef.create("S1VL1_LD1_BREAKER", Side.ONE))
-            .to(TerminalRef.create("S1VL1_LD1_BREAKER", Side.TWO))
-            .setHighLimit(1.0);
-        PowsyblException e = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("Unexpected terminal reference identifiable instance: class com.powsybl.iidm.network.impl.SwitchImpl", e.getMessage());
-    }
-
-    @Test
-    void badBranchSideVoltageAngleLimitTest() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
-
-        VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
-            .setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
-            .from(TerminalRef.create("LINE_S2S3", Side.ONE))
-            .to(TerminalRef.create("LINE_S2S3", Side.THREE))
-            .setHighLimit(1.0);
-        IllegalStateException e = assertThrows(IllegalStateException.class, adder::add);
-        assertEquals("Unexpected Branch side: THREE", e.getMessage());
-    }
-
-    @Test
-    void badIdentifiableSideVoltageAngleLimitTest() {
-        Network network = FourSubstationsNodeBreakerFactory.create();
-
-        VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
-            .setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
-            .from(TerminalRef.create("LIN_S2S3", Side.ONE))
-            .to(TerminalRef.create("LINE_S2S3", Side.THREE))
-            .setHighLimit(1.0);
-        PowsyblException e = assertThrows(PowsyblException.class, adder::add);
-        assertEquals("Terminal reference identifiable not found: 'LIN_S2S3'", e.getMessage());
-    }
-
-    @Test
     void noNameLimitVoltageAngleLimitTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
 
         VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
-                .from(TerminalRef.create("LINE_S2S3", Side.ONE))
-                .to(TerminalRef.create("LINE_S2S3", Side.TWO));
+                .from(network.getLine("LINE_S2S3").getTerminal1())
+                .to(network.getLine("LINE_S2S3").getTerminal2());
         IllegalStateException e = assertThrows(IllegalStateException.class, adder::add);
         assertEquals("Voltage angle limit name is mandatory.", e.getMessage());
     }
@@ -123,8 +83,8 @@ class VoltageAngleLimitTest {
 
         VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
                 .setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
-                .from(TerminalRef.create("LINE_S2S3", Side.ONE))
-                .to(TerminalRef.create("LINE_S2S3", Side.TWO))
+                .from(network.getLine("LINE_S2S3").getTerminal1())
+                .to(network.getLine("LINE_S2S3").getTerminal2())
                 .setLowLimit(20.0)
                 .setHighLimit(-20.0);
         IllegalStateException e = assertThrows(IllegalStateException.class, adder::add);

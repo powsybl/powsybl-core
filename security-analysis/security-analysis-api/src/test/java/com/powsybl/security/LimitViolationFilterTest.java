@@ -16,7 +16,6 @@ import java.util.List;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TerminalRef;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -86,8 +85,8 @@ class LimitViolationFilterTest {
         network.newVoltageAngleLimit()
                 .setName("val")
                 .setHighLimit(0.25)
-                .from(TerminalRef.create("LINE1", TerminalRef.Side.ONE))
-                .to(TerminalRef.create("LINE1", TerminalRef.Side.TWO))
+                .from(network.getLine("LINE1").getTerminal1())
+                .to(network.getLine("LINE1").getTerminal2())
                 .add();
 
         LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 1000.0, 1, 1100.0, Branch.Side.ONE);

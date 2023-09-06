@@ -17,9 +17,7 @@ import com.powsybl.contingency.*;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TerminalRef;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.iidm.network.TerminalRef.Side;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
@@ -102,8 +100,8 @@ class SecurityAnalysisTest {
                 .add();
         network.newVoltageAngleLimit()
             .setName("VoltageAngleLimit_NHV1_NHV2_1")
-            .from(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
-            .to(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
+            .from(network.getLine("NHV1_NHV2_1").getTerminal1())
+            .to(network.getLine("NHV1_NHV2_1").getTerminal2())
             .setLowLimit(-0.25)
             .setHighLimit(0.25)
             .add();

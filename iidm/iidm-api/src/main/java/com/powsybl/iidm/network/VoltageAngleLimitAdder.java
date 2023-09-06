@@ -16,9 +16,9 @@ public interface VoltageAngleLimitAdder extends OperationalLimitsAdder<VoltageAn
 
     VoltageAngleLimitAdder setName(String name);
 
-    VoltageAngleLimitAdder from(TerminalRef from);
+    VoltageAngleLimitAdder from(Terminal from);
 
-    VoltageAngleLimitAdder to(TerminalRef to);
+    VoltageAngleLimitAdder to(Terminal to);
 
     VoltageAngleLimitAdder setLowLimit(double lowLimit);
 

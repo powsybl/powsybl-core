@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.TerminalRef.Side;
 
 import org.joda.time.DateTime;
 
@@ -850,22 +849,22 @@ public final class EurostagTutorialExample1Factory {
 
         network.newVoltageAngleLimit()
             .setName("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_1")
-            .from(TerminalRef.create("NHV1_NHV2_1", Side.ONE))
-            .to(TerminalRef.create("NHV1_NHV2_1", Side.TWO))
+            .from(network.getLine("NHV1_NHV2_1").getTerminal1())
+            .to(network.getLine("NHV1_NHV2_1").getTerminal2())
             .setHighLimit(0.25)
             .add();
 
         network.newVoltageAngleLimit()
             .setName("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_2")
-            .from(TerminalRef.create("NHV1_NHV2_2", Side.ONE))
-            .to(TerminalRef.create("NHV1_NHV2_2", Side.TWO))
+            .from(network.getLine("NHV1_NHV2_2").getTerminal1())
+            .to(network.getLine("NHV1_NHV2_2").getTerminal2())
             .setLowLimit(0.20)
             .add();
 
         network.newVoltageAngleLimit()
             .setName("VOLTAGE_ANGLE_LIMIT_NGEN_NHV1")
-            .from(TerminalRef.create("GEN"))
-            .to(TerminalRef.create("NGEN_NHV1", Side.TWO))
+            .from(network.getGenerator("GEN").getTerminal())
+            .to(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2())
             .setLowLimit(-0.20)
             .setHighLimit(0.35)
             .add();

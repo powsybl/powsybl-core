@@ -27,7 +27,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TerminalRef;
-import com.powsybl.iidm.network.TerminalRef.Side;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageAngleLimit;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -195,8 +194,8 @@ class MergeTest {
 
         network.newVoltageAngleLimit()
             .setName("VoltageAngleLimit_Line-2-2_Dl-3")
-            .from(TerminalRef.create(id("Line-2-2", nid), Side.ONE))
-            .to(TerminalRef.create(id("Dl-3", nid)))
+            .from(network.getLine(id("Line-2-2", nid)).getTerminal1())
+            .to(network.getDanglingLine(id("Dl-3", nid)).getTerminal())
             .setHighLimit(0.25)
             .add();
 
