@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -106,7 +107,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                 throw new UncheckedIOException(e);
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     private void readExtensions(PlatformConfig platformConfig) {
