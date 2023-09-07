@@ -64,7 +64,7 @@ public final class TerminalRefXml {
 
     // FIXME(Luma) write and read are not exactly symmetrical at this point
     // write terminal ref writes the name of the Branch.Side or ThreeWindingTransformer.Side,
-    // but read is interpreting this name as TerminalRef.Side, that unifies both names
+    // but read is interpreting this name as ThreeSides
     public static Terminal readTerminal(NetworkXmlReaderContext context, Network n) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, ID));
         String side = context.getReader().getAttributeValue(null, SIDE);
