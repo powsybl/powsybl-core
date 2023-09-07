@@ -12,9 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.InitialVoltageProfileMode;
-import com.powsybl.shortcircuit.ShortCircuitParameters;
-import com.powsybl.shortcircuit.StudyType;
+import com.powsybl.shortcircuit.*;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -112,7 +110,8 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                 }
                 case "voltageRangeData" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
-                    parameters.setVoltageRangeData(new VoltageRangeDataDeserializer().deserialize(parser));
+                    parser.nextToken();
+                    parameters.setVoltageRangeData(JsonUtil.readList(deserializationContext, parser, VoltageRangeData.class));
                 }
                 case "extensions" -> {
                     parser.nextToken();

@@ -6,15 +6,24 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
+import com.powsybl.shortcircuit.json.VoltageRangeDataDeserializer;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
 import static com.powsybl.shortcircuit.VoltageRangeData.checkVoltageRangeData;
@@ -72,7 +81,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithVSCConverterStations(config.getBooleanProperty("with-vsc-converter-stations", DEFAULT_WITH_VSC_CONVERTER_STATIONS))
                         .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION))
                         .setInitialVoltageProfileMode(config.getEnumProperty("initial-voltage-profile-mode", InitialVoltageProfileMode.class, DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE))
-                        .setVoltageRangeData(getCoefficientsFromConfig(config)));
+                        .setVoltageRangeData(getCoefficientsFromConfig(config, platformConfig)));
 
         parameters.validate();
         parameters.readExtensions(platformConfig);
@@ -80,16 +89,24 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return parameters;
     }
 
-    private static List<VoltageRangeData> getCoefficientsFromConfig(ModuleConfig config) {
-        List<VoltageRangeData> coefficients = new ArrayList<>();
-        config.getOptionalStringListProperty("voltage-range-data").ifPresent(voltageCoefficients ->
-                voltageCoefficients.forEach(coefficient -> {
-                    String[] voltageCoefficientArray = coefficient.trim().split("->");
-                    String[] voltages = voltageCoefficientArray[0].split("-");
-                    coefficients.add(new VoltageRangeData(Double.parseDouble(voltages[0]), Double.parseDouble(voltages[1]), Double.parseDouble(voltageCoefficientArray[1])));
-                }));
-        return coefficients;
-
+    private static List<VoltageRangeData> getCoefficientsFromConfig(ModuleConfig config, PlatformConfig platformConfig) {
+        Optional<String> optionalVoltageRangeDataPath = config.getOptionalStringProperty("voltage-range-data");
+        if (optionalVoltageRangeDataPath.isPresent()) {
+            Path voltageRangeDataPath = platformConfig.getConfigDir()
+                    .map(dir -> dir.resolve(optionalVoltageRangeDataPath.get()))
+                    .orElseThrow(() -> new PowsyblException("Voltage range data file inaccessible from config directory"));
+            ObjectMapper mapper = new ObjectMapper();
+            SimpleModule module = new SimpleModule();
+            module.addDeserializer(VoltageRangeData.class, new VoltageRangeDataDeserializer());
+            mapper.registerModule(module);
+            try (InputStream is = Files.newInputStream(voltageRangeDataPath)) {
+                return mapper.readValue(is, new TypeReference<>() {
+                });
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+        return null;
     }
 
     private void readExtensions(PlatformConfig platformConfig) {

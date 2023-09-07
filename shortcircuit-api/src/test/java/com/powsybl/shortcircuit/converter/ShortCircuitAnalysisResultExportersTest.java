@@ -16,7 +16,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -128,5 +130,15 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractConverterTest {
     void roundTripJsonFailedResults() throws IOException {
         ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(new FailedFaultResult(new BusFault("id", "elementId"), FaultResult.Status.FAILURE)));
         roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-failed-result.json");
+    }
+
+    @Test
+    void roundTripWithMultipleFeederResults() throws IOException {
+        List<FeederResult> feederResults = new ArrayList<>();
+        feederResults.add(new MagnitudeFeederResult("connectableId1", 10));
+        feederResults.add(new MagnitudeFeederResult("connectableId2", 20));
+        MagnitudeFaultResult faultResult = new MagnitudeFaultResult(new BusFault("faultId", "busId"), 100, feederResults, Collections.EMPTY_LIST, 200, FaultResult.Status.SUCCESS);
+        ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(Collections.singletonList(faultResult));
+        roundTripTest(result, this::writeJson, ShortCircuitAnalysisResultDeserializer::read, "/shortcircuit-multiple-feeder-results.json");
     }
 }

@@ -122,7 +122,8 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                 }
                 case "voltageRangeData" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
-                    coefficients = new VoltageRangeDataDeserializer().deserialize(parser);
+                    parser.nextToken();
+                    coefficients = JsonUtil.readList(deserializationContext, parser, VoltageRangeData.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }

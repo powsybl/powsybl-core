@@ -9,44 +9,44 @@ package com.powsybl.shortcircuit.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.shortcircuit.VoltageRangeData;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class VoltageRangeDataDeserializer {
+public class VoltageRangeDataDeserializer extends StdDeserializer<VoltageRangeData> {
 
-    public List<VoltageRangeData> deserialize(JsonParser parser) throws IOException {
-        List<VoltageRangeData> coefficientList = new ArrayList<>();
-        parser.nextToken();
-        while (parser.nextToken() != JsonToken.END_ARRAY) {
-            Double minimumVoltage = Double.NaN;
-            Double maximumVoltage = Double.NaN;
-            Double coefficient = Double.NaN;
+    public VoltageRangeDataDeserializer() {
+        super(VoltageRangeData.class);
+    }
 
-            while (parser.nextToken() != JsonToken.END_OBJECT) {
-                switch (parser.getCurrentName()) {
-                    case "minimumNominalVoltage" -> {
-                        parser.nextToken();
-                        minimumVoltage = parser.readValueAs(Double.class);
-                    }
-                    case "maximumNominalVoltage" -> {
-                        parser.nextToken();
-                        maximumVoltage = parser.readValueAs(Double.class);
-                    }
-                    case "voltageRangeCoefficient" -> {
-                        parser.nextToken();
-                        coefficient = parser.readValueAs(Double.class);
-                    }
-                    default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+    public VoltageRangeData deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+        Double minimumVoltage = Double.NaN;
+        Double maximumVoltage = Double.NaN;
+        Double coefficient = Double.NaN;
+
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            switch (parser.getCurrentName()) {
+                case "minimumNominalVoltage" -> {
+                    parser.nextToken();
+                    minimumVoltage = parser.readValueAs(Double.class);
                 }
+                case "maximumNominalVoltage" -> {
+                    parser.nextToken();
+                    maximumVoltage = parser.readValueAs(Double.class);
+                }
+                case "voltageRangeCoefficient" -> {
+                    parser.nextToken();
+                    coefficient = parser.readValueAs(Double.class);
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
-            coefficientList.add(new VoltageRangeData(minimumVoltage, maximumVoltage, coefficient));
         }
-        return coefficientList;
+
+        return new VoltageRangeData(minimumVoltage, maximumVoltage, coefficient);
     }
 }

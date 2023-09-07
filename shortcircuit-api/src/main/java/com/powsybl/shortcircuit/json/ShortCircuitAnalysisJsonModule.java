@@ -36,5 +36,6 @@ public class ShortCircuitAnalysisJsonModule extends SimpleModule {
         addSerializer(FaultParameters.class, new FaultParametersSerializer());
         addDeserializer(FaultParameters.class, new FaultParametersDeserializer());
         addSerializer(VoltageRangeData.class, new VoltageRangeDataSerializer());
+        addDeserializer(VoltageRangeData.class, new VoltageRangeDataDeserializer());
     }
 }

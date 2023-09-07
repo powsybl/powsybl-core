@@ -190,8 +190,10 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
     void testConfigLoader() throws IOException {
         Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
         Path cfgFile = cfgDir.resolve("config.yml");
+        Path voltageDataFile = cfgDir.resolve("voltage-range-data.json");
 
         Files.copy(getClass().getResourceAsStream("/config.yml"), cfgFile);
+        Files.copy(getClass().getResourceAsStream("/voltage-range-data.json"), voltageDataFile);
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
         assertFalse(parameters.isWithLimitViolations());
