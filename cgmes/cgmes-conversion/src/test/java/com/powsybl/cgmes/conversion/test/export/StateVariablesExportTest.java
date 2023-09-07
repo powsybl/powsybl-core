@@ -289,13 +289,13 @@ class StateVariablesExportTest extends AbstractConverterTest {
         Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
 
         // check
-        TwoWindingsTransformer t2wta = network.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        TwoWindingsTransformer t2wta = actual.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
         assertNotNull(t2wta.getRatioTapChanger());
         assertEquals(t2wt.getRatioTapChanger().getTapPosition(), t2wta.getRatioTapChanger().getTapPosition());
         assertNotNull(t2wta.getPhaseTapChanger());
         assertEquals(t2wt.getPhaseTapChanger().getTapPosition(), t2wta.getPhaseTapChanger().getTapPosition());
 
-        ThreeWindingsTransformer t3wta = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
+        ThreeWindingsTransformer t3wta = actual.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
         assertNotNull(t3wta.getLeg1().getRatioTapChanger());
         assertEquals(t3wt.getLeg1().getRatioTapChanger().getTapPosition(), t3wta.getLeg1().getRatioTapChanger().getTapPosition());
         assertNotNull(t3wta.getLeg1().getPhaseTapChanger());
