@@ -12,10 +12,7 @@ import javax.xml.stream.XMLStreamException;
 
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TerminalRef;
-import com.powsybl.iidm.network.VoltageAngleLimit;
-import com.powsybl.iidm.network.VoltageAngleLimitAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 /**
@@ -79,11 +76,11 @@ public final class VoltageAngleLimitXml {
             }
             XmlUtil.readUntilEndElement(VOLTAGE_ANGLE_LIMIT, context.getReader(), () -> {
                 if (context.getReader().getLocalName().equals(FROM)) {
-                    TerminalRef from = TerminalRefXml.readTerminalRef(context);
-                    adder.from(TerminalRef.resolve(from.getId(), from.getSide(), network));
+                    Terminal from = TerminalRefXml.readTerminal(context, network);
+                    adder.from(from);
                 } else if (context.getReader().getLocalName().equals(TO)) {
-                    TerminalRef to = TerminalRefXml.readTerminalRef(context);
-                    adder.to(TerminalRef.resolve(to.getId(), to.getSide(), network));
+                    Terminal to = TerminalRefXml.readTerminal(context, network);
+                    adder.to(to);
                 }
             });
 

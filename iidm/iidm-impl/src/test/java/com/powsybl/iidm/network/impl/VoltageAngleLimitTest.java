@@ -8,13 +8,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.TerminalRef.Side;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.powsybl.iidm.network.util.TerminalUtil;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -47,20 +47,20 @@ class VoltageAngleLimitTest {
         assertEquals("VOLTAGE_ANGLE_LIMIT_LINE_S2S3", val0.getName());
 
         assertEquals("LINE_S2S3", val0.getTerminalFrom().getConnectable().getId());
-        assertTrue(TerminalRef.getConnectableSide(val0.getTerminalFrom()).isPresent());
-        TerminalRef.getConnectableSide(val0.getTerminalFrom()).ifPresent(side -> assertEquals(Side.ONE, side));
+        assertTrue(TerminalUtil.getConnectableSide(val0.getTerminalFrom()).isPresent());
+        TerminalUtil.getConnectableSide(val0.getTerminalFrom()).ifPresent(side -> assertEquals(ThreeSides.ONE, side));
         assertEquals("LINE_S2S3", val0.getTerminalTo().getConnectable().getId());
-        assertTrue(TerminalRef.getConnectableSide(val0.getTerminalTo()).isPresent());
-        TerminalRef.getConnectableSide(val0.getTerminalTo()).ifPresent(side -> assertEquals(Side.TWO, side));
+        assertTrue(TerminalUtil.getConnectableSide(val0.getTerminalTo()).isPresent());
+        TerminalUtil.getConnectableSide(val0.getTerminalTo()).ifPresent(side -> assertEquals(ThreeSides.TWO, side));
         assertTrue(val0.getHighLimit().isPresent());
         assertTrue(val0.getLowLimit().isEmpty());
         assertEquals(1.0, val0.getHighLimit().get());
 
         VoltageAngleLimit val1 = network.getVoltageAngleLimits().get(1);
         assertEquals("LD1", val1.getTerminalFrom().getConnectable().getId());
-        assertTrue(TerminalRef.getConnectableSide(val1.getTerminalFrom()).isEmpty());
+        assertTrue(TerminalUtil.getConnectableSide(val1.getTerminalFrom()).isEmpty());
         assertEquals("LD6", val1.getTerminalTo().getConnectable().getId());
-        assertTrue(TerminalRef.getConnectableSide(val1.getTerminalTo()).isEmpty());
+        assertTrue(TerminalUtil.getConnectableSide(val1.getTerminalTo()).isEmpty());
         assertTrue(val1.getLowLimit().isPresent());
         assertTrue(val1.getHighLimit().isEmpty());
         assertEquals(1.0, val1.getLowLimit().get());
