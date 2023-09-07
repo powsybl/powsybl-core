@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -13,6 +14,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
+import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -235,6 +237,58 @@ class StateVariablesExportTest extends AbstractConverterTest {
         String sv = exportSvAsString(network, 2);
         String hiddenTapChangerId = "_6ebbef67-3061-4236-a6fd-6ccc4595f6c3-x";
         assertTrue(sv.contains(hiddenTapChangerId));
+    }
+
+    @Test
+    void cgmes3MiniGridwithTransformersWithRtcAndPtc() throws IOException, XMLStreamException {
+
+        Network network = ConversionUtil.networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
+
+        // Add a PTC
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        twt.newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0)
+                .beginStep()
+                .setR(0.0)
+                .setX(0.0)
+                .setB(0)
+                .setG(0)
+                .setRho(1.0)
+                .setAlpha(20)
+                .endStep()
+                .add();
+        // Change the RTC tap position and add a PTC
+        ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
+        t3wt.getLeg1().getRatioTapChanger().setTapPosition(16);
+        t3wt.getLeg1().newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(1)
+                .beginStep()
+                .setR(0.0)
+                .setX(0.0)
+                .setB(0)
+                .setG(0)
+                .setRho(1.0)
+                .setAlpha(10)
+                .endStep()
+                .beginStep()
+                .setR(0.0)
+                .setX(0.0)
+                .setB(0)
+                .setG(0)
+                .setRho(1.0)
+                .setAlpha(20)
+                .endStep()
+                .add();
+
+        // as all the tap positions are unique we check that RTC and PTC tap positions are in the sv file
+        String sv = exportSvAsString(network, 2);
+        assertTrue(sv.contains("<cim:SvTapStep.position>13</cim:SvTapStep.position>"));
+        assertTrue(sv.contains("<cim:SvTapStep.position>0</cim:SvTapStep.position>"));
+
+        assertTrue(sv.contains("<cim:SvTapStep.position>16</cim:SvTapStep.position>"));
+        assertTrue(sv.contains("<cim:SvTapStep.position>1</cim:SvTapStep.position>"));
     }
 
     private static Network importNetwork(ReadOnlyDataSource ds) {
