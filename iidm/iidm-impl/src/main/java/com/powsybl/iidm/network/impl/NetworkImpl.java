@@ -67,6 +67,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
 
         @Override
+        public int getBusCount() {
+            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getBusCount()).sum();
+        }
+
+        @Override
         public Iterable<Switch> getSwitches() {
             return FluentIterable.from(getVoltageLevels())
                     .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
