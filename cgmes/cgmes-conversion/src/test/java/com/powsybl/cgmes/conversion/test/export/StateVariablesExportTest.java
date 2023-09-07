@@ -10,6 +10,7 @@ import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
@@ -17,6 +18,7 @@ import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.xml.XmlUtil;
@@ -31,10 +33,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -44,8 +43,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -245,8 +243,8 @@ class StateVariablesExportTest extends AbstractConverterTest {
         Network network = ConversionUtil.networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
 
         // Add a PTC
-        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
-        twt.newPhaseTapChanger()
+        TwoWindingsTransformer t2wt = network.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        t2wt.newPhaseTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(0)
                 .beginStep()
@@ -260,7 +258,6 @@ class StateVariablesExportTest extends AbstractConverterTest {
                 .add();
         // Change the RTC tap position and add a PTC
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
-        t3wt.getLeg1().getRatioTapChanger().setTapPosition(16);
         t3wt.getLeg1().newPhaseTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(1)
@@ -282,13 +279,36 @@ class StateVariablesExportTest extends AbstractConverterTest {
                 .endStep()
                 .add();
 
-        // as all the tap positions are unique we check that RTC and PTC tap positions are in the sv file
-        String sv = exportSvAsString(network, 2);
-        assertTrue(sv.contains("<cim:SvTapStep.position>13</cim:SvTapStep.position>"));
-        assertTrue(sv.contains("<cim:SvTapStep.position>0</cim:SvTapStep.position>"));
+        // Export as cgmes
+        Path outputPath = Files.createTempDirectory("temp.cgmesExport");
+        String baseName = "minGridWithTransformersWithRTCAndPtc";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
 
-        assertTrue(sv.contains("<cim:SvTapStep.position>16</cim:SvTapStep.position>"));
-        assertTrue(sv.contains("<cim:SvTapStep.position>1</cim:SvTapStep.position>"));
+        // re-import after adding the original boundary files
+        copyBoundary(outputPath, baseName, Cgmes3Catalog.miniGrid().dataSource());
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+
+        // check
+        TwoWindingsTransformer t2wta = network.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        assertNotNull(t2wta.getRatioTapChanger());
+        assertEquals(t2wt.getRatioTapChanger().getTapPosition(), t2wta.getRatioTapChanger().getTapPosition());
+        assertNotNull(t2wta.getPhaseTapChanger());
+        assertEquals(t2wt.getPhaseTapChanger().getTapPosition(), t2wta.getPhaseTapChanger().getTapPosition());
+
+        ThreeWindingsTransformer t3wta = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
+        assertNotNull(t3wta.getLeg1().getRatioTapChanger());
+        assertEquals(t3wt.getLeg1().getRatioTapChanger().getTapPosition(), t3wta.getLeg1().getRatioTapChanger().getTapPosition());
+        assertNotNull(t3wta.getLeg1().getPhaseTapChanger());
+        assertEquals(t3wt.getLeg1().getPhaseTapChanger().getTapPosition(), t3wta.getLeg1().getPhaseTapChanger().getTapPosition());
+    }
+
+    private void copyBoundary(Path outputFolder, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
+        String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
+        if (eqbd != null) {
+            try (InputStream is = originalDataSource.newInputStream(eqbd)) {
+                Files.copy(is, outputFolder.resolve(baseName + "_EQ_BD.xml"));
+            }
+        }
     }
 
     private static Network importNetwork(ReadOnlyDataSource ds) {
