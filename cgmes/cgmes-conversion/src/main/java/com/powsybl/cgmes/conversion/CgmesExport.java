@@ -83,6 +83,7 @@ public class CgmesExport implements Exporter {
                 NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)))
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
+                .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
                 .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER, referenceDataProvider))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER, referenceDataProvider))
@@ -218,6 +219,7 @@ public class CgmesExport implements Exporter {
     public static final String PROFILES = "iidm.export.cgmes.profiles";
     public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
     public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
+    public static final String EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1 = "iidm.export.cgmes.export-transformers-with-highest-voltage-at-end1";
     public static final String SOURCING_ACTOR = "iidm.export.cgmes.sourcing-actor";
     private static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
 
@@ -285,6 +287,12 @@ public class CgmesExport implements Exporter {
             "Sourcing actor name (for CGM business processes)",
             null);
 
+    private static final Parameter EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER = new Parameter(
+            EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1,
+            ParameterType.BOOLEAN,
+            "Export transformers with highest voltage at end1",
+            CgmesExportContext.EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
             CIM_VERSION_PARAMETER,
@@ -296,6 +304,7 @@ public class CgmesExport implements Exporter {
             BOUNDARY_TP_ID_PARAMETER,
             MODELING_AUTHORITY_SET_PARAMETER,
             MODEL_DESCRIPTION_PARAMETER,
+            EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER,
             SOURCING_ACTOR_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);

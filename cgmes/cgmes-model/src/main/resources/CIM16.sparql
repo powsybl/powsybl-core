@@ -386,9 +386,11 @@ WHERE {
 { GRAPH ?graph {
     ?Switch
         a ?type ;
-        cim:IdentifiedObject.name ?name ;
         cim:Equipment.EquipmentContainer ?EquipmentContainer .
     VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector } .
+    OPTIONAL {
+        ?Switch cim:IdentifiedObject.name ?name ;
+    }
     OPTIONAL {
         ?Switch cim:Switch.retained ?retained
     }

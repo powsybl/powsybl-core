@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.math.graph.TraversalType;
 import com.powsybl.math.graph.TraverseResult;
 
 /**
@@ -173,6 +174,13 @@ public interface Terminal {
      * @param traverser traversal handler
      */
     void traverse(TopologyTraverser traverser);
+
+    /**
+     * Traverse the full network topology graph.
+     * @param traverser traversal handler
+     * @param traversalType traversal type
+     */
+    void traverse(TopologyTraverser traverser, TraversalType traversalType);
 
     /**
      * Topology traversal handler

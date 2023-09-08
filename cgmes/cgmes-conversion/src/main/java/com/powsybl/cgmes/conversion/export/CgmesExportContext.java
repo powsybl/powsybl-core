@@ -58,11 +58,11 @@ public class CgmesExportContext {
 
     public static final boolean EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE = true;
     public static final boolean EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE = true;
+    public static final boolean EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE = false;
     public static final boolean ENCODE_IDS_DEFAULT_VALUE = true;
-    public static final double MAXIMUM_DOUBLE_DEFAULT_VALUE = Double.MAX_VALUE;
-
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
+    private boolean exportTransformersWithHighestVoltageAtEnd1 = EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
@@ -674,6 +674,15 @@ public class CgmesExportContext {
 
     public CgmesExportContext setExportFlowsForSwitches(boolean exportFlowsForSwitches) {
         this.exportFlowsForSwitches = exportFlowsForSwitches;
+        return this;
+    }
+
+    public boolean exportTransformersWithHighestVoltageAtEnd1() {
+        return exportTransformersWithHighestVoltageAtEnd1;
+    }
+
+    public CgmesExportContext setExportTransformersWithHighestVoltageAtEnd1(boolean exportTransformersWithHighestVoltageAtEnd1) {
+        this.exportTransformersWithHighestVoltageAtEnd1 = exportTransformersWithHighestVoltageAtEnd1;
         return this;
     }
 
