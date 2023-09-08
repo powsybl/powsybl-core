@@ -6,13 +6,15 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -189,7 +191,7 @@ public interface Scalable {
         return Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
     }
 
-    static ProportionalScalable proportional(List<Injection> injections, ProportionalScalable.DistributionMode distributionMode) {
+    static ProportionalScalable proportional(List<? extends Injection> injections, ProportionalScalable.DistributionMode distributionMode) {
         return new ProportionalScalable(injections, distributionMode);
     }
 
@@ -226,6 +228,11 @@ public interface Scalable {
         return new StackScalable(injectionScalables);
     }
 
+    static StackScalable stack(List<? extends Injection<?>> injections) {
+        List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(injectionScalables);
+    }
+
     static StackScalable stack(Scalable... scalables) {
         return new StackScalable(scalables);
     }
@@ -237,5 +244,29 @@ public interface Scalable {
 
     static UpDownScalable upDown(Scalable upScalable, Scalable downScalable) {
         return new UpDownScalable(upScalable, downScalable);
+    }
+
+    /**
+     * Returns the value that has to be added to the network, depending on the type of variation chosen in the parameters
+     * @param scalingParameters Scaling parameters including a variation type (DELTA_P or TARGET_P) and a variation value
+     * @param currentGlobalPower current global power
+     * @return the variation value if the type is DELTA_P, else the difference between the variation value and the current global value sum
+     */
+    static double getVariationAsked(ScalingParameters scalingParameters, double askedValue, double currentGlobalPower) {
+        return scalingParameters.getScalingType() == DELTA_P
+            ? askedValue
+            : askedValue - currentGlobalPower;
+    }
+
+    static double getCurrentPower(Injection injection) {
+        if (injection instanceof Generator generator) {
+            return generator.getTargetP();
+        } else if (injection instanceof Load load ) {
+            return load.getP0();
+        } else if (injection instanceof DanglingLine danglingLine) {
+            return danglingLine.getP0();
+        } else {
+            throw new PowsyblException(String.format("Unable to create a scalable from %s", injection.getClass()));
+        }
     }
 }

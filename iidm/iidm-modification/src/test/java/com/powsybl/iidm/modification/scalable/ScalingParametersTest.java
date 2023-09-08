@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
 
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.DistributionMode.*;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.*;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.TARGET_P;
@@ -55,10 +54,10 @@ class ScalingParametersTest {
     @Test
     void fullConstructorTest() {
         ScalingParameters parameters = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-                true, true, VOLUME, true);
+                true, true, RESPECT_OF_VOLUME_ASKED, true);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertTrue(parameters.isConstantPowerFactor());
-        assertEquals(VOLUME, parameters.getPriority());
+        assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
     }
@@ -66,16 +65,14 @@ class ScalingParametersTest {
     @Test
     void fullSecondConstructorTest() {
         ScalingParameters parameters = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-            true, true, VOLUME, true,
-            PROPORTIONAL_TO_P0, DELTA_P, 100.0);
+            true, true, RESPECT_OF_VOLUME_ASKED, true,
+            DELTA_P);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertTrue(parameters.isConstantPowerFactor());
-        assertEquals(VOLUME, parameters.getPriority());
+        assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
-        assertEquals(PROPORTIONAL_TO_P0, parameters.getDistributionMode());
         assertEquals(DELTA_P, parameters.getScalingType());
-        assertEquals(100.0, parameters.getScalingValue(), 0.0);
     }
 
     @Test
@@ -83,20 +80,16 @@ class ScalingParametersTest {
         ScalingParameters parameters = new ScalingParameters()
                 .setScalingConvention(Scalable.ScalingConvention.LOAD)
                 .setConstantPowerFactor(true)
-                .setPriority(VOLUME)
+                .setPriority(RESPECT_OF_VOLUME_ASKED)
                 .setReconnect(true)
                 .setAllowsGeneratorOutOfActivePowerLimits(true)
-                .setDistributionMode(PROPORTIONAL_TO_P0)
-                .setScalingType(TARGET_P)
-                .setScalingValue(100.0);
+                .setScalingType(TARGET_P);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertTrue(parameters.isConstantPowerFactor());
-        assertEquals(VOLUME, parameters.getPriority());
+        assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
-        assertEquals(PROPORTIONAL_TO_P0, parameters.getDistributionMode());
         assertEquals(TARGET_P, parameters.getScalingType());
-        assertEquals(100.0, parameters.getScalingValue(), 0.0);
     }
 
     @Test
@@ -114,14 +107,14 @@ class ScalingParametersTest {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("scaling-default-parameters");
         moduleConfig.setStringProperty("scalingConvention", "LOAD");
         moduleConfig.setStringProperty("constantPowerFactor", "true");
-        moduleConfig.setStringProperty("priority", "VOLUME");
+        moduleConfig.setStringProperty("priority", "RESPECT_OF_VOLUME_ASKED");
         moduleConfig.setStringProperty("reconnect", "true");
         moduleConfig.setStringProperty("allowsGeneratorOutOfActivePowerLimits", "true");
 
         ScalingParameters parameters = ScalingParameters.load(platformConfig);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertTrue(parameters.isConstantPowerFactor());
-        assertEquals(VOLUME, parameters.getPriority());
+        assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
     }
@@ -143,7 +136,7 @@ class ScalingParametersTest {
             true, true, true, true);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertTrue(parameters.isConstantPowerFactor());
-        assertEquals(VOLUME, parameters.getPriority());
+        assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
 

@@ -155,10 +155,31 @@ class GeneratorScalable extends AbstractInjectionScalable {
         return done;
     }
 
-    double availablePowerInPercentageOfAsked(Network network, double asked, double scalingPercentage) {
+    /**
+     * Compute the percentage of asked power available for the scale. It takes into account the scaling convention
+     * specified by the user and the sign of the asked power.
+     *
+     * @param network Network on which the scaling is done
+     * @param asked Asked power (can be positive or negative)
+     * @param scalingPercentage Percentage of the asked power that shall be distributed to the current injection
+     * @param scalingConvention Scaling convention (GENERATOR or LOAD)
+     * @return the percentage of asked power available for the scale on the current injection
+     */
+    double availablePowerInPercentageOfAsked(Network network, double asked, double scalingPercentage, ScalingConvention scalingConvention) {
         var generator = network.getGenerator(id);
-        var availablePower = generator.getMaxP() - generator.getTargetP();
+
+        // In LOAD convention, a positive scale will imply a decrease of generators target power
         var askedPower = asked * scalingPercentage / 100;
-        return askedPower > availablePower ? availablePower / askedPower : 100.0;
+        if (scalingConvention == LOAD) {
+            askedPower = -askedPower;
+        }
+
+        if (askedPower >= 0) {
+            var availablePower = Math.min(generator.getMaxP(), maxValue) - generator.getTargetP();
+            return askedPower > availablePower ? availablePower / askedPower : 100.0;
+        } else {
+            var availablePower = Math.max(generator.getMinP(), minValue) - generator.getTargetP();
+            return askedPower < availablePower ? availablePower / askedPower : 100.0;
+        }
     }
 }

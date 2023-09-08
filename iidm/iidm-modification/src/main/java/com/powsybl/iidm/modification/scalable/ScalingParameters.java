@@ -12,7 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.util.Objects;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VOLUME;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 
 /**
@@ -28,8 +28,8 @@ public class ScalingParameters {
     }
 
     public enum Priority {
-        VOLUME,
-        VENTILATION,
+        RESPECT_OF_VOLUME_ASKED,
+        RESPECT_OF_DISTRIBUTION,
         ONESHOT
     }
 
@@ -63,7 +63,7 @@ public class ScalingParameters {
         this.scalingConvention = scalingConvention;
         this.reconnect = reconnect;
         this.constantPowerFactor = constantPowerFactor;
-        this.priority = iterative ? VOLUME : ONESHOT;
+        this.priority = iterative ? RESPECT_OF_VOLUME_ASKED : ONESHOT;
         this.allowsGeneratorOutOfActivePowerLimits = allowsGeneratorOutOfActivePowerLimits;
     }
 
@@ -131,7 +131,7 @@ public class ScalingParameters {
      */
     @Deprecated(since = "v6.0.0")
     public boolean isIterative() {
-        return priority == VOLUME;
+        return priority == RESPECT_OF_VOLUME_ASKED;
     }
 
     /**
@@ -139,7 +139,7 @@ public class ScalingParameters {
      */
     @Deprecated(since = "v6.0.0")
     public ScalingParameters setIterative(boolean iterative) {
-        return iterative ? setPriority(VOLUME) : setPriority(ONESHOT);
+        return iterative ? setPriority(RESPECT_OF_VOLUME_ASKED) : setPriority(ONESHOT);
     }
 
     /**

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VOLUME;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
 import static com.powsybl.iidm.modification.scalable.json.JsonScalingParameters.read;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,7 +42,7 @@ class JsonScalingParametersTest extends AbstractConverterTest {
         assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
 
         parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.0b.json"));
-        assertEquals(VOLUME, parameters.getPriority());
+        assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
     }
 
     @Test

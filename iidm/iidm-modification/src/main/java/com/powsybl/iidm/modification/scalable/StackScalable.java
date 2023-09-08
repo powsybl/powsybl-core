@@ -6,12 +6,15 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,6 +40,11 @@ class StackScalable extends AbstractCompoundScalable {
     @Override
     public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
+
+        // The stacking only works with the DELTA_P ScalingType
+        if (parameters.getScalingType() != DELTA_P) {
+            throw new PowsyblException("Stacking only works with DELTA_P ScalingType");
+        }
 
         double done = 0;
         double remaining = asked;

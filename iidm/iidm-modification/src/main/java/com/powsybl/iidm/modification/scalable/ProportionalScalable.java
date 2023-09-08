@@ -13,8 +13,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VENTILATION;
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VOLUME;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_DISTRIBUTION;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
 
 /**
  * Scalable that divides scale proportionally between multiple scalable.
@@ -22,10 +22,13 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-class ProportionalScalable extends AbstractCompoundScalable {
+public class ProportionalScalable extends AbstractCompoundScalable {
     private static final double EPSILON = 1e-2;
+    private static final String GENERIC_SCALABLE_CLASS_ERROR = "Unable to create a scalable from %s";
+    private static final String GENERIC_INCONSISTENCY_ERROR = "Variable %s inconsistent with injection type %s";
 
     public enum DistributionMode {
+        PROPORTIONAL_TO_TARGETP,
         PROPORTIONAL_TO_PMAX,
         PROPORTIONAL_TO_DIFF_PMAX_TARGETP,
         PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
@@ -70,11 +73,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     private final List<ScalablePercentage> scalablePercentageList;
-
-    ProportionalScalable() {
-        // Initialisation if the list
-        this.scalablePercentageList = new ArrayList<>();
-    }
+    private double currentGlobalPower = 0;
 
     ProportionalScalable(List<Double> percentages, List<Scalable> scalables) {
         checkPercentages(percentages, scalables);
@@ -84,24 +83,58 @@ class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    public ProportionalScalable(List<Injection> injections, DistributionMode distributionMode) {
+    public ProportionalScalable(List<? extends Injection> injections, DistributionMode distributionMode) {
+        // Create the scalable for each injection
         List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
+
+        // Compute the sum of every individual power
         double totalDistribution = computeTotalDistribution(injections, distributionMode);
-        List<Double> percentages = injections.stream().map(injection -> getIndividualDistribution(injection, distributionMode) / totalDistribution).toList();
+
+        // Compute the current power value
+        currentGlobalPower = injections.stream().mapToDouble(Scalable::getCurrentPower).sum();
+
+        // In some cases, a regular distribution is equivalent to the nominal distribution :
+        // - PROPORTIONAL_TO_P0 : if no power is currently configured
+        // - PROPORTIONAL_TO_TARGETP : if no power is currently configured
+        // - PROPORTIONAL_TO_DIFF_PMAX_TARGETP : if no power is currently available
+        // - PROPORTIONAL_TO_DIFF_TARGETP_PMIN : if no power is currently used
+        DistributionMode finalDistributionMode;
+        double finalTotalDistribution;
+        if (totalDistribution == 0.0 &&
+            (distributionMode == DistributionMode.PROPORTIONAL_TO_P0
+                || distributionMode == DistributionMode.PROPORTIONAL_TO_TARGETP
+                || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_PMAX_TARGETP
+                || distributionMode == DistributionMode.PROPORTIONAL_TO_DIFF_TARGETP_PMIN)) {
+            finalDistributionMode = DistributionMode.UNIFORM_DISTRIBUTION;
+            finalTotalDistribution = computeTotalDistribution(injections, finalDistributionMode);
+        } else {
+            finalDistributionMode = distributionMode;
+            finalTotalDistribution = totalDistribution;
+        }
+
+        // Compute the percentages for each injection
+        List<Double> percentages = injections.stream().map(injection -> getIndividualDistribution(injection, finalDistributionMode) * 100.0 / finalTotalDistribution).toList();
         checkPercentages(percentages, injectionScalables);
+
+        // Create the list of ScalablePercentage
         this.scalablePercentageList = new ArrayList<>();
         for (int i = 0; i < injectionScalables.size(); i++) {
             this.scalablePercentageList.add(new ScalablePercentage(injectionScalables.get(i), percentages.get(i)));
         }
     }
 
-    private double computeTotalDistribution(List<Injection> injections, DistributionMode distributionMode) {
+    private double computeTotalDistribution(List<? extends Injection> injections, DistributionMode distributionMode) {
         return injections.stream().mapToDouble(injection -> getIndividualDistribution(injection, distributionMode)).sum();
     }
 
-    private double getIndividualDistribution(Injection injection, DistributionMode distributionMode) {
+    private double getIndividualDistribution(Injection<?> injection, DistributionMode distributionMode) {
+        // Check the injection type
+        checkInjectionClass(injection);
+
+        // Get the injection value according to the distribution mode
         return switch (distributionMode) {
-            case PROPORTIONAL_TO_P0 -> getTargetP(injection);
+            case PROPORTIONAL_TO_TARGETP -> getTargetP(injection);
+            case PROPORTIONAL_TO_P0 -> getP0(injection);
             case PROPORTIONAL_TO_PMAX -> getMaxP(injection);
             case PROPORTIONAL_TO_DIFF_PMAX_TARGETP -> getMaxP(injection) - getTargetP(injection);
             case PROPORTIONAL_TO_DIFF_TARGETP_PMIN -> getTargetP(injection) - getMinP(injection);
@@ -109,44 +142,54 @@ class ProportionalScalable extends AbstractCompoundScalable {
         };
     }
 
-    private double getTargetP(Injection injection) {
+    private void checkInjectionClass(Injection<?> injection) {
+        if (!(injection instanceof Generator
+            || injection instanceof Load
+            || injection instanceof DanglingLine)) {
+            throw new PowsyblException(String.format(GENERIC_SCALABLE_CLASS_ERROR, injection.getClass()));
+        }
+    }
+
+    private double getTargetP(Injection<?> injection) {
+        if (injection instanceof Generator generator) {
+            return generator.getTargetP();
+        } else {
+            throw new PowsyblException(String.format(GENERIC_INCONSISTENCY_ERROR,
+                "TargetP", injection.getClass()));
+        }
+    }
+
+    private double getP0(Injection<?> injection) {
         if (injection instanceof Load load) {
             return load.getP0();
-        } else if (injection instanceof Generator generator) {
-            return generator.getTargetP();
         } else if (injection instanceof DanglingLine danglingLine) {
             return danglingLine.getP0();
         } else {
-            throw new PowsyblException("Unable to create a scalable from " + injection.getClass());
+            throw new PowsyblException(String.format(GENERIC_INCONSISTENCY_ERROR,
+                "P0", injection.getClass()));
         }
     }
 
-    private double getMaxP(Injection injection) {
+    private double getMaxP(Injection<?> injection) {
         if (injection instanceof Generator generator) {
             return generator.getMaxP();
-        } else if (injection instanceof Load || injection instanceof DanglingLine) {
-            throw new PowsyblException("Injection types and distribution mode used are incompatible");
         } else {
-            throw new PowsyblException("Unable to create a scalable from " + injection.getClass());
+            throw new PowsyblException(String.format(GENERIC_INCONSISTENCY_ERROR,
+                "MaxP", injection.getClass()));
         }
     }
 
-    private double getMinP(Injection injection) {
+    private double getMinP(Injection<?> injection) {
         if (injection instanceof Generator generator) {
             return generator.getMinP();
-        } else if (injection instanceof Load || injection instanceof DanglingLine) {
-            throw new PowsyblException("Injection types and distribution mode used are incompatible");
         } else {
-            throw new PowsyblException("Unable to create a scalable from " + injection.getClass());
+            throw new PowsyblException(String.format(GENERIC_INCONSISTENCY_ERROR,
+                "MinP", injection.getClass()));
         }
     }
 
     Collection<Scalable> getScalables() {
         return scalablePercentageList.stream().map(ScalablePercentage::getScalable).toList();
-    }
-
-    List<ScalablePercentage> getScalablePercentageList() {
-        return scalablePercentageList;
     }
 
     private static void checkPercentages(List<Double> percentages, List<Scalable> scalables) {
@@ -217,11 +260,29 @@ class ProportionalScalable extends AbstractCompoundScalable {
     public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(parameters);
+
+        // Check the coherence of the asked value and the scaling type
+        checkPositiveAskedWhenTarget(asked, parameters);
+
+        // Variation asked
+        double variationAsked = Scalable.getVariationAsked(parameters, asked, currentGlobalPower);
+
+        // Adapt the asked value if needed - only used in VENTILATION mode
+        if (parameters.getPriority() == RESPECT_OF_DISTRIBUTION) {
+            variationAsked = resizeAskedForVentilation(n, variationAsked, parameters);
+        }
+
         reinitIterationPercentage();
-        if (parameters.getPriority() == VOLUME) {
-            return iterativeScale(n, asked, parameters);
+        if (parameters.getPriority() == RESPECT_OF_VOLUME_ASKED) {
+            return iterativeScale(n, variationAsked, parameters);
         } else {
-            return scaleIteration(n, asked, parameters);
+            return scaleIteration(n, variationAsked, parameters);
+        }
+    }
+
+    private void checkPositiveAskedWhenTarget(double asked, ScalingParameters scalingParameters) {
+        if (asked < 0 && scalingParameters.getScalingType() == ScalingParameters.ScalingType.TARGET_P) {
+            throw new PowsyblException("The asked power value can only be positive when scaling type is TARGET_P");
         }
     }
 
@@ -234,20 +295,27 @@ class ProportionalScalable extends AbstractCompoundScalable {
      * This method is only used if the distribution is not STACKING_UP (cannot happen since it's a
      * {@link ProportionalScalable} and if the scaling priority is VENTILATION.
      * @param asked power that shall be scaled on the network
-     * @param scalingParameters scaling parameters
      * @param network network on which the scaling shall be done
      * @return the effective power value that can be safely scaled while keeping the ventilation percentages valid
      */
     double resizeAskedForVentilation(Network network, double asked, ScalingParameters scalingParameters) {
-        if (scalingParameters.getPriority() == VENTILATION) {
-            AtomicReference<Double> resizingPercentage = new AtomicReference<>(1.0);
-            scalablePercentageList.forEach(scalablePercentage ->
-                resizingPercentage.set(Math.min(((GeneratorScalable) scalablePercentage.getScalable()).availablePowerInPercentageOfAsked(network, asked, scalablePercentage.getPercentage()), resizingPercentage.get()))
-            );
-            return asked * resizingPercentage.get();
-        } else {
-            return asked;
-        }
+        AtomicReference<Double> resizingPercentage = new AtomicReference<>(1.0);
+        scalablePercentageList.forEach(scalablePercentage -> {
+            if (scalablePercentage.getScalable() instanceof GeneratorScalable generatorScalable) {
+                resizingPercentage.set(Math.min(
+                    generatorScalable.availablePowerInPercentageOfAsked(network, asked, scalablePercentage.getPercentage(), scalingParameters.getScalingConvention()),
+                    resizingPercentage.get()));
+            } else if (scalablePercentage.getScalable() instanceof ScalableAdapter scalableAdapter) {
+                resizingPercentage.set(Math.min(
+                    scalableAdapter.availablePowerInPercentageOfAsked(network, asked, scalablePercentage.getPercentage(), scalingParameters.getScalingConvention()),
+                    resizingPercentage.get()));
+            } else {
+                throw new PowsyblException(String.format("VENTILATION mode can only be used with ScalableAdapter, not %s",
+                    scalablePercentage.getScalable().getClass()));
+            }
+            }
+        );
+        return asked * resizingPercentage.get();
     }
 
 }

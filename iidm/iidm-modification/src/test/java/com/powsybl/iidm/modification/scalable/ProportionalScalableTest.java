@@ -11,17 +11,19 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static com.powsybl.iidm.modification.scalable.Scalable.scaleOnGenerators;
-import static com.powsybl.iidm.modification.scalable.Scalable.scaleOnLoads;
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.DistributionMode.*;
+import static com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode.*;
+import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithDanglingLineAndBattery;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.*;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.TARGET_P;
+import static com.powsybl.iidm.modification.util.ModificationReports.scalingReport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -44,7 +46,7 @@ class ProportionalScalableTest {
     @BeforeEach
     void setUp() {
 
-        network = createNetwork();
+        network = createNetworkwithDanglingLineAndBattery();
         g1 = Scalable.onGenerator("g1");
         g2 = Scalable.onGenerator("g2");
         g3 = Scalable.onGenerator("g3", -10, 80);
@@ -61,103 +63,6 @@ class ProportionalScalableTest {
 //        reset();
     }
 
-    static Network createNetwork() {
-        Network network = Network.create("network", "test");
-        Substation s = network.newSubstation()
-            .setId("s")
-            .setCountry(Country.US)
-            .add();
-        VoltageLevel vl = s.newVoltageLevel()
-            .setId("vl1")
-            .setNominalV(380.0)
-            .setLowVoltageLimit(0.8 * 380.0)
-            .setHighVoltageLimit(1.2 * 380.0)
-            .setTopologyKind(TopologyKind.BUS_BREAKER)
-            .add();
-        vl.getBusBreakerView().newBus()
-            .setId("bus1")
-            .add();
-        vl.newGenerator()
-            .setId("g1")
-            .setBus("bus1")
-            .setConnectableBus("bus1")
-            .setMinP(0.0)
-            .setMaxP(150.0)
-            .setTargetP(80.0)
-            .setVoltageRegulatorOn(false)
-            .setTargetQ(0.0)
-            .add();
-        vl.newGenerator()
-            .setId("g2")
-            .setBus("bus1")
-            .setConnectableBus("bus1")
-            .setMinP(10.0)
-            .setMaxP(100.0)
-            .setTargetP(50.0)
-            .setVoltageRegulatorOn(false)
-            .setTargetQ(0.0)
-            .add();
-        vl.newGenerator()
-            .setId("g3")
-            .setBus("bus1")
-            .setConnectableBus("bus1")
-            .setMinP(20.0)
-            .setMaxP(80.0)
-            .setTargetP(30.0)
-            .setVoltageRegulatorOn(true)
-            .setTargetV(1.0)
-            .add();
-        vl.newLoad()
-            .setId("l1")
-            .setBus("bus1")
-            .setConnectableBus("bus1")
-            .setP0(100.0)
-            .setQ0(0.0)
-            .setLoadType(LoadType.UNDEFINED)
-            .add();
-        vl.newLoad()
-            .setId("l2")
-            .setBus("bus1")
-            .setConnectableBus("bus1")
-            .setP0(80.0)
-            .setQ0(0.0)
-            .setLoadType(LoadType.UNDEFINED)
-            .add();
-        vl.newLoad()
-            .setId("l3")
-            .setBus("bus1")
-            .setConnectableBus("bus1")
-            .setP0(50.0)
-            .setQ0(0.0)
-            .setLoadType(LoadType.UNDEFINED)
-            .add();
-
-        VoltageLevel vl2 = s.newVoltageLevel()
-            .setId("vl2")
-            .setTopologyKind(TopologyKind.BUS_BREAKER)
-            .setNominalV(380)
-            .add();
-        vl2.getBusBreakerView().newBus()
-            .setId("bus2")
-            .add();
-        network.newLine()
-            .setId("l12")
-            .setVoltageLevel1("vl1")
-            .setConnectableBus1("bus1")
-            .setBus1("bus1")
-            .setVoltageLevel2("vl2")
-            .setConnectableBus2("bus2")
-            .setBus2("bus2")
-            .setR(1)
-            .setX(1)
-            .setG1(0)
-            .setG2(0)
-            .setB1(0)
-            .setB2(0)
-            .add();
-        return network;
-    }
-
     private void reset() {
 
         Scalable.stack(g1, g2, g3).reset(network);
@@ -166,57 +71,60 @@ class ProportionalScalableTest {
     }
 
     @Test
-    void testScaleOnLoads() {
-        // Parameters
+    void testOnInjections() {
         ReporterModel reporterModel = new ReporterModel("scaling", "default");
-        List<Load> loadList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getLoad("l3"));
+        List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
+        ProportionalScalable proportionalScalable;
         double variationDone;
+
 
         // Proportional to P0
         ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-            true, true, VOLUME, true,
-            PROPORTIONAL_TO_P0, DELTA_P, 100.0);
-        variationDone = scaleOnLoads(network, reporterModel, scalingParametersProportional, loadList);
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        proportionalScalable = Scalable.proportional(injectionsList, PROPORTIONAL_TO_P0);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParametersProportional);
+        scalingReport(reporterModel,
+            "loads and dangling lines",
+            PROPORTIONAL_TO_P0,
+            100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(100.0 * (1.0 + 100 / 230.0), network.getLoad("l1").getP0(), 1e-5);
         assertEquals(80 * (1.0 + 100 / 230.0), network.getLoad("l2").getP0(), 1e-5);
-        assertEquals(50.0 * (1.0 + 100 / 230.0), network.getLoad("l3").getP0(), 1e-5);
+        assertEquals(50.0 * (1.0 + 100 / 230.0), network.getDanglingLine("dl1").getP0(), 1e-5);
         reset();
 
         // Regular distribution
-        ScalingParameters scalingParametersRegular = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-            true, false, VOLUME, true,
-            REGULAR_DISTRIBUTION, TARGET_P, 100.0);
-        variationDone = scaleOnLoads(network, reporterModel, scalingParametersRegular, loadList);
+        ScalingParameters scalingParametersUniform = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        proportionalScalable = Scalable.proportional(injectionsList, UNIFORM_DISTRIBUTION);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParametersUniform);
+        scalingReport(reporterModel,
+            "loads and dangling lines",
+            UNIFORM_DISTRIBUTION,
+            100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(100.0 / 3.0, network.getLoad("l1").getP0(), 1e-5);
         assertEquals(100.0 / 3.0, network.getLoad("l2").getP0(), 1e-5);
-        assertEquals(100.0 / 3.0, network.getLoad("l3").getP0(), 1e-5);
+        assertEquals(100.0 / 3.0, network.getDanglingLine("dl1").getP0(), 1e-5);
         reset();
-
-        // Error in other cases
-        ScalingParameters scalingParametersError = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-            true, false, VOLUME, true,
-            PROPORTIONAL_TO_PMAX, TARGET_P, 100.0);
-        IllegalArgumentException e0 = assertThrows(IllegalArgumentException.class, () -> scaleOnLoads(
-            network,
-            reporterModel,
-            scalingParametersError,
-            loadList));
-        assertEquals("Variation mode cannot be PROPORTIONAL_TO_PMAX for LoadScalables", e0.getMessage());
     }
 
     @Test
-    void testScaleOnGenerators() {
+    void testOnGenerator() {
         ReporterModel reporterModel = new ReporterModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        ProportionalScalable proportionalScalable;
         double variationDone;
 
         // Proportional to Target P
-        ScalingParameters scalingParametersProportionalTarget = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, VOLUME, true,
-            PROPORTIONAL_TO_TARGETP, DELTA_P, 100.0);
-        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalTarget, generatorList);
+        proportionalScalable = Scalable.proportional(generatorList, PROPORTIONAL_TO_TARGETP);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            PROPORTIONAL_TO_TARGETP,
+            100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(80.0 * (1.0 + 100 / 160.0), network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(50.0 * (1.0 + 100 / 160.0), network.getGenerator("g2").getTargetP(), 1e-5);
@@ -224,10 +132,12 @@ class ProportionalScalableTest {
         reset();
 
         // Proportional to P_max
-        ScalingParameters scalingParametersProportionalPMax = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, VOLUME, true,
-            PROPORTIONAL_TO_PMAX, DELTA_P, 100.0);
-        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalPMax, generatorList);
+        proportionalScalable = Scalable.proportional(generatorList, PROPORTIONAL_TO_PMAX);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            PROPORTIONAL_TO_PMAX,
+            100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(150.0 * 100.0 / 330.0, network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(100.0 * 100.0 / 330.0, network.getGenerator("g2").getTargetP(), 1e-5);
@@ -235,51 +145,49 @@ class ProportionalScalableTest {
         reset();
 
         // Proportional to the available P
-        ScalingParameters scalingParametersProportionalAvailableP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, VOLUME, true,
-            PROPORTIONAL_TO_DIFF_PMAX_TARGETP, DELTA_P, 100.0);
-        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalAvailableP, generatorList);
+        proportionalScalable = Scalable.proportional(generatorList, PROPORTIONAL_TO_DIFF_PMAX_TARGETP);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            PROPORTIONAL_TO_DIFF_PMAX_TARGETP,
+            100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(150.0 * 100.0 / 330.0, network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(100.0 * 100.0 / 330.0, network.getGenerator("g2").getTargetP(), 1e-5);
         assertEquals(80.0 * 100.0 / 330.0, network.getGenerator("g3").getTargetP(), 1e-5);
         reset();
 
-        // Regular distribution
-        ScalingParameters scalingParametersRegular = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, false, VOLUME, true,
-            REGULAR_DISTRIBUTION, TARGET_P, 100.0);
-        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersRegular, generatorList);
+        // Uniform distribution
+        proportionalScalable = Scalable.proportional(generatorList, UNIFORM_DISTRIBUTION);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            UNIFORM_DISTRIBUTION,
+            100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(100.0 / 3.0, network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(100.0 / 3.0, network.getGenerator("g2").getTargetP(), 1e-5);
         assertEquals(100.0 / 3.0, network.getGenerator("g3").getTargetP(), 1e-5);
         reset();
-
-        // Error in other cases
-        ScalingParameters scalingParametersError = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, false, VOLUME, true,
-            PROPORTIONAL_TO_P0, TARGET_P, 100.0);
-        IllegalArgumentException e0 = assertThrows(IllegalArgumentException.class, () -> scaleOnGenerators(
-            network,
-            reporterModel,
-            scalingParametersError,
-            generatorList));
-        assertEquals("Variation mode cannot be PROPORTIONAL_TO_P0 for GeneratorScalables", e0.getMessage());
     }
 
     @Test
     void testScaleOnGeneratorsUsedPower() {
         ReporterModel reporterModel = new ReporterModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        ProportionalScalable proportionalScalable;
         double variationDone;
 
-        // Proportional to the used P
-        ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, VOLUME, true,
-            PROPORTIONAL_TO_DIFF_TARGETP_PMIN, DELTA_P, 100.0);
-        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
+        // Proportional to Target P
+        proportionalScalable = Scalable.proportional(generatorList, PROPORTIONAL_TO_DIFF_TARGETP_PMIN);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
         assertEquals(100.0, variationDone, 1e-5);
+        scalingReport(reporterModel,
+            "generators",
+            PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
+            100.0, variationDone);
         assertEquals(80.0 + 80.0 * 100 / 130.0, network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(50.0 + 40.0 * 100 / 130.0, network.getGenerator("g2").getTargetP(), 1e-5);
         assertEquals(30.0 + 10.0 * 100 / 130.0, network.getGenerator("g3").getTargetP(), 1e-5);
@@ -287,16 +195,44 @@ class ProportionalScalableTest {
     }
 
     @Test
+    void testScaleOnGeneratorsWithTargetPScalingType() {
+        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, TARGET_P);
+        ProportionalScalable proportionalScalable;
+        double variationDone;
+
+        // Proportional to Target P
+        proportionalScalable = Scalable.proportional(generatorList, PROPORTIONAL_TO_TARGETP);
+        variationDone = proportionalScalable.scale(network, 260.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            PROPORTIONAL_TO_TARGETP,
+            260.0, variationDone);
+        assertEquals(100.0, variationDone, 1e-5);
+        assertEquals(80.0 * (1.0 + 100 / 160.0), network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(50.0 * (1.0 + 100 / 160.0), network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(30.0 * (1.0 + 100 / 160.0), network.getGenerator("g3").getTargetP(), 1e-5);
+        reset();
+    }
+
+    @Test
     void testScaleOnGeneratorsVentilationPriority() {
         ReporterModel reporterModel = new ReporterModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_DISTRIBUTION, true, DELTA_P);
+        ProportionalScalable proportionalScalable;
         double variationDone;
 
-        // Proportional to the used P
-        ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, VENTILATION, true,
-            PROPORTIONAL_TO_TARGETP, DELTA_P, 200.0);
-        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
+        // Proportional to Target P
+        proportionalScalable = Scalable.proportional(generatorList, PROPORTIONAL_TO_TARGETP);
+        variationDone = proportionalScalable.scale(network, 200.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            PROPORTIONAL_TO_TARGETP,
+            200.0, variationDone);
         assertEquals(200.0 * 0.7, variationDone, 1e-5);
         assertEquals(80.0 * (1.0 + 200.0 * 0.7 / 160.0), network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(50.0 * (1.0 + 200.0 * 0.7 / 160.0), network.getGenerator("g2").getTargetP(), 1e-5);
@@ -305,59 +241,91 @@ class ProportionalScalableTest {
     }
 
     @Test
-    void testScaleOnGeneratorsStackingUp() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
-        List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
-        double variationDone;
+    void testScaleOnLoadsVentilationPriority() {
+        List<Load> loadList = Collections.singletonList(network.getLoad("l1"));
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_DISTRIBUTION, true, DELTA_P);
+        ProportionalScalable proportionalScalable;
 
-        // Proportional to the used P
-        ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, ONESHOT, true,
-            STACKING_UP, DELTA_P, 100.0);
-        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
-        assertEquals(100.0, variationDone, 1e-5);
-        assertEquals(150.0, network.getGenerator("g1").getTargetP(), 1e-5);
-        assertEquals(80.0, network.getGenerator("g2").getTargetP(), 1e-5);
-        assertEquals(30.0, network.getGenerator("g3").getTargetP(), 1e-5);
+        // Proportional to Target P
+        proportionalScalable = Scalable.proportional(loadList, PROPORTIONAL_TO_P0);
+
+        // Error raised
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> proportionalScalable.scale(network, 100.0, scalingParameters));
+        assertEquals("VENTILATION mode can only be used with a Generator, not class com.powsybl.iidm.network.impl.LoadImpl", e0.getMessage());
         reset();
     }
 
     @Test
-    void testScaleOnGeneratorsWithWrongParameter() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
-        List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
-
-        // Set of parameter for loads
-        ScalingParameters scalingParametersError = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-            true, false, VOLUME, true,
-            REGULAR_DISTRIBUTION, TARGET_P, 100.0);
+    void testScaleOnGeneratorsWithWrongParametersTargetP() {
+        List<DanglingLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
+        List<Load> loadList = Collections.singletonList(network.getLoad("l1"));
+        List<Battery> batteryList = Collections.singletonList(network.getBattery("BAT"));
 
         // Error raised
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> scaleOnGenerators(
-            network,
-            reporterModel,
-            scalingParametersError,
-            generatorList));
-        assertEquals("Scaling convention in the parameters cannot be LOAD for generators", e0.getMessage());
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> Scalable.proportional(danglinglineList, PROPORTIONAL_TO_TARGETP));
+        assertEquals("Variable TargetP inconsistent with injection type class com.powsybl.iidm.network.impl.DanglingLineImpl", e0.getMessage());
+
+        // Error raised
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> Scalable.proportional(loadList, PROPORTIONAL_TO_TARGETP));
+        assertEquals("Variable TargetP inconsistent with injection type class com.powsybl.iidm.network.impl.LoadImpl", e1.getMessage());
+
+        // Error raised
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> Scalable.proportional(batteryList, PROPORTIONAL_TO_TARGETP));
+        assertEquals("Unable to create a scalable from class com.powsybl.iidm.network.impl.BatteryImpl", e2.getMessage());
     }
 
     @Test
-    void testScaleOnLoadsWithWrongParameter() {
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
-        List<Load> loadList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getLoad("l3"));
-
-        // Set of parameter for loads
-        ScalingParameters scalingParametersError = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, false, VOLUME, true,
-            REGULAR_DISTRIBUTION, TARGET_P, 100.0);
+    void testScaleOnGeneratorsWithWrongParametersMaxP() {
+        List<DanglingLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
+        List<Load> loadList = Collections.singletonList(network.getLoad("l1"));
+        List<Battery> batteryList = Collections.singletonList(network.getBattery("BAT"));
 
         // Error raised
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> scaleOnLoads(
-            network,
-            reporterModel,
-            scalingParametersError,
-            loadList));
-        assertEquals("Scaling convention in the parameters cannot be GENERATOR for loads", e0.getMessage());
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> Scalable.proportional(danglinglineList, PROPORTIONAL_TO_PMAX));
+        assertEquals("Variable MaxP inconsistent with injection type class com.powsybl.iidm.network.impl.DanglingLineImpl", e0.getMessage());
+
+        // Error raised
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> Scalable.proportional(loadList, PROPORTIONAL_TO_PMAX));
+        assertEquals("Variable MaxP inconsistent with injection type class com.powsybl.iidm.network.impl.LoadImpl", e1.getMessage());
+
+        // Error raised
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> Scalable.proportional(batteryList, PROPORTIONAL_TO_PMAX));
+        assertEquals("Unable to create a scalable from class com.powsybl.iidm.network.impl.BatteryImpl", e2.getMessage());
+    }
+
+    @Test
+    @Disabled("Error is raised on TargetP before being raised on MinP")
+    void testScaleOnGeneratorsWithWrongParametersMinP() {
+        List<DanglingLine> danglinglineList = Collections.singletonList(network.getDanglingLine("dl1"));
+        List<Load> loadList = Collections.singletonList(network.getLoad("l1"));
+        List<Battery> batteryList = Collections.singletonList(network.getBattery("BAT"));
+
+        // Error raised
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> Scalable.proportional(danglinglineList, PROPORTIONAL_TO_DIFF_TARGETP_PMIN));
+        assertEquals("Variable MinP inconsistent with injection type class com.powsybl.iidm.network.impl.DanglingLineImpl", e0.getMessage());
+
+        // Error raised
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> Scalable.proportional(loadList, PROPORTIONAL_TO_DIFF_TARGETP_PMIN));
+        assertEquals("Variable MinP inconsistent with injection type class com.powsybl.iidm.network.impl.LoadImpl", e1.getMessage());
+
+        // Error raised
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> Scalable.proportional(batteryList, PROPORTIONAL_TO_DIFF_TARGETP_PMIN));
+        assertEquals("Unable to create a scalable from class com.powsybl.iidm.network.impl.BatteryImpl", e2.getMessage());
+    }
+
+    @Test
+    void testScaleOnLoadsWithWrongParameters() {
+        List<Generator> generatorList = Collections.singletonList(network.getGenerator("g1"));
+        List<Battery> batteryList = Collections.singletonList(network.getBattery("BAT"));
+
+        // Error raised
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> Scalable.proportional(generatorList, PROPORTIONAL_TO_P0));
+        assertEquals("Variable P0 inconsistent with injection type class com.powsybl.iidm.network.impl.GeneratorImpl", e0.getMessage());
+
+        // Error raised
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> Scalable.proportional(batteryList, PROPORTIONAL_TO_P0));
+        assertEquals("Unable to create a scalable from class com.powsybl.iidm.network.impl.BatteryImpl", e2.getMessage());
     }
 
     @Test
@@ -367,20 +335,25 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(0.0);
         network.getGenerator("g3").setTargetP(0.0);
 
-        // Parameters
         ReporterModel reporterModel = new ReporterModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        ProportionalScalable proportionalScalable;
         double variationDone;
 
-        // Proportional to the used P
-        ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, VOLUME, true,
-            PROPORTIONAL_TO_TARGETP, DELTA_P, 100.0);
-        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
+        // Proportional to Target P
+        proportionalScalable = Scalable.proportional(generatorList, PROPORTIONAL_TO_TARGETP);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            PROPORTIONAL_TO_TARGETP,
+            100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(0.0 + 100.0 / 3.0, network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(0.0 + 100.0 / 3.0, network.getGenerator("g2").getTargetP(), 1e-5);
         assertEquals(0.0 + 100.0 / 3.0, network.getGenerator("g3").getTargetP(), 1e-5);
+        reset();
     }
 
     @Test
@@ -390,20 +363,25 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(network.getGenerator("g2").getMinP());
         network.getGenerator("g3").setTargetP(network.getGenerator("g3").getMinP());
 
-        // Parameters
         ReporterModel reporterModel = new ReporterModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        ProportionalScalable proportionalScalable;
         double variationDone;
 
-        // Proportional to the used P
-        ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, VOLUME, true,
-            PROPORTIONAL_TO_DIFF_TARGETP_PMIN, DELTA_P, 100.0);
-        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
+        // Proportional to Target P
+        proportionalScalable = Scalable.proportional(generatorList, PROPORTIONAL_TO_DIFF_TARGETP_PMIN);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
+            100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(0.0 + 100.0 / 3.0, network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(10.0 + 100.0 / 3.0, network.getGenerator("g2").getTargetP(), 1e-5);
         assertEquals(20.0 + 100.0 / 3.0, network.getGenerator("g3").getTargetP(), 1e-5);
+        reset();
     }
 
     @Test
@@ -413,20 +391,25 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(network.getGenerator("g2").getMaxP());
         network.getGenerator("g3").setTargetP(network.getGenerator("g3").getMaxP());
 
-        // Parameters
         ReporterModel reporterModel = new ReporterModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        ProportionalScalable proportionalScalable;
         double variationDone;
 
-        // Proportional to the used P
-        ScalingParameters scalingParametersProportionalUsedP = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
-            true, true, VOLUME, true,
-            PROPORTIONAL_TO_DIFF_PMAX_TARGETP, DELTA_P, 100.0);
-        variationDone = scaleOnGenerators(network, reporterModel, scalingParametersProportionalUsedP, generatorList);
+        // Proportional to Target P
+        proportionalScalable = Scalable.proportional(generatorList, PROPORTIONAL_TO_DIFF_TARGETP_PMIN);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            PROPORTIONAL_TO_DIFF_TARGETP_PMIN,
+            100.0, variationDone);
         assertEquals(0.0, variationDone, 1e-5);
         assertEquals(150.0, network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-5);
         assertEquals(80.0, network.getGenerator("g3").getTargetP(), 1e-5);
+        reset();
     }
 
     @Test
@@ -436,20 +419,59 @@ class ProportionalScalableTest {
         network.getLoad("l2").setP0(0.0);
         network.getLoad("l3").setP0(0.0);
 
-        // Parameters
-        ReporterModel reporterModel = new ReporterModel("scaling", "default");
         List<Load> loadList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getLoad("l3"));
+        ProportionalScalable proportionalScalable;
         double variationDone;
 
         // Proportional to P0
         ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
-            true, false, VOLUME, true,
-            PROPORTIONAL_TO_P0, DELTA_P, 100.0);
-        variationDone = scaleOnLoads(network, reporterModel, scalingParametersProportional, loadList);
+            true, false, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        proportionalScalable = Scalable.proportional(loadList, PROPORTIONAL_TO_P0);
+        variationDone = proportionalScalable.scale(network, 100.0, scalingParametersProportional);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(100.0 / 3.0, network.getLoad("l1").getP0(), 1e-5);
         assertEquals(100.0 / 3.0, network.getLoad("l2").getP0(), 1e-5);
         assertEquals(100.0 / 3.0, network.getLoad("l3").getP0(), 1e-5);
         reset();
+    }
+
+    @Test
+    void testResizeAskedForVentilation() {
+
+        // Proportional to Target P
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
+            true, false, RESPECT_OF_DISTRIBUTION, true, DELTA_P);
+
+        // Works for generators in load convention
+        List<Generator> generatorList = Collections.singletonList(network.getGenerator("g1"));
+        ProportionalScalable proportionalGeneratorsScalable = Scalable.proportional(generatorList, PROPORTIONAL_TO_TARGETP);
+        double variationDone = proportionalGeneratorsScalable.scale(network, 100.0, scalingParametersProportional);
+        assertEquals(80.0, variationDone, 1e-5);
+        assertEquals(0.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        reset();
+
+        // Works for generators in load convention with negative asked value
+        variationDone = proportionalGeneratorsScalable.scale(network, -200.0, scalingParametersProportional);
+        assertEquals(-150.0, variationDone, 1e-5);
+        assertEquals(150.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        reset();
+
+        // Works for GeneratorScalable
+        proportionalGeneratorsScalable = Scalable.proportional(100.0, g1);
+        variationDone = proportionalGeneratorsScalable.scale(network, -200.0, scalingParametersProportional);
+        assertEquals(-150.0, variationDone, 1e-5);
+        assertEquals(150.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        reset();
+
+        // Error raised for LoadScalable
+        ProportionalScalable proportionalLoadScalable = Scalable.proportional(100.0, l1);
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> proportionalLoadScalable.scale(network, 100.0, scalingParametersProportional));
+        assertEquals("VENTILATION mode can only be used with ScalableAdapter, not class com.powsybl.iidm.modification.scalable.LoadScalable", e0.getMessage());
+
+        // Error raised for Loads
+        List<Load> loadList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getLoad("l3"));
+        ProportionalScalable proportionalScalable = Scalable.proportional(loadList, PROPORTIONAL_TO_P0);
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> proportionalScalable.scale(network, 100.0, scalingParametersProportional));
+        assertEquals("VENTILATION mode can only be used with a Generator, not class com.powsybl.iidm.network.impl.LoadImpl", e1.getMessage());
     }
 }

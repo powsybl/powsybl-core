@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.util;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
-import com.powsybl.iidm.modification.scalable.ScalingParameters.DistributionMode;
+import com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode;
 import com.powsybl.iidm.network.*;
 
 /**

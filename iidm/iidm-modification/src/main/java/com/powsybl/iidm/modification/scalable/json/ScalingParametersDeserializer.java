@@ -18,7 +18,7 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import java.io.IOException;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.VOLUME;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -60,7 +60,7 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                 case "iterative" -> {
                     JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, "Tag: iterative", version, "1.1");
                     parser.nextToken();
-                    parameters.setPriority(Boolean.TRUE.equals(parser.readValueAs(Boolean.class)) ? VOLUME : ONESHOT);
+                    parameters.setPriority(Boolean.TRUE.equals(parser.readValueAs(Boolean.class)) ? RESPECT_OF_VOLUME_ASKED : ONESHOT);
                 }
                 case "priority" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: priority", version, "1.1");
