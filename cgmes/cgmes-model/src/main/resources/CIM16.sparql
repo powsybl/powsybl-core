@@ -132,6 +132,16 @@ SELECT *
     ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage .
 }}
 
+# query: countrySourcingActors
+prefix cgmbp: <http://entsoe.eu/CIM/Extensions/CGM-BP/2020#>
+SELECT *
+WHERE {
+    ?GeographicalRegion
+        a cim:GeographicalRegion ;
+        cim:IdentifiedObject.name "{0}" ;
+        cgmbp:NetworkRegion.sourcingActor ?sourcingActorName .
+}
+
 # query: sourcingActor
 prefix cgmbp: <http://entsoe.eu/CIM/Extensions/CGM-BP/2020#>
 SELECT *

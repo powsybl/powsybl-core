@@ -329,6 +329,11 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags countrySourcingActors(String countryName) {
+        return new PropertyBags();
+    }
+
+    @Override
     public PropertyBags sourcingActor(String sourcingActor) {
         return new PropertyBags();
     }

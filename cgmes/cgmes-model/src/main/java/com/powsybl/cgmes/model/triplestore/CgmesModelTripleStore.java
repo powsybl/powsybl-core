@@ -340,6 +340,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags countrySourcingActors(String countryName) {
+        return namedQuery("countrySourcingActors", countryName);
+    }
+
+    @Override
     public PropertyBags sourcingActor(String sourcingActor) {
         return namedQuery("sourcingActor", sourcingActor);
     }

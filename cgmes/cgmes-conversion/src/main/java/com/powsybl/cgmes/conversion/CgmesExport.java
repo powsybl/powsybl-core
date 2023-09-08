@@ -18,10 +18,7 @@ import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.Exporter;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +72,21 @@ public class CgmesExport implements Exporter {
         // Reference data (if required) will come from imported boundaries
         // We may have received a sourcing actor as a parameter
         String sourcingActorName = Parameter.readString(getFormat(), params, SOURCING_ACTOR_PARAMETER, defaultValueConfig);
-        ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(sourcingActorName, importer, params);
+        String countryName = null;
+        if (sourcingActorName == null || sourcingActorName.isEmpty()) {
+            // If not given explicitly,
+            // the reference data provider can try to obtain it from the country of the network
+            // If we have multiple countries we do not pass this info to the reference data provider
+            Set<String> countries = network.getSubstationStream()
+                    .map(Substation::getCountry)
+                    .flatMap(Optional::stream)
+                    .map(Enum::name)
+                    .collect(Collectors.toUnmodifiableSet());
+            if (countries.size() == 1) {
+                countryName = countries.iterator().next();
+            }
+        }
+        ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(sourcingActorName, countryName, importer, params);
 
         CgmesExportContext context = new CgmesExportContext(
                 network,

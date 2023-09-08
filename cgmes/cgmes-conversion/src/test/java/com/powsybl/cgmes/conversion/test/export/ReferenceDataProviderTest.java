@@ -24,16 +24,32 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ReferenceDataProviderTest {
 
     @Test
-    void testReferenceDataProvider() {
+    void testReferenceDataProviderWithSourcingActor() {
         String sourcingActorName = "ELIA";
         Properties params = new Properties();
         ResourceDataSource referenceDataSource = new ResourceDataSource("sample", new ResourceSet("/reference-data-provider", "sample_EQBD.xml"));
-        ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(sourcingActorName, referenceDataSource, new CgmesImport(), params);
+        ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(sourcingActorName, null, referenceDataSource, new CgmesImport(), params);
 
         assertEquals("urn:uuid:99999999-cfff-4252-a5a8-1784fb5a4514", referenceDataProvider.getEquipmentBoundaryId());
         assertEquals("65dd04e792584b3b912374e35dec032e", referenceDataProvider.getBaseVoltage(400));
 
         PropertyBag actor = referenceDataProvider.getSourcingActor();
+        assertEquals("http://www.elia.be/OperationalPlanning", actor.getLocal("masUri"));
+        assertEquals("BE", referenceDataProvider.getSourcingActorRegion().getRight());
+    }
+
+    @Test
+    void testReferenceDataProviderWithCountry() {
+        String countryName = "BE";
+        Properties params = new Properties();
+        ResourceDataSource referenceDataSource = new ResourceDataSource("sample", new ResourceSet("/reference-data-provider", "sample_EQBD.xml"));
+        ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(null, countryName, referenceDataSource, new CgmesImport(), params);
+
+        assertEquals("urn:uuid:99999999-cfff-4252-a5a8-1784fb5a4514", referenceDataProvider.getEquipmentBoundaryId());
+        assertEquals("65dd04e792584b3b912374e35dec032e", referenceDataProvider.getBaseVoltage(400));
+
+        PropertyBag actor = referenceDataProvider.getSourcingActor();
+        assertEquals("ELIA", actor.getLocal("name"));
         assertEquals("http://www.elia.be/OperationalPlanning", actor.getLocal("masUri"));
         assertEquals("BE", referenceDataProvider.getSourcingActorRegion().getRight());
     }

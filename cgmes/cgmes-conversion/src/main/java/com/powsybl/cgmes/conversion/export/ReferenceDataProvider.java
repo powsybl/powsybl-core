@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class ReferenceDataProvider {
-    private final String sourcingActorName; // may be null
+    private String sourcingActorName; // may be null, may be determined from country
+    private final String countryName; // may be null, IIDM Country::name (iso alpha-2 code)
     private final ReadOnlyDataSource referenceDataSource; // may be null
     private final CgmesImport cgmesImport;
     private final Properties params; // may be null
@@ -37,16 +38,16 @@ public class ReferenceDataProvider {
     private String equipmentBoundaryId = null;
     private String topologyBoundaryId = null;
 
-    // TODO(Luma) try to memoize referenceData, map of baseVoltages and sourcing actor data instead of use this flag?
     private boolean loaded = false;
 
-    public ReferenceDataProvider(String sourcingActorName, CgmesImport cgmesImport, Properties params) {
-        this(sourcingActorName, null, cgmesImport, params);
+    public ReferenceDataProvider(String sourcingActorName, String countryName, CgmesImport cgmesImport, Properties params) {
+        this(sourcingActorName, countryName, null, cgmesImport, params);
     }
 
-    public ReferenceDataProvider(String sourcingActorName, ReadOnlyDataSource referenceDataSource, CgmesImport cgmesImport, Properties params) {
+    public ReferenceDataProvider(String sourcingActorName, String countryName, ReadOnlyDataSource referenceDataSource, CgmesImport cgmesImport, Properties params) {
         Objects.requireNonNull(cgmesImport);
         this.sourcingActorName = sourcingActorName;
+        this.countryName = countryName;
         this.referenceDataSource = referenceDataSource;
         this.cgmesImport = cgmesImport;
         this.params = params;
@@ -110,10 +111,9 @@ public class ReferenceDataProvider {
         if (referenceData == null) {
             return;
         }
-        if (!(referenceData instanceof CgmesModelTripleStore)) {
+        if (!(referenceData instanceof CgmesModelTripleStore referenceDataTs)) {
             return;
         }
-        CgmesModelTripleStore referenceDataTs = (CgmesModelTripleStore) referenceData;
         PropertyBags boundaryModelIds = referenceDataTs.namedQuery("boundaryModelIds");
         for (PropertyBag mid : boundaryModelIds) {
             String modelId = mid.getId("FullModel");
@@ -139,17 +139,38 @@ public class ReferenceDataProvider {
     }
 
     private void loadSourcingActor() {
-        if (referenceData != null && sourcingActorName != null && !sourcingActorName.isEmpty()) {
-            PropertyBags sourcingActorRecords = referenceData.sourcingActor(sourcingActorName);
-            if (sourcingActorRecords.size() > 1 && LOG.isWarnEnabled()) {
-                LOG.warn("Multiple records found for sourcing actor {}. Will consider only first one", sourcingActorName);
-                LOG.warn(sourcingActorRecords.tabulateLocals());
-            } else if (!sourcingActorRecords.isEmpty()) {
-                sourcingActor = sourcingActorRecords.get(0);
+        if (referenceData != null) {
+            if (sourcingActorName == null || sourcingActorName.isEmpty())  {
+                determineSourcingActorFromCountryName();
+            }
+            if (sourcingActorName != null && !sourcingActorName.isEmpty()) {
+                PropertyBags sourcingActorRecords = referenceData.sourcingActor(sourcingActorName);
+                if (sourcingActorRecords.size() > 1 && LOG.isWarnEnabled()) {
+                    LOG.warn("Multiple records found for sourcing actor {}. Will consider only first one", sourcingActorName);
+                    LOG.warn(sourcingActorRecords.tabulateLocals());
+                } else if (sourcingActorRecords.isEmpty()) {
+                    LOG.warn("Sourcing actor {} not found", sourcingActorName);
+                } else {
+                    sourcingActor = sourcingActorRecords.get(0);
+                }
             }
         }
         if (sourcingActor == null) {
             sourcingActor = new PropertyBag(Collections.emptyList(), true);
+        }
+    }
+
+    private void determineSourcingActorFromCountryName() {
+        if (referenceData != null && countryName != null && !countryName.isEmpty()) {
+            PropertyBags countryRecords = referenceData.countrySourcingActors(countryName);
+            if (countryRecords.size() > 1 && LOG.isWarnEnabled()) {
+                LOG.warn("Multiple sourcing actors found for country {}. Cannot determine a single sourcing actor", countryName);
+                LOG.warn(countryRecords.tabulateLocals());
+            } else if (countryRecords.isEmpty()) {
+                LOG.warn("No sourcing actors found for country name {}", countryName);
+            } else {
+                sourcingActorName = countryRecords.get(0).getLocal("sourcingActorName");
+            }
         }
     }
 
