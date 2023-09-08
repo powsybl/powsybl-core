@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.*;
 import java.util.List;
 import java.util.Objects;
 
-
 class ScalableAdapter extends AbstractScalable {
 
     private final String id;

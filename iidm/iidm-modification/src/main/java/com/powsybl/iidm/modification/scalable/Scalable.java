@@ -261,7 +261,7 @@ public interface Scalable {
     static double getCurrentPower(Injection injection) {
         if (injection instanceof Generator generator) {
             return generator.getTargetP();
-        } else if (injection instanceof Load load ) {
+        } else if (injection instanceof Load load) {
             return load.getP0();
         } else if (injection instanceof DanglingLine danglingLine) {
             return danglingLine.getP0();

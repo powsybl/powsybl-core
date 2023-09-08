@@ -77,7 +77,6 @@ class ProportionalScalableTest {
         ProportionalScalable proportionalScalable;
         double variationDone;
 
-
         // Proportional to P0
         ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.LOAD,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
