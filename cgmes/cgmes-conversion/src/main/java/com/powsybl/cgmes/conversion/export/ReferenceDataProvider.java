@@ -140,7 +140,7 @@ public class ReferenceDataProvider {
 
     private void loadSourcingActor() {
         if (referenceData != null) {
-            if (sourcingActorName == null || sourcingActorName.isEmpty())  {
+            if (sourcingActorName == null || sourcingActorName.isEmpty()) {
                 determineSourcingActorFromCountryName();
             }
             if (sourcingActorName != null && !sourcingActorName.isEmpty()) {
