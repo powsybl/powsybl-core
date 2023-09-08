@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -332,7 +333,7 @@ class StateVariablesExportTest extends AbstractConverterTest {
         final String attrResource = "resource";
 
         SvTapSteps svTapSteps = new SvTapSteps();
-        try (InputStream is = new ByteArrayInputStream(sv.getBytes())) {
+        try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
             XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
             Integer position = null;
             String tapChangerId = null;
