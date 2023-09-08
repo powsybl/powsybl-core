@@ -351,7 +351,6 @@ class StateVariablesExportTest extends AbstractConverterTest {
                 } else if (next == XMLStreamConstants.END_ELEMENT) {
                     if (reader.getLocalName().equals(svTapStep)) {
                         svTapSteps.add(tapChangerId, position);
-                        System.err.printf("position %d tapChangerId %s %n", position, tapChangerId);
                     }
                 }
             }
