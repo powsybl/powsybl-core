@@ -1469,6 +1469,20 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
+    public static GridModelReference microGridBaseCaseNLSwitchWithoutName() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_NL_v2_switch_without_name/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2/";
+        return new GridModelReferenceResources(
+                "MicroGrid-BaseCase-NL-switch-no-name",
+                null,
+                new ResourceSet(base, MICRO_GRID_NL_EQ),
+                new ResourceSet(baseOriginal, MICRO_GRID_NL_SSH,
+                        MICRO_GRID_NL_TP),
+                microGridBaseCaseBoundaries());
+    }
+
     public static GridModelReference microGridBaseCaseBESingleFile() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_single_file/";

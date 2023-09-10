@@ -79,8 +79,8 @@ public class BigDecimalNodeCalc implements LiteralNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BigDecimalNodeCalc) {
-            return ((BigDecimalNodeCalc) obj).value.equals(value);
+        if (obj instanceof BigDecimalNodeCalc bigDecimalNodeCalc) {
+            return bigDecimalNodeCalc.value.equals(value);
         }
         return false;
     }

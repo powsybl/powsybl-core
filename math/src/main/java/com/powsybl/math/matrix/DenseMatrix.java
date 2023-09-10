@@ -127,7 +127,7 @@ public class DenseMatrix extends AbstractMatrix {
     /**
      * @deprecated Use {@link #get(int, int)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     public double getValue(int i, int j) {
         return get(i, j);
     }
@@ -421,8 +421,7 @@ public class DenseMatrix extends AbstractMatrix {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof DenseMatrix) {
-            DenseMatrix other = (DenseMatrix) obj;
+        if (obj instanceof DenseMatrix other) {
             return rowCount == other.rowCount && columnCount == other.columnCount && buffer.equals(other.buffer);
         }
         return false;

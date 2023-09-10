@@ -411,6 +411,14 @@ public interface Network extends Container<Network> {
         Stream<Bus> getBusStream();
 
         /**
+         * Get the bus count.
+         * <p>
+         * Depends on the working variant.
+         * @see VariantManager
+         */
+        int getBusCount();
+
+        /**
          * Get all switches
          */
         Iterable<Switch> getSwitches();

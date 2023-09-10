@@ -11,6 +11,7 @@ import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyPoint;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.math.graph.TraversalType;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -165,19 +166,24 @@ class BusTerminal extends AbstractTerminal {
     }
 
     @Override
-    public boolean traverse(TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
+    public boolean traverse(TopologyTraverser traverser, Set<Terminal> visitedTerminals, TraversalType traversalType) {
         if (removed) {
             throw new PowsyblException(String.format("Associated equipment %s is removed", connectable.id));
         }
-        return ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals);
+        return ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals, traversalType);
     }
 
     @Override
     public void traverse(TopologyTraverser traverser) {
+        traverse(traverser, TraversalType.DEPTH_FIRST);
+    }
+
+    @Override
+    public void traverse(TopologyTraverser traverser, TraversalType traversalType) {
         if (removed) {
             throw new PowsyblException(String.format("Associated equipment %s is removed", connectable.id));
         }
-        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser);
+        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversalType);
     }
 
     @Override

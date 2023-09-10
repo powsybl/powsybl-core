@@ -72,8 +72,8 @@ public class MinNodeCalc extends AbstractMinMaxNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof MinNodeCalc) {
-            return ((MinNodeCalc) obj).child.equals(child) && ((MinNodeCalc) obj).value == value;
+        if (obj instanceof MinNodeCalc minNodeCalc) {
+            return minNodeCalc.child.equals(child) && minNodeCalc.value == value;
         }
         return false;
     }

@@ -69,7 +69,7 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
         try {
             BeanProperty bp = new BeanProperty.Std(new PropertyName("Language for dictionary"), null, null, null, null);
             Object dicNameInjected = ctx.findInjectableValue(DICTIONARY_VALUE_ID, bp, null);
-            return dicNameInjected instanceof String ? (String) dicNameInjected : DICTIONARY_DEFAULT_NAME;
+            return dicNameInjected instanceof String name ? name : DICTIONARY_DEFAULT_NAME;
         } catch (JsonMappingException | IllegalArgumentException e) {
             LOGGER.info("No injectable value found for id `{}` in DeserializationContext, therefore taking `{}` dictionary",
                 DICTIONARY_VALUE_ID, DICTIONARY_DEFAULT_NAME);

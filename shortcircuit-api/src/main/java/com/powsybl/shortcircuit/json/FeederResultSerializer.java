@@ -29,9 +29,9 @@ public class FeederResultSerializer extends StdSerializer<FeederResult> {
         jsonGenerator.writeStartObject();
 
         jsonGenerator.writeStringField("connectableId", result.getConnectableId());
-        if (result instanceof FortescueFeederResult) {
-            if (((FortescueFeederResult) result).getCurrent() != null) {
-                serializerProvider.defaultSerializeField("current", ((FortescueFeederResult) result).getCurrent(), jsonGenerator);
+        if (result instanceof FortescueFeederResult fortescueFeederResult) {
+            if (fortescueFeederResult.getCurrent() != null) {
+                serializerProvider.defaultSerializeField("current", fortescueFeederResult.getCurrent(), jsonGenerator);
             }
         } else {
             if (!Double.isNaN(((MagnitudeFeederResult) result).getCurrent())) {

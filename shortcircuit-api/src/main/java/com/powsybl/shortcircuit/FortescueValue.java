@@ -112,7 +112,7 @@ public class FortescueValue {
         return negativeAngle;
     }
 
-    ThreePhaseValue toThreePhaseValue() {
+    public ThreePhaseValue toThreePhaseValue() {
 
         // [G1]   [ 1  1  1 ]   [Gh]
         // [G2] = [ 1  a²  a] * [Gd]

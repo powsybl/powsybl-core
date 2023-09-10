@@ -31,8 +31,7 @@ public abstract class AbstractContingency implements ContingencyElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof AbstractContingency) {
-            AbstractContingency that = (AbstractContingency) obj;
+        if (obj instanceof AbstractContingency that) {
             return id.equals(that.getId()) && getType() == that.getType();
         }
         return false;
