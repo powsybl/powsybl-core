@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractConverterTest;
@@ -27,15 +28,14 @@ import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringWriter;
+import javax.xml.stream.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -235,6 +235,62 @@ class StateVariablesExportTest extends AbstractConverterTest {
         String sv = exportSvAsString(network, 2);
         String hiddenTapChangerId = "_6ebbef67-3061-4236-a6fd-6ccc4595f6c3-x";
         assertTrue(sv.contains(hiddenTapChangerId));
+    }
+
+    @Test
+    void equivalentShuntTest() throws IOException, XMLStreamException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+
+        String sv = exportSvAsString(network, 2);
+
+        SvShuntCompensatorSections svShuntCompensatorSections = readSvShuntCompensatorSections(sv);
+        ShuntCompensator equivalentShunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        assertTrue(!svShuntCompensatorSections.svShuntCompensatorSections.containsKey(equivalentShunt.getId()));
+    }
+
+    private static SvShuntCompensatorSections readSvShuntCompensatorSections(String sv) {
+        final String svShuntCompensatorSections = "SvShuntCompensatorSections";
+        final String svShuntCompensatorSectionsSections = "SvShuntCompensatorSections.sections";
+        final String svShuntCompensatorSectionsShuntCompensator = "SvShuntCompensatorSections.ShuntCompensator";
+        final String attrResource = "resource";
+
+        SvShuntCompensatorSections svShuntCompensatorSectionsHashMap = new SvShuntCompensatorSections();
+        try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            Integer sections = null;
+            String shuntCompensatorId = null;
+            while (reader.hasNext()) {
+                int next = reader.next();
+                if (next == XMLStreamConstants.START_ELEMENT) {
+                    if (reader.getLocalName().equals(svShuntCompensatorSections)) {
+                        sections = null;
+                        shuntCompensatorId = null;
+                    } else if (reader.getLocalName().equals(svShuntCompensatorSectionsSections)) {
+                        String text = reader.getElementText();
+                        sections = Integer.parseInt(text);
+                    } else if (reader.getLocalName().equals(svShuntCompensatorSectionsShuntCompensator)) {
+                        shuntCompensatorId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrResource).substring(2);
+                    }
+                } else if (next == XMLStreamConstants.END_ELEMENT) {
+                    if (reader.getLocalName().equals(svShuntCompensatorSections)) {
+                        svShuntCompensatorSectionsHashMap.add(shuntCompensatorId, sections);
+                    }
+                }
+            }
+            reader.close();
+        } catch (XMLStreamException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return svShuntCompensatorSectionsHashMap;
+    }
+
+    private static final class SvShuntCompensatorSections {
+        private final Map<String, Integer> svShuntCompensatorSections = new HashMap<>();
+
+        void add(String shuntCompensatorId, int sections) {
+            svShuntCompensatorSections.put(shuntCompensatorId, sections);
+        }
     }
 
     private static Network importNetwork(ReadOnlyDataSource ds) {
