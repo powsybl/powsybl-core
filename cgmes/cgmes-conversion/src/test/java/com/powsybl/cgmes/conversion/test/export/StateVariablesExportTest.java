@@ -238,7 +238,7 @@ class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    void cgmes3MiniGridwithTransformersWithRtcAndPtc() throws IOException, XMLStreamException {
+    void cgmes3MiniGridwithTransformersWithRtcAndPtc() throws XMLStreamException {
 
         Network network = ConversionUtil.networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
 
@@ -302,26 +302,14 @@ class StateVariablesExportTest extends AbstractConverterTest {
         return svTapSteps.toSortedString();
     }
 
-    private static void obtainAndRecordTapChangerId(TwoWindingsTransformer twt, String aliasType, int tapPosition, SvTapSteps svTapSteps) {
-        Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType);
+    private static void obtainAndRecordTapChangerId(Identifiable<?> eq, String aliasType, int tapPosition, SvTapSteps svTapSteps) {
+        Optional<String> optionalTapChangerId = eq.getAliasFromType(aliasType);
         String tapChangerId;
         if (optionalTapChangerId.isPresent()) {
             tapChangerId = optionalTapChangerId.get();
         } else {
             tapChangerId = CgmesExportUtil.getUniqueId();
-            twt.addAlias(tapChangerId, aliasType);  // record as alias to be used when the sv file is exported
-        }
-        svTapSteps.add(tapChangerId, tapPosition);
-    }
-
-    private static void obtainAndRecordTapChangerId(ThreeWindingsTransformer twt, String aliasType, int tapPosition, SvTapSteps svTapSteps) {
-        Optional<String> optionalTapChangerId = twt.getAliasFromType(aliasType);
-        String tapChangerId;
-        if (optionalTapChangerId.isPresent()) {
-            tapChangerId = optionalTapChangerId.get();
-        } else {
-            tapChangerId = CgmesExportUtil.getUniqueId();
-            twt.addAlias(tapChangerId, aliasType);
+            eq.addAlias(tapChangerId, aliasType);  // record as alias to be used when the sv file is exported
         }
         svTapSteps.add(tapChangerId, tapPosition);
     }
@@ -350,7 +338,7 @@ class StateVariablesExportTest extends AbstractConverterTest {
                         tapChangerId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrResource).substring(2);
                     }
                 } else if (next == XMLStreamConstants.END_ELEMENT) {
-                    if (reader.getLocalName().equals(svTapStep)) {
+                    if (reader.getLocalName().equals(svTapStep) && position != null) {
                         svTapSteps.add(tapChangerId, position);
                     }
                 }
