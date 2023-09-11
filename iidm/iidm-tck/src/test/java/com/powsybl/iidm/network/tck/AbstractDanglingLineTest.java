@@ -176,6 +176,18 @@ public abstract class AbstractDanglingLineTest {
     }
 
     @Test
+    public void testInvalidP0() {
+        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code"));
+        assertTrue(e.getMessage().contains("p0 is invalid"));
+    }
+
+    @Test
+    public void testInvalidQ0() {
+        ValidationException e = assertThrows(ValidationException.class, () -> createDanglingLine(INVALID, INVALID, 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code"));
+        assertTrue(e.getMessage().contains("q0 is invalid"));
+    }
+
+    @Test
     public void duplicateDanglingLine() {
         createDanglingLine(DUPLICATE, DUPLICATE, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
         assertNotNull(network.getDanglingLine(DUPLICATE));

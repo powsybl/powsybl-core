@@ -204,6 +204,8 @@ public final class EurostagTutorialExample1Factory {
 
         DanglingLine nhv1xnode1 = network.getVoltageLevel("VLHV1").newDanglingLine()
                 .setId(DANGLING_LINE_XNODE1_1)
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(1.5)
                 .setX(20.0)
                 .setG(1E-6)
@@ -213,6 +215,8 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         DanglingLine xnode1nhv2 = network.getVoltageLevel("VLHV2").newDanglingLine()
                 .setId(DANGLING_LINE_XNODE1_2)
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(1.5)
                 .setX(13.0)
                 .setG(2E-6)
@@ -227,6 +231,8 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         DanglingLine nvh1xnode2 = network.getVoltageLevel("VLHV1").newDanglingLine()
                 .setId(DANGLING_LINE_XNODE2_1)
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(1.5)
                 .setX(20.0)
                 .setG(1E-6)
@@ -236,6 +242,8 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         DanglingLine xnode2nhv2 = network.getVoltageLevel("VLHV2").newDanglingLine()
                 .setId(DANGLING_LINE_XNODE2_2)
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setR(1.5)
                 .setX(13.0)
                 .setG(2E-6)
@@ -367,7 +375,7 @@ public final class EurostagTutorialExample1Factory {
      *             an infinite value temporary limit, which make overload detection
      *             malfunction.
      */
-    @Deprecated
+    @Deprecated(since = "2.5.0")
     public static Network createWithCurrentLimits() {
         Network network = createWithFixedCurrentLimits();
         Line line = network.getLine("NHV1_NHV2_1");

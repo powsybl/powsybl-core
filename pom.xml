@@ -15,12 +15,12 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>10</version>
+        <version>13</version>
         <relativePath/>
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>5.4.0-SNAPSHOT</version>
+    <version>6.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -87,7 +87,7 @@
     </modules>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
@@ -109,7 +109,7 @@
         <gdata.version>1.41.1_1</gdata.version>
         <graphviz-builder.version>1.0.12</graphviz-builder.version>
         <groovy.version>3.0.15</groovy.version>
-        <guava.version>31.1-jre</guava.version>
+        <guava.version>32.0.1-jre</guava.version>
         <jackson.version>2.14.1</jackson.version>
         <jackson-databind.version>2.14.1</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
@@ -409,11 +409,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-iidm-mergingview</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
