@@ -8,13 +8,12 @@ package com.powsybl.shortcircuit;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.shortcircuit.json.VoltageRangeDataDeserializer;
+import com.powsybl.shortcircuit.json.ShortCircuitAnalysisJsonModule;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
 import static com.powsybl.shortcircuit.VoltageRangeData.checkVoltageRangeData;
 
@@ -91,15 +91,12 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     private static List<VoltageRangeData> getVoltageRangeDataFromConfig(ModuleConfig config, PlatformConfig platformConfig) {
-        Optional<String> optionalVoltageRangeDataPath = config.getOptionalStringProperty("voltage-range-data");
+        Optional<Path> optionalVoltageRangeDataPath = config.getOptionalPathProperty("voltage-range-data");
         if (optionalVoltageRangeDataPath.isPresent()) {
             Path voltageRangeDataPath = platformConfig.getConfigDir()
                     .map(dir -> dir.resolve(optionalVoltageRangeDataPath.get()))
                     .orElseThrow(() -> new PowsyblException("Voltage range data file inaccessible from config directory"));
-            ObjectMapper mapper = new ObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(VoltageRangeData.class, new VoltageRangeDataDeserializer());
-            mapper.registerModule(module);
+            ObjectMapper mapper = createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
             try (InputStream is = Files.newInputStream(voltageRangeDataPath)) {
                 return mapper.readValue(is, new TypeReference<>() {
                 });
