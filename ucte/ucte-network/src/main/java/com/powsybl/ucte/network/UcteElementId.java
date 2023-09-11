@@ -69,8 +69,7 @@ public class UcteElementId implements Comparable<UcteElementId> {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UcteElementId) {
-            UcteElementId id = (UcteElementId) obj;
+        if (obj instanceof UcteElementId id) {
             return this.compareTo(id) == 0;
         }
         return false;

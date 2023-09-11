@@ -353,7 +353,8 @@ public final class StateVariablesExport {
                 String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
                 writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition(), cimNamespace, writer, context);
                 writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
-            } else if (twt.hasRatioTapChanger()) {
+            }
+            if (twt.hasRatioTapChanger()) {
                 int endNumber = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).isPresent() ? 1 : 2;
                 String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
                 writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition(), cimNamespace, writer, context);
@@ -368,7 +369,8 @@ public final class StateVariablesExport {
                     String ptcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + endNumber);
                     writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition(), cimNamespace, writer, context);
                     writeSvTapStepHidden(twt, ptcId, cimNamespace, writer, context);
-                } else if (leg.hasRatioTapChanger()) {
+                }
+                if (leg.hasRatioTapChanger()) {
                     String rtcId = context.getNamingStrategy().getCgmesIdFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + endNumber);
                     writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition(), cimNamespace, writer, context);
                     writeSvTapStepHidden(twt, rtcId, cimNamespace, writer, context);
@@ -415,7 +417,7 @@ public final class StateVariablesExport {
     }
 
     private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        if (connectable instanceof DanglingLine && ((DanglingLine) connectable).isPaired()) {
+        if (connectable instanceof DanglingLine dl && dl.isPaired()) {
             // TODO(Luma) Export tie line components instead of a single equipment
             // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
             // We ignore dangling lines inside tie lines for now

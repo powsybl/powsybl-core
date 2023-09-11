@@ -41,8 +41,7 @@ public class TwoWindingsTransformerContingency extends AbstractSidedContingency 
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TwoWindingsTransformerContingency) {
-            TwoWindingsTransformerContingency other = (TwoWindingsTransformerContingency) obj;
+        if (obj instanceof TwoWindingsTransformerContingency other) {
             return id.equals(other.id) && Objects.equals(voltageLevelId, other.voltageLevelId);
         }
         return false;
