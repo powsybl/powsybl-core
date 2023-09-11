@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
+import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Stream;
 
 /**
@@ -248,41 +249,30 @@ public class MatpowerExporter implements Exporter {
         return ampere * vl.getNominalV() / 1000d;
     }
 
+    private static void createLimits(MBranch mBranch, LoadingLimits limits, DoubleUnaryOperator converter) {
+        // rateA is mapped to permanent limit
+        if (!Double.isNaN(limits.getPermanentLimit())) {
+            mBranch.setRateA(converter.applyAsDouble(limits.getPermanentLimit()));
+        }
+        // rateB is mapped to the shortest term limit, if not an emergency limit (tempo <= 60s)
+        LoadingLimits.TemporaryLimit limitB = findShortTermLimit(limits.getTemporaryLimits().stream())
+                .flatMap(limit -> nextLimit(limits.getTemporaryLimits(), limit))
+                .filter(limit -> !isEmergencyLimit(limit))
+                .orElse(null);
+        if (limitB != null) {
+            mBranch.setRateB(converter.applyAsDouble(limitB.getValue()));
+        }
+        // rateC is mapped to the emergency limit (tempo <= 60s)
+        findEmergencyLimit(limits.getTemporaryLimits().stream())
+                .flatMap(limit -> previousLimit(limits.getTemporaryLimits(), limit))
+                .filter(limit -> limitB == null || limit.getAcceptableDuration() != limitB.getAcceptableDuration())
+                .ifPresent(limitC -> mBranch.setRateC(converter.applyAsDouble(limitC.getValue())));
+    }
+
     private static void createLimits(FlowsLimitsHolder limitsHolder, VoltageLevel vl, MBranch mBranch) {
-        limitsHolder.getApparentPowerLimits().ifPresentOrElse(limits -> {
-            if (!Double.isNaN(limits.getPermanentLimit())) {
-                mBranch.setRateA(limits.getPermanentLimit());
-            }
-            LoadingLimits.TemporaryLimit limitB = findShortTermLimit(limits.getTemporaryLimits().stream())
-                    .flatMap(limit -> nextLimit(limits.getTemporaryLimits(), limit))
-                    .filter(limit -> !isEmergencyLimit(limit))
-                    .orElse(null);
-            if (limitB != null) {
-                mBranch.setRateB(limitB.getValue());
-            }
-            findEmergencyLimit(limits.getTemporaryLimits().stream())
-                    .flatMap(limit -> previousLimit(limits.getTemporaryLimits(), limit))
-                    .filter(limit -> limitB == null || limit.getAcceptableDuration() != limitB.getAcceptableDuration())
-                    .ifPresent(limitC -> mBranch.setRateC(limitC.getValue()));
-        }, () -> {
-            // convert from current limits if present
-            limitsHolder.getCurrentLimits().ifPresent(limits -> {
-                if (!Double.isNaN(limits.getPermanentLimit())) {
-                    mBranch.setRateA(toMva(limits.getPermanentLimit(), vl));
-                }
-                LoadingLimits.TemporaryLimit limitB = findShortTermLimit(limits.getTemporaryLimits().stream())
-                        .flatMap(limit -> nextLimit(limits.getTemporaryLimits(), limit))
-                        .filter(limit -> !isEmergencyLimit(limit))
-                        .orElse(null);
-                if (limitB != null) {
-                    mBranch.setRateB(toMva(limitB.getValue(), vl));
-                }
-                findEmergencyLimit(limits.getTemporaryLimits().stream())
-                        .flatMap(limit -> previousLimit(limits.getTemporaryLimits(), limit))
-                        .filter(limit -> limitB == null || limit.getAcceptableDuration() != limitB.getAcceptableDuration())
-                        .ifPresent(limitC -> mBranch.setRateC(toMva(limitC.getValue(), vl)));
-            });
-        });
+        limitsHolder.getApparentPowerLimits().ifPresentOrElse(limits -> createLimits(mBranch, limits, DoubleUnaryOperator.identity()),
+            () -> limitsHolder.getCurrentLimits().ifPresent(limits -> createLimits(mBranch, limits, a -> toMva(a, vl))) // convert from current limits if present
+        );
     }
 
     /**
