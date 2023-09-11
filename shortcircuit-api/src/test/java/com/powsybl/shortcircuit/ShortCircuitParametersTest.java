@@ -208,14 +208,14 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         assertFalse(parameters.isWithVSCConverterStations());
         assertTrue(parameters.isWithNeutralPosition());
         assertEquals(InitialVoltageProfileMode.CONFIGURED, parameters.getInitialVoltageProfileMode());
-        List<VoltageRangeData> coefficients = parameters.getVoltageRangeData();
-        assertEquals(3, coefficients.size());
-        assertEquals(1, coefficients.get(0).getRangeCoefficient());
-        assertEquals(Range.between(380., 420.), coefficients.get(0).getVoltageRange());
-        assertEquals(1.2, coefficients.get(1).getRangeCoefficient());
-        assertEquals(Range.between(215., 235.), coefficients.get(1).getVoltageRange());
-        assertEquals(1.05, coefficients.get(2).getRangeCoefficient());
-        assertEquals(Range.between(80., 100.), coefficients.get(2).getVoltageRange());
+        List<VoltageRangeData> voltageRangeData = parameters.getVoltageRangeData();
+        assertEquals(3, voltageRangeData.size());
+        assertEquals(1, voltageRangeData.get(0).getRangeCoefficient());
+        assertEquals(Range.between(380., 420.), voltageRangeData.get(0).getVoltageRange());
+        assertEquals(1.2, voltageRangeData.get(1).getRangeCoefficient());
+        assertEquals(Range.between(215., 235.), voltageRangeData.get(1).getVoltageRange());
+        assertEquals(1.05, voltageRangeData.get(2).getRangeCoefficient());
+        assertEquals(Range.between(80., 100.), voltageRangeData.get(2).getVoltageRange());
     }
 
     @Test
@@ -225,11 +225,11 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         parameters.setWithLimitViolations(false);
         parameters.setStudyType(StudyType.SUB_TRANSIENT);
         parameters.setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED);
-        List<VoltageRangeData> coefficients = new ArrayList<>();
-        coefficients.add(new VoltageRangeData(380, 410, 1.05));
-        coefficients.add(new VoltageRangeData(0, 225, 1.1));
-        coefficients.add(new VoltageRangeData(230, 375, 1.09));
-        parameters.setVoltageRangeData(coefficients);
+        List<VoltageRangeData> voltageRangeData = new ArrayList<>();
+        voltageRangeData.add(new VoltageRangeData(380, 410, 1.05));
+        voltageRangeData.add(new VoltageRangeData(0, 225, 1.1));
+        voltageRangeData.add(new VoltageRangeData(230, 375, 1.09));
+        parameters.setVoltageRangeData(voltageRangeData);
         roundTripTest(parameters, JsonShortCircuitParameters::write, JsonShortCircuitParameters::read,
                 "/ShortCircuitParameters.json");
     }
@@ -320,7 +320,7 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    void testLoadFromConfigButCoefficientsMissing() throws IOException {
+    void testLoadFromConfigButVoltageRangeDataMissing() throws IOException {
         Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
         Path cfgFile = cfgDir.resolve("wrongConfig.yml");
 
@@ -330,16 +330,16 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    void testReadButCoefficientsMissing() {
-        InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithoutCoefficients.json");
+    void testReadButVoltageRangeDataMissing() {
+        InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithoutVoltageRangeData.json");
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
                 .read(stream));
         assertEquals("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.", e0.getMessage());
     }
 
     @Test
-    void testReadButCoefficientsEmpty() {
-        InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithEmptyCoefficients.json");
+    void testReadButVoltageRangeDataEmpty() {
+        InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithEmptyVoltageRangeData.json");
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
                 .read(stream));
         assertEquals("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.", e0.getMessage());
@@ -358,7 +358,6 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
 
     @Test
     void testWithInvalidCoefficient() {
-        ShortCircuitParameters parameters = new ShortCircuitParameters();
         PowsyblException e0 = assertThrows(PowsyblException.class, () -> new VoltageRangeData(100, 199, 10));
         assertEquals("rangeCoefficient 10.0 is out of bounds, should be between 0.8 and 1.2.", e0.getMessage());
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> new VoltageRangeData(100, 199, 0.2));
@@ -375,5 +374,13 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
                 0, true, 1.2, true, true, true, true,
                 InitialVoltageProfileMode.NOMINAL, null));
         assertEquals("subTransientCoefficient > 1", e1.getMessage());
+    }
+
+    @Test
+    void testReadWithUnsortedRanges() {
+        InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersWithUnsortedOverlappingVoltageRangeData.json");
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
+                .read(stream));
+        assertEquals("Voltage ranges for configured initial voltage profile are overlapping", e0.getMessage());
     }
 }

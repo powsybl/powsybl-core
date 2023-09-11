@@ -47,7 +47,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         boolean withVSCConverterStations = false;
         boolean withNeutralPosition = false;
         InitialVoltageProfileMode initialVoltageProfileMode = null;
-        List<VoltageRangeData> coefficients = null;
+        List<VoltageRangeData> voltageRangeData = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -123,14 +123,14 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                 case "voltageRangeData" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
-                    coefficients = JsonUtil.readList(deserializationContext, parser, VoltageRangeData.class);
+                    voltageRangeData = JsonUtil.readList(deserializationContext, parser, VoltageRangeData.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         FaultParameters faultParameters = new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type,
                 minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient, withLoads,
-                withShuntCompensators, withVSCConverterStations, withNeutralPosition, initialVoltageProfileMode, coefficients);
+                withShuntCompensators, withVSCConverterStations, withNeutralPosition, initialVoltageProfileMode, voltageRangeData);
         faultParameters.validate();
         return faultParameters;
     }

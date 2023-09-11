@@ -31,10 +31,10 @@ class JsonFaultParametersTest extends AbstractConverterTest {
     void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
         parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null));
-        List<VoltageRangeData> coefficients = new ArrayList<>();
-        coefficients.add(new VoltageRangeData(0, 230, 1));
-        coefficients.add(new VoltageRangeData(235, 400, 1.05));
-        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false, InitialVoltageProfileMode.CONFIGURED, coefficients));
+        List<VoltageRangeData> voltageRangeData = new ArrayList<>();
+        voltageRangeData.add(new VoltageRangeData(0, 230, 1));
+        voltageRangeData.add(new VoltageRangeData(235, 400, 1.05));
+        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false, InitialVoltageProfileMode.CONFIGURED, voltageRangeData));
         parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN, false, true, false, false, InitialVoltageProfileMode.NOMINAL, null));
         parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, Double.NaN, false, false, false, false, null, null));
         parameters.add(new FaultParameters("f12", true, false, false, StudyType.SUB_TRANSIENT, Double.NaN, false, 0.8, true, false, false, false, InitialVoltageProfileMode.PREVIOUS_VALUE, null));
@@ -139,17 +139,17 @@ class JsonFaultParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    void readParametersMissingCoefficients() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultParametersFileWithoutCoefficient.json"), fileSystem.getPath("/FaultParametersFileWithoutCoefficient.json"));
-        Path path = fileSystem.getPath("/FaultParametersFileWithoutCoefficient.json");
+    void readParametersMissingVoltageRangeData() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFileWithoutVoltageRangeData.json"), fileSystem.getPath("/FaultParametersFileWithoutVoltageRangeData.json"));
+        Path path = fileSystem.getPath("/FaultParametersFileWithoutVoltageRangeData.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
     }
 
     @Test
-    void readParametersEmptyCoefficients() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultParametersFileEmptyCoefficients.json"), fileSystem.getPath("/FaultParametersFileEmptyCoefficients.json"));
-        Path path = fileSystem.getPath("/FaultParametersFileEmptyCoefficients.json");
+    void readParametersEmptyVoltageRangeData() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFileEmptyVoltageRangeData.json"), fileSystem.getPath("/FaultParametersFileEmptyVoltageRangeData.json"));
+        Path path = fileSystem.getPath("/FaultParametersFileEmptyVoltageRangeData.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
     }

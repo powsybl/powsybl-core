@@ -149,7 +149,7 @@ public class FaultParameters {
                            boolean withVSCConverterStations,
                            boolean withNeutralPosition,
                            InitialVoltageProfileMode initialVoltageProfileMode,
-                           List<VoltageRangeData> coefficients) {
+                           List<VoltageRangeData> voltageRangeData) {
         this.id = Objects.requireNonNull(id);
         this.withLimitViolations = withLimitViolations;
         this.withVoltageResult = withVoltageResult;
@@ -164,10 +164,10 @@ public class FaultParameters {
         this.withNeutralPosition = withNeutralPosition;
         this.initialVoltageProfileMode = initialVoltageProfileMode;
         this.voltageRangeData = new ArrayList<>();
-        if (coefficients != null) {
+        if (voltageRangeData != null) {
             if (initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED) {
-                checkVoltageRangeData(coefficients);
-                this.voltageRangeData.addAll(coefficients);
+                checkVoltageRangeData(voltageRangeData);
+                this.voltageRangeData.addAll(voltageRangeData);
             } else {
                 LOGGER.warn("Nominal voltage ranges with associated coefficient are defined but InitialVoltageProfileMode is not CONFIGURED: they are ignored");
             }

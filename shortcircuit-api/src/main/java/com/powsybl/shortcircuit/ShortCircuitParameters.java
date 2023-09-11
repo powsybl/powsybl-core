@@ -82,7 +82,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithVSCConverterStations(config.getBooleanProperty("with-vsc-converter-stations", DEFAULT_WITH_VSC_CONVERTER_STATIONS))
                         .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION))
                         .setInitialVoltageProfileMode(config.getEnumProperty("initial-voltage-profile-mode", InitialVoltageProfileMode.class, DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE))
-                        .setVoltageRangeData(getCoefficientsFromConfig(config, platformConfig)));
+                        .setVoltageRangeData(getVoltageRangeDataFromConfig(config, platformConfig)));
 
         parameters.validate();
         parameters.readExtensions(platformConfig);
@@ -90,7 +90,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return parameters;
     }
 
-    private static List<VoltageRangeData> getCoefficientsFromConfig(ModuleConfig config, PlatformConfig platformConfig) {
+    private static List<VoltageRangeData> getVoltageRangeDataFromConfig(ModuleConfig config, PlatformConfig platformConfig) {
         Optional<String> optionalVoltageRangeDataPath = config.getOptionalStringProperty("voltage-range-data");
         if (optionalVoltageRangeDataPath.isPresent()) {
             Path voltageRangeDataPath = platformConfig.getConfigDir()
