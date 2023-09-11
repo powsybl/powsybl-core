@@ -509,12 +509,13 @@ class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
-    void equivalentShuntTest() throws IOException, XMLStreamException {
+    void equivalentShuntTest() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
 
         // Export as cgmes
-        Path outputPath = Files.createTempDirectory("temp.cgmesExport");
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
         String baseName = "microGridEquivalentShunt";
         new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
 
@@ -548,11 +549,8 @@ class EquipmentExportTest extends AbstractConverterTest {
         }
         ShuntCompensatorLinearModel expectedModel = (ShuntCompensatorLinearModel) expectedShunt.getModel();
         ShuntCompensatorLinearModel actualModel = (ShuntCompensatorLinearModel) actualShunt.getModel();
-        if (expectedModel.getGPerSection() != actualModel.getGPerSection()
-                || expectedModel.getBPerSection() != actualModel.getBPerSection()) {
-            return false;
-        }
-        return true;
+        return expectedModel.getGPerSection() == actualModel.getGPerSection()
+                && expectedModel.getBPerSection() == actualModel.getBPerSection();
     }
 
     private static boolean propertyInBothAndEqual(ShuntCompensator expected, ShuntCompensator actual, String propertyName) {

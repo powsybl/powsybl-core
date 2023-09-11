@@ -241,15 +241,17 @@ class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    void equivalentShuntTest() throws IOException, XMLStreamException {
+    void equivalentShuntTest() throws XMLStreamException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
 
         String sv = exportSvAsString(network, 2);
 
+        String equivalentShuntId = "d771118f-36e9-4115-a128-cc3d9ce3e3da";
+        assertNotNull(network.getShuntCompensator(equivalentShuntId));
         SvShuntCompensatorSections svShuntCompensatorSections = readSvShuntCompensatorSections(sv);
-        ShuntCompensator equivalentShunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
-        assertTrue(!svShuntCompensatorSections.svShuntCompensatorSections.containsKey(equivalentShunt.getId()));
+        assertFalse(svShuntCompensatorSections.map.isEmpty());
+        assertFalse(svShuntCompensatorSections.map.containsKey(equivalentShuntId));
     }
 
     private static SvShuntCompensatorSections readSvShuntCompensatorSections(String sv) {
@@ -258,7 +260,7 @@ class StateVariablesExportTest extends AbstractConverterTest {
         final String svShuntCompensatorSectionsShuntCompensator = "SvShuntCompensatorSections.ShuntCompensator";
         final String attrResource = "resource";
 
-        SvShuntCompensatorSections svShuntCompensatorSectionsHashMap = new SvShuntCompensatorSections();
+        SvShuntCompensatorSections svdata = new SvShuntCompensatorSections();
         try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
             XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
             Integer sections = null;
@@ -276,8 +278,8 @@ class StateVariablesExportTest extends AbstractConverterTest {
                         shuntCompensatorId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrResource).substring(2);
                     }
                 } else if (next == XMLStreamConstants.END_ELEMENT) {
-                    if (reader.getLocalName().equals(svShuntCompensatorSections)) {
-                        svShuntCompensatorSectionsHashMap.add(shuntCompensatorId, sections);
+                    if (reader.getLocalName().equals(svShuntCompensatorSections) && sections != null) {
+                        svdata.add(shuntCompensatorId, sections);
                     }
                 }
             }
@@ -285,19 +287,19 @@ class StateVariablesExportTest extends AbstractConverterTest {
         } catch (XMLStreamException | IOException e) {
             throw new RuntimeException(e);
         }
-        return svShuntCompensatorSectionsHashMap;
+        return svdata;
     }
 
     private static final class SvShuntCompensatorSections {
-        private final Map<String, Integer> svShuntCompensatorSections = new HashMap<>();
+        private final Map<String, Integer> map = new HashMap<>();
 
         void add(String shuntCompensatorId, int sections) {
-            svShuntCompensatorSections.put(shuntCompensatorId, sections);
+            map.put(shuntCompensatorId, sections);
         }
     }
 
     @Test
-    void cgmes3MiniGridwithTransformersWithRtcAndPtc() throws IOException, XMLStreamException {
+    void cgmes3MiniGridwithTransformersWithRtcAndPtc() throws IOException {
 
         Network network = ConversionUtil.networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
 
@@ -339,7 +341,8 @@ class StateVariablesExportTest extends AbstractConverterTest {
                 .add();
 
         // Export as cgmes
-        Path outputPath = Files.createTempDirectory("temp.cgmesExport");
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
         String baseName = "minGridWithTransformersWithRTCAndPtc";
         new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
 

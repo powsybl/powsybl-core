@@ -20,7 +20,6 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -153,15 +152,18 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
     }
 
     @Test
-    void equivalentShuntTest() throws IOException, XMLStreamException {
+    void equivalentShuntTest() throws XMLStreamException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
 
         String ssh = exportSshAsString(network, 2);
 
-        SshLinearShuntCompensator sshLinearShuntCompensator = readSshLinearShuntCompensator(ssh);
-        ShuntCompensator equivalentShunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
-        assertTrue(!sshLinearShuntCompensator.sshLinearShuntCompensator.containsKey(equivalentShunt.getId()));
+        // Equivalent shunts should not have entries in SSH
+        String equivalentShuntId = "d771118f-36e9-4115-a128-cc3d9ce3e3da";
+        assertNotNull(network.getShuntCompensator(equivalentShuntId));
+        SshLinearShuntCompensators sshLinearShuntCompensators = readSshLinearShuntCompensator(ssh);
+        assertFalse(sshLinearShuntCompensators.map.isEmpty());
+        assertFalse(sshLinearShuntCompensators.map.containsKey(equivalentShuntId));
     }
 
     private static String exportSshAsString(Network network, int sshVersion) throws XMLStreamException {
@@ -174,13 +176,13 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         return stringWriter.toString();
     }
 
-    private static SshLinearShuntCompensator readSshLinearShuntCompensator(String ssh) {
+    private static SshLinearShuntCompensators readSshLinearShuntCompensator(String ssh) {
         final String sshLinearShuntCompensator = "LinearShuntCompensator";
         final String sshLinearShuntCompensatorSections = "ShuntCompensator.sections";
         final String sshLinearShuntCompensatorControlEnabled = "RegulatingCondEq.controlEnabled";
         final String attrAbout = "about";
 
-        SshLinearShuntCompensator sshLinearShuntCompensatorHashMap = new SshLinearShuntCompensator();
+        SshLinearShuntCompensators sshLinearShuntCompensators = new SshLinearShuntCompensators();
         try (InputStream is = new ByteArrayInputStream(ssh.getBytes(StandardCharsets.UTF_8))) {
             XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
             Integer sections = null;
@@ -201,8 +203,8 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
                         controlEnabled = Boolean.valueOf(text);
                     }
                 } else if (next == XMLStreamConstants.END_ELEMENT) {
-                    if (reader.getLocalName().equals(sshLinearShuntCompensator)) {
-                        sshLinearShuntCompensatorHashMap.add(shuntCompensatorId, sections, controlEnabled);
+                    if (reader.getLocalName().equals(sshLinearShuntCompensator) && sections != null && controlEnabled != null) {
+                        sshLinearShuntCompensators.add(shuntCompensatorId, sections, controlEnabled);
                     }
                 }
             }
@@ -210,14 +212,14 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         } catch (XMLStreamException | IOException e) {
             throw new RuntimeException(e);
         }
-        return sshLinearShuntCompensatorHashMap;
+        return sshLinearShuntCompensators;
     }
 
-    private static final class SshLinearShuntCompensator {
-        private final Map<String, Pair<Integer, Boolean>> sshLinearShuntCompensator = new HashMap<>();
+    private static final class SshLinearShuntCompensators {
+        private final Map<String, Pair<Integer, Boolean>> map = new HashMap<>();
 
         void add(String shuntCompensatorId, int sections, boolean controlEnabled) {
-            sshLinearShuntCompensator.put(shuntCompensatorId, Pair.of(sections, controlEnabled));
+            map.put(shuntCompensatorId, Pair.of(sections, controlEnabled));
         }
     }
 }
