@@ -10,16 +10,15 @@ import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.xml.XmlUtil;
@@ -37,13 +36,11 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -299,7 +296,7 @@ class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    void cgmes3MiniGridwithTransformersWithRtcAndPtc() throws IOException {
+    void cgmes3MiniGridwithTransformersWithRtcAndPtc() throws XMLStreamException {
 
         Network network = ConversionUtil.networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
 
@@ -340,36 +337,89 @@ class StateVariablesExportTest extends AbstractConverterTest {
                 .endStep()
                 .add();
 
-        // Export as cgmes
-        Path outputPath = tmpDir.resolve("temp.cgmesExport");
-        Files.createDirectories(outputPath);
-        String baseName = "minGridWithTransformersWithRTCAndPtc";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
-
-        // re-import after adding the original boundary files
-        copyBoundary(outputPath, baseName, Cgmes3Catalog.miniGrid().dataSource());
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
-
-        // check
-        TwoWindingsTransformer t2wta = actual.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
-        assertNotNull(t2wta.getRatioTapChanger());
-        assertEquals(t2wt.getRatioTapChanger().getTapPosition(), t2wta.getRatioTapChanger().getTapPosition());
-        assertNotNull(t2wta.getPhaseTapChanger());
-        assertEquals(t2wt.getPhaseTapChanger().getTapPosition(), t2wta.getPhaseTapChanger().getTapPosition());
-
-        ThreeWindingsTransformer t3wta = actual.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
-        assertNotNull(t3wta.getLeg1().getRatioTapChanger());
-        assertEquals(t3wt.getLeg1().getRatioTapChanger().getTapPosition(), t3wta.getLeg1().getRatioTapChanger().getTapPosition());
-        assertNotNull(t3wta.getLeg1().getPhaseTapChanger());
-        assertEquals(t3wt.getLeg1().getPhaseTapChanger().getTapPosition(), t3wta.getLeg1().getPhaseTapChanger().getTapPosition());
+        String expected = buildNetworkSvTapStepsString(network);
+        String sv = exportSvAsString(network, 2);
+        String actual = readSvTapSteps(sv).toSortedString();
+        assertEquals(expected, actual);
     }
 
-    private void copyBoundary(Path outputFolder, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
-        String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
-        if (eqbd != null) {
-            try (InputStream is = originalDataSource.newInputStream(eqbd)) {
-                Files.copy(is, outputFolder.resolve(baseName + "_EQ_BD.xml"));
+    private static String buildNetworkSvTapStepsString(Network network) {
+        SvTapSteps svTapSteps = new SvTapSteps();
+        network.getTwoWindingsTransformers().forEach(twt -> {
+            twt.getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1, rtc.getTapPosition(), svTapSteps));
+            twt.getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1, ptc.getTapPosition(), svTapSteps));
+        });
+        network.getThreeWindingsTransformers().forEach(twt -> {
+            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1, rtc.getTapPosition(), svTapSteps));
+            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1, ptc.getTapPosition(), svTapSteps));
+            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2, rtc.getTapPosition(), svTapSteps));
+            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2, ptc.getTapPosition(), svTapSteps));
+            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 3, rtc.getTapPosition(), svTapSteps));
+            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 3, ptc.getTapPosition(), svTapSteps));
+        });
+        return svTapSteps.toSortedString();
+    }
+
+    private static void obtainAndRecordTapChangerId(Identifiable<?> eq, String aliasType, int tapPosition, SvTapSteps svTapSteps) {
+        Optional<String> optionalTapChangerId = eq.getAliasFromType(aliasType);
+        String tapChangerId;
+        if (optionalTapChangerId.isPresent()) {
+            tapChangerId = optionalTapChangerId.get();
+        } else {
+            tapChangerId = CgmesExportUtil.getUniqueId();
+            eq.addAlias(tapChangerId, aliasType);  // record as alias to be used when the sv file is exported
+        }
+        svTapSteps.add(tapChangerId, tapPosition);
+    }
+
+    private static SvTapSteps readSvTapSteps(String sv) {
+        final String svTapStep = "SvTapStep";
+        final String svTapStepPosition = "SvTapStep.position";
+        final String svTapStepTapChanger = "SvTapStep.TapChanger";
+        final String attrResource = "resource";
+
+        SvTapSteps svTapSteps = new SvTapSteps();
+        try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            Integer position = null;
+            String tapChangerId = null;
+            while (reader.hasNext()) {
+                int next = reader.next();
+                if (next == XMLStreamConstants.START_ELEMENT) {
+                    if (reader.getLocalName().equals(svTapStep)) {
+                        position = null;
+                        tapChangerId = null;
+                    } else if (reader.getLocalName().equals(svTapStepPosition)) {
+                        String text = reader.getElementText();
+                        position = Integer.parseInt(text);
+                    } else if (reader.getLocalName().equals(svTapStepTapChanger)) {
+                        tapChangerId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrResource).substring(2);
+                    }
+                } else if (next == XMLStreamConstants.END_ELEMENT) {
+                    if (reader.getLocalName().equals(svTapStep) && position != null) {
+                        svTapSteps.add(tapChangerId, position);
+                    }
+                }
             }
+            reader.close();
+        } catch (XMLStreamException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return svTapSteps;
+    }
+
+    private static final class SvTapSteps {
+        private final Map<String, Integer> svTapSteps = new HashMap<>();
+
+        void add(String tapChangerId, int position) {
+            svTapSteps.put(tapChangerId, position);
+        }
+
+        String toSortedString() {
+            return svTapSteps.entrySet().stream()
+                    .map(e -> String.format("%50s %05d", e.getKey(), e.getValue()))
+                    .sorted()
+                    .collect(Collectors.joining("\n"));
         }
     }
 
