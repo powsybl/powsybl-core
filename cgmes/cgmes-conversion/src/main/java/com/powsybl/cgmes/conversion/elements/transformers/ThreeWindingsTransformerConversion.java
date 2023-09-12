@@ -91,7 +91,7 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
     private void setToIidm(ConvertedT3xModel convertedT3xModel) {
         ThreeWindingsTransformerAdder txadder = substation()
                 .map(Substation::newThreeWindingsTransformer)
-                .orElseGet(() -> context.network().newThreeWindingsTransformer())
+                .orElseThrow()
                 .setRatedU0(convertedT3xModel.ratedU0);
         identify(txadder);
 

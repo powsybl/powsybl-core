@@ -6,15 +6,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
-
-import java.util.Optional;
 
 /**
  *
@@ -187,7 +183,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
     }
 
-    private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
 
     private LegAdderImpl legAdder1;
@@ -199,22 +194,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     private double ratedU0 = Double.NaN;
 
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
-        networkRef = null;
         this.substation = substation;
-    }
-
-    ThreeWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef) {
-        this.networkRef = networkRef;
-        substation = null;
     }
 
     @Override
     protected NetworkImpl getNetwork() {
-        return Optional.ofNullable(networkRef)
-                .map(Ref::get)
-                .orElseGet(() -> Optional.ofNullable(substation)
-                        .map(SubstationImpl::getNetwork)
-                        .orElseThrow(() -> new PowsyblException("Three windings transformer has no container")));
+        return substation.getNetwork();
     }
 
     @Override
@@ -284,18 +269,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             throw new ValidationException(this, "Leg3 is not set");
         }
 
-        if (substation != null) {
-            if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
-                throw new ValidationException(this,
-                        "the 3 windings of the transformer shall belong to the substation '"
-                                + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"
-                                + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "', '"
-                                + voltageLevel3.getSubstation().map(Substation::getId).orElse("null") + "')");
-            }
-        } else if (voltageLevel1.getSubstation().isPresent() || voltageLevel2.getSubstation().isPresent() || voltageLevel3.getSubstation().isPresent()) {
+        if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
             throw new ValidationException(this,
-                    "the 3 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
-                            + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "', '" + voltageLevel3.getId() + "')");
+                    "the 3 windings of the transformer shall belong to the substation '"
+                            + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"
+                            + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "', '"
+                            + voltageLevel3.getSubstation().map(Substation::getId).orElse("null") + "')");
         }
 
         // Define ratedU0 equal to ratedU1 if it has not been defined
@@ -304,7 +283,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
-        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation != null ? substation.getNetwork().getRef() : networkRef, id, getName(), isFictitious(), leg1, leg2, leg3,
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation.getNetwork().getRef(), id, getName(), isFictitious(), leg1, leg2, leg3,
             ratedU0);
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);
