@@ -127,4 +127,11 @@ class MatpowerExporterTest extends AbstractConverterTest {
                 .add();
         exportToMatAndCompareTo(network, "/sim1-with-non-regulating-gen.json");
     }
+
+    @Test
+    void testNanTargetQIssue() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        network.getGenerator("GEN").setTargetQ(Double.NaN);
+        exportToMatAndCompareTo(network, "/sim1-with-nan-target-q.json");
+    }
 }
