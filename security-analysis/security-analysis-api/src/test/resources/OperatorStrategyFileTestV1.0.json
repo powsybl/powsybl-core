@@ -4,7 +4,7 @@
     "id" : "id1",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
-    "stages" : [ {
+    "conditionalActions" : [ {
       "id" : "stage1",
       "condition" : {
         "type" : "TRUE_CONDITION"
@@ -15,7 +15,7 @@
     "id" : "id2",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId2",
-    "stages" : [ {
+    "conditionalActions" : [ {
       "id" : "stage1",
       "condition" : {
         "type" : "ANY_VIOLATION_CONDITION"
@@ -26,7 +26,7 @@
     "id" : "id3",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
-    "stages" : [ {
+    "conditionalActions" : [ {
       "id" : "stage1",
       "condition" : {
         "type" : "ANY_VIOLATION_CONDITION",
@@ -38,7 +38,7 @@
     "id" : "id4",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId3",
-    "stages" : [ {
+    "conditionalActions" : [ {
       "id" : "stage1",
       "condition" : {
         "type" : "ANY_VIOLATION_CONDITION",
@@ -50,7 +50,7 @@
     "id" : "id5",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId4",
-    "stages" : [ {
+    "conditionalActions" : [ {
       "id" : "stage1",
       "condition" : {
         "type" : "ALL_VIOLATION",
@@ -63,7 +63,7 @@
     "id" : "id6",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId5",
-    "stages" : [ {
+    "conditionalActions" : [ {
       "id" : "stage1",
       "condition" : {
         "type" : "ALL_VIOLATION",

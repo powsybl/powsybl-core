@@ -4,7 +4,7 @@
     "id" : "id1",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
-    "stages" : [ {
+    "conditionalActions" : [ {
       "id" : "default",
       "condition" : {
         "type" : "TRUE_CONDITION"
@@ -22,7 +22,7 @@
     "id" : "id2",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId2",
-    "stages" : [ {
+    "conditionalActions" : [ {
       "id" : "default",
       "condition" : {
         "type" : "TRUE_CONDITION"

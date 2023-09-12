@@ -157,7 +157,7 @@
       "id" : "strategyId",
       "contingencyContextType" : "SPECIFIC",
       "contingencyId" : "contingency1",
-      "stages" : [ {
+      "conditionalActions" : [ {
         "id" : "stage1",
         "condition" : {
           "type" : "AT_LEAST_ONE_VIOLATION",

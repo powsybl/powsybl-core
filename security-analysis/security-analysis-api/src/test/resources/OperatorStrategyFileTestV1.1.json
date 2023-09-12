@@ -4,7 +4,7 @@
     "id" : "id1",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
-    "stages" : [
+    "conditionalActions" : [
       {
         "id" : "stage1",
         "condition": {
@@ -20,7 +20,7 @@
     "id" : "id1",
     "contingencyContextType" : "SPECIFIC",
     "contingencyId" : "contingencyId1",
-    "stages" : [
+    "conditionalActions" : [
       {
         "id" : "stage1",
         "condition": {

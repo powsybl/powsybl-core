@@ -72,7 +72,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                     parser.nextToken();
                     context.contingencyId = parser.getValueAsString();
                     return true;
-                case "stages":
+                case "conditionalActions":
                     parser.nextToken();
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
                             context.version, "1.5");
