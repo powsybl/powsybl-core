@@ -46,11 +46,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Properties;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -174,6 +170,13 @@ class EquipmentExportTest extends AbstractConverterTest {
         exportToCgmesTP(network);
         // Import EQ & TP file, no additional information (boundaries) are required
         Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
+
+        // The xiidm file does not contain ratedS values, but during the cgmes export process default values
+        // are exported for each transformer that are reading in the import process.
+        // we reset the default imported ratedS values before comparing
+        TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
+        network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
+
         compareNetworksEQdata(network, actual);
     }
 
@@ -187,6 +190,13 @@ class EquipmentExportTest extends AbstractConverterTest {
         Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
         // Before comparing, interchange ends in twoWindingsTransformers that do not follow the high voltage at end1 rule
         prepareNetworkForSortedTransformerEndsComparison(network);
+
+        // The xiidm file does not contain ratedS values, but during the cgmes export process default values
+        // are exported for each transformer that are reading in the import process.
+        // we reset the default imported ratedS values before comparing
+        TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
+        network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
+
         compareNetworksEQdata(network, actual);
     }
 
