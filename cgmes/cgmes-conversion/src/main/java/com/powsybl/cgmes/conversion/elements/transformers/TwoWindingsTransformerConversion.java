@@ -154,6 +154,9 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
                 .setB(Double.isNaN(convertedT2xModel.end1.b) ? 0.0 : convertedT2xModel.end1.b)
                 .setRatedU1(convertedT2xModel.end1.ratedU)
                 .setRatedU2(convertedT2xModel.end2.ratedU);
+        if (convertedT2xModel.ratedS != null) {
+            adder.setRatedS(convertedT2xModel.ratedS);
+        }
         identify(adder);
         connect(adder);
         TwoWindingsTransformer tx = adder.add();
