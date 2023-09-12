@@ -171,6 +171,24 @@ class Cgmes3ConversionTest {
     }
 
     @Test
+    void miniGridRatedS() throws IOException {
+        Network n = networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
+
+        assertEquals(31.5, n.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51").getRatedS(), 0.0);
+        assertEquals(150.0, n.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174").getRatedS(), 0.0);
+        assertEquals(100.0, n.getTwoWindingsTransformer("f1e72854-ec35-46e9-b614-27db354e8dbb").getRatedS(), 0.0);
+        assertEquals(31.5, n.getTwoWindingsTransformer("6c89588b-3df5-4120-88e5-26164afb43e9").getRatedS(), 0.0);
+
+        assertEquals(350.0, n.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c").getLeg1().getRatedS(), 0.0);
+        assertEquals(350.0, n.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c").getLeg2().getRatedS(), 0.0);
+        assertEquals(50.0, n.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c").getLeg3().getRatedS(), 0.0);
+
+        assertEquals(350.0, n.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773").getLeg1().getRatedS(), 0.0);
+        assertEquals(350.0, n.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773").getLeg2().getRatedS(), 0.0);
+        assertEquals(50.0, n.getThreeWindingsTransformer("5d38b7ed-73fd-405a-9cdb-78425e003773").getLeg3().getRatedS(), 0.0);
+    }
+
+    @Test
     void miniGridWithAndWithoutTpSv() throws IOException {
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.miniGrid().dataSource(),

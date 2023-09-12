@@ -136,6 +136,9 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
             .setG(convertedModelWinding.end1.g)
             .setB(convertedModelWinding.end1.b)
             .setRatedU(convertedModelWinding.end1.ratedU);
+        if (convertedModelWinding.ratedS != null) {
+            ladder.setRatedS(convertedModelWinding.ratedS);
+        }
     }
 
     private static void setToIidmWindingTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedT3xModel.ConvertedWinding convertedModelWinding,
