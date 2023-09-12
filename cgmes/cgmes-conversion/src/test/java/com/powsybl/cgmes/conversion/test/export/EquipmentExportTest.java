@@ -528,6 +528,32 @@ class EquipmentExportTest extends AbstractConverterTest {
         assertTrue(equivalentShuntsAreEqual(expectedEquivalentShunt, actualEquivalentShunt));
     }
 
+    @Test
+    void equivalentShuntWithZeroSectionCountTest() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+        ShuntCompensator equivalentShunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        equivalentShunt.setSectionCount(0);
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridEquivalentShunt";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import after adding the original boundary files
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+
+        ShuntCompensator actualEquivalentShunt = actual.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        assertTrue(equivalentShuntsAreEqual(equivalentShunt, actualEquivalentShunt));
+
+        // Terminal is disconnected in the actual network as equivalent shunts with
+        // sectionCount equals to zero are declared as disconnected in the SSH
+        assertTrue(equivalentShunt.getTerminal().isConnected());
+        assertFalse(actualEquivalentShunt.getTerminal().isConnected());
+    }
+
     private static void copyBoundary(Path outputFolder, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
         String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
         if (eqbd != null) {

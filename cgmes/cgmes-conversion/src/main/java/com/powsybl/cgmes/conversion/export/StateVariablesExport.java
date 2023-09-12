@@ -426,6 +426,10 @@ public final class StateVariablesExport {
             // We ignore dangling lines inside tie lines for now
             return;
         }
+        if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(connectable)) {
+            writeStatus(Boolean.toString(false), context.getNamingStrategy().getCgmesId(connectable), cimNamespace, writer, context);
+            return;
+        }
         writeStatus(Boolean.toString(connectable.getTerminals().stream().anyMatch(Terminal::isConnected)), context.getNamingStrategy().getCgmesId(connectable), cimNamespace, writer, context);
     }
 

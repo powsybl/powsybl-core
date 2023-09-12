@@ -411,7 +411,10 @@ public final class EquipmentExport {
         for (ShuntCompensator s : network.getShuntCompensators()) {
             if ("true".equals(s.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
                 // Must have been mapped to a linear shunt compensator with 1 section
-                EquivalentShuntEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(), s.getG(), s.getB(), context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
+                EquivalentShuntEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(),
+                        s.getG(s.getMaximumSectionCount()), s.getB(s.getMaximumSectionCount()),
+                        context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel()),
+                        cimNamespace, writer, context);
             } else {
                 double bPerSection = 0.0;
                 double gPerSection = Double.NaN;

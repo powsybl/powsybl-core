@@ -86,8 +86,13 @@ public final class SteadyStateHypothesisExport {
     private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
             if (context.isExportedEquipment(c)) {
-                for (Terminal t : c.getTerminals()) {
-                    writeTerminal(t, cimNamespace, writer, context);
+                if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(c)) {
+                    ShuntCompensator s = (ShuntCompensator) c;
+                    writeTerminal(CgmesExportUtil.getTerminalId(s.getTerminal(), context), false, cimNamespace, writer, context);
+                } else {
+                    for (Terminal t : c.getTerminals()) {
+                        writeTerminal(t, cimNamespace, writer, context);
+                    }
                 }
             }
         }
