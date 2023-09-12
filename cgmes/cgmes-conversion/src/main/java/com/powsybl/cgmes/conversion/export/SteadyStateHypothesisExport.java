@@ -87,8 +87,9 @@ public final class SteadyStateHypothesisExport {
         for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
             if (context.isExportedEquipment(c)) {
                 if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(c)) {
-                    ShuntCompensator s = (ShuntCompensator) c;
-                    writeTerminal(CgmesExportUtil.getTerminalId(s.getTerminal(), context), false, cimNamespace, writer, context);
+                    // Equivalent shunts do not have a section count in SSH, SV profiles,
+                    // the only way to make output consistent with IIDM section count == 0 is to disconnect its terminal
+                    writeTerminal(CgmesExportUtil.getTerminalId(c.getTerminals().get(0), context), false, cimNamespace, writer, context);
                 } else {
                     for (Terminal t : c.getTerminals()) {
                         writeTerminal(t, cimNamespace, writer, context);

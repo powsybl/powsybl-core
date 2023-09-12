@@ -322,9 +322,9 @@ public final class CgmesExportUtil {
     }
 
     public static boolean isEquivalentShuntWithZeroSectionCount(Connectable<?> c) {
-        if (c instanceof ShuntCompensator) {
+        if (c instanceof ShuntCompensator shuntCompensator) {
             return "true".equals(c.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))
-                    && ((ShuntCompensator) c).getSectionCount() == 0;
+                    && shuntCompensator.getSectionCount() == 0;
         }
         return false;
     }

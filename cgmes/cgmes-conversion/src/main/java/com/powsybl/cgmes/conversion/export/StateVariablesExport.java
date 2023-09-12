@@ -427,6 +427,8 @@ public final class StateVariablesExport {
             return;
         }
         if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(connectable)) {
+            // Equivalent shunts do not have a section count in SSH, SV profiles,
+            // To make output consistent with IIDM section count == 0 we declare it out of service
             writeStatus(Boolean.toString(false), context.getNamingStrategy().getCgmesId(connectable), cimNamespace, writer, context);
             return;
         }
