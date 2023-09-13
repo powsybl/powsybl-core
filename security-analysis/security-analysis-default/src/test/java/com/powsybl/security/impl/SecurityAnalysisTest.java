@@ -99,7 +99,7 @@ class SecurityAnalysisTest {
                 .endTemporaryLimit()
                 .add();
         network.newVoltageAngleLimit()
-            .setName("VoltageAngleLimit_NHV1_NHV2_1")
+            .setId("VoltageAngleLimit_NHV1_NHV2_1")
             .from(network.getLine("NHV1_NHV2_1").getTerminal1())
             .to(network.getLine("NHV1_NHV2_1").getTerminal2())
             .setLowLimit(-0.25)

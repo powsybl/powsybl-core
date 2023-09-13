@@ -83,7 +83,7 @@ class LimitViolationFilterTest {
     void apply() throws Exception {
         Network network = TestingNetworkFactory.create();
         network.newVoltageAngleLimit()
-                .setName("val")
+                .setId("val")
                 .setHighLimit(0.25)
                 .from(network.getLine("LINE1").getTerminal1())
                 .to(network.getLine("LINE1").getTerminal2())

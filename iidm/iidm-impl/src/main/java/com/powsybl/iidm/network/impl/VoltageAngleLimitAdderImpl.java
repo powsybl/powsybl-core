@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -18,7 +19,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
 
     private final Ref<NetworkImpl> networkRef;
-    private String name;
+    private String id;
     private Terminal from;
     private Terminal to;
     private double lowLimit = Double.NaN;
@@ -30,8 +31,8 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
     }
 
     @Override
-    public VoltageAngleLimitAdderImpl setName(String name) {
-        this.name = name;
+    public VoltageAngleLimitAdderImpl setId(String id) {
+        this.id = id;
         return this;
     }
 
@@ -61,15 +62,19 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
 
     @Override
     public VoltageAngleLimit add() {
-        if (name == null) {
-            throw new IllegalStateException("Voltage angle limit name is mandatory.");
+        if (id == null) {
+            throw new IllegalStateException("Voltage angle limit id is mandatory.");
+        }
+        if (networkRef.get().getVoltageAngleLimitsIndex().containsKey(id)) {
+            throw new PowsyblException("The network " + networkRef.get().getId()
+                    + " already contains a voltage angle limit with the id '" + id + "'");
         }
         if (!Double.isNaN(lowLimit) && !Double.isNaN(highLimit) && lowLimit >= highLimit) {
             throw new IllegalStateException("Voltage angle low limit must be lower than the high limit.");
         }
 
-        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(name, from, to, lowLimit, highLimit);
-        networkRef.get().getVoltageAngleLimits().add(voltageAngleLimit);
+        VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(id, from, to, lowLimit, highLimit);
+        networkRef.get().getVoltageAngleLimitsIndex().put(id, voltageAngleLimit);
         return voltageAngleLimit;
     }
 }

@@ -6,14 +6,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.util.TerminalUtil;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -31,6 +29,8 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageAngleLimit;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -124,6 +124,28 @@ class MergeTest {
         assertTrue(voltageAngleLimitsAreEqual(voltageAngleLimit, network1.getVoltageAngleLimits()));
     }
 
+    @Test
+    void mergeTwoNetworksWithVoltageAngleLimitsFail() throws IOException {
+        Network network1 = createNodeBreakerWithVoltageAngleLimit("1");
+        Network network2 = createNodeBreakerWithVoltageAngleLimit("2");
+
+        network1.newVoltageAngleLimit()
+                .setId("LimitCollision")
+                .from(network1.getLine(id("Line-2-2", "1")).getTerminal1())
+                .to(network1.getDanglingLine(id("Dl-3", "1")).getTerminal())
+                .setHighLimit(0.25)
+                .add();
+        network2.newVoltageAngleLimit()
+                .setId("LimitCollision")
+                .from(network2.getLine(id("Line-2-2", "2")).getTerminal1())
+                .to(network2.getDanglingLine(id("Dl-3", "2")).getTerminal())
+                .setHighLimit(0.25)
+                .add();
+
+        PowsyblException e = assertThrows(PowsyblException.class, () -> network1.merge(network2));
+        assertEquals("The following voltage angle limit(s) exist(s) in both networks: [LimitCollision]", e.getMessage());
+    }
+
     private static boolean voltageAngleLimitsAreEqual(List<VoltageAngleLimit> expected, List<VoltageAngleLimit> actual) {
         if (expected.size() != actual.size()) {
             return false;
@@ -193,7 +215,7 @@ class MergeTest {
         createLine(network, id("S1VL1", nid), id("S2VL1", nid), id("Line-2-2", nid), 2, 2);
 
         network.newVoltageAngleLimit()
-            .setName("VoltageAngleLimit_Line-2-2_Dl-3")
+            .setId(id("VoltageAngleLimit_Line-2-2_Dl-3", nid))
             .from(network.getLine(id("Line-2-2", nid)).getTerminal1())
             .to(network.getDanglingLine(id("Dl-3", nid)).getTerminal())
             .setHighLimit(0.25)

@@ -1202,6 +1202,11 @@ public interface Network extends Container<Network> {
     List<VoltageAngleLimit> getVoltageAngleLimits();
 
     /**
+     * Get voltage angle limit with id
+     */
+    Optional<VoltageAngleLimit> getVoltageAngleLimit(String id);
+
+    /**
      * Merge with an other network. At the end of the merge the other network
      * is empty.
      * @param other the other network

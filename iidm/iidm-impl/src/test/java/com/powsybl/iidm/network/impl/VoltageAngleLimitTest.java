@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 
@@ -28,13 +29,13 @@ class VoltageAngleLimitTest {
     void voltageAngleLimitTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
 
-        network.newVoltageAngleLimit().setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
+        network.newVoltageAngleLimit().setId("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
             .from(network.getLine("LINE_S2S3").getTerminal1())
             .to(network.getLine("LINE_S2S3").getTerminal2())
             .setHighLimit(1.0)
             .add();
 
-        network.newVoltageAngleLimit().setName("VOLTAGE_ANGLE_LIMIT_LD1_LD6")
+        network.newVoltageAngleLimit().setId("VOLTAGE_ANGLE_LIMIT_LD1_LD6")
             .from(network.getLoad("LD1").getTerminal())
             .to(network.getLoad("LD6").getTerminal())
             .setLowLimit(1.0)
@@ -43,26 +44,26 @@ class VoltageAngleLimitTest {
         assertEquals(2, network.getVoltageAngleLimits().size());
 
         VoltageAngleLimit val0 = network.getVoltageAngleLimits().get(0);
-        assertEquals("VOLTAGE_ANGLE_LIMIT_LINE_S2S3", val0.getName());
-
-        assertEquals("LINE_S2S3", val0.getTerminalFrom().getConnectable().getId());
-        assertTrue(TerminalUtil.getConnectableSide(val0.getTerminalFrom()).isPresent());
-        TerminalUtil.getConnectableSide(val0.getTerminalFrom()).ifPresent(side -> assertEquals(ThreeSides.ONE, side));
-        assertEquals("LINE_S2S3", val0.getTerminalTo().getConnectable().getId());
-        assertTrue(TerminalUtil.getConnectableSide(val0.getTerminalTo()).isPresent());
-        TerminalUtil.getConnectableSide(val0.getTerminalTo()).ifPresent(side -> assertEquals(ThreeSides.TWO, side));
-        assertTrue(val0.getHighLimit().isPresent());
-        assertTrue(val0.getLowLimit().isEmpty());
-        assertEquals(1.0, val0.getHighLimit().getAsDouble());
+        assertEquals("LD1", val0.getTerminalFrom().getConnectable().getId());
+        assertTrue(TerminalUtil.getConnectableSide(val0.getTerminalFrom()).isEmpty());
+        assertEquals("LD6", val0.getTerminalTo().getConnectable().getId());
+        assertTrue(TerminalUtil.getConnectableSide(val0.getTerminalTo()).isEmpty());
+        assertTrue(val0.getLowLimit().isPresent());
+        assertTrue(val0.getHighLimit().isEmpty());
+        assertEquals(1.0, val0.getLowLimit().getAsDouble());
 
         VoltageAngleLimit val1 = network.getVoltageAngleLimits().get(1);
-        assertEquals("LD1", val1.getTerminalFrom().getConnectable().getId());
-        assertTrue(TerminalUtil.getConnectableSide(val1.getTerminalFrom()).isEmpty());
-        assertEquals("LD6", val1.getTerminalTo().getConnectable().getId());
-        assertTrue(TerminalUtil.getConnectableSide(val1.getTerminalTo()).isEmpty());
-        assertTrue(val1.getLowLimit().isPresent());
-        assertTrue(val1.getHighLimit().isEmpty());
-        assertEquals(1.0, val1.getLowLimit().getAsDouble());
+        assertEquals("VOLTAGE_ANGLE_LIMIT_LINE_S2S3", val1.getId());
+
+        assertEquals("LINE_S2S3", val1.getTerminalFrom().getConnectable().getId());
+        assertTrue(TerminalUtil.getConnectableSide(val1.getTerminalFrom()).isPresent());
+        TerminalUtil.getConnectableSide(val1.getTerminalFrom()).ifPresent(side -> assertEquals(ThreeSides.ONE, side));
+        assertEquals("LINE_S2S3", val1.getTerminalTo().getConnectable().getId());
+        assertTrue(TerminalUtil.getConnectableSide(val1.getTerminalTo()).isPresent());
+        TerminalUtil.getConnectableSide(val1.getTerminalTo()).ifPresent(side -> assertEquals(ThreeSides.TWO, side));
+        assertTrue(val1.getHighLimit().isPresent());
+        assertTrue(val1.getLowLimit().isEmpty());
+        assertEquals(1.0, val1.getHighLimit().getAsDouble());
     }
 
     @Test
@@ -73,7 +74,7 @@ class VoltageAngleLimitTest {
                 .from(network.getLine("LINE_S2S3").getTerminal1())
                 .to(network.getLine("LINE_S2S3").getTerminal2());
         IllegalStateException e = assertThrows(IllegalStateException.class, adder::add);
-        assertEquals("Voltage angle limit name is mandatory.", e.getMessage());
+        assertEquals("Voltage angle limit id is mandatory.", e.getMessage());
     }
 
     @Test
@@ -81,12 +82,33 @@ class VoltageAngleLimitTest {
         Network network = FourSubstationsNodeBreakerFactory.create();
 
         VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
-                .setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
+                .setId("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
                 .from(network.getLine("LINE_S2S3").getTerminal1())
                 .to(network.getLine("LINE_S2S3").getTerminal2())
                 .setLowLimit(20.0)
                 .setHighLimit(-20.0);
         IllegalStateException e = assertThrows(IllegalStateException.class, adder::add);
         assertEquals("Voltage angle low limit must be lower than the high limit.", e.getMessage());
+    }
+
+    @Test
+    void uniqueIdTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        network.newVoltageAngleLimit()
+                .setId("Limit")
+                .from(network.getLine("LINE_S2S3").getTerminal1())
+                .to(network.getLine("LINE_S2S3").getTerminal2())
+                .setLowLimit(-20.0)
+                .setHighLimit(20.0)
+                .add();
+        VoltageAngleLimitAdder adder = network.newVoltageAngleLimit()
+                .setId("Limit")
+                .from(network.getLine("LINE_S2S3").getTerminal1())
+                .to(network.getLine("LINE_S2S3").getTerminal2())
+                .setLowLimit(-20.0)
+                .setHighLimit(20.0);
+        PowsyblException e = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("The network " + network.getId()
+                + " already contains a voltage angle limit with the id 'Limit'", e.getMessage());
     }
 }

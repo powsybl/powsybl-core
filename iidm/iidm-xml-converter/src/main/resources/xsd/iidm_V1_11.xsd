@@ -639,7 +639,7 @@
             <xs:element name="from" type="iidm:TerminalRef"/>
             <xs:element name="to" type="iidm:TerminalRef"/>
         </xs:sequence>
-		<xs:attribute name="name" use="required" type="xs:string"/>
+		<xs:attribute name="id" use="required" type="xs:string"/>
         <xs:attribute name="highLimit" use="optional" type="xs:double"/>
         <xs:attribute name="lowLimit" use="optional" type="xs:double"/>
     </xs:complexType>

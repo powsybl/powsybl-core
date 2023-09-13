@@ -23,7 +23,7 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 public final class VoltageAngleLimitXml {
 
     private static final String VOLTAGE_ANGLE_LIMIT = "voltageAngleLimit";
-    private static final String NAME = "name";
+    private static final String ID = "id";
     private static final String LOW_LIMIT = "lowLimit";
     private static final String HIGH_LIMIT = "highLimit";
     private static final String FROM = "from";
@@ -34,7 +34,7 @@ public final class VoltageAngleLimitXml {
 
             context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), VOLTAGE_ANGLE_LIMIT);
             try {
-                context.getWriter().writeAttribute(NAME, context.getAnonymizer().anonymizeString(voltageAngleLimit.getName()));
+                context.getWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(voltageAngleLimit.getId()));
             } catch (XMLStreamException e) {
                 throw new UncheckedXmlStreamException(e);
             }
@@ -62,12 +62,12 @@ public final class VoltageAngleLimitXml {
     public static void read(Network network, NetworkXmlReaderContext context) {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_11, context, () -> {
 
-            String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, NAME));
+            String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, ID));
             double lowLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), LOW_LIMIT);
             double highLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), HIGH_LIMIT);
 
             VoltageAngleLimitAdder adder = network.newVoltageAngleLimit();
-            adder.setName(name);
+            adder.setId(id);
             if (!Double.isNaN(lowLimit)) {
                 adder.setLowLimit(lowLimit);
             }

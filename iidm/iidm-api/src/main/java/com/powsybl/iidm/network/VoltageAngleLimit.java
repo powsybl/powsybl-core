@@ -24,7 +24,7 @@ public interface VoltageAngleLimit extends OperationalLimits {
     /**
      * Return the mandatory name.
      */
-    String getName();
+    String getId();
 
     /**
      * A voltage angle limit is compared to the difference between the bus angle associated to the terminal from and

@@ -848,21 +848,21 @@ public final class EurostagTutorialExample1Factory {
         network.setCaseDate(DateTime.parse("2023-06-28T23:11:51.614+02:00"));
 
         network.newVoltageAngleLimit()
-            .setName("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_1")
+            .setId("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_1")
             .from(network.getLine("NHV1_NHV2_1").getTerminal1())
             .to(network.getLine("NHV1_NHV2_1").getTerminal2())
             .setHighLimit(0.25)
             .add();
 
         network.newVoltageAngleLimit()
-            .setName("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_2")
+            .setId("VOLTAGE_ANGLE_LIMIT_NHV1_NHV2_2")
             .from(network.getLine("NHV1_NHV2_2").getTerminal1())
             .to(network.getLine("NHV1_NHV2_2").getTerminal2())
             .setLowLimit(0.20)
             .add();
 
         network.newVoltageAngleLimit()
-            .setName("VOLTAGE_ANGLE_LIMIT_NGEN_NHV1")
+            .setId("VOLTAGE_ANGLE_LIMIT_NGEN_NHV1")
             .from(network.getGenerator("GEN").getTerminal())
             .to(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2())
             .setLowLimit(-0.20)

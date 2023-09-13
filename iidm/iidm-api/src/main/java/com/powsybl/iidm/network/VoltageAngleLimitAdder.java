@@ -14,7 +14,7 @@ package com.powsybl.iidm.network;
 
 public interface VoltageAngleLimitAdder extends OperationalLimitsAdder<VoltageAngleLimit, VoltageAngleLimitAdder> {
 
-    VoltageAngleLimitAdder setName(String name);
+    VoltageAngleLimitAdder setId(String name);
 
     VoltageAngleLimitAdder from(Terminal from);
 

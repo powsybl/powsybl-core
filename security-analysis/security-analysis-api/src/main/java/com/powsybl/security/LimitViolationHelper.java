@@ -26,12 +26,9 @@ public final class LimitViolationHelper {
 
         Identifiable<?> identifiable = network.getIdentifiable(limitViolation.getSubjectId());
         if (limitViolation.getLimitType() == LimitViolationType.LOW_VOLTAGE_ANGLE || limitViolation.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE) {
-            Optional<VoltageAngleLimit> limit = network.getVoltageAngleLimits().stream().filter(l -> l.getName().equals(limitViolation.getSubjectId())).findAny();
-            if (limit.isPresent()) {
-                return limit.get().getTerminalFrom().getVoltageLevel();
-            } else {
-                throw new PowsyblException("Limit from limit violation is not in the network.");
-            }
+            Optional<VoltageAngleLimit> limit = network.getVoltageAngleLimit(limitViolation.getSubjectId());
+            return limit.orElseThrow(() -> new PowsyblException("Limit from limit violation is not in the network."))
+                    .getTerminalFrom().getVoltageLevel();
         }
         if (identifiable instanceof Branch<?> branch) {
             return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();

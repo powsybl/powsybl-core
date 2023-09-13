@@ -49,11 +49,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final NetworkIndex index = new NetworkIndex();
 
+    private final Map<String, VoltageAngleLimit> voltageAngleLimitsIndex = new HashMap<>();
+
     private final VariantManagerImpl variantManager;
 
     private final NetworkListenerList listeners = new NetworkListenerList();
-
-    private final List<VoltageAngleLimit> voltageAngleLimits = new ArrayList<>();
 
     class BusBreakerViewImpl implements BusBreakerView {
 
@@ -192,6 +192,16 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     public NetworkIndex getIndex() {
         return index;
+    }
+
+    public Map<String, VoltageAngleLimit> getVoltageAngleLimitsIndex() {
+        return voltageAngleLimitsIndex;
+    }
+
+    @Override
+    public Optional<VoltageAngleLimit> getVoltageAngleLimit(String id) {
+        VoltageAngleLimit limit = voltageAngleLimitsIndex.get(id);
+        return limit != null ? Optional.of(limit) : Optional.empty();
     }
 
     @Override
@@ -715,10 +725,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         return Ints.checkedCast(getConnectableStream().count());
     }
 
-    void addVoltageAngleLimit(VoltageAngleLimit voltageAngleLimit) {
-        voltageAngleLimits.add(voltageAngleLimit);
-    }
-
     @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
         return new VoltageAngleLimitAdderImpl(ref);
@@ -726,7 +732,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public List<VoltageAngleLimit> getVoltageAngleLimits() {
-        return voltageAngleLimits;
+        return voltageAngleLimitsIndex.values().stream().toList();
     }
 
     @Override
@@ -924,6 +930,15 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             }
         }
 
+        //Check mergeability of voltage angle limits
+        Set<String> intersectionVoltageAngleLimits = getVoltageAngleLimitsIndex().keySet().stream()
+                .filter(otherNetwork.getVoltageAngleLimitsIndex()::containsKey)
+                .collect(Collectors.toSet());
+        if (!intersectionVoltageAngleLimits.isEmpty()) {
+            throw new PowsyblException("The following voltage angle limit(s) exist(s) in both networks: "
+                    + intersectionVoltageAngleLimits);
+        }
+
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
         Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
@@ -948,7 +963,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         replaceDanglingLineByLine(lines);
 
-        getVoltageAngleLimits().addAll(other.getVoltageAngleLimits());
+        other.getVoltageAngleLimits().forEach(l -> getVoltageAngleLimitsIndex().put(l.getId(), l));
 
         // update the source format
         if (!sourceFormat.equals(otherNetwork.sourceFormat)) {
