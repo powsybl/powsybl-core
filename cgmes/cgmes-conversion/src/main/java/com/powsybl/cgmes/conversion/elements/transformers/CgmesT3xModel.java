@@ -37,6 +37,7 @@ public class CgmesT3xModel {
         final TapChanger phaseTapChanger;
         final double ratedU;
         final String terminal;
+        final Double ratedS;
 
         CgmesEnd(PropertyBag end, Context context) {
             this.r = end.asDouble(CgmesNames.R);
@@ -47,6 +48,8 @@ public class CgmesT3xModel {
             this.phaseTapChanger = TapChanger.phaseTapChangerFromEnd(end, x, context);
             this.ratedU = end.asDouble(CgmesNames.RATEDU);
             this.terminal = end.getId(CgmesNames.TERMINAL);
+            double ratedS0 = end.asDouble(CgmesNames.RATEDS, 0);
+            this.ratedS = ratedS0 > 0 ? ratedS0 : null;
         }
     }
 }

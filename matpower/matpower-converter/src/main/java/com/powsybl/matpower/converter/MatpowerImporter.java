@@ -341,7 +341,9 @@ public class MatpowerImporter implements Importer {
 
             Branch<?> branch;
             if (isTransformer(model, mBranch)) {
-                TwoWindingsTransformer newTwt = voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(network::newTwoWindingsTransformer)
+                TwoWindingsTransformer newTwt = voltageLevel2.getSubstation()
+                        .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
+                        .newTwoWindingsTransformer()
                         .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
                         .setBus1(connectedBus1)

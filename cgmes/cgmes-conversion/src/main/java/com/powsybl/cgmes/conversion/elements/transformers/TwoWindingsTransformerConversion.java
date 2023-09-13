@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -146,13 +147,16 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
         TwoWindingsTransformerAdder adder = substation()
                 .map(Substation::newTwoWindingsTransformer)
-                .orElseGet(() -> context.network().newTwoWindingsTransformer())
+                .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
                 .setR(convertedT2xModel.r)
                 .setX(convertedT2xModel.x)
                 .setG(Double.isNaN(convertedT2xModel.end1.g) ? 0.0 : convertedT2xModel.end1.g)
                 .setB(Double.isNaN(convertedT2xModel.end1.b) ? 0.0 : convertedT2xModel.end1.b)
                 .setRatedU1(convertedT2xModel.end1.ratedU)
                 .setRatedU2(convertedT2xModel.end2.ratedU);
+        if (convertedT2xModel.ratedS != null) {
+            adder.setRatedS(convertedT2xModel.ratedS);
+        }
         identify(adder);
         connect(adder);
         TwoWindingsTransformer tx = adder.add();
