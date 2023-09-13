@@ -227,7 +227,6 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
 
     @Test
     void testUpdateControlArea() throws IOException {
-        Path tmpDir = Paths.get("/Users/zamarrenolm/Downloads");
         Path outputPath = tmpDir.resolve("update-control-areas");
         Files.createDirectories(outputPath);
 
