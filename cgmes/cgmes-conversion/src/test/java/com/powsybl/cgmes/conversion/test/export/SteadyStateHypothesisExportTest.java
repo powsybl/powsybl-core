@@ -8,9 +8,12 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
+import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.test.AbstractConverterTest;
@@ -31,9 +34,8 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.nio.file.Paths;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -222,4 +224,85 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             map.put(shuntCompensatorId, Pair.of(sections, controlEnabled));
         }
     }
+
+    @Test
+    void testUpdateControlArea() throws IOException {
+        Path tmpDir = Paths.get("/Users/zamarrenolm/Downloads");
+
+        // Read network and check control area data
+        Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
+        CgmesControlAreas controlAreas = be.getExtension(CgmesControlAreas.class);
+        assertNotNull(controlAreas);
+        System.out.println("cgmes control areas = " + controlAreas);
+        assertFalse(controlAreas.getCgmesControlAreas().isEmpty());
+        CgmesControlArea controlArea = controlAreas.getCgmesControlAreas().iterator().next();
+        assertEquals(236.9798, controlArea.getNetInterchange(), 1e-10);
+        // TODO(Luma) after adding pTolerance
+        //  assertEquals(10, controlArea.getPTolerance(), 1e-10);
+
+        // Update control area data
+        controlArea.setNetInterchange(controlArea.getNetInterchange() * 2);
+        // TODO(Luma) after adding pTolerance
+        //  controlArea.setPTolerance(controLArea.getPTolerance() / 2);
+
+        // Export only SSH instance file
+        Path outputPath = tmpDir.resolve("update-control-areas");
+        Files.createDirectories(outputPath);
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, "SSH");
+        be.write("CGMES", exportParams, outputPath.resolve("BE"));
+
+        // Check that exported SSH contains updated values for net interchange and p tolerance
+        Collection<SshExportedControlArea> sshExportedControlAreas = readSshControlAreas(outputPath.resolve("BE_SSH.xml"));
+        assertFalse(sshExportedControlAreas.isEmpty());
+        SshExportedControlArea sshExportedControlArea = sshExportedControlAreas.iterator().next();
+        assertEquals(473.9596, sshExportedControlArea.netInterchange, 1e-10);
+        // TODO(Luma) after adding pTolerance
+        //  assertEquals(5, sshExportedControlArea.pTolerance, 1e-10);
+
+        // Check that SSH full model contains a reference to the original SSH that is superseding
+        // FIXME(Luma)
+    }
+
+    static class SshExportedControlArea {
+        String id;
+        double netInterchange;
+        double pTolerance;
+    }
+
+    private static final String ATTR_ABOUT = "about";
+    private static final String CONTROL_AREA = "ControlArea";
+    private static final String CONTROL_AREA_NET_INTERCHANGE = "ControlArea.netInterchange";
+    private static final String CONTROL_AREA_P_TOLERANCE = "ControlArea.pTolerance";
+
+    private static Collection<SshExportedControlArea> readSshControlAreas(Path ssh) {
+        List<SshExportedControlArea> sshExportedControlAreas = new ArrayList<>();
+        SshExportedControlArea sshExportedControlArea = null;
+        try (InputStream is = Files.newInputStream(ssh)) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            while (reader.hasNext()) {
+                int next = reader.next();
+                if (next == XMLStreamConstants.START_ELEMENT) {
+                    if (reader.getLocalName().equals(CONTROL_AREA)) {
+                        sshExportedControlArea = new SshExportedControlArea();
+                        sshExportedControlArea.id = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, ATTR_ABOUT).substring(2);
+                    } else if (reader.getLocalName().equals(CONTROL_AREA_NET_INTERCHANGE) && sshExportedControlArea != null) {
+                        sshExportedControlArea.netInterchange = Double.parseDouble(reader.getElementText());
+                    } else if (reader.getLocalName().equals(CONTROL_AREA_P_TOLERANCE) && sshExportedControlArea != null) {
+                        sshExportedControlArea.pTolerance = Double.parseDouble(reader.getElementText());
+                    }
+                } else if (next == XMLStreamConstants.END_ELEMENT) {
+                    if (reader.getLocalName().equals(CONTROL_AREA) && sshExportedControlArea != null) {
+                        sshExportedControlAreas.add(sshExportedControlArea);
+                        sshExportedControlArea = null;
+                    }
+                }
+            }
+            reader.close();
+        } catch (XMLStreamException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return sshExportedControlAreas;
+    }
+
 }

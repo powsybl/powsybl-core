@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Terminal;
 
@@ -31,4 +32,8 @@ public interface CgmesControlArea {
     Set<Terminal> getTerminals();
 
     Set<Boundary> getBoundaries();
+
+    default void setNetInterchange(double v) {
+        throw new PowsyblException("Unsupported method");
+    }
 }
