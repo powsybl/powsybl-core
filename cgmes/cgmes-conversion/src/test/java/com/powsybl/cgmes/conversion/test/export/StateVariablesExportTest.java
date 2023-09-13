@@ -238,6 +238,64 @@ class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
+    void equivalentShuntTest() throws XMLStreamException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+
+        String sv = exportSvAsString(network, 2);
+
+        String equivalentShuntId = "d771118f-36e9-4115-a128-cc3d9ce3e3da";
+        assertNotNull(network.getShuntCompensator(equivalentShuntId));
+        SvShuntCompensatorSections svShuntCompensatorSections = readSvShuntCompensatorSections(sv);
+        assertFalse(svShuntCompensatorSections.map.isEmpty());
+        assertFalse(svShuntCompensatorSections.map.containsKey(equivalentShuntId));
+    }
+
+    private static SvShuntCompensatorSections readSvShuntCompensatorSections(String sv) {
+        final String svShuntCompensatorSections = "SvShuntCompensatorSections";
+        final String svShuntCompensatorSectionsSections = "SvShuntCompensatorSections.sections";
+        final String svShuntCompensatorSectionsShuntCompensator = "SvShuntCompensatorSections.ShuntCompensator";
+        final String attrResource = "resource";
+
+        SvShuntCompensatorSections svdata = new SvShuntCompensatorSections();
+        try (InputStream is = new ByteArrayInputStream(sv.getBytes(StandardCharsets.UTF_8))) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            Integer sections = null;
+            String shuntCompensatorId = null;
+            while (reader.hasNext()) {
+                int next = reader.next();
+                if (next == XMLStreamConstants.START_ELEMENT) {
+                    if (reader.getLocalName().equals(svShuntCompensatorSections)) {
+                        sections = null;
+                        shuntCompensatorId = null;
+                    } else if (reader.getLocalName().equals(svShuntCompensatorSectionsSections)) {
+                        String text = reader.getElementText();
+                        sections = Integer.parseInt(text);
+                    } else if (reader.getLocalName().equals(svShuntCompensatorSectionsShuntCompensator)) {
+                        shuntCompensatorId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrResource).substring(2);
+                    }
+                } else if (next == XMLStreamConstants.END_ELEMENT) {
+                    if (reader.getLocalName().equals(svShuntCompensatorSections) && sections != null) {
+                        svdata.add(shuntCompensatorId, sections);
+                    }
+                }
+            }
+            reader.close();
+        } catch (XMLStreamException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return svdata;
+    }
+
+    private static final class SvShuntCompensatorSections {
+        private final Map<String, Integer> map = new HashMap<>();
+
+        void add(String shuntCompensatorId, int sections) {
+            map.put(shuntCompensatorId, sections);
+        }
+    }
+
+    @Test
     void cgmes3MiniGridwithTransformersWithRtcAndPtc() throws XMLStreamException {
 
         Network network = ConversionUtil.networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
