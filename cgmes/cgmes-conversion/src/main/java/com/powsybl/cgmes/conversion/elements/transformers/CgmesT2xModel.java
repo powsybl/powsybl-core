@@ -23,6 +23,7 @@ public class CgmesT2xModel {
     final CgmesPartialEnd end1;
     final CgmesPartialEnd end2;
     final boolean x1IsZero;
+    final Double ratedS;
 
     public CgmesT2xModel(PropertyBags ends, Context context) {
         PropertyBag bagEnd1 = ends.get(0);
@@ -36,6 +37,19 @@ public class CgmesT2xModel {
         this.end1 = new CgmesPartialEnd(bagEnd1, x, context);
         this.end2 = new CgmesPartialEnd(bagEnd2, x, context);
         this.x1IsZero = x1 == 0.0;
+
+        this.ratedS = getRatedS(bagEnd1, bagEnd2);
+    }
+
+    static Double getRatedS(PropertyBag end1, PropertyBag end2) {
+        // For a two-winding transformer the values for the high and low voltage sides shall be identical
+        // But is an optional attribute, it may be specified at any end
+        double ratedS1 = end1.asDouble(CgmesNames.RATEDS, 0);
+        if (ratedS1 > 0) {
+            return ratedS1;
+        }
+        double ratedS2 = end2.asDouble(CgmesNames.RATEDS, 0);
+        return ratedS2 > 0.0 ? ratedS2 : null;
     }
 
     static class CgmesPartialEnd {

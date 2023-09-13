@@ -180,21 +180,24 @@ public abstract class AbstractSubnetworksCreationTest {
 
     @Test
     public void testTwoWindingsTransformersCreation() {
-        addVoltageLevel(network.newVoltageLevel(), "vl0_0");
-        addVoltageLevel(network.newVoltageLevel(), 90, "vl0_1");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), "vl1_0");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), 90, "vl1_1");
-        addVoltageLevel(subnetwork2.newVoltageLevel(), "vl2_0");
-        addVoltageLevel(subnetwork2.newVoltageLevel(), 90, "vl2_1");
+        Substation substation0 = addSubstation(network, "s0");
+        Substation substation1 = addSubstation(subnetwork1, "s1");
+        Substation substation2 = addSubstation(subnetwork2, "s2");
+        addVoltageLevel(substation0.newVoltageLevel(), "vl0_0");
+        addVoltageLevel(substation0.newVoltageLevel(), 90, "vl0_1");
+        addVoltageLevel(substation1.newVoltageLevel(), "vl1_0");
+        addVoltageLevel(substation1.newVoltageLevel(), 90, "vl1_1");
+        addVoltageLevel(substation2.newVoltageLevel(), "vl2_0");
+        addVoltageLevel(substation2.newVoltageLevel(), 90, "vl2_1");
 
-        // On root network, voltage levels both in root network
-        addTwoWindingsTransformer(network, "twt0", "vl0_0", 380, "vl0_1", 90);
+        // On root network
+        addTwoWindingsTransformer(substation0, "twt0", "vl0_0", 380, "vl0_1", 90);
 
-        // On root network, voltage levels both in subnetwork1
-        addTwoWindingsTransformer(network, "twt1", "vl1_0", 380, "vl1_1", 90);
+        // On subnetwork1
+        addTwoWindingsTransformer(substation1, "twt1", "vl1_0", 380, "vl1_1", 90);
 
-        // On subnetwork2, voltage levels both in subnetwork2
-        addTwoWindingsTransformer(subnetwork2, "twt2", "vl2_0", 380, "vl2_1", 90);
+        // On subnetwork2
+        addTwoWindingsTransformer(substation2, "twt2", "vl2_0", 380, "vl2_1", 90);
 
         // Detach all
         assertTrue(subnetwork1.isDetachable());
@@ -215,35 +218,28 @@ public abstract class AbstractSubnetworksCreationTest {
     }
 
     @Test
-    public void failCreateTwoWindingsTransformerBetweenTwoSubnetworks() {
-        addVoltageLevel(subnetwork1.newVoltageLevel(), "vl1_0");
-        addVoltageLevel(network.newVoltageLevel(), 90, "vl2_0");
-
-        PowsyblException e = assertThrows(ValidationException.class, () -> addTwoWindingsTransformer(subnetwork1, "twt",
-                "vl1_0", 380, "vl2_0", 90));
-        assertTrue(e.getMessage().contains("The 2 windings of the transformer shall belong to the same parent network"));
-    }
-
-    @Test
     public void testThreeWindingsTransformersCreation() {
-        addVoltageLevel(network.newVoltageLevel(), "vl0_0");
-        addVoltageLevel(network.newVoltageLevel(), 225, "vl0_1");
-        addVoltageLevel(network.newVoltageLevel(), 90, "vl0_2");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), "vl1_0");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), 225, "vl1_1");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), 90, "vl1_2");
-        addVoltageLevel(subnetwork2.newVoltageLevel(), "vl2_0");
-        addVoltageLevel(subnetwork2.newVoltageLevel(), 225, "vl2_1");
-        addVoltageLevel(subnetwork2.newVoltageLevel(), 90, "vl2_2");
+        Substation substation0 = addSubstation(network, "s0");
+        Substation substation1 = addSubstation(subnetwork1, "s1");
+        Substation substation2 = addSubstation(subnetwork2, "s2");
+        addVoltageLevel(substation0.newVoltageLevel(), "vl0_0");
+        addVoltageLevel(substation0.newVoltageLevel(), 225, "vl0_1");
+        addVoltageLevel(substation0.newVoltageLevel(), 90, "vl0_2");
+        addVoltageLevel(substation1.newVoltageLevel(), "vl1_0");
+        addVoltageLevel(substation1.newVoltageLevel(), 225, "vl1_1");
+        addVoltageLevel(substation1.newVoltageLevel(), 90, "vl1_2");
+        addVoltageLevel(substation2.newVoltageLevel(), "vl2_0");
+        addVoltageLevel(substation2.newVoltageLevel(), 225, "vl2_1");
+        addVoltageLevel(substation2.newVoltageLevel(), 90, "vl2_2");
 
-        // On root network, voltage levels all in root network
-        addThreeWindingsTransformer(network, "twt0", "vl0_0", 380, "vl0_1", 225, "vl0_2", 90);
+        // On root network
+        addThreeWindingsTransformer(substation0, "twt0", "vl0_0", 380, "vl0_1", 225, "vl0_2", 90);
 
-        // On root network, voltage levels all in subnetwork1
-        addThreeWindingsTransformer(network, "twt1", "vl1_0", 380, "vl1_1", 225, "vl1_2", 90);
+        // On subnetwork1
+        addThreeWindingsTransformer(substation1, "twt1", "vl1_0", 380, "vl1_1", 225, "vl1_2", 90);
 
-        // On subnetwork2, voltage levels all in subnetwork2
-        addThreeWindingsTransformer(subnetwork2, "twt2", "vl2_0", 380, "vl2_1", 225, "vl2_2", 90);
+        // On subnetwork2
+        addThreeWindingsTransformer(substation2, "twt2", "vl2_0", 380, "vl2_1", 225, "vl2_2", 90);
 
         // Detach all
         assertTrue(subnetwork1.isDetachable());
@@ -261,17 +257,6 @@ public abstract class AbstractSubnetworksCreationTest {
         checkIndexNetworks(network);
         checkIndexNetworks(n1);
         checkIndexNetworks(n2);
-    }
-
-    @Test
-    public void failCreateThreeWindingsTransformerBetweenDifferentSubnetworks() {
-        addVoltageLevel(subnetwork1.newVoltageLevel(), "vl1_0");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), 90, "vl1_1");
-        addVoltageLevel(network.newVoltageLevel(), 90, "vl2_0");
-
-        PowsyblException e = assertThrows(ValidationException.class, () -> addThreeWindingsTransformer(subnetwork1, "twt",
-                "vl1_0", 380, "vl1_1", 90, "vl2_0", 90));
-        assertTrue(e.getMessage().contains("The 3 windings of the transformer shall belong to the same parent network"));
     }
 
     @ParameterizedTest()
@@ -377,9 +362,9 @@ public abstract class AbstractSubnetworksCreationTest {
                 .add();
     }
 
-    private TwoWindingsTransformer addTwoWindingsTransformer(Network network, String id, String vlId1, double nominalV1,
+    private TwoWindingsTransformer addTwoWindingsTransformer(Substation substation, String id, String vlId1, double nominalV1,
                                                              String vlId2, double nominalV2) {
-        return network.newTwoWindingsTransformer()
+        return substation.newTwoWindingsTransformer()
                 .setId(id)
                 .setR(0)
                 .setX(0)
@@ -396,9 +381,9 @@ public abstract class AbstractSubnetworksCreationTest {
                 .add();
     }
 
-    private ThreeWindingsTransformer addThreeWindingsTransformer(Network network, String id, String vlId1, double nominalV1,
+    private ThreeWindingsTransformer addThreeWindingsTransformer(Substation substation, String id, String vlId1, double nominalV1,
                                                              String vlId2, double nominalV2, String vlId3, double nominalV3) {
-        return network.newThreeWindingsTransformer()
+        return substation.newThreeWindingsTransformer()
                 .setId(id)
                 .newLeg1()
                 .setRatedU(nominalV1)

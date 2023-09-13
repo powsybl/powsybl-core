@@ -76,6 +76,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
 
         @Override
+        public int getBusCount() {
+            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getBusCount()).sum();
+        }
+
+        @Override
         public Iterable<Switch> getSwitches() {
             return FluentIterable.from(getVoltageLevels())
                     .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
@@ -387,11 +392,6 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     @Override
-    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer() {
-        return new TwoWindingsTransformerAdderImpl(this);
-    }
-
-    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return Collections.unmodifiableCollection(index.getAll(TwoWindingsTransformerImpl.class));
     }
@@ -409,11 +409,6 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
         return index.get(id, TwoWindingsTransformerImpl.class);
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
-        return new ThreeWindingsTransformerAdderImpl(this);
     }
 
     @Override

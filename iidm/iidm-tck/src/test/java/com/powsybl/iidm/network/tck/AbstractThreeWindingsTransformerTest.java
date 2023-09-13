@@ -288,45 +288,6 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     }
 
     @Test
-    public void missingSubstationContainer() {
-        ValidationException e = assertThrows(ValidationException.class, () -> network.newThreeWindingsTransformer()
-                .setId("twt")
-                .setName(TWT_NAME)
-                .newLeg1()
-                .setR(1.3)
-                .setX(1.4)
-                .setG(1.6)
-                .setB(1.7)
-                .setRatedU(1.1)
-                .setRatedS(1.2)
-                .setVoltageLevel("vl1")
-                .setBus("busA")
-                .add()
-                .newLeg2()
-                .setR(2.03)
-                .setX(2.04)
-                .setG(0.0)
-                .setB(0.0)
-                .setRatedU(2.05)
-                .setRatedS(2.06)
-                .setVoltageLevel("vl2")
-                .setBus("busB")
-                .add()
-                .newLeg3()
-                .setR(3.3)
-                .setX(3.4)
-                .setG(0.0)
-                .setB(0.0)
-                .setRatedU(3.5)
-                .setRatedS(3.6)
-                .setVoltageLevel("vl2")
-                .setBus("busB")
-                .add()
-                .add());
-        assertTrue(e.getMessage().contains("3 windings transformer 'twt': the 3 windings of the transformer shall belong to a substation since there are located in voltage levels with substations"));
-    }
-
-    @Test
     public void leg1SetTwoRegulatingControlsEnabled() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();

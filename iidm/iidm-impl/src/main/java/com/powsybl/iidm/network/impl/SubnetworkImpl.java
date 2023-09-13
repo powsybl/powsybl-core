@@ -216,11 +216,6 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public TwoWindingsTransformerAdder newTwoWindingsTransformer() {
-        return parent.newTwoWindingsTransformer();
-    }
-
-    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return getTwoWindingsTransformerStream().collect(Collectors.toList());
     }
@@ -239,11 +234,6 @@ public class SubnetworkImpl extends AbstractNetwork {
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
         TwoWindingsTransformer twt = parent.getTwoWindingsTransformer(id);
         return contains(twt) ? twt : null;
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        return parent.newThreeWindingsTransformer();
     }
 
     @Override
@@ -602,6 +592,11 @@ public class SubnetworkImpl extends AbstractNetwork {
         @Override
         public Stream<Bus> getBusStream() {
             return parent.getBusBreakerView().getBusStream().filter(SubnetworkImpl.this::contains);
+        }
+
+        @Override
+        public int getBusCount() {
+            return (int) getBusStream().count();
         }
 
         @Override
