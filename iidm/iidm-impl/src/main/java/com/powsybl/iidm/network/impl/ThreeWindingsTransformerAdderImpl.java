@@ -179,7 +179,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         @Override
         public String getMessageHeader() {
-            return String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation != null ? substation.getId() : "");
+            return String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation.getId());
         }
     }
 
