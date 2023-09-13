@@ -367,11 +367,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer() {
-        return new TwoWindingsTransformerAdderImpl(ref);
-    }
-
-    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return Collections.unmodifiableCollection(index.getAll(TwoWindingsTransformerImpl.class));
     }
@@ -389,11 +384,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
         return index.get(id, TwoWindingsTransformerImpl.class);
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
-        return new ThreeWindingsTransformerAdderImpl(ref);
     }
 
     @Override
