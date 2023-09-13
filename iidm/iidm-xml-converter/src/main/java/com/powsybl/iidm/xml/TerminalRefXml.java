@@ -62,9 +62,6 @@ public final class TerminalRefXml {
         });
     }
 
-    // FIXME(Luma) write and read are not exactly symmetrical at this point
-    // write terminal ref writes the name of the Branch.Side or ThreeWindingTransformer.Side,
-    // but read is interpreting this name as ThreeSides
     public static Terminal readTerminal(NetworkXmlReaderContext context, Network n) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, ID));
         String side = context.getReader().getAttributeValue(null, SIDE);
@@ -82,33 +79,9 @@ public final class TerminalRefXml {
             throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
         }
         if (identifiable instanceof Connectable) {
-            return getTerminal((Connectable<?>) identifiable, side);
+            return TerminalUtil.getTerminal((Connectable<?>) identifiable, side);
         } else {
             throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
-        }
-    }
-
-    private static Terminal getTerminal(Connectable<?> connectable, ThreeSides side) {
-        if (connectable instanceof Injection) {
-            return ((Injection<?>) connectable).getTerminal();
-        } else if (connectable instanceof Branch) {
-            if (side.equals(ThreeSides.ONE)) {
-                return ((Branch<?>) connectable).getTerminal1();
-            } else if (side.equals(ThreeSides.TWO)) {
-                return ((Branch<?>) connectable).getTerminal2();
-            } else {
-                throw new IllegalStateException("Unexpected Branch side: " + side.name());
-            }
-        } else if (connectable instanceof ThreeWindingsTransformer) {
-            if (side.equals(ThreeSides.ONE)) {
-                return ((ThreeWindingsTransformer) connectable).getLeg1().getTerminal();
-            } else if (side.equals(ThreeSides.TWO)) {
-                return ((ThreeWindingsTransformer) connectable).getLeg2().getTerminal();
-            } else {
-                return ((ThreeWindingsTransformer) connectable).getLeg3().getTerminal();
-            }
-        } else {
-            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + connectable.getClass());
         }
     }
 

@@ -7,11 +7,12 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Optional;
+import java.util.OptionalDouble;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
 public interface VoltageAngleLimit extends OperationalLimits {
 
@@ -40,10 +41,10 @@ public interface VoltageAngleLimit extends OperationalLimits {
     /**
      * Get the low voltage angle limit value
      */
-    Optional<Double> getLowLimit();
+    OptionalDouble getLowLimit();
 
     /**
      * Get the high voltage angle limit value
      */
-    Optional<Double> getHighLimit();
+    OptionalDouble getHighLimit();
 }

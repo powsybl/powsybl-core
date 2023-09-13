@@ -28,8 +28,7 @@ class VoltageAngleLimitTest {
     void voltageAngleLimitTest() {
         Network network = FourSubstationsNodeBreakerFactory.create();
 
-        network.newVoltageAngleLimit()
-        .setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
+        network.newVoltageAngleLimit().setName("VOLTAGE_ANGLE_LIMIT_LINE_S2S3")
             .from(network.getLine("LINE_S2S3").getTerminal1())
             .to(network.getLine("LINE_S2S3").getTerminal2())
             .setHighLimit(1.0)
@@ -54,7 +53,7 @@ class VoltageAngleLimitTest {
         TerminalUtil.getConnectableSide(val0.getTerminalTo()).ifPresent(side -> assertEquals(ThreeSides.TWO, side));
         assertTrue(val0.getHighLimit().isPresent());
         assertTrue(val0.getLowLimit().isEmpty());
-        assertEquals(1.0, val0.getHighLimit().get());
+        assertEquals(1.0, val0.getHighLimit().getAsDouble());
 
         VoltageAngleLimit val1 = network.getVoltageAngleLimits().get(1);
         assertEquals("LD1", val1.getTerminalFrom().getConnectable().getId());
@@ -63,7 +62,7 @@ class VoltageAngleLimitTest {
         assertTrue(TerminalUtil.getConnectableSide(val1.getTerminalTo()).isEmpty());
         assertTrue(val1.getLowLimit().isPresent());
         assertTrue(val1.getHighLimit().isEmpty());
-        assertEquals(1.0, val1.getLowLimit().get());
+        assertEquals(1.0, val1.getLowLimit().getAsDouble());
     }
 
     @Test

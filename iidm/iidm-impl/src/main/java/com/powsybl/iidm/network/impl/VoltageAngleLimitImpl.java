@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import java.util.Optional;
+import java.util.OptionalDouble;
 
 import com.powsybl.iidm.network.*;
 
@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.*;
  *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
 class VoltageAngleLimitImpl implements VoltageAngleLimit {
 
@@ -48,12 +49,12 @@ class VoltageAngleLimitImpl implements VoltageAngleLimit {
     }
 
     @Override
-    public Optional<Double> getLowLimit() {
-        return Double.isNaN(lowLimit) ? Optional.empty() : Optional.of(lowLimit);
+    public OptionalDouble getLowLimit() {
+        return Double.isNaN(lowLimit) ? OptionalDouble.empty() : OptionalDouble.of(lowLimit);
     }
 
     @Override
-    public Optional<Double> getHighLimit() {
-        return Double.isNaN(highLimit) ? Optional.empty() : Optional.of(highLimit);
+    public OptionalDouble getHighLimit() {
+        return Double.isNaN(highLimit) ? OptionalDouble.empty() : OptionalDouble.of(highLimit);
     }
 }
