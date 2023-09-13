@@ -62,39 +62,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         subnetworks.remove(subnetworkId);
     }
 
-    class BusBreakerViewImpl implements BusBreakerView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return FluentIterable.from(getVoltageLevels())
-                    .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
-        }
-
-        @Override
-        public int getBusCount() {
-            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getBusCount()).sum();
-        }
-
-        @Override
-        public Iterable<Switch> getSwitches() {
-            return FluentIterable.from(getVoltageLevels())
-                    .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
-        }
-
-        @Override
-        public Stream<Switch> getSwitchStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream());
-        }
-
-        @Override
-        public int getSwitchCount() {
-            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getSwitchCount()).sum();
-        }
+    class BusBreakerViewImpl extends AbstractNetwork.AbstractBusBreakerViewImpl {
 
         @Override
         public Bus getBus(String id) {
@@ -112,18 +80,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private final BusBreakerViewImpl busBreakerView = new BusBreakerViewImpl();
 
-    class BusViewImpl implements BusView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return FluentIterable.from(getVoltageLevels())
-                    .transformAndConcat(vl -> vl.getBusView().getBuses());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
-        }
+    class BusViewImpl extends AbstractNetwork.AbstractBusViewImpl {
 
         @Override
         public Collection<Component> getConnectedComponents() {

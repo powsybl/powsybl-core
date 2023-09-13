@@ -582,38 +582,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         return (int) getConnectableStream().count();
     }
 
-    class BusBreakerViewImpl implements BusBreakerView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return getBusStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return parent.getBusBreakerView().getBusStream().filter(SubnetworkImpl.this::contains);
-        }
-
-        @Override
-        public int getBusCount() {
-            return (int) getBusStream().count();
-        }
-
-        @Override
-        public Iterable<Switch> getSwitches() {
-            return getSwitchStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Switch> getSwitchStream() {
-            return parent.getBusBreakerView().getSwitchStream().filter(SubnetworkImpl.this::contains);
-        }
-
-        @Override
-        public int getSwitchCount() {
-            return (int) getSwitchStream().count();
-        }
-
+    class BusBreakerViewImpl extends AbstractNetwork.AbstractBusBreakerViewImpl {
         @Override
         public Bus getBus(String id) {
             Bus b = parent.getBusBreakerView().getBus(id);
@@ -628,17 +597,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         return busBreakerView;
     }
 
-    class BusViewImpl implements BusView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return getBusStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return parent.getBusView().getBusStream().filter(SubnetworkImpl.this::contains);
-        }
+    class BusViewImpl extends AbstractNetwork.AbstractBusViewImpl {
 
         @Override
         public Bus getBus(String id) {
