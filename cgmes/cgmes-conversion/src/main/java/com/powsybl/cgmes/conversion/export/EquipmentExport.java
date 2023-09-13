@@ -409,22 +409,30 @@ public final class EquipmentExport {
 
     private static void writeShuntCompensators(Network network, Map<Terminal, String> mapTerminal2Id, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
-            double bPerSection = 0.0;
-            double gPerSection = Double.NaN;
-            if (s.getModelType().equals(ShuntCompensatorModelType.LINEAR)) {
-                bPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getBPerSection();
-                gPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getGPerSection();
-            }
-            String regulatingControlId = RegulatingControlEq.writeKindVoltage(s, exportedTerminalId(mapTerminal2Id, s.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, writer, context);
-            ShuntCompensatorEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(), s.getSectionCount(), s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, gPerSection, regulatingControlId,
-                    context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
-            if (s.getModelType().equals(ShuntCompensatorModelType.NON_LINEAR)) {
-                double b = 0.0;
-                double g = 0.0;
-                for (int section = 1; section <= s.getMaximumSectionCount(); section++) {
-                    ShuntCompensatorEq.writePoint(CgmesExportUtil.getUniqueId(), context.getNamingStrategy().getCgmesId(s), section, s.getB(section) - b, s.getG(section) - g, cimNamespace, writer, context);
-                    b = s.getB(section);
-                    g = s.getG(section);
+            if ("true".equals(s.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
+                // Must have been mapped to a linear shunt compensator with 1 section
+                EquivalentShuntEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(),
+                        s.getG(s.getMaximumSectionCount()), s.getB(s.getMaximumSectionCount()),
+                        context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel()),
+                        cimNamespace, writer, context);
+            } else {
+                double bPerSection = 0.0;
+                double gPerSection = Double.NaN;
+                if (s.getModelType().equals(ShuntCompensatorModelType.LINEAR)) {
+                    bPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getBPerSection();
+                    gPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getGPerSection();
+                }
+                String regulatingControlId = RegulatingControlEq.writeKindVoltage(s, exportedTerminalId(mapTerminal2Id, s.getRegulatingTerminal()), regulatingControlsWritten, cimNamespace, writer, context);
+                ShuntCompensatorEq.write(context.getNamingStrategy().getCgmesId(s), s.getNameOrId(), s.getSectionCount(), s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, gPerSection, regulatingControlId,
+                        context.getNamingStrategy().getCgmesId(s.getTerminal().getVoltageLevel()), cimNamespace, writer, context);
+                if (s.getModelType().equals(ShuntCompensatorModelType.NON_LINEAR)) {
+                    double b = 0.0;
+                    double g = 0.0;
+                    for (int section = 1; section <= s.getMaximumSectionCount(); section++) {
+                        ShuntCompensatorEq.writePoint(CgmesExportUtil.getUniqueId(), context.getNamingStrategy().getCgmesId(s), section, s.getB(section) - b, s.getG(section) - g, cimNamespace, writer, context);
+                        b = s.getB(section);
+                        g = s.getG(section);
+                    }
                 }
             }
         }
