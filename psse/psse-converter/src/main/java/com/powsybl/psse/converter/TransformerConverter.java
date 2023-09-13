@@ -100,7 +100,7 @@ class TransformerConverter extends AbstractConverter {
         TapChanger tapChangerAdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChangerAdjustedRatio);
 
         TwoWindingsTransformerAdder adder = voltageLevel2.getSubstation()
-            .orElseThrow(() -> new PowsyblException("Substation null! Two-winding transformer must be within a substation"))
+            .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
             .newTwoWindingsTransformer()
             .setId(id)
             .setEnsureIdUnicity(true)
@@ -183,7 +183,7 @@ class TransformerConverter extends AbstractConverter {
         TapChanger tapChanger1AdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChanger1);
 
         ThreeWindingsTransformerAdder adder = voltageLevel1.getSubstation()
-            .orElseThrow(() -> new PowsyblException("Substation null! Three-winding transformer must be within a substation"))
+            .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
             .newThreeWindingsTransformer()
             .setRatedU0(v0)
             .setEnsureIdUnicity(true)

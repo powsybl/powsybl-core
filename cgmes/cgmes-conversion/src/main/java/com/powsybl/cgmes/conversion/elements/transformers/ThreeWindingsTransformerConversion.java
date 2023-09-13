@@ -92,7 +92,7 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
     private void setToIidm(ConvertedT3xModel convertedT3xModel) {
         ThreeWindingsTransformerAdder txadder = substation()
                 .map(Substation::newThreeWindingsTransformer)
-                .orElseThrow(() -> new PowsyblException("Substation null! Three-winding transformer must be within a substation"))
+                .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
                 .setRatedU0(convertedT3xModel.ratedU0);
         identify(txadder);
 

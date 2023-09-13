@@ -147,7 +147,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
         TwoWindingsTransformerAdder adder = substation()
                 .map(Substation::newTwoWindingsTransformer)
-                .orElseThrow(() -> new PowsyblException("Substation null! Two-winding transformer must be within a substation"))
+                .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
                 .setR(convertedT2xModel.r)
                 .setX(convertedT2xModel.x)
                 .setG(Double.isNaN(convertedT2xModel.end1.g) ? 0.0 : convertedT2xModel.end1.g)
