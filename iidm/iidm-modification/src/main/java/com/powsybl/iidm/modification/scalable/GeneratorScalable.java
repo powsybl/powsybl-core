@@ -102,8 +102,10 @@ class GeneratorScalable extends AbstractInjectionScalable {
     /**
      * {@inheritDoc}
      *
-     * If scalingConvention is GENERATOR, the generator active power increases for positive "asked" and decreases inversely
-     * If scalingConvention is LOAD, the generator active power decreases for positive "asked" and increases inversely
+     * <ul>
+     * <li>If scalingConvention is GENERATOR, the generator active power increases for positive "asked" and decreases inversely.</li>
+     * <li>If scalingConvention is LOAD, the generator active power decreases for positive "asked" and increases inversely.</li>
+     * </ul>
      */
     @Override
     public double scale(Network n, double asked, ScalingParameters parameters) {
@@ -180,6 +182,17 @@ class GeneratorScalable extends AbstractInjectionScalable {
         } else {
             var availablePower = Math.max(generator.getMinP(), minValue) - generator.getTargetP();
             return askedPower < availablePower ? availablePower / askedPower : 100.0;
+        }
+    }
+
+    @Override
+    public double getCurrentPower(Network network, ScalingConvention scalingConvention) {
+        Generator generator = network.getGenerator(id);
+        if (generator == null) {
+            LOGGER.warn("Generator {} not found", id);
+            return 0.0;
+        } else {
+            return scalingConvention == GENERATOR ? generator.getTargetP() : -generator.getTargetP();
         }
     }
 }

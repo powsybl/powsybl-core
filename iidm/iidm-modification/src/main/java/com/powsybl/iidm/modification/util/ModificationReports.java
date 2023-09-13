@@ -10,6 +10,7 @@ import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode;
+import com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType;
 import com.powsybl.iidm.network.*;
 
 /**
@@ -620,12 +621,25 @@ public final class ModificationReports {
     private ModificationReports() {
     }
 
-    public static void scalingReport(Reporter reporter, String type, DistributionMode mode, double asked, double done) {
+    public static void scalingReport(Reporter reporter, String type, DistributionMode mode, ScalingType scalingType, double asked, double done) {
         reporter.report(Report.builder()
             .withKey("scalingApplied")
-            .withDefaultMessage("Successfully scaled on ${identifiableType} using mode ${mode} with a variation value asked of ${asked}. Variation done is ${done}")
+            .withDefaultMessage("Successfully scaled on ${identifiableType} using mode ${mode} and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
             .withValue(IDENTIFIABLE_TYPE, type)
             .withValue("mode", mode.name())
+            .withValue("type", scalingType.name())
+            .withValue("asked", asked)
+            .withValue("done", done)
+            .withSeverity(TypedValue.INFO_SEVERITY)
+            .build());
+    }
+
+    public static void scalingReport(Reporter reporter, String type, ScalingType scalingType, double asked, double done) {
+        reporter.report(Report.builder()
+            .withKey("scalingApplied")
+            .withDefaultMessage("Successfully scaled on ${identifiableType} using mode STACKING and type ${type} with a variation value asked of ${asked}. Variation done is ${done}")
+            .withValue(IDENTIFIABLE_TYPE, type)
+            .withValue("type", scalingType.name())
             .withValue("asked", asked)
             .withValue("done", done)
             .withSeverity(TypedValue.INFO_SEVERITY)

@@ -73,7 +73,6 @@ public class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     private final List<ScalablePercentage> scalablePercentageList;
-    private double currentGlobalPower = 0;
 
     ProportionalScalable(List<Double> percentages, List<Scalable> scalables) {
         checkPercentages(percentages, scalables);
@@ -89,9 +88,6 @@ public class ProportionalScalable extends AbstractCompoundScalable {
 
         // Compute the sum of every individual power
         double totalDistribution = computeTotalDistribution(injections, distributionMode);
-
-        // Compute the current power value
-        currentGlobalPower = injections.stream().mapToDouble(Scalable::getCurrentPower).sum();
 
         // In some cases, a regular distribution is equivalent to the nominal distribution :
         // - PROPORTIONAL_TO_P0 : if no power is currently configured
@@ -261,15 +257,15 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(parameters);
 
-        // Check the coherence of the asked value and the scaling type
-        checkPositiveAskedWhenTarget(asked, parameters);
+        // Compute the current power value
+        double currentGlobalPower = getCurrentPower(n, parameters.getScalingConvention());
 
         // Variation asked
         double variationAsked = Scalable.getVariationAsked(parameters, asked, currentGlobalPower);
 
-        // Adapt the asked value if needed - only used in VENTILATION mode
+        // Adapt the asked value if needed - only used in RESPECT_OF_DISTRIBUTION mode
         if (parameters.getPriority() == RESPECT_OF_DISTRIBUTION) {
-            variationAsked = resizeAskedForVentilation(n, variationAsked, parameters);
+            variationAsked = resizeAskedForFixedDistribution(n, variationAsked, parameters);
         }
 
         reinitIterationPercentage();
@@ -280,25 +276,19 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         }
     }
 
-    private void checkPositiveAskedWhenTarget(double asked, ScalingParameters scalingParameters) {
-        if (asked < 0 && scalingParameters.getScalingType() == ScalingParameters.ScalingType.TARGET_P) {
-            throw new PowsyblException("The asked power value can only be positive when scaling type is TARGET_P");
-        }
-    }
-
     private void reinitIterationPercentage() {
         scalablePercentageList.forEach(scalablePercentage -> scalablePercentage.setIterationPercentage(scalablePercentage.getPercentage()));
     }
 
     /**
-     * Compute the power that can be scaled on the network while keeping the ventilation percentages valid.
-     * This method is only used if the distribution is not STACKING_UP (cannot happen since it's a
-     * {@link ProportionalScalable} and if the scaling priority is VENTILATION.
+     * Compute the power that can be scaled on the network while keeping the distribution percentages valid.
+     * This method is only used on generators, using a GeneratorScalable or a ScalableAdapter, and when the
+     * scaling priority is RESPECT_OF_DISTRIBUTION.
      * @param asked power that shall be scaled on the network
      * @param network network on which the scaling shall be done
-     * @return the effective power value that can be safely scaled while keeping the ventilation percentages valid
+     * @return the effective power value that can be safely scaled while keeping the distribution percentages valid
      */
-    double resizeAskedForVentilation(Network network, double asked, ScalingParameters scalingParameters) {
+    double resizeAskedForFixedDistribution(Network network, double asked, ScalingParameters scalingParameters) {
         AtomicReference<Double> resizingPercentage = new AtomicReference<>(1.0);
         scalablePercentageList.forEach(scalablePercentage -> {
             if (scalablePercentage.getScalable() instanceof GeneratorScalable generatorScalable) {
@@ -310,12 +300,16 @@ public class ProportionalScalable extends AbstractCompoundScalable {
                     scalableAdapter.availablePowerInPercentageOfAsked(network, asked, scalablePercentage.getPercentage(), scalingParameters.getScalingConvention()),
                     resizingPercentage.get()));
             } else {
-                throw new PowsyblException(String.format("VENTILATION mode can only be used with ScalableAdapter, not %s",
+                throw new PowsyblException(String.format("RESPECT_OF_DISTRIBUTION mode can only be used with ScalableAdapter or GeneratorScalable, not %s",
                     scalablePercentage.getScalable().getClass()));
             }
-            }
-        );
+        });
         return asked * resizingPercentage.get();
+    }
+
+    @Override
+    public double getCurrentPower(Network network, ScalingConvention scalingConvention) {
+        return scalablePercentageList.stream().mapToDouble(scalablePercentage -> scalablePercentage.getScalable().getCurrentPower(network, scalingConvention)).sum();
     }
 
 }

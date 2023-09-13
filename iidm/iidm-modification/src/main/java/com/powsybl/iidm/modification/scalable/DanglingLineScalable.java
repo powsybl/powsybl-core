@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,9 +101,10 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
 
     /**
      * {@inheritDoc}
-     * <p>
-     * If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely
-     * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
+     * <ul>
+     * <li>If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely.</li>
+     * <li>If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely.</li>
+     * </ul>
      */
     @Override
     public double scale(Network n, double asked, ScalingParameters parameters) {
@@ -165,5 +163,16 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
     @Override
     public double minimumValue(Network n) {
         return minimumValue(n, scalingConvention);
+    }
+
+    @Override
+    public double getCurrentPower(Network network, ScalingConvention scalingConvention) {
+        DanglingLine line = network.getDanglingLine(id);
+        if (line == null) {
+            LOGGER.warn("DanglingLine {} not found", id);
+            return 0.0;
+        } else {
+            return scalingConvention == LOAD ? line.getP0() : -line.getP0();
+        }
     }
 }

@@ -6,15 +6,12 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-
-import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -41,13 +38,14 @@ class StackScalable extends AbstractCompoundScalable {
     public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
 
-        // The stacking only works with the DELTA_P ScalingType
-        if (parameters.getScalingType() != DELTA_P) {
-            throw new PowsyblException("Stacking only works with DELTA_P ScalingType");
-        }
+        // Compute the current power value
+        double currentGlobalPower = getCurrentPower(n, parameters.getScalingConvention());
+
+        // Variation asked
+        double variationAsked = Scalable.getVariationAsked(parameters, asked, currentGlobalPower);
 
         double done = 0;
-        double remaining = asked;
+        double remaining = variationAsked;
         for (Scalable scalable : scalables) {
             if (Math.abs(remaining) > EPSILON) {
                 double v = scalable.scale(n, remaining, parameters);
@@ -56,5 +54,10 @@ class StackScalable extends AbstractCompoundScalable {
             }
         }
         return done;
+    }
+
+    @Override
+    public double getCurrentPower(Network network, ScalingConvention scalingConvention) {
+        return scalables.stream().mapToDouble(scalable -> scalable.getCurrentPower(network, scalingConvention)).sum();
     }
 }

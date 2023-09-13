@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.Arrays;
@@ -258,15 +257,10 @@ public interface Scalable {
             : askedValue - currentGlobalPower;
     }
 
-    static double getCurrentPower(Injection injection) {
-        if (injection instanceof Generator generator) {
-            return generator.getTargetP();
-        } else if (injection instanceof Load load) {
-            return load.getP0();
-        } else if (injection instanceof DanglingLine danglingLine) {
-            return danglingLine.getP0();
-        } else {
-            throw new PowsyblException(String.format("Unable to create a scalable from %s", injection.getClass()));
-        }
-    }
+    /**
+     * Returns the current power value for the injections corresponding to this Scalable
+     * @param network Network in which the injections are defined
+     * @return the current power value
+     */
+    double getCurrentPower(Network network, ScalingConvention scalingConvention);
 }

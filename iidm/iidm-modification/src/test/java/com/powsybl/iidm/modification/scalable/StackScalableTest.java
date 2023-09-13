@@ -5,7 +5,6 @@
 
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -18,8 +17,8 @@ import java.util.List;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithDanglingLineAndBattery;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.scalingReport;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class StackScalableTest {
 
@@ -71,6 +70,10 @@ class StackScalableTest {
         // Proportional to Target P
         StackScalable stackScalable = Scalable.stack(generatorList);
         double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            scalingParameters.getScalingType(),
+            100.0, variationDone);
         assertEquals(100.0, variationDone, 1e-5);
         assertEquals(150.0, network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(80.0, network.getGenerator("g2").getTargetP(), 1e-5);
@@ -79,7 +82,7 @@ class StackScalableTest {
     }
 
     @Test
-    void testScaleOnGeneratorsStackingUpWrongScalingType() {
+    void testScaleOnGeneratorsStackingTargetPMoreThanCurrent() {
         ReporterModel reporterModel = new ReporterModel("scaling", "default");
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
@@ -87,10 +90,36 @@ class StackScalableTest {
 
         // Proportional to Target P
         StackScalable stackScalable = Scalable.stack(generatorList);
+        double variationDone = stackScalable.scale(network, 300.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            scalingParameters.getScalingType(),
+            300.0, variationDone);
+        assertEquals(140.0, variationDone, 1e-5);
+        assertEquals(150.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(100.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(50.0, network.getGenerator("g3").getTargetP(), 1e-5);
+        reset();
+    }
 
-        // Error raised
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> stackScalable.scale(network, 100.0, scalingParameters));
-        assertEquals("Stacking only works with DELTA_P ScalingType", e0.getMessage());
+    @Test
+    void testScaleOnGeneratorsStackingTargetPLessThanCurrent() {
+        ReporterModel reporterModel = new ReporterModel("scaling", "default");
+        List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, ONESHOT, true, TARGET_P);
+
+        // Proportional to Target P
+        StackScalable stackScalable = Scalable.stack(generatorList);
+        double variationDone = stackScalable.scale(network, 100.0, scalingParameters);
+        scalingReport(reporterModel,
+            "generators",
+            scalingParameters.getScalingType(),
+            100.0, variationDone);
+        assertEquals(-60.0, variationDone, 1e-5);
+        assertEquals(20.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(50.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(30.0, network.getGenerator("g3").getTargetP(), 1e-5);
         reset();
     }
 }

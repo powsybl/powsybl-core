@@ -20,14 +20,14 @@ class ScalableAdapter extends AbstractScalable {
         this.id = Objects.requireNonNull(id);
     }
 
-    public ScalableAdapter(Injection injection) {
+    public ScalableAdapter(Injection<?> injection) {
         Objects.requireNonNull(injection);
         this.id = injection.getId();
     }
 
     private Scalable getScalable(Network n) {
         Objects.requireNonNull(n);
-        Identifiable identifiable = n.getIdentifiable(id);
+        Identifiable<?> identifiable = n.getIdentifiable(id);
         if (identifiable instanceof Generator) {
             return new GeneratorScalable(id);
         } else if (identifiable instanceof Load) {
@@ -85,8 +85,13 @@ class ScalableAdapter extends AbstractScalable {
             return generatorScalable.availablePowerInPercentageOfAsked(network, asked, scalingPercentage, scalingConvention);
         } else {
             Identifiable<?> identifiable = network.getIdentifiable(id);
-            throw new PowsyblException(String.format("VENTILATION mode can only be used with a Generator, not %s",
+            throw new PowsyblException(String.format("RESPECT_OF_DISTRIBUTION mode can only be used with a Generator, not %s",
                 identifiable.getClass()));
         }
+    }
+
+    @Override
+    public double getCurrentPower(Network network, ScalingConvention scalingConvention) {
+        return getScalable(network).getCurrentPower(network, scalingConvention);
     }
 }
