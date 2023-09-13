@@ -19,6 +19,7 @@ public class ConvertedT2xModel {
     final double x;
     final TapChangerConversion.ConvertedEnd1 end1;
     final ConvertedEnd2 end2;
+    final Double ratedS;
 
     /**
      * ratioTapChanger and phaseTapChanger of end2 are moved to end1 and then
@@ -53,7 +54,7 @@ public class ConvertedT2xModel {
         this.end1 = new TapChangerConversion.ConvertedEnd1(rc0.g1 + rc0.g2, rc0.b1 + rc0.b2, ratioTapChanger, phaseTapChanger,
             interpretedT2xModel.end1.ratedU, interpretedT2xModel.end1.terminal);
         this.end2 = new ConvertedEnd2(interpretedT2xModel.end2.ratedU, interpretedT2xModel.end2.terminal);
-
+        this.ratedS = interpretedT2xModel.ratedS;
     }
 
     static class ConvertedEnd2 {
