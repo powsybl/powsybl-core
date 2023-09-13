@@ -281,6 +281,7 @@ public class Conversion {
                 .setName(ca.getLocal("name"))
                 .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
                 .setNetInterchange(ca.asDouble("netInterchange", Double.NaN))
+                .setPTolerance(ca.asDouble("pTolerance", Double.NaN))
                 .add();
     }
 

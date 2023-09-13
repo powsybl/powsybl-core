@@ -228,6 +228,8 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
     @Test
     void testUpdateControlArea() throws IOException {
         Path tmpDir = Paths.get("/Users/zamarrenolm/Downloads");
+        Path outputPath = tmpDir.resolve("update-control-areas");
+        Files.createDirectories(outputPath);
 
         // Read network and check control area data
         Network be = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
@@ -237,28 +239,28 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         assertFalse(controlAreas.getCgmesControlAreas().isEmpty());
         CgmesControlArea controlArea = controlAreas.getCgmesControlAreas().iterator().next();
         assertEquals(236.9798, controlArea.getNetInterchange(), 1e-10);
-        // TODO(Luma) after adding pTolerance
-        //  assertEquals(10, controlArea.getPTolerance(), 1e-10);
+        assertEquals(10, controlArea.getPTolerance(), 1e-10);
 
         // Update control area data
         controlArea.setNetInterchange(controlArea.getNetInterchange() * 2);
-        // TODO(Luma) after adding pTolerance
-        //  controlArea.setPTolerance(controLArea.getPTolerance() / 2);
+        controlArea.setPTolerance(controlArea.getPTolerance() / 2);
+
+        // Write and read the network to check serialization of the extension
+        Path updatedXiidm = outputPath.resolve("BE-updated.xiidm");
+        be.write("XIIDM", null, updatedXiidm);
+        Network beUpdated = Network.read(updatedXiidm);
 
         // Export only SSH instance file
-        Path outputPath = tmpDir.resolve("update-control-areas");
-        Files.createDirectories(outputPath);
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, "SSH");
-        be.write("CGMES", exportParams, outputPath.resolve("BE"));
+        beUpdated.write("CGMES", exportParams, outputPath.resolve("BE"));
 
         // Check that exported SSH contains updated values for net interchange and p tolerance
         Collection<SshExportedControlArea> sshExportedControlAreas = readSshControlAreas(outputPath.resolve("BE_SSH.xml"));
         assertFalse(sshExportedControlAreas.isEmpty());
         SshExportedControlArea sshExportedControlArea = sshExportedControlAreas.iterator().next();
         assertEquals(473.9596, sshExportedControlArea.netInterchange, 1e-10);
-        // TODO(Luma) after adding pTolerance
-        //  assertEquals(5, sshExportedControlArea.pTolerance, 1e-10);
+        assertEquals(5, sshExportedControlArea.pTolerance, 1e-10);
 
         // Check that SSH full model contains a reference to the original SSH that is superseding
         // FIXME(Luma)

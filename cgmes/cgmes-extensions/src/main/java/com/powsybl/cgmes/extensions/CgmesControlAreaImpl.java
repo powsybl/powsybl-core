@@ -21,12 +21,14 @@ class CgmesControlAreaImpl implements CgmesControlArea {
     private final Set<Terminal> terminals = new LinkedHashSet<>();
     private final Set<Boundary> boundaries = new LinkedHashSet<>();
     private double netInterchange;
+    private double pTolerance;
 
-    CgmesControlAreaImpl(String id, String name, String energyIdentificationCodeEic, double netInterchange, CgmesControlAreasImpl mapping) {
+    CgmesControlAreaImpl(String id, String name, String energyIdentificationCodeEic, double netInterchange, double pTolerance, CgmesControlAreasImpl mapping) {
         this.id = Objects.requireNonNull(id);
         this.name = name;
         this.energyIdentificationCodeEic = energyIdentificationCodeEic;
         this.netInterchange = netInterchange;
+        this.pTolerance = pTolerance;
         attach(mapping);
     }
 
@@ -77,5 +79,15 @@ class CgmesControlAreaImpl implements CgmesControlArea {
     @Override
     public void setNetInterchange(double netInterchange) {
         this.netInterchange = netInterchange;
+    }
+
+    @Override
+    public double getPTolerance() {
+        return pTolerance;
+    }
+
+    @Override
+    public void setPTolerance(double pTolerance) {
+        this.pTolerance = pTolerance;
     }
 }

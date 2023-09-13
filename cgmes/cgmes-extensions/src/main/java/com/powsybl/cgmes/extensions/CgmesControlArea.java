@@ -33,7 +33,15 @@ public interface CgmesControlArea {
 
     Set<Boundary> getBoundaries();
 
-    default void setNetInterchange(double v) {
+    default void setNetInterchange(double netInterchange) {
+        throw new PowsyblException("Unsupported method");
+    }
+
+    default double getPTolerance() {
+        throw new PowsyblException("Unsupported method");
+    }
+
+    default void setPTolerance(double pTolerance) {
         throw new PowsyblException("Unsupported method");
     }
 }
