@@ -6,21 +6,20 @@
  */
 package com.powsybl.iidm.xml.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
-import com.powsybl.iidm.xml.AbstractXmlConverterTest;
-import com.powsybl.iidm.xml.IidmXmlConstants;
-import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.xml.*;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Damien Jeandemange <damien.jeandemange at artelys.com>
@@ -95,5 +94,35 @@ class RemoteReactivePowerControlXmlTest extends AbstractXmlConverterTest {
         assertEquals(rrpc.getTargetQ(), rrpc2.getTargetQ(), 0f);
         assertEquals(rrpc.getRegulatingTerminal().getConnectable().getId(), rrpc2.getRegulatingTerminal().getConnectable().getId());
         assertEquals(line.getSide(rrpc.getRegulatingTerminal()), line2.getSide(rrpc2.getRegulatingTerminal()));
+
+        // backward compatibility checks from version 1.5
+        roundTripVersionedXmlFromMinToCurrentVersionTest("remoteReactivePowerControlRef.xml", IidmXmlVersion.V_1_5);
+
+        // check it fails for all versions < 1.5
+        testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
+            ExportOptions options = new ExportOptions().setVersion(version.toString("."));
+            Path path = tmpDir.resolve("fail");
+            try {
+                NetworkXml.write(network, options, path);
+                fail();
+            } catch (PowsyblException e) {
+                assertEquals("generatorRemoteReactivePowerControl is not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.5", e.getMessage());
+            }
+        });
+
+        // check it doesn't fail for all versions < 1.5 if IidmVersionIncompatibilityBehavior is to log error
+        testForAllPreviousVersions(IidmXmlVersion.V_1_5, version -> {
+            try {
+                writeXmlTest(network, (n, path) -> write(n, path, version), getVersionedNetworkPath("remoteReactivePowerControlNotSupported.xml", version));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
+
+    private static void write(Network network, Path path, IidmXmlVersion version) {
+        ExportOptions options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR)
+                .setVersion(version.toString("."));
+        NetworkXml.write(network, options, path);
     }
 }

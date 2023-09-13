@@ -16,9 +16,11 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
+import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import com.powsybl.iidm.xml.TerminalRefXml;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -33,6 +35,7 @@ public class RemoteReactivePowerControlXmlSerializer extends AbstractExtensionXm
 
     @Override
     public void write(RemoteReactivePowerControl extension, XmlWriterContext context) throws XMLStreamException {
+        IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, (NetworkXmlWriterContext)context);
         XMLStreamWriter writer = context.getWriter();
         writer.writeAttribute("enabled", Boolean.toString(extension.isEnabled()));
         XmlUtil.writeDouble("targetQ", extension.getTargetQ(), writer);
