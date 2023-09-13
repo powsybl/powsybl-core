@@ -12,22 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.util.TerminalUtil;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageAngleLimit;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -160,9 +149,9 @@ class MergeTest {
 
     private static boolean isContained(List<VoltageAngleLimit> expected, VoltageAngleLimit actual) {
         return expected.stream().filter(val -> val.getTerminalFrom().getConnectable().getId().equals(actual.getTerminalFrom().getConnectable().getId())
-            && TerminalUtil.getConnectableSide(val.getTerminalFrom()).equals(TerminalUtil.getConnectableSide(actual.getTerminalFrom()))
+            && Terminal.getConnectableSide(val.getTerminalFrom()).equals(Terminal.getConnectableSide(actual.getTerminalFrom()))
             && val.getTerminalTo().getConnectable().getId().equals(actual.getTerminalTo().getConnectable().getId())
-            && TerminalUtil.getConnectableSide(val.getTerminalTo()).equals(TerminalUtil.getConnectableSide(actual.getTerminalTo()))).count() == 1;
+            && Terminal.getConnectableSide(val.getTerminalTo()).equals(Terminal.getConnectableSide(actual.getTerminalTo()))).count() == 1;
     }
 
     private static Network createNodeBreakerWithVoltageAngleLimit(String nid) {

@@ -10,7 +10,6 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.TerminalUtil;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -53,7 +52,7 @@ public final class TerminalRefXml {
         }
         writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
 
-        TerminalUtil.getConnectableSide(t).ifPresent(side -> {
+        Terminal.getConnectableSide(t).ifPresent(side -> {
             try {
                 writer.writeAttribute("side", side.name());
             } catch (XMLStreamException e) {
@@ -79,7 +78,7 @@ public final class TerminalRefXml {
             throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
         }
         if (identifiable instanceof Connectable) {
-            return TerminalUtil.getTerminal((Connectable<?>) identifiable, side);
+            return Terminal.getTerminal((Connectable<?>) identifiable, side);
         } else {
             throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }
