@@ -6,7 +6,6 @@
  */
 package com.powsybl.security.strategy;
 
-import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.security.condition.Condition;
@@ -52,7 +51,7 @@ public class OperatorStrategy extends AbstractExtendable<OperatorStrategy> {
     public OperatorStrategy(String id, ContingencyContext contingencyContext, List<ConditionalActions> stages) {
         this.id = Objects.requireNonNull(id);
         this.contingencyContext = Objects.requireNonNull(contingencyContext);
-        this.conditionalActions = ImmutableList.copyOf(Objects.requireNonNull(stages));
+        this.conditionalActions = List.copyOf(Objects.requireNonNull(stages));
     }
 
     /**
