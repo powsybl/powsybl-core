@@ -86,8 +86,14 @@ public final class SteadyStateHypothesisExport {
     private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
             if (context.isExportedEquipment(c)) {
-                for (Terminal t : c.getTerminals()) {
-                    writeTerminal(t, cimNamespace, writer, context);
+                if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(c)) {
+                    // Equivalent shunts do not have a section count in SSH, SV profiles,
+                    // the only way to make output consistent with IIDM section count == 0 is to disconnect its terminal
+                    writeTerminal(CgmesExportUtil.getTerminalId(c.getTerminals().get(0), context), false, cimNamespace, writer, context);
+                } else {
+                    for (Terminal t : c.getTerminals()) {
+                        writeTerminal(t, cimNamespace, writer, context);
+                    }
                 }
             }
         }
@@ -200,6 +206,10 @@ public final class SteadyStateHypothesisExport {
     private static void writeShuntCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
+            if ("true".equals(s.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
+                continue;
+            }
+
             String shuntType;
             switch (s.getModelType()) {
                 case LINEAR:

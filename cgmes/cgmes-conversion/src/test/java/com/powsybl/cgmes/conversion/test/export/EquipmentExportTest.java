@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
@@ -41,6 +42,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -514,6 +516,84 @@ class EquipmentExportTest extends AbstractConverterTest {
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportBusBranch(expected, dataSource);
         compareNetworksEQdata(expected, actual);
+    }
+
+    @Test
+    void equivalentShuntTest() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridEquivalentShunt";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import after adding the original boundary files
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+
+        ShuntCompensator expectedEquivalentShunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        ShuntCompensator actualEquivalentShunt = actual.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        assertTrue(equivalentShuntsAreEqual(expectedEquivalentShunt, actualEquivalentShunt));
+    }
+
+    @Test
+    void equivalentShuntWithZeroSectionCountTest() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+        ShuntCompensator equivalentShunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        equivalentShunt.setSectionCount(0);
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "microGridEquivalentShunt";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import after adding the original boundary files
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+
+        ShuntCompensator actualEquivalentShunt = actual.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
+        assertTrue(equivalentShuntsAreEqual(equivalentShunt, actualEquivalentShunt));
+
+        // Terminal is disconnected in the actual network as equivalent shunts with
+        // sectionCount equals to zero are declared as disconnected in the SSH
+        assertTrue(equivalentShunt.getTerminal().isConnected());
+        assertFalse(actualEquivalentShunt.getTerminal().isConnected());
+    }
+
+    private static void copyBoundary(Path outputFolder, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {
+        String eqbd = originalDataSource.listNames(".*EQ_BD.*").stream().findFirst().orElse(null);
+        if (eqbd != null) {
+            try (InputStream is = originalDataSource.newInputStream(eqbd)) {
+                Files.copy(is, outputFolder.resolve(baseName + "_EQ_BD.xml"));
+            }
+        }
+    }
+
+    private static boolean equivalentShuntsAreEqual(ShuntCompensator expectedShunt, ShuntCompensator actualShunt) {
+        if (expectedShunt.getMaximumSectionCount() != actualShunt.getMaximumSectionCount()
+                || expectedShunt.getSectionCount() != actualShunt.getSectionCount()
+                || expectedShunt.getModelType() != actualShunt.getModelType()
+                || expectedShunt.getPropertyNames().size() != actualShunt.getPropertyNames().size()) {
+            return false;
+        }
+        if (expectedShunt.getPropertyNames().stream().anyMatch(propertyName -> !propertyInBothAndEqual(expectedShunt, actualShunt, propertyName))) {
+            return false;
+        }
+        ShuntCompensatorLinearModel expectedModel = (ShuntCompensatorLinearModel) expectedShunt.getModel();
+        ShuntCompensatorLinearModel actualModel = (ShuntCompensatorLinearModel) actualShunt.getModel();
+        return expectedModel.getGPerSection() == actualModel.getGPerSection()
+                && expectedModel.getBPerSection() == actualModel.getBPerSection();
+    }
+
+    private static boolean propertyInBothAndEqual(ShuntCompensator expected, ShuntCompensator actual, String propertyName) {
+        if (!actual.hasProperty(propertyName)) {
+            return false;
+        }
+        return expected.getProperty(propertyName).equals(actual.getProperty(propertyName));
     }
 
     private Network exportImportNodeBreaker(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
