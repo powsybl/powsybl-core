@@ -891,7 +891,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
 
         // create the subnetwork corresponding to the current network (if it doesn't already exist)
-        if (allowSubnetworkCreationForMyself && !subnetworks.containsKey(id)) {
+        if (allowSubnetworkCreationForMyself) {
             SubnetworkImpl n = createSubnetwork(this, this);
             subnetworks.put(n.getId(), n);
             getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubnetwork(id));
