@@ -134,6 +134,12 @@ public class CgmesImport implements Importer {
         Objects.requireNonNull(ds);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(reporter);
+        CgmesModel cgmes = readCgmes(ds, p, reporter);
+        Reporter conversionReporter = reporter.createSubReporter("CGMESConversion", "Importing CGMES file(s)");
+        return new Conversion(cgmes, config(ds, p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
+    }
+
+    public CgmesModel readCgmes(ReadOnlyDataSource ds, Properties p, Reporter reporter) {
         TripleStoreOptions options = new TripleStoreOptions();
         String sourceForIidmIds = Parameter.readString(getFormat(), p, SOURCE_FOR_IIDM_ID_PARAMETER, defaultValueConfig);
         if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_MRID)) {
@@ -143,9 +149,7 @@ public class CgmesImport implements Importer {
         }
         options.decodeEscapedIdentifiers(Parameter.readBoolean(getFormat(), p, DECODE_ESCAPED_IDENTIFIERS_PARAMETER, defaultValueConfig));
         Reporter tripleStoreReporter = reporter.createSubReporter("CGMESTriplestore", "Reading CGMES Triplestore");
-        CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReporter, options);
-        Reporter conversionReporter = reporter.createSubReporter("CGMESConversion", "Importing CGMES file(s)");
-        return new Conversion(cgmes, config(ds, p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
+        return CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReporter, options);
     }
 
     @Override

@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
  */
-public abstract class AbstractSubnetworksTest {
+public abstract class AbstractSubnetworksCreationTest {
 
     private Network network;
     private Network subnetwork1;
@@ -179,21 +180,24 @@ public abstract class AbstractSubnetworksTest {
 
     @Test
     public void testTwoWindingsTransformersCreation() {
-        addVoltageLevel(network.newVoltageLevel(), "vl0_0");
-        addVoltageLevel(network.newVoltageLevel(), 90, "vl0_1");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), "vl1_0");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), 90, "vl1_1");
-        addVoltageLevel(subnetwork2.newVoltageLevel(), "vl2_0");
-        addVoltageLevel(subnetwork2.newVoltageLevel(), 90, "vl2_1");
+        Substation substation0 = addSubstation(network, "s0");
+        Substation substation1 = addSubstation(subnetwork1, "s1");
+        Substation substation2 = addSubstation(subnetwork2, "s2");
+        addVoltageLevel(substation0.newVoltageLevel(), "vl0_0");
+        addVoltageLevel(substation0.newVoltageLevel(), 90, "vl0_1");
+        addVoltageLevel(substation1.newVoltageLevel(), "vl1_0");
+        addVoltageLevel(substation1.newVoltageLevel(), 90, "vl1_1");
+        addVoltageLevel(substation2.newVoltageLevel(), "vl2_0");
+        addVoltageLevel(substation2.newVoltageLevel(), 90, "vl2_1");
 
-        // On root network, voltage levels both in root network
-        addTwoWindingsTransformer(network, "twt0", "vl0_0", 380, "vl0_1", 90);
+        // On root network
+        addTwoWindingsTransformer(substation0, "twt0", "vl0_0", 380, "vl0_1", 90);
 
-        // On root network, voltage levels both in subnetwork1
-        addTwoWindingsTransformer(network, "twt1", "vl1_0", 380, "vl1_1", 90);
+        // On subnetwork1
+        addTwoWindingsTransformer(substation1, "twt1", "vl1_0", 380, "vl1_1", 90);
 
-        // On subnetwork2, voltage levels both in subnetwork2
-        addTwoWindingsTransformer(subnetwork2, "twt2", "vl2_0", 380, "vl2_1", 90);
+        // On subnetwork2
+        addTwoWindingsTransformer(substation2, "twt2", "vl2_0", 380, "vl2_1", 90);
 
         // Detach all
         assertTrue(subnetwork1.isDetachable());
@@ -214,36 +218,28 @@ public abstract class AbstractSubnetworksTest {
     }
 
     @Test
-    public void failCreateTwoWindingsTransformerBetweenTwoSubnetworks() {
-        addVoltageLevel(subnetwork1.newVoltageLevel(), "vl1_0");
-        addSubstation(subnetwork2, "s2");
-        addVoltageLevel(network.getSubstation("s2").newVoltageLevel(), 90, "vl2_0");
-
-        PowsyblException e = assertThrows(ValidationException.class, () -> addTwoWindingsTransformer(subnetwork1, "twt",
-                "vl1_0", 380, "vl2_0", 90));
-        assertTrue(e.getMessage().contains("The 2 windings of the transformer shall belong to the same subnetwork"));
-    }
-
-    @Test
     public void testThreeWindingsTransformersCreation() {
-        addVoltageLevel(network.newVoltageLevel(), "vl0_0");
-        addVoltageLevel(network.newVoltageLevel(), 225, "vl0_1");
-        addVoltageLevel(network.newVoltageLevel(), 90, "vl0_2");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), "vl1_0");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), 225, "vl1_1");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), 90, "vl1_2");
-        addVoltageLevel(subnetwork2.newVoltageLevel(), "vl2_0");
-        addVoltageLevel(subnetwork2.newVoltageLevel(), 225, "vl2_1");
-        addVoltageLevel(subnetwork2.newVoltageLevel(), 90, "vl2_2");
+        Substation substation0 = addSubstation(network, "s0");
+        Substation substation1 = addSubstation(subnetwork1, "s1");
+        Substation substation2 = addSubstation(subnetwork2, "s2");
+        addVoltageLevel(substation0.newVoltageLevel(), "vl0_0");
+        addVoltageLevel(substation0.newVoltageLevel(), 225, "vl0_1");
+        addVoltageLevel(substation0.newVoltageLevel(), 90, "vl0_2");
+        addVoltageLevel(substation1.newVoltageLevel(), "vl1_0");
+        addVoltageLevel(substation1.newVoltageLevel(), 225, "vl1_1");
+        addVoltageLevel(substation1.newVoltageLevel(), 90, "vl1_2");
+        addVoltageLevel(substation2.newVoltageLevel(), "vl2_0");
+        addVoltageLevel(substation2.newVoltageLevel(), 225, "vl2_1");
+        addVoltageLevel(substation2.newVoltageLevel(), 90, "vl2_2");
 
-        // On root network, voltage levels all in root network
-        addThreeWindingsTransformer(network, "twt0", "vl0_0", 380, "vl0_1", 225, "vl0_2", 90);
+        // On root network
+        addThreeWindingsTransformer(substation0, "twt0", "vl0_0", 380, "vl0_1", 225, "vl0_2", 90);
 
-        // On root network, voltage levels all in subnetwork1
-        addThreeWindingsTransformer(network, "twt1", "vl1_0", 380, "vl1_1", 225, "vl1_2", 90);
+        // On subnetwork1
+        addThreeWindingsTransformer(substation1, "twt1", "vl1_0", 380, "vl1_1", 225, "vl1_2", 90);
 
-        // On subnetwork2, voltage levels all in subnetwork2
-        addThreeWindingsTransformer(subnetwork2, "twt2", "vl2_0", 380, "vl2_1", 225, "vl2_2", 90);
+        // On subnetwork2
+        addThreeWindingsTransformer(substation2, "twt2", "vl2_0", 380, "vl2_1", 225, "vl2_2", 90);
 
         // Detach all
         assertTrue(subnetwork1.isDetachable());
@@ -261,18 +257,6 @@ public abstract class AbstractSubnetworksTest {
         checkIndexNetworks(network);
         checkIndexNetworks(n1);
         checkIndexNetworks(n2);
-    }
-
-    @Test
-    public void failCreateThreeWindingsTransformerBetweenDifferentSubnetworks() {
-        addVoltageLevel(subnetwork1.newVoltageLevel(), "vl1_0");
-        addVoltageLevel(subnetwork1.newVoltageLevel(), 90, "vl1_1");
-        addSubstation(subnetwork2, "s2");
-        addVoltageLevel(network.getSubstation("s2").newVoltageLevel(), 90, "vl2_0");
-
-        PowsyblException e = assertThrows(ValidationException.class, () -> addThreeWindingsTransformer(subnetwork1, "twt",
-                "vl1_0", 380, "vl1_1", 90, "vl2_0", 90));
-        assertTrue(e.getMessage().contains("The 3 windings of the transformer shall belong to the same subnetwork"));
     }
 
     @ParameterizedTest()
@@ -304,19 +288,47 @@ public abstract class AbstractSubnetworksTest {
         assertValidationLevels(ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
-    void assertValidationLevels(ValidationLevel expected) {
-        // The validation level must be the same between the root network and its subnetworks
-        assertEquals(expected, network.getValidationLevel());
-        assertEquals(expected, subnetwork1.getValidationLevel());
-        assertEquals(expected, subnetwork2.getValidationLevel());
-    }
-
     static Stream<Arguments> networkParameters() {
         return Stream.of(
                 Arguments.of("Root"),
                 Arguments.of("Sub1"),
                 Arguments.of("Sub2")
         );
+    }
+
+    @Test
+    public void testListeners() {
+        MutableBoolean listenerCalled = new MutableBoolean(false);
+        NetworkListener listener = new DefaultNetworkListener() {
+            @Override
+            public void onCreation(Identifiable identifiable) {
+                listenerCalled.setTrue();
+            }
+        };
+
+        // The listener can only be added to the root network.
+        assertThrows(PowsyblException.class, () -> subnetwork1.addListener(listener));
+        network.addListener(listener);
+
+        // A listener added to the root network is called during subnetworks changes.
+        addSubstation(subnetwork1, "s0");
+        assertTrue(listenerCalled.booleanValue());
+
+        // The listener can only be removed to the root network.
+        assertThrows(PowsyblException.class, () -> subnetwork1.removeListener(listener));
+        network.removeListener(listener);
+
+        // After its removal, a listener isn't called anymore during subnetworks changes.
+        listenerCalled.setFalse();
+        addSubstation(subnetwork1, "s1");
+        assertFalse(listenerCalled.booleanValue());
+    }
+
+    void assertValidationLevels(ValidationLevel expected) {
+        // The validation level must be the same between the root network and its subnetworks
+        assertEquals(expected, network.getValidationLevel());
+        assertEquals(expected, subnetwork1.getValidationLevel());
+        assertEquals(expected, subnetwork2.getValidationLevel());
     }
 
     private Substation addSubstation(Network network, String substationId) {
@@ -350,9 +362,9 @@ public abstract class AbstractSubnetworksTest {
                 .add();
     }
 
-    private TwoWindingsTransformer addTwoWindingsTransformer(Network network, String id, String vlId1, double nominalV1,
+    private TwoWindingsTransformer addTwoWindingsTransformer(Substation substation, String id, String vlId1, double nominalV1,
                                                              String vlId2, double nominalV2) {
-        return network.newTwoWindingsTransformer()
+        return substation.newTwoWindingsTransformer()
                 .setId(id)
                 .setR(0)
                 .setX(0)
@@ -369,9 +381,9 @@ public abstract class AbstractSubnetworksTest {
                 .add();
     }
 
-    private ThreeWindingsTransformer addThreeWindingsTransformer(Network network, String id, String vlId1, double nominalV1,
+    private ThreeWindingsTransformer addThreeWindingsTransformer(Substation substation, String id, String vlId1, double nominalV1,
                                                              String vlId2, double nominalV2, String vlId3, double nominalV3) {
-        return network.newThreeWindingsTransformer()
+        return substation.newThreeWindingsTransformer()
                 .setId(id)
                 .newLeg1()
                 .setRatedU(nominalV1)

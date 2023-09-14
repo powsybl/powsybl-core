@@ -5,11 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.impl.tck;
-
-import com.powsybl.iidm.network.tck.AbstractSubnetworksTest;
+package com.powsybl.math.graph;
 
 /**
- * @author Olivier Perrin <olivier.perrin at rte-france.com>
+ * @author Franck.Lecuyer <franck.lecuyer at rte-france.com>
  */
-class SubnetworksTest extends AbstractSubnetworksTest { }
+public enum TraversalType {
+    DEPTH_FIRST,
+    BREADTH_FIRST
+}

@@ -76,6 +76,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
 
         @Override
+        public int getBusCount() {
+            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getBusCount()).sum();
+        }
+
+        @Override
         public Iterable<Switch> getSwitches() {
             return FluentIterable.from(getVoltageLevels())
                     .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
@@ -173,8 +178,6 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             mergedNetwork.merge(other, false);
         }
 
-        //TODO The following line won't be necessary anymore once the TODO in "merge(Network)" is resolved.
-        mergedNetwork.invalidateValidationLevel();
         return mergedNetwork;
     }
 
@@ -389,15 +392,6 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     @Override
-    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer() {
-        return newTwoWindingsTransformer(null);
-    }
-
-    TwoWindingsTransformerAdderImpl newTwoWindingsTransformer(String subnetwork) {
-        return new TwoWindingsTransformerAdderImpl(this, subnetwork);
-    }
-
-    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return Collections.unmodifiableCollection(index.getAll(TwoWindingsTransformerImpl.class));
     }
@@ -415,15 +409,6 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
         return index.get(id, TwoWindingsTransformerImpl.class);
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
-        return newThreeWindingsTransformer(null);
-    }
-
-    ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer(String subnetwork) {
-        return new ThreeWindingsTransformerAdderImpl(this, subnetwork);
     }
 
     @Override
@@ -935,18 +920,19 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         long start = System.currentTimeMillis();
 
-        //TODO This merge method doesn't consider validation levels. What is the best option among the following
-        // when we try to merge a network which validation level is lower than the current network's minimal validation level?
-        // - (1) Throw an Exception,
-        // - (2) or decrease the current network's minimal validation level and compute (or invalidate) the validation level?
+        // if the validation level of other is lower than the current network's minimum validation level, we can not incorporate it
+        if (other.getValidationLevel().compareTo(getMinValidationLevel()) < 0) {
+            throw new PowsyblException("Network " + other.getNetwork() + " cannot be merged: its validation level " +
+                    "is lower than the minimum acceptable validation level of network " + getId() + " (" +
+                    other.getValidationLevel() + " < " + getMinValidationLevel() + ")");
+        }
+        // update the validation level (without recomputing it)
+        this.validationLevel = ValidationLevel.min(this.getValidationLevel(), other.getValidationLevel());
 
-        // check there's no id existing in both networks
+        // check mergeability
         Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
-            if (clazz == DanglingLineImpl.class) { // fine for dangling lines
-                continue;
-            }
             Collection<String> objs = entry.getValue();
             if (!objs.isEmpty()) {
                 throw new PowsyblException("The following object(s) of type "
@@ -978,7 +964,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             }
         }
         for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
-            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
+            findAndAssociateDanglingLines(dl2, dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 
         // do not forget to remove the other network from its index!!!

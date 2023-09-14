@@ -123,7 +123,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      *
      * @return the list of the specific parameters names.
      */
-    @Deprecated
+    @Deprecated(since = "5.1.0")
     default List<String> getSpecificParametersNames() {
         return getSpecificParameters().stream().map(Parameter::getName).collect(Collectors.toList());
     }

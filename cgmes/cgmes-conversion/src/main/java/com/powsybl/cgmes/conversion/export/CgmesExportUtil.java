@@ -233,8 +233,8 @@ public final class CgmesExportUtil {
                     default:
                         throw new IllegalStateException("Incorrect branch side " + ((Branch<?>) c).getSide(t));
                 }
-            } else if (c instanceof ThreeWindingsTransformer) {
-                switch (((ThreeWindingsTransformer) c).getSide(t)) {
+            } else if (c instanceof ThreeWindingsTransformer twt) {
+                switch (twt.getSide(t)) {
                     case ONE:
                         return 1;
                     case TWO:
@@ -242,7 +242,7 @@ public final class CgmesExportUtil {
                     case THREE:
                         return 3;
                     default:
-                        throw new IllegalStateException("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
+                        throw new IllegalStateException("Incorrect three-windings transformer side " + twt.getSide(t));
                 }
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
@@ -323,5 +323,13 @@ public final class CgmesExportUtil {
         // or its parent network different that this network.
         return !danglingLine.isPaired()
                 || danglingLine.isPaired() && danglingLine.getTieLine().orElseThrow().getParentNetwork() != network;
+    }
+
+    public static boolean isEquivalentShuntWithZeroSectionCount(Connectable<?> c) {
+        if (c instanceof ShuntCompensator shuntCompensator) {
+            return "true".equals(c.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))
+                    && shuntCompensator.getSectionCount() == 0;
+        }
+        return false;
     }
 }

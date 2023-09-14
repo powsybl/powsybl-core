@@ -17,11 +17,21 @@ public final class NetworkUtil {
     private NetworkUtil() {
     }
 
-    public static Ref<NetworkImpl> getRef(NetworkImpl network, Network parentNetwork) {
-        if (network == parentNetwork) {
-            return network.getRef();
+    /**
+     * <p>Return the `Ref` object corresponding to `network`.</p>
+     * <ul>
+     *     <li>if `network` is `rootNetwork`, return its reference;</li>
+     *     <li>if `network` is a subnetwork, return the reference of the subnetwork, which is stored in `rootNetwork`.</li>
+     * </ul>
+     * @param rootNetwork the root network
+     * @param network the root network or one of its subnetwork
+     * @return the `ref` object corresponding to `network`
+     */
+    public static Ref<NetworkImpl> getRef(NetworkImpl rootNetwork, Network network) {
+        if (rootNetwork == network) {
+            return rootNetwork.getRef();
         }
-        return network.getRef(parentNetwork.getId());
+        return rootNetwork.getRef(network.getId());
     }
 
 }

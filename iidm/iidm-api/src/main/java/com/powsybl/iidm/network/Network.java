@@ -427,6 +427,14 @@ public interface Network extends Container<Network> {
         Stream<Bus> getBusStream();
 
         /**
+         * Get the bus count.
+         * <p>
+         * Depends on the working variant.
+         * @see VariantManager
+         */
+        int getBusCount();
+
+        /**
          * Get all switches
          */
         Iterable<Switch> getSwitches();
@@ -437,7 +445,39 @@ public interface Network extends Container<Network> {
         Stream<Switch> getSwitchStream();
 
         /**
-         * Get the switch count.
+         * Get the switch count.class BusBreakerViewImpl implements BusBreakerView {
+
+        @Override
+        public Iterable<Bus> getBuses() {
+            return getBusStream().collect(Collectors.toList());
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return parent.getBusBreakerView().getBusStream().filter(SubnetworkImpl.this::contains);
+        }
+
+        @Override
+        public Iterable<Switch> getSwitches() {
+            return getSwitchStream().collect(Collectors.toList());
+        }
+
+        @Override
+        public Stream<Switch> getSwitchStream() {
+            return parent.getBusBreakerView().getSwitchStream().filter(SubnetworkImpl.this::contains);
+        }
+
+        @Override
+        public int getSwitchCount() {
+            return (int) getSwitchStream().count();
+        }
+
+        @Override
+        public Bus getBus(String id) {
+            Bus b = parent.getBusBreakerView().getBus(id);
+            return contains(b) ? b : null;
+        }
+    }
          */
         int getSwitchCount();
 
@@ -742,22 +782,6 @@ public interface Network extends Container<Network> {
     TieLineAdder newTieLine();
 
     /**
-     * Get a builder to create a two windings transformer.
-     * Only use if at least one of the transformer's ends does not belong to any substation.
-     * Else use {@link Substation#newTwoWindingsTransformer()}.
-     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
-     * @return a builder to create a new two windings transformer
-     */
-    default TwoWindingsTransformerAdder newTwoWindingsTransformer() {
-        return newSubstation()
-                .setId("FICTITIOUS_SUBSTATION")
-                .setEnsureIdUnicity(true)
-                .setFictitious(true)
-                .add()
-                .newTwoWindingsTransformer();
-    }
-
-    /**
      * Get all two windings transformers.
      */
     Iterable<TwoWindingsTransformer> getTwoWindingsTransformers();
@@ -778,22 +802,6 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the two windings transformer
      */
     TwoWindingsTransformer getTwoWindingsTransformer(String id);
-
-    /**
-     * Get a builder to create a three windings transformer.
-     * Only use this builder if at least one of the transformer's ends does not belong to any substation.
-     * Else use {@link Substation#newThreeWindingsTransformer()}.
-     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
-     * @return a builder to create a new three windings transformer
-     * */
-    default ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        return newSubstation()
-                .setId("FICTITIOUS_SUBSTATION")
-                .setEnsureIdUnicity(true)
-                .setFictitious(true)
-                .add()
-                .newThreeWindingsTransformer();
-    }
 
     /**
      * Get all 3 windings transformers.
@@ -1246,7 +1254,7 @@ public interface Network extends Container<Network> {
     /**
      * <p>Detach the current network (including its subnetworks) from its parent network.</p>
      * <p>Note that this operation is destructive: after it the current network's content
-     * couldn't be accessed from the parent networks anymore.</p>
+     * couldn't be accessed from the parent network anymore.</p>
      * <p>The boundary elements, i.e. linking this network to an external voltage level are split if possible.</br>
      * A {@link PowsyblException} is thrown if some un-splittable boundary elements are detected. This detection is processed
      * before any network modification. So if an un-splittable boundary element is detected, no destructive operation will be done.</p>
@@ -1277,8 +1285,16 @@ public interface Network extends Container<Network> {
      */
     boolean isBoundaryElement(Identifiable<?> identifiable);
 
+    /**
+     * <p>Add a listener on the network.</p>
+     * @param listener the listener to add
+     */
     void addListener(NetworkListener listener);
 
+    /**
+     * <p>Remove a listener from the network.</p>
+     * @param listener the listener to remove
+     */
     void removeListener(NetworkListener listener);
 
     @Override

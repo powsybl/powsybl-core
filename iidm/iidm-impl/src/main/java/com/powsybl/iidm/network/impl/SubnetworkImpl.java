@@ -216,11 +216,6 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public TwoWindingsTransformerAdder newTwoWindingsTransformer() {
-        return parent.newTwoWindingsTransformer(id);
-    }
-
-    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return getTwoWindingsTransformerStream().collect(Collectors.toList());
     }
@@ -239,11 +234,6 @@ public class SubnetworkImpl extends AbstractNetwork {
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
         TwoWindingsTransformer twt = parent.getTwoWindingsTransformer(id);
         return contains(twt) ? twt : null;
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        return parent.newThreeWindingsTransformer(id);
     }
 
     @Override
@@ -553,11 +543,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Collection<Identifiable<?>> getIdentifiables() {
-        return getIdentifiableStream().collect(Collectors.toList());
-    }
-
-    Stream<Identifiable<?>> getIdentifiableStream() {
-        return parent.getIdentifiables().stream().filter(this::contains);
+        return parent.getIdentifiables().stream().filter(this::contains).collect(Collectors.toList());
     }
 
     @Override
@@ -606,6 +592,11 @@ public class SubnetworkImpl extends AbstractNetwork {
         @Override
         public Stream<Bus> getBusStream() {
             return parent.getBusBreakerView().getBusStream().filter(SubnetworkImpl.this::contains);
+        }
+
+        @Override
+        public int getBusCount() {
+            return (int) getBusStream().count();
         }
 
         @Override
@@ -679,16 +670,31 @@ public class SubnetworkImpl extends AbstractNetwork {
         return busView;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>This operation is not allowed on a subnetwork.</p>
+     * <p>This method throws an {@link UnsupportedOperationException}</p>
+     */
     @Override
     public Network createSubnetwork(String subnetworkId, String name, String sourceFormat) {
         throw new UnsupportedOperationException("Inner subnetworks are not yet supported");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>This operation is not allowed on a subnetwork.</p>
+     * <p>This method throws an {@link UnsupportedOperationException}</p>
+     */
     @Override
     public void merge(Network other) {
         throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>This operation is not allowed on a subnetwork.</p>
+     * <p>This method throws an {@link UnsupportedOperationException}</p>
+     */
     @Override
     public void merge(Network... others) {
         throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
@@ -789,15 +795,11 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
-        switch (identifiable.getType()) {
-            case LINE:
-            case TIE_LINE:
-                return isBoundary((Branch<?>) identifiable);
-            case HVDC_LINE:
-                return isBoundary((HvdcLine) identifiable);
-            default:
-                return false;
-        }
+        return switch (identifiable.getType()) {
+            case LINE, TIE_LINE -> isBoundary((Branch<?>) identifiable);
+            case HVDC_LINE -> isBoundary((HvdcLine) identifiable);
+            default -> false;
+        };
     }
 
     private boolean isBoundary(Branch<?> branch) {
@@ -816,14 +818,32 @@ public class SubnetworkImpl extends AbstractNetwork {
                 !containsVoltageLevel1 && containsVoltageLevel2;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>This method throws an {@link PowsyblException}.</p>
+     * <p>Motivation: The listeners apply to the whole network (root + subnetworks). Thus, in a network with several subnetworks,
+     * if calling <code>addListener</code> on a subnetwork registers the given listener on the root network, changes
+     * on another subnetwork will also be reported to the listener. This is counterintuitive and could lead to confusion.
+     * To avoid that, we don't allow to add or remove listeners from a subnetwork.</p>
+     */
     @Override
     public void addListener(NetworkListener listener) {
-        parent.addListener(listener);
+        throw new PowsyblException("Listeners are not managed at subnetwork level." +
+                " Add this listener to the parent network '" + getNetwork().getId() + "'");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>This method throws an {@link PowsyblException}.</p>
+     * <p>Motivation: The listeners apply to the whole network (root + subnetworks). Thus, in a network with several subnetworks,
+     * if calling <code>addListener</code> on a subnetwork registers the given listener on the root network, changes
+     * on another subnetwork will also be reported to the listener. This is counterintuitive and could lead to confusion.
+     * To avoid that, we don't allow to add or remove listeners from a subnetwork.</p>
+     */
     @Override
     public void removeListener(NetworkListener listener) {
-        parent.removeListener(listener);
+        throw new PowsyblException("Listeners are not managed at subnetwork level." +
+                " Remove this listener to the parent network '" + getNetwork().getId() + "'");
     }
 
     @Override

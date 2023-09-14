@@ -17,9 +17,9 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.anonymizer.Anonymizer;
 import com.powsybl.iidm.xml.anonymizer.SimpleAnonymizer;
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.joda.time.DateTime;
@@ -78,7 +78,8 @@ public final class NetworkXml {
         try {
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-            int length = IidmXmlVersion.values().length + (int) Arrays.stream(IidmXmlVersion.values()).filter(v -> v.supportEquipmentValidationLevel()).count();
+            int length = IidmXmlVersion.values().length + (int) Arrays.stream(IidmXmlVersion.values())
+                    .filter(IidmXmlVersion::supportEquipmentValidationLevel).count();
             Source[] sources = new Source[additionalSchemas.size() + length];
             int i = 0;
             int j = 0;
@@ -197,8 +198,7 @@ public final class NetworkXml {
     }
 
     private static String getNamespaceUri(ExtensionXmlSerializer extensionXmlSerializer, ExportOptions options, IidmXmlVersion networkVersion) {
-        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer) {
-            AbstractVersionableNetworkExtensionXmlSerializer networkExtensionXmlSerializer = (AbstractVersionableNetworkExtensionXmlSerializer) extensionXmlSerializer;
+        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer<?, ?> networkExtensionXmlSerializer) {
             return options.getExtensionVersion(networkExtensionXmlSerializer.getExtensionName())
                     .map(extensionVersion -> {
                         networkExtensionXmlSerializer.checkWritingCompatibility(extensionVersion, networkVersion);
@@ -236,8 +236,7 @@ public final class NetworkXml {
             return false;
         }
         boolean versionExist = true;
-        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer) {
-            AbstractVersionableNetworkExtensionXmlSerializer networkExtensionXmlSerializer = (AbstractVersionableNetworkExtensionXmlSerializer) extensionXmlSerializer;
+        if (extensionXmlSerializer instanceof AbstractVersionableNetworkExtensionXmlSerializer<?, ?> networkExtensionXmlSerializer) {
             versionExist = networkExtensionXmlSerializer.versionExists(version);
         }
         if (!versionExist) {
@@ -279,7 +278,6 @@ public final class NetworkXml {
 
         writeVoltageLevels(n, context);
         writeSubstations(n, context);
-        writeTransformers(n, context);
         writeLines(n, context);
         writeTieLines(n, context);
         writeHvdcLines(n, context);
@@ -298,24 +296,6 @@ public final class NetworkXml {
     private static void writeSubstations(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
             SubstationXml.INSTANCE.write(s, n, context);
-        }
-    }
-
-    private static void writeTransformers(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        BusFilter filter = context.getFilter();
-        for (TwoWindingsTransformer twt : IidmXmlUtil.sorted(n.getTwoWindingsTransformers(), context.getOptions())) {
-            if (twt.getSubstation().isEmpty() && filter.test(twt)) {
-                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                TwoWindingsTransformerXml.INSTANCE.write(twt, n, context);
-            }
-        }
-        for (ThreeWindingsTransformer twt : IidmXmlUtil.sorted(n.getThreeWindingsTransformers(), context.getOptions())) {
-            if (twt.getSubstation().isEmpty() && filter.test(twt)) {
-                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                ThreeWindingsTransformerXml.INSTANCE.write(twt, n, context);
-            }
         }
     }
 
@@ -474,18 +454,6 @@ public final class NetworkXml {
 
                     case SubstationXml.ROOT_ELEMENT_NAME:
                         SubstationXml.INSTANCE.read(network, context);
-                        break;
-
-                    case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                        TwoWindingsTransformerXml.INSTANCE.read(network, context);
-                        break;
-
-                    case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                        ThreeWindingsTransformerXml.INSTANCE.read(network, context);
                         break;
 
                     case LineXml.ROOT_ELEMENT_NAME:

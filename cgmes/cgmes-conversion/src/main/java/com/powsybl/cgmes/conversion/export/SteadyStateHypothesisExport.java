@@ -86,8 +86,14 @@ public final class SteadyStateHypothesisExport {
     private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
             if (context.isExportedEquipment(c)) {
-                for (Terminal t : c.getTerminals()) {
-                    writeTerminal(t, cimNamespace, writer, context);
+                if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(c)) {
+                    // Equivalent shunts do not have a section count in SSH, SV profiles,
+                    // the only way to make output consistent with IIDM section count == 0 is to disconnect its terminal
+                    writeTerminal(CgmesExportUtil.getTerminalId(c.getTerminals().get(0), context), false, cimNamespace, writer, context);
+                } else {
+                    for (Terminal t : c.getTerminals()) {
+                        writeTerminal(t, cimNamespace, writer, context);
+                    }
                 }
             }
         }
@@ -201,6 +207,10 @@ public final class SteadyStateHypothesisExport {
     private static void writeShuntCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
+            if ("true".equals(s.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))) {
+                continue;
+            }
+
             String shuntType;
             switch (s.getModelType()) {
                 case LINEAR:
@@ -294,8 +304,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static boolean isMotor(double minP, ReactiveLimits l) {
-        if (l instanceof ReactiveCapabilityCurve) {
-            ReactiveCapabilityCurve curve = (ReactiveCapabilityCurve) l;
+        if (l instanceof ReactiveCapabilityCurve curve) {
             return curve.getMinP() < 0;
         } else {
             return minP < 0;
@@ -385,19 +394,19 @@ public final class SteadyStateHypothesisExport {
         if (cgmesTc != null && cgmesTc.getControlId() != null) {
             String controlId = cgmesTc.getControlId();
             RegulatingControlView rcv = null;
-            if (tc instanceof RatioTapChanger) {
+            if (tc instanceof RatioTapChanger ratioTapChanger) {
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,
                         true,
                         tc.isRegulating(),
                         tc.getTargetDeadband(),
-                        ((RatioTapChanger) tc).getTargetV(),
+                        ratioTapChanger.getTargetV(),
                         // Unit multiplier is k for ratio tap changers (regulation value is a voltage in kV)
                         "k");
-            } else if (tc instanceof PhaseTapChanger) {
+            } else if (tc instanceof PhaseTapChanger phaseTapChanger) {
                 boolean valid;
                 String unitMultiplier;
-                switch (((PhaseTapChanger) tc).getRegulationMode()) {
+                switch (phaseTapChanger.getRegulationMode()) {
                     case CURRENT_LIMITER:
                         // Unit multiplier is none (multiply by 1), regulation value is a current in Amperes
                         valid = true;
@@ -603,8 +612,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeStartElement(cimNamespace, "ACDCConverter.targetUdc");
             writer.writeCharacters(CgmesExportUtil.format(0.0));
             writer.writeEndElement();
-            if (converterStation instanceof LccConverterStation) {
-                LccConverterStation lccConverterStation = (LccConverterStation) converterStation;
+            if (converterStation instanceof LccConverterStation lccConverterStation) {
 
                 writePandQ(cimNamespace, ppcc, getQfromPowerFactor(ppcc, lccConverterStation.getPowerFactor()), writer);
                 writer.writeStartElement(cimNamespace, "CsConverter.targetAlpha");
@@ -620,8 +628,7 @@ public final class SteadyStateHypothesisExport {
                 writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterOperatingMode(converterStation));
                 writer.writeEmptyElement(cimNamespace, "CsConverter.pPccControl");
                 writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "CsPpccControlKind.activePower");
-            } else if (converterStation instanceof VscConverterStation) {
-                VscConverterStation vscConverterStation = (VscConverterStation) converterStation;
+            } else if (converterStation instanceof VscConverterStation vscConverterStation) {
 
                 writePandQ(cimNamespace, ppcc, vscConverterStation.getReactivePowerSetpoint(), writer);
                 writer.writeStartElement(cimNamespace, "VsConverter.droop");
@@ -736,8 +743,8 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static String generatingUnitClassname(Injection<?> i) {
-        if (i instanceof Generator) {
-            EnergySource energySource = ((Generator) i).getEnergySource();
+        if (i instanceof Generator generator) {
+            EnergySource energySource = generator.getEnergySource();
             if (energySource == EnergySource.HYDRO) {
                 return "HydroGeneratingUnit";
             } else if (energySource == EnergySource.NUCLEAR) {

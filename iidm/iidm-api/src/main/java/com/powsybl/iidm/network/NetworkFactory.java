@@ -58,7 +58,7 @@ public interface NetworkFactory {
     /**
      * @deprecated Use {@link Network#create(String, String)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "2.6.0")
     static Network create(String id, String sourceFormat) {
         return findDefault().createNetwork(id, sourceFormat);
     }

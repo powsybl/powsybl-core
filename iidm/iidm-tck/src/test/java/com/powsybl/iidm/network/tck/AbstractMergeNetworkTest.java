@@ -8,9 +8,17 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.extensions.LoadDetailAdder;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
+import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -49,12 +57,17 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void xnodeNonCompatible() {
+    public void failMergeValidationLevelLowerThanMin() {
+        n1.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
         addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl", "code", "dl", "deco");
-        merge.merge(n1);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n2));
-        assertTrue(e.getMessage().contains("Dangling line couple dl have inconsistent Xnodes (code!=deco)"));
+        n1.getVoltageLevel("vl1").newLoad()
+                .setId("unchecked1")
+                .setBus("b1")
+                .setConnectableBus("b1")
+                .add();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n1));
+        assertTrue(e.getMessage().contains("cannot be merged: its validation level is lower than the minimum acceptable " +
+                "validation level of network"));
     }
 
     @Test
@@ -142,9 +155,46 @@ public abstract class AbstractMergeNetworkTest {
         assertEquals(voltageLevelCount, n.getVoltageLevelCount());
     }
 
-    private void checkValidPAndQ(DanglingLine dl) {
-        assertEquals(0.0, dl.getP0());
-        assertEquals(0.0, dl.getQ0());
+    @Test
+    public void testMergeAndDetachWithExtensions() {
+        n1 = EurostagTutorialExample1Factory.createWithMoreGenerators();
+        addSubstationAndVoltageLevel(n2, "s2", Country.BE, "vl2", "b2");
+        addDanglingLines(n1, "VLGEN", "dl1", "code", "NGEN");
+        addDanglingLines(n2, "vl2", "dl2", "code", "b2");
+
+        // Add extension at network level
+        n1.newExtension(SecondaryVoltageControlAdder.class)
+                .addControlZone(new SecondaryVoltageControl.ControlZone("z1",
+                        new SecondaryVoltageControl.PilotPoint(List.of("NLOAD"), 15d),
+                        List.of(new SecondaryVoltageControl.ControlUnit("GEN", false),
+                                new SecondaryVoltageControl.ControlUnit("GEN2"))))
+                .add();
+        // Add extension at inner element level
+        n1.getLoad("LOAD").newExtension(LoadDetailAdder.class)
+                .withFixedActivePower(40f)
+                .withFixedReactivePower(20f)
+                .withVariableActivePower(60f)
+                .withVariableReactivePower(30f)
+                .add();
+
+        merge = Network.create(MERGE, n1, n2);
+        Network subnetwork1 = merge.getSubnetwork("sim1");
+        checkExtensions(subnetwork1);
+
+        Network detachedN1 = subnetwork1.detach();
+        checkExtensions(detachedN1);
+    }
+
+    private static void checkExtensions(Network network) {
+        // Check that the Network extension is present on the subnetwork
+        assertEquals(1, network.getExtensions().size());
+        assertNotNull(network.getExtensionByName(SecondaryVoltageControl.NAME));
+        assertNotNull(network.getExtension(SecondaryVoltageControl.class));
+
+        // Check that the Load extension is visible from the subnetwork
+        assertEquals(1, network.getLoad("LOAD").getExtensions().size());
+        assertNotNull(network.getLoad("LOAD").getExtensionByName(LoadDetail.NAME));
+        assertNotNull(network.getLoad("LOAD").getExtension(LoadDetail.class));
     }
 
     @Test
@@ -224,14 +274,11 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void testMergeSameId() {
+    public void failMergeDanglingLinesWithSameId() {
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl", null, "dl", "code");
-        merge.merge(n1, n2);
-        assertNotNull(merge.getTieLine("dl"));
-        assertEquals("dl", merge.getTieLine("dl").getId());
-        assertEquals("dl_name", merge.getTieLine("dl").getOptionalName().orElse(null));
-        assertEquals("dl_name", merge.getTieLine("dl").getNameOrId());
+        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n1, n2));
+        assertTrue(e.getMessage().contains("The following object(s) of type DanglingLineImpl exist(s) in both networks: [dl]"));
     }
 
     @Test
@@ -314,12 +361,92 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
+    void failMergeOnSubnetworks() {
+        merge = Network.create(MERGE, n1, n2);
+        Network subnetwork1 = merge.getSubnetwork(N1);
+        Network other1 = Network.create("other1", "format");
+        Network other2 = Network.create("other2", "format");
+
+        Exception e = assertThrows(UnsupportedOperationException.class, () -> subnetwork1.merge(other1));
+        assertTrue(e.getMessage().contains("is already a subnetwork"));
+
+        e = assertThrows(UnsupportedOperationException.class, () -> subnetwork1.merge(other1, other2));
+        assertTrue(e.getMessage().contains("is already a subnetwork"));
+    }
+
+    @Test
+    void failMergeSubnetworks() {
+        merge = Network.create(MERGE, n1, n2);
+        Network subnetwork1 = merge.getSubnetwork(N1);
+        Network other = Network.create("other", "format");
+
+        Exception e = assertThrows(IllegalArgumentException.class,
+                () -> Network.create("test", other, subnetwork1));
+        assertTrue(e.getMessage().contains("is already a subnetwork"));
+    }
+
+    @Test
+    void failMergeContainingSubnetworks() {
+        merge = Network.create(MERGE, n1, n2);
+        Network other = Network.create("other", "format");
+
+        Exception e = assertThrows(IllegalArgumentException.class,
+                () -> Network.create("test", other, merge));
+        assertTrue(e.getMessage().contains("already contains subnetworks"));
+    }
+
+    @Test
     void testNoEmptyAdditionalSubnetworkIsCreated() {
         merge = Network.create(MERGE, n1, n2);
         assertEquals(2, merge.getSubnetworks().size());
         assertNull(merge.getSubnetwork(MERGE));
         assertNotNull(merge.getSubnetwork(N1));
         assertNotNull(merge.getSubnetwork(N2));
+    }
+
+    @Test
+    public void testListeners() {
+        MutableBoolean listenerCalled = new MutableBoolean(false);
+        NetworkListener listener = new DefaultNetworkListener() {
+            @Override
+            public void onCreation(Identifiable identifiable) {
+                listenerCalled.setTrue();
+            }
+        };
+
+        // The listener works on n1.
+        n1.addListener(listener);
+        addSubstation(n1, "s1");
+        assertTrue(listenerCalled.booleanValue());
+
+        merge = Network.create(MERGE, n1, n2);
+        Network subnetwork1 = merge.getSubnetwork(N1);
+        Network subnetwork2 = merge.getSubnetwork(N2);
+
+        // After the merge, changes on "merge" or on "subnetwork1" are not reported to the listener.
+        listenerCalled.setFalse();
+        addSubstation(merge, "s2");
+        assertFalse(listenerCalled.booleanValue());
+        addSubstation(subnetwork1, "s3");
+        assertFalse(listenerCalled.booleanValue());
+
+        // Add the listener to "merge". Changes on subnetwork1 are reported.
+        merge.addListener(listener);
+        addSubstation(subnetwork1, "s4");
+        assertTrue(listenerCalled.booleanValue());
+
+        // Detach "subnetwork1". Changes on the new Network aren't reported to the listener.
+        Network n = subnetwork1.detach();
+        listenerCalled.setFalse();
+        addSubstation(n, "s5");
+        assertFalse(listenerCalled.booleanValue());
+
+        // Changes on "merge" or "subnetwork2" are still reported to the listener.
+        addSubstation(merge, "s6");
+        assertTrue(listenerCalled.booleanValue());
+        listenerCalled.setFalse();
+        addSubstation(subnetwork2, "s7");
+        assertTrue(listenerCalled.booleanValue());
     }
 
     private void addSubstation(Network network, String substationId) {

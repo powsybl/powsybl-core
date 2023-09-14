@@ -9,8 +9,9 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
@@ -48,19 +49,8 @@ public final class ConnectGenerator extends AbstractNetworkModification {
         Terminal t = g.getTerminal();
         t.connect();
         if (g.isVoltageRegulatorOn()) {
-            Bus bus = t.getBusView().getBus();
-            if (bus != null) {
-                // set voltage setpoint to the same as other generators connected to the bus
-                double targetV = bus.getGeneratorStream()
-                        .filter(g2 -> !g2.getId().equals(g.getId()))
-                        .findFirst().map(Generator::getTargetV).orElse(Double.NaN);
-                if (!Double.isNaN(targetV)) {
-                    g.setTargetV(targetV);
-                } else if (!Double.isNaN(bus.getV())) {
-                    // if no other generator connected to the bus, set voltage setpoint to network voltage
-                    g.setTargetV(bus.getV());
-                }
-            }
+            VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(), g.getId(), IdentifiableType.GENERATOR)
+                    .ifPresent(g::setTargetV);
         }
     }
 }
