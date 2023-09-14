@@ -42,7 +42,7 @@ class VoltageAngleLimitTest {
 
         assertEquals(2, network.getVoltageAngleLimitsStream().count());
 
-        VoltageAngleLimit val0 = network.getVoltageAngleLimitsStream().toList().get(0);
+        VoltageAngleLimit val0 = network.getVoltageAngleLimitsStream().toList().get(1);
         assertEquals("LD1", val0.getTerminalFrom().getConnectable().getId());
         assertTrue(Terminal.getConnectableSide(val0.getTerminalFrom()).isEmpty());
         assertEquals("LD6", val0.getTerminalTo().getConnectable().getId());
@@ -51,7 +51,7 @@ class VoltageAngleLimitTest {
         assertTrue(val0.getHighLimit().isEmpty());
         assertEquals(1.0, val0.getLowLimit().getAsDouble());
 
-        VoltageAngleLimit val1 = network.getVoltageAngleLimitsStream().toList().get(1);
+        VoltageAngleLimit val1 = network.getVoltageAngleLimitsStream().toList().get(0);
         assertEquals("VOLTAGE_ANGLE_LIMIT_LINE_S2S3", val1.getId());
 
         assertEquals("LINE_S2S3", val1.getTerminalFrom().getConnectable().getId());
