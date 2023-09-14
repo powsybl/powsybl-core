@@ -42,14 +42,14 @@ public final class VoltageAngleLimitXml {
                 try {
                     XmlUtil.writeDouble(LOW_LIMIT, low, context.getWriter());
                 } catch (XMLStreamException e) {
-                    throw new RuntimeException(e);
+                    throw new UncheckedXmlStreamException(e);
                 }
             });
             voltageAngleLimit.getHighLimit().ifPresent(high -> {
                 try {
                     XmlUtil.writeDouble(HIGH_LIMIT, high, context.getWriter());
                 } catch (XMLStreamException e) {
-                    throw new RuntimeException(e);
+                    throw new UncheckedXmlStreamException(e);
                 }
             });
             TerminalRefXml.writeTerminalRef(voltageAngleLimit.getTerminalFrom(), context, FROM);
