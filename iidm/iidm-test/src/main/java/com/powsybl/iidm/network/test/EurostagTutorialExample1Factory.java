@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
-
 import org.joda.time.DateTime;
 
 /**

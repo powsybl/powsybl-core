@@ -103,7 +103,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * Create a new LimitViolation, for voltageAngleLimit.
+     * Create a new LimitViolation, for voltage angle limit.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
      *

@@ -101,7 +101,7 @@ class MergeTest {
     }
 
     @Test
-    void mergeTwoNetworksWithVoltageAngleLimits() throws IOException {
+    void mergeTwoNetworksWithVoltageAngleLimits() {
         Network network1 = createNodeBreakerWithVoltageAngleLimit("1");
         Network network2 = createNodeBreakerWithVoltageAngleLimit("2");
 
@@ -114,7 +114,7 @@ class MergeTest {
     }
 
     @Test
-    void mergeTwoNetworksWithVoltageAngleLimitsFail() throws IOException {
+    void mergeTwoNetworksWithVoltageAngleLimitsFail() {
         Network network1 = createNodeBreakerWithVoltageAngleLimit("1");
         Network network2 = createNodeBreakerWithVoltageAngleLimit("2");
 

@@ -43,26 +43,25 @@ class VoltageAngleLimitTest {
         assertEquals(2, network.getVoltageAngleLimits().size());
 
         VoltageAngleLimit val0 = network.getVoltageAngleLimits().get(0);
-        assertEquals("LD1", val0.getTerminalFrom().getConnectable().getId());
-        assertTrue(Terminal.getConnectableSide(val0.getTerminalFrom()).isEmpty());
-        assertEquals("LD6", val0.getTerminalTo().getConnectable().getId());
-        assertTrue(Terminal.getConnectableSide(val0.getTerminalTo()).isEmpty());
-        assertTrue(val0.getLowLimit().isPresent());
-        assertTrue(val0.getHighLimit().isEmpty());
-        assertEquals(1.0, val0.getLowLimit().getAsDouble());
+        assertEquals("VOLTAGE_ANGLE_LIMIT_LINE_S2S3", val0.getId());
+        assertEquals("LINE_S2S3", val0.getTerminalFrom().getConnectable().getId());
+        assertTrue(Terminal.getConnectableSide(val0.getTerminalFrom()).isPresent());
+        Terminal.getConnectableSide(val0.getTerminalFrom()).ifPresent(side -> assertEquals(ThreeSides.ONE, side));
+        assertEquals("LINE_S2S3", val0.getTerminalTo().getConnectable().getId());
+        assertTrue(Terminal.getConnectableSide(val0.getTerminalTo()).isPresent());
+        Terminal.getConnectableSide(val0.getTerminalTo()).ifPresent(side -> assertEquals(ThreeSides.TWO, side));
+        assertTrue(val0.getHighLimit().isPresent());
+        assertTrue(val0.getLowLimit().isEmpty());
+        assertEquals(1.0, val0.getHighLimit().getAsDouble());
 
         VoltageAngleLimit val1 = network.getVoltageAngleLimits().get(1);
-        assertEquals("VOLTAGE_ANGLE_LIMIT_LINE_S2S3", val1.getId());
-
-        assertEquals("LINE_S2S3", val1.getTerminalFrom().getConnectable().getId());
-        assertTrue(Terminal.getConnectableSide(val1.getTerminalFrom()).isPresent());
-        Terminal.getConnectableSide(val1.getTerminalFrom()).ifPresent(side -> assertEquals(ThreeSides.ONE, side));
-        assertEquals("LINE_S2S3", val1.getTerminalTo().getConnectable().getId());
-        assertTrue(Terminal.getConnectableSide(val1.getTerminalTo()).isPresent());
-        Terminal.getConnectableSide(val1.getTerminalTo()).ifPresent(side -> assertEquals(ThreeSides.TWO, side));
-        assertTrue(val1.getHighLimit().isPresent());
-        assertTrue(val1.getLowLimit().isEmpty());
-        assertEquals(1.0, val1.getHighLimit().getAsDouble());
+        assertEquals("LD1", val1.getTerminalFrom().getConnectable().getId());
+        assertTrue(Terminal.getConnectableSide(val1.getTerminalFrom()).isEmpty());
+        assertEquals("LD6", val1.getTerminalTo().getConnectable().getId());
+        assertTrue(Terminal.getConnectableSide(val1.getTerminalTo()).isEmpty());
+        assertTrue(val1.getLowLimit().isPresent());
+        assertTrue(val1.getHighLimit().isEmpty());
+        assertEquals(1.0, val1.getLowLimit().getAsDouble());
     }
 
     @Test

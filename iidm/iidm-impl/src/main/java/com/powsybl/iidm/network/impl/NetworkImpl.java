@@ -49,7 +49,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final NetworkIndex index = new NetworkIndex();
 
-    private final Map<String, VoltageAngleLimit> voltageAngleLimitsIndex = new HashMap<>();
+    private final Map<String, VoltageAngleLimit> voltageAngleLimitsIndex = new LinkedHashMap<>();
 
     private final VariantManagerImpl variantManager;
 
