@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
@@ -98,7 +99,9 @@ class TransformerConverter extends AbstractConverter {
         // As vn2 is used to convert to eu, only the ratio remains to be applied
         TapChanger tapChangerAdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChangerAdjustedRatio);
 
-        TwoWindingsTransformerAdder adder = voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(() -> voltageLevel2.getNetwork().newTwoWindingsTransformer())
+        TwoWindingsTransformerAdder adder = voltageLevel2.getSubstation()
+            .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
+            .newTwoWindingsTransformer()
             .setId(id)
             .setEnsureIdUnicity(true)
             .setConnectableBus1(bus1Id)
@@ -179,7 +182,9 @@ class TransformerConverter extends AbstractConverter {
         // move ysh between w1 and z
         TapChanger tapChanger1AdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChanger1);
 
-        ThreeWindingsTransformerAdder adder = voltageLevel1.getSubstation().map(Substation::newThreeWindingsTransformer).orElseGet(() -> voltageLevel2.getNetwork().newThreeWindingsTransformer())
+        ThreeWindingsTransformerAdder adder = voltageLevel1.getSubstation()
+            .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
+            .newThreeWindingsTransformer()
             .setRatedU0(v0)
             .setEnsureIdUnicity(true)
             .setId(id)
