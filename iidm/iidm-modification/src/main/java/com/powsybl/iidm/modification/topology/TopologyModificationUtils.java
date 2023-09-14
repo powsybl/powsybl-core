@@ -261,15 +261,7 @@ public final class TopologyModificationUtils {
     }
 
     static void createNBBreaker(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
-        view.newSwitch()
-                .setId(prefix + "_BREAKER" + suffix)
-                .setEnsureIdUnicity(true)
-                .setKind(SwitchKind.BREAKER)
-                .setOpen(open)
-                .setRetained(true)
-                .setNode1(node1)
-                .setNode2(node2)
-                .add();
+        createNBBreaker(node1, node2, prefix + "_BREAKER" + suffix, view, open);
     }
 
     static void createNBDisconnector(int node1, int node2, String id, VoltageLevel.NodeBreakerView view, boolean open) {
@@ -284,19 +276,16 @@ public final class TopologyModificationUtils {
     }
 
     static void createNBDisconnector(int node1, int node2, String suffix, String prefix, VoltageLevel.NodeBreakerView view, boolean open) {
-        view.newSwitch()
-                .setId(prefix + "_DISCONNECTOR" + suffix)
-                .setEnsureIdUnicity(true)
-                .setKind(SwitchKind.DISCONNECTOR)
-                .setOpen(open)
-                .setNode1(node1)
-                .setNode2(node2)
-                .add();
+        createNBDisconnector(node1, node2, prefix + "_DISCONNECTOR" + suffix, view, open);
     }
 
     static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String prefix, VoltageLevel.BusBreakerView view) {
-        createBusBreakerSwitch(busId1, middleBusId, prefix, "_1", view);
-        createBusBreakerSwitch(middleBusId, busId2, prefix, "_2", view);
+        createBusBreakerSwitches(busId1, middleBusId, busId2, prefix, view, new DefaultNamingStrategy());
+    }
+
+    static void createBusBreakerSwitches(String busId1, String middleBusId, String busId2, String prefix, VoltageLevel.BusBreakerView view, NamingStrategy namingStrategy) {
+        createBusBreakerSwitch(busId1, middleBusId, namingStrategy.getSwitchId(prefix, 1), view);
+        createBusBreakerSwitch(middleBusId, busId2, namingStrategy.getSwitchId(prefix, 2), view);
     }
 
     static void createBusBreakerSwitch(String busId1, String busId2, String id, VoltageLevel.BusBreakerView view) {
@@ -310,13 +299,7 @@ public final class TopologyModificationUtils {
     }
 
     static void createBusBreakerSwitch(String busId1, String busId2, String prefix, String suffix, VoltageLevel.BusBreakerView view) {
-        view.newSwitch()
-                .setId(prefix + "_SW" + suffix)
-                .setEnsureIdUnicity(true)
-                .setOpen(false)
-                .setBus1(busId1)
-                .setBus2(busId2)
-                .add();
+        createBusBreakerSwitch(busId1, busId2, prefix + "_SW" + suffix, view);
     }
 
     /**
@@ -401,13 +384,12 @@ public final class TopologyModificationUtils {
     }
 
     /**
+     * @deprecated
      * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
      */
+    @Deprecated(since = "6.0.0")
     static void createTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, String baseId, List<BusbarSection> bbsList) {
-        bbsList.forEach(b -> {
-            int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
-            createNBDisconnector(forkNode, bbsNode, "_" + forkNode + "_" + bbsNode, baseId, voltageLevel.getNodeBreakerView(), true);
-        });
+        createTopologyFromBusbarSectionList(voltageLevel, forkNode, new DefaultNamingStrategy(), baseId, bbsList);
     }
 
     /**

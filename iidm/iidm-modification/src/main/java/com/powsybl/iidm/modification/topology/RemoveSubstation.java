@@ -36,7 +36,7 @@ public class RemoveSubstation extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         Substation substation = network.getSubstation(substationId);
         if (substation == null) {
             LOGGER.error("Substation {} not found", substationId);

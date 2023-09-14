@@ -1,9 +1,15 @@
+/**
+ * Copyright (c) 2022, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.iidm.modification.topology;
 
 /**
+ * Default naming strategy used if no other naming strategy is specified.
  * @author Nicolas Rol <nicolas.rol@rte-france.com>
  */
-
 public class DefaultNamingStrategy implements NamingStrategy {
 
     private static final String SEPARATOR = "_";
@@ -13,147 +19,147 @@ public class DefaultNamingStrategy implements NamingStrategy {
     private static final String BUS_NAMEBASE = "BUS";
 
     @Override
-    public String getName() {
+    public final String getName() {
         return "Default";
     }
 
     @Override
-    public String getDisconnectorIdPrefix(String prefixId) {
+    public final String getDisconnectorIdPrefix(String prefixId) {
         return prefixId;
     }
 
     @Override
-    public String getDisconnectorIdSuffix(int idNum) {
+    public final String getDisconnectorIdSuffix(int idNum) {
         return String.valueOf(idNum);
     }
 
     @Override
-    public String getDisconnectorIdSuffix(int id1Num, int id2Num) {
+    public final String getDisconnectorIdSuffix(int id1Num, int id2Num) {
         return id1Num + SEPARATOR + id2Num;
     }
 
     @Override
-    public String getDisconnectorId(String prefixId) {
+    public final String getDisconnectorId(String prefixId) {
         return getDisconnectorIdPrefix(prefixId) + SEPARATOR + DISCONNECTOR_NAMEBASE;
     }
 
     @Override
-    public String getDisconnectorId(String prefixId, int idNum) {
+    public final String getDisconnectorId(String prefixId, int idNum) {
         return getDisconnectorIdPrefix(prefixId) + SEPARATOR + DISCONNECTOR_NAMEBASE + SEPARATOR + getDisconnectorIdSuffix(idNum);
     }
 
     @Override
-    public String getDisconnectorId(String prefixId, int id1Num, int id2Num) {
+    public final String getDisconnectorId(String prefixId, int id1Num, int id2Num) {
         return getDisconnectorIdPrefix(prefixId) + SEPARATOR + DISCONNECTOR_NAMEBASE + SEPARATOR + getDisconnectorIdSuffix(id1Num, id2Num);
     }
 
     @Override
-    public String getBreakerIdPrefix(String prefixId) {
+    public final String getBreakerIdPrefix(String prefixId) {
         return prefixId;
     }
 
     @Override
-    public String getBreakerIdSuffix(int idNum) {
+    public final String getBreakerIdSuffix(int idNum) {
         return String.valueOf(idNum);
     }
 
     @Override
-    public String getBreakerIdSuffix(int id1Num, int id2Num) {
+    public final String getBreakerIdSuffix(int id1Num, int id2Num) {
         return id1Num + SEPARATOR + id2Num;
     }
 
     @Override
-    public String getBreakerId(String prefixId) {
-        return getDisconnectorIdPrefix(prefixId) + SEPARATOR + BREAKER_NAMEBASE;
+    public final String getBreakerId(String prefixId) {
+        return getBreakerIdPrefix(prefixId) + SEPARATOR + BREAKER_NAMEBASE;
     }
 
     @Override
-    public String getBreakerId(String prefixId, int idNum) {
-        return getDisconnectorIdPrefix(prefixId) + SEPARATOR + BREAKER_NAMEBASE + SEPARATOR + getBreakerIdSuffix(idNum);
+    public final String getBreakerId(String prefixId, int idNum) {
+        return getBreakerIdPrefix(prefixId) + SEPARATOR + BREAKER_NAMEBASE + SEPARATOR + getBreakerIdSuffix(idNum);
     }
 
     @Override
-    public String getBreakerId(String prefixId, int id1Num, int id2Num) {
+    public final String getBreakerId(String prefixId, int id1Num, int id2Num) {
         return getBreakerIdPrefix(prefixId) + SEPARATOR + BREAKER_NAMEBASE + SEPARATOR + getBreakerIdSuffix(id1Num, id2Num);
     }
 
     @Override
-    public String getSwitchIdPrefix(String prefixId) {
+    public final String getSwitchIdPrefix(String prefixId) {
         return prefixId;
     }
 
     @Override
-    public String getSwitchIdSuffix(int idNum) {
+    public final String getSwitchIdSuffix(int idNum) {
         return String.valueOf(idNum);
     }
 
     @Override
-    public String getSwitchIdSuffix(int id1Num, int id2Num) {
+    public final String getSwitchIdSuffix(int id1Num, int id2Num) {
         return id1Num + SEPARATOR + id2Num;
     }
 
     @Override
-    public String getSwitchId(String prefixId) {
-        return getDisconnectorIdPrefix(prefixId) + SEPARATOR + SWITCH_NAMEBASE;
+    public final String getSwitchId(String prefixId) {
+        return getSwitchIdPrefix(prefixId) + SEPARATOR + SWITCH_NAMEBASE;
     }
 
     @Override
-    public String getSwitchId(String prefixId, int idNum) {
-        return getDisconnectorIdPrefix(prefixId) + SEPARATOR + SWITCH_NAMEBASE + SEPARATOR + getSwitchIdSuffix(idNum);
+    public final String getSwitchId(String prefixId, int idNum) {
+        return getSwitchIdPrefix(prefixId) + SEPARATOR + SWITCH_NAMEBASE + SEPARATOR + getSwitchIdSuffix(idNum);
     }
 
     @Override
-    public String getSwitchId(String prefixId, int id1Num, int id2Num) {
+    public final String getSwitchId(String prefixId, int id1Num, int id2Num) {
         return getSwitchIdPrefix(prefixId) + SEPARATOR + SWITCH_NAMEBASE + SEPARATOR + getSwitchIdSuffix(id1Num, id2Num);
     }
 
     @Override
-    public String getBusbarIdPrefix(String prefixId) {
+    public final String getBusbarIdPrefix(String prefixId) {
         return prefixId;
     }
 
     @Override
-    public String getBusbarIdSuffix(int idNum) {
+    public final String getBusbarIdSuffix(int idNum) {
         return String.valueOf(idNum);
     }
 
     @Override
-    public String getBusbarIdSuffix(int id1Num, int id2Num) {
+    public final String getBusbarIdSuffix(int id1Num, int id2Num) {
         return id1Num + SEPARATOR + id2Num;
     }
 
     @Override
-    public String getBusbarId(String prefixId) {
+    public final String getBusbarId(String prefixId) {
         return getBusbarIdPrefix(prefixId);
     }
 
     @Override
-    public String getBusbarId(String prefixId, int idNum) {
+    public final String getBusbarId(String prefixId, int idNum) {
         return getBusbarIdPrefix(prefixId) + SEPARATOR + getBusbarIdSuffix(idNum);
     }
 
     @Override
-    public String getBusbarId(String prefixId, int id1Num, int id2Num) {
+    public final String getBusbarId(String prefixId, int id1Num, int id2Num) {
         return getBusbarIdPrefix(prefixId) + SEPARATOR + getBusbarIdSuffix(id1Num, id2Num);
     }
 
     @Override
-    public String getBusId(String prefixId) {
+    public final String getBusId(String prefixId) {
         return prefixId + SEPARATOR + BUS_NAMEBASE;
     }
 
     @Override
-    public String getBusId(String prefixId, String suffixId) {
+    public final String getBusId(String prefixId, String suffixId) {
         return prefixId + SEPARATOR + BUS_NAMEBASE + SEPARATOR + suffixId;
     }
 
     @Override
-    public String getBusId(String prefixId, int idNum) {
+    public final String getBusId(String prefixId, int idNum) {
         return prefixId + SEPARATOR + BUS_NAMEBASE + SEPARATOR + idNum;
     }
 
     @Override
-    public String getFeederId(String id, String voltageLevelId) {
-        return id + SEPARATOR + voltageLevelId;
+    public final String getFeederId(String prefixId, String voltageLevelId) {
+        return prefixId + SEPARATOR + voltageLevelId;
     }
 }

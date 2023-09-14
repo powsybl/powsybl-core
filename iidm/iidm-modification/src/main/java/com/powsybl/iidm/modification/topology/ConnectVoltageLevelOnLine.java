@@ -26,10 +26,11 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
 public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModification<ConnectVoltageLevelOnLine> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectVoltageLevelOnLine.class);
-    private final NamingStrategy namingStrategy;
 
     /**
      * Constructor.
+     * <br/>
+     * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      *
      * @param positionPercent        When the existing line is cut, percent is equal to the ratio between the parameters of the first line
      *                       and the parameters of the line that is cut multiplied by 100. 100 minus percent is equal to the ratio
@@ -40,18 +41,14 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
      * @param line2Id        The non-null ID of the line segment at side 2.
      * @param line2Name      The name of the line segment at side 2.
      * @param line           The line on which the voltage level is to be attached.
-     * @param namingStrategy           The naming strategy to use.
-     *
-     * NB: This constructor will eventually be package-private, please use {@link CreateLineOnLineBuilder} instead.
      */
     ConnectVoltageLevelOnLine(double positionPercent, String bbsOrBusId, String line1Id, String line1Name,
-                              String line2Id, String line2Name, Line line, NamingStrategy namingStrategy) {
+                              String line2Id, String line2Name, Line line) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
-        this.namingStrategy = namingStrategy;
     }
 
     @Override
-    public void apply(Network network, boolean throwException,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         // Checks
         if (failChecks(network, throwException, reporter, LOG)) {

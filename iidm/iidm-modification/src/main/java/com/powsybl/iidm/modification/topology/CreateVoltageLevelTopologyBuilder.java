@@ -27,7 +27,6 @@ public class CreateVoltageLevelTopologyBuilder {
 
     private String busOrBusbarSectionPrefixId = null;
     private String switchPrefixId = null;
-    private NamingStrategy namingStrategy = new DefaultNamingStrategy();
 
     private List<SwitchKind> switchKinds = Collections.emptyList();
 
@@ -111,23 +110,12 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     /**
-     * Set the naming strategy to be used. By default, the DefaultNamingStrategy is used.
-     *
-     * @param namingStrategy Naming strategy to be used for the different elements created with the present builder
-     */
-    public CreateVoltageLevelTopologyBuilder withNamingStrategy(NamingStrategy namingStrategy) {
-        this.namingStrategy = namingStrategy;
-        return this;
-    }
-
-    /**
      * Set the switching devices between the sections of a busbar.
      * There are as many specified switch kinds as there are intervals between sections i.e. <code>sectionCount - 1</code>.
      * The switch kinds can be {@link SwitchKind#BREAKER}, {@link SwitchKind#DISCONNECTOR} or null.
      * If it is {@link SwitchKind#BREAKER}, a closed disconnector, a closed breaker and a closed disconnector are created.
      * If it is {@link SwitchKind#DISCONNECTOR}, a closed disconnector is created.
      * If it is null, no switch is created: the sections are disconnected.
-     *
      * In bus/breaker topology, all the switching devices are by default breakers.
      *
      * @param switchKinds
@@ -143,7 +131,6 @@ public class CreateVoltageLevelTopologyBuilder {
      * The switch kinds can be {@link SwitchKind#BREAKER}, {@link SwitchKind#DISCONNECTOR} or null.
      * If it is {@link SwitchKind#BREAKER}, a closed disconnector, a closed breaker and a closed disconnector are created.
      * If it is {@link SwitchKind#DISCONNECTOR}, a closed disconnector is created.
-     *
      * In bus/breaker topology, all the switching devices are by default breakers.
      *
      * @param switchKinds
@@ -154,6 +141,6 @@ public class CreateVoltageLevelTopologyBuilder {
     }
 
     public CreateVoltageLevelTopology build() {
-        return new CreateVoltageLevelTopology(voltageLevelId, lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, busOrBusbarSectionPrefixId, switchPrefixId, namingStrategy, switchKinds);
+        return new CreateVoltageLevelTopology(voltageLevelId, lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, busOrBusbarSectionPrefixId, switchPrefixId, switchKinds);
     }
 }

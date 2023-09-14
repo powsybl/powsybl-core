@@ -33,12 +33,10 @@ public class CreateLineOnLineBuilder {
     private String line2Id = null;
     private String line2Name = null;
 
-    private NamingStrategy namingStrategy = new DefaultNamingStrategy();
-
     public CreateLineOnLine build() {
         return new CreateLineOnLine(positionPercent, bbsOrBusId, fictitiousVlId, fictitiousVlName,
                 createFictSubstation, fictitiousSubstationId, fictitiousSubstationName,
-                line1Id, line1Name, line2Id, line2Name, namingStrategy, line, lineAdder);
+                line1Id, line1Name, line2Id, line2Name, line, lineAdder);
     }
 
     public CreateLineOnLineBuilder withPositionPercent(double positionPercent) {
@@ -93,16 +91,6 @@ public class CreateLineOnLineBuilder {
 
     public CreateLineOnLineBuilder withLine2Name(String line2Name) {
         this.line2Name = line2Name;
-        return this;
-    }
-
-    /**
-     * Set the naming strategy to be used. By default, the DefaultNamingStrategy is used.
-     *
-     * @param namingStrategy Naming strategy to be used for the different elements created with the present builder
-     */
-    public CreateLineOnLineBuilder withNamingStrategy(NamingStrategy namingStrategy) {
-        this.namingStrategy = namingStrategy;
         return this;
     }
 

@@ -49,7 +49,7 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
 
     /**
      * Build the Generator object.
-     * <br>This are the checks that are performed before creating the object :
+     * <br>These are the checks that are performed before creating the object :
      * <ul> <li>energySource is set</li>
      *      <li>minP is not equal to Double.NaN -> minP is set</li>
      *      <li>maxP is not equal to Double.NaN -> maxP is set</li>

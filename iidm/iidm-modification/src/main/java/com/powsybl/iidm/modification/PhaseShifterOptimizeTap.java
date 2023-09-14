@@ -8,6 +8,7 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class PhaseShifterOptimizeTap extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         new LoadFlowBasedPhaseShifterOptimizer(computationManager)
                 .findMaximalFlowTap(network, phaseShifterId);

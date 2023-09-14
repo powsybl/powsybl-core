@@ -33,7 +33,6 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCreateConnectableFeederBays.class);
 
     protected final int[] sides;
-    protected NamingStrategy namingStrategy;
 
     protected abstract String getBusOrBusbarSectionId(int side);
 
@@ -60,7 +59,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         // Set the connectable bus or node
         if (!setAdderConnectivity(network, reporter, throwException)) {
             return;
@@ -74,7 +73,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         LOGGER.info("New connectable {} of type {} created", connectable.getId(), connectable.getType());
         createdConnectable(reporter, connectable);
 
-        createExtensionAndTopology(connectable, network, reporter);
+        createExtensionAndTopology(connectable, network, namingStrategy, reporter);
     }
 
     private boolean checkOrders(int side, VoltageLevel voltageLevel, Reporter reporter, boolean throwException) {
@@ -193,7 +192,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         return true;
     }
 
-    private void createExtensionAndTopology(Connectable<?> connectable, Network network, Reporter reporter) {
+    private void createExtensionAndTopology(Connectable<?> connectable, Network network, NamingStrategy namingStrategy, Reporter reporter) {
         String connectableId = connectable.getId();
         boolean createConnectablePosition = false;
         ConnectablePositionAdder<?> connectablePositionAdder = connectable.newExtension(ConnectablePositionAdder.class);
@@ -227,14 +226,14 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             // create switches and a breaker linking the connectable to the busbar sections.
             int node = getNode(side, connectable);
             int forkNode = voltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-            createTopology(side, network, voltageLevel, node, forkNode, connectable, reporter);
+            createTopology(side, network, voltageLevel, node, forkNode, connectable, namingStrategy, reporter);
         }
         if (createConnectablePosition) {
             connectablePositionAdder.add();
         }
     }
 
-    private void createTopology(int side, Network network, VoltageLevel voltageLevel, int connectableNode, int forkNode, Connectable<?> connectable, Reporter reporter) {
+    private void createTopology(int side, Network network, VoltageLevel voltageLevel, int connectableNode, int forkNode, Connectable<?> connectable, NamingStrategy namingStrategy, Reporter reporter) {
         String baseId = connectable.getId() + (side == 0 ? "" : side);
         String bbsId = getBusOrBusbarSectionId(side);
         BusbarSection bbs = network.getBusbarSection(bbsId);

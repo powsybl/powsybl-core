@@ -103,7 +103,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         Line lineToBeMerged1 = checkAndGetLine(network, lineToBeMerged1Id, reporter, throwException);
         Line lineToBeMerged2 = checkAndGetLine(network, lineToBeMerged2Id, reporter, throwException);

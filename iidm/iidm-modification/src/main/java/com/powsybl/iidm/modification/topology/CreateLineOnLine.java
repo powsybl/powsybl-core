@@ -23,7 +23,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.undefinedFi
 /**
  * Connect an existing voltage level (in practice a voltage level where we have some loads or generations) to an
  * existing line through a tee point.
- * This method cuts an existing line in two, creating a fictitious voltage level between them (the tee point). Then it links an existing voltage level to
+ * <br/>This method cuts an existing line in two, creating a fictitious voltage level between them (the tee point). Then it links an existing voltage level to
  * this fictitious voltage level in creating a new line from a given line adder.
  *
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -40,8 +40,6 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     private boolean createFictSubstation;
     private String fictitiousSubstationId;
     private String fictitiousSubstationName;
-
-    private final NamingStrategy namingStrategy;
 
     /**
      * Constructor.
@@ -62,7 +60,6 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      * @param line1Name                When the initial line is cut, the line segment at side 1 has a given name.
      * @param line2Id                  When the initial line is cut, the line segment at side 2 has a non-null given ID.
      * @param line2Name                When the initial line is cut, the line segment at side 2 has a given name.
-     * @param namingStrategy           The naming strategy to use.
      * @param line                     The initial line to be cut.
      * @param lineAdder                The line adder from which the line between the fictitious voltage level and the voltage level voltageLevelId is created.
      * <p>
@@ -70,7 +67,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
      */
     CreateLineOnLine(double positionPercent, String bbsOrBusId, String fictitiousVlId, String fictitiousVlName,
                      boolean createFictSubstation, String fictitiousSubstationId, String fictitiousSubstationName,
-                     String line1Id, String line1Name, String line2Id, String line2Name, NamingStrategy namingStrategy,
+                     String line1Id, String line1Name, String line2Id, String line2Name,
                      Line line, LineAdder lineAdder) {
         super(positionPercent, bbsOrBusId, line1Id, line1Name, line2Id, line2Name, line);
         this.fictitiousVlId = Objects.requireNonNull(fictitiousVlId);
@@ -78,7 +75,6 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         this.createFictSubstation = createFictSubstation;
         this.fictitiousSubstationId = fictitiousSubstationId;
         this.fictitiousSubstationName = fictitiousSubstationName;
-        this.namingStrategy = namingStrategy;
         this.lineAdder = Objects.requireNonNull(lineAdder);
     }
 
@@ -120,7 +116,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
     }
 
     @Override
-    public void apply(Network network, boolean throwException,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         // Checks
         if (failChecks(network, throwException, reporter, LOG)) {

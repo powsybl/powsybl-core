@@ -116,7 +116,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     }
 
     @Override
-    public void apply(Network network, boolean throwException,
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, Reporter reporter) {
         Line tpLine1 = network.getLine(teePointLine1Id);
         if (tpLine1 == null) {
@@ -193,13 +193,13 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
             Bus bus1 = tappedVoltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(newLine1Id + "_BUS_1")
+                    .setId(namingStrategy.getBusId(newLine1Id, 1))
                     .add();
             Bus bus2 = tappedVoltageLevel.getBusBreakerView()
                     .newBus()
-                    .setId(newLine2Id + "_BUS_2")
+                    .setId(namingStrategy.getBusId(newLine2Id, 2))
                     .add();
-            createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), bbsOrBusId, tappedVoltageLevel.getBusBreakerView());
+            createBusBreakerSwitches(bus1.getId(), bus.getId(), bus2.getId(), bbsOrBusId, tappedVoltageLevel.getBusBreakerView(), namingStrategy);
             newLine1Adder.setBus2(bus1.getId());
             newLine1Adder.setConnectableBus2(bus1.getId());
             newLine2Adder.setBus1(bus2.getId());
@@ -217,8 +217,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             }
             int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             int firstAvailableNode = tappedVoltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
-            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, "_1", newLine1Id, tappedVoltageLevel.getNodeBreakerView());
-            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, "_2", newLine2Id, tappedVoltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, namingStrategy, newLine1Id, 1, tappedVoltageLevel.getNodeBreakerView());
+            createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, namingStrategy, newLine2Id, 2, tappedVoltageLevel.getNodeBreakerView());
             newLine1Adder.setNode2(firstAvailableNode);
             newLine2Adder.setNode1(firstAvailableNode + 3);
         }
@@ -251,7 +251,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         tpLine2.remove();
         removedLineReport(reporter, teePointLine2Id);
         LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLine2Id);
-        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, throwException, computationManager, reporter);
+        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, namingStrategy, throwException, computationManager, reporter);
         removedLineReport(reporter, teePointLineToRemoveId);
         LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLineToRemoveId);
 

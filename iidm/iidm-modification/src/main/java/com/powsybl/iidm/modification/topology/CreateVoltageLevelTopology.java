@@ -43,14 +43,12 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
 
     private final String busOrBusbarSectionPrefixId;
     private final String switchPrefixId;
-    private final NamingStrategy namingStrategy;
 
     private final List<SwitchKind> switchKinds;
 
     CreateVoltageLevelTopology(String voltageLevelId, int lowBusOrBusbarIndex, Integer alignedBusesOrBusbarCount,
                                int lowSectionIndex, Integer sectionCount,
-                               String busOrBusbarSectionPrefixId, String switchPrefixId, NamingStrategy namingStrategy,
-                               List<SwitchKind> switchKinds) {
+                               String busOrBusbarSectionPrefixId, String switchPrefixId, List<SwitchKind> switchKinds) {
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId, "Undefined voltage level ID");
         this.lowBusOrBusbarIndex = lowBusOrBusbarIndex;
         this.alignedBusesOrBusbarCount = Objects.requireNonNull(alignedBusesOrBusbarCount, "Undefined aligned buses or busbars count");
@@ -58,7 +56,6 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         this.sectionCount = Objects.requireNonNull(sectionCount, "Undefined section count");
         this.busOrBusbarSectionPrefixId = Objects.requireNonNull(busOrBusbarSectionPrefixId, "Undefined busbar section prefix ID");
         this.switchPrefixId = Objects.requireNonNull(switchPrefixId, "Undefined switch prefix ID");
-        this.namingStrategy = namingStrategy;
         this.switchKinds = switchKinds;
     }
 
@@ -136,7 +133,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         //checks
         if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, throwException, reporter)) {
             return;
@@ -158,24 +155,24 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
                 LOG.warn("Voltage level {} is BUS_BREAKER. Switchkinds is ignored.", voltageLevelId);
             }
             // Create buses
-            createBuses(voltageLevel);
+            createBuses(voltageLevel, namingStrategy);
             // Create switches between buses
-            createBusBreakerSwitches(voltageLevel);
+            createBusBreakerSwitches(voltageLevel, namingStrategy);
         } else {
             // Check switch kinds
             if (!checkSwitchKinds(switchKinds, sectionCount, reporter, throwException)) {
                 return;
             }
             // Create busbar sections
-            createBusbarSections(voltageLevel);
+            createBusbarSections(voltageLevel, namingStrategy);
             // Create switches
-            createSwitches(voltageLevel);
+            createSwitches(voltageLevel, namingStrategy);
         }
         LOG.info("New symmetrical topology in voltage level {}: creation of {} bus(es) or busbar(s) with {} section(s) each.", voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
         createdNewSymmetricalTopology(reporter, voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
     }
 
-    private void createBusbarSections(VoltageLevel voltageLevel) {
+    private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
         int node = 0;
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount; sectionNum++) {
             for (int busbarNum = lowBusOrBusbarIndex; busbarNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busbarNum++) {
@@ -192,7 +189,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
     }
 
-    private void createBuses(VoltageLevel voltageLevel) {
+    private void createBuses(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount; sectionNum++) {
             for (int busNum = lowBusOrBusbarIndex; busNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busNum++) {
                 voltageLevel.getBusBreakerView().newBus()
@@ -202,7 +199,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
     }
 
-    private void createBusBreakerSwitches(VoltageLevel voltageLevel) {
+    private void createBusBreakerSwitches(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount - 1; sectionNum++) {
             for (int busNum = lowBusOrBusbarIndex; busNum < lowSectionIndex + alignedBusesOrBusbarCount; busNum++) {
                 String bus1Id = namingStrategy.getBusbarId(busOrBusbarSectionPrefixId, busNum, sectionNum);
@@ -212,7 +209,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
     }
 
-    private void createSwitches(VoltageLevel voltageLevel) {
+    private void createSwitches(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount - 1; sectionNum++) {
             SwitchKind switchKind = switchKinds.get(sectionNum - 1);
             for (int busBarNum = lowBusOrBusbarIndex; busBarNum < lowBusOrBusbarIndex + alignedBusesOrBusbarCount; busBarNum++) {

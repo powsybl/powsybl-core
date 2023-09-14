@@ -16,13 +16,9 @@ public class CreateCouplingDeviceBuilder {
     private String busOrBbsId2 = null;
 
     private String switchPrefixId = null;
-    private NamingStrategy namingStrategy = null;
 
     public CreateCouplingDevice build() {
-        if (namingStrategy == null) {
-            namingStrategy = new DefaultNamingStrategy();
-        }
-        return new CreateCouplingDevice(busOrBbsId1, busOrBbsId2, switchPrefixId, namingStrategy);
+        return new CreateCouplingDevice(busOrBbsId1, busOrBbsId2, switchPrefixId);
     }
 
     public CreateCouplingDeviceBuilder withBusOrBusbarSectionId1(String busOrBbsId1) {
@@ -53,16 +49,6 @@ public class CreateCouplingDeviceBuilder {
 
     public CreateCouplingDeviceBuilder withSwitchPrefixId(String switchPrefixId) {
         this.switchPrefixId = switchPrefixId;
-        return this;
-    }
-
-    /**
-     * Set the naming strategy to be used. By default, the DefaultNamingStrategy is used.
-     *
-     * @param namingStrategy Naming strategy to be used. Defaults to "DefaultNamingStrategy".
-     */
-    public CreateCouplingDeviceBuilder withNamingStrategy(NamingStrategy namingStrategy) {
-        this.namingStrategy = namingStrategy;
         return this;
     }
 }

@@ -38,15 +38,13 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
      * @param injectionDirection     The direction of the injection to be attached from its extension {@link ConnectablePosition}.
      */
     CreateFeederBay(InjectionAdder<?, ?> injectionAdder, String busOrBbsId, Integer injectionPositionOrder,
-                    String injectionFeederName, ConnectablePosition.Direction injectionDirection,
-                    NamingStrategy namingStrategy) {
+                    String injectionFeederName, ConnectablePosition.Direction injectionDirection) {
         super(0);
         this.injectionAdder = Objects.requireNonNull(injectionAdder);
         this.busOrBbsId = Objects.requireNonNull(busOrBbsId);
         this.injectionPositionOrder = injectionPositionOrder;
         this.injectionFeederName = injectionFeederName;
         this.injectionDirection = Objects.requireNonNull(injectionDirection);
-        this.namingStrategy = namingStrategy;
     }
 
     @Override
