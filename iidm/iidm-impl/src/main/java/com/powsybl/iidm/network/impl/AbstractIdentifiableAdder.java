@@ -8,11 +8,11 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.iidm.network.Validable;
 
-import java.util.List;
+import java.util.Arrays;
 import java.util.function.Predicate;
 
 /**
@@ -103,23 +103,19 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
         if (voltageLevels.length == 0) {
             return network.getRef();
         }
-        if (voltageLevels.length == 1) {
-            return voltageLevels[0].getNetworkRef();
-        }
         // We support only one level of subnetworks.
         // Thus, if the subnetworkIds of all the voltageLevels are the same (and not null), the ref is the one of
         // the subnetwork. Else, it is the root network's one.
-        List<VoltageLevelExt> voltageLevelList = List.of(voltageLevels);
-        String subnetworkId = voltageLevelList.get(0).getSubnetwork();
+        String subnetworkId = voltageLevels[0].getSubnetwork();
         if (subnetworkId == null) {
             return network.getRef();
         }
-        boolean existDifferentSubnetworkId = voltageLevelList.stream()
+        boolean existDifferentSubnetworkId = Arrays.stream(voltageLevels, 1, voltageLevels.length)
                 .map(VoltageLevelExt::getSubnetwork)
                 .anyMatch(Predicate.not(subnetworkId::equals));
         if (existDifferentSubnetworkId) {
             return network.getRef();
         }
-        return network.getRef(subnetworkId);
+        return voltageLevels[0].getNetworkRef();
     }
 }
