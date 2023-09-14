@@ -287,7 +287,6 @@ public final class NetworkXml {
 
         writeVoltageLevels(n, context);
         writeSubstations(n, context);
-        writeTransformers(n, context);
         writeLines(n, context);
         writeTieLines(n, context);
         writeHvdcLines(n, context);
@@ -306,24 +305,6 @@ public final class NetworkXml {
     private static void writeSubstations(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
             SubstationXml.INSTANCE.write(s, n, context);
-        }
-    }
-
-    private static void writeTransformers(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        BusFilter filter = context.getFilter();
-        for (TwoWindingsTransformer twt : IidmXmlUtil.sorted(n.getTwoWindingsTransformers(), context.getOptions())) {
-            if (twt.getSubstation().isEmpty() && filter.test(twt)) {
-                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                TwoWindingsTransformerXml.INSTANCE.write(twt, n, context);
-            }
-        }
-        for (ThreeWindingsTransformer twt : IidmXmlUtil.sorted(n.getThreeWindingsTransformers(), context.getOptions())) {
-            if (twt.getSubstation().isEmpty() && filter.test(twt)) {
-                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                ThreeWindingsTransformerXml.INSTANCE.write(twt, n, context);
-            }
         }
     }
 
@@ -483,18 +464,6 @@ public final class NetworkXml {
 
                     case SubstationXml.ROOT_ELEMENT_NAME:
                         SubstationXml.INSTANCE.read(network, context);
-                        break;
-
-                    case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                        TwoWindingsTransformerXml.INSTANCE.read(network, context);
-                        break;
-
-                    case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME,
-                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                        ThreeWindingsTransformerXml.INSTANCE.read(network, context);
                         break;
 
                     case LineXml.ROOT_ELEMENT_NAME:

@@ -320,4 +320,12 @@ public final class CgmesExportUtil {
         }
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
     }
+
+    public static boolean isEquivalentShuntWithZeroSectionCount(Connectable<?> c) {
+        if (c instanceof ShuntCompensator shuntCompensator) {
+            return "true".equals(c.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))
+                    && shuntCompensator.getSectionCount() == 0;
+        }
+        return false;
+    }
 }

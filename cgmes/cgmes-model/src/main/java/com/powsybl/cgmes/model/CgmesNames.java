@@ -76,6 +76,7 @@ public final class CgmesNames {
     public static final String RATIO_TAP_CHANGER = "RatioTapChanger";
     public static final String PHASE_TAP_CHANGER = "PhaseTapChanger";
     public static final String RATEDU = "ratedU";
+    public static final String RATEDS = "ratedS";
     public static final String G = "g";
     public static final String B = "b";
     public static final String PHASE_ANGLE_CLOCK = "phaseAngleClock";
