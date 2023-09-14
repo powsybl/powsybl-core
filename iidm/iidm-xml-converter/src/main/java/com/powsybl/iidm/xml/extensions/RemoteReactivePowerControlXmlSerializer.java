@@ -35,7 +35,7 @@ public class RemoteReactivePowerControlXmlSerializer extends AbstractExtensionXm
 
     @Override
     public void write(RemoteReactivePowerControl extension, XmlWriterContext context) throws XMLStreamException {
-        IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, (NetworkXmlWriterContext)context);
+        IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, (NetworkXmlWriterContext) context);
         XMLStreamWriter writer = context.getWriter();
         writer.writeAttribute("enabled", Boolean.toString(extension.isEnabled()));
         XmlUtil.writeDouble("targetQ", extension.getTargetQ(), writer);
