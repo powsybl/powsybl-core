@@ -44,8 +44,7 @@ public class BusbarSectionContingency implements ContingencyElement {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BusbarSectionContingency) {
-            BusbarSectionContingency other = (BusbarSectionContingency) obj;
+        if (obj instanceof BusbarSectionContingency other) {
             return busbarSectionId.equals(other.busbarSectionId);
         }
         return false;

@@ -67,6 +67,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
 
         @Override
+        public int getBusCount() {
+            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getBusCount()).sum();
+        }
+
+        @Override
         public Iterable<Switch> getSwitches() {
             return FluentIterable.from(getVoltageLevels())
                     .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
@@ -362,11 +367,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer() {
-        return new TwoWindingsTransformerAdderImpl(ref);
-    }
-
-    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return Collections.unmodifiableCollection(index.getAll(TwoWindingsTransformerImpl.class));
     }
@@ -384,11 +384,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
         return index.get(id, TwoWindingsTransformerImpl.class);
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
-        return new ThreeWindingsTransformerAdderImpl(ref);
     }
 
     @Override
@@ -887,13 +882,19 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         long start = System.currentTimeMillis();
 
+        // if the validation level of other is lower than the current network's minimum validation level, we can not incorporate it
+        if (other.getValidationLevel().compareTo(getMinValidationLevel()) < 0) {
+            throw new PowsyblException("Network " + other.getNetwork() + " cannot be merged: its validation level " +
+                    "is lower than the minimum acceptable validation level of network " + getId() + " (" +
+                    other.getValidationLevel() + " < " + getMinValidationLevel() + ")");
+        }
+        // update the validation level (without recomputing it)
+        this.validationLevel = ValidationLevel.min(this.getValidationLevel(), other.getValidationLevel());
+
         // check mergeability
         Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
-            if (clazz == DanglingLineImpl.class) { // fine for dangling lines
-                continue;
-            }
             Collection<String> objs = entry.getValue();
             if (!objs.isEmpty()) {
                 throw new PowsyblException("The following object(s) of type "
@@ -912,7 +913,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             }
         }
         for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
-            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
+            findAndAssociateDanglingLines(dl2, dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 
         // do not forget to remove the other network from its index!!!

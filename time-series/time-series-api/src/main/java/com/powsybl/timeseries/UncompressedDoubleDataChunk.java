@@ -171,8 +171,7 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UncompressedDoubleDataChunk) {
-            UncompressedDoubleDataChunk other = (UncompressedDoubleDataChunk) obj;
+        if (obj instanceof UncompressedDoubleDataChunk other) {
             return offset == other.offset &&
                     Arrays.equals(values, other.values);
         }

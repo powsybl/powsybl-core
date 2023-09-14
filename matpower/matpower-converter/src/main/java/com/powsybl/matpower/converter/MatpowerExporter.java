@@ -86,7 +86,8 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static MBus.Type getType(Bus bus, Context context) {
-        if ((context.refBusId != null && context.refBusId.equals(bus.getId())) || hasSlackExtension(bus)) {
+        if (context.refBusId != null && context.refBusId.equals(bus.getId())
+                || hasSlackExtension(bus)) {
             return MBus.Type.REF;
         }
         for (Generator g : bus.getGenerators()) {
@@ -513,7 +514,7 @@ public class MatpowerExporter implements Exporter {
             mGen.setNumber(busNum);
             mGen.setStatus(CONNECTED_STATUS);
             mGen.setRealPowerOutput(targetP);
-            mGen.setReactivePowerOutput(targetQ);
+            mGen.setReactivePowerOutput(Double.isNaN(targetQ) ? 0 : targetQ);
             if (validVoltageRegulation) {
                 double targetVpu = targetV / vl.getNominalV();
                 if (!regulatedBus.getId().equals(bus.getId())) {

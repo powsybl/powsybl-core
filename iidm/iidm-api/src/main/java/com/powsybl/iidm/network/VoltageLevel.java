@@ -708,6 +708,15 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         Stream<Bus> getBusStream();
 
         /**
+         * Get the bus count.
+         * <p>
+         * Depends on the working variant if topology kind is NODE_BREAKER.
+         *
+         * @see VariantManager
+         */
+        int getBusCount();
+
+        /**
          * Get a bus.
          * <p>
          * Depends on the working variant if topology kind is NODE_BREAKER.

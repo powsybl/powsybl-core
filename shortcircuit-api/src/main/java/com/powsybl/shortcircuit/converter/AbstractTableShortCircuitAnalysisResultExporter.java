@@ -53,9 +53,9 @@ public abstract class AbstractTableShortCircuitAnalysisResultExporter implements
         try (TableFormatter formatter = formatterFactory.create(writer, "Short circuit analysis", formatterConfig,
                 new Column("ID"), new Column("Three Phase Fault Current"))) {
             for (FaultResult action : result.getFaultResults()) {
-                if (action instanceof FortescueFaultResult) {
+                if (action instanceof FortescueFaultResult fortescueFaultResult) {
                     formatter.writeCell(action.getFault().getElementId())
-                            .writeCell(((FortescueFaultResult) action).getCurrent().getPositiveMagnitude());
+                            .writeCell(fortescueFaultResult.getCurrent().getPositiveMagnitude());
                 } else {
                     formatter.writeCell(action.getFault().getElementId())
                             .writeCell(((MagnitudeFaultResult) action).getCurrent());

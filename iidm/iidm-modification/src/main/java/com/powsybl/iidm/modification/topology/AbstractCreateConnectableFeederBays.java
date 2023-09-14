@@ -154,12 +154,12 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             }
 
             // Set the connectable bus/node on the injection or branch adder
-            if (busOrBusbarSection instanceof Bus) {
-                Bus bus = (Bus) busOrBusbarSection; // if bus is an identifiable, the voltage level is BUS_BREAKER
+            if (busOrBusbarSection instanceof Bus bus) {
+                // if bus is an identifiable, the voltage level is BUS_BREAKER
                 checkOrders(side, bus.getVoltageLevel(), reporter, throwException); // is always true, can only return a warning
                 setBus(side, bus, bus.getVoltageLevel().getId());
-            } else if (busOrBusbarSection instanceof BusbarSection) {
-                BusbarSection bbs = (BusbarSection) busOrBusbarSection; // if bbs exists, the voltage level is NODE_BREAKER: no necessary topology kind check
+            } else if (busOrBusbarSection instanceof BusbarSection bbs) {
+                // if bbs exists, the voltage level is NODE_BREAKER: no necessary topology kind check
                 VoltageLevel voltageLevel = bbs.getTerminal().getVoltageLevel();
                 if (!checkOrders(side, voltageLevel, reporter, throwException)) {
                     return false;
@@ -253,7 +253,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             parallelBbsNumber = bbsList.size();
             createTopologyFromBusbarSectionList(voltageLevel, forkNode, namingStrategy, baseId, bbsList);
         }
-        LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector" +
+        LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector " +
                 "and on {} parallel busbar sections with an open disconnector.", connectable.getId(), connectable.getType(), voltageLevel.getId(), bbsId, parallelBbsNumber);
         createdNodeBreakerFeederBay(reporter, voltageLevel.getId(), bbsId, connectable, parallelBbsNumber);
     }

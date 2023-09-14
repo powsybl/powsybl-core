@@ -411,6 +411,14 @@ public interface Network extends Container<Network> {
         Stream<Bus> getBusStream();
 
         /**
+         * Get the bus count.
+         * <p>
+         * Depends on the working variant.
+         * @see VariantManager
+         */
+        int getBusCount();
+
+        /**
          * Get all switches
          */
         Iterable<Switch> getSwitches();
@@ -711,21 +719,6 @@ public interface Network extends Container<Network> {
     TieLineAdder newTieLine();
 
     /**
-     * Get a builder to create a two windings transformer.
-     * Only use if at least one of the transformer's ends does not belong to any substation.
-     * Else use {@link Substation#newTwoWindingsTransformer()}.
-     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
-     */
-    default TwoWindingsTransformerAdder newTwoWindingsTransformer() {
-        return newSubstation()
-                .setId("FICTITIOUS_SUBSTATION")
-                .setEnsureIdUnicity(true)
-                .setFictitious(true)
-                .add()
-                .newTwoWindingsTransformer();
-    }
-
-    /**
      * Get all two windings transformers.
      */
     Iterable<TwoWindingsTransformer> getTwoWindingsTransformers();
@@ -746,21 +739,6 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the two windings transformer
      */
     TwoWindingsTransformer getTwoWindingsTransformer(String id);
-
-    /**
-     * Get a builder to create a three windings transformer.
-     * Only use this builder if at least one of the transformer's ends does not belong to any substation.
-     * Else use {@link Substation#newThreeWindingsTransformer()}.
-     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
-     */
-    default ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        return newSubstation()
-                .setId("FICTITIOUS_SUBSTATION")
-                .setEnsureIdUnicity(true)
-                .setFictitious(true)
-                .add()
-                .newThreeWindingsTransformer();
-    }
 
     /**
      * Get all 3 windings transformers.

@@ -340,6 +340,16 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags countrySourcingActors(String countryName) {
+        return namedQuery("countrySourcingActors", countryName);
+    }
+
+    @Override
+    public PropertyBags sourcingActor(String sourcingActor) {
+        return namedQuery("sourcingActor", sourcingActor);
+    }
+
+    @Override
     public PropertyBags substations() {
         return namedQuery("substations");
     }
@@ -685,8 +695,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             .findFirst().orElse(def).getNamespace();
     }
 
-    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_UNTIL_16 = Pattern.compile("^.*CIM-schema-cim([0-9]+)#$");
-    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_FROM_100 = Pattern.compile("^.*/CIM([0-9]+)#$");
+    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_UNTIL_16 = Pattern.compile("^.*CIM-schema-cim(\\d+)#$");
+    private static final Pattern CIM_NAMESPACE_VERSION_PATTERN_FROM_100 = Pattern.compile("^.*/CIM(\\d+)#$");
 
     private static int cimVersionFromCimNamespace(String cimNamespace) {
         Matcher m = CIM_NAMESPACE_VERSION_PATTERN_UNTIL_16.matcher(cimNamespace);

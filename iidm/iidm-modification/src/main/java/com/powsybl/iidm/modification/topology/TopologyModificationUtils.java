@@ -371,8 +371,7 @@ public final class TopologyModificationUtils {
                     return TraverseResult.TERMINATE_PATH;
                 }
                 Connectable<?> connectable = terminal.getConnectable();
-                if (connectable instanceof BusbarSection) {
-                    BusbarSection otherBbs = (BusbarSection) connectable;
+                if (connectable instanceof BusbarSection otherBbs) {
                     BusbarSectionPosition otherBbPosition = otherBbs.getExtension(BusbarSectionPosition.class);
                     if (otherBbPosition.getSectionIndex() == bbSection) {
                         connectablesByBbs.put(otherBbs, connectables);
@@ -578,8 +577,8 @@ public final class TopologyModificationUtils {
             feeders = getInjectionFeeder(position);
         } else if (connectable instanceof Branch) {
             feeders = getBranchFeeders(position, voltageLevel, (Branch<?>) connectable);
-        } else if (connectable instanceof ThreeWindingsTransformer) {
-            feeders = get3wtFeeders(position, voltageLevel, (ThreeWindingsTransformer) connectable);
+        } else if (connectable instanceof ThreeWindingsTransformer twt) {
+            feeders = get3wtFeeders(position, voltageLevel, twt);
         } else {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reporter, connectable);
@@ -601,8 +600,8 @@ public final class TopologyModificationUtils {
             return getInjectionFeeder(position);
         } else if (connectable instanceof Branch) {
             return getBranchFeeders(position, voltageLevel, (Branch<?>) connectable);
-        } else if (connectable instanceof ThreeWindingsTransformer) {
-            return get3wtFeeders(position, voltageLevel, (ThreeWindingsTransformer) connectable);
+        } else if (connectable instanceof ThreeWindingsTransformer twt) {
+            return get3wtFeeders(position, voltageLevel, twt);
         } else {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
             connectableNotSupported(reporter, connectable);

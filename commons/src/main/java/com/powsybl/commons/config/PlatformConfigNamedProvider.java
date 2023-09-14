@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * A provider that can be loaded by by Java's ServiceLoader based on its name
@@ -100,7 +99,7 @@ public interface PlatformConfigNamedProvider {
          *
          * @return the provider
          */
-        @Deprecated
+        @Deprecated(since = "3.2.0")
         public static <T extends PlatformConfigNamedProvider> T findDefaultBackwardsCompatible(
                 String moduleName, Class<T> clazz, PlatformConfig platformConfig) {
             return find(null, moduleName,
@@ -117,7 +116,7 @@ public interface PlatformConfigNamedProvider {
          *
          * @return the provider
          */
-        @Deprecated
+        @Deprecated(since = "3.2.0")
         public static <T extends PlatformConfigNamedProvider> T findBackwardsCompatible(String name,
                 String moduleName, Class<T> clazz, PlatformConfig platformConfig) {
             return find(name, moduleName,
@@ -181,7 +180,7 @@ public interface PlatformConfigNamedProvider {
                     // only throw an exception
                     List<String> providerNames = providers.stream()
                             .map(PlatformConfigNamedProvider::getPlatformConfigName)
-                            .collect(Collectors.toList());
+                            .toList();
                     throw new PowsyblException(
                             "Several " + clazz.getSimpleName() + " implementations found (" + providerNames
                                     + "), you must add configuration in PlatformConfig's module \""
