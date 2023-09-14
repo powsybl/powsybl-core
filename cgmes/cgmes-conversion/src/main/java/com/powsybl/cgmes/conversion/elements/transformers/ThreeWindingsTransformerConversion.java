@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
@@ -91,7 +92,7 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
     private void setToIidm(ConvertedT3xModel convertedT3xModel) {
         ThreeWindingsTransformerAdder txadder = substation()
                 .map(Substation::newThreeWindingsTransformer)
-                .orElseGet(() -> context.network().newThreeWindingsTransformer())
+                .orElseThrow(() -> new PowsyblException("Substation null! Transformer must be within a substation"))
                 .setRatedU0(convertedT3xModel.ratedU0);
         identify(txadder);
 

@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -20,19 +21,21 @@ import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import javax.xml.stream.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -146,5 +149,77 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
 
         // Compare
         ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffsIidm);
+    }
+
+    @Test
+    void equivalentShuntTest() throws XMLStreamException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+
+        String ssh = exportSshAsString(network, 2);
+
+        // Equivalent shunts should not have entries in SSH
+        String equivalentShuntId = "d771118f-36e9-4115-a128-cc3d9ce3e3da";
+        assertNotNull(network.getShuntCompensator(equivalentShuntId));
+        SshLinearShuntCompensators sshLinearShuntCompensators = readSshLinearShuntCompensator(ssh);
+        assertFalse(sshLinearShuntCompensators.map.isEmpty());
+        assertFalse(sshLinearShuntCompensators.map.containsKey(equivalentShuntId));
+    }
+
+    private static String exportSshAsString(Network network, int sshVersion) throws XMLStreamException {
+        CgmesExportContext context = new CgmesExportContext(network);
+        StringWriter stringWriter = new StringWriter();
+        XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
+        context.getSshModelDescription().setVersion(sshVersion);
+        SteadyStateHypothesisExport.write(network, writer, context);
+
+        return stringWriter.toString();
+    }
+
+    private static SshLinearShuntCompensators readSshLinearShuntCompensator(String ssh) {
+        final String sshLinearShuntCompensator = "LinearShuntCompensator";
+        final String sshLinearShuntCompensatorSections = "ShuntCompensator.sections";
+        final String sshLinearShuntCompensatorControlEnabled = "RegulatingCondEq.controlEnabled";
+        final String attrAbout = "about";
+
+        SshLinearShuntCompensators sshLinearShuntCompensators = new SshLinearShuntCompensators();
+        try (InputStream is = new ByteArrayInputStream(ssh.getBytes(StandardCharsets.UTF_8))) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            Integer sections = null;
+            Boolean controlEnabled = null;
+            String shuntCompensatorId = null;
+            while (reader.hasNext()) {
+                int next = reader.next();
+                if (next == XMLStreamConstants.START_ELEMENT) {
+                    if (reader.getLocalName().equals(sshLinearShuntCompensator)) {
+                        sections = null;
+                        controlEnabled = null;
+                        shuntCompensatorId = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, attrAbout).substring(2);
+                    } else if (reader.getLocalName().equals(sshLinearShuntCompensatorSections)) {
+                        String text = reader.getElementText();
+                        sections = Integer.parseInt(text);
+                    } else if (reader.getLocalName().equals(sshLinearShuntCompensatorControlEnabled)) {
+                        String text = reader.getElementText();
+                        controlEnabled = Boolean.valueOf(text);
+                    }
+                } else if (next == XMLStreamConstants.END_ELEMENT) {
+                    if (reader.getLocalName().equals(sshLinearShuntCompensator) && sections != null && controlEnabled != null) {
+                        sshLinearShuntCompensators.add(shuntCompensatorId, sections, controlEnabled);
+                    }
+                }
+            }
+            reader.close();
+        } catch (XMLStreamException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return sshLinearShuntCompensators;
+    }
+
+    private static final class SshLinearShuntCompensators {
+        private final Map<String, Pair<Integer, Boolean>> map = new HashMap<>();
+
+        void add(String shuntCompensatorId, int sections, boolean controlEnabled) {
+            map.put(shuntCompensatorId, Pair.of(sections, controlEnabled));
+        }
     }
 }
