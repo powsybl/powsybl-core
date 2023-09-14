@@ -43,7 +43,7 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
         Connectable<?> connectable = network.getConnectable(connectableId);
         if (!checkConnectable(throwException, reporter, connectable)) {
             return;
