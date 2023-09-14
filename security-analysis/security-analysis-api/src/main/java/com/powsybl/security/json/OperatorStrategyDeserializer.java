@@ -19,15 +19,20 @@ import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.security.condition.Condition;
 import com.powsybl.security.strategy.OperatorStrategy;
+import com.powsybl.security.strategy.ConditionalActions;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
+
 /**
  * @author Etienne Lesot <etienne.lesot@rte-france.com>
  */
 public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrategy> {
+
+    private static final String CONTEXT_NAME = "OperatorStrategy";
 
     public OperatorStrategyDeserializer() {
         super(OperatorStrategy.class);
@@ -37,9 +42,11 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
     private static class ParsingContext {
+        String version;
         String id;
         ContingencyContextType contingencyContextType;
         String contingencyId;
+        List<ConditionalActions> stages;
         Condition condition;
         List<String> actionIds;
         List<Extension<OperatorStrategy>> extensions = Collections.emptyList();
@@ -48,6 +55,10 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     @Override
     public OperatorStrategy deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
+        context.version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
+        if (context.version == null) {  // assuming current version...
+            context.version = SecurityAnalysisResultSerializer.VERSION;
+        }
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {
                 case "id":
@@ -61,12 +72,22 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                     parser.nextToken();
                     context.contingencyId = parser.getValueAsString();
                     return true;
+                case "conditionalActions":
+                    parser.nextToken();
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
+                            context.version, "1.5");
+                    context.stages = JsonUtil.readList(deserializationContext, parser, ConditionalActions.class);
+                    return true;
                 case "condition":
                     parser.nextToken();
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
+                            context.version, "1.4");
                     context.condition = JsonUtil.readValue(deserializationContext, parser, Condition.class);
                     return true;
                 case "actionIds":
                     parser.nextToken();
+                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: contingencyStatus",
+                            context.version, "1.4");
                     context.actionIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     return true;
                 case "extensions":
@@ -82,8 +103,14 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
         // a specific contingency context type.
         ContingencyContext contingencyContext = new ContingencyContext(context.contingencyId,
                 context.contingencyContextType != null ? context.contingencyContextType : ContingencyContextType.SPECIFIC);
-        OperatorStrategy operatorStrategy = new OperatorStrategy(context.id, contingencyContext, context.condition, context.actionIds);
-        SUPPLIER.get().addExtensions(operatorStrategy, context.extensions);
-        return operatorStrategy;
+        OperatorStrategy strategy;
+        if (context.version.compareTo("1.5") < 0) {
+            strategy = new OperatorStrategy(context.id, contingencyContext, context.condition, context.actionIds);
+        } else {
+            strategy = new OperatorStrategy(context.id, contingencyContext, context.stages);
+        }
+
+        SUPPLIER.get().addExtensions(strategy, context.extensions);
+        return strategy;
     }
 }
