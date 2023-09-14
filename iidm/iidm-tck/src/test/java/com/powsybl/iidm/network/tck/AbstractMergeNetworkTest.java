@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public abstract class AbstractMergeNetworkTest {
 
     private static final String MERGE = "merge";
+    private static final String SUBNETWORK_FROM_MERGE = "merge#0";
     public static final String N1 = "n1";
     public static final String N2 = "n2";
 
@@ -77,7 +78,7 @@ public abstract class AbstractMergeNetworkTest {
         addCommonDanglingLines("dl1", "code", "dl2", "code");
         merge.merge(n1, n2);
         assertEquals(3, merge.getSubnetworks().size());
-        assertEquals(1, merge.getSubnetwork(MERGE).getVoltageLevelCount());
+        assertEquals(1, merge.getSubnetwork(SUBNETWORK_FROM_MERGE).getVoltageLevelCount());
         assertEquals(1, merge.getSubnetwork(N1).getVoltageLevelCount());
         assertEquals(1, merge.getSubnetwork(N2).getVoltageLevelCount());
 
@@ -528,11 +529,15 @@ public abstract class AbstractMergeNetworkTest {
         assertEquals(3, merge.getSubnetworks().size());
         checks(merge, 1, "asdf", d1);
         checks(merge, 2, "qwer", d2);
+
+        // Parent network should remain indexed with the same id
+        Identifiable<?> m = merge.getIdentifiable(MERGE);
+        assertEquals(m, merge);
         // Subnetwork without elements shall still be empty
-        Network m = merge.getSubnetwork(MERGE);
-        assertNotNull(m);
-        assertEquals(0, m.getSubstationCount());
-        assertEquals(0, m.getVoltageLevelCount());
+        Network mSub = merge.getSubnetwork(SUBNETWORK_FROM_MERGE);
+        assertNotNull(mSub);
+        assertEquals(0, mSub.getSubstationCount());
+        assertEquals(0, mSub.getVoltageLevelCount());
         // Subnetwork with elements shall keep its elements
         Network m1 = merge.getSubnetwork(N1);
         assertNotNull(m1);

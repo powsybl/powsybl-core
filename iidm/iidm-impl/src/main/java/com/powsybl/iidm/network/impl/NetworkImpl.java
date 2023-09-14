@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
+import com.powsybl.iidm.network.util.Identifiables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -894,8 +895,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         if (allowSubnetworkCreationForMyself) {
             SubnetworkImpl n = createSubnetwork(this, this);
             subnetworks.put(n.getId(), n);
-            getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubnetwork(id));
-            getVoltageLevelStream().filter(v -> v.getParentNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(id));
+            getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubnetwork(n.getId()));
+            getVoltageLevelStream().filter(v -> v.getParentNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(n.getId()));
         }
 
         // try to find dangling lines couples
@@ -942,7 +943,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     private static SubnetworkImpl createSubnetwork(NetworkImpl parent, NetworkImpl original) {
         RefChain<NetworkImpl> originalRootNetworkRef = original.getRef();
         originalRootNetworkRef.setRef(new RefChain<>(new RefObj<>(parent)));
-        SubnetworkImpl sn = new SubnetworkImpl(originalRootNetworkRef, original.getId(), original.getOptionalName().orElse(null),
+        String idSubNetwork = parent != original ? original.getId() : Identifiables.getUniqueId(original.getId(), parent.getIndex()::contains);
+        SubnetworkImpl sn = new SubnetworkImpl(originalRootNetworkRef, idSubNetwork, original.getOptionalName().orElse(null),
                 original.getSourceFormat());
         sn.setCaseDate(original.getCaseDate());
         transferExtensions(original, sn);
