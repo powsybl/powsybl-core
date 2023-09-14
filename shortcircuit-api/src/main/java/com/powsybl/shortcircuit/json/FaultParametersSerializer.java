@@ -48,7 +48,7 @@ public class FaultParametersSerializer extends StdSerializer<FaultParameters> {
         JsonUtil.writeOptionalBooleanField(jsonGenerator, "withNeutralPosition", parameters.isWithNeutralPosition(), false);
         JsonUtil.writeOptionalStringField(jsonGenerator, "initialVoltageProfileMode", parameters.getInitialVoltageProfileMode() != null ? parameters.getInitialVoltageProfileMode().name() : null);
         if (parameters.getInitialVoltageProfileMode() == InitialVoltageProfileMode.CONFIGURED) {
-            serializerProvider.defaultSerializeField("voltageRangeData", parameters.getVoltageRangeData(), jsonGenerator);
+            serializerProvider.defaultSerializeField("voltageRanges", parameters.getVoltageRanges(), jsonGenerator);
         }
         jsonGenerator.writeEndObject();
     }

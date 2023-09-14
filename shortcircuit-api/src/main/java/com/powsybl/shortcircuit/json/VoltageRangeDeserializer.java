@@ -11,20 +11,20 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.shortcircuit.VoltageRangeData;
+import com.powsybl.shortcircuit.VoltageRange;
 
 import java.io.IOException;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class VoltageRangeDataDeserializer extends StdDeserializer<VoltageRangeData> {
+public class VoltageRangeDeserializer extends StdDeserializer<VoltageRange> {
 
-    public VoltageRangeDataDeserializer() {
-        super(VoltageRangeData.class);
+    public VoltageRangeDeserializer() {
+        super(VoltageRange.class);
     }
 
-    public VoltageRangeData deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+    public VoltageRange deserialize(JsonParser parser, DeserializationContext context) throws IOException {
         Double minimumVoltage = Double.NaN;
         Double maximumVoltage = Double.NaN;
         Double coefficient = Double.NaN;
@@ -47,6 +47,6 @@ public class VoltageRangeDataDeserializer extends StdDeserializer<VoltageRangeDa
             }
         }
 
-        return new VoltageRangeData(minimumVoltage, maximumVoltage, coefficient);
+        return new VoltageRange(minimumVoltage, maximumVoltage, coefficient);
     }
 }

@@ -11,26 +11,27 @@ import com.powsybl.commons.PowsyblException;
 import org.apache.commons.lang3.Range;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A class that stores coefficients to be applied to every nominal voltage in a range. This is used to define the configured initial voltage profile
  * for short circuit calculation.
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class VoltageRangeData {
-    final Range<Double> voltageRange;
-    final double rangeCoefficient;
+public class VoltageRange {
+    private final Range<Double> range;
+    private final double rangeCoefficient;
 
-    public VoltageRangeData(double lowVoltage, double highVoltage, double rangeCoefficient) {
-        this.voltageRange = Range.between(lowVoltage, highVoltage);
+    public VoltageRange(double lowVoltage, double highVoltage, double rangeCoefficient) {
+        this.range = Range.between(lowVoltage, highVoltage);
         this.rangeCoefficient = checkCoefficient(rangeCoefficient);
     }
 
     /**
      * The voltage range to which the coefficient should be applied. Voltages are given in kV.
      */
-    public Range<Double> getVoltageRange() {
-        return voltageRange;
+    public Range<Double> getRange() {
+        return range;
     }
 
     /**
@@ -44,24 +45,24 @@ public class VoltageRangeData {
      * The minimum nominal voltage of the range (in kV)
      */
     public double getMinimumNominalVoltage() {
-        return voltageRange.getMinimum();
+        return range.getMinimum();
     }
 
     /**
      * The maximum nominal voltage of the range (in kV)
      */
     public double getMaximumNominalVoltage() {
-        return voltageRange.getMaximum();
+        return range.getMaximum();
     }
 
-    static void checkVoltageRangeData(List<VoltageRangeData> voltageRangeData) {
-        if (voltageRangeData == null || voltageRangeData.isEmpty()) {
+    static void checkVoltageRange(List<VoltageRange> voltageRange) {
+        if (voltageRange == null || voltageRange.isEmpty()) {
             return;
         }
-        for (int i = 0; i < voltageRangeData.size() - 1; i++) {
-            for (int j = i + 1; j < voltageRangeData.size(); j++) {
+        for (int i = 0; i < voltageRange.size() - 1; i++) {
+            for (int j = i + 1; j < voltageRange.size(); j++) {
                 // Check if the range overlaps with any other range
-                if (voltageRangeData.get(i).getVoltageRange().isOverlappedBy(voltageRangeData.get(j).getVoltageRange())) {
+                if (voltageRange.get(i).getRange().isOverlappedBy(voltageRange.get(j).getRange())) {
                     throw new PowsyblException("Voltage ranges for configured initial voltage profile are overlapping");
                 }
             }
@@ -73,6 +74,23 @@ public class VoltageRangeData {
             throw new PowsyblException("rangeCoefficient " + rangeCoefficient + " is out of bounds, should be between 0.8 and 1.2.");
         }
         return rangeCoefficient;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        VoltageRange that = (VoltageRange) o;
+        return Objects.equals(range, that.range) && Objects.equals(rangeCoefficient, that.rangeCoefficient);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(range, rangeCoefficient);
     }
 
 }

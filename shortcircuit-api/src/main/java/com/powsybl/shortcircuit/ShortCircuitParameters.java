@@ -27,7 +27,7 @@ import java.util.Optional;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
-import static com.powsybl.shortcircuit.VoltageRangeData.checkVoltageRangeData;
+import static com.powsybl.shortcircuit.VoltageRange.checkVoltageRange;
 
 /**
  * Generic parameters for short circuit-computations.
@@ -40,7 +40,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
     // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition,
-    //                initialVoltageProfileMode, voltageRangeData
+    //                initialVoltageProfileMode, voltageRanges
     public static final String VERSION = "1.2";
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
@@ -55,7 +55,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     private boolean withVSCConverterStations = DEFAULT_WITH_VSC_CONVERTER_STATIONS;
     private boolean withNeutralPosition = DEFAULT_WITH_NEUTRAL_POSITION;
     private InitialVoltageProfileMode initialVoltageProfileMode = DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE;
-    private List<VoltageRangeData> voltageRangeData;
+    private List<VoltageRange> voltageRanges;
 
     /**
      * Load parameters from platform default config.
@@ -82,7 +82,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithVSCConverterStations(config.getBooleanProperty("with-vsc-converter-stations", DEFAULT_WITH_VSC_CONVERTER_STATIONS))
                         .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION))
                         .setInitialVoltageProfileMode(config.getEnumProperty("initial-voltage-profile-mode", InitialVoltageProfileMode.class, DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE))
-                        .setVoltageRangeData(getVoltageRangeDataFromConfig(config, platformConfig)));
+                        .setVoltageRanges(getVoltageRangesFromConfig(config, platformConfig)));
 
         parameters.validate();
         parameters.readExtensions(platformConfig);
@@ -90,14 +90,14 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return parameters;
     }
 
-    private static List<VoltageRangeData> getVoltageRangeDataFromConfig(ModuleConfig config, PlatformConfig platformConfig) {
-        Optional<Path> optionalVoltageRangeDataPath = config.getOptionalPathProperty("voltage-range-data");
-        if (optionalVoltageRangeDataPath.isPresent()) {
-            Path voltageRangeDataPath = platformConfig.getConfigDir()
-                    .map(dir -> dir.resolve(optionalVoltageRangeDataPath.get()))
-                    .orElseThrow(() -> new PowsyblException("Voltage range data file inaccessible from config directory"));
+    private static List<VoltageRange> getVoltageRangesFromConfig(ModuleConfig config, PlatformConfig platformConfig) {
+        Optional<Path> optionalVoltageRangePath = config.getOptionalPathProperty("voltage-ranges");
+        if (optionalVoltageRangePath.isPresent()) {
+            Path voltageRangePath = platformConfig.getConfigDir()
+                    .map(dir -> dir.resolve(optionalVoltageRangePath.get()))
+                    .orElseThrow(() -> new PowsyblException("Voltage ranges file inaccessible from config directory"));
             ObjectMapper mapper = createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
-            try (InputStream is = Files.newInputStream(voltageRangeDataPath)) {
+            try (InputStream is = Files.newInputStream(voltageRangePath)) {
                 return mapper.readValue(is, new TypeReference<>() {
                 });
             } catch (IOException e) {
@@ -267,7 +267,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     /**
      * The initial voltage profile mode, it can be either:
      * - nominal: nominal voltages will be used
-     * - configured: the voltage profile is given by the user, voltage ranges and associated coefficients should be given using {@link VoltageRangeData}
+     * - configured: the voltage profile is given by the user, voltage ranges and associated coefficients should be given using {@link VoltageRange}
      * - previous value: the voltage profile computed from the loadflow will be used
      */
     public InitialVoltageProfileMode getInitialVoltageProfileMode() {
@@ -283,18 +283,18 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
      * In case of CONFIGURED initial voltage profile, the coefficients to apply to each nominal voltage.
      * @return a list with voltage ranges and associated coefficients
      */
-    public List<VoltageRangeData> getVoltageRangeData() {
-        return voltageRangeData;
+    public List<VoltageRange> getVoltageRanges() {
+        return voltageRanges;
     }
 
-    public ShortCircuitParameters setVoltageRangeData(List<VoltageRangeData> voltageRangeData) {
-        checkVoltageRangeData(voltageRangeData);
-        this.voltageRangeData = voltageRangeData;
+    public ShortCircuitParameters setVoltageRanges(List<VoltageRange> voltageRanges) {
+        checkVoltageRange(voltageRanges);
+        this.voltageRanges = voltageRanges;
         return this;
     }
 
     public void validate() {
-        if (initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && (voltageRangeData == null || voltageRangeData.isEmpty())) {
+        if (initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && (voltageRanges == null || voltageRanges.isEmpty())) {
             throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");
         }
     }

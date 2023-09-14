@@ -12,7 +12,7 @@
   "withVSCConverterStations" : true,
   "withNeutralPosition" : false,
   "initialVoltageProfileMode" : "CONFIGURED",
-  "voltageRangeData" : [ {
+  "voltageRanges" : [ {
     "minimumNominalVoltage" : 225.0,
     "maximumNominalVoltage" : 350.0,
     "voltageRangeCoefficient" : 1.05

@@ -12,5 +12,5 @@
   "withVSCConverterStations" : true,
   "withNeutralPosition" : true,
   "initialVoltageProfileMode" : "CONFIGURED",
-  "voltageRangeData" : []
+  "voltageRanges" : []
 }

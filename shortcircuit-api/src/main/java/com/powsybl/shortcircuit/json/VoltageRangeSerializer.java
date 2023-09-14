@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.shortcircuit.VoltageRangeData;
+import com.powsybl.shortcircuit.VoltageRange;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -19,14 +19,14 @@ import java.util.Objects;
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
  */
-public class VoltageRangeDataSerializer extends StdSerializer<VoltageRangeData> {
+public class VoltageRangeSerializer extends StdSerializer<VoltageRange> {
 
-    VoltageRangeDataSerializer() {
-        super(VoltageRangeData.class);
+    VoltageRangeSerializer() {
+        super(VoltageRange.class);
     }
 
     @Override
-    public void serialize(VoltageRangeData coefficient, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
+    public void serialize(VoltageRange coefficient, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
         Objects.requireNonNull(coefficient);
 
         jsonGenerator.writeStartObject();

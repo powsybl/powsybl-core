@@ -14,7 +14,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.InitialVoltageProfileMode;
 import com.powsybl.shortcircuit.StudyType;
-import com.powsybl.shortcircuit.VoltageRangeData;
+import com.powsybl.shortcircuit.VoltageRange;
 
 import java.io.IOException;
 import java.util.List;
@@ -47,7 +47,7 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
         boolean withVSCConverterStations = false;
         boolean withNeutralPosition = false;
         InitialVoltageProfileMode initialVoltageProfileMode = null;
-        List<VoltageRangeData> voltageRangeData = null;
+        List<VoltageRange> voltageRanges = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -120,17 +120,17 @@ class FaultParametersDeserializer extends StdDeserializer<FaultParameters> {
                     parser.nextToken();
                     initialVoltageProfileMode = InitialVoltageProfileMode.valueOf(parser.readValueAs(String.class));
                 }
-                case "voltageRangeData" -> {
+                case "voltageRanges" -> {
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
-                    voltageRangeData = JsonUtil.readList(deserializationContext, parser, VoltageRangeData.class);
+                    voltageRanges = JsonUtil.readList(deserializationContext, parser, VoltageRange.class);
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         FaultParameters faultParameters = new FaultParameters(id, withLimitViolations, withVoltageAndVoltageDropProfileResult, withFeederResult, type,
                 minVoltageDropProportionalThreshold, withFortescueResult, subTransientCoefficient, withLoads,
-                withShuntCompensators, withVSCConverterStations, withNeutralPosition, initialVoltageProfileMode, voltageRangeData);
+                withShuntCompensators, withVSCConverterStations, withNeutralPosition, initialVoltageProfileMode, voltageRanges);
         faultParameters.validate();
         return faultParameters;
     }

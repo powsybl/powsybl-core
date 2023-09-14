@@ -6,5 +6,5 @@
   "withLoads" : true,
   "withShuntCompensators" : true,
   "initialVoltageProfileMode" : "CONFIGURED",
-  "voltageRangeData" : []
+  "voltageRanges" : []
 } ]

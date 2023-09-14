@@ -18,7 +18,7 @@
   "withLoads" : true,
   "withShuntCompensators" : true,
   "initialVoltageProfileMode" : "CONFIGURED",
-  "voltageRangeData" : [ {
+  "voltageRanges" : [ {
     "minimumNominalVoltage" : 0.0,
     "maximumNominalVoltage" : 230.0,
     "voltageRangeCoefficient" : 1.0

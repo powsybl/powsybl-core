@@ -10,7 +10,7 @@ import com.powsybl.commons.test.AbstractConverterTest;
 import com.powsybl.shortcircuit.FaultParameters;
 import com.powsybl.shortcircuit.InitialVoltageProfileMode;
 import com.powsybl.shortcircuit.StudyType;
-import com.powsybl.shortcircuit.VoltageRangeData;
+import com.powsybl.shortcircuit.VoltageRange;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -31,10 +31,10 @@ class JsonFaultParametersTest extends AbstractConverterTest {
     void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
         parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null));
-        List<VoltageRangeData> voltageRangeData = new ArrayList<>();
-        voltageRangeData.add(new VoltageRangeData(0, 230, 1));
-        voltageRangeData.add(new VoltageRangeData(235, 400, 1.05));
-        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false, InitialVoltageProfileMode.CONFIGURED, voltageRangeData));
+        List<VoltageRange> voltageRanges = new ArrayList<>();
+        voltageRanges.add(new VoltageRange(0, 230, 1));
+        voltageRanges.add(new VoltageRange(235, 400, 1.05));
+        parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false, InitialVoltageProfileMode.CONFIGURED, voltageRanges));
         parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN, false, true, false, false, InitialVoltageProfileMode.NOMINAL, null));
         parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, Double.NaN, false, false, false, false, null, null));
         parameters.add(new FaultParameters("f12", true, false, false, StudyType.SUB_TRANSIENT, Double.NaN, false, 0.8, true, false, false, false, InitialVoltageProfileMode.PREVIOUS_VALUE, null));
@@ -139,17 +139,17 @@ class JsonFaultParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    void readParametersMissingVoltageRangeData() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultParametersFileWithoutVoltageRangeData.json"), fileSystem.getPath("/FaultParametersFileWithoutVoltageRangeData.json"));
-        Path path = fileSystem.getPath("/FaultParametersFileWithoutVoltageRangeData.json");
+    void readParametersMissingVoltageRanges() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFileWithoutVoltageRanges.json"), fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json"));
+        Path path = fileSystem.getPath("/FaultParametersFileWithoutVoltageRanges.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
     }
 
     @Test
-    void readParametersEmptyVoltageRangeData() throws IOException {
-        Files.copy(getClass().getResourceAsStream("/FaultParametersFileEmptyVoltageRangeData.json"), fileSystem.getPath("/FaultParametersFileEmptyVoltageRangeData.json"));
-        Path path = fileSystem.getPath("/FaultParametersFileEmptyVoltageRangeData.json");
+    void readParametersEmptyVoltageRange() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/FaultParametersFileEmptyVoltageRanges.json"), fileSystem.getPath("/FaultParametersFileEmptyVoltageRanges.json"));
+        Path path = fileSystem.getPath("/FaultParametersFileEmptyVoltageRanges.json");
         UncheckedIOException e0 = assertThrows(UncheckedIOException.class, () -> FaultParameters.read(path));
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing. (through reference chain: java.util.ArrayList[0])", e0.getMessage());
     }

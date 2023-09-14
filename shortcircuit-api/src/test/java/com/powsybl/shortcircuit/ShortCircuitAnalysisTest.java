@@ -144,7 +144,7 @@ class ShortCircuitAnalysisTest {
     }
 
     @Test
-    void testWithMissingVoltageRangeDataInParameters() {
+    void testWithMissingVoltageRangesInParameters() {
         ShortCircuitParameters invalidShortCircuitParameter = new ShortCircuitParameters()
                 .setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED);
         Exception e0 = assertThrows(PowsyblException.class, () -> ShortCircuitAnalysis.run(network, faults, invalidShortCircuitParameter, computationManager, faultParameters));
