@@ -10,11 +10,14 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.RefChain;
+import com.powsybl.iidm.network.impl.util.RefObj;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -28,11 +31,9 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubnetworkImpl.class);
 
-    private final NetworkImpl parent;
-
     SubnetworkImpl(NetworkImpl parent, String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
-        this.parent = Objects.requireNonNull(parent);
+        this.rootNetworkRef.setRef(new RefObj<>(Objects.requireNonNull(parent)));
     }
 
     @Override
@@ -47,12 +48,12 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public NetworkImpl getNetwork() {
-        return parent;
+        return rootNetworkRef.get();
     }
 
     @Override
     public VariantManager getVariantManager() {
-        return parent.getVariantManager();
+        return getNetwork().getVariantManager();
     }
 
     private boolean contains(Identifiable<?> identifiable) {
@@ -70,7 +71,7 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     private Stream<Country> getCountryStream() {
-        return parent.getSubstationStream()
+        return getNetwork().getSubstationStream()
                 .filter(this::contains)
                 .map(s -> s.getCountry().orElse(null))
                 .filter(Objects::nonNull);
@@ -78,7 +79,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public SubstationAdder newSubstation() {
-        return parent.newSubstation(id);
+        return new SubstationAdderImpl(rootNetworkRef, id);
     }
 
     @Override
@@ -88,7 +89,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<Substation> getSubstationStream() {
-        return parent.getSubstationStream().filter(this::contains);
+        return getNetwork().getSubstationStream().filter(this::contains);
     }
 
     @Override
@@ -98,27 +99,27 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
-        return StreamSupport.stream(parent.getSubstations(country, tsoId, geographicalTags).spliterator(), false)
+        return StreamSupport.stream(getNetwork().getSubstations(country, tsoId, geographicalTags).spliterator(), false)
                 .filter(this::contains)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags) {
-        return StreamSupport.stream(parent.getSubstations(country, tsoId, geographicalTags).spliterator(), false)
+        return StreamSupport.stream(getNetwork().getSubstations(country, tsoId, geographicalTags).spliterator(), false)
                 .filter(this::contains)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Substation getSubstation(String id) {
-        Substation s = parent.getSubstation(id);
+        Substation s = getNetwork().getSubstation(id);
         return contains(s) ? s : null;
     }
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return parent.newVoltageLevel(id);
+        return new VoltageLevelAdderImpl(rootNetworkRef, id);
     }
 
     @Override
@@ -128,7 +129,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return parent.getVoltageLevelStream().filter(this::contains);
+        return getNetwork().getVoltageLevelStream().filter(this::contains);
     }
 
     @Override
@@ -138,13 +139,13 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public VoltageLevel getVoltageLevel(String id) {
-        VoltageLevel vl = parent.getVoltageLevel(id);
+        VoltageLevel vl = getNetwork().getVoltageLevel(id);
         return contains(vl) ? vl : null;
     }
 
     @Override
     public LineAdder newLine() {
-        return parent.newLine(id);
+        return getNetwork().newLine(id);
     }
 
     @Override
@@ -154,7 +155,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Branch<?> getBranch(String branchId) {
-        Branch<?> b = parent.getBranch(branchId);
+        Branch<?> b = getNetwork().getBranch(branchId);
         return contains(b) ? b : null;
     }
 
@@ -165,7 +166,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<Branch> getBranchStream() {
-        return parent.getBranchStream().filter(this::contains);
+        return getNetwork().getBranchStream().filter(this::contains);
     }
 
     @Override
@@ -175,7 +176,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<Line> getLineStream() {
-        return parent.getLineStream().filter(this::contains);
+        return getNetwork().getLineStream().filter(this::contains);
     }
 
     @Override
@@ -185,13 +186,13 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Line getLine(String id) {
-        Line l = parent.getLine(id);
+        Line l = getNetwork().getLine(id);
         return contains(l) ? l : null;
     }
 
     @Override
     public TieLineAdder newTieLine() {
-        return parent.newTieLine(id);
+        return getNetwork().newTieLine(id);
     }
 
     @Override
@@ -201,7 +202,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<TieLine> getTieLineStream() {
-        return parent.getTieLineStream().filter(this::contains);
+        return getNetwork().getTieLineStream().filter(this::contains);
     }
 
     @Override
@@ -211,7 +212,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public TieLine getTieLine(String id) {
-        TieLine t = parent.getTieLine(id);
+        TieLine t = getNetwork().getTieLine(id);
         return contains(t) ? t : null;
     }
 
@@ -222,7 +223,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return parent.getTwoWindingsTransformerStream().filter(this::contains);
+        return getNetwork().getTwoWindingsTransformerStream().filter(this::contains);
     }
 
     @Override
@@ -232,7 +233,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
-        TwoWindingsTransformer twt = parent.getTwoWindingsTransformer(id);
+        TwoWindingsTransformer twt = getNetwork().getTwoWindingsTransformer(id);
         return contains(twt) ? twt : null;
     }
 
@@ -243,7 +244,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return parent.getThreeWindingsTransformerStream().filter(this::contains);
+        return getNetwork().getThreeWindingsTransformerStream().filter(this::contains);
     }
 
     @Override
@@ -253,7 +254,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public ThreeWindingsTransformer getThreeWindingsTransformer(String id) {
-        ThreeWindingsTransformer twt = parent.getThreeWindingsTransformer(id);
+        ThreeWindingsTransformer twt = getNetwork().getThreeWindingsTransformer(id);
         return contains(twt) ? twt : null;
     }
 
@@ -264,7 +265,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return parent.getGeneratorStream().filter(this::contains);
+        return getNetwork().getGeneratorStream().filter(this::contains);
     }
 
     @Override
@@ -274,7 +275,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Generator getGenerator(String id) {
-        Generator g = parent.getGenerator(id);
+        Generator g = getNetwork().getGenerator(id);
         return contains(g) ? g : null;
     }
 
@@ -285,7 +286,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<Battery> getBatteryStream() {
-        return parent.getBatteryStream().filter(this::contains);
+        return getNetwork().getBatteryStream().filter(this::contains);
     }
 
     @Override
@@ -295,7 +296,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Battery getBattery(String id) {
-        Battery b = parent.getBattery(id);
+        Battery b = getNetwork().getBattery(id);
         return contains(b) ? b : null;
     }
 
@@ -306,7 +307,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<Load> getLoadStream() {
-        return parent.getLoadStream().filter(this::contains);
+        return getNetwork().getLoadStream().filter(this::contains);
     }
 
     @Override
@@ -316,7 +317,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Load getLoad(String id) {
-        Load l = parent.getLoad(id);
+        Load l = getNetwork().getLoad(id);
         return contains(l) ? l : null;
     }
 
@@ -327,7 +328,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        return parent.getShuntCompensatorStream().filter(this::contains);
+        return getNetwork().getShuntCompensatorStream().filter(this::contains);
     }
 
     @Override
@@ -337,7 +338,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public ShuntCompensator getShuntCompensator(String id) {
-        ShuntCompensator s = parent.getShuntCompensator(id);
+        ShuntCompensator s = getNetwork().getShuntCompensator(id);
         return contains(s) ? s : null;
     }
 
@@ -348,7 +349,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream(DanglingLineFilter danglingLineFilter) {
-        return parent.getDanglingLineStream().filter(this::contains).filter(danglingLineFilter.getPredicate());
+        return getNetwork().getDanglingLineStream().filter(this::contains).filter(danglingLineFilter.getPredicate());
     }
 
     @Override
@@ -368,7 +369,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public DanglingLine getDanglingLine(String id) {
-        DanglingLine dl = parent.getDanglingLine(id);
+        DanglingLine dl = getNetwork().getDanglingLine(id);
         return contains(dl) ? dl : null;
     }
 
@@ -379,7 +380,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return parent.getStaticVarCompensatorStream().filter(this::contains);
+        return getNetwork().getStaticVarCompensatorStream().filter(this::contains);
     }
 
     @Override
@@ -389,13 +390,13 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public StaticVarCompensator getStaticVarCompensator(String id) {
-        StaticVarCompensator s = parent.getStaticVarCompensator(id);
+        StaticVarCompensator s = getNetwork().getStaticVarCompensator(id);
         return contains(s) ? s : null;
     }
 
     @Override
     public Switch getSwitch(String id) {
-        Switch s = parent.getSwitch(id);
+        Switch s = getNetwork().getSwitch(id);
         return contains(s) ? s : null;
     }
 
@@ -406,7 +407,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<Switch> getSwitchStream() {
-        return parent.getSwitchStream().filter(this::contains);
+        return getNetwork().getSwitchStream().filter(this::contains);
     }
 
     @Override
@@ -416,7 +417,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public BusbarSection getBusbarSection(String id) {
-        BusbarSection b = parent.getBusbarSection(id);
+        BusbarSection b = getNetwork().getBusbarSection(id);
         return contains(b) ? b : null;
     }
 
@@ -427,7 +428,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<BusbarSection> getBusbarSectionStream() {
-        return parent.getBusbarSectionStream().filter(this::contains);
+        return getNetwork().getBusbarSectionStream().filter(this::contains);
     }
 
     @Override
@@ -442,7 +443,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<HvdcConverterStation<?>> getHvdcConverterStationStream() {
-        return parent.getHvdcConverterStationStream().filter(this::contains);
+        return getNetwork().getHvdcConverterStationStream().filter(this::contains);
     }
 
     @Override
@@ -452,7 +453,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public HvdcConverterStation<?> getHvdcConverterStation(String id) {
-        HvdcConverterStation<?> s = parent.getHvdcConverterStation(id);
+        HvdcConverterStation<?> s = getNetwork().getHvdcConverterStation(id);
         return contains(s) ? s : null;
     }
 
@@ -463,7 +464,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return parent.getLccConverterStationStream().filter(this::contains);
+        return getNetwork().getLccConverterStationStream().filter(this::contains);
     }
 
     @Override
@@ -473,7 +474,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public LccConverterStation getLccConverterStation(String id) {
-        LccConverterStation s = parent.getLccConverterStation(id);
+        LccConverterStation s = getNetwork().getLccConverterStation(id);
         return contains(s) ? s : null;
     }
 
@@ -484,7 +485,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return parent.getVscConverterStationStream().filter(this::contains);
+        return getNetwork().getVscConverterStationStream().filter(this::contains);
     }
 
     @Override
@@ -494,7 +495,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public VscConverterStation getVscConverterStation(String id) {
-        VscConverterStation s = parent.getVscConverterStation(id);
+        VscConverterStation s = getNetwork().getVscConverterStation(id);
         return contains(s) ? s : null;
     }
 
@@ -505,7 +506,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<HvdcLine> getHvdcLineStream() {
-        return parent.getHvdcLineStream().filter(this::contains);
+        return getNetwork().getHvdcLineStream().filter(this::contains);
     }
 
     @Override
@@ -515,7 +516,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public HvdcLine getHvdcLine(String id) {
-        HvdcLine l = parent.getHvdcLine(id);
+        HvdcLine l = getNetwork().getHvdcLine(id);
         return contains(l) ? l : null;
     }
 
@@ -532,18 +533,18 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public HvdcLineAdder newHvdcLine() {
-        return parent.newHvdcLine(id);
+        return getNetwork().newHvdcLine(id);
     }
 
     @Override
     public Identifiable<?> getIdentifiable(String id) {
-        Identifiable<?> i = parent.getIdentifiable(id);
+        Identifiable<?> i = getNetwork().getIdentifiable(id);
         return contains(i) ? i : null;
     }
 
     @Override
     public Collection<Identifiable<?>> getIdentifiables() {
-        return parent.getIdentifiables().stream().filter(this::contains).collect(Collectors.toList());
+        return getNetwork().getIdentifiables().stream().filter(this::contains).collect(Collectors.toList());
     }
 
     @Override
@@ -553,7 +554,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
-        return parent.getConnectableStream(clazz).filter(this::contains);
+        return getNetwork().getConnectableStream(clazz).filter(this::contains);
     }
 
     @Override
@@ -568,12 +569,12 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<Connectable> getConnectableStream() {
-        return parent.getConnectableStream().filter(this::contains);
+        return getNetwork().getConnectableStream().filter(this::contains);
     }
 
     @Override
     public Connectable<?> getConnectable(String id) {
-        Connectable<?> c = parent.getConnectable(id);
+        Connectable<?> c = getNetwork().getConnectable(id);
         return contains(c) ? c : null;
     }
 
@@ -585,7 +586,7 @@ public class SubnetworkImpl extends AbstractNetwork {
     class BusBreakerViewImpl extends AbstractNetwork.AbstractBusBreakerViewImpl {
         @Override
         public Bus getBus(String id) {
-            Bus b = parent.getBusBreakerView().getBus(id);
+            Bus b = getNetwork().getBusBreakerView().getBus(id);
             return contains(b) ? b : null;
         }
     }
@@ -601,13 +602,13 @@ public class SubnetworkImpl extends AbstractNetwork {
 
         @Override
         public Bus getBus(String id) {
-            Bus b = parent.getBusView().getBus(id);
+            Bus b = getNetwork().getBusView().getBus(id);
             return contains(b) ? b : null;
         }
 
         @Override
         public Collection<Component> getConnectedComponents() {
-            return parent.getBusView().getConnectedComponents().stream()
+            return getNetwork().getBusView().getConnectedComponents().stream()
                     .filter(c -> c.getBusStream().anyMatch(SubnetworkImpl.this::contains))
                     .map(c -> new Subcomponent(c, SubnetworkImpl.this))
                     .collect(Collectors.toList());
@@ -615,7 +616,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
         @Override
         public Collection<Component> getSynchronousComponents() {
-            return parent.getBusView().getSynchronousComponents().stream()
+            return getNetwork().getBusView().getSynchronousComponents().stream()
                     .filter(c -> c.getBusStream().anyMatch(SubnetworkImpl.this::contains))
                     .map(c -> new Subcomponent(c, SubnetworkImpl.this))
                     .collect(Collectors.toList());
@@ -683,16 +684,15 @@ public class SubnetworkImpl extends AbstractNetwork {
         getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(null));
         getVoltageLevelStream().forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(null));
 
-        // Change network back reference of the network objects
-        RefChain<NetworkImpl> refChain = parent.removeRef(getId());
-        refChain.setRef(detachedNetwork.getRef());
-
         // Remove the old subnetwork from the subnetworks list of the current parent network
-        parent.removeFromSubnetworks(getId());
+        getNetwork().removeFromSubnetworks(getId());
+
+        // Change root network back reference
+        rootNetworkRef.setRef(detachedNetwork.getRef());
 
         // Remove all the identifiers from the parent's index and add them to the detached network's index
         identifiables.forEach(i -> {
-            parent.getIndex().remove(i);
+            getNetwork().getIndex().remove(i);
             detachedNetwork.getIndex().checkAndAdd(i);
         });
 
@@ -717,7 +717,7 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     private boolean checkDetachable(Set<Identifiable<?>> boundaryElements, boolean throwsException) {
-        if (parent.getVariantManager().getVariantArraySize() != 1) {
+        if (getNetwork().getVariantManager().getVariantArraySize() != 1) {
             if (throwsException) {
                 throw new PowsyblException("Detaching from multi-variants network is not supported");
             }
@@ -739,15 +739,15 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
         // transformers cannot link different subnetworks for the moment.
-        Stream<Line> lines = parent.getLineStream();
-        Stream<TieLine> tieLineStream = parent.getTieLineStream();
-        Stream<HvdcLine> hvdcLineStream = parent.getHvdcLineStream();
+        Stream<Line> lines = getNetwork().getLineStream();
+        Stream<TieLine> tieLineStream = getNetwork().getTieLineStream();
+        Stream<HvdcLine> hvdcLineStream = getNetwork().getHvdcLineStream();
 
         return Stream.of(lines, tieLineStream, hvdcLineStream)
                 .flatMap(Function.identity())
                 .map(o -> (Identifiable<?>) o)
                 // Boundary elements are not entirely contained by the subnetwork => they are registered in the parent network
-                .filter(i -> i.getParentNetwork() == parent)
+                .filter(i -> i.getParentNetwork() == getNetwork())
                 .filter(this::isBoundaryElement)
                 .collect(Collectors.toSet());
     }
@@ -807,31 +807,31 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public ValidationLevel runValidationChecks() {
-        return parent.runValidationChecks();
+        return getNetwork().runValidationChecks();
     }
 
     @Override
     public ValidationLevel runValidationChecks(boolean throwsException) {
-        return parent.runValidationChecks(throwsException);
+        return getNetwork().runValidationChecks(throwsException);
     }
 
     @Override
     public ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
-        return parent.runValidationChecks(throwsException, reporter);
+        return getNetwork().runValidationChecks(throwsException, reporter);
     }
 
     @Override
     public ValidationLevel getValidationLevel() {
-        return parent.getValidationLevel();
+        return getNetwork().getValidationLevel();
     }
 
     @Override
     public Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
-        return parent.setMinimumAcceptableValidationLevel(validationLevel);
+        return getNetwork().setMinimumAcceptableValidationLevel(validationLevel);
     }
 
     @Override
     public Stream<Identifiable<?>> getIdentifiableStream(IdentifiableType identifiableType) {
-        return parent.getIdentifiableStream(identifiableType).filter(this::contains);
+        return getNetwork().getIdentifiableStream(identifiableType).filter(this::contains);
     }
 }
