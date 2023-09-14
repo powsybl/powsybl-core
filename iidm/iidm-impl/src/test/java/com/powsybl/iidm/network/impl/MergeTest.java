@@ -106,11 +106,11 @@ class MergeTest {
         Network network2 = createNodeBreakerWithVoltageAngleLimit("2");
 
         List<VoltageAngleLimit> voltageAngleLimit = new ArrayList<>();
-        voltageAngleLimit.addAll(network1.getVoltageAngleLimits());
-        voltageAngleLimit.addAll(network2.getVoltageAngleLimits());
+        voltageAngleLimit.addAll(network1.getVoltageAngleLimitsStream().toList());
+        voltageAngleLimit.addAll(network2.getVoltageAngleLimitsStream().toList());
 
         network1.merge(network2);
-        assertTrue(voltageAngleLimitsAreEqual(voltageAngleLimit, network1.getVoltageAngleLimits()));
+        assertTrue(voltageAngleLimitsAreEqual(voltageAngleLimit, network1.getVoltageAngleLimitsStream().toList()));
     }
 
     @Test

@@ -199,9 +199,18 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public Optional<VoltageAngleLimit> getVoltageAngleLimit(String id) {
-        VoltageAngleLimit limit = voltageAngleLimitsIndex.get(id);
-        return limit != null ? Optional.of(limit) : Optional.empty();
+    public VoltageAngleLimit getVoltageAngleLimit(String id) {
+        return voltageAngleLimitsIndex.get(id);
+    }
+
+    @Override
+    public Stream<VoltageAngleLimit> getVoltageAngleLimitsStream() {
+        return voltageAngleLimitsIndex.values().stream();
+    }
+
+    @Override
+    public Iterable<VoltageAngleLimit> getVoltageAngleLimits() {
+        return voltageAngleLimitsIndex.values();
     }
 
     @Override
@@ -728,11 +737,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public VoltageAngleLimitAdder newVoltageAngleLimit() {
         return new VoltageAngleLimitAdderImpl(ref);
-    }
-
-    @Override
-    public List<VoltageAngleLimit> getVoltageAngleLimits() {
-        return voltageAngleLimitsIndex.values().stream().toList();
     }
 
     @Override

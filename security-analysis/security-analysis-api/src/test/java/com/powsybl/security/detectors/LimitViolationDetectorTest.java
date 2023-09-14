@@ -188,9 +188,9 @@ class LimitViolationDetectorTest {
         voltageLevel1 = network.getVoltageLevel("VLHV1");
         genVoltageLevel = network.getVoltageLevel("VLGEN");
         loadVoltageLevel = network.getVoltageLevel("VLLOAD");
-        voltageAngleLimit0 = network.getVoltageAngleLimits().get(0);
-        voltageAngleLimit1 = network.getVoltageAngleLimits().get(1);
-        voltageAngleLimit2 = network.getVoltageAngleLimits().get(2);
+        voltageAngleLimit0 = network.getVoltageAngleLimitsStream().toList().get(0);
+        voltageAngleLimit1 = network.getVoltageAngleLimitsStream().toList().get(1);
+        voltageAngleLimit2 = network.getVoltageAngleLimitsStream().toList().get(2);
         contingency1 = new Contingency("cont1");
         contingency2 = new Contingency("cont2");
 
@@ -236,7 +236,7 @@ class LimitViolationDetectorTest {
 
     @Test
     void voltageAngleLimit0Has1Violation() {
-        contingencyBasedDetector().checkVoltageAngle(network.getVoltageAngleLimits().get(0), collectedViolations::add);
+        contingencyBasedDetector().checkVoltageAngle(network.getVoltageAngleLimitsStream().toList().get(0), collectedViolations::add);
         assertEquals(1, collectedViolations.size());
         assertSame(LimitViolationType.HIGH_VOLTAGE_ANGLE, collectedViolations.get(0).getLimitType());
     }

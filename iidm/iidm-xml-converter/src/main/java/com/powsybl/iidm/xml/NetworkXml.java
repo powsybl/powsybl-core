@@ -213,7 +213,7 @@ public final class NetworkXml {
     }
 
     private static void writeVoltageAngleLimits(Network n, NetworkXmlWriterContext context) {
-        if (!n.getVoltageAngleLimits().isEmpty()) {
+        if (!n.getVoltageAngleLimitsStream().findAny().isEmpty()) {
             for (VoltageAngleLimit voltageAngleLimit : n.getVoltageAngleLimits()) {
                 VoltageAngleLimitXml.write(voltageAngleLimit, context);
             }

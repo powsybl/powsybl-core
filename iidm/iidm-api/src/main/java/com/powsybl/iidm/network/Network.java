@@ -1199,12 +1199,17 @@ public interface Network extends Container<Network> {
     /**
      * Get all voltageAngleLimits.
      */
-    List<VoltageAngleLimit> getVoltageAngleLimits();
+    Iterable<VoltageAngleLimit> getVoltageAngleLimits();
+
+    /**
+     * Get all voltageAngleLimits.
+     */
+    Stream<VoltageAngleLimit> getVoltageAngleLimitsStream();
 
     /**
      * Get voltage angle limit with id
      */
-    Optional<VoltageAngleLimit> getVoltageAngleLimit(String id);
+    VoltageAngleLimit getVoltageAngleLimit(String id);
 
     /**
      * Merge with an other network. At the end of the merge the other network

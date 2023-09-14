@@ -234,7 +234,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectVoltageAngleViolationRefToOther() {
-        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimits().get(0);
+        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimitsStream().toList().get(0);
         detector.checkVoltageAngle(voltageAngleLimit, 0.30, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -250,7 +250,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectVoltageAngleViolationOtherToRef() {
-        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimits().get(1);
+        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimitsStream().toList().get(1);
         detector.checkVoltageAngle(voltageAngleLimit, -0.30, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -266,7 +266,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectVoltageAngleViolationHighAndLow1() {
-        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimits().get(2);
+        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimitsStream().toList().get(2);
         detector.checkVoltageAngle(voltageAngleLimit, -0.40, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -282,7 +282,7 @@ class DefaultLimitViolationDetectorTest {
 
     @Test
     void detectVoltageAngleViolationHighAndLow2() {
-        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimits().get(2);
+        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimitsStream().toList().get(2);
         detector.checkVoltageAngle(voltageAngleLimit, 0.40, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)

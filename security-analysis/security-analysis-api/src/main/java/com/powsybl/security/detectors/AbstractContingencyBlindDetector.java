@@ -67,7 +67,8 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
         Bus referenceBus = voltageAngleLimit.getTerminalFrom().getBusView().getBus();
         Bus otherBus = voltageAngleLimit.getTerminalTo().getBusView().getBus();
         if (referenceBus != null && otherBus != null
-                && referenceBus.getConnectedComponent().getNum() == otherBus.getConnectedComponent().getNum()) {
+            && referenceBus.getConnectedComponent().getNum() == otherBus.getConnectedComponent().getNum()
+            && referenceBus.getSynchronousComponent().getNum() == otherBus.getSynchronousComponent().getNum()) {
             double voltageAngleDifference = otherBus.getAngle() - referenceBus.getAngle();
             checkVoltageAngle(voltageAngleLimit, voltageAngleDifference, consumer);
         }
@@ -91,12 +92,12 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
         network.getVoltageLevelStream()
                 .flatMap(vl -> vl.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(b, consumer));
-        network.getVoltageAngleLimits().stream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
+        network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
     }
 
     @Override
     public void checkAllDc(Network network, double dcPowerFactor, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, consumer));
-        network.getVoltageAngleLimits().stream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
+        network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
     }
 }
