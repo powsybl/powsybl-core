@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.RefObj;
+import com.powsybl.iidm.network.impl.util.RefChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,12 +31,17 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubnetworkImpl.class);
 
-    SubnetworkImpl(NetworkImpl parent, String id, String name, String sourceFormat) {
+    private final RefChain<NetworkImpl> rootNetworkRef;
+
+    SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
-        this.rootNetworkRef.setRef(new RefObj<>(Objects.requireNonNull(parent)));
+        this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
     }
 
-    @Override
+    public RefChain<NetworkImpl> getRootNetworkRef() {
+        return rootNetworkRef;
+    }
+
     public final Collection<Network> getSubnetworks() {
         return Collections.emptyList();
     }
@@ -685,14 +690,15 @@ public class SubnetworkImpl extends AbstractNetwork {
         getVoltageLevelStream().forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(null));
 
         // Remove the old subnetwork from the subnetworks list of the current parent network
-        getNetwork().removeFromSubnetworks(getId());
+        NetworkImpl previousRootNetwork = rootNetworkRef.get();
+        previousRootNetwork.removeFromSubnetworks(getId());
 
         // Change root network back reference
         rootNetworkRef.setRef(detachedNetwork.getRef());
 
         // Remove all the identifiers from the parent's index and add them to the detached network's index
         identifiables.forEach(i -> {
-            getNetwork().getIndex().remove(i);
+            previousRootNetwork.getIndex().remove(i);
             detachedNetwork.getIndex().checkAndAdd(i);
         });
 

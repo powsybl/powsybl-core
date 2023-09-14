@@ -37,6 +37,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
+    private final RefChain<NetworkImpl> ref = new RefChain<>(new RefObj<>(this));
+
     private ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
     private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
 
@@ -106,9 +108,9 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     NetworkImpl(String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
-        rootNetworkRef.setRef(new RefObj<>(this));
+        ref.setRef(new RefObj<>(this));
         variantManager = new VariantManagerImpl(this);
-        variants = new VariantArray<>(rootNetworkRef, VariantImpl::new);
+        variants = new VariantArray<>(ref, VariantImpl::new);
         // add the network the object list as it is a multi variant object
         // and it needs to be notified when and extension or a reduction of
         // the variant array is requested
@@ -139,7 +141,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     RefChain<NetworkImpl> getRef() {
-        return getRootNetworkRef();
+        return ref;
     }
 
     RefChain<NetworkImpl> getRef(String subnetworkId) {
@@ -191,7 +193,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public SubstationAdder newSubstation() {
-        return new SubstationAdderImpl(rootNetworkRef, null);
+        return new SubstationAdderImpl(ref, null);
     }
 
     @Override
@@ -226,7 +228,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return new VoltageLevelAdderImpl(rootNetworkRef, null);
+        return new VoltageLevelAdderImpl(ref, null);
     }
 
     @Override
@@ -715,7 +717,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         @Override
         protected ConnectedComponentImpl createComponent(int num, int size) {
-            return new ConnectedComponentImpl(num, size, network.rootNetworkRef);
+            return new ConnectedComponentImpl(num, size, network.ref);
         }
     }
 
@@ -740,7 +742,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         @Override
         protected SynchronousComponentImpl createComponent(int num, int size) {
-            return new SynchronousComponentImpl(num, size, network.rootNetworkRef);
+            return new SynchronousComponentImpl(num, size, network.ref);
         }
     }
 
@@ -891,15 +893,10 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         // create the subnetwork corresponding to the current network (if it doesn't already exist)
         if (allowSubnetworkCreationForMyself && !subnetworks.containsKey(id)) {
             SubnetworkImpl n = createSubnetwork(this, this);
-            subnetworks.put(id, n);
+            subnetworks.put(n.getId(), n);
             getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubnetwork(id));
             getVoltageLevelStream().filter(v -> v.getParentNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(id));
         }
-
-        // create subnetworks for the other networks
-        subnetworks.computeIfAbsent(otherNetwork.getId(), id -> createSubnetwork(this, otherNetwork));
-        otherNetwork.getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(otherNetwork.id));
-        otherNetwork.getVoltageLevelStream().forEach(vl -> ((VoltageLevelExt) vl).setSubnetwork(otherNetwork.id));
 
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
@@ -914,6 +911,12 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             findAndAssociateDanglingLines(dl2, dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 
+        // create subnetworks for the other network
+        otherNetwork.getRef().setRef(ref);
+        subnetworks.put(otherNetwork.getId(), createSubnetwork(this, otherNetwork));
+        otherNetwork.getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(otherNetwork.id));
+        otherNetwork.getVoltageLevelStream().forEach(vl -> ((VoltageLevelExt) vl).setSubnetwork(otherNetwork.id));
+
         // do not forget to remove the other network from its index!!!
         otherNetwork.index.remove(otherNetwork);
 
@@ -922,7 +925,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         // fix network back reference of the other network objects
         for (SubnetworkImpl subnetwork : otherNetwork.subnetworks.values()) {
-            subnetwork.getRootNetworkRef().setRef(rootNetworkRef);
+            subnetwork.getRootNetworkRef().setRef(ref);
             subnetworks.put(subnetwork.getId(), subnetwork);
         }
 
@@ -936,8 +939,10 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private static SubnetworkImpl createSubnetwork(NetworkImpl parent, Network original) {
-        SubnetworkImpl sn = new SubnetworkImpl(parent, original.getId(), original.getOptionalName().orElse(null),
+    private static SubnetworkImpl createSubnetwork(NetworkImpl parent, NetworkImpl original) {
+        RefChain<NetworkImpl> originalRootNetworkRef = original.getRef();
+        originalRootNetworkRef.setRef(new RefChain<>(new RefObj<>(parent)));
+        SubnetworkImpl sn = new SubnetworkImpl(originalRootNetworkRef, original.getId(), original.getOptionalName().orElse(null),
                 original.getSourceFormat());
         sn.setCaseDate(original.getCaseDate());
         transferExtensions(original, sn);
@@ -1003,7 +1008,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         if (subnetworks.containsKey(subnetworkId)) {
             throw new IllegalArgumentException("The network already contains another subnetwork of id " + subnetworkId);
         }
-        SubnetworkImpl subnetwork = new SubnetworkImpl(this, subnetworkId, name, sourceFormat);
+        SubnetworkImpl subnetwork = new SubnetworkImpl(new RefChain<>(new RefObj<>(this)), subnetworkId, name, sourceFormat);
         subnetworks.put(subnetworkId, subnetwork);
         return subnetwork;
     }

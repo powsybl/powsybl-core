@@ -10,8 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.RefChain;
-import com.powsybl.iidm.network.impl.util.RefObj;
 import org.joda.time.DateTime;
 
 import java.util.ArrayList;
@@ -24,8 +22,6 @@ import java.util.stream.Stream;
  */
 abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements Network {
 
-    final RefChain<NetworkImpl> rootNetworkRef = new RefChain<>(new RefObj<>(null));
-
     private DateTime caseDate = new DateTime(); // default is the time at which the network has been created
 
     private int forecastDistance = 0;
@@ -36,10 +32,6 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
         super(id, name);
         Objects.requireNonNull(sourceFormat, "source format is null");
         this.sourceFormat = sourceFormat;
-    }
-
-    public RefChain<NetworkImpl> getRootNetworkRef() {
-        return rootNetworkRef;
     }
 
     @Override
