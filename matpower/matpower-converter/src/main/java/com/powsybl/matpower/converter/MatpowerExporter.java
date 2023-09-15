@@ -245,8 +245,8 @@ public class MatpowerExporter implements Exporter {
                 .max(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
     }
 
-    private static double toMva(double ampere, VoltageLevel vl) {
-        return ampere * vl.getNominalV() / 1000d;
+    private static double toApparentPower(double current, VoltageLevel vl) {
+        return current * vl.getNominalV() / 1000d;
     }
 
     private static void createLimits(MBranch mBranch, LoadingLimits limits, DoubleUnaryOperator converter) {
@@ -276,7 +276,7 @@ public class MatpowerExporter implements Exporter {
                 .max(Comparator.comparingInt(loadingLimit -> loadingLimit.getTemporaryLimits().size())) // many tempary limits first
                 .ifPresent(limits -> {
                     if (limits.getLimitType() == LimitType.CURRENT) {
-                        createLimits(mBranch, limits, a -> toMva(a, vl)); // convert from A to MVA
+                        createLimits(mBranch, limits, current -> toApparentPower(current, vl)); // convert from A to MVA
                     } else {
                         createLimits(mBranch, limits, DoubleUnaryOperator.identity());
                     }
