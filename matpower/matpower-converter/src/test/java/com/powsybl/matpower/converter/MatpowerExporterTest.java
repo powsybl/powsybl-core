@@ -177,6 +177,9 @@ class MatpowerExporterTest extends AbstractConverterTest {
                     .setValue(1500)
                 .endTemporaryLimit()
                 .add();
+        l.newCurrentLimits2()
+                .setPermanentLimit(1000)
+                .add();
         exportToMatAndCompareTo(network, "/sim1-with-apparent-power-limits.json");
     }
 

@@ -269,10 +269,18 @@ public class MatpowerExporter implements Exporter {
                 .ifPresent(limitC -> mBranch.setRateC(converter.applyAsDouble(limitC.getValue())));
     }
 
-    private static void createLimits(FlowsLimitsHolder limitsHolder, VoltageLevel vl, MBranch mBranch) {
-        limitsHolder.getApparentPowerLimits().ifPresentOrElse(limits -> createLimits(mBranch, limits, DoubleUnaryOperator.identity()),
-            () -> limitsHolder.getCurrentLimits().ifPresent(limits -> createLimits(mBranch, limits, a -> toMva(a, vl))) // convert from current limits if present
-        );
+    private static void createLimits(List<FlowsLimitsHolder> limitsHolders, VoltageLevel vl, MBranch mBranch) {
+        limitsHolders.stream().flatMap(limitsHolder -> Stream.concat(limitsHolder.getApparentPowerLimits().stream(), // apparrent power limits first then current limits
+                                                                     limitsHolder.getCurrentLimits().stream()))
+                .filter(limits -> !Double.isNaN(limits.getPermanentLimit())) // skip when there is no permanent
+                .max(Comparator.comparingInt(loadingLimit -> loadingLimit.getTemporaryLimits().size())) // many tempary limits first
+                .ifPresent(limits -> {
+                    if (limits.getLimitType() == LimitType.CURRENT) {
+                        createLimits(mBranch, limits, a -> toMva(a, vl)); // convert from A to MVA
+                    } else {
+                        createLimits(mBranch, limits, DoubleUnaryOperator.identity());
+                    }
+                });
     }
 
     /**
@@ -341,7 +349,8 @@ public class MatpowerExporter implements Exporter {
             Terminal t2 = l.getTerminal2();
             createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
                     .ifPresent(branch -> {
-                        createLimits(new FlowsLimitsHolderBranchAdapter(l, Branch.Side.ONE), t1.getVoltageLevel(), branch);
+                        createLimits(List.of(new FlowsLimitsHolderBranchAdapter(l, Branch.Side.ONE), new FlowsLimitsHolderBranchAdapter(l, Branch.Side.TWO)),
+                                     t1.getVoltageLevel(), branch);
                         model.addBranch(branch);
                     });
         }
@@ -384,7 +393,8 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setR(r / zb);
                 mBranch.setX(x / zb);
                 mBranch.setB(b * zb);
-                createLimits(new FlowsLimitsHolderBranchAdapter(twt, Branch.Side.ONE), t1.getVoltageLevel(), mBranch);
+                createLimits(List.of(new FlowsLimitsHolderBranchAdapter(twt, Branch.Side.ONE), new FlowsLimitsHolderBranchAdapter(twt, Branch.Side.TWO)),
+                             t1.getVoltageLevel(), mBranch);
                 model.addBranch(mBranch);
             }
         }
@@ -396,7 +406,8 @@ public class MatpowerExporter implements Exporter {
             Terminal t2 = l.getDanglingLine2().getTerminal();
             createMBranch(t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
                     .ifPresent(branch -> {
-                        createLimits(new FlowsLimitsHolderBranchAdapter(l, Branch.Side.ONE), t1.getVoltageLevel(), branch);
+                        createLimits(List.of(new FlowsLimitsHolderBranchAdapter(l, Branch.Side.ONE), new FlowsLimitsHolderBranchAdapter(l, Branch.Side.TWO)),
+                                     t1.getVoltageLevel(), branch);
                         model.addBranch(branch);
                     });
         }
@@ -460,7 +471,7 @@ public class MatpowerExporter implements Exporter {
                 mBranch.setR(dl.getR() / zb);
                 mBranch.setX(dl.getX() / zb);
                 mBranch.setB(dl.getB() * zb);
-                createLimits(dl, t.getVoltageLevel(), mBranch);
+                createLimits(List.of(dl), t.getVoltageLevel(), mBranch);
                 model.addBranch(mBranch);
             }
         }
@@ -514,7 +525,7 @@ public class MatpowerExporter implements Exporter {
         mBranch.setX(x / zb);
         mBranch.setB(b * zb);
         mBranch.setRatio(1d / rho);
-        createLimits(leg, leg.getTerminal().getVoltageLevel(), mBranch);
+        createLimits(List.of(leg), leg.getTerminal().getVoltageLevel(), mBranch);
         return mBranch;
     }
 
