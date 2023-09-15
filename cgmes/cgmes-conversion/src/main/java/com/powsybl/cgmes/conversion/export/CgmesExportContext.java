@@ -118,6 +118,7 @@ public class CgmesExportContext {
 
         private String description;
         private int version = 1;
+        private String supersedes;
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
         private Set<String> ids = new HashSet<>();
@@ -132,6 +133,10 @@ public class CgmesExportContext {
 
         public String getDescription() {
             return description;
+        }
+
+        public String getSupersedes() {
+            return supersedes;
         }
 
         public ModelDescription setDescription(String description) {
@@ -206,6 +211,10 @@ public class CgmesExportContext {
         public Set<String> getIds() {
             return Collections.unmodifiableSet(ids);
         }
+
+        public void setSupersedes(String id) {
+            this.supersedes = id;
+        }
     }
 
     public CgmesExportContext() {
@@ -238,6 +247,7 @@ public class CgmesExportContext {
         if (sshMetadata != null) {
             sshModelDescription.setDescription(sshMetadata.getDescription());
             sshModelDescription.setVersion(sshMetadata.getSshVersion() + 1);
+            sshModelDescription.setSupersedes(sshMetadata.getId());
             sshModelDescription.addDependencies(sshMetadata.getDependencies());
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }

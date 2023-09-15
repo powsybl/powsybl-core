@@ -46,31 +46,40 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
 
     @Test
     void microGridBE() throws IOException, XMLStreamException {
-        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+        DifferenceEvaluator knownDiffsSsh = DifferenceEvaluators.chain(
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffs);
+        DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
+            DifferenceEvaluators.Default,
+            ExportXmlCompare::ignoringCgmesSshMetadataId);
+        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm);
     }
 
     @Test
     void microGridBEWithHiddenTapChangers() throws IOException, XMLStreamException {
-        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+        DifferenceEvaluator knownDiffsSsh = DifferenceEvaluators.chain(
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffs);
+        DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
+            DifferenceEvaluators.Default,
+            ExportXmlCompare::ignoringCgmesSshMetadataId);
+        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm);
     }
 
     @Test
     void microGridBEWithSharedRegulatingControl() throws IOException, XMLStreamException {
-        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+        DifferenceEvaluator knownDiffsSsh = DifferenceEvaluators.chain(
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffs);
+        DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
+            DifferenceEvaluators.Default,
+            ExportXmlCompare::ignoringCgmesSshMetadataId);
+        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm);
     }
 
     @Test
@@ -82,6 +91,7 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringCgmesSshMetadataId,
                 ExportXmlCompare::ignoringControlAreaNetInterchange));
     }
 
@@ -95,6 +105,7 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringControlAreaNetInterchange,
+                ExportXmlCompare::ignoringCgmesSshMetadataId,
                 ExportXmlCompare::ignoringHvdcLinePmax));
     }
 
@@ -261,7 +272,8 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         assertEquals(5, sshExportedControlArea.pTolerance, 1e-10);
 
         // Check that SSH full model contains a reference to the original SSH that is superseding
-        // FIXME(Luma)
+        String modelSupersedes = readSshModelSupersedes(outputPath.resolve("BE_SSH.xml"));
+        assertEquals("urn:uuid:1b092ff0-f8a0-49da-82d3-75eff5f1e820", modelSupersedes);
     }
 
     static class SshExportedControlArea {
@@ -303,6 +315,30 @@ class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             throw new RuntimeException(e);
         }
         return sshExportedControlAreas;
+    }
+
+    private static final String ATTR_RESOURCE = "resource";
+    private static final String MODEL_SUPERSEDES = "Model.Supersedes";
+
+    private static String readSshModelSupersedes(Path ssh) {
+        String modelSupersedes;
+        try (InputStream is = Files.newInputStream(ssh)) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            while (reader.hasNext()) {
+                int next = reader.next();
+                if (next == XMLStreamConstants.START_ELEMENT) {
+                    if (reader.getLocalName().equals(MODEL_SUPERSEDES)) {
+                        modelSupersedes = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, ATTR_RESOURCE);
+                        reader.close();
+                        return modelSupersedes;
+                    }
+                }
+            }
+            reader.close();
+        } catch (XMLStreamException | IOException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 
 }
