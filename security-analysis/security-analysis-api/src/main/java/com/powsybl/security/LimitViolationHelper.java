@@ -6,6 +6,7 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -23,7 +24,15 @@ public final class LimitViolationHelper {
         Objects.requireNonNull(network);
         Objects.requireNonNull(limitViolation);
 
-        Identifiable identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        Identifiable<?> identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        if (limitViolation.getLimitType() == LimitViolationType.LOW_VOLTAGE_ANGLE || limitViolation.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE) {
+            VoltageAngleLimit limit = network.getVoltageAngleLimit(limitViolation.getSubjectId());
+            if (limit != null) {
+                return limit.getTerminalFrom().getVoltageLevel();
+            } else {
+                throw new PowsyblException("Limit from limit violation is not in the network.");
+            }
+        }
         if (identifiable instanceof Branch<?> branch) {
             return branch.getTerminal(limitViolation.getSide()).getVoltageLevel();
         } else if (identifiable instanceof Injection<?> injection) {
