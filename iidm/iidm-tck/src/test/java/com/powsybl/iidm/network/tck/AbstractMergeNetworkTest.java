@@ -234,6 +234,22 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
+    public void testMergeNetworkWithSubnetwork() {
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl1", "code2", "dl2", "code2");
+
+        n1.merge(n2);
+        assertEquals(2, n1.getSubnetworks().size());
+
+        n1.merge(Network.create("n3", "test"));
+        assertEquals(3, n1.getSubnetworks().size());
+
+        addSubstationAndVoltageLevel(n1, "s3", Country.FR, "vl3", "b3");
+        n1.merge(Network.create("n4", "test"));
+        assertEquals(5, n1.getSubnetworks().size());
+    }
+
+    @Test
     public void testMerge3Networks() {
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
@@ -526,18 +542,16 @@ public abstract class AbstractMergeNetworkTest {
         merge.merge(n1, n2);
         assertEquals(MERGE, merge.getId());
         assertEquals("hybrid", merge.getSourceFormat());
-        assertEquals(3, merge.getSubnetworks().size());
+        assertEquals(2, merge.getSubnetworks().size());
         checks(merge, 1, "asdf", d1);
         checks(merge, 2, "qwer", d2);
 
         // Parent network should remain indexed with the same id
         Identifiable<?> m = merge.getIdentifiable(MERGE);
         assertEquals(m, merge);
-        // Subnetwork without elements shall still be empty
+        // Subnetwork without elements should not be created
         Network mSub = merge.getSubnetwork(SUBNETWORK_FROM_MERGE);
-        assertNotNull(mSub);
-        assertEquals(0, mSub.getSubstationCount());
-        assertEquals(0, mSub.getVoltageLevelCount());
+        assertNull(mSub);
         // Subnetwork with elements shall keep its elements
         Network m1 = merge.getSubnetwork(N1);
         assertNotNull(m1);

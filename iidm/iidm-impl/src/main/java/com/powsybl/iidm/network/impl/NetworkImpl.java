@@ -48,7 +48,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
      * Reference to the subnetwork, hence the contained subnetwork is always null until a merge occurs
      * This is used to easily update the subnetwork in all substations and voltage levels during the merge.
      */
-    private final RefChain<SubnetworkImpl> subnetworkRef = new RefChain<>(new RefObj<>(null));
+    private RefChain<SubnetworkImpl> subnetworkRef = new RefChain<>(new RefObj<>(null));
 
     private ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
     private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -902,8 +902,9 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
 
         // create the subnetwork corresponding to the current network
-        if (createSubnetworkForMyself) {
+        if (createSubnetworkForMyself && (voltageLevelsAtRoot() || substationsAtRoot())) {
             createSubnetwork(this, this);
+            subnetworkRef = new RefChain<>(new RefObj<>(null));
         }
 
         // try to find dangling lines couples
@@ -928,12 +929,6 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         // merge the indexes
         index.merge(otherNetwork.index);
 
-        // fix network back reference of the other network objects
-        for (SubnetworkImpl subnetwork : otherNetwork.subnetworks.values()) {
-            subnetwork.getRootNetworkRef().setRef(ref);
-            subnetworks.put(subnetwork.getId(), subnetwork);
-        }
-
         replaceDanglingLineByTieLine(lines);
 
         // update the source format
@@ -942,6 +937,14 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
 
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
+    }
+
+    private boolean voltageLevelsAtRoot() {
+        return getVoltageLevelStream().anyMatch(vl -> vl.getParentNetwork() == this);
+    }
+
+    private boolean substationsAtRoot() {
+        return getSubstationStream().anyMatch(s -> s.getParentNetwork() == this);
     }
 
     private static void createSubnetwork(NetworkImpl parent, NetworkImpl original) {
@@ -956,6 +959,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
                 original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat, original.getCaseDate());
         transferExtensions(original, sn);
         parent.subnetworks.put(idSubNetwork, sn);
+        parent.index.checkAndAdd(sn);
     }
 
     private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
