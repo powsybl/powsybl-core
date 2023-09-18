@@ -89,7 +89,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
             try (BufferedWriter bufferedWriter = Files.newBufferedWriter(
                 workingDir.resolve(amplInputFile.getFileName()),
                 StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW, StandardOpenOption.TRUNCATE_EXISTING)) {
-                amplInputFile.write(bufferedWriter, this.mapper);
+                amplInputFile.write(bufferedWriter, mapper);
             }
         }
     }
@@ -128,7 +128,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
             Path customFilePath = workingDir.resolve(amplOutputFile.getFileName());
             if (Files.isRegularFile(customFilePath)) {
                 try (BufferedReader reader = Files.newBufferedReader(customFilePath, StandardCharsets.UTF_8)) {
-                    amplOutputFile.read(reader, this.mapper);
+                    amplOutputFile.read(reader, mapper);
                 } catch (IOException e) {
                     LOGGER.error("Failed to read custom output file : " + customFilePath.toAbsolutePath(), e);
                     throw new UncheckedIOException(e);
