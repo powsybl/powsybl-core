@@ -42,6 +42,19 @@ SELECT *
         && !regex(?profile, "TopologyBoundary", "i"))
 }}
 
+# query: boundaryModelIds
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    # All model identifiers related to boundaries
+    ?FullModel
+        a md:FullModel ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
+        md:Model.profile ?profile .
+    FILTER (regex(?profile, "EquipmentBoundary", "i")
+        || regex(?profile, "TopologyBoundary", "i"))
+}}
+
 # query: modelDates
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
@@ -118,6 +131,34 @@ SELECT *
 { GRAPH ?graph {
     ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage .
 }}
+
+# query: countrySourcingActors
+prefix cgmbp: <http://entsoe.eu/CIM/Extensions/CGM-BP/2020#>
+SELECT *
+WHERE {
+    ?GeographicalRegion
+        a cim:GeographicalRegion ;
+        cim:IdentifiedObject.name "{0}" ;
+        cgmbp:NetworkRegion.sourcingActor ?sourcingActorName .
+}
+
+# query: sourcingActor
+prefix cgmbp: <http://entsoe.eu/CIM/Extensions/CGM-BP/2020#>
+SELECT *
+WHERE {
+    ?ModelingAuthority
+        a cgmbp:ModelingAuthority ;
+        cim:IdentifiedObject.name ?name ;
+        cgmbp:Party.sourceName "{0}" ;
+        cgmbp:Party.uri ?uri .
+    ?GeographicalRegion
+        a cim:GeographicalRegion ;
+        cim:IdentifiedObject.name ?geographicalRegionName ;
+        entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic ;
+        cgmbp:MARegion.ModelingAuthority ?ModelingAuthority ;
+        cgmbp:NetworkRegion.sourcingActor "{0}" ;
+        cgmbp:NetworkRegion.masUri ?masUri .
+}
 
 # query: substations
 SELECT *
@@ -496,6 +537,7 @@ WHERE {
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.connectionKind ?connectionKind }
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.phaseAngleClock ?phaseAngleClock }
     OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.g ?g }
+    OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.ratedS ?ratedS }
     OPTIONAL { ?RatioTapChanger cim:RatioTapChanger.TransformerEnd ?TransformerEnd }
     OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.TransformerEnd ?TransformerEnd }
 }}

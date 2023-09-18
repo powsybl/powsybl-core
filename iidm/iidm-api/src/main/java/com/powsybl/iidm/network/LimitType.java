@@ -13,5 +13,6 @@ public enum LimitType {
     ACTIVE_POWER,
     APPARENT_POWER,
     CURRENT,
-    VOLTAGE
+    VOLTAGE,
+    VOLTAGE_ANGLE
 }

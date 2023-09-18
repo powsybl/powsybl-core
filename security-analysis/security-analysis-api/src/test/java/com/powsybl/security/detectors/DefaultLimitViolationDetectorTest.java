@@ -35,6 +35,7 @@ class DefaultLimitViolationDetectorTest {
     private static Network networkWithFixedLimits;
     private static Network networkWithFixedCurrentLimitsOnDanglingLines;
     private static Network networkWithFixedLimitsOnDanglingLines;
+    private static Network networkWithVoltageAngleLimit;
     private LimitViolationDetector detector;
     private List<LimitViolation> violationsCollector;
 
@@ -44,6 +45,7 @@ class DefaultLimitViolationDetectorTest {
         networkWithFixedLimits = EurostagTutorialExample1Factory.createWithFixedLimits();
         networkWithFixedCurrentLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedCurrentLimitsOnDanglingLines();
         networkWithFixedLimitsOnDanglingLines = EurostagTutorialExample1Factory.createWithFixedLimitsOnDanglingLines();
+        networkWithVoltageAngleLimit = EurostagTutorialExample1Factory.createWithVoltageAngleLimit();
     }
 
     @BeforeEach
@@ -225,6 +227,70 @@ class DefaultLimitViolationDetectorTest {
                     assertEquals(LimitViolationType.LOW_VOLTAGE, v.getLimitType());
                     assertEquals(400, v.getLimit(), 0d);
                     assertEquals(380, v.getValue(), 0d);
+                    assertNull(v.getSide());
+                    assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
+                });
+    }
+
+    @Test
+    void detectVoltageAngleViolationRefToOther() {
+        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimitsStream().toList().get(0);
+        detector.checkVoltageAngle(voltageAngleLimit, 0.30, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+            .hasSize(1)
+            .allSatisfy(v -> {
+                assertEquals(LimitViolationType.HIGH_VOLTAGE_ANGLE, v.getLimitType());
+                assertEquals(0.25, v.getLimit(), 0d);
+                assertEquals(0.30, v.getValue(), 0d);
+                assertEquals(null, v.getSide());
+                assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
+            });
+    }
+
+    @Test
+    void detectVoltageAngleViolationOtherToRef() {
+        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimitsStream().toList().get(1);
+        detector.checkVoltageAngle(voltageAngleLimit, -0.30, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+            .hasSize(1)
+            .allSatisfy(v -> {
+                assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, v.getLimitType());
+                assertEquals(0.20, v.getLimit(), 0d);
+                assertEquals(-0.30, v.getValue(), 0d);
+                assertEquals(null, v.getSide());
+                assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
+            });
+    }
+
+    @Test
+    void detectVoltageAngleViolationHighAndLow1() {
+        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimitsStream().toList().get(2);
+        detector.checkVoltageAngle(voltageAngleLimit, -0.40, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+            .hasSize(1)
+            .allSatisfy(v -> {
+                assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, v.getLimitType());
+                assertEquals(-0.20, v.getLimit(), 0d);
+                assertEquals(-0.40, v.getValue(), 0d);
+                assertNull(v.getSide());
+                assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
+            });
+    }
+
+    @Test
+    void detectVoltageAngleViolationHighAndLow2() {
+        VoltageAngleLimit voltageAngleLimit = networkWithVoltageAngleLimit.getVoltageAngleLimitsStream().toList().get(2);
+        detector.checkVoltageAngle(voltageAngleLimit, 0.40, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+                .hasSize(1)
+                .allSatisfy(v -> {
+                    assertEquals(LimitViolationType.HIGH_VOLTAGE_ANGLE, v.getLimitType());
+                    assertEquals(0.35, v.getLimit(), 0d);
+                    assertEquals(0.40, v.getValue(), 0d);
                     assertNull(v.getSide());
                     assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
                 });

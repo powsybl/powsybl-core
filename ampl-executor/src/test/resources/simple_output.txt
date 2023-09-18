@@ -1,1 +1,1 @@
-test
+This file must be encoded in UTF-8 ! éèà

@@ -49,6 +49,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private final NetworkIndex index = new NetworkIndex();
 
+    private final Map<String, VoltageAngleLimit> voltageAngleLimitsIndex = new LinkedHashMap<>();
+
     private final VariantManagerImpl variantManager;
 
     private final NetworkListenerList listeners = new NetworkListenerList();
@@ -195,6 +197,25 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     public NetworkIndex getIndex() {
         return index;
+    }
+
+    public Map<String, VoltageAngleLimit> getVoltageAngleLimitsIndex() {
+        return voltageAngleLimitsIndex;
+    }
+
+    @Override
+    public VoltageAngleLimit getVoltageAngleLimit(String id) {
+        return voltageAngleLimitsIndex.get(id);
+    }
+
+    @Override
+    public Stream<VoltageAngleLimit> getVoltageAngleLimitsStream() {
+        return voltageAngleLimitsIndex.values().stream();
+    }
+
+    @Override
+    public Iterable<VoltageAngleLimit> getVoltageAngleLimits() {
+        return voltageAngleLimitsIndex.values();
     }
 
     @Override
@@ -367,11 +388,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer() {
-        return new TwoWindingsTransformerAdderImpl(ref);
-    }
-
-    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return Collections.unmodifiableCollection(index.getAll(TwoWindingsTransformerImpl.class));
     }
@@ -389,11 +405,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
         return index.get(id, TwoWindingsTransformerImpl.class);
-    }
-
-    @Override
-    public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
-        return new ThreeWindingsTransformerAdderImpl(ref);
     }
 
     @Override
@@ -719,6 +730,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public VoltageAngleLimitAdder newVoltageAngleLimit() {
+        return new VoltageAngleLimitAdderImpl(ref);
+    }
+
+    @Override
     public BusBreakerViewImpl getBusBreakerView() {
         return busBreakerView;
     }
@@ -913,6 +929,15 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             }
         }
 
+        //Check mergeability of voltage angle limits
+        Set<String> intersectionVoltageAngleLimits = getVoltageAngleLimitsIndex().keySet().stream()
+                .filter(otherNetwork.getVoltageAngleLimitsIndex()::containsKey)
+                .collect(Collectors.toSet());
+        if (!intersectionVoltageAngleLimits.isEmpty()) {
+            throw new PowsyblException("The following voltage angle limit(s) exist(s) in both networks: "
+                    + intersectionVoltageAngleLimits);
+        }
+
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
         Map<String, List<DanglingLine>> dl1byXnodeCode = new HashMap<>();
@@ -936,6 +961,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         otherNetwork.ref.setRef(ref);
 
         replaceDanglingLineByLine(lines);
+
+        other.getVoltageAngleLimits().forEach(l -> getVoltageAngleLimitsIndex().put(l.getId(), l));
 
         // update the source format
         if (!sourceFormat.equals(otherNetwork.sourceFormat)) {

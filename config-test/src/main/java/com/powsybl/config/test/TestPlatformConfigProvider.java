@@ -61,11 +61,7 @@ public class TestPlatformConfigProvider implements PlatformConfigProvider {
         InputStream resourceList = TestPlatformConfigProvider.class.getResourceAsStream(FILELIST_PATH);
         List<String> resources;
         if (resourceList != null) {
-            try {
-                resources = IOUtils.readLines(resourceList, StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            resources = IOUtils.readLines(resourceList, StandardCharsets.UTF_8);
         } else {
             resources = Collections.emptyList();
         }
