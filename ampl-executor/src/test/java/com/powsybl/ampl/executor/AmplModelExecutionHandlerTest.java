@@ -151,7 +151,7 @@ class AmplModelExecutionHandlerTest {
             }
 
             @Override
-            public void read(StringToIntMapper<AmplSubset> networkAmplMapper, BufferedReader reader) throws IOException {
+            public void read(BufferedReader reader, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException {
                 throw new IOException("Dummy custom fail, failing read.");
             }
         };
@@ -178,7 +178,7 @@ class AmplModelExecutionHandlerTest {
             }
 
             @Override
-            public void read(StringToIntMapper<AmplSubset> networkAmplMapper, BufferedReader reader) {
+            public void read(BufferedReader reader, StringToIntMapper<AmplSubset> networkAmplMapper) {
             }
         };
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
@@ -190,7 +190,6 @@ class AmplModelExecutionHandlerTest {
 
     private CompletableFuture<AmplResults> runCustomOutputFile(FileSystem fs,
                                                                AmplOutputFile customOutput) throws IOException {
-        CompletableFuture<AmplResults> result;
         Files.createDirectory(fs.getPath("/workingDir"));
         // Test data
         Network network = EurostagTutorialExample1Factory.create();
@@ -214,10 +213,9 @@ class AmplModelExecutionHandlerTest {
             };
             AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg,
                 parameters);
-            result = manager.execute(env, handler);
+            return manager.execute(env, handler);
 
         }
-        return result;
     }
 
     private AmplConfig getAmplConfig() {

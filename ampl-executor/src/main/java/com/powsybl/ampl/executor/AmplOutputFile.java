@@ -32,9 +32,9 @@ public interface AmplOutputFile {
      * Read data from a file though a {@link BufferedReader}.
      * Will be called if the Ampl solve is successful.
      *
+     * @param reader            reader to the file, opened in UTF-8
      * @param networkAmplMapper mapper to convert {@link com.powsybl.iidm.network.Network} IDs to Ampl IDs
      *                          and vice versa
-     * @param reader            reader to the file, opened in UTF-8
      */
-    void read(StringToIntMapper<AmplSubset> networkAmplMapper, BufferedReader reader) throws IOException;
+    void read(BufferedReader reader, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException;
 }

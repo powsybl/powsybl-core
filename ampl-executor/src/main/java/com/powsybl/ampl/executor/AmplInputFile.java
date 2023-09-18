@@ -27,9 +27,9 @@ public interface AmplInputFile {
     /**
      * Write data to file via a {@link BufferedWriter}. Called before the ampl solve.
      *
+     * @param writer            writer encoded in UTF-8 to write data to the file
      * @param networkAmplMapper mapper to convert {@link com.powsybl.iidm.network.Network} IDs to Ampl IDs
      *                          and vice versa
-     * @param writer            writer encoded in UTF-8 to write data to the file
      */
-    void write(StringToIntMapper<AmplSubset> networkAmplMapper, BufferedWriter writer) throws IOException;
+    void write(BufferedWriter writer, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException;
 }
