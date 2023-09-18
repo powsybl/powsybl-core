@@ -53,68 +53,54 @@ class FaultResultDeserializer {
 
             while (parser.nextToken() != JsonToken.END_OBJECT) {
                 switch (parser.getCurrentName()) {
-                    case "fault":
+                    case "fault" -> {
                         parser.nextToken();
                         fault = JsonUtil.readValue(deserializationContext, parser, Fault.class);
-                        break;
-
-                    case "shortCircuitPower":
+                    }
+                    case "shortCircuitPower" -> {
                         parser.nextToken();
                         shortCircuitPower = parser.readValueAs(Double.class);
-                        break;
-
-                    case "timeConstant":
+                    }
+                    case "timeConstant" -> {
                         parser.nextToken();
                         timeConstant = Duration.parse(parser.readValueAs(String.class));
-                        break;
-
-                    case "feederResult":
+                    }
+                    case "feederResult" -> {
                         parser.nextToken();
                         feederResults = JsonUtil.readList(deserializationContext, parser, FeederResult.class);
-                        break;
-
-                    case "limitViolations":
+                    }
+                    case "limitViolations" -> {
                         parser.nextToken();
                         limitViolations = JsonUtil.readList(deserializationContext, parser, LimitViolation.class);
-                        break;
-
-                    case "current":
+                    }
+                    case "current" -> {
                         parser.nextToken();
                         current = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
-                        break;
-
-                    case "voltage":
+                    }
+                    case "voltage" -> {
                         parser.nextToken();
                         voltage = JsonUtil.readValue(deserializationContext, parser, FortescueValue.class);
-                        break;
-
-                    case "currentMagnitude":
+                    }
+                    case "currentMagnitude" -> {
                         parser.nextToken();
                         currentMagnitude = parser.readValueAs(Double.class);
-                        break;
-
-                    case "voltageMagnitude":
+                    }
+                    case "voltageMagnitude" -> {
                         parser.nextToken();
                         voltageMagnitude = parser.readValueAs(Double.class);
-                        break;
-
-                    case "shortCircuitBusResults":
-                        shortCircuitBusResults = new ShortCircuitBusResultsDeserializer().deserialize(parser, version);
-                        break;
-
-                    case "status":
+                    }
+                    case "shortCircuitBusResults" ->
+                            shortCircuitBusResults = new ShortCircuitBusResultsDeserializer().deserialize(parser, version);
+                    case "status" -> {
                         JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.1");
                         parser.nextToken();
                         status = FaultResult.Status.valueOf(parser.getValueAsString());
-                        break;
-
-                    case "extensions":
+                    }
+                    case "extensions" -> {
                         parser.nextToken();
                         extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
-                        break;
-
-                    default:
-                        throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    }
+                    default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
                 }
             }
 
