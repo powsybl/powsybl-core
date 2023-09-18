@@ -31,9 +31,7 @@ class JsonFaultParametersTest extends AbstractConverterTest {
     void roundTrip() throws IOException {
         List<FaultParameters> parameters = new ArrayList<>();
         parameters.add(new FaultParameters("f00", false, false, true, StudyType.STEADY_STATE, 1.0, true, Double.NaN, true, true, true, true, InitialVoltageProfileMode.NOMINAL, null));
-        List<VoltageRange> voltageRanges = new ArrayList<>();
-        voltageRanges.add(new VoltageRange(0, 230, 1));
-        voltageRanges.add(new VoltageRange(235, 400, 1.05));
+        List<VoltageRange> voltageRanges = List.of(new VoltageRange(0, 230, 1), new VoltageRange(235, 400, 1.05));
         parameters.add(new FaultParameters("f01", false, true, false, null, Double.NaN, true, Double.NaN, true, true, false, false, InitialVoltageProfileMode.CONFIGURED, voltageRanges));
         parameters.add(new FaultParameters("f10", true, false, false, null, Double.NaN, false, Double.NaN, false, true, false, false, InitialVoltageProfileMode.NOMINAL, null));
         parameters.add(new FaultParameters("f11", true, true, false, null, Double.NaN, false, Double.NaN, false, false, false, false, null, null));

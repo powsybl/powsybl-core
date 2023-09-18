@@ -85,7 +85,7 @@ public class VoltageRange {
             return false;
         }
         VoltageRange that = (VoltageRange) o;
-        return Objects.equals(range, that.range) && Objects.equals(rangeCoefficient, that.rangeCoefficient);
+        return range.equals(that.range) && rangeCoefficient == that.rangeCoefficient;
     }
 
     @Override
