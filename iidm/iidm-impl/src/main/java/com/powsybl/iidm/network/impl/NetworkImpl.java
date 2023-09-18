@@ -1089,24 +1089,14 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>Since {@link NetworkImpl} instances are independent networks, they have no boundary elements.</p>
-     * @return an empty set
-     */
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
-        return Collections.emptySet();
+        return getDanglingLineStream(DanglingLineFilter.UNPAIRED).collect(Collectors.toSet());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>Since {@link NetworkImpl} instances are independent networks, they have no boundary elements.</p>
-     * @return false
-     */
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
-        return false;
+        return identifiable.getType() == IdentifiableType.DANGLING_LINE && !((DanglingLine) identifiable).isPaired();
     }
 
     @Override

@@ -16,10 +16,7 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -720,9 +717,11 @@ public class SubnetworkImpl extends AbstractNetwork {
 
         // Remove tie-lines
         boundaryElements.stream()
-                .filter(i -> i.getType() == IdentifiableType.TIE_LINE)
-                .map(TieLineImpl.class::cast)
-                .forEach(t -> t.remove(true));
+                .filter(DanglingLine.class::isInstance)
+                .map(DanglingLine.class::cast)
+                .map(DanglingLine::getTieLine)
+                .filter(Optional::isPresent)
+                .forEach(t -> t.get().remove(true));
 
         // Create a new NetworkImpl and transfer the extensions to it
         NetworkImpl detachedNetwork = new NetworkImpl(getId(), getNameOrId(), getSourceFormat());
@@ -786,21 +785,19 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     private static boolean isSplittable(Identifiable<?> identifiable) {
-        return identifiable.getType() == IdentifiableType.TIE_LINE;
+        return identifiable.getType() == IdentifiableType.DANGLING_LINE;
     }
 
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
         // transformers cannot link different subnetworks for the moment.
-        Stream<Line> lines = getNetwork().getLineStream();
-        Stream<TieLine> tieLineStream = getNetwork().getTieLineStream();
-        Stream<HvdcLine> hvdcLineStream = getNetwork().getHvdcLineStream();
+        Stream<Line> lines = getNetwork().getLineStream().filter(i -> i.getParentNetwork() == getNetwork());
+        Stream<DanglingLine> danglingLineStream = getDanglingLineStream();
+        Stream<HvdcLine> hvdcLineStream = getNetwork().getHvdcLineStream().filter(i -> i.getParentNetwork() == getNetwork());
 
-        return Stream.of(lines, tieLineStream, hvdcLineStream)
+        return Stream.of(lines, danglingLineStream, hvdcLineStream)
                 .flatMap(Function.identity())
                 .map(o -> (Identifiable<?>) o)
-                // Boundary elements are not entirely contained by the subnetwork => they are registered in the parent network
-                .filter(i -> i.getParentNetwork() == getNetwork())
                 .filter(this::isBoundaryElement)
                 .collect(Collectors.toSet());
     }
@@ -810,6 +807,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         return switch (identifiable.getType()) {
             case LINE, TIE_LINE -> isBoundary((Branch<?>) identifiable);
             case HVDC_LINE -> isBoundary((HvdcLine) identifiable);
+            case DANGLING_LINE -> isBoundary((DanglingLine) identifiable);
             default -> false;
         };
     }
@@ -821,6 +819,12 @@ public class SubnetworkImpl extends AbstractNetwork {
     private boolean isBoundary(HvdcLine hvdcLine) {
         return isBoundary(hvdcLine.getConverterStation1().getTerminal(),
                 hvdcLine.getConverterStation2().getTerminal());
+    }
+
+    private boolean isBoundary(DanglingLine danglingLine) {
+        return danglingLine.getTieLine()
+                .map(this::isBoundary)
+                .orElse(true);
     }
 
     private boolean isBoundary(Terminal terminal1, Terminal terminal2) {
