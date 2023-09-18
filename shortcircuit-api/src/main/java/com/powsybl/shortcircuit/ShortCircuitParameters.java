@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.function.Function;
 
 import static com.powsybl.commons.json.JsonUtil.createObjectMapper;
 import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
@@ -91,9 +91,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     private static List<VoltageRange> getVoltageRangesFromConfig(ModuleConfig config) {
-        Optional<Path> optionalVoltageRangePath = config.getOptionalPathProperty("voltage-ranges");
-        if (optionalVoltageRangePath.isPresent()) {
-            Path voltageRangePath = optionalVoltageRangePath.get();
+        return config.getOptionalPathProperty("voltage-ranges").map((Function<Path, List<VoltageRange>>) voltageRangePath -> {
             ObjectMapper mapper = createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
             try (InputStream is = Files.newInputStream(voltageRangePath)) {
                 return mapper.readValue(is, new TypeReference<>() {
@@ -101,8 +99,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
-        }
-        return Collections.emptyList();
+        }).orElse(Collections.emptyList());
     }
 
     private void readExtensions(PlatformConfig platformConfig) {
