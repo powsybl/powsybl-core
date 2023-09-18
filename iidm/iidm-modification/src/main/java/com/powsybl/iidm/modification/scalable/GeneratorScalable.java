@@ -186,7 +186,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
     }
 
     @Override
-    public double getCurrentPower(Network network, ScalingConvention scalingConvention) {
+    public double getOngoingPower(Network network, ScalingConvention scalingConvention) {
         Generator generator = network.getGenerator(id);
         if (generator == null) {
             LOGGER.warn("Generator {} not found", id);

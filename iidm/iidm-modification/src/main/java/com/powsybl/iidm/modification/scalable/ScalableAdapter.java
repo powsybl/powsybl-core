@@ -91,7 +91,7 @@ class ScalableAdapter extends AbstractScalable {
     }
 
     @Override
-    public double getCurrentPower(Network network, ScalingConvention scalingConvention) {
-        return getScalable(network).getCurrentPower(network, scalingConvention);
+    public double getOngoingPower(Network network, ScalingConvention scalingConvention) {
+        return getScalable(network).getOngoingPower(network, scalingConvention);
     }
 }
