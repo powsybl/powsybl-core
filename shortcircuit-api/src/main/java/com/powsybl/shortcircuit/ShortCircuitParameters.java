@@ -82,7 +82,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
                         .setWithVSCConverterStations(config.getBooleanProperty("with-vsc-converter-stations", DEFAULT_WITH_VSC_CONVERTER_STATIONS))
                         .setWithNeutralPosition(config.getBooleanProperty("with-neutral-position", DEFAULT_WITH_NEUTRAL_POSITION))
                         .setInitialVoltageProfileMode(config.getEnumProperty("initial-voltage-profile-mode", InitialVoltageProfileMode.class, DEFAULT_INITIAL_VOLTAGE_PROFILE_MODE))
-                        .setVoltageRanges(getVoltageRangesFromConfig(config, platformConfig)));
+                        .setVoltageRanges(getVoltageRangesFromConfig(config)));
 
         parameters.validate();
         parameters.readExtensions(platformConfig);
@@ -90,12 +90,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return parameters;
     }
 
-    private static List<VoltageRange> getVoltageRangesFromConfig(ModuleConfig config, PlatformConfig platformConfig) {
+    private static List<VoltageRange> getVoltageRangesFromConfig(ModuleConfig config) {
         Optional<Path> optionalVoltageRangePath = config.getOptionalPathProperty("voltage-ranges");
         if (optionalVoltageRangePath.isPresent()) {
-            Path voltageRangePath = platformConfig.getConfigDir()
-                    .map(dir -> dir.resolve(optionalVoltageRangePath.get()))
-                    .orElseThrow(() -> new PowsyblException("Voltage ranges file inaccessible from config directory"));
+            Path voltageRangePath = optionalVoltageRangePath.get();
             ObjectMapper mapper = createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
             try (InputStream is = Files.newInputStream(voltageRangePath)) {
                 return mapper.readValue(is, new TypeReference<>() {

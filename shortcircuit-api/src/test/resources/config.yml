@@ -11,4 +11,4 @@ short-circuit-parameters:
   with-vsc-converter-stations: false
   with-neutral-position: true
   initial-voltage-profile-mode: "CONFIGURED"
-  voltage-ranges: "voltage-ranges.json"
+  voltage-ranges: "config/voltage-ranges.json"
