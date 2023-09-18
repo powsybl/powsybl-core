@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.RefChain;
+import com.powsybl.iidm.network.impl.util.RefObj;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +32,27 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubnetworkImpl.class);
 
+    /**
+     * Reference to the root network, hence the parent network in this implementation (only one level of subnetworks).
+     * This is used to easily update the root network in all equipments when detaching this subnetwork.
+     */
     private final RefChain<NetworkImpl> rootNetworkRef;
 
+    /**
+     * Reference to current subnetwork. This is used to easily update the subnetwork reference in substations / voltage
+     * levels when detaching this subnetwork.
+     */
+    private final RefChain<SubnetworkImpl> ref;
+
     SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, String id, String name, String sourceFormat) {
+        this(rootNetworkRef, new RefChain<>(new RefObj<>(null)), id, name, sourceFormat);
+    }
+
+    SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, RefChain<SubnetworkImpl> subnetworkRef, String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
         this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
+        this.ref = Objects.requireNonNull(subnetworkRef);
+        this.ref.setRef(new RefObj<>(this));
     }
 
     public RefChain<NetworkImpl> getRootNetworkRef() {
@@ -84,7 +101,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public SubstationAdder newSubstation() {
-        return new SubstationAdderImpl(rootNetworkRef, id);
+        return new SubstationAdderImpl(rootNetworkRef, ref);
     }
 
     @Override
@@ -124,7 +141,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return new VoltageLevelAdderImpl(rootNetworkRef, id);
+        return new VoltageLevelAdderImpl(rootNetworkRef, ref);
     }
 
     @Override
@@ -686,8 +703,9 @@ public class SubnetworkImpl extends AbstractNetwork {
         Collection<Identifiable<?>> identifiables = getIdentifiables();
 
         // Move the substations and voltageLevels to the new network
-        getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(null));
-        getVoltageLevelStream().forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(null));
+        ref.setRef(new RefObj<>(null));
+//        getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetworkRef(null));
+//        getVoltageLevelStream().forEach(v -> ((AbstractVoltageLevel) v).setSubnetworkRef(null));
 
         // Remove the old subnetwork from the subnetworks list of the current parent network
         NetworkImpl previousRootNetwork = rootNetworkRef.get();

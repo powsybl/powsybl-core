@@ -111,7 +111,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         }
         VoltageLevelExt vl1 = converterStation1.getTerminal().getVoltageLevel();
         VoltageLevelExt vl2 = converterStation2.getTerminal().getVoltageLevel();
-        if (subnetwork != null && (!subnetwork.equals(vl1.getSubnetwork()) || !subnetwork.equals(vl2.getSubnetwork()))) {
+        if (subnetwork != null && (!subnetwork.equals(vl1.getSubnetworkId()) || !subnetwork.equals(vl2.getSubnetworkId()))) {
             throw new ValidationException(this, "The converter stations are not in the subnetwork '" +
                     subnetwork + "'. Create this Hvdc line from the parent network '" + getNetwork().getId() + "'");
         }

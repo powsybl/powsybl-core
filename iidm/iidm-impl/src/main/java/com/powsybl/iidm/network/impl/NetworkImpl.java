@@ -38,7 +38,17 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
+    /**
+     * Reference to current network. This is used to easily update the root network reference in all equipments
+     * when merging two networks.
+     */
     private final RefChain<NetworkImpl> ref = new RefChain<>(new RefObj<>(this));
+
+    /**
+     * Reference to the subnetwork, hence the contained subnetwork is always null until a merge occurs
+     * This is used to easily update the subnetwork in all substations and voltage levels during the merge.
+     */
+    private final RefChain<SubnetworkImpl> subnetworkRef = new RefChain<>(new RefObj<>(null));
 
     private ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
     private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -194,7 +204,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public SubstationAdder newSubstation() {
-        return new SubstationAdderImpl(ref, null);
+        return new SubstationAdderImpl(ref, subnetworkRef);
     }
 
     @Override
@@ -229,7 +239,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return new VoltageLevelAdderImpl(ref, null);
+        return new VoltageLevelAdderImpl(ref, subnetworkRef);
     }
 
     @Override
@@ -893,10 +903,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         // create the subnetwork corresponding to the current network (if it doesn't already exist)
         if (allowSubnetworkCreationForMyself) {
-            SubnetworkImpl n = createSubnetwork(this, this);
-            subnetworks.put(n.getId(), n);
-            getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubnetwork(n.getId()));
-            getVoltageLevelStream().filter(v -> v.getParentNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(n.getId()));
+            createSubnetwork(this, this);
         }
 
         // try to find dangling lines couples
@@ -912,11 +919,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             findAndAssociateDanglingLines(dl2, dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 
-        // create subnetworks for the other network
-        otherNetwork.getRef().setRef(ref);
-        subnetworks.put(otherNetwork.getId(), createSubnetwork(this, otherNetwork));
-        otherNetwork.getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(otherNetwork.id));
-        otherNetwork.getVoltageLevelStream().forEach(vl -> ((VoltageLevelExt) vl).setSubnetwork(otherNetwork.id));
+        // create a subnetwork for the other network
+        createSubnetwork(this, otherNetwork);
 
         // do not forget to remove the other network from its index!!!
         otherNetwork.index.remove(otherNetwork);
@@ -940,15 +944,18 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private static SubnetworkImpl createSubnetwork(NetworkImpl parent, NetworkImpl original) {
-        RefChain<NetworkImpl> originalRootNetworkRef = original.getRef();
-        originalRootNetworkRef.setRef(new RefChain<>(new RefObj<>(parent)));
+    private static void createSubnetwork(NetworkImpl parent, NetworkImpl original) {
+        // The root network reference should point to parent and not original anymore
+        // All substations/voltage levels will this way refer to parent instead of original
+        original.ref.setRef(new RefObj<>(parent));
+
+        // Handles the case of creating a subnetwork for itself without duplicating the id
         String idSubNetwork = parent != original ? original.getId() : Identifiables.getUniqueId(original.getId(), parent.getIndex()::contains);
-        SubnetworkImpl sn = new SubnetworkImpl(originalRootNetworkRef, idSubNetwork, original.getOptionalName().orElse(null),
-                original.getSourceFormat());
+
+        SubnetworkImpl sn = new SubnetworkImpl(original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat);
         sn.setCaseDate(original.getCaseDate());
         transferExtensions(original, sn);
-        return sn;
+        parent.subnetworks.put(idSubNetwork, sn);
     }
 
     private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {

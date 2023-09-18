@@ -59,9 +59,7 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     void invalidateCache(boolean exceptBusBreakerView);
 
-    void setSubnetwork(String subnetwork);
-
-    String getSubnetwork();
+    String getSubnetworkId();
 
     Ref<NetworkImpl> getNetworkRef();
 }

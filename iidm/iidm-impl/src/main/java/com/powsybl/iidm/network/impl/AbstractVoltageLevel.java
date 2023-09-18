@@ -31,6 +31,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     public static final int NODE_INDEX_LIMIT = loadNodeIndexLimit(PlatformConfig.defaultConfig());
 
     private final Ref<NetworkImpl> networkRef;
+    private Ref<SubnetworkImpl> subnetworkRef;
 
     private final SubstationImpl substation;
 
@@ -42,13 +43,12 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private boolean removed = false;
 
-    private String subnetwork = null;
-
     AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> networkRef,
-                         double nominalV, double lowVoltageLimit, double highVoltageLimit) {
+                         Ref<SubnetworkImpl> subnetworkRef, double nominalV, double lowVoltageLimit, double highVoltageLimit) {
         super(id, name, fictitious);
         this.substation = substation;
         this.networkRef = networkRef;
+        this.subnetworkRef = subnetworkRef;
         this.nominalV = nominalV;
         this.lowVoltageLimit = lowVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
@@ -62,13 +62,8 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public void setSubnetwork(String subnetwork) {
-        this.subnetwork = subnetwork;
-    }
-
-    @Override
-    public String getSubnetwork() {
-        return subnetwork;
+    public String getSubnetworkId() {
+        return Optional.ofNullable(subnetworkRef.get()).map(Identifiable::getId).orElse(null);
     }
 
     @Override
@@ -108,8 +103,8 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public Network getParentNetwork() {
-        Network network = getNetwork();
-        return subnetwork == null ? network : network.getSubnetwork(subnetwork);
+        SubnetworkImpl subnetwork = subnetworkRef.get();
+        return subnetwork != null ? subnetwork : getNetwork();
     }
 
     private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
