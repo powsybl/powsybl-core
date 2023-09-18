@@ -31,6 +31,11 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
         checkVoltage(null, bus, voltageValue, consumer);
     }
 
+    @Override
+    public void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, double voltageAngleDifference, Consumer<LimitViolation> consumer) {
+        checkVoltageAngle(null, voltageAngleLimit, voltageAngleDifference, consumer);
+    }
+
     /**
      * This implementation takes the current value to be checked from the Network.
      */
@@ -45,6 +50,18 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     @Override
     public void checkVoltage(Contingency contingency, Bus bus, Consumer<LimitViolation> consumer) {
         checkVoltage(contingency, bus, bus.getV(), consumer);
+    }
+
+    @Override
+    public void checkVoltageAngle(Contingency contingency, VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
+        Bus referenceBus = voltageAngleLimit.getTerminalFrom().getBusView().getBus();
+        Bus otherBus = voltageAngleLimit.getTerminalTo().getBusView().getBus();
+        if (referenceBus != null && otherBus != null
+            && referenceBus.getConnectedComponent().getNum() == otherBus.getConnectedComponent().getNum()
+            && referenceBus.getSynchronousComponent().getNum() == otherBus.getSynchronousComponent().getNum()) {
+            double voltageAngleDifference = otherBus.getAngle() - referenceBus.getAngle();
+            checkVoltageAngle(contingency, voltageAngleLimit, voltageAngleDifference, consumer);
+        }
     }
 
     @Override
@@ -64,5 +81,6 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
         network.getVoltageLevelStream()
                 .flatMap(v -> v.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(contingency, b, consumer));
+        network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(contingency, valOk, consumer));
     }
 }
