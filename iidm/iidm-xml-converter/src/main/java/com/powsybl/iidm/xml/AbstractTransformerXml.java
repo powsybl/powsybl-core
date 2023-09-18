@@ -19,7 +19,7 @@ import java.util.function.DoubleConsumer;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractTransformerXml<T extends Connectable<T>, A extends IdentifiableAdder<T, A>> extends AbstractSimpleIdentifiableXml<T, A, Container<? extends Identifiable<?>>> {
+abstract class AbstractTransformerXml<T extends Connectable<T>, A extends IdentifiableAdder<T, A>> extends AbstractSimpleIdentifiableXml<T, A, Substation> {
 
     private interface StepConsumer {
         void accept(double r, double x, double g, double b, double rho);
@@ -108,7 +108,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
             switch (context.getReader().getLocalName()) {
                 case ELEM_TERMINAL_REF:
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
-                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getNetwork(), id, side));
+                        adder.setRegulationTerminal(TerminalRefXml.resolve(id, side, terminal.getVoltageLevel().getNetwork()));
                         adder.add();
                     });
                     break;
@@ -179,7 +179,7 @@ abstract class AbstractTransformerXml<T extends Connectable<T>, A extends Identi
             switch (context.getReader().getLocalName()) {
                 case ELEM_TERMINAL_REF:
                     readTerminalRef(context, hasTerminalRef, (id, side) -> {
-                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getNetwork(), id, side));
+                        adder.setRegulationTerminal(TerminalRefXml.resolve(id, side, terminal.getVoltageLevel().getNetwork()));
                         adder.add();
                     });
                     break;
