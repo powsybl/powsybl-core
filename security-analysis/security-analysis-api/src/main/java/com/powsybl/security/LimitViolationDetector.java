@@ -91,6 +91,33 @@ public interface LimitViolationDetector {
     }
 
     /**
+     * Checks whether the specified angle difference between the TerminalRefs on the specified {@link VoltageAngleLimit}
+     * should be considered as a {@link LimitViolation} or not.
+     * In case it should, returns the corresponding limit violation.
+     *
+     * @param contingency               The contingency for which angle difference must be checked, {@code null} for N situation.
+     * @param voltageAngleLimit         The voltageAngleLimit defining the TerminalRefs on which the angle difference must be checked.
+     * @param voltageAngleDifference    The angle difference value to be checked.
+     * @param consumer                  Will be fed with possibly created limit violations.
+     */
+    default void checkVoltageAngle(Contingency contingency, VoltageAngleLimit voltageAngleLimit, double voltageAngleDifference, Consumer<LimitViolation> consumer) {
+        checkVoltageAngle(voltageAngleLimit, voltageAngleDifference, consumer);
+    }
+
+    /**
+     * Checks whether the angle difference value between the TerminalRefs on the specified {@link VoltageAngleLimit}
+     * should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param contingency       The contingency for which angle difference must be checked, {@code null} for N situation.
+     * @param voltageAngleLimit The voltageAngleLimit defining the TerminalRefs on which the angle difference must be checked.
+     * @param consumer          Will be fed with possibly created limit violations.
+     */
+    default void checkVoltageAngle(Contingency contingency, VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
+        checkVoltageAngle(voltageAngleLimit, consumer);
+    }
+
+    /**
      * Checks whether the current value on both sides of the specified {@link Branch}
      * should be considered as {@link LimitViolation}(s).
      * In case it should, feeds the consumer with it.
@@ -206,6 +233,27 @@ public interface LimitViolationDetector {
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkVoltage(VoltageLevel voltageLevel, Consumer<LimitViolation> consumer);
+
+    /**
+     * Checks whether the specified voltage value on the specified {@link Bus}
+     * should be considered as a {@link LimitViolation} or not.
+     * In case it should, returns the corresponding limit violation.
+     *
+     * @param voltageAngleLimit         The voltageAngleLimit defining TerminalRefs on which the angle difference must be checked.
+     * @param voltageAngleDifference    The voltage angle difference to be checked, in degrees.
+     * @param consumer                  Will be fed with possibly created limit violations.
+     */
+    void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, double voltageAngleDifference, Consumer<LimitViolation> consumer);
+
+    /**
+     * Checks whether the voltage angle difference between the TerminalRefs defined on the specified {@link VoltageAngleLimit}
+     * should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param voltageAngleLimit The voltageAngleLimit defining the TerminalRefs on which the angle difference must be checked.
+     * @param consumer          Will be fed with possibly created limit violations.
+     */
+    void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer);
 
     /**
      * Checks whether the current value on both sides of the specified {@link Branch}
