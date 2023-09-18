@@ -97,7 +97,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                 String side = networkContext.getReader().getAttributeValue(null, "side");
                 networkContext.getEndTasks().add(() -> {
                     Network network = extendable.getNetwork();
-                    terminalMockExt.setTerminal(TerminalRefXml.readTerminalRef(network, id, side));
+                    terminalMockExt.setTerminal(TerminalRefXml.resolve(id, side, network));
                 });
             } else {
                 throw new IllegalStateException("Unexpected element: " + networkContext.getReader().getLocalName());
