@@ -262,5 +262,5 @@ public interface Scalable {
      * @param network Network in which the injections are defined
      * @return the current power value
      */
-    double getOngoingPower(Network network, ScalingConvention scalingConvention);
+    double getSteadyStatePower(Network network, ScalingConvention scalingConvention);
 }

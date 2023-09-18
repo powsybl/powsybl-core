@@ -66,7 +66,7 @@ class UpDownScalable extends AbstractScalable {
     }
 
     @Override
-    public double getOngoingPower(Network network, ScalingConvention scalingConvention) {
+    public double getSteadyStatePower(Network network, ScalingConvention scalingConvention) {
         throw new PowsyblException("getCurrentPower should not be used on UpDownScalable, only on other types of Scalable");
     }
 }

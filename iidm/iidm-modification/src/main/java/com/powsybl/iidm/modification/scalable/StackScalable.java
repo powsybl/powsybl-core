@@ -39,7 +39,7 @@ class StackScalable extends AbstractCompoundScalable {
         Objects.requireNonNull(n);
 
         // Compute the current power value
-        double currentGlobalPower = getOngoingPower(n, parameters.getScalingConvention());
+        double currentGlobalPower = getSteadyStatePower(n, parameters.getScalingConvention());
 
         // Variation asked
         double variationAsked = Scalable.getVariationAsked(parameters, asked, currentGlobalPower);
@@ -57,7 +57,7 @@ class StackScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    public double getOngoingPower(Network network, ScalingConvention scalingConvention) {
-        return scalables.stream().mapToDouble(scalable -> scalable.getOngoingPower(network, scalingConvention)).sum();
+    public double getSteadyStatePower(Network network, ScalingConvention scalingConvention) {
+        return scalables.stream().mapToDouble(scalable -> scalable.getSteadyStatePower(network, scalingConvention)).sum();
     }
 }

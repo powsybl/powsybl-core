@@ -91,7 +91,7 @@ class UpDownScalableTest {
         Scalable upDownScalable = Scalable.upDown(upScalable, downScalable);
 
         // Error raised
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> upDownScalable.getOngoingPower(testNetwork, Scalable.ScalingConvention.LOAD));
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> upDownScalable.getSteadyStatePower(testNetwork, Scalable.ScalingConvention.LOAD));
         assertEquals("getCurrentPower should not be used on UpDownScalable, only on other types of Scalable", e0.getMessage());
     }
 }
