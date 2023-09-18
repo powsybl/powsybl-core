@@ -866,7 +866,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         merge(other, true);
     }
 
-    private void merge(Network other, boolean allowSubnetworkCreationForMyself) {
+    private void merge(Network other, boolean createSubnetworkForMyself) {
         checkIndependentNetwork(other);
         NetworkImpl otherNetwork = (NetworkImpl) other;
 
@@ -901,8 +901,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             }
         }
 
-        // create the subnetwork corresponding to the current network (if it doesn't already exist)
-        if (allowSubnetworkCreationForMyself) {
+        // create the subnetwork corresponding to the current network
+        if (createSubnetworkForMyself) {
             createSubnetwork(this, this);
         }
 
@@ -952,8 +952,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         // Handles the case of creating a subnetwork for itself without duplicating the id
         String idSubNetwork = parent != original ? original.getId() : Identifiables.getUniqueId(original.getId(), parent.getIndex()::contains);
 
-        SubnetworkImpl sn = new SubnetworkImpl(original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat);
-        sn.setCaseDate(original.getCaseDate());
+        SubnetworkImpl sn = new SubnetworkImpl(
+                original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat, original.getCaseDate());
         transferExtensions(original, sn);
         parent.subnetworks.put(idSubNetwork, sn);
     }

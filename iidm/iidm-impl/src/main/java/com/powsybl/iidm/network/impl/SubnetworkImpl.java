@@ -12,6 +12,7 @@ import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,14 +46,17 @@ public class SubnetworkImpl extends AbstractNetwork {
     private final RefChain<SubnetworkImpl> ref;
 
     SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, String id, String name, String sourceFormat) {
-        this(rootNetworkRef, new RefChain<>(new RefObj<>(null)), id, name, sourceFormat);
+        super(id, name, sourceFormat);
+        this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
+        this.ref = new RefChain<>(new RefObj<>(this));
     }
 
-    SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, RefChain<SubnetworkImpl> subnetworkRef, String id, String name, String sourceFormat) {
+    SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, RefChain<SubnetworkImpl> subnetworkRef, String id, String name, String sourceFormat, DateTime caseDate) {
         super(id, name, sourceFormat);
         this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
         this.ref = Objects.requireNonNull(subnetworkRef);
         this.ref.setRef(new RefObj<>(this));
+        setCaseDate(caseDate);
     }
 
     public RefChain<NetworkImpl> getRootNetworkRef() {
