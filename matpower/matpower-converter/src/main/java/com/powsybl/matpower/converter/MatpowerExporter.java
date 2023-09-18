@@ -256,8 +256,7 @@ public class MatpowerExporter implements Exporter {
         }
         // rateB is mapped to the shortest term limit, if not an emergency limit (tempo <= 60s)
         LoadingLimits.TemporaryLimit limitB = findShortTermLimit(limits.getTemporaryLimits().stream())
-                .flatMap(limit -> nextLimit(limits.getTemporaryLimits(), limit))
-                .filter(limit -> !isEmergencyLimit(limit))
+                .filter(limit -> !isEmergencyLimit(limit) && limit.getValue() != Double.MAX_VALUE)
                 .orElse(null);
         if (limitB != null) {
             mBranch.setRateB(converter.applyAsDouble(limitB.getValue()));
