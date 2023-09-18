@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
@@ -14,6 +15,7 @@ import org.joda.time.DateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -84,5 +86,52 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
                             from.removeExtension((Class<? extends Extension<Network>>) clazz);
                             to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
                         }));
+    }
+
+    abstract class AbstractBusBreakerViewImpl implements BusBreakerView {
+        @Override
+        public Iterable<Bus> getBuses() {
+            return FluentIterable.from(getVoltageLevels())
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
+        }
+
+        @Override
+        public int getBusCount() {
+            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getBusCount()).sum();
+        }
+
+        @Override
+        public Iterable<Switch> getSwitches() {
+            return FluentIterable.from(getVoltageLevels())
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
+        }
+
+        @Override
+        public Stream<Switch> getSwitchStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream());
+        }
+
+        @Override
+        public int getSwitchCount() {
+            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getSwitchCount()).sum();
+        }
+    }
+
+    abstract class AbstractBusViewImpl implements BusView {
+        @Override
+        public Iterable<Bus> getBuses() {
+            return FluentIterable.from(getVoltageLevels())
+                    .transformAndConcat(vl -> vl.getBusView().getBuses());
+        }
+
+        @Override
+        public Stream<Bus> getBusStream() {
+            return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
+        }
     }
 }

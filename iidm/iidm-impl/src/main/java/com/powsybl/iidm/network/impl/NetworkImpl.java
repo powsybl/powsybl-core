@@ -7,7 +7,10 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.base.Functions;
-import com.google.common.collect.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Multimap;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
@@ -16,7 +19,7 @@ import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
-
+import com.powsybl.iidm.network.util.Identifiables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +38,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
-    private final Map<String, RefChain<NetworkImpl>> refByNetworkId = new HashMap<>();
+    private final RefChain<NetworkImpl> ref = new RefChain<>(new RefObj<>(this));
 
     private ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
     private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
@@ -46,11 +49,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
-    private final Map<String, Network> subnetworks = new HashMap<>();
+    private final Map<String, SubnetworkImpl> subnetworks = new LinkedHashMap<>();
 
     @Override
     public Collection<Network> getSubnetworks() {
-        return subnetworks.values();
+        return subnetworks.values().stream().map(Network.class::cast).toList();
     }
 
     @Override
@@ -62,39 +65,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         subnetworks.remove(subnetworkId);
     }
 
-    class BusBreakerViewImpl implements BusBreakerView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return FluentIterable.from(getVoltageLevels())
-                    .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
-        }
-
-        @Override
-        public int getBusCount() {
-            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getBusCount()).sum();
-        }
-
-        @Override
-        public Iterable<Switch> getSwitches() {
-            return FluentIterable.from(getVoltageLevels())
-                    .transformAndConcat(vl -> vl.getBusBreakerView().getSwitches());
-        }
-
-        @Override
-        public Stream<Switch> getSwitchStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream());
-        }
-
-        @Override
-        public int getSwitchCount() {
-            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getSwitchCount()).sum();
-        }
+    class BusBreakerViewImpl extends AbstractNetwork.AbstractBusBreakerViewImpl {
 
         @Override
         public Bus getBus(String id) {
@@ -112,18 +83,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private final BusBreakerViewImpl busBreakerView = new BusBreakerViewImpl();
 
-    class BusViewImpl implements BusView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return FluentIterable.from(getVoltageLevels())
-                    .transformAndConcat(vl -> vl.getBusView().getBuses());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
-        }
+    class BusViewImpl extends AbstractNetwork.AbstractBusViewImpl {
 
         @Override
         public Collection<Component> getConnectedComponents() {
@@ -149,9 +109,9 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     NetworkImpl(String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
-        refByNetworkId.put(id, new RefChain<>(new RefObj<>(this)));
+        ref.setRef(new RefObj<>(this));
         variantManager = new VariantManagerImpl(this);
-        variants = new VariantArray<>(refByNetworkId.get(id), VariantImpl::new);
+        variants = new VariantArray<>(ref, VariantImpl::new);
         // add the network the object list as it is a multi variant object
         // and it needs to be notified when and extension or a reduction of
         // the variant array is requested
@@ -182,15 +142,13 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     RefChain<NetworkImpl> getRef() {
-        return refByNetworkId.get(id);
+        return ref;
     }
 
     RefChain<NetworkImpl> getRef(String subnetworkId) {
-        return refByNetworkId.get(subnetworkId);
-    }
-
-    RefChain<NetworkImpl> removeRef(String networkId) {
-        return refByNetworkId.remove(networkId);
+        return Optional.ofNullable(subnetworks.get(subnetworkId))
+                .map(SubnetworkImpl::getRootNetworkRef)
+                .orElseThrow(() -> new PowsyblException("Unknown subnetworkId: " + subnetworkId));
     }
 
     NetworkListenerList getListeners() {
@@ -236,11 +194,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public SubstationAdder newSubstation() {
-        return newSubstation(null);
-    }
-
-    SubstationAdder newSubstation(String subnetwork) {
-        return new SubstationAdderImpl(Optional.ofNullable(subnetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subnetwork);
+        return new SubstationAdderImpl(ref, null);
     }
 
     @Override
@@ -275,11 +229,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return newVoltageLevel(null);
-    }
-
-    VoltageLevelAdder newVoltageLevel(String subnetwork) {
-        return new VoltageLevelAdderImpl(Optional.ofNullable(subnetwork).map(refByNetworkId::get).orElseGet(() -> refByNetworkId.get(id)), subnetwork);
+        return new VoltageLevelAdderImpl(ref, null);
     }
 
     @Override
@@ -768,7 +718,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         @Override
         protected ConnectedComponentImpl createComponent(int num, int size) {
-            return new ConnectedComponentImpl(num, size, network.refByNetworkId.get(network.id));
+            return new ConnectedComponentImpl(num, size, network.ref);
         }
     }
 
@@ -793,7 +743,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         @Override
         protected SynchronousComponentImpl createComponent(int num, int size) {
-            return new SynchronousComponentImpl(num, size, network.refByNetworkId.get(network.id));
+            return new SynchronousComponentImpl(num, size, network.ref);
         }
     }
 
@@ -942,17 +892,12 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
 
         // create the subnetwork corresponding to the current network (if it doesn't already exist)
-        if (allowSubnetworkCreationForMyself && !subnetworks.containsKey(id)) {
-            Network n = createSubnetwork(this, this);
-            subnetworks.put(id, n);
-            getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubnetwork(id));
-            getVoltageLevelStream().filter(v -> v.getParentNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(id));
+        if (allowSubnetworkCreationForMyself) {
+            SubnetworkImpl n = createSubnetwork(this, this);
+            subnetworks.put(n.getId(), n);
+            getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubnetwork(n.getId()));
+            getVoltageLevelStream().filter(v -> v.getParentNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(n.getId()));
         }
-
-        // create subnetworks for the other networks
-        subnetworks.computeIfAbsent(otherNetwork.getId(), id -> createSubnetwork(this, otherNetwork));
-        otherNetwork.getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(otherNetwork.id));
-        otherNetwork.getVoltageLevelStream().forEach(vl -> ((VoltageLevelExt) vl).setSubnetwork(otherNetwork.id));
 
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
@@ -967,6 +912,12 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             findAndAssociateDanglingLines(dl2, dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 
+        // create subnetworks for the other network
+        otherNetwork.getRef().setRef(ref);
+        subnetworks.put(otherNetwork.getId(), createSubnetwork(this, otherNetwork));
+        otherNetwork.getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(otherNetwork.id));
+        otherNetwork.getVoltageLevelStream().forEach(vl -> ((VoltageLevelExt) vl).setSubnetwork(otherNetwork.id));
+
         // do not forget to remove the other network from its index!!!
         otherNetwork.index.remove(otherNetwork);
 
@@ -974,10 +925,10 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         index.merge(otherNetwork.index);
 
         // fix network back reference of the other network objects
-        otherNetwork.refByNetworkId.forEach((snId, ref) -> {
-            ref.setRef(refByNetworkId.get(id));
-            refByNetworkId.put(snId, ref);
-        });
+        for (SubnetworkImpl subnetwork : otherNetwork.subnetworks.values()) {
+            subnetwork.getRootNetworkRef().setRef(ref);
+            subnetworks.put(subnetwork.getId(), subnetwork);
+        }
 
         replaceDanglingLineByTieLine(lines);
 
@@ -989,9 +940,13 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private static Network createSubnetwork(NetworkImpl parent, Network original) {
-        Network sn = new SubnetworkImpl(parent, original.getId(), original.getOptionalName().orElse(null),
-                original.getSourceFormat()).setCaseDate(original.getCaseDate());
+    private static SubnetworkImpl createSubnetwork(NetworkImpl parent, NetworkImpl original) {
+        RefChain<NetworkImpl> originalRootNetworkRef = original.getRef();
+        originalRootNetworkRef.setRef(new RefChain<>(new RefObj<>(parent)));
+        String idSubNetwork = parent != original ? original.getId() : Identifiables.getUniqueId(original.getId(), parent.getIndex()::contains);
+        SubnetworkImpl sn = new SubnetworkImpl(originalRootNetworkRef, idSubNetwork, original.getOptionalName().orElse(null),
+                original.getSourceFormat());
+        sn.setCaseDate(original.getCaseDate());
         transferExtensions(original, sn);
         return sn;
     }
@@ -1055,9 +1010,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         if (subnetworks.containsKey(subnetworkId)) {
             throw new IllegalArgumentException("The network already contains another subnetwork of id " + subnetworkId);
         }
-        Network subnetwork = new SubnetworkImpl(this, subnetworkId, name, sourceFormat);
+        SubnetworkImpl subnetwork = new SubnetworkImpl(new RefChain<>(new RefObj<>(this)), subnetworkId, name, sourceFormat);
         subnetworks.put(subnetworkId, subnetwork);
-        refByNetworkId.put(subnetworkId, new RefChain<>(new RefObj<>(this)));
         return subnetwork;
     }
 
