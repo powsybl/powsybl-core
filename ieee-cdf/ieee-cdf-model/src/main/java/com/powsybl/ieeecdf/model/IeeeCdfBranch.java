@@ -6,10 +6,9 @@
  */
 package com.powsybl.ieeecdf.model;
 
-import com.univocity.parsers.annotations.EnumOptions;
+import com.univocity.parsers.annotations.Convert;
 import com.univocity.parsers.annotations.FixedWidth;
 import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.conversions.EnumSelector;
 import com.univocity.parsers.fixed.FieldAlignment;
 
 /**
@@ -118,7 +117,7 @@ public class IeeeCdfBranch {
      */
     @FixedWidth(from = 18, to = 19)
     @Parsed
-    @EnumOptions(selectors = EnumSelector.ORDINAL)
+    @Convert(conversionClass = BranchTypeConversion.class)
     private Type type;
 
     /**
@@ -175,7 +174,7 @@ public class IeeeCdfBranch {
      */
     @FixedWidth(from = 73, to = 74, alignment = FieldAlignment.RIGHT)
     @Parsed
-    @EnumOptions(selectors = EnumSelector.ORDINAL)
+    @Convert(conversionClass = BranchSideConversion.class)
     private Side side;
 
     /**

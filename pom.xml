@@ -124,7 +124,7 @@
         <mockito.version>5.5.0</mockito.version>
         <nativelibloader.version>2.4.0</nativelibloader.version>
         <poi.version>5.2.3</poi.version>
-        <rdf4j.version>4.3.6</rdf4j.version>
+        <rdf4j.version>4.2.2</rdf4j.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>2.0.9</slf4j.version>
         <snakeyaml.version>2.2</snakeyaml.version>
@@ -133,7 +133,7 @@
         <testcontainers.version>1.19.0</testcontainers.version>
         <threeten.version>1.7.2</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
-        <univocity-parsers.version>2.9.1</univocity-parsers.version>
+        <univocity-parsers.version>2.8.3</univocity-parsers.version>
         <xmlunit.version>2.9.1</xmlunit.version>
         <xz.version>1.9</xz.version>
         <zstdjni.version>1.5.5-5</zstdjni.version>

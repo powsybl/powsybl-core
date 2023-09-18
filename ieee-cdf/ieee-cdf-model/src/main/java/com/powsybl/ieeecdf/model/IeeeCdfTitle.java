@@ -68,7 +68,7 @@ public class IeeeCdfTitle {
      *  Season
      */
     @FixedWidth(from = 43, to = 44)
-    @Parsed(applyDefaultConversion = false)
+    @Parsed
     @Convert(conversionClass = SeasonConversion.class)
     private Season season;
 
