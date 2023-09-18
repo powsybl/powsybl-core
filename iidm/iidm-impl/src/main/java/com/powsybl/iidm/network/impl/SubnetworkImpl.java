@@ -217,6 +217,31 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public VoltageAngleLimitAdder newVoltageAngleLimit() {
+        return new VoltageAngleLimitAdderImpl(rootNetworkRef, id);
+    }
+
+    @Override
+    public Iterable<VoltageAngleLimit> getVoltageAngleLimits() {
+        return getVoltageAngleLimitsStream().toList();
+    }
+
+    @Override
+    public Stream<VoltageAngleLimit> getVoltageAngleLimitsStream() {
+        return getNetwork().getVoltageAngleLimitsStream()
+                .filter(val -> contains(val.getTerminalFrom().getVoltageLevel()) && contains(val.getTerminalTo().getVoltageLevel()));
+    }
+
+    @Override
+    public VoltageAngleLimit getVoltageAngleLimit(String id) {
+        VoltageAngleLimitImpl val = (VoltageAngleLimitImpl) getNetwork().getVoltageAngleLimit(id);
+        boolean valInSubnetwork = val != null
+                && id.equals(val.getTerminalFrom().getVoltageLevel().getParentNetwork().getId())
+                && id.equals(val.getTerminalTo().getVoltageLevel().getParentNetwork().getId());
+        return valInSubnetwork ? val : null;
+    }
+
+    @Override
     public TieLineAdder newTieLine() {
         return getNetwork().newTieLine(id);
     }

@@ -594,7 +594,7 @@ public abstract class AbstractSubnetworksExplorationTest {
 
     @Test
     public void testExploreIdentifiables() {
-        var expectedIdsOnlyForMerged = List.of(SHARED_TIE_LINE, "merged");
+        var expectedIdsOnlyForMerged = List.of(SHARED_TIE_LINE, "merged", "n1_network", "n2_network");
         Collection<String> expectedIdsForSubnetwork1 = new ArrayList<>(n1Identifiables);
         Collection<String> expectedIdsForSubnetwork2 = new ArrayList<>(n2Identifiables);
         // The network id is part of the identifiables, but not the subnetworks' ones
