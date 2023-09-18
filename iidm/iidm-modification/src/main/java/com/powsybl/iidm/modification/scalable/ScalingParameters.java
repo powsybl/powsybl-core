@@ -167,11 +167,11 @@ public class ScalingParameters {
     }
 
     /**
-     * @return an enum representing the priority of the scaling. It can be either VOLUME (the scaling will distribute the
-     * power asked as much as possible by iterating if elements get saturated, even if it means not respecting potential
-     * percentages), VENTILATION (the scaling will respect the percentages even if it means not scaling all what is
-     * asked), or ONESHOT (the scaling will distribute the power asked as is, in one iteration even if elements get
-     * saturated and even if it means not respecting potential percentages).
+     * @return an enum representing the priority of the scaling. It can be either RESPECT_OF_VOLUME_ASKED (the scaling
+     * will distribute the power asked as much as possible by iterating if elements get saturated, even if it means not
+     * respecting potential percentages), RESPECT_OF_DISTRIBUTION (the scaling will respect the percentages even if it
+     * means not scaling all what is asked), or ONESHOT (the scaling will distribute the power asked as is, in one
+     * iteration even if elements get saturated and even if it means not respecting potential percentages).
      */
     public Priority getPriority() {
         return priority;
