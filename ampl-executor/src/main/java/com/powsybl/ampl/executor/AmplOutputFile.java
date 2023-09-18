@@ -29,12 +29,12 @@ public interface AmplOutputFile {
     boolean throwOnMissingFile();
 
     /**
-     * Consummer of the output file.
+     * Read data from a file though a {@link BufferedReader}.
      * Will be called if the Ampl solve is successful.
      *
-     * @param networkAmplMapper Mapper to convert {@link com.powsybl.iidm.network.Network} IDs to Ampl IDs
+     * @param networkAmplMapper mapper to convert {@link com.powsybl.iidm.network.Network} IDs to Ampl IDs
      *                          and vice versa
-     * @param reader            Reader to the file, opened in UTF-8
+     * @param reader            reader to the file, opened in UTF-8
      */
     void read(StringToIntMapper<AmplSubset> networkAmplMapper, BufferedReader reader) throws IOException;
 }

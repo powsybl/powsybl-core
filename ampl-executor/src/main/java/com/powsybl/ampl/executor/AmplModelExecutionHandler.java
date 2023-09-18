@@ -73,7 +73,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         for (Pair<String, InputStream> fileAndStream : model.getModelAsStream()) {
             try (InputStream modelStream = fileAndStream.getRight()) {
                 Files.copy(modelStream, workingDir.resolve(fileAndStream.getLeft()),
-                    StandardCopyOption.REPLACE_EXISTING);
+                        StandardCopyOption.REPLACE_EXISTING);
             }
         }
     }
@@ -152,9 +152,9 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
 
     protected static CommandExecution createAmplRunCommand(AmplConfig config, AmplModel model) {
         Command cmd = new SimpleCommandBuilder().id(COMMAND_ID)
-            .program(getAmplBinPath(config))
-            .args(model.getAmplRunFiles())
-            .build();
+                                                .program(getAmplBinPath(config))
+                                                .args(model.getAmplRunFiles())
+                                                .build();
         return new CommandExecution(cmd, 1, 0);
     }
 
@@ -176,7 +176,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
         super.after(workingDir.toAbsolutePath(), report);
         DataSource networkAmplResults = new FileDataSource(workingDir, this.model.getOutputFilePrefix());
         AmplNetworkReader reader = new AmplNetworkReader(networkAmplResults, this.network, this.model.getVariant(),
-            mapper, this.model.getNetworkUpdaterFactory(), this.model.getOutputFormat());
+                mapper, this.model.getNetworkUpdaterFactory(), this.model.getOutputFormat());
         Map<String, String> indicators = readIndicators(reader);
         boolean hasModelConverged = model.checkModelConvergence(indicators);
         postProcess(workingDir, reader, hasModelConverged);

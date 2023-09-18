@@ -33,10 +33,9 @@ public class SimpleAmplParameters implements AmplParameters {
             }
 
             @Override
-            public void write(StringToIntMapper<AmplSubset> networkAmplMapper,
-                              BufferedWriter bufferedWriter) throws IOException {
-                bufferedWriter.write("some_content");
-                bufferedWriter.flush();
+            public void write(StringToIntMapper<AmplSubset> networkAmplMapper, BufferedWriter writer) throws IOException {
+                writer.write("some_content");
+                writer.flush();
             }
         });
     }
@@ -51,8 +50,7 @@ public class SimpleAmplParameters implements AmplParameters {
                 }
 
                 @Override
-                public void read(StringToIntMapper<AmplSubset> networkAmplMapper,
-                                 BufferedReader reader) throws IOException {
+                public void read(StringToIntMapper<AmplSubset> networkAmplMapper, BufferedReader reader) throws IOException {
                     readingDone = true;
                     assertTrue(reader.readLine()
                             .equals("This file must be encoded in UTF-8 ! éèà") && reader.readLine() == null,

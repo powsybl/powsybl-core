@@ -151,8 +151,7 @@ class AmplModelExecutionHandlerTest {
             }
 
             @Override
-            public void read(StringToIntMapper<AmplSubset> networkAmplMapper,
-                             BufferedReader reader) throws IOException {
+            public void read(StringToIntMapper<AmplSubset> networkAmplMapper, BufferedReader reader) throws IOException {
                 throw new IOException("Dummy custom fail, failing read.");
             }
         };
@@ -179,8 +178,7 @@ class AmplModelExecutionHandlerTest {
             }
 
             @Override
-            public void read(StringToIntMapper<AmplSubset> networkAmplMapper,
-                             BufferedReader reader) throws IOException {
+            public void read(StringToIntMapper<AmplSubset> networkAmplMapper, BufferedReader reader) {
             }
         };
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
