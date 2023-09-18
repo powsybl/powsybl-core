@@ -11,6 +11,7 @@ import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -1231,6 +1232,26 @@ public interface Network extends Container<Network> {
      * Get a bus view of the network.
      */
     BusView getBusView();
+
+    /**
+     * Get a builder to create a new VoltageAngleLimit.
+     */
+    VoltageAngleLimitAdder newVoltageAngleLimit();
+
+    /**
+     * Get all voltageAngleLimits.
+     */
+    Iterable<VoltageAngleLimit> getVoltageAngleLimits();
+
+    /**
+     * Get all voltageAngleLimits.
+     */
+    Stream<VoltageAngleLimit> getVoltageAngleLimitsStream();
+
+    /**
+     * Get voltage angle limit with id
+     */
+    VoltageAngleLimit getVoltageAngleLimit(String id);
 
     /**
      * Create an empty subnetwork in the current network.

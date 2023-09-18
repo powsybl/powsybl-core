@@ -1,0 +1,14 @@
+short-circuit-parameters:
+  with-limit-violations: false
+  with-fortescue-result: true
+  with-voltage-result: false
+  study-type: "SUB_TRANSIENT"
+  sub-transient-coefficient: 80
+  with-feeder-result: false
+  min-voltage-drop-proportional-threshold: 1.2
+  with-loads: true
+  with-shunt-compensators: true
+  with-vsc-converter-stations: false
+  with-neutral-position: true
+  initial-voltage-profile-mode: "CONFIGURED"
+
