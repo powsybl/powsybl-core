@@ -314,19 +314,15 @@ public final class CgmesExportUtil {
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
     }
 
-    public static List<DanglingLine> getUnpairedDanglingLines(Network network) {
-        // For this network, an unpaired dangling line has an unpaired status
-        // or its parent network different that this network.
-        return network.getDanglingLineStream()
-                .filter(danglingLine -> isUnpaired(network, danglingLine))
+    public static List<DanglingLine> getBoundaryDanglingLines(Network network) {
+        return network.getBoundaryElements().stream()
+                .filter(DanglingLine.class::isInstance)
+                .map(DanglingLine.class::cast)
                 .collect(Collectors.toList());
     }
 
-    public static boolean isUnpaired(Network network, DanglingLine danglingLine) {
-        // For this network, an unpaired dangling line has an unpaired status
-        // or its parent network different that this network.
-        return !danglingLine.isPaired()
-                || danglingLine.isPaired() && danglingLine.getTieLine().orElseThrow().getParentNetwork() != network;
+    public static boolean isBoundary(Network network, DanglingLine danglingLine) {
+        return network.getBoundaryElements().stream().map(Identifiable::getId).toList().contains(danglingLine.getId());
     }
 
     public static boolean isEquivalentShuntWithZeroSectionCount(Connectable<?> c) {
