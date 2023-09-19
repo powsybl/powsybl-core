@@ -157,10 +157,9 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return ref;
     }
 
-    RefChain<NetworkImpl> getRef(String subnetworkId) {
-        return Optional.ofNullable(subnetworks.get(subnetworkId))
-                .map(SubnetworkImpl::getRootNetworkRef)
-                .orElseThrow(() -> new PowsyblException("Unknown subnetworkId: " + subnetworkId));
+    @Override
+    public RefChain<NetworkImpl> getRootNetworkRef() {
+        return getRef();
     }
 
     NetworkListenerList getListeners() {

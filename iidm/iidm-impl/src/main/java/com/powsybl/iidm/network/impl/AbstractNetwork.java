@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
  */
-abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements Network {
+abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements NetworkExt {
 
     private DateTime caseDate = new DateTime(); // default is the time at which the network has been created
 

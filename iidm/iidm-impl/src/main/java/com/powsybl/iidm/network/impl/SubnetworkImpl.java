@@ -56,6 +56,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         setCaseDate(caseDate);
     }
 
+    @Override
     public RefChain<NetworkImpl> getRootNetworkRef() {
         return rootNetworkRef;
     }
