@@ -782,6 +782,13 @@ public class SubnetworkImpl extends AbstractNetwork {
             }
             return false;
         }
+        if (getNetwork().getVoltageAngleLimitsStream().anyMatch(this::isBoundary)) {
+            if (throwsException) {
+                throw new PowsyblException("VoltageAngleLimits prevent the subnetwork to be detached: "
+                        + getNetwork().getVoltageAngleLimitsStream().filter(this::isBoundary).map(VoltageAngleLimit::getId).collect(Collectors.joining(", ")));
+            }
+            return false;
+        }
         return true;
     }
 
@@ -826,6 +833,10 @@ public class SubnetworkImpl extends AbstractNetwork {
         return danglingLine.getTieLine()
                 .map(this::isBoundary)
                 .orElse(true);
+    }
+
+    private boolean isBoundary(VoltageAngleLimit val) {
+        return isBoundary(val.getTerminalFrom(), val.getTerminalTo());
     }
 
     private boolean isBoundary(Terminal terminal1, Terminal terminal2) {
