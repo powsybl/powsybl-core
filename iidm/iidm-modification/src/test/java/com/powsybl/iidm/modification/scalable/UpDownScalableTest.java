@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -13,8 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -81,5 +81,17 @@ class UpDownScalableTest {
         assertTrue(foundInjections.contains(testNetwork.getGenerator("g2")));
         assertEquals(1, notFoundIds.size());
         assertTrue(notFoundIds.contains("unknown generator"));
+    }
+
+    @Test
+    void checkErrorOnGetCurrentPower() {
+        Network testNetwork = ScalableTestNetwork.createNetwork();
+        Scalable upScalable = Scalable.proportional(50, Scalable.onGenerator("g2"), 50, Scalable.onGenerator("unknown generator"));
+        Scalable downScalable = Scalable.onLoad("l1", 50, 200);
+        Scalable upDownScalable = Scalable.upDown(upScalable, downScalable);
+
+        // Error raised
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> upDownScalable.getSteadyStatePower(testNetwork, Scalable.ScalingConvention.LOAD));
+        assertEquals("getCurrentPower should not be used on UpDownScalable, only on other types of Scalable", e0.getMessage());
     }
 }

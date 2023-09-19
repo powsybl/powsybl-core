@@ -9,7 +9,8 @@ package com.powsybl.ampl.executor;
 import com.powsybl.ampl.converter.AmplSubset;
 import com.powsybl.commons.util.StringToIntMapper;
 
-import java.io.InputStream;
+import java.io.BufferedWriter;
+import java.io.IOException;
 
 /**
  * An additional file provided to an Ampl run.
@@ -24,10 +25,11 @@ public interface AmplInputFile {
     String getFileName();
 
     /**
-     * InputStream to write in the file. Called before the ampl solve.
+     * Write data to file via a {@link BufferedWriter}. Called before the ampl solve.
      *
-     * @param networkAmplMapper Mapper to convert {@link com.powsybl.iidm.network.Network} IDs to Ampl IDs
+     * @param writer            writer encoded in UTF-8 to write data to the file
+     * @param networkAmplMapper mapper to convert {@link com.powsybl.iidm.network.Network} IDs to Ampl IDs
      *                          and vice versa
      */
-    InputStream getParameterFileAsStream(StringToIntMapper<AmplSubset> networkAmplMapper);
+    void write(BufferedWriter writer, StringToIntMapper<AmplSubset> networkAmplMapper) throws IOException;
 }
