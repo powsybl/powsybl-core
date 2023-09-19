@@ -9,6 +9,10 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -22,5 +26,13 @@ public class NetworkFactoryImpl implements NetworkFactory {
     @Override
     public Network createNetwork(String id, Network... networks) {
         return NetworkImpl.create(id, id, networks);
+    }
+
+    @Override
+    public Network createNetwork(Network... networks) {
+        String id = Arrays.stream(Objects.requireNonNull(networks))
+                .map(Network::getId)
+                .collect(Collectors.joining("+"));
+        return createNetwork(id, networks);
     }
 }

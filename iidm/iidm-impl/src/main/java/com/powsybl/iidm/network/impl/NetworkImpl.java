@@ -136,21 +136,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
 
         NetworkImpl mergedNetwork = new NetworkImpl(id, name, networks[0].getSourceFormat());
-
-        // Use the less restrictive validation level for the merged network
-        ValidationLevel minLevel = mergedNetwork.getMinValidationLevel(); // default min validation level
-        for (Network n : networks) {
-            if (n instanceof NetworkImpl networkImpl) {
-                minLevel = ValidationLevel.min(minLevel, networkImpl.getMinValidationLevel());
-            }
-        }
-        mergedNetwork.setMinimumAcceptableValidationLevel(minLevel);
-
+        setValidationLevels(mergedNetwork, networks);
         for (Network other : networks) {
-            mergedNetwork.merge(other, false);
+            mergedNetwork.merge(other);
         }
 
         return mergedNetwork;
+    }
+
+    private static void setValidationLevels(NetworkImpl mergedNetwork, Network[] networks) {
+        // Use the less restrictive validation level for the merged network
+        ValidationLevel minLevel = mergedNetwork.getMinValidationLevel(); // default min validation level
+        ValidationLevel validationLevel = mergedNetwork.getValidationLevel(); // default min validation level
+        for (Network n : networks) {
+            if (n instanceof NetworkImpl networkImpl) {
+                minLevel = ValidationLevel.min(minLevel, networkImpl.getMinValidationLevel());
+                validationLevel = ValidationLevel.min(validationLevel, networkImpl.getValidationLevel());
+            }
+        }
+        mergedNetwork.setMinimumAcceptableValidationLevel(minLevel);
+        mergedNetwork.setValidationLevelIfGreaterThan(validationLevel);
     }
 
     RefChain<NetworkImpl> getRef() {
@@ -886,12 +891,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
     }
 
-    @Override
-    public void merge(Network other) {
-        merge(other, true);
-    }
-
-    private void merge(Network other, boolean createSubnetworkForMyself) {
+    private void merge(Network other) {
         checkIndependentNetwork(other);
         NetworkImpl otherNetwork = (NetworkImpl) other;
 
@@ -905,23 +905,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         long start = System.currentTimeMillis();
 
-        // if the validation level of other is lower than the current network's minimum validation level, we can not incorporate it
-        if (other.getValidationLevel().compareTo(getMinValidationLevel()) < 0) {
-            throw new PowsyblException("Network " + other.getNetwork() + " cannot be merged: its validation level " +
-                    "is lower than the minimum acceptable validation level of network " + getId() + " (" +
-                    other.getValidationLevel() + " < " + getMinValidationLevel() + ")");
-        }
-        // update the validation level (without recomputing it)
-        this.validationLevel = ValidationLevel.min(this.getValidationLevel(), other.getValidationLevel());
-
-        // check mergeability
         checkMergeability(otherNetwork);
-
-        // create the subnetwork corresponding to the current network
-        if (createSubnetworkForMyself && (voltageLevelsAtRoot() || substationsAtRoot())) {
-            createSubnetwork(this, this);
-            subnetworkRef = new RefChain<>(new RefObj<>(null));
-        }
 
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
@@ -978,14 +962,6 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             throw new PowsyblException("The following voltage angle limit(s) exist(s) in both networks: "
                     + intersectionVoltageAngleLimits);
         }
-    }
-
-    private boolean voltageLevelsAtRoot() {
-        return getVoltageLevelStream().anyMatch(vl -> vl.getParentNetwork() == this);
-    }
-
-    private boolean substationsAtRoot() {
-        return getSubstationStream().anyMatch(s -> s.getParentNetwork() == this);
     }
 
     private static void createSubnetwork(NetworkImpl parent, NetworkImpl original) {
@@ -1066,13 +1042,6 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         subnetworks.put(subnetworkId, subnetwork);
         index.checkAndAdd(subnetwork);
         return subnetwork;
-    }
-
-    @Override
-    public void merge(Network... others) {
-        for (Network other : others) {
-            merge(other);
-        }
     }
 
     /**

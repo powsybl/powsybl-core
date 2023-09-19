@@ -26,17 +26,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public abstract class AbstractMergeNetworkTest {
 
     private static final String MERGE = "merge";
-    private static final String SUBNETWORK_FROM_MERGE = "merge#0";
+    private static final String MERGE_DEFAULT_ID = "n1+n2";
     public static final String N1 = "n1";
     public static final String N2 = "n2";
 
-    Network merge;
+    Network n0;
     Network n1;
     Network n2;
 
     @BeforeEach
     public void setup() {
-        merge = Network.create(MERGE, "asdf");
+        n0 = Network.create("a", "asdf");
         n1 = Network.create(N1, "asdf");
         n2 = Network.create(N2, "qwer");
     }
@@ -44,7 +44,7 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void failMergeIfMultiVariants() {
         n1.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "Totest");
-        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n1));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.create(n2, n1));
         assertTrue(e.getMessage().contains("Merging of multi-variants network is not supported"));
     }
 
@@ -52,33 +52,19 @@ public abstract class AbstractMergeNetworkTest {
     public void failMergeWithSameObj() {
         addSubstation(n1, "P1");
         addSubstation(n2, "P1");
-        merge.merge(n1);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n2));
-        assertTrue(e.getMessage().contains("The following object(s) of type SubstationImpl exist(s) in both networks: [P1]"));
-    }
-
-    @Test
-    public void failMergeValidationLevelLowerThanMin() {
-        n1.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
-        addCommonSubstationsAndVoltageLevels();
-        n1.getVoltageLevel("vl1").newLoad()
-                .setId("unchecked1")
-                .setBus("b1")
-                .setConnectableBus("b1")
-                .add();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n1));
-        assertTrue(e.getMessage().contains("cannot be merged: its validation level is lower than the minimum acceptable " +
-                "validation level of network"));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.create(n1, n2));
+        assertEquals("The following object(s) of type SubstationImpl exist(s) in both networks: [P1]", e.getMessage());
     }
 
     @Test
     public void testMerge() {
         addCommonSubstationsAndVoltageLevels();
-        addSubstationAndVoltageLevel(merge, "s0", Country.FR, "vl0", "b0");
+        Network n0 = Network.create("n0", "rid");
+        addSubstationAndVoltageLevel(n0, "s0", Country.FR, "vl0", "b0");
         addCommonDanglingLines("dl1", "code", "dl2", "code");
-        merge.merge(n1, n2);
+        Network merge = Network.create(n0, n1, n2);
         assertEquals(3, merge.getSubnetworks().size());
-        assertEquals(1, merge.getSubnetwork(SUBNETWORK_FROM_MERGE).getVoltageLevelCount());
+        assertEquals(1, merge.getSubnetwork(n0.getId()).getVoltageLevelCount());
         assertEquals(1, merge.getSubnetwork(N1).getVoltageLevelCount());
         assertEquals(1, merge.getSubnetwork(N2).getVoltageLevelCount());
 
@@ -103,7 +89,7 @@ public abstract class AbstractMergeNetworkTest {
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
         // merge(n1, n2)
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
         TieLine tieLine = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine);
         assertEquals("dl1_name + dl2_name", tieLine.getOptionalName().orElse(null));
@@ -178,7 +164,7 @@ public abstract class AbstractMergeNetworkTest {
                 .withVariableReactivePower(30f)
                 .add();
 
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
         Network subnetwork1 = merge.getSubnetwork("sim1");
         checkExtensions(subnetwork1);
 
@@ -201,7 +187,7 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void failDetachWithALineBetween2Subnetworks() {
         addCommonSubstationsAndVoltageLevels();
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
         merge.newLine()
                 .setId("line1")
                 .setVoltageLevel1("vl1")
@@ -224,29 +210,13 @@ public abstract class AbstractMergeNetworkTest {
     @Test
     public void failDetachIfMultiVariants() {
         addCommonSubstationsAndVoltageLevels();
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
         merge.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "Totest");
 
         Network subnetwork1 = merge.getSubnetwork(N1);
         assertFalse(subnetwork1.isDetachable());
         PowsyblException e = assertThrows(PowsyblException.class, subnetwork1::detach);
         assertTrue(e.getMessage().contains("Detaching from multi-variants network is not supported"));
-    }
-
-    @Test
-    public void testMergeNetworkWithSubnetwork() {
-        addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl1", "code2", "dl2", "code2");
-
-        n1.merge(n2);
-        assertEquals(2, n1.getSubnetworks().size());
-
-        n1.merge(Network.create("n3", "test"));
-        assertEquals(3, n1.getSubnetworks().size());
-
-        addSubstationAndVoltageLevel(n1, "s3", Country.FR, "vl3", "b3");
-        n1.merge(Network.create("n4", "test"));
-        assertEquals(5, n1.getSubnetworks().size());
     }
 
     @Test
@@ -259,7 +229,7 @@ public abstract class AbstractMergeNetworkTest {
         addDanglingLines(n3, "vl3", "dl4", "code2", "b3");
 
         //merge.merge(n1, n2, n3);
-        merge = Network.create(MERGE, n1, n2, n3);
+        Network merge = Network.create(MERGE, n1, n2, n3);
         TieLine tieLine1 = merge.getTieLine("dl1 + dl2");
         assertNotNull(tieLine1);
         assertEquals("dl1_name + dl2_name", tieLine1.getOptionalName().orElse(null));
@@ -294,7 +264,7 @@ public abstract class AbstractMergeNetworkTest {
     public void failMergeDanglingLinesWithSameId() {
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl", null, "dl", "code");
-        PowsyblException e = assertThrows(PowsyblException.class, () -> merge.merge(n1, n2));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.create(n0, n1, n2));
         assertTrue(e.getMessage().contains("The following object(s) of type DanglingLineImpl exist(s) in both networks: [dl]"));
     }
 
@@ -315,9 +285,9 @@ public abstract class AbstractMergeNetworkTest {
                 .add();
 
         // merge(n1, n2)
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
 
-        assertValidationLevels(ValidationLevel.EQUIPMENT);
+        assertValidationLevels(merge, ValidationLevel.EQUIPMENT);
     }
 
     @Test
@@ -337,9 +307,9 @@ public abstract class AbstractMergeNetworkTest {
                 .add();
 
         // merge(n1, n2)
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
 
-        assertValidationLevels(ValidationLevel.EQUIPMENT);
+        assertValidationLevels(merge, ValidationLevel.EQUIPMENT);
     }
 
     @Test
@@ -359,12 +329,12 @@ public abstract class AbstractMergeNetworkTest {
                 .add();
 
         // merge(n1, n2)
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
 
-        assertValidationLevels(ValidationLevel.STEADY_STATE_HYPOTHESIS);
+        assertValidationLevels(merge, ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
-    void assertValidationLevels(ValidationLevel expected) {
+    void assertValidationLevels(Network merge, ValidationLevel expected) {
         // The validation level must be the same between the root network and its subnetworks
         assertEquals(expected, merge.getValidationLevel());
         assertEquals(expected, merge.getSubnetwork(N1).getValidationLevel());
@@ -379,21 +349,21 @@ public abstract class AbstractMergeNetworkTest {
 
     @Test
     void failMergeOnSubnetworks() {
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network other1 = Network.create("other1", "format");
         Network other2 = Network.create("other2", "format");
 
-        Exception e = assertThrows(UnsupportedOperationException.class, () -> subnetwork1.merge(other1));
-        assertTrue(e.getMessage().contains("is already a subnetwork"));
+        Exception e = assertThrows(IllegalArgumentException.class, () -> Network.create(subnetwork1, other1));
+        assertEquals("The network n1 is already a subnetwork", e.getMessage());
 
-        e = assertThrows(UnsupportedOperationException.class, () -> subnetwork1.merge(other1, other2));
-        assertTrue(e.getMessage().contains("is already a subnetwork"));
+        e = assertThrows(IllegalArgumentException.class, () -> Network.create(subnetwork1, other1, other2));
+        assertEquals("The network n1 is already a subnetwork", e.getMessage());
     }
 
     @Test
     void failMergeSubnetworks() {
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network other = Network.create("other", "format");
 
@@ -404,7 +374,7 @@ public abstract class AbstractMergeNetworkTest {
 
     @Test
     void failMergeContainingSubnetworks() {
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
         Network other = Network.create("other", "format");
 
         Exception e = assertThrows(IllegalArgumentException.class,
@@ -414,7 +384,7 @@ public abstract class AbstractMergeNetworkTest {
 
     @Test
     void testNoEmptyAdditionalSubnetworkIsCreated() {
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
         assertEquals(2, merge.getSubnetworks().size());
         assertNull(merge.getSubnetwork(MERGE));
         assertNotNull(merge.getSubnetwork(N1));
@@ -436,7 +406,7 @@ public abstract class AbstractMergeNetworkTest {
         addSubstation(n1, "s1");
         assertTrue(listenerCalled.booleanValue());
 
-        merge = Network.create(MERGE, n1, n2);
+        Network merge = Network.create(MERGE, n1, n2);
         Network subnetwork1 = merge.getSubnetwork(N1);
         Network subnetwork2 = merge.getSubnetwork(N2);
 
@@ -539,19 +509,16 @@ public abstract class AbstractMergeNetworkTest {
         addCommonSubstationsAndVoltageLevels();
         addLoad(n1, 1);
         addLoad(n2, 2);
-        merge.merge(n1, n2);
+        Network merge = Network.create(MERGE, n0, n1, n2);
         assertEquals(MERGE, merge.getId());
         assertEquals("hybrid", merge.getSourceFormat());
-        assertEquals(2, merge.getSubnetworks().size());
+        assertEquals(3, merge.getSubnetworks().size());
         checks(merge, 1, "asdf", d1);
         checks(merge, 2, "qwer", d2);
 
         // Parent network should remain indexed with the same id
         Identifiable<?> m = merge.getIdentifiable(MERGE);
         assertEquals(m, merge);
-        // Subnetwork without elements should not be created
-        Network mSub = merge.getSubnetwork(SUBNETWORK_FROM_MERGE);
-        assertNull(mSub);
         // Subnetwork with elements shall keep its elements
         Network m1 = merge.getSubnetwork(N1);
         assertNotNull(m1);
@@ -619,15 +586,15 @@ public abstract class AbstractMergeNetworkTest {
 
     @Test
     public void checkMergingSameFormat() {
-        merge.merge(n1);
+        Network merge = Network.create(MERGE, n0, n1);
         assertEquals(MERGE, merge.getId());
         assertEquals("asdf", merge.getSourceFormat());
     }
 
     @Test
     public void checkMergingDifferentFormat() {
-        merge.merge(n2);
-        assertEquals(MERGE, merge.getId());
+        Network merge = Network.create(n1, n2);
+        assertEquals(MERGE_DEFAULT_ID, merge.getId());
         assertEquals("hybrid", merge.getSourceFormat());
     }
 
@@ -642,11 +609,11 @@ public abstract class AbstractMergeNetworkTest {
                 .setP0(0.0)
                 .setQ0(0.0)
                 .add();
-        n1.merge(n2);
-        n1.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "test");
-        n1.getVariantManager().setWorkingVariant("test");
+        Network merge = Network.create(n1, n2);
+        merge.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "test");
+        merge.getVariantManager().setWorkingVariant("test");
         ld2.setP0(10);
-        n1.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        merge.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(0, ld2.getP0(), 0);
     }
 
@@ -655,10 +622,10 @@ public abstract class AbstractMergeNetworkTest {
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
         addDanglingLine(n2, "vl2", "dl3", "code", "b2", null);
-        n1.merge(n2);
-        assertNotNull(n1.getTieLine("dl1 + dl2"));
-        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
-        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getNameOrId());
+        Network merge = Network.create(n1, n2);
+        assertNotNull(merge.getTieLine("dl1 + dl2"));
+        assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
+        assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getNameOrId());
     }
 
     @Test
@@ -666,9 +633,9 @@ public abstract class AbstractMergeNetworkTest {
         addCommonSubstationsAndVoltageLevels();
         addCommonDanglingLines("dl1", "code", "dl2", "code");
         addDanglingLine(n1, "vl1", "dl3", "code", "b1", null);
-        n1.merge(n2);
-        assertNotNull(n1.getTieLine("dl1 + dl2"));
-        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
-        assertEquals("dl1_name + dl2_name", n1.getTieLine("dl1 + dl2").getNameOrId());
+        Network merge = Network.create(n1, n2);
+        assertNotNull(merge.getTieLine("dl1 + dl2"));
+        assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getOptionalName().orElse(null));
+        assertEquals("dl1_name + dl2_name", merge.getTieLine("dl1 + dl2").getNameOrId());
     }
 }

@@ -690,26 +690,6 @@ public class SubnetworkImpl extends AbstractNetwork {
         throw new UnsupportedOperationException("Inner subnetworks are not yet supported");
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>This operation is not allowed on a subnetwork.</p>
-     * <p>This method throws an {@link UnsupportedOperationException}</p>
-     */
-    @Override
-    public void merge(Network other) {
-        throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>This operation is not allowed on a subnetwork.</p>
-     * <p>This method throws an {@link UnsupportedOperationException}</p>
-     */
-    @Override
-    public void merge(Network... others) {
-        throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
-    }
-
     @Override
     public Network detach() {
         Set<Identifiable<?>> boundaryElements = getBoundaryElements();

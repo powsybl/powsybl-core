@@ -34,6 +34,14 @@ public interface NetworkFactory {
     Network createNetwork(String id, Network... networks);
 
     /**
+     * Create a network as the result of the merge of the given networks.
+     *
+     * @param networks the networks to merge
+     * @return the merged network
+     */
+    Network createNetwork(Network... networks);
+
+    /**
      * Find a {@code NetworkFactory} instance base on its name.
      *
      * @param name name of the {@code NetworkFactory}
