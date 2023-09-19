@@ -446,39 +446,7 @@ public interface Network extends Container<Network> {
         Stream<Switch> getSwitchStream();
 
         /**
-         * Get the switch count.class BusBreakerViewImpl implements BusBreakerView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return getBusStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return parent.getBusBreakerView().getBusStream().filter(SubnetworkImpl.this::contains);
-        }
-
-        @Override
-        public Iterable<Switch> getSwitches() {
-            return getSwitchStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Switch> getSwitchStream() {
-            return parent.getBusBreakerView().getSwitchStream().filter(SubnetworkImpl.this::contains);
-        }
-
-        @Override
-        public int getSwitchCount() {
-            return (int) getSwitchStream().count();
-        }
-
-        @Override
-        public Bus getBus(String id) {
-            Bus b = parent.getBusBreakerView().getBus(id);
-            return contains(b) ? b : null;
-        }
-    }
+         * Get the switch count.
          */
         int getSwitchCount();
 

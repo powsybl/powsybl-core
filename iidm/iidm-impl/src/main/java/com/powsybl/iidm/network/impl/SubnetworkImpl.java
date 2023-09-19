@@ -60,6 +60,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         return rootNetworkRef;
     }
 
+    @Override
     public final Collection<Network> getSubnetworks() {
         return Collections.emptyList();
     }

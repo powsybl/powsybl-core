@@ -30,8 +30,7 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
 
     AbstractNetwork(String id, String name, String sourceFormat) {
         super(id, name);
-        Objects.requireNonNull(sourceFormat, "source format is null");
-        this.sourceFormat = sourceFormat;
+        this.sourceFormat = Objects.requireNonNull(sourceFormat, "source format is null");
     }
 
     @Override
