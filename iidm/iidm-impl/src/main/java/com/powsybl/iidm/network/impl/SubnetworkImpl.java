@@ -710,8 +710,9 @@ public class SubnetworkImpl extends AbstractNetwork {
         NetworkImpl detachedNetwork = new NetworkImpl(getId(), getNameOrId(), getSourceFormat());
         transferExtensions(this, detachedNetwork);
 
-        // Memorize the network identifiables before moving references (to use them latter)
+        // Memorize the network identifiables/voltageAngleLimits before moving references (to use them latter)
         Collection<Identifiable<?>> identifiables = getIdentifiables();
+        Iterable<VoltageAngleLimit> vals = getVoltageAngleLimits();
 
         // Move the substations and voltageLevels to the new network
         ref.setRef(new RefObj<>(null));
@@ -729,6 +730,10 @@ public class SubnetworkImpl extends AbstractNetwork {
             if (i != this) {
                 detachedNetwork.getIndex().checkAndAdd(i);
             }
+        }
+        for (VoltageAngleLimit val : vals) {
+            previousRootNetwork.getVoltageAngleLimitsIndex().remove(val.getId());
+            detachedNetwork.getVoltageAngleLimitsIndex().put(val.getId(), val);
         }
 
         // We don't control that regulating terminals and phase/ratio regulation terminals are in the same subnetwork
