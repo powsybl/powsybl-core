@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.Overload;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
@@ -59,7 +60,7 @@ public final class BranchUtil {
         throw new IllegalStateException("Unexpected side: " + side);
     }
 
-    static int getOverloadDuration(Branch.Overload o1, Branch.Overload o2) {
+    static int getOverloadDuration(Overload o1, Overload o2) {
         int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         return Math.min(duration1, duration2);

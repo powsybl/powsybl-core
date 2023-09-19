@@ -37,6 +37,19 @@ public interface LimitViolationDetector {
     }
 
     /**
+     * Mirror checkCurrent on {@link Branch} but for {@link ThreeWindingsTransformer} instead.
+     *
+     * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
+     * @param transformer   The three windings transformer on which the current must be checked.
+     * @param side          The side of the three windings transformer on which the current must be checked.
+     * @param currentValue  The current value to be checked, in A.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkCurrent(Contingency contingency, ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+        checkCurrent(transformer, side, currentValue, consumer);
+    }
+
+    /**
      * Checks whether the current value on the specified side
      * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
      * In case it should, feeds the consumer with it.
@@ -154,6 +167,16 @@ public interface LimitViolationDetector {
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkCurrent(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer);
+
+    /**
+     * Mirror checkCurrent on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     *
+     * @param transformer   The transformer on which the current must be checked.
+     * @param side          The side of the transformer on which the current must be checked.
+     * @param currentValue  The current value to be checked, in A.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer);
 
     /**
      * Checks whether the specified active power value on the specified side
@@ -338,13 +361,49 @@ public interface LimitViolationDetector {
     }
 
     /**
+     * Mirror checkPermanentLimit on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     */
+    default void checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        if (LimitViolationUtils.checkPermanentLimit(transformer, side, limitReduction, value, type)) {
+            double limit = transformer.getLeg(side).getLimits(type).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
+            consumer.accept(new LimitViolation(transformer.getId(),
+                    transformer.getOptionalName().orElse(null),
+                    toLimitViolationType(type),
+                    LimitViolationUtils.PERMANENT_LIMIT_NAME,
+                    Integer.MAX_VALUE,
+                    limit,
+                    limitReduction,
+                    value,
+                    side));
+        }
+    }
+
+    /**
      * Generic implementation for temporary limit checks
      */
     default void checkTemporary(Branch<?> branch, Branch.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
+        Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
         if (overload != null) {
             consumer.accept(new LimitViolation(branch.getId(),
                     branch.getOptionalName().orElse(null),
+                    toLimitViolationType(type),
+                    overload.getPreviousLimitName(),
+                    overload.getTemporaryLimit().getAcceptableDuration(),
+                    overload.getPreviousLimit(),
+                    limitReduction,
+                    value,
+                    side));
+        }
+    }
+
+    /**
+     * Mirror checkTemporary on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     */
+    default void checkTemporary(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReduction, value, type);
+        if (overload != null) {
+            consumer.accept(new LimitViolation(transformer.getId(),
+                    transformer.getOptionalName().orElse(null),
                     toLimitViolationType(type),
                     overload.getPreviousLimitName(),
                     overload.getTemporaryLimit().getAcceptableDuration(),

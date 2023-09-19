@@ -35,4 +35,22 @@ public enum ThreeSides {
             default -> throw new PowsyblException("Cannot convert integer value " + num + " to ThreeSides.");
         };
     }
+
+    public Branch.Side toBranchSide() {
+        return switch (this) {
+            case ONE -> Branch.Side.ONE;
+            case TWO -> Branch.Side.TWO;
+            case THREE -> throw new PowsyblException("A Branch has only two sides, ONE and TWO, "
+                                                      + "here it is called with " + this.name());
+        };
+    }
+
+    public ThreeWindingsTransformer.Side toThreeWindingsTransformerSide() {
+        return switch (this) {
+            case ONE -> ThreeWindingsTransformer.Side.ONE;
+            case TWO -> ThreeWindingsTransformer.Side.TWO;
+            case THREE -> ThreeWindingsTransformer.Side.THREE;
+        };
+    }
+
 }

@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
-
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -279,6 +278,20 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         @Override
         public ThreeSides getSide() {
             return ThreeSides.valueOf(legNumber);
+        }
+
+        /**
+         * Mirror method getLimits of {@link Branch}, used in {@link DefaultLimitViolationDetector}.
+         */
+        @Override
+        public Optional<? extends LoadingLimits> getLimits(LimitType type) {
+            return switch (type) {
+                case CURRENT -> getCurrentLimits();
+                case ACTIVE_POWER -> getActivePowerLimits();
+                case APPARENT_POWER -> getApparentPowerLimits();
+                default ->
+                        throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
+            };
         }
     }
 

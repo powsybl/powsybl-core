@@ -128,6 +128,11 @@ class LimitViolationDetectorTest {
             }
 
             @Override
+            public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+                throw new UnsupportedOperationException("Not yet implemented!");
+            }
+
+            @Override
             public void checkVoltage(Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
                 doCheckVoltage(null, bus, consumer);
             }

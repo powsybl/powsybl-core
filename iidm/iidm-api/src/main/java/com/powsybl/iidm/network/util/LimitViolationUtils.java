@@ -6,9 +6,7 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.*;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -26,12 +24,28 @@ public final class LimitViolationUtils {
     private LimitViolationUtils() {
     }
 
-    public static Branch.Overload checkTemporaryLimits(Branch<?> branch, Branch.Side side, float limitReduction, double i, LimitType type) {
+    public static Overload checkTemporaryLimits(Branch<?> branch, Branch.Side side, float limitReduction, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
 
         if (!Double.isNaN(i)) {
             return branch.getLimits(type, side)
+                    .filter(l -> !Double.isNaN(l.getPermanentLimit()))
+                    .map(limits -> getOverload(limits, i, limitReduction))
+                    .orElse(null);
+        }
+        return null;
+    }
+
+    /**
+     * Mirror checkTemporaryLimits on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     */
+    public static Overload checkTemporaryLimits(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, double i, LimitType type) {
+        Objects.requireNonNull(transformer);
+        Objects.requireNonNull(side);
+
+        if (!Double.isNaN(i)) {
+            return transformer.getLeg(side).getLimits(type)
                     .filter(l -> !Double.isNaN(l.getPermanentLimit()))
                     .map(limits -> getOverload(limits, i, limitReduction))
                     .orElse(null);
@@ -56,6 +70,17 @@ public final class LimitViolationUtils {
 
     public static boolean checkPermanentLimit(Branch<?> branch, Branch.Side side, float limitReduction, double i, LimitType type) {
         return branch.getLimits(type, side)
+                .map(l -> !Double.isNaN(l.getPermanentLimit()) &&
+                        !Double.isNaN(i) &&
+                        i >= l.getPermanentLimit() * limitReduction)
+                .orElse(false);
+    }
+
+    /**
+     * Mirror checkPermanentLimit on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     */
+    public static boolean checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, float limitReduction, double i, LimitType type) {
+        return transformer.getLeg(side).getLimits(type)
                 .map(l -> !Double.isNaN(l.getPermanentLimit()) &&
                         !Double.isNaN(i) &&
                         i >= l.getPermanentLimit() * limitReduction)

@@ -116,7 +116,15 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     enum Side {
         ONE,
         TWO,
-        THREE
+        THREE;
+
+        public ThreeSides toThreeSides() {
+            return switch (this) {
+                case ONE -> ThreeSides.ONE;
+                case TWO -> ThreeSides.TWO;
+                case THREE -> ThreeSides.THREE;
+            };
+        }
     }
 
     /**
@@ -296,6 +304,11 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          * Get side of the leg on the three windings transformer
          */
         ThreeSides getSide();
+
+        /**
+         * Mirror method getLimits of {@link Branch}, used in {@link DefaultLimitViolationDetector}.
+         */
+        Optional<? extends LoadingLimits> getLimits(LimitType type);
     }
 
     Terminal getTerminal(Side side);

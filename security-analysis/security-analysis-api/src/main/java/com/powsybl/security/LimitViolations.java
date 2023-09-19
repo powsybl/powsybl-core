@@ -6,7 +6,7 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.Comparator;
 
@@ -19,7 +19,7 @@ public final class LimitViolations {
 
     private static final Comparator<LimitViolation> COMPARATOR = Comparator.comparing(LimitViolation::getLimitType)
             .thenComparing(LimitViolation::getSubjectId)
-            .thenComparing(LimitViolation::getSide, Comparator.nullsFirst(Branch.Side::compareTo))
+            .thenComparing(LimitViolation::getSide, Comparator.nullsFirst(ThreeSides::compareTo))
             .thenComparing(LimitViolation::getLimitName, Comparator.nullsFirst(String::compareTo))
             .thenComparing(LimitViolation::getAcceptableDuration)
             .thenComparing(LimitViolation::getLimit)

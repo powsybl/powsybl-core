@@ -49,6 +49,15 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         checkLimitViolation(branch, side, value, consumer, LimitType.CURRENT);
     }
 
+    /**
+     * Mirror checkCurrent on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     */
+    @Override
+    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer) {
+
+        checkLimitViolation(transformer, side, value, consumer, LimitType.CURRENT);
+    }
+
     @Override
     public void checkActivePower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
 
@@ -97,11 +106,23 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     public void checkLimitViolation(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
+        Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
         if (currentLimitTypes.contains(LoadingLimitType.TATL) && overload != null) {
             checkTemporary(branch, side, limitReduction, value, consumer, type);
         } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
             checkPermanentLimit(branch, side, limitReduction, value, consumer, type);
+        }
+    }
+
+    /**
+     * Mirror checkLimitViolation on {@link Branch} but it is on {@link ThreeWindingsTransformer} instead.
+     */
+    public void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReduction, value, type);
+        if (currentLimitTypes.contains(LoadingLimitType.TATL) && overload != null) {
+            checkTemporary(transformer, side, limitReduction, value, consumer, type);
+        } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
+            checkPermanentLimit(transformer, side, limitReduction, value, consumer, type);
         }
     }
 }

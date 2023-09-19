@@ -27,6 +27,11 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
     }
 
     @Override
+    public void checkCurrent(ThreeWindingsTransformer transformer, ThreeWindingsTransformer.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+        checkCurrent(null, transformer, side, currentValue, consumer);
+    }
+
+    @Override
     public void checkVoltage(Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
         checkVoltage(null, bus, voltageValue, consumer);
     }

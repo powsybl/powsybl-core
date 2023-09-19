@@ -1002,6 +1002,19 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(3, ThreeSides.THREE.getNum());
 
         assertThrows(PowsyblException.class, () -> ThreeSides.valueOf(4));
+
+        assertSame(Branch.Side.ONE, ThreeSides.ONE.toBranchSide());
+        assertSame(Branch.Side.TWO, ThreeSides.TWO.toBranchSide());
+        assertThrows(PowsyblException.class, ThreeSides.THREE::toBranchSide);
+        assertSame(ThreeWindingsTransformer.Side.ONE, ThreeSides.ONE.toThreeWindingsTransformerSide());
+        assertSame(ThreeWindingsTransformer.Side.TWO, ThreeSides.TWO.toThreeWindingsTransformerSide());
+        assertSame(ThreeWindingsTransformer.Side.THREE, ThreeSides.THREE.toThreeWindingsTransformerSide());
+
+        assertSame(ThreeSides.ONE, Branch.Side.ONE.toThreeSides());
+        assertSame(ThreeSides.TWO, Branch.Side.TWO.toThreeSides());
+        assertSame(ThreeSides.ONE, ThreeWindingsTransformer.Side.ONE.toThreeSides());
+        assertSame(ThreeSides.TWO, ThreeWindingsTransformer.Side.TWO.toThreeSides());
+        assertSame(ThreeSides.THREE, ThreeWindingsTransformer.Side.THREE.toThreeSides());
     }
 
     @Test
