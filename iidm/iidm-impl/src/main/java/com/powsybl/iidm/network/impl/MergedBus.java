@@ -85,6 +85,11 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
+    public Network getParentNetwork() {
+        return getVoltageLevel().getParentNetwork();
+    }
+
+    @Override
     public VoltageLevel getVoltageLevel() {
         checkValidity();
         return buses.iterator().next().getVoltageLevel();

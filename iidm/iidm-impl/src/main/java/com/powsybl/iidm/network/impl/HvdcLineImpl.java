@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -73,6 +74,17 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public NetworkImpl getNetwork() {
+        return networkRef.get();
+    }
+
+    @Override
+    public Network getParentNetwork() {
+        // the parent network is the network that contains both terminals of converter stations.
+        Network subnetwork1 = converterStation1.getParentNetwork();
+        Network subnetwork2 = converterStation2.getParentNetwork();
+        if (subnetwork1 == subnetwork2) {
+            return subnetwork1;
+        }
         return networkRef.get();
     }
 

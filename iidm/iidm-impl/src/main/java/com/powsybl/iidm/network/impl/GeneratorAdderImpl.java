@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
@@ -103,6 +104,15 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
+    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
+        return getNetworkRef();
+    }
+
+    private Ref<NetworkImpl> getNetworkRef() {
+        return voltageLevel.getNetworkRef();
+    }
+
+    @Override
     public GeneratorImpl add() {
         NetworkImpl network = getNetwork();
         if (network.getMinValidationLevel() == ValidationLevel.EQUIPMENT && voltageRegulatorOn == null) {
@@ -120,7 +130,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         GeneratorImpl generator
-                = new GeneratorImpl(network.getRef(),
+                = new GeneratorImpl(getNetworkRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
                                     voltageRegulatorOn, regulatingTerminal != null ? regulatingTerminal : terminal,
