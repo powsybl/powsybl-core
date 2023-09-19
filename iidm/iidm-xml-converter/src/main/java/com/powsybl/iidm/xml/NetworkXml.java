@@ -221,19 +221,7 @@ public final class NetworkXml {
     }
 
     private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        Collection<Identifiable<?>> identifiables = n.getIdentifiables();
-        if (supportSubnetworksExport(context)) {
-            identifiables = new LinkedHashSet<>(identifiables);
-            if (n.getParentNetwork() == n) {
-                // the subnetworks hold their extensions
-                identifiables.removeAll(n.getSubnetworks());
-            } else {
-                // Subnetworks are not in their own identifiables.
-                identifiables.add(n);
-            }
-        }
-
-        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(identifiables, context.getOptions())) {
+        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), context.getOptions())) {
             if (!context.isExportedEquipment(identifiable) || !retainElement(identifiable, n, context)) {
                 continue;
             }
@@ -391,7 +379,7 @@ public final class NetworkXml {
     private static boolean retainElement(Identifiable<?> element, Network n, NetworkXmlWriterContext context) {
         return !supportSubnetworksExport(context)
                 || n.getId().equals(element.getId()) // the element is the network
-                || element.getParentNetwork() == n; // the element is directly in the network (not in one of its subnetworks)
+                || element.getParentNetwork() == n && element.getType() != IdentifiableType.NETWORK; // the element is directly in the network (not in one of its subnetworks)
     }
 
     private static boolean supportSubnetworksExport(NetworkXmlWriterContext context) {
