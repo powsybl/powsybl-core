@@ -104,16 +104,8 @@ public interface Network extends Container<Network> {
         return Collections.emptyList();
     }
 
-    default Collection<String> getSubnetworkIds() {
-        return getSubnetworks().stream().map(Identifiable::getId).collect(Collectors.toList());
-    }
-
     default Network getSubnetwork(String id) {
         return null;
-    }
-
-    default Optional<Network> getOptionalSubnetwork(String subnetworkId) {
-        return Optional.ofNullable(getSubnetwork(subnetworkId));
     }
 
     /**
