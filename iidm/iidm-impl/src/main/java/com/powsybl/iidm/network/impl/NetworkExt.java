@@ -15,5 +15,9 @@ import com.powsybl.iidm.network.impl.util.RefChain;
  */
 public interface NetworkExt extends Network {
 
+    /**
+     * Return the reference to the root network which is also used within the network elements.
+     * This is used to easily update the root network of network elements when merging networks or detaching subnetworks.
+     */
     RefChain<NetworkImpl> getRootNetworkRef();
 }

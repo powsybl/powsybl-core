@@ -40,7 +40,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     /**
      * Reference to current network. This is used to easily update the root network reference in all equipments
-     * when merging two networks.
+     * when merging several networks.
      */
     private final RefChain<NetworkImpl> ref = new RefChain<>(new RefObj<>(this));
 
@@ -926,7 +926,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             }
         }
 
-        //Check mergeability of voltage angle limits
+        // check mergeability of voltage angle limits
         Set<String> intersectionVoltageAngleLimits = getVoltageAngleLimitsIndex().keySet().stream()
                 .filter(otherNetwork.getVoltageAngleLimitsIndex()::containsKey)
                 .collect(Collectors.toSet());

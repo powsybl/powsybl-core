@@ -1252,7 +1252,8 @@ public interface Network extends Container<Network> {
     boolean isDetachable();
 
     /**
-     * Return all the boundary elements of the current network, i.e. the elements linking this network and an external voltage level.
+     * Return all the boundary elements of the current network, i.e. the elements which link or might link this network
+     * to an external voltage level.
      *
      * @return a set containing the boundary elements of the network.
      */
