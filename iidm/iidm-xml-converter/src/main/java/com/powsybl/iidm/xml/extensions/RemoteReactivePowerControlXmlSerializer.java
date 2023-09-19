@@ -38,22 +38,21 @@ public class RemoteReactivePowerControlXmlSerializer extends AbstractExtensionXm
 
     @Override
     public void write(RemoteReactivePowerControl extension, XmlWriterContext context) throws XMLStreamException {
-        IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, (NetworkXmlWriterContext) context);
+        NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
+        IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, networkContext);
         XMLStreamWriter writer = context.getWriter();
         writer.writeAttribute("enabled", Boolean.toString(extension.isEnabled()));
         XmlUtil.writeDouble("targetQ", extension.getTargetQ(), writer);
-        TerminalRefXml.writeTerminalRefAttribute(extension.getRegulatingTerminal(), (NetworkXmlWriterContext) context);
+        TerminalRefXml.writeTerminalRefAttribute(extension.getRegulatingTerminal(), networkContext);
     }
 
     @Override
     public RemoteReactivePowerControl read(Generator extendable, XmlReaderContext context) throws XMLStreamException {
-        IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, (NetworkXmlReaderContext) context);
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
+        IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, networkContext);
         boolean enabled = XmlUtil.readBoolAttribute(context.getReader(), "enabled");
         double targetQ = XmlUtil.readDoubleAttribute(context.getReader(), "targetQ");
-        String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
-        String side = networkContext.getReader().getAttributeValue(null, "side");
-        Terminal terminal = TerminalRefXml.readTerminalRef(extendable.getNetwork(), id, side);
+        Terminal terminal = TerminalRefXml.readTerminal(networkContext, extendable.getNetwork());
         return extendable.newExtension(RemoteReactivePowerControlAdder.class)
                 .withEnabled(enabled)
                 .withTargetQ(targetQ)
