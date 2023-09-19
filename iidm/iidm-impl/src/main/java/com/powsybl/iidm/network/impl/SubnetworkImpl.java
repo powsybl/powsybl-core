@@ -82,7 +82,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     private boolean contains(Identifiable<?> identifiable) {
-        return identifiable != null && identifiable.getParentNetwork() == this;
+        return identifiable == this ||
+                identifiable != null && identifiable.getParentNetwork() == this;
     }
 
     @Override
@@ -723,11 +724,12 @@ public class SubnetworkImpl extends AbstractNetwork {
         rootNetworkRef.setRef(detachedNetwork.getRef());
 
         // Remove all the identifiers from the parent's index and add them to the detached network's index
-        identifiables.forEach(i -> {
+        for (Identifiable<?> i : identifiables) {
             previousRootNetwork.getIndex().remove(i);
-            detachedNetwork.getIndex().checkAndAdd(i);
-        });
-        previousRootNetwork.getIndex().remove(this);
+            if (i != this) {
+                detachedNetwork.getIndex().checkAndAdd(i);
+            }
+        }
 
         // We don't control that regulating terminals and phase/ratio regulation terminals are in the same subnetwork
         // as their network elements (generators, PSTs, ...). It is unlikely that those terminals and their elements
