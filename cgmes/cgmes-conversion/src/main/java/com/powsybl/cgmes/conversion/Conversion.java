@@ -281,6 +281,7 @@ public class Conversion {
                 .setName(ca.getLocal("name"))
                 .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
                 .setNetInterchange(ca.asDouble("netInterchange", Double.NaN))
+                .setPTolerance(ca.asDouble("pTolerance", Double.NaN))
                 .add();
     }
 
@@ -385,6 +386,7 @@ public class Conversion {
         PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
         if (sshDescription != null && !sshDescription.isEmpty()) {
             CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
+                    .setId(sshDescription.get(0).get("FullModel"))
                     .setDescription(sshDescription.get(0).get("description"))
                     .setSshVersion(readVersion(sshDescription, context))
                     .setModelingAuthoritySet(sshDescription.get(0).get("modelingAuthoritySet"));
