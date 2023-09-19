@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -74,7 +73,6 @@ class RemoteReactivePowerControlXmlTest extends AbstractXmlConverterTest {
     @Test
     void test() throws IOException {
         Network network = createTestNetwork();
-        network.write("XIIDM", new Properties(), Path.of("toto.xiidm"));
 
         RemoteReactivePowerControl rrpc = network.getGenerator("G").getExtension(RemoteReactivePowerControl.class);
         assertNotNull(rrpc);

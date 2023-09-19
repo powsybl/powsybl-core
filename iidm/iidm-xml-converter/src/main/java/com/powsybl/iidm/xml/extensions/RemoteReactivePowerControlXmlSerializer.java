@@ -25,6 +25,9 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+/**
+ * @author Damien Jeandemange <damien.jeandemange at artelys.com>
+ */
 @AutoService(ExtensionXmlSerializer.class)
 public class RemoteReactivePowerControlXmlSerializer extends AbstractExtensionXmlSerializer<Generator, RemoteReactivePowerControl> {
 
@@ -44,6 +47,7 @@ public class RemoteReactivePowerControlXmlSerializer extends AbstractExtensionXm
 
     @Override
     public RemoteReactivePowerControl read(Generator extendable, XmlReaderContext context) throws XMLStreamException {
+        IidmXmlUtil.assertMinimumVersion(getName(), IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, (NetworkXmlReaderContext) context);
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         boolean enabled = XmlUtil.readBoolAttribute(context.getReader(), "enabled");
         double targetQ = XmlUtil.readDoubleAttribute(context.getReader(), "targetQ");
