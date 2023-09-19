@@ -20,6 +20,7 @@ import java.util.Objects;
  */
 class CgmesSshMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSshMetadata> implements CgmesSshMetadataAdder {
 
+    private String id;
     private String description;
     private int sshVersion = 0;
     private final List<String> dependencies = new ArrayList<>();
@@ -27,6 +28,12 @@ class CgmesSshMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSsh
 
     public CgmesSshMetadataAdderImpl(Network extendable) {
         super(extendable);
+    }
+
+    @Override
+    public CgmesSshMetadataAdder setId(String id) {
+        this.id = id;
+        return this;
     }
 
     @Override
@@ -61,6 +68,6 @@ class CgmesSshMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSsh
         if (modelingAuthoritySet == null) {
             throw new PowsyblException("cgmesSshMetadata.modelingAuthoritySet is undefined");
         }
-        return new CgmesSshMetadataImpl(description, sshVersion, dependencies, modelingAuthoritySet);
+        return new CgmesSshMetadataImpl(id, description, sshVersion, dependencies, modelingAuthoritySet);
     }
 }
