@@ -11,6 +11,7 @@ import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -103,16 +104,8 @@ public interface Network extends Container<Network> {
         return Collections.emptyList();
     }
 
-    default Collection<String> getSubnetworkIds() {
-        return getSubnetworks().stream().map(Identifiable::getId).collect(Collectors.toList());
-    }
-
     default Network getSubnetwork(String id) {
         return null;
-    }
-
-    default Optional<Network> getOptionalSubnetwork(String subnetworkId) {
-        return Optional.ofNullable(getSubnetwork(subnetworkId));
     }
 
     /**
@@ -445,39 +438,7 @@ public interface Network extends Container<Network> {
         Stream<Switch> getSwitchStream();
 
         /**
-         * Get the switch count.class BusBreakerViewImpl implements BusBreakerView {
-
-        @Override
-        public Iterable<Bus> getBuses() {
-            return getBusStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Bus> getBusStream() {
-            return parent.getBusBreakerView().getBusStream().filter(SubnetworkImpl.this::contains);
-        }
-
-        @Override
-        public Iterable<Switch> getSwitches() {
-            return getSwitchStream().collect(Collectors.toList());
-        }
-
-        @Override
-        public Stream<Switch> getSwitchStream() {
-            return parent.getBusBreakerView().getSwitchStream().filter(SubnetworkImpl.this::contains);
-        }
-
-        @Override
-        public int getSwitchCount() {
-            return (int) getSwitchStream().count();
-        }
-
-        @Override
-        public Bus getBus(String id) {
-            Bus b = parent.getBusBreakerView().getBus(id);
-            return contains(b) ? b : null;
-        }
-    }
+         * Get the switch count.
          */
         int getSwitchCount();
 
@@ -543,6 +504,16 @@ public interface Network extends Container<Network> {
      */
     static Network create(String id, String sourceFormat) {
         return NetworkFactory.findDefault().createNetwork(id, sourceFormat);
+    }
+
+    /**
+     * Create a network (using default implementation) as the result of the merge of the given networks. Each underlying
+     * network becomes a subnetwork.
+     *
+     * @return the merged network with subnetworks inside.
+     */
+    static Network create(Network... networks) {
+        return NetworkFactory.findDefault().createNetwork(networks);
     }
 
     /**
@@ -1233,6 +1204,26 @@ public interface Network extends Container<Network> {
     BusView getBusView();
 
     /**
+     * Get a builder to create a new VoltageAngleLimit.
+     */
+    VoltageAngleLimitAdder newVoltageAngleLimit();
+
+    /**
+     * Get all voltageAngleLimits.
+     */
+    Iterable<VoltageAngleLimit> getVoltageAngleLimits();
+
+    /**
+     * Get all voltageAngleLimits.
+     */
+    Stream<VoltageAngleLimit> getVoltageAngleLimitsStream();
+
+    /**
+     * Get voltage angle limit with id
+     */
+    VoltageAngleLimit getVoltageAngleLimit(String id);
+
+    /**
      * Create an empty subnetwork in the current network.
      *
      * @param subnetworkId id of the subnetwork
@@ -1241,15 +1232,6 @@ public interface Network extends Container<Network> {
      * @return the created subnetwork
      */
     Network createSubnetwork(String subnetworkId, String name, String sourceFormat);
-
-    /**
-     * Merge the current network with another one. At the end of this operation, <code>other</code>
-     * is empty (destructive merge) and the current network contains two subnetworks.
-     * @param other the other network
-     */
-    void merge(Network other);
-
-    void merge(Network... others);
 
     /**
      * <p>Detach the current network (including its subnetworks) from its parent network.</p>
@@ -1271,7 +1253,8 @@ public interface Network extends Container<Network> {
     boolean isDetachable();
 
     /**
-     * Return all the boundary elements of the current network, i.e. the elements linking this network and an external voltage level.
+     * Return all the boundary elements of the current network, i.e. the elements which link or might link this network
+     * to an external voltage level.
      *
      * @return a set containing the boundary elements of the network.
      */

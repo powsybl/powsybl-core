@@ -131,6 +131,10 @@ public final class CgmesExportUtil {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
         }
+        if (modelDescription.getSupersedes() != null) {
+            writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.SUPERSEDES);
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, modelDescription.getSupersedes());
+        }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters(modelDescription.getProfile());
         writer.writeEndElement();

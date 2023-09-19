@@ -9,14 +9,14 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TopologyPoint;
 import com.powsybl.iidm.network.impl.util.Ref;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -43,9 +43,9 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     }
 
     @Override
-    public Network getParentNetwork() {
+    public NetworkExt getParentNetwork() {
         // the parent network is the network that contains all terminals of the connectable.
-        List<Network> subnetworks = terminals.stream().map(t -> t.getVoltageLevel().getParentNetwork()).distinct().collect(Collectors.toList());
+        List<NetworkExt> subnetworks = terminals.stream().map(t -> t.getVoltageLevel().getParentNetwork()).distinct().toList();
         if (subnetworks.size() == 1) {
             return subnetworks.get(0);
         }

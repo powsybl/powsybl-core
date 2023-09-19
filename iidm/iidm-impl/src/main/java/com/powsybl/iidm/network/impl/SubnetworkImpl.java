@@ -11,13 +11,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.RefChain;
+import com.powsybl.iidm.network.impl.util.RefObj;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -31,17 +30,38 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SubnetworkImpl.class);
 
+    /**
+     * Reference to the root network, hence the parent network in this implementation (only one level of subnetworks).
+     * This is used to easily update the root network in all equipments when detaching this subnetwork.
+     */
     private final RefChain<NetworkImpl> rootNetworkRef;
+
+    /**
+     * Reference to current subnetwork. This is used to easily update the subnetwork reference in substations / voltage
+     * levels when detaching this subnetwork.
+     */
+    private final RefChain<SubnetworkImpl> ref;
 
     SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
         this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
+        this.ref = new RefChain<>(new RefObj<>(this));
     }
 
+    SubnetworkImpl(RefChain<NetworkImpl> rootNetworkRef, RefChain<SubnetworkImpl> subnetworkRef, String id, String name, String sourceFormat, DateTime caseDate) {
+        super(id, name, sourceFormat);
+        this.rootNetworkRef = Objects.requireNonNull(rootNetworkRef);
+        this.ref = Objects.requireNonNull(subnetworkRef);
+        this.ref.setRef(new RefObj<>(this));
+        setCaseDate(caseDate);
+    }
+
+    @Override
     public RefChain<NetworkImpl> getRootNetworkRef() {
         return rootNetworkRef;
     }
 
+    @Override
     public final Collection<Network> getSubnetworks() {
         return Collections.emptyList();
     }
@@ -62,7 +82,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     private boolean contains(Identifiable<?> identifiable) {
-        return identifiable != null && identifiable.getParentNetwork() == this;
+        return identifiable == this ||
+                identifiable != null && identifiable.getParentNetwork() == this;
     }
 
     @Override
@@ -84,12 +105,12 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public SubstationAdder newSubstation() {
-        return new SubstationAdderImpl(rootNetworkRef, id);
+        return new SubstationAdderImpl(rootNetworkRef, ref);
     }
 
     @Override
     public Iterable<Substation> getSubstations() {
-        return getSubstationStream().collect(Collectors.toList());
+        return getSubstationStream().toList();
     }
 
     @Override
@@ -106,14 +127,14 @@ public class SubnetworkImpl extends AbstractNetwork {
     public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
         return StreamSupport.stream(getNetwork().getSubstations(country, tsoId, geographicalTags).spliterator(), false)
                 .filter(this::contains)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags) {
         return StreamSupport.stream(getNetwork().getSubstations(country, tsoId, geographicalTags).spliterator(), false)
                 .filter(this::contains)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -124,12 +145,12 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return new VoltageLevelAdderImpl(rootNetworkRef, id);
+        return new VoltageLevelAdderImpl(rootNetworkRef, ref);
     }
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return getVoltageLevelStream().collect(Collectors.toList());
+        return getVoltageLevelStream().toList();
     }
 
     @Override
@@ -155,7 +176,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Line> getLines() {
-        return getLineStream().collect(Collectors.toList());
+        return getLineStream().toList();
     }
 
     @Override
@@ -166,7 +187,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Branch> getBranches() {
-        return getBranchStream().collect(Collectors.toList());
+        return getBranchStream().toList();
     }
 
     @Override
@@ -196,13 +217,38 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public VoltageAngleLimitAdder newVoltageAngleLimit() {
+        return new VoltageAngleLimitAdderImpl(rootNetworkRef, id);
+    }
+
+    @Override
+    public Iterable<VoltageAngleLimit> getVoltageAngleLimits() {
+        return getVoltageAngleLimitsStream().toList();
+    }
+
+    @Override
+    public Stream<VoltageAngleLimit> getVoltageAngleLimitsStream() {
+        return getNetwork().getVoltageAngleLimitsStream()
+                .filter(val -> contains(val.getTerminalFrom().getVoltageLevel()) && contains(val.getTerminalTo().getVoltageLevel()));
+    }
+
+    @Override
+    public VoltageAngleLimit getVoltageAngleLimit(String id) {
+        VoltageAngleLimitImpl val = (VoltageAngleLimitImpl) getNetwork().getVoltageAngleLimit(id);
+        boolean valInSubnetwork = val != null
+                && id.equals(val.getTerminalFrom().getVoltageLevel().getParentNetwork().getId())
+                && id.equals(val.getTerminalTo().getVoltageLevel().getParentNetwork().getId());
+        return valInSubnetwork ? val : null;
+    }
+
+    @Override
     public TieLineAdder newTieLine() {
         return getNetwork().newTieLine(id);
     }
 
     @Override
     public Iterable<TieLine> getTieLines() {
-        return getTieLineStream().collect(Collectors.toList());
+        return getTieLineStream().toList();
     }
 
     @Override
@@ -223,7 +269,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return getTwoWindingsTransformerStream().collect(Collectors.toList());
+        return getTwoWindingsTransformerStream().toList();
     }
 
     @Override
@@ -244,7 +290,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return getThreeWindingsTransformerStream().collect(Collectors.toList());
+        return getThreeWindingsTransformerStream().toList();
     }
 
     @Override
@@ -265,7 +311,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return getGeneratorStream().collect(Collectors.toList());
+        return getGeneratorStream().toList();
     }
 
     @Override
@@ -286,7 +332,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Battery> getBatteries() {
-        return getBatteryStream().collect(Collectors.toList());
+        return getBatteryStream().toList();
     }
 
     @Override
@@ -307,7 +353,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Load> getLoads() {
-        return getLoadStream().collect(Collectors.toList());
+        return getLoadStream().toList();
     }
 
     @Override
@@ -328,7 +374,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
-        return getShuntCompensatorStream().collect(Collectors.toList());
+        return getShuntCompensatorStream().toList();
     }
 
     @Override
@@ -349,7 +395,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<DanglingLine> getDanglingLines(DanglingLineFilter danglingLineFilter) {
-        return getDanglingLineStream(danglingLineFilter).collect(Collectors.toList());
+        return getDanglingLineStream(danglingLineFilter).toList();
     }
 
     @Override
@@ -380,7 +426,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        return getStaticVarCompensatorStream().collect(Collectors.toList());
+        return getStaticVarCompensatorStream().toList();
     }
 
     @Override
@@ -407,7 +453,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Switch> getSwitches() {
-        return getSwitchStream().collect(Collectors.toList());
+        return getSwitchStream().toList();
     }
 
     @Override
@@ -428,7 +474,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<BusbarSection> getBusbarSections() {
-        return getBusbarSectionStream().collect(Collectors.toList());
+        return getBusbarSectionStream().toList();
     }
 
     @Override
@@ -443,7 +489,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<HvdcConverterStation<?>> getHvdcConverterStations() {
-        return getHvdcConverterStationStream().collect(Collectors.toList());
+        return getHvdcConverterStationStream().toList();
     }
 
     @Override
@@ -464,7 +510,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return getLccConverterStationStream().collect(Collectors.toList());
+        return getLccConverterStationStream().toList();
     }
 
     @Override
@@ -485,7 +531,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        return getVscConverterStationStream().collect(Collectors.toList());
+        return getVscConverterStationStream().toList();
     }
 
     @Override
@@ -506,7 +552,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<HvdcLine> getHvdcLines() {
-        return getHvdcLineStream().collect(Collectors.toList());
+        return getHvdcLineStream().toList();
     }
 
     @Override
@@ -549,12 +595,12 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Collection<Identifiable<?>> getIdentifiables() {
-        return getNetwork().getIdentifiables().stream().filter(this::contains).collect(Collectors.toList());
+        return getNetwork().getIdentifiables().stream().filter(this::contains).toList();
     }
 
     @Override
     public <C extends Connectable> Iterable<C> getConnectables(Class<C> clazz) {
-        return getConnectableStream(clazz).collect(Collectors.toList());
+        return getConnectableStream(clazz).toList();
     }
 
     @Override
@@ -569,7 +615,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Connectable> getConnectables() {
-        return getConnectableStream().collect(Collectors.toList());
+        return getConnectableStream().toList();
     }
 
     @Override
@@ -615,16 +661,16 @@ public class SubnetworkImpl extends AbstractNetwork {
         public Collection<Component> getConnectedComponents() {
             return getNetwork().getBusView().getConnectedComponents().stream()
                     .filter(c -> c.getBusStream().anyMatch(SubnetworkImpl.this::contains))
-                    .map(c -> new Subcomponent(c, SubnetworkImpl.this))
-                    .collect(Collectors.toList());
+                    .map(c -> (Component) new Subcomponent(c, SubnetworkImpl.this))
+                    .toList();
         }
 
         @Override
         public Collection<Component> getSynchronousComponents() {
             return getNetwork().getBusView().getSynchronousComponents().stream()
                     .filter(c -> c.getBusStream().anyMatch(SubnetworkImpl.this::contains))
-                    .map(c -> new Subcomponent(c, SubnetworkImpl.this))
-                    .collect(Collectors.toList());
+                    .map(c -> (Component) new Subcomponent(c, SubnetworkImpl.this))
+                    .toList();
         }
     }
 
@@ -645,26 +691,6 @@ public class SubnetworkImpl extends AbstractNetwork {
         throw new UnsupportedOperationException("Inner subnetworks are not yet supported");
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>This operation is not allowed on a subnetwork.</p>
-     * <p>This method throws an {@link UnsupportedOperationException}</p>
-     */
-    @Override
-    public void merge(Network other) {
-        throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>This operation is not allowed on a subnetwork.</p>
-     * <p>This method throws an {@link UnsupportedOperationException}</p>
-     */
-    @Override
-    public void merge(Network... others) {
-        throw new UnsupportedOperationException("Network " + id + " is already a subnetwork: not supported");
-    }
-
     @Override
     public Network detach() {
         Set<Identifiable<?>> boundaryElements = getBoundaryElements();
@@ -674,20 +700,22 @@ public class SubnetworkImpl extends AbstractNetwork {
 
         // Remove tie-lines
         boundaryElements.stream()
-                .filter(i -> i.getType() == IdentifiableType.TIE_LINE)
-                .map(TieLineImpl.class::cast)
-                .forEach(t -> t.remove(true));
+                .filter(DanglingLine.class::isInstance)
+                .map(DanglingLine.class::cast)
+                .map(DanglingLine::getTieLine)
+                .filter(Optional::isPresent)
+                .forEach(t -> t.get().remove(true));
 
         // Create a new NetworkImpl and transfer the extensions to it
         NetworkImpl detachedNetwork = new NetworkImpl(getId(), getNameOrId(), getSourceFormat());
         transferExtensions(this, detachedNetwork);
 
-        // Memorize the network identifiables before moving references (to use them latter)
+        // Memorize the network identifiables/voltageAngleLimits before moving references (to use them latter)
         Collection<Identifiable<?>> identifiables = getIdentifiables();
+        Iterable<VoltageAngleLimit> vals = getVoltageAngleLimits();
 
         // Move the substations and voltageLevels to the new network
-        getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(null));
-        getVoltageLevelStream().forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(null));
+        ref.setRef(new RefObj<>(null));
 
         // Remove the old subnetwork from the subnetworks list of the current parent network
         NetworkImpl previousRootNetwork = rootNetworkRef.get();
@@ -697,10 +725,16 @@ public class SubnetworkImpl extends AbstractNetwork {
         rootNetworkRef.setRef(detachedNetwork.getRef());
 
         // Remove all the identifiers from the parent's index and add them to the detached network's index
-        identifiables.forEach(i -> {
+        for (Identifiable<?> i : identifiables) {
             previousRootNetwork.getIndex().remove(i);
-            detachedNetwork.getIndex().checkAndAdd(i);
-        });
+            if (i != this) {
+                detachedNetwork.getIndex().checkAndAdd(i);
+            }
+        }
+        for (VoltageAngleLimit val : vals) {
+            previousRootNetwork.getVoltageAngleLimitsIndex().remove(val.getId());
+            detachedNetwork.getVoltageAngleLimitsIndex().put(val.getId(), val);
+        }
 
         // We don't control that regulating terminals and phase/ratio regulation terminals are in the same subnetwork
         // as their network elements (generators, PSTs, ...). It is unlikely that those terminals and their elements
@@ -731,7 +765,15 @@ public class SubnetworkImpl extends AbstractNetwork {
         }
         if (boundaryElements.stream().anyMatch(Predicate.not(SubnetworkImpl::isSplittable))) {
             if (throwsException) {
-                throw new PowsyblException("Some un-splittable boundary elements prevent the subnetwork to be detached");
+                throw new PowsyblException("Un-splittable boundary elements prevent the subnetwork to be detached: "
+                        + boundaryElements.stream().filter(Predicate.not(SubnetworkImpl::isSplittable)).map(Identifiable::getId).collect(Collectors.joining(", ")));
+            }
+            return false;
+        }
+        if (getNetwork().getVoltageAngleLimitsStream().anyMatch(this::isBoundary)) {
+            if (throwsException) {
+                throw new PowsyblException("VoltageAngleLimits prevent the subnetwork to be detached: "
+                        + getNetwork().getVoltageAngleLimitsStream().filter(this::isBoundary).map(VoltageAngleLimit::getId).collect(Collectors.joining(", ")));
             }
             return false;
         }
@@ -739,21 +781,19 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     private static boolean isSplittable(Identifiable<?> identifiable) {
-        return identifiable.getType() == IdentifiableType.TIE_LINE;
+        return identifiable.getType() == IdentifiableType.DANGLING_LINE;
     }
 
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
         // transformers cannot link different subnetworks for the moment.
-        Stream<Line> lines = getNetwork().getLineStream();
-        Stream<TieLine> tieLineStream = getNetwork().getTieLineStream();
-        Stream<HvdcLine> hvdcLineStream = getNetwork().getHvdcLineStream();
+        Stream<Line> lines = getNetwork().getLineStream().filter(i -> i.getParentNetwork() == getNetwork());
+        Stream<DanglingLine> danglingLineStream = getDanglingLineStream();
+        Stream<HvdcLine> hvdcLineStream = getNetwork().getHvdcLineStream().filter(i -> i.getParentNetwork() == getNetwork());
 
-        return Stream.of(lines, tieLineStream, hvdcLineStream)
+        return Stream.of(lines, danglingLineStream, hvdcLineStream)
                 .flatMap(Function.identity())
                 .map(o -> (Identifiable<?>) o)
-                // Boundary elements are not entirely contained by the subnetwork => they are registered in the parent network
-                .filter(i -> i.getParentNetwork() == getNetwork())
                 .filter(this::isBoundaryElement)
                 .collect(Collectors.toSet());
     }
@@ -763,6 +803,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         return switch (identifiable.getType()) {
             case LINE, TIE_LINE -> isBoundary((Branch<?>) identifiable);
             case HVDC_LINE -> isBoundary((HvdcLine) identifiable);
+            case DANGLING_LINE -> isBoundary((DanglingLine) identifiable);
             default -> false;
         };
     }
@@ -774,6 +815,16 @@ public class SubnetworkImpl extends AbstractNetwork {
     private boolean isBoundary(HvdcLine hvdcLine) {
         return isBoundary(hvdcLine.getConverterStation1().getTerminal(),
                 hvdcLine.getConverterStation2().getTerminal());
+    }
+
+    private boolean isBoundary(DanglingLine danglingLine) {
+        return danglingLine.getTieLine()
+                .map(this::isBoundary)
+                .orElse(true);
+    }
+
+    private boolean isBoundary(VoltageAngleLimit val) {
+        return isBoundary(val.getTerminalFrom(), val.getTerminalTo());
     }
 
     private boolean isBoundary(Terminal terminal1, Terminal terminal2) {

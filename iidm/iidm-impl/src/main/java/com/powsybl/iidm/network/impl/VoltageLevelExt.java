@@ -39,6 +39,9 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     NetworkImpl getNetwork();
 
+    @Override
+    NetworkExt getParentNetwork();
+
     /**
      * Attach an equipment to the topology.
      */
@@ -59,9 +62,7 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     void invalidateCache(boolean exceptBusBreakerView);
 
-    void setSubnetwork(String subnetwork);
-
-    String getSubnetwork();
+    String getSubnetworkId();
 
     Ref<NetworkImpl> getNetworkRef();
 }

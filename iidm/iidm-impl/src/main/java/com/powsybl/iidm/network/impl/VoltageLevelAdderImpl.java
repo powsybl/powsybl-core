@@ -22,7 +22,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
 
     private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
-    private final String subnetwork;
+    private final Ref<SubnetworkImpl> subnetworkRef;
 
     private double nominalV = Double.NaN;
 
@@ -34,14 +34,14 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
 
     VoltageLevelAdderImpl(SubstationImpl substation) {
         this.substation = substation;
-        this.subnetwork = substation.getSubnetwork();
+        this.subnetworkRef = substation.getSubnetworkRef();
         this.networkRef = substation.getNetworkRef();
     }
 
-    VoltageLevelAdderImpl(Ref<NetworkImpl> networkRef, String subnetwork) {
+    VoltageLevelAdderImpl(Ref<NetworkImpl> networkRef, Ref<SubnetworkImpl> subnetworkRef) {
         this.networkRef = networkRef;
         substation = null;
-        this.subnetwork = subnetwork;
+        this.subnetworkRef = subnetworkRef;
     }
 
     @Override
@@ -96,15 +96,14 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         VoltageLevelExt voltageLevel;
         switch (topologyKind) {
             case NODE_BREAKER:
-                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             case BUS_BREAKER:
-                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, subnetworkRef, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             default:
                 throw new IllegalStateException();
         }
-        voltageLevel.setSubnetwork(subnetwork);
         getNetwork().getIndex().checkAndAdd(voltageLevel);
         Optional.ofNullable(substation).ifPresent(s -> s.addVoltageLevel(voltageLevel));
         getNetwork().getListeners().notifyCreation(voltageLevel);

@@ -424,31 +424,4 @@ public final class Networks {
             throw new IllegalArgumentException("The voltage level " + voltageLevel.getId() + " is not described in Node/Breaker topology");
         }
     }
-
-    /**
-     * Check if an identifiable is <b>directly</b> in the network.<br/>
-     * If the identifiable is in a subnetwork of the network, this method will return <code>false</code>.
-     *
-     * @param network a network
-     * @param identifiable the identifiable to check
-     * @return true if the identifiable is <b>directly</b> in the network
-     */
-    public static boolean containsDirectly(Network network, Identifiable<?> identifiable) {
-        return identifiable != null && identifiable.getParentNetwork() == network;
-    }
-
-    /**
-     * Check if the network contains the identifiable.
-     *
-     * @param network a network
-     * @param identifiable the identifiable to check
-     * @return true is the identifiable is in the network
-     */
-    public static boolean contains(Network network, Identifiable<?> identifiable) {
-        if (containsDirectly(network, identifiable)) {
-            return true;
-        }
-        return network.getSubnetworks().stream().anyMatch(subnetwork -> containsDirectly(subnetwork, identifiable));
-    }
-
 }

@@ -43,7 +43,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
                                  Integer tapPosition, boolean regulating, double targetDeadband, String type) {
         // The Ref object should be the one corresponding to the subnetwork of the tap changer holder
         // (to avoid errors when the subnetwork is detached)
-        this.network = NetworkUtil.getRef(parent.getNetwork(), parent.getParentNetwork());
+        this.network = parent.getParentNetwork().getRootNetworkRef();
         this.parent = parent;
         this.lowTapPosition = lowTapPosition;
         this.steps = steps;

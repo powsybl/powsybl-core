@@ -38,12 +38,24 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
+    /**
+     * Reference to current network. This is used to easily update the root network reference in all equipments
+     * when merging several networks.
+     */
     private final RefChain<NetworkImpl> ref = new RefChain<>(new RefObj<>(this));
+
+    /**
+     * Reference to the subnetwork, hence the contained subnetwork is always null until a merge occurs
+     * This is used to easily update the subnetwork in all substations and voltage levels during the merge.
+     */
+    private RefChain<SubnetworkImpl> subnetworkRef = new RefChain<>(new RefObj<>(null));
 
     private ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
     private ValidationLevel minValidationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
 
     private final NetworkIndex index = new NetworkIndex();
+
+    private final Map<String, VoltageAngleLimit> voltageAngleLimitsIndex = new LinkedHashMap<>();
 
     private final VariantManagerImpl variantManager;
 
@@ -124,31 +136,35 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
 
         NetworkImpl mergedNetwork = new NetworkImpl(id, name, networks[0].getSourceFormat());
-
-        // Use the less restrictive validation level for the merged network
-        ValidationLevel minLevel = mergedNetwork.getMinValidationLevel(); // default min validation level
-        for (Network n : networks) {
-            if (n instanceof NetworkImpl networkImpl) {
-                minLevel = ValidationLevel.min(minLevel, networkImpl.getMinValidationLevel());
-            }
-        }
-        mergedNetwork.setMinimumAcceptableValidationLevel(minLevel);
-
+        setValidationLevels(mergedNetwork, networks);
         for (Network other : networks) {
-            mergedNetwork.merge(other, false);
+            mergedNetwork.merge(other);
         }
 
         return mergedNetwork;
+    }
+
+    private static void setValidationLevels(NetworkImpl mergedNetwork, Network[] networks) {
+        // Use the less restrictive validation level for the merged network
+        ValidationLevel minLevel = mergedNetwork.getMinValidationLevel(); // default min validation level
+        ValidationLevel validationLevel = mergedNetwork.getValidationLevel(); // default min validation level
+        for (Network n : networks) {
+            if (n instanceof NetworkImpl networkImpl) {
+                minLevel = ValidationLevel.min(minLevel, networkImpl.getMinValidationLevel());
+                validationLevel = ValidationLevel.min(validationLevel, networkImpl.getValidationLevel());
+            }
+        }
+        mergedNetwork.setMinimumAcceptableValidationLevel(minLevel);
+        mergedNetwork.setValidationLevelIfGreaterThan(validationLevel);
     }
 
     RefChain<NetworkImpl> getRef() {
         return ref;
     }
 
-    RefChain<NetworkImpl> getRef(String subnetworkId) {
-        return Optional.ofNullable(subnetworks.get(subnetworkId))
-                .map(SubnetworkImpl::getRootNetworkRef)
-                .orElseThrow(() -> new PowsyblException("Unknown subnetworkId: " + subnetworkId));
+    @Override
+    public RefChain<NetworkImpl> getRootNetworkRef() {
+        return getRef();
     }
 
     NetworkListenerList getListeners() {
@@ -157,6 +173,25 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     public NetworkIndex getIndex() {
         return index;
+    }
+
+    public Map<String, VoltageAngleLimit> getVoltageAngleLimitsIndex() {
+        return voltageAngleLimitsIndex;
+    }
+
+    @Override
+    public VoltageAngleLimit getVoltageAngleLimit(String id) {
+        return voltageAngleLimitsIndex.get(id);
+    }
+
+    @Override
+    public Stream<VoltageAngleLimit> getVoltageAngleLimitsStream() {
+        return voltageAngleLimitsIndex.values().stream();
+    }
+
+    @Override
+    public Iterable<VoltageAngleLimit> getVoltageAngleLimits() {
+        return voltageAngleLimitsIndex.values();
     }
 
     @Override
@@ -194,7 +229,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public SubstationAdder newSubstation() {
-        return new SubstationAdderImpl(ref, null);
+        return new SubstationAdderImpl(ref, subnetworkRef);
     }
 
     @Override
@@ -229,7 +264,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public VoltageLevelAdder newVoltageLevel() {
-        return new VoltageLevelAdderImpl(ref, null);
+        return new VoltageLevelAdderImpl(ref, subnetworkRef);
     }
 
     @Override
@@ -688,6 +723,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     @Override
+    public VoltageAngleLimitAdder newVoltageAngleLimit() {
+        return new VoltageAngleLimitAdderImpl(ref);
+    }
+
+    @Override
     public BusBreakerViewImpl getBusBreakerView() {
         return busBreakerView;
     }
@@ -851,12 +891,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
     }
 
-    @Override
-    public void merge(Network other) {
-        merge(other, true);
-    }
-
-    private void merge(Network other, boolean allowSubnetworkCreationForMyself) {
+    private void merge(Network other) {
         checkIndependentNetwork(other);
         NetworkImpl otherNetwork = (NetworkImpl) other;
 
@@ -870,34 +905,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         long start = System.currentTimeMillis();
 
-        // if the validation level of other is lower than the current network's minimum validation level, we can not incorporate it
-        if (other.getValidationLevel().compareTo(getMinValidationLevel()) < 0) {
-            throw new PowsyblException("Network " + other.getNetwork() + " cannot be merged: its validation level " +
-                    "is lower than the minimum acceptable validation level of network " + getId() + " (" +
-                    other.getValidationLevel() + " < " + getMinValidationLevel() + ")");
-        }
-        // update the validation level (without recomputing it)
-        this.validationLevel = ValidationLevel.min(this.getValidationLevel(), other.getValidationLevel());
-
-        // check mergeability
-        Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
-        for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
-            Class<? extends Identifiable> clazz = entry.getKey();
-            Collection<String> objs = entry.getValue();
-            if (!objs.isEmpty()) {
-                throw new PowsyblException("The following object(s) of type "
-                        + clazz.getSimpleName() + " exist(s) in both networks: "
-                        + objs);
-            }
-        }
-
-        // create the subnetwork corresponding to the current network (if it doesn't already exist)
-        if (allowSubnetworkCreationForMyself) {
-            SubnetworkImpl n = createSubnetwork(this, this);
-            subnetworks.put(n.getId(), n);
-            getSubstationStream().filter(s -> s.getParentNetwork() == this).forEach(s -> ((SubstationImpl) s).setSubnetwork(n.getId()));
-            getVoltageLevelStream().filter(v -> v.getParentNetwork() == this).forEach(v -> ((AbstractVoltageLevel) v).setSubnetwork(n.getId()));
-        }
+        checkMergeability(otherNetwork);
 
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
@@ -912,11 +920,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             findAndAssociateDanglingLines(dl2, dl1byXnodeCode::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byXnodeCode));
         }
 
-        // create subnetworks for the other network
-        otherNetwork.getRef().setRef(ref);
-        subnetworks.put(otherNetwork.getId(), createSubnetwork(this, otherNetwork));
-        otherNetwork.getSubstationStream().forEach(s -> ((SubstationImpl) s).setSubnetwork(otherNetwork.id));
-        otherNetwork.getVoltageLevelStream().forEach(vl -> ((VoltageLevelExt) vl).setSubnetwork(otherNetwork.id));
+        // create a subnetwork for the other network
+        createSubnetwork(this, otherNetwork);
 
         // do not forget to remove the other network from its index!!!
         otherNetwork.index.remove(otherNetwork);
@@ -924,13 +929,9 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         // merge the indexes
         index.merge(otherNetwork.index);
 
-        // fix network back reference of the other network objects
-        for (SubnetworkImpl subnetwork : otherNetwork.subnetworks.values()) {
-            subnetwork.getRootNetworkRef().setRef(ref);
-            subnetworks.put(subnetwork.getId(), subnetwork);
-        }
-
         replaceDanglingLineByTieLine(lines);
+
+        other.getVoltageAngleLimits().forEach(l -> getVoltageAngleLimitsIndex().put(l.getId(), l));
 
         // update the source format
         if (!sourceFormat.equals(otherNetwork.sourceFormat)) {
@@ -940,15 +941,42 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private static SubnetworkImpl createSubnetwork(NetworkImpl parent, NetworkImpl original) {
-        RefChain<NetworkImpl> originalRootNetworkRef = original.getRef();
-        originalRootNetworkRef.setRef(new RefChain<>(new RefObj<>(parent)));
+    private void checkMergeability(NetworkImpl otherNetwork) {
+        // Check if the intersection of identifiable ids is empty
+        Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
+        for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
+            Class<? extends Identifiable> clazz = entry.getKey();
+            Collection<String> objs = entry.getValue();
+            if (!objs.isEmpty()) {
+                throw new PowsyblException("The following object(s) of type "
+                        + clazz.getSimpleName() + " exist(s) in both networks: "
+                        + objs);
+            }
+        }
+
+        // Check if the intersection of VoltageAngleLimit ids is empty
+        Set<String> intersectionVoltageAngleLimits = getVoltageAngleLimitsIndex().keySet().stream()
+                .filter(otherNetwork.getVoltageAngleLimitsIndex()::containsKey)
+                .collect(Collectors.toSet());
+        if (!intersectionVoltageAngleLimits.isEmpty()) {
+            throw new PowsyblException("The following voltage angle limit(s) exist(s) in both networks: "
+                    + intersectionVoltageAngleLimits);
+        }
+    }
+
+    private static void createSubnetwork(NetworkImpl parent, NetworkImpl original) {
+        // The root network reference should point to parent and not original anymore
+        // All substations/voltage levels will this way refer to parent instead of original
+        original.ref.setRef(new RefObj<>(parent));
+
+        // Handles the case of creating a subnetwork for itself without duplicating the id
         String idSubNetwork = parent != original ? original.getId() : Identifiables.getUniqueId(original.getId(), parent.getIndex()::contains);
-        SubnetworkImpl sn = new SubnetworkImpl(originalRootNetworkRef, idSubNetwork, original.getOptionalName().orElse(null),
-                original.getSourceFormat());
-        sn.setCaseDate(original.getCaseDate());
+
+        SubnetworkImpl sn = new SubnetworkImpl(
+                original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat, original.getCaseDate());
         transferExtensions(original, sn);
-        return sn;
+        parent.subnetworks.put(idSubNetwork, sn);
+        parent.index.checkAndAdd(sn);
     }
 
     private void pairDanglingLines(List<DanglingLinePair> danglingLinePairs, DanglingLine dl1, DanglingLine dl2, Map<String, List<DanglingLine>> dl1byXnodeCode) {
@@ -1012,14 +1040,8 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
         SubnetworkImpl subnetwork = new SubnetworkImpl(new RefChain<>(new RefObj<>(this)), subnetworkId, name, sourceFormat);
         subnetworks.put(subnetworkId, subnetwork);
+        index.checkAndAdd(subnetwork);
         return subnetwork;
-    }
-
-    @Override
-    public void merge(Network... others) {
-        for (Network other : others) {
-            merge(other);
-        }
     }
 
     /**
@@ -1041,24 +1063,14 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return false;
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>Since {@link NetworkImpl} instances are independent networks, they have no boundary elements.</p>
-     * @return an empty set
-     */
     @Override
     public Set<Identifiable<?>> getBoundaryElements() {
-        return Collections.emptySet();
+        return getDanglingLineStream(DanglingLineFilter.UNPAIRED).collect(Collectors.toSet());
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>Since {@link NetworkImpl} instances are independent networks, they have no boundary elements.</p>
-     * @return false
-     */
     @Override
     public boolean isBoundaryElement(Identifiable<?> identifiable) {
-        return false;
+        return identifiable.getType() == IdentifiableType.DANGLING_LINE && !((DanglingLine) identifiable).isPaired();
     }
 
     @Override

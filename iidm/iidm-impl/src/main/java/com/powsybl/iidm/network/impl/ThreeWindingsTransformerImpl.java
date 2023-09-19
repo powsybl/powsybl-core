@@ -144,7 +144,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public Network getParentNetwork() {
+        public NetworkExt getParentNetwork() {
             return transformer.getParentNetwork();
         }
 

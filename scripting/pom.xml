@@ -45,7 +45,7 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
+            <groupId>org.apache.groovy</groupId>
             <artifactId>groovy</artifactId>
         </dependency>
         <dependency>
@@ -65,7 +65,7 @@
 
         <!-- Runtime dependencies -->
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
+            <groupId>org.apache.groovy</groupId>
             <artifactId>groovy-nio</artifactId>
             <scope>runtime</scope>
         </dependency>

@@ -39,4 +39,9 @@ public class NetworkFactoryMock implements NetworkFactory {
     public Network createNetwork(String id, Network... networks) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
+
+    @Override
+    public Network createNetwork(Network... networks) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 }
