@@ -222,10 +222,15 @@ public final class NetworkXml {
 
     private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         Collection<Identifiable<?>> identifiables = n.getIdentifiables();
-        if (supportSubnetworksExport(context) && n.getParentNetwork() != n) {
-            // Subnetworks are not in their own identifiables.
-            identifiables = new HashSet<>(identifiables);
-            identifiables.add(n);
+        if (supportSubnetworksExport(context)) {
+            identifiables = new LinkedHashSet<>(identifiables);
+            if (n.getParentNetwork() == n) {
+                // the subnetworks hold their extensions
+                identifiables.removeAll(n.getSubnetworks());
+            } else {
+                // Subnetworks are not in their own identifiables.
+                identifiables.add(n);
+            }
         }
 
         for (Identifiable<?> identifiable : IidmXmlUtil.sorted(identifiables, context.getOptions())) {
