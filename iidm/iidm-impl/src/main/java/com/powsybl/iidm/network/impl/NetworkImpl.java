@@ -915,25 +915,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         this.validationLevel = ValidationLevel.min(this.getValidationLevel(), other.getValidationLevel());
 
         // check mergeability
-        Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
-        for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
-            Class<? extends Identifiable> clazz = entry.getKey();
-            Collection<String> objs = entry.getValue();
-            if (!objs.isEmpty()) {
-                throw new PowsyblException("The following object(s) of type "
-                        + clazz.getSimpleName() + " exist(s) in both networks: "
-                        + objs);
-            }
-        }
-
-        // check mergeability of voltage angle limits
-        Set<String> intersectionVoltageAngleLimits = getVoltageAngleLimitsIndex().keySet().stream()
-                .filter(otherNetwork.getVoltageAngleLimitsIndex()::containsKey)
-                .collect(Collectors.toSet());
-        if (!intersectionVoltageAngleLimits.isEmpty()) {
-            throw new PowsyblException("The following voltage angle limit(s) exist(s) in both networks: "
-                    + intersectionVoltageAngleLimits);
-        }
+        checkMergeability(otherNetwork);
 
         // create the subnetwork corresponding to the current network
         if (createSubnetworkForMyself && (voltageLevelsAtRoot() || substationsAtRoot())) {
@@ -973,6 +955,29 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
 
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
+    }
+
+    private void checkMergeability(NetworkImpl otherNetwork) {
+        // Check if the intersection of identifiable ids is empty
+        Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
+        for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
+            Class<? extends Identifiable> clazz = entry.getKey();
+            Collection<String> objs = entry.getValue();
+            if (!objs.isEmpty()) {
+                throw new PowsyblException("The following object(s) of type "
+                        + clazz.getSimpleName() + " exist(s) in both networks: "
+                        + objs);
+            }
+        }
+
+        // Check if the intersection of VoltageAngleLimit ids is empty
+        Set<String> intersectionVoltageAngleLimits = getVoltageAngleLimitsIndex().keySet().stream()
+                .filter(otherNetwork.getVoltageAngleLimitsIndex()::containsKey)
+                .collect(Collectors.toSet());
+        if (!intersectionVoltageAngleLimits.isEmpty()) {
+            throw new PowsyblException("The following voltage angle limit(s) exist(s) in both networks: "
+                    + intersectionVoltageAngleLimits);
+        }
     }
 
     private boolean voltageLevelsAtRoot() {
