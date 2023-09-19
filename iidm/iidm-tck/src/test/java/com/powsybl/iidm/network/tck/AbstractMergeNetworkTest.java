@@ -218,7 +218,7 @@ public abstract class AbstractMergeNetworkTest {
         Network subnetwork1 = merge.getSubnetwork(N1);
         assertFalse(subnetwork1.isDetachable());
         PowsyblException e = assertThrows(PowsyblException.class, subnetwork1::detach);
-        assertTrue(e.getMessage().contains("Some un-splittable boundary elements prevent the subnetwork to be detached"));
+        assertEquals("Un-splittable boundary elements prevent the subnetwork to be detached: line1", e.getMessage());
     }
 
     @Test

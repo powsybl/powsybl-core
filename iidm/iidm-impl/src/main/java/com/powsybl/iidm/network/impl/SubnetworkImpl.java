@@ -778,7 +778,8 @@ public class SubnetworkImpl extends AbstractNetwork {
         }
         if (boundaryElements.stream().anyMatch(Predicate.not(SubnetworkImpl::isSplittable))) {
             if (throwsException) {
-                throw new PowsyblException("Some un-splittable boundary elements prevent the subnetwork to be detached");
+                throw new PowsyblException("Un-splittable boundary elements prevent the subnetwork to be detached: "
+                        + boundaryElements.stream().filter(Predicate.not(SubnetworkImpl::isSplittable)).map(Identifiable::getId).collect(Collectors.joining(", ")));
             }
             return false;
         }
