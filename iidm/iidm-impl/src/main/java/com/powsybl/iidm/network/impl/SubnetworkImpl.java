@@ -747,6 +747,7 @@ public class SubnetworkImpl extends AbstractNetwork {
             previousRootNetwork.getIndex().remove(i);
             detachedNetwork.getIndex().checkAndAdd(i);
         });
+        previousRootNetwork.getIndex().remove(this);
 
         // We don't control that regulating terminals and phase/ratio regulation terminals are in the same subnetwork
         // as their network elements (generators, PSTs, ...). It is unlikely that those terminals and their elements
