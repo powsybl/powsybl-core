@@ -85,7 +85,7 @@ class ReplaceTieLinesByLinesTest extends AbstractConverterTest {
         return network;
     }
 
-    private static class DummyIdentifiableExtension<T extends Identifiable<T>> extends AbstractExtension<T> {
+    private static final class DummyIdentifiableExtension<T extends Identifiable<T>> extends AbstractExtension<T> {
         @Override
         public String getName() {
             return "foo";
