@@ -1122,8 +1122,8 @@ public final class EquipmentExport {
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(cgmesControlArea.getId());
         ControlAreaEq.write(controlAreaCgmesId, cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), energyAreaId, cimNamespace, euNamespace, writer, context);
         for (Terminal terminal : cgmesControlArea.getTerminals()) {
-            if (terminal.getConnectable() instanceof DanglingLine) {
-                DanglingLine dl = (DanglingLine) terminal.getConnectable();
+            Connectable c = terminal.getConnectable();
+            if (c instanceof DanglingLine dl) {
                 if (CgmesExportUtil.isBoundary(network, dl)) {
                     TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId,
                             context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY),
@@ -1201,8 +1201,9 @@ public final class EquipmentExport {
         // We need to write the proper terminal of the single tie line that will be exported
         // When we change the export and write the two dangling lines as separate equipment,
         // then we should always return 1 and forget about this special case
-        if (t.getConnectable() instanceof DanglingLine && !CgmesExportUtil.isBoundary(network, (DanglingLine) t.getConnectable())) {
-            equipmentId = context.getNamingStrategy().getCgmesId(((DanglingLine) t.getConnectable()).getTieLine().orElseThrow(IllegalStateException::new));
+        Connectable c = t.getConnectable();
+        if (c instanceof DanglingLine dl && !CgmesExportUtil.isBoundary(network, dl)) {
+            equipmentId = context.getNamingStrategy().getCgmesId(dl.getTieLine().orElseThrow(IllegalStateException::new));
         }
         writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t),
                 CgmesExportUtil.getTerminalSequenceNumber(t, CgmesExportUtil.getBoundaryDanglingLines(network)), cimNamespace, writer, context);
