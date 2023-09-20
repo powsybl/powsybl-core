@@ -59,7 +59,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
         }
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
             ShuntCompensatorModel model = sc.getModel();
-            double bPerSection = model instanceof ShuntCompensatorLinearModel ? ((ShuntCompensatorLinearModel) model).getBPerSection() : sc.getB();
+            double bPerSection = model instanceof ShuntCompensatorLinearModel shuntCompensatorLinearModel ? shuntCompensatorLinearModel.getBPerSection() : sc.getB();
             if (bPerSection == 0) {
                 if (LOGGER.isWarnEnabled()) {
                     LOGGER.warn("bPerSection of {} is 0. It is set as {} since XIIDM version < 1.5 ({})", sc.getId(),
@@ -169,7 +169,7 @@ class ShuntXml extends AbstractComplexIdentifiableXml<ShuntCompensator, ShuntCom
                 case REGULATING_TERMINAL:
                     String regId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String regSide = context.getReader().getAttributeValue(null, "side");
-                    toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getNetwork(), regId, regSide))));
+                    toApply.add(sc -> context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.resolve(regId, regSide, sc.getNetwork()))));
                     break;
                 case SHUNT_LINEAR_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);

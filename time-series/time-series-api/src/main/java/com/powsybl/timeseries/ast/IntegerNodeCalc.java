@@ -76,8 +76,8 @@ public class IntegerNodeCalc implements LiteralNodeCalc {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof IntegerNodeCalc) {
-            return ((IntegerNodeCalc) obj).value == value;
+        if (obj instanceof IntegerNodeCalc integerNodeCalc) {
+            return integerNodeCalc.value == value;
         }
         return false;
     }

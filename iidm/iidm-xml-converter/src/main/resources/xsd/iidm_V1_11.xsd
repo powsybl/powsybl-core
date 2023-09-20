@@ -33,6 +33,7 @@
                     <xs:element name="tieLine" type="iidm:TieLine"/>
                     <xs:element name="hvdcLine" type="iidm:HvdcLine"/>
                 </xs:choice>
+                <xs:element name="voltageAngleLimit" minOccurs="0" maxOccurs="unbounded" type="iidm:VoltageAngleLimit"/>
                 <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:sequence>
@@ -150,6 +151,9 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="CalculatedBus">
+        <xs:sequence>
+            <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
         <xs:attribute name="nodes" use="required" type="xs:string"/>
         <xs:attribute name="v" use="optional" type="xs:double"/>
         <xs:attribute name="angle" use="optional" type="xs:double"/>
@@ -629,5 +633,14 @@
                 <xs:attribute name="converterStation2" use="required" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="VoltageAngleLimit">
+        <xs:sequence>
+            <xs:element name="from" type="iidm:TerminalRef"/>
+            <xs:element name="to" type="iidm:TerminalRef"/>
+        </xs:sequence>
+		<xs:attribute name="id" use="required" type="xs:string"/>
+        <xs:attribute name="highLimit" use="optional" type="xs:double"/>
+        <xs:attribute name="lowLimit" use="optional" type="xs:double"/>
     </xs:complexType>
 </xs:schema>

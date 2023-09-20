@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -81,8 +80,7 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof IrregularTimeSeriesIndex) {
-            IrregularTimeSeriesIndex otherIndex = (IrregularTimeSeriesIndex) obj;
+        if (obj instanceof IrregularTimeSeriesIndex otherIndex) {
             return Arrays.equals(times, otherIndex.times);
         }
         return false;
@@ -115,7 +113,6 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public String toString() {
-        return "IrregularTimeSeriesIndex(times=" + stream().collect(Collectors.toList())
-                + ")";
+        return "IrregularTimeSeriesIndex(times=" + stream().toList() + ")";
     }
 }

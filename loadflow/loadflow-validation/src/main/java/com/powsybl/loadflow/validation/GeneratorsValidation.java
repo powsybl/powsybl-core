@@ -169,8 +169,8 @@ public final class GeneratorsValidation {
 
     private static boolean checkGeneratorsNaNValues(String id, double p, double q, double targetP, double targetQ) {
         // a validation error should be detected if there is both a voltage and a target but no p or q
-        if ((!Double.isNaN(targetP) && targetP != 0)
-            || (!Double.isNaN(targetQ) && targetQ != 0)) {
+        if (!Double.isNaN(targetP) && targetP != 0
+                || !Double.isNaN(targetQ) && targetQ != 0) {
             LOGGER.warn("{} {}: {}: P={} targetP={} - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, targetP, q, targetQ);
             return false;
         }
@@ -197,9 +197,9 @@ public final class GeneratorsValidation {
         double qGen = -q;
         if (voltageRegulatorOn
             && (ValidationUtils.areNaN(config, minQ, maxQ, targetV)
-                || (v > targetV + config.getThreshold() && Math.abs(qGen - getMinQ(minQ, maxQ)) > config.getThreshold())
-                || (v < targetV - config.getThreshold() && Math.abs(qGen - getMaxQ(minQ, maxQ)) > config.getThreshold())
-                || (Math.abs(v - targetV) <= config.getThreshold()) && !ValidationUtils.boundedWithin(minQ, maxQ, qGen, config.getThreshold()))) {
+                || v > targetV + config.getThreshold() && Math.abs(qGen - getMinQ(minQ, maxQ)) > config.getThreshold()
+                || v < targetV - config.getThreshold() && Math.abs(qGen - getMaxQ(minQ, maxQ)) > config.getThreshold()
+                || Math.abs(v - targetV) <= config.getThreshold() && !ValidationUtils.boundedWithin(minQ, maxQ, qGen, config.getThreshold()))) {
             LOGGER.warn("{} {}: {}: voltage regulator on - Q={} minQ={} maxQ={} - V={} targetV={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, qGen, minQ, maxQ, v, targetV);
             validated = false;
         }

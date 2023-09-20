@@ -132,6 +132,10 @@ public final class CgmesExportUtil {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
         }
+        if (modelDescription.getSupersedes() != null) {
+            writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.SUPERSEDES);
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, modelDescription.getSupersedes());
+        }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters(modelDescription.getProfile());
         writer.writeEndElement();
@@ -224,16 +228,14 @@ public final class CgmesExportUtil {
     public static int getTerminalSequenceNumber(Terminal t) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
-            if (c instanceof DanglingLine) {
-                DanglingLine dl = (DanglingLine) c;
-                if (dl.isPaired()) {
-                    // TODO(Luma) Export tie line components instead of a single equipment
-                    // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
-                    // We need to return the proper terminal of the single tie line that will be exported
-                    // When we change the export and write the two dangling lines as separate equipment,
-                    // then we should always return 1 and forget about special case
-                    return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
-                }
+            if (c instanceof DanglingLine dl && dl.isPaired()) {
+                // TODO(Luma) Export tie line components instead of a single equipment
+                // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
+                // We need to return the proper terminal of the single tie line that will be exported
+                // When we change the export and write the two dangling lines as separate equipment,
+                // then we should always return 1 and forget about special case
+                return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
+
             }
             return 1;
         } else {
@@ -246,8 +248,8 @@ public final class CgmesExportUtil {
                     default:
                         throw new IllegalStateException("Incorrect branch side " + ((Branch<?>) c).getSide(t));
                 }
-            } else if (c instanceof ThreeWindingsTransformer) {
-                switch (((ThreeWindingsTransformer) c).getSide(t)) {
+            } else if (c instanceof ThreeWindingsTransformer twt) {
+                switch (twt.getSide(t)) {
                     case ONE:
                         return 1;
                     case TWO:
@@ -255,7 +257,7 @@ public final class CgmesExportUtil {
                     case THREE:
                         return 3;
                     default:
-                        throw new IllegalStateException("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
+                        throw new IllegalStateException("Incorrect three-windings transformer side " + twt.getSide(t));
                 }
             } else {
                 throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
@@ -321,5 +323,13 @@ public final class CgmesExportUtil {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
         }
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
+    }
+
+    public static boolean isEquivalentShuntWithZeroSectionCount(Connectable<?> c) {
+        if (c instanceof ShuntCompensator shuntCompensator) {
+            return "true".equals(c.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))
+                    && shuntCompensator.getSectionCount() == 0;
+        }
+        return false;
     }
 }

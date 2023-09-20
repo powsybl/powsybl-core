@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static com.powsybl.ucte.converter.util.UcteConstants.*;
 
@@ -282,7 +281,7 @@ public class UcteImporter implements Importer {
     private static void createDanglingLine(UcteLine ucteLine, boolean connected,
                                            UcteNode xnode, UcteNodeCode nodeCode, UcteVoltageLevel ucteVoltageLevel,
                                            Network network) {
-        LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
+        LOGGER.trace("Create dangling line '{}' (X-node='{}')", ucteLine.getId(), xnode.getCode());
 
         double p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
         double q0 = isValueValid(xnode.getReactiveLoad()) ? xnode.getReactiveLoad() : 0;
@@ -458,7 +457,7 @@ public class UcteImporter implements Importer {
                 createDanglingLine(ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network);
 
             } else {
-                throw new UcteException("Line between 2 Xnodes");
+                throw new UcteException("Line between 2 X-nodes: '" + nodeCode1 + "' and '" + nodeCode2 + "'");
             }
         }
     }
@@ -665,7 +664,7 @@ public class UcteImporter implements Importer {
 
         UcteNode ucteXnode = ucteNetwork.getNode(xNodeCode);
 
-        LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to XNODE '{}')",
+        LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to X-node '{}')",
                 xNodeName, yNodeName, ucteXnode.getCode());
 
         double p0 = isValueValid(ucteXnode.getActiveLoad()) ? ucteXnode.getActiveLoad() : 0;
@@ -836,7 +835,7 @@ public class UcteImporter implements Importer {
         String otherPairingKey = dl1.getPairingKey();
         List<DanglingLine> matchingDanglingLines = danglingLinesByPairingKey.get(otherPairingKey)
                 .stream().filter(dl -> dl != dl1)
-                .collect(Collectors.toList());
+                .toList();
         if (matchingDanglingLines.isEmpty()) {
             return null;
         } else if (matchingDanglingLines.size() == 1) {
@@ -847,7 +846,7 @@ public class UcteImporter implements Importer {
             }
             List<DanglingLine> connectedMatchingDanglingLines = matchingDanglingLines.stream()
                     .filter(dl -> dl.getTerminal().isConnected())
-                    .collect(Collectors.toList());
+                    .toList();
             if (connectedMatchingDanglingLines.isEmpty()) {
                 return null;
             }

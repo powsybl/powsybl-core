@@ -6,9 +6,16 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -19,5 +26,26 @@ class TerminalRefTest extends AbstractXmlConverterTest {
     void roundTripTest() throws IOException {
         roundTripAllVersionedXmlTest("terminalRef.xiidm");
         roundTripAllVersionedXmlTest("regulatingTerminal.xml");
+    }
+
+    @Test
+    void badSwitchTerminalResolveTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefXml.resolve("S1VL1_LD1_BREAKER", ThreeSides.ONE, network));
+        assertEquals("Unexpected terminal reference identifiable instance: class com.powsybl.iidm.network.impl.SwitchImpl", e.getMessage());
+    }
+
+    @Test
+    void badBranchSideResolveTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        IllegalStateException e = assertThrows(IllegalStateException.class, () -> TerminalRefXml.resolve("LINE_S2S3", ThreeSides.THREE, network));
+        assertEquals("Unexpected Branch side: THREE", e.getMessage());
+    }
+
+    @Test
+    void badIdentifiableSideResolveTest() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> TerminalRefXml.resolve("LIN_S2S3", ThreeSides.ONE, network));
+        assertEquals("Terminal reference identifiable not found: 'LIN_S2S3'", e.getMessage());
     }
 }

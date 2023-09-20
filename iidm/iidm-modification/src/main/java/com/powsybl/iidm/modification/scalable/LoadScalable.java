@@ -95,6 +95,14 @@ class LoadScalable extends AbstractInjectionScalable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <ul>
+     * <li>If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely.</li>
+     * <li>If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely.</li>
+     * </ul>
+     */
     @Override
     public double scale(Network n, double asked, ScalingParameters parameters) {
         Objects.requireNonNull(n);
@@ -151,4 +159,14 @@ class LoadScalable extends AbstractInjectionScalable {
         return done;
     }
 
+    @Override
+    public double getSteadyStatePower(Network network, ScalingConvention scalingConvention) {
+        Load load = network.getLoad(id);
+        if (load == null) {
+            LOGGER.warn("Load {} not found", id);
+            return 0.0;
+        } else {
+            return scalingConvention == LOAD ? load.getP0() : -load.getP0();
+        }
+    }
 }

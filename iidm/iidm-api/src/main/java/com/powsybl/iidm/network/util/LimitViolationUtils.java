@@ -58,7 +58,7 @@ public final class LimitViolationUtils {
         return branch.getLimits(type, side)
                 .map(l -> !Double.isNaN(l.getPermanentLimit()) &&
                         !Double.isNaN(i) &&
-                        (i >= l.getPermanentLimit() * limitReduction))
+                        i >= l.getPermanentLimit() * limitReduction)
                 .orElse(false);
     }
 

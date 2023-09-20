@@ -75,8 +75,8 @@ class AsciiTableFormatterTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
              AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,
-                new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
-                new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
+                 new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
+                 new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
             IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> formatter.writeCell("Line:1 Cell:1", 1)
                     .writeCell("Line:1 Cell:2", 1)
                     .writeCell("Line:1 Cell:3", 1)
@@ -91,8 +91,8 @@ class AsciiTableFormatterTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
              AsciiTableFormatter formatter = new AsciiTableFormatter(writer, null, config,
-                new Column("column1").setColspan(4),
-                new Column("column2").setColspan(2))) {
+                 new Column("column1").setColspan(4),
+                 new Column("column2").setColspan(2))) {
             formatter.writeCell("Line:1 Cell:1")
                     .writeCell("Line:1 Cell:2")
                     .writeCell("Line:1 Cell:3")

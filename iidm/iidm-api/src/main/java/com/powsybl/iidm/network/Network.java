@@ -11,6 +11,7 @@ import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+
 import org.joda.time.DateTime;
 
 import java.io.IOException;
@@ -98,6 +99,14 @@ import java.util.stream.Stream;
  * @see VariantManager
  */
 public interface Network extends Container<Network> {
+
+    default Collection<Network> getSubnetworks() {
+        return Collections.emptyList();
+    }
+
+    default Network getSubnetwork(String id) {
+        return null;
+    }
 
     /**
      * Read a network from the specified file, trying to guess its format.
@@ -411,6 +420,14 @@ public interface Network extends Container<Network> {
         Stream<Bus> getBusStream();
 
         /**
+         * Get the bus count.
+         * <p>
+         * Depends on the working variant.
+         * @see VariantManager
+         */
+        int getBusCount();
+
+        /**
          * Get all switches
          */
         Iterable<Switch> getSwitches();
@@ -490,6 +507,27 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Create a network (using default implementation) as the result of the merge of the given networks. Each underlying
+     * network becomes a subnetwork.
+     *
+     * @return the merged network with subnetworks inside.
+     */
+    static Network create(Network... networks) {
+        return NetworkFactory.findDefault().createNetwork(networks);
+    }
+
+    /**
+     * Create a network (using default implementation) as the result of the merge of the given networks. Each underlying
+     * network becomes a subnetwork.
+     *
+     * @param id id of the network to create
+     * @return the merged network with subnetworks inside.
+     */
+    static Network create(String id, Network... networks) {
+        return NetworkFactory.findDefault().createNetwork(id, networks);
+    }
+
+    /**
      * Just being able to name method create et not createNetwork. Create is not available in {@link NetworkFactory} for backward
      * compatibility reason. To cleanup when {@link NetworkFactory#create(String, String)} will be removed.
      */
@@ -550,6 +588,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new substation.
+     * @return a builder to create a new substation
      */
     SubstationAdder newSubstation();
 
@@ -603,6 +642,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a builder to create a new voltage level (without substation).
      * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     * @return a builder to create a new voltage level
      */
     default VoltageLevelAdder newVoltageLevel() {
         return newSubstation()
@@ -637,6 +677,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new AC line.
+     * @return a builder to create a new line
      */
     LineAdder newLine();
 
@@ -707,23 +748,9 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new AC tie line.
+     * @return a builder to create a new AC tie line
      */
     TieLineAdder newTieLine();
-
-    /**
-     * Get a builder to create a two windings transformer.
-     * Only use if at least one of the transformer's ends does not belong to any substation.
-     * Else use {@link Substation#newTwoWindingsTransformer()}.
-     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
-     */
-    default TwoWindingsTransformerAdder newTwoWindingsTransformer() {
-        return newSubstation()
-                .setId("FICTITIOUS_SUBSTATION")
-                .setEnsureIdUnicity(true)
-                .setFictitious(true)
-                .add()
-                .newTwoWindingsTransformer();
-    }
 
     /**
      * Get all two windings transformers.
@@ -746,21 +773,6 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the two windings transformer
      */
     TwoWindingsTransformer getTwoWindingsTransformer(String id);
-
-    /**
-     * Get a builder to create a three windings transformer.
-     * Only use this builder if at least one of the transformer's ends does not belong to any substation.
-     * Else use {@link Substation#newThreeWindingsTransformer()}.
-     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
-     */
-    default ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
-        return newSubstation()
-                .setId("FICTITIOUS_SUBSTATION")
-                .setEnsureIdUnicity(true)
-                .setFictitious(true)
-                .add()
-                .newThreeWindingsTransformer();
-    }
 
     /**
      * Get all 3 windings transformers.
@@ -1096,6 +1108,7 @@ public interface Network extends Container<Network> {
      */
     HvdcLineAdder newHvdcLine();
 
+
     /**
      * Get an equipment by its ID or alias
      *
@@ -1191,16 +1204,80 @@ public interface Network extends Container<Network> {
     BusView getBusView();
 
     /**
-     * Merge with an other network. At the end of the merge the other network
-     * is empty.
-     * @param other the other network
+     * Get a builder to create a new VoltageAngleLimit.
      */
-    void merge(Network other);
+    VoltageAngleLimitAdder newVoltageAngleLimit();
 
-    void merge(Network... others);
+    /**
+     * Get all voltageAngleLimits.
+     */
+    Iterable<VoltageAngleLimit> getVoltageAngleLimits();
 
+    /**
+     * Get all voltageAngleLimits.
+     */
+    Stream<VoltageAngleLimit> getVoltageAngleLimitsStream();
+
+    /**
+     * Get voltage angle limit with id
+     */
+    VoltageAngleLimit getVoltageAngleLimit(String id);
+
+    /**
+     * Create an empty subnetwork in the current network.
+     *
+     * @param subnetworkId id of the subnetwork
+     * @param name subnetwork's name
+     * @param sourceFormat source format
+     * @return the created subnetwork
+     */
+    Network createSubnetwork(String subnetworkId, String name, String sourceFormat);
+
+    /**
+     * <p>Detach the current network (including its subnetworks) from its parent network.</p>
+     * <p>Note that this operation is destructive: after it the current network's content
+     * couldn't be accessed from the parent network anymore.</p>
+     * <p>The boundary elements, i.e. linking this network to an external voltage level are split if possible.</br>
+     * A {@link PowsyblException} is thrown if some un-splittable boundary elements are detected. This detection is processed
+     * before any network modification. So if an un-splittable boundary element is detected, no destructive operation will be done.</p>
+     *
+     * @return a fully-independent network corresponding to the current network and its subnetworks.
+     */
+    Network detach();
+
+    /**
+     * <p>Check if the current network can be detached from its parent network (with {@link #detach()}).</p>
+     *
+     * @return True if the network can be detached from its parent network.
+     */
+    boolean isDetachable();
+
+    /**
+     * Return all the boundary elements of the current network, i.e. the elements which link or might link this network
+     * to an external voltage level.
+     *
+     * @return a set containing the boundary elements of the network.
+     */
+    Set<Identifiable<?>> getBoundaryElements();
+
+    /**
+     * Check if an identifiable is a boundary element for the current network.
+     *
+     * @param identifiable the identifiable to check
+     * @return True if the identifiable is a boundary element for the current network
+     */
+    boolean isBoundaryElement(Identifiable<?> identifiable);
+
+    /**
+     * <p>Add a listener on the network.</p>
+     * @param listener the listener to add
+     */
     void addListener(NetworkListener listener);
 
+    /**
+     * <p>Remove a listener from the network.</p>
+     * @param listener the listener to remove
+     */
     void removeListener(NetworkListener listener);
 
     @Override
