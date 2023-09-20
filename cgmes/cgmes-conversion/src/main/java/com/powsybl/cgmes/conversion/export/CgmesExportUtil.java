@@ -212,6 +212,19 @@ public final class CgmesExportUtil {
         return CgmesNames.ENERGY_CONSUMER;
     }
 
+    public static String switchClassname(SwitchKind kind) {
+        switch (kind) {
+            case BREAKER:
+                return "Breaker";
+            case DISCONNECTOR:
+                return "Disconnector";
+            case LOAD_BREAK_SWITCH:
+                return "LoadBreakSwitch";
+        }
+        LOG.warn("It is not possible to determine the type of switch from kind {}", kind);
+        return "Switch";
+    }
+
     public static int getTerminalSequenceNumber(Terminal t, List<DanglingLine> boundaryDanglingLines) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
