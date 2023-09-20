@@ -771,6 +771,5 @@ public class CgmesExportContext {
         }
         return Collections.unmodifiableMap(topologicalNodes);
     }
-
 }
 
