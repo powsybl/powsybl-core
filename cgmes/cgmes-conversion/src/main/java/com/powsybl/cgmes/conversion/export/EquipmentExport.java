@@ -180,7 +180,8 @@ public final class EquipmentExport {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 VoltageLevel vl = sw.getVoltageLevel();
-                SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), sw.getKind(), context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), sw.isRetained(), cimNamespace, writer, context);
+                String switchType = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType"); // may be null
+                SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), switchType, sw.getKind(), context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), sw.isRetained(), cimNamespace, writer, context);
             }
         }
     }
