@@ -472,7 +472,7 @@ public final class NetworkXml {
             networks.push(network);
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader,
-                () -> readElements(networkFactory, reader, context, networks, extensionNamesNotFound));
+                () -> readElements(networks, networkFactory, reader, context, extensionNamesNotFound));
 
             checkExtensionsNotFound(context, extensionNamesNotFound);
 
@@ -485,73 +485,58 @@ public final class NetworkXml {
         }
     }
 
-    private static void readElements(NetworkFactory networkFactory, XMLStreamReader reader, NetworkXmlReaderContext context,
-                                     Deque<Network> networks, Set<String> extensionNamesNotFound) throws XMLStreamException {
+    private static void readElements(Deque<Network> networks, NetworkFactory networkFactory, XMLStreamReader reader, NetworkXmlReaderContext context,
+                                     Set<String> extensionNamesNotFound) throws XMLStreamException {
         String localName = reader.getLocalName();
         switch (localName) {
-            case AliasesXml.ALIAS:
-                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                AliasesXml.read(networks.peek(), context);
-                break;
-
-            case PropertiesXml.PROPERTY:
-                PropertiesXml.read(networks.peek(), context);
-                break;
-
-            case NETWORK_ROOT_ELEMENT_NAME:
-                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, NETWORK_ROOT_ELEMENT_NAME,
-                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_11, context);
-                if (networks.size() > 1) {
-                    throw new PowsyblException("Only one level of subnetworks is currently supported.");
-                }
-                // Create a new subnetwork and push it in the deque to be used as the network to update
-                Network subnetwork = initNetwork(networkFactory, context, reader, networks.peek());
-                networks.push(subnetwork);
-                // Read subnetwork content
-                XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader,
-                    () -> readElements(networkFactory, reader, context, networks, extensionNamesNotFound));
-                // Pop the subnetwork. We will now work with its parent.
-                networks.pop();
-                break;
-
-            case VoltageLevelXml.ROOT_ELEMENT_NAME:
-                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
-                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
-                VoltageLevelXml.INSTANCE.read(networks.peek(), context);
-                break;
-
-            case SubstationXml.ROOT_ELEMENT_NAME:
-                SubstationXml.INSTANCE.read(networks.peek(), context);
-                break;
-
-            case LineXml.ROOT_ELEMENT_NAME:
-                LineXml.INSTANCE.read(networks.peek(), context);
-                break;
-
-            case TieLineXml.ROOT_ELEMENT_NAME:
-                TieLineXml.INSTANCE.read(networks.peek(), context);
-                break;
-
-            case HvdcLineXml.ROOT_ELEMENT_NAME:
-                HvdcLineXml.INSTANCE.read(networks.peek(), context);
-                break;
-
-            case VOLTAGE_ANGLE_LIMIT_ELEMENT_NAME:
-                VoltageAngleLimitXml.read(networks.peek(), context);
-                break;
-
-            case EXTENSION_ELEMENT_NAME:
-                String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
-                Identifiable identifiable = networks.peek().getIdentifiable(id2);
-                if (identifiable == null) {
-                    throw new PowsyblException("Identifiable " + id2 + " not found");
-                }
-                readExtensions(identifiable, context, extensionNamesNotFound);
-                break;
-
-            default:
-                throw new IllegalStateException();
+            case AliasesXml.ALIAS -> checkSupportedAndReadAlias(networks.peek(), context);
+            case PropertiesXml.PROPERTY -> PropertiesXml.read(networks.peek(), context);
+            case NETWORK_ROOT_ELEMENT_NAME -> checkSupportedAndReadSubnetwork(networks, networkFactory, reader, context, extensionNamesNotFound);
+            case VoltageLevelXml.ROOT_ELEMENT_NAME -> checkSupportedAndReadVoltageLevel(context, networks);
+            case SubstationXml.ROOT_ELEMENT_NAME -> SubstationXml.INSTANCE.read(networks.peek(), context);
+            case LineXml.ROOT_ELEMENT_NAME -> LineXml.INSTANCE.read(networks.peek(), context);
+            case TieLineXml.ROOT_ELEMENT_NAME -> TieLineXml.INSTANCE.read(networks.peek(), context);
+            case HvdcLineXml.ROOT_ELEMENT_NAME -> HvdcLineXml.INSTANCE.read(networks.peek(), context);
+            case VOLTAGE_ANGLE_LIMIT_ELEMENT_NAME -> VoltageAngleLimitXml.read(networks.peek(), context);
+            case EXTENSION_ELEMENT_NAME -> findExtendableAndReadExtension(networks.peek(), reader, context, extensionNamesNotFound);
+            default -> throw new IllegalStateException();
         }
+    }
+
+    private static void checkSupportedAndReadAlias(Network network, NetworkXmlReaderContext context) throws XMLStreamException {
+        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AliasesXml.ALIAS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
+        AliasesXml.read(network, context);
+    }
+
+    private static void checkSupportedAndReadSubnetwork(Deque<Network> networks, NetworkFactory networkFactory, XMLStreamReader reader, NetworkXmlReaderContext context, Set<String> extensionNamesNotFound) throws XMLStreamException {
+        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, NETWORK_ROOT_ELEMENT_NAME,
+                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_11, context);
+        if (networks.size() > 1) {
+            throw new PowsyblException("Only one level of subnetworks is currently supported.");
+        }
+        // Create a new subnetwork and push it in the deque to be used as the network to update
+        Network subnetwork = initNetwork(networkFactory, context, reader, networks.peek());
+        networks.push(subnetwork);
+        // Read subnetwork content
+        XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader,
+                () -> readElements(networks, networkFactory, reader, context, extensionNamesNotFound));
+        // Pop the subnetwork. We will now work with its parent.
+        networks.pop();
+    }
+
+    private static void checkSupportedAndReadVoltageLevel(NetworkXmlReaderContext context, Deque<Network> networks) throws XMLStreamException {
+        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
+                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+        VoltageLevelXml.INSTANCE.read(networks.peek(), context);
+    }
+
+    private static void findExtendableAndReadExtension(Network network, XMLStreamReader reader, NetworkXmlReaderContext context, Set<String> extensionNamesNotFound) throws XMLStreamException {
+        String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
+        Identifiable identifiable = network.getIdentifiable(id2);
+        if (identifiable == null) {
+            throw new PowsyblException("Identifiable " + id2 + " not found");
+        }
+        readExtensions(identifiable, context, extensionNamesNotFound);
     }
 
     private static Network initNetwork(NetworkFactory networkFactory, NetworkXmlReaderContext context, XMLStreamReader reader, Network rootNetwork) {
