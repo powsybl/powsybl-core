@@ -110,7 +110,7 @@ public final class SteadyStateHypothesisExport {
                 }
             }
         }
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             // Terminal for equivalent injection at boundary is always connected
             if (dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal") != null) {
                 writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), true, cimNamespace, writer, context);
@@ -125,7 +125,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeEquivalentInjections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // One equivalent injection for every dangling line
         List<String> exported = new ArrayList<>();
-        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             if (!exported.contains(ei) && ei != null) {
                 // Ensure equivalent injection identifier is valid
