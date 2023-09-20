@@ -542,17 +542,9 @@ public final class NetworkXml {
 
             case EXTENSION_ELEMENT_NAME:
                 String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
-                Network network = networks.peek();
-                Identifiable identifiable = network.getIdentifiable(id2);
+                Identifiable identifiable = networks.peek().getIdentifiable(id2);
                 if (identifiable == null) {
-                    if (network.getId().equals(id2)) {
-                        // Subnetworks are not in the index of the networks (root network or subnetworks).
-                        // To support network extensions on subnetworks, we check if the unknown identifiable
-                        // is the current network.
-                        identifiable = network;
-                    } else {
-                        throw new PowsyblException("Identifiable " + id2 + " not found");
-                    }
+                    throw new PowsyblException("Identifiable " + id2 + " not found");
                 }
                 readExtensions(identifiable, context, extensionNamesNotFound);
                 break;
