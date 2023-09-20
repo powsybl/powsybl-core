@@ -222,20 +222,19 @@ public final class NetworkXml {
 
     private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), context.getOptions())) {
-            if (!context.isExportedEquipment(identifiable) || !retainElement(identifiable, n, context)) {
-                continue;
-            }
-            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(context.getOptions(), e), context.getVersion(), context.getOptions()))
-                    .collect(Collectors.toList());
+            if (context.isExportedEquipment(identifiable) && isElementWrittenInsideNetwork(identifiable, n, context)) {
+                Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
+                        .filter(e -> canTheExtensionBeWritten(getExtensionXmlSerializer(context.getOptions(), e), context.getVersion(), context.getOptions()))
+                        .collect(Collectors.toList());
 
-            if (!extensions.isEmpty()) {
-                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), EXTENSION_ELEMENT_NAME);
-                context.getWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
-                for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, context.getOptions())) {
-                    writeExtension(extension, context);
+                if (!extensions.isEmpty()) {
+                    context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS), EXTENSION_ELEMENT_NAME);
+                    context.getWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
+                    for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, context.getOptions())) {
+                        writeExtension(extension, context);
+                    }
+                    context.getWriter().writeEndElement();
                 }
-                context.getWriter().writeEndElement();
             }
         }
     }
@@ -306,7 +305,7 @@ public final class NetworkXml {
 
     private static void writeVoltageLevels(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (VoltageLevel voltageLevel : IidmXmlUtil.sorted(n.getVoltageLevels(), context.getOptions())) {
-            if (retainElement(voltageLevel, n, context) && voltageLevel.getSubstation().isEmpty()) {
+            if (isElementWrittenInsideNetwork(voltageLevel, n, context) && voltageLevel.getSubstation().isEmpty()) {
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
                         IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
                 VoltageLevelXml.INSTANCE.write(voltageLevel, n, context);
@@ -316,7 +315,7 @@ public final class NetworkXml {
 
     private static void writeSubstations(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
-            if (retainElement(s, n, context)) {
+            if (isElementWrittenInsideNetwork(s, n, context)) {
                 SubstationXml.INSTANCE.write(s, n, context);
             }
         }
@@ -325,30 +324,27 @@ public final class NetworkXml {
     private static void writeLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         BusFilter filter = context.getFilter();
         for (Line l : IidmXmlUtil.sorted(n.getLines(), context.getOptions())) {
-            if (!retainElement(l, n, context) || !filter.test(l)) {
-                continue;
+            if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l)) {
+                LineXml.INSTANCE.write(l, n, context);
             }
-            LineXml.INSTANCE.write(l, n, context);
         }
     }
 
     private static void writeTieLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         BusFilter filter = context.getFilter();
         for (TieLine l : IidmXmlUtil.sorted(n.getTieLines(), context.getOptions())) {
-            if (!retainElement(l, n, context) || !filter.test(l)) {
-                continue;
+            if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l)) {
+                TieLineXml.INSTANCE.write(l, n, context);
             }
-            TieLineXml.INSTANCE.write(l, n, context);
         }
     }
 
     private static void writeHvdcLines(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         BusFilter filter = context.getFilter();
         for (HvdcLine l : IidmXmlUtil.sorted(n.getHvdcLines(), context.getOptions())) {
-            if (!retainElement(l, n, context) || !filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
-                continue;
+            if (isElementWrittenInsideNetwork(l, n, context) && filter.test(l.getConverterStation1()) && filter.test(l.getConverterStation2())) {
+                HvdcLineXml.INSTANCE.write(l, n, context);
             }
-            HvdcLineXml.INSTANCE.write(l, n, context);
         }
     }
 
@@ -376,10 +372,22 @@ public final class NetworkXml {
         }
     }
 
-    private static boolean retainElement(Identifiable<?> element, Network n, NetworkXmlWriterContext context) {
-        return !supportSubnetworksExport(context)
-                || n.getId().equals(element.getId()) // the element is the network
-                || element.getParentNetwork() == n && element.getType() != IdentifiableType.NETWORK; // the element is directly in the network (not in one of its subnetworks)
+    /**
+     * Return true if the given element has to be written in the given network, false otherwise
+     */
+    private static boolean isElementWrittenInsideNetwork(Identifiable<?> element, Network n, NetworkXmlWriterContext context) {
+        // if subnetworks not supported, all elements need to be written in the root network (in that case this is only called with n being the root network)
+        if (!supportSubnetworksExport(context)) {
+            return true;
+        }
+        // corner case: if the element is the given network, it is considered as written within that network, as extensions have to be written within the network
+        if (n.getId().equals(element.getId())) {
+            return true;
+        }
+        // Main case: the element has to be written
+        // - if the element is directly in the network (not in one of its subnetworks)
+        // - and if it's not a network itself (linked to previous corner case)
+        return element.getParentNetwork() == n && element.getType() != IdentifiableType.NETWORK;
     }
 
     private static boolean supportSubnetworksExport(NetworkXmlWriterContext context) {
