@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.Sets;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineFilter;
@@ -170,49 +169,33 @@ public final class TieLineUtil {
      * @param getDanglingLinesByPairingKey function to retrieve dangling lines with a given pairing key in the merging network.
      * @param associateDanglingLines function associating two dangling lines
      */
-    public static void findAndAssociateDanglingLines(DanglingLine candidateDanglingLine, DanglingLine danglingLine,
-                                                     Function<String, List<DanglingLine>> getDanglingLinesByPairingKey,
+    public static void findAndAssociateDanglingLines(DanglingLine candidateDanglingLine, Function<String, List<DanglingLine>> getDanglingLinesByPairingKey,
                                                      BiConsumer<DanglingLine, DanglingLine> associateDanglingLines) {
         Objects.requireNonNull(candidateDanglingLine);
         Objects.requireNonNull(getDanglingLinesByPairingKey);
         Objects.requireNonNull(associateDanglingLines);
-        if (danglingLine == null) { // if dangling line with same ID not present, find dangling line(s) with same pairing key in merging network if present
-            // mapping by pairing key
-            if (candidateDanglingLine.getPairingKey() != null) { // if pairing key null: no associated dangling line
-                if (candidateDanglingLine.getNetwork().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
-                        .filter(d -> d != candidateDanglingLine)
-                        .filter(d -> candidateDanglingLine.getPairingKey().equals(d.getPairingKey()))
-                        .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same pairing key in the network to be merged
-                    return;                                         // in that case, do nothing
+        // mapping by pairing key
+        if (candidateDanglingLine.getPairingKey() != null) { // if pairing key null: no associated dangling line
+            if (candidateDanglingLine.getNetwork().getDanglingLineStream(DanglingLineFilter.UNPAIRED)
+                    .filter(d -> d != candidateDanglingLine)
+                    .filter(d -> candidateDanglingLine.getPairingKey().equals(d.getPairingKey()))
+                    .anyMatch(d -> d.getTerminal().isConnected())) { // check that there is no connected dangling line with same pairing key in the network to be merged
+                return;                                         // in that case, do nothing
+            }
+            List<DanglingLine> dls = getDanglingLinesByPairingKey.apply(candidateDanglingLine.getPairingKey());
+            if (dls != null) {
+                if (dls.size() == 1) { // if there is exactly one dangling line in the merging network, merge it
+                    associateDanglingLines.accept(dls.get(0), candidateDanglingLine);
                 }
-                List<DanglingLine> dls = getDanglingLinesByPairingKey.apply(candidateDanglingLine.getPairingKey());
-                if (dls != null) {
-                    if (dls.size() == 1) { // if there is exactly one dangling line in the merging network, merge it
-                        associateDanglingLines.accept(dls.get(0), candidateDanglingLine);
-                    }
-                    if (dls.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
-                        List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
-                        if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
-                            associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
-                        }
+                if (dls.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
+                    List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
+                    if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
+                        associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
                     }
                 }
             }
-        } else {
-            // if dangling line with same ID present, there is only one: they are associated if the pairing key is identical (if not: throw exception)
-            if ((danglingLine.getPairingKey() != null && candidateDanglingLine.getPairingKey() != null
-                    && !danglingLine.getPairingKey().equals(candidateDanglingLine.getPairingKey())) || (danglingLine.getPairingKey() == null && candidateDanglingLine.getPairingKey() == null)) {
-                throw new PowsyblException("Dangling line couple " + danglingLine.getId()
-                        + " have inconsistent pairing keys (" + danglingLine.getPairingKey()
-                        + "!=" + candidateDanglingLine.getPairingKey() + ")");
-            }
-            String code = Optional.ofNullable(danglingLine.getPairingKey()).orElseGet(candidateDanglingLine::getPairingKey);
-            List<DanglingLine> dls = getDanglingLinesByPairingKey.apply(code);
-            if (dls != null && dls.size() > 1) {
-                throw new PowsyblException("Should not have any dangling lines other than " + danglingLine.getId() + " linked to " + code);
-            }
-            associateDanglingLines.accept(danglingLine, candidateDanglingLine);
         }
+
     }
 
     public static double getR(DanglingLine dl1, DanglingLine dl2) {

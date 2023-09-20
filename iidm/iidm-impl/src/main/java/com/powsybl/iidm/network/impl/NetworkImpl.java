@@ -917,7 +917,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
             }
         }
         for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines(DanglingLineFilter.ALL))) {
-            findAndAssociateDanglingLines(dl2, getDanglingLine(dl2.getId()), dl1byPairingKey::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byPairingKey));
+            findAndAssociateDanglingLines(dl2, dl1byPairingKey::get, (dll1, dll2) -> pairDanglingLines(lines, dll1, dll2, dl1byPairingKey));
         }
 
         // create a subnetwork for the other network

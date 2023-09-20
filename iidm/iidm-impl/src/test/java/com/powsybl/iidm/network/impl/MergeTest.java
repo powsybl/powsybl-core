@@ -235,7 +235,7 @@ class MergeTest {
         createInternalConnection(s2vl1, 0, 3);
         createLoad(s2vl1, id("S2VL1-Load", nid), 45.0, 9.0, 1);
 
-        createDanglingLine(network, id("S2VL1", nid), id("Dl-3", nid), 70.0, 10.0, "ucteNode", 3);
+        createDanglingLine(network, id("S2VL1", nid), id("Dl-3", nid), 70.0, 10.0, "pairingKey", 3);
 
         // Line between both substations
         createLine(network, id("S1VL1", nid), id("S2VL1", nid), id("Line-2-2", nid), 2, 2);
@@ -311,7 +311,7 @@ class MergeTest {
             .add();
     }
 
-    private static void createDanglingLine(Network network, String vlId, String id, double p0, double q0, String ucteCode, int node) {
+    private static void createDanglingLine(Network network, String vlId, String id, double p0, double q0, String pairingKey, int node) {
         network.getVoltageLevel(vlId).newDanglingLine()
             .setId(id)
             .setR(0.01)
@@ -320,7 +320,7 @@ class MergeTest {
             .setB(0.0)
             .setP0(p0)
             .setQ0(q0)
-            .setUcteXnodeCode(ucteCode)
+            .setPairingKey(pairingKey)
             .setNode(node)
             .setEnsureIdUnicity(false)
             .add();

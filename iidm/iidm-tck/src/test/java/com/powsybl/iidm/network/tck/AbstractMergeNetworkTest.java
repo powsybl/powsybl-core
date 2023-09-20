@@ -57,13 +57,6 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void pairingKeyNonCompatible() {
-        addCommonSubstationsAndVoltageLevels();
-        addCommonDanglingLines("dl", "code", "dl", "deco");
-        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.create(n1, n2));
-        assertTrue(e.getMessage().contains("Dangling line couple dl have inconsistent pairing keys (code!=deco)"));
-    }
-    @Test
     public void testMerge() {
         addCommonSubstationsAndVoltageLevels();
         Network n0 = Network.create("n0", "rid");
