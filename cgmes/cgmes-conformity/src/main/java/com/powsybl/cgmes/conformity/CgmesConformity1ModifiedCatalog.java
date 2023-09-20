@@ -1483,6 +1483,19 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
+    public static GridModelReference microGridBaseCaseNLSwitchTypePreserved() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_NL_v2_switch_type_preserved/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2/";
+        return new GridModelReferenceResources(
+                "MicroGrid-BaseCase-NL-switch-type-preserved",
+                null,
+                new ResourceSet(base, MICRO_GRID_NL_EQ, MICRO_GRID_NL_SSH),
+                new ResourceSet(baseOriginal, MICRO_GRID_NL_TP),
+                microGridBaseCaseBoundaries());
+    }
+
     public static GridModelReference microGridBaseCaseBESingleFile() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_BE_v2_single_file/";
@@ -1574,6 +1587,20 @@ public final class CgmesConformity1ModifiedCatalog {
                         MINI_GRID_EQ),
                 new ResourceSet(MINI_GRID_NODE_BREAKER_BASE,
                         MINI_GRID_SSH,
+                        MINI_GRID_SV,
+                        MINI_GRID_TP),
+                new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
+                        MINI_GRID_BD_TP));
+    }
+
+    public static GridModelReferenceResources miniGridNodeBreakerSwitchTypePreserved() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_switch_type_preserved/";
+        return new GridModelReferenceResources(
+                "MiniGrid-NodeBreaker-BaseCase-Complete-v3-switch-type-preserved",
+                null,
+                new ResourceSet(base, MINI_GRID_EQ, MINI_GRID_SSH),
+                new ResourceSet(MINI_GRID_NODE_BREAKER_BASE,
                         MINI_GRID_SV,
                         MINI_GRID_TP),
                 new ResourceSet(MINI_GRID_NODE_BREAKER_BD_BASE, MINI_GRID_BD_EQ,
