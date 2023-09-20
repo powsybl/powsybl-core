@@ -372,7 +372,7 @@ public class CgmesExportContext {
         for (Connectable<?> c : network.getConnectables()) {
             if (isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    addIidmMappingsTerminal(t, c);
+                    addIidmMappingsTerminal(t, c, network);
                 }
             }
         }
@@ -464,7 +464,7 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
+    private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c, Network network) {
         if (c instanceof DanglingLine) {
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
             if (terminalId == null) {
@@ -484,7 +484,7 @@ public class CgmesExportContext {
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
         } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
+            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t, CgmesExportUtil.getBoundaryDanglingLines(network));
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
                 c.addAlias(CgmesExportUtil.getUniqueId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber);
@@ -596,8 +596,8 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsEquivalentInjection(Network network) {
-        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+    private void addIidmMappingsEquivalentInjection(Network network) {
+        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             String alias;
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             if (alias == null) {
@@ -624,7 +624,7 @@ public class CgmesExportContext {
                     .setEnergyIdentificationCodeEic("Network--1")
                     .add();
             CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
-            for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+            for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
                 cgmesControlArea.add(danglingLine.getTerminal());
             }
         }
