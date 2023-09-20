@@ -83,8 +83,6 @@ import java.util.stream.Stream;
  */
 public interface Substation extends Container<Substation> {
 
-    Network getNetwork();
-
     /**
      * Get an optional containing the country to which the substation belongs if it is defined, Optional.empty() if not.
      */

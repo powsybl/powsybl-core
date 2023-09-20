@@ -119,12 +119,6 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
     }
 
     /**
-     * Get the network this HVDC line belongs.
-     * @return the network this HVDC line belongs
-     */
-    Network getNetwork();
-
-    /**
      * Get converters mode.
      * @return converters mode
      */
