@@ -157,6 +157,7 @@ WHERE {
         a cim:Switch ;
         cim:IdentifiedObject.name ?name ;
         cim:Equipment.MemberOf_EquipmentContainer ?EquipmentContainer .
+    BIND ( "Switch" AS ?type )
     ?Terminal1
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?Switch .
