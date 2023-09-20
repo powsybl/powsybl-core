@@ -1122,7 +1122,7 @@ public final class EquipmentExport {
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(cgmesControlArea.getId());
         ControlAreaEq.write(controlAreaCgmesId, cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), energyAreaId, cimNamespace, euNamespace, writer, context);
         for (Terminal terminal : cgmesControlArea.getTerminals()) {
-            Connectable c = terminal.getConnectable();
+            Connectable<?> c = terminal.getConnectable();
             if (c instanceof DanglingLine dl) {
                 if (CgmesExportUtil.isBoundary(network, dl)) {
                     TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId,
@@ -1201,7 +1201,7 @@ public final class EquipmentExport {
         // We need to write the proper terminal of the single tie line that will be exported
         // When we change the export and write the two dangling lines as separate equipment,
         // then we should always return 1 and forget about this special case
-        Connectable c = t.getConnectable();
+        Connectable<?> c = t.getConnectable();
         if (c instanceof DanglingLine dl && !CgmesExportUtil.isBoundary(network, dl)) {
             equipmentId = context.getNamingStrategy().getCgmesId(dl.getTieLine().orElseThrow(IllegalStateException::new));
         }
