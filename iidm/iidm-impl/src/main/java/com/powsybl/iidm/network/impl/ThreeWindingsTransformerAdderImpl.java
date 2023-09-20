@@ -7,10 +7,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
 
 /**
  *
@@ -118,7 +117,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
 
         protected TerminalExt checkAndGetTerminal() {
-            return new TerminalBuilder(getNetwork().getRef(), this)
+            VoltageLevelExt voltageLevel = checkAndGetVoltageLevel();
+            return new TerminalBuilder(voltageLevel.getNetworkRef(), this)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)
@@ -283,7 +283,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
-        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation.getNetwork().getRef(), id, getName(), isFictitious(), leg1, leg2, leg3,
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation.getNetworkRef(), id, getName(), isFictitious(), leg1, leg2, leg3,
             ratedU0);
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);
