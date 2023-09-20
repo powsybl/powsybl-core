@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -90,8 +89,14 @@ class UpDownScalableTest {
         Scalable downScalable = Scalable.onLoad("l1", 50, 200);
         Scalable upDownScalable = Scalable.upDown(upScalable, downScalable);
 
-        // Error raised
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> upDownScalable.getSteadyStatePower(testNetwork, Scalable.ScalingConvention.LOAD));
-        assertEquals("getCurrentPower should not be used on UpDownScalable, only on other types of Scalable", e0.getMessage());
+        testNetwork.getGenerator("g2").setTargetP(32);
+        double asked = 1;
+        assertEquals(-32, upDownScalable.getSteadyStatePower(testNetwork, asked, Scalable.ScalingConvention.LOAD));
+        assertEquals(32, upDownScalable.getSteadyStatePower(testNetwork, asked, Scalable.ScalingConvention.GENERATOR));
+
+        testNetwork.getLoad("l1").setP0(42);
+        asked = -1;
+        assertEquals(42, upDownScalable.getSteadyStatePower(testNetwork, asked, Scalable.ScalingConvention.LOAD));
+        assertEquals(-42, upDownScalable.getSteadyStatePower(testNetwork, asked, Scalable.ScalingConvention.GENERATOR));
     }
 }

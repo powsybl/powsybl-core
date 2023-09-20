@@ -160,7 +160,7 @@ class LoadScalable extends AbstractInjectionScalable {
     }
 
     @Override
-    public double getSteadyStatePower(Network network, ScalingConvention scalingConvention) {
+    public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
         Load load = network.getLoad(id);
         if (load == null) {
             LOGGER.warn("Load {} not found", id);
