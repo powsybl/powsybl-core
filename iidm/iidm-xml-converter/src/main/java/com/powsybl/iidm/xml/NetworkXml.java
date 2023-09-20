@@ -398,8 +398,7 @@ public final class NetworkXml {
         BusFilter filter = BusFilter.create(n, options);
         Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
         IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        return context;
+        return new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
     }
 
     public static Anonymizer write(Network n, OutputStream os) {
@@ -646,28 +645,24 @@ public final class NetworkXml {
                     case VoltageLevelXml.ROOT_ELEMENT_NAME:
                         updateVoltageLevel(reader, network, vl);
                         break;
-
                     case BusXml.ROOT_ELEMENT_NAME:
                         updateBus(reader, vl);
                         break;
-
-                    case GeneratorXml.ROOT_ELEMENT_NAME:
-                    case BatteryXml.ROOT_ELEMENT_NAME:
-                    case LoadXml.ROOT_ELEMENT_NAME:
-                    case ShuntXml.ROOT_ELEMENT_NAME:
-                    case DanglingLineXml.ROOT_ELEMENT_NAME:
-                    case LccConverterStationXml.ROOT_ELEMENT_NAME:
-                    case VscConverterStationXml.ROOT_ELEMENT_NAME:
+                    case GeneratorXml.ROOT_ELEMENT_NAME,
+                            BatteryXml.ROOT_ELEMENT_NAME,
+                            LoadXml.ROOT_ELEMENT_NAME,
+                            ShuntXml.ROOT_ELEMENT_NAME,
+                            DanglingLineXml.ROOT_ELEMENT_NAME,
+                            LccConverterStationXml.ROOT_ELEMENT_NAME,
+                            VscConverterStationXml.ROOT_ELEMENT_NAME:
                         updateInjection(reader, network);
                         break;
-
-                    case LineXml.ROOT_ELEMENT_NAME:
-                    case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
+                    case LineXml.ROOT_ELEMENT_NAME,
+                            TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
                         updateBranch(reader, network);
                         break;
-
-                    case HvdcLineXml.ROOT_ELEMENT_NAME:
-                    case NetworkXml.NETWORK_ROOT_ELEMENT_NAME:
+                    case HvdcLineXml.ROOT_ELEMENT_NAME,
+                            NetworkXml.NETWORK_ROOT_ELEMENT_NAME:
                         // Nothing to do
                         break;
 
