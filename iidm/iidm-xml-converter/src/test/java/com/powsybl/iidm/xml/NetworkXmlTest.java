@@ -7,23 +7,21 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.BusbarSectionExt;
-import com.powsybl.iidm.network.test.ScadaNetworkFactory;
-import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.xml.extensions.util.NetworkSourceExtension;
+import com.powsybl.iidm.xml.extensions.util.NetworkSourceExtensionImpl;
 import org.joda.time.DateTime;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.XMLStreamException;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -151,5 +149,106 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
         BusbarSection bb2 = nodeBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1");
         assertEquals(1, bb2.getExtensions().size());
         assertNotNull(bb2.getExtension(BusbarSectionExt.class));
+    }
+
+    @Test
+    void failImportWithSeveralSubnetworkLevels() throws URISyntaxException {
+        Path path = Path.of(getClass().getResource(getVersionedNetworkPath("multiple-subnetwork-levels.xml",
+                CURRENT_IIDM_XML_VERSION)).toURI());
+        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkXml.validateAndRead(path));
+        assertTrue(e.getMessage().contains("Only one level of subnetworks is currently supported."));
+    }
+
+    @Test
+    void roundTripWithSubnetworksTest() throws IOException {
+        Network n1 = createNetwork(1);
+        Network n2 = createNetwork(2);
+        n1.setCaseDate(DateTime.parse("2013-01-15T18:41:00+01:00"));
+        n2.setCaseDate(DateTime.parse("2013-01-15T18:42:00+01:00"));
+
+        Network merged = Network.create("Merged", n1, n2);
+        merged.setCaseDate(DateTime.parse("2013-01-15T18:40:00+01:00"));
+        // add an extension at root network level
+        NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_0");
+        merged.addExtension(NetworkSourceExtension.class, source);
+
+        for (IidmXmlVersion version : IidmXmlVersion.values()) {
+            if (version.compareTo(IidmXmlVersion.V_1_5) >= 0) {
+                roundTripXmlTest(merged,
+                    (n, p) -> NetworkXml.writeAndValidate(n,
+                        new ExportOptions().setSorted(true).setVersion(version.toString(".")), p),
+                    NetworkXml::validateAndRead,
+                    getVersionedNetworkPath("subnetworks.xml", version));
+            }
+        }
+    }
+
+    private Network createNetwork(int num) {
+        String dlId = "dl" + num;
+        String voltageLevelId = "vl" + num;
+        String busId = "b" + num;
+
+        Network network = Network.create("Network-" + num, "format");
+        Substation s1 = network.newSubstation()
+                .setId("s" + num)
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId(voltageLevelId)
+                .setNominalV(380)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl1.getBusBreakerView().newBus()
+                .setId(busId)
+                .add();
+        network.getVoltageLevel(voltageLevelId).newDanglingLine()
+                .setId(dlId)
+                .setName(dlId + "_name")
+                .setConnectableBus(busId)
+                .setBus(busId)
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(4.0)
+                .setB(5.0)
+                .setUcteXnodeCode("code")
+                .add();
+
+        // Add an extension on the network and on an inner element
+        NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_" + num);
+        network.addExtension(NetworkSourceExtension.class, source);
+
+        if (num == 1) {
+            Generator generator = vl1.newGenerator()
+                    .setId("GEN")
+                    .setBus(busId)
+                    .setConnectableBus(busId)
+                    .setMinP(-9999.99)
+                    .setMaxP(9999.99)
+                    .setVoltageRegulatorOn(true)
+                    .setTargetV(24.5)
+                    .setTargetP(607.0)
+                    .setTargetQ(301.0)
+                    .add();
+            generator.newMinMaxReactiveLimits()
+                    .setMinQ(-9999.99)
+                    .setMaxQ(9999.99)
+                    .add();
+        } else if (num == 2) {
+            vl1.newLoad()
+                    .setId("LOAD")
+                    .setBus(busId)
+                    .setConnectableBus(busId)
+                    .setP0(600.0)
+                    .setQ0(200.0)
+                    .add();
+
+            // Add an extension on an inner element
+            Load load = network.getLoad("LOAD");
+            TerminalMockExt terminalMockExt = new TerminalMockExt(load);
+            load.addExtension(TerminalMockExt.class, terminalMockExt);
+        }
+        return network;
     }
 }
