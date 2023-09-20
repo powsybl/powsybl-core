@@ -158,14 +158,11 @@ public final class TieLineUtil {
     /**
      * If it exists, find the dangling line in the merging network that should be associated to a candidate dangling line in the network to be merged.
      * Two dangling lines in different IGM should be associated if:
-     * - they have the same ID and at least one has a non-null pairing key
-     * OR
      * - they have the same non-null pairing key and are the only dangling lines to have this pairing key in their respective networks
      * OR
      * - they have the same non-null pairing key and are the only connected dangling lines to have this pairing key in their respective networks
      *
      * @param candidateDanglingLine candidate dangling line in the network to be merged
-     * @param danglingLine dangling line in the merging network with same ID as the candidate dangling line. Can be null.
      * @param getDanglingLinesByPairingKey function to retrieve dangling lines with a given pairing key in the merging network.
      * @param associateDanglingLines function associating two dangling lines
      */

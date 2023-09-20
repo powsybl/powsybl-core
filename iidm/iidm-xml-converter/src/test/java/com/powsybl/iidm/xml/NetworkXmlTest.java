@@ -212,7 +212,7 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
                 .setX(2.0)
                 .setG(4.0)
                 .setB(5.0)
-                .setUcteXnodeCode("code")
+                .setPairingKey("code")
                 .add();
 
         // Add an extension on the network and on an inner element
