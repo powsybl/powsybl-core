@@ -40,23 +40,24 @@ class CgmesConformity3ConversionTest {
         int nDlNL = nl.getDanglingLineCount();
         // Both networks have the same number of dangling lines
         assertEquals(nDlBE, nDlNL);
-        be.merge(nl);
-        int nSub = be.getSubstationCount();
+
+        Network merge = Network.create(be, nl);
+        int nSub = merge.getSubstationCount();
         assertEquals(nSubBE + nSubNL, nSub);
-        long nTl = be.getTieLineCount();
+        long nTl = merge.getTieLineCount();
         // All dangling lines must have been converted to tie lines
         assertEquals(nDlBE, nTl);
 
-        for (TieLine tl : be.getTieLines()) {
+        for (TieLine tl : merge.getTieLines()) {
             // The danglingLine1 and danglingLine1.boundary.dl must be the same object
             // Both should correspond to objects at my level of merging
             assertEquals(tl.getDanglingLine1(), tl.getDanglingLine1().getBoundary().getDanglingLine());
             assertEquals(tl.getDanglingLine2(), tl.getDanglingLine2().getBoundary().getDanglingLine());
         }
-        assertEquals(10, be.getDanglingLineCount());
+        assertEquals(10, merge.getDanglingLineCount());
 
         // Check SV export contains tie line terminals
-        checkExportSvTerminals(be);
+        checkExportSvTerminals(merge);
     }
 
     private void checkExportSvTerminals(Network network) {

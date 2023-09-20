@@ -40,7 +40,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
 
     ConfiguredBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel) {
         super(id, name, fictitious, voltageLevel);
-        network = voltageLevel.getNetwork().getRef();
+        network = voltageLevel.getNetworkRef();
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         terminals = new ArrayList<>(variantArraySize);
         v = new TDoubleArrayList(variantArraySize);

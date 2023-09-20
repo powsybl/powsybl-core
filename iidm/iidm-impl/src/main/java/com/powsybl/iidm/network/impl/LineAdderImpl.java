@@ -7,7 +7,9 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
@@ -16,6 +18,7 @@ import com.powsybl.iidm.network.ValidationUtil;
 class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAdder {
 
     private final NetworkImpl network;
+    private final String subnetwork;
 
     private double r = Double.NaN;
 
@@ -29,8 +32,9 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
 
     private double b2 = 0.0;
 
-    LineAdderImpl(NetworkImpl network) {
+    LineAdderImpl(NetworkImpl network, String subnetwork) {
         this.network = network;
+        this.subnetwork = subnetwork;
     }
 
     @Override
@@ -85,6 +89,10 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         checkConnectableBuses();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
+        if (subnetwork != null && (!subnetwork.equals(voltageLevel1.getSubnetworkId()) || !subnetwork.equals(voltageLevel2.getSubnetworkId()))) {
+            throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
+                    subnetwork + "'. Create this line from the parent network '" + getNetwork().getId() + "'");
+        }
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
 
@@ -95,7 +103,9 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         ValidationUtil.checkB1(this, b1);
         ValidationUtil.checkB2(this, b2);
 
-        LineImpl line = new LineImpl(network.getRef(), id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
+        Ref<NetworkImpl> networkRef = computeNetworkRef(getNetwork(), voltageLevel1, voltageLevel2);
+
+        LineImpl line = new LineImpl(networkRef, id, getName(), isFictitious(), r, x, g1, b1, g2, b2);
         terminal1.setNum(1);
         terminal2.setNum(2);
         line.addTerminal(terminal1);

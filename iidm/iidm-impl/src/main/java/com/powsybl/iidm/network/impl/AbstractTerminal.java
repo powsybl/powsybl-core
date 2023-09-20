@@ -25,7 +25,7 @@ abstract class AbstractTerminal implements TerminalExt {
     protected static final String UNMODIFIABLE_REMOVED_EQUIPMENT = "Cannot modify removed equipment ";
     protected static final String CANNOT_ACCESS_BUS_REMOVED_EQUIPMENT = "Cannot access bus of removed equipment ";
 
-    protected final Ref<? extends VariantManagerHolder> network;
+    private Ref<? extends VariantManagerHolder> network;
 
     protected AbstractConnectable connectable;
 
@@ -54,6 +54,10 @@ abstract class AbstractTerminal implements TerminalExt {
         }
     }
 
+    protected VariantManagerHolder getVariantManagerHolder() {
+        return network.get();
+    }
+
     @Override
     public AbstractConnectable getConnectable() {
         return connectable;
@@ -75,6 +79,9 @@ abstract class AbstractTerminal implements TerminalExt {
     @Override
     public void setVoltageLevel(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
+        if (voltageLevel != null) {
+            network = voltageLevel.getNetworkRef();
+        }
     }
 
     @Override

@@ -20,6 +20,7 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
     private String name;
     private String energyIdentificationCodeEic;
     private double netInterchange = Double.NaN;
+    private double pTolerance = Double.NaN;
 
     CgmesControlAreaAdderImpl(CgmesControlAreasImpl mapping) {
         this.mapping = Objects.requireNonNull(mapping);
@@ -50,10 +51,16 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
     }
 
     @Override
+    public CgmesControlAreaAdder setPTolerance(double pTolerance) {
+        this.pTolerance = pTolerance;
+        return this;
+    }
+
+    @Override
     public CgmesControlAreaImpl add() {
         if (id == null) {
             throw new PowsyblException("Undefined ID for CGMES control area");
         }
-        return new CgmesControlAreaImpl(id, name, energyIdentificationCodeEic, netInterchange, mapping);
+        return new CgmesControlAreaImpl(id, name, energyIdentificationCodeEic, netInterchange, pTolerance, mapping);
     }
 }

@@ -164,7 +164,7 @@ public abstract class AbstractAliasesTest {
         Network network = EurostagTutorialExample1Factory.create();
         Network otherNetwork = FourSubstationsNodeBreakerFactory.create();
         otherNetwork.getGenerator("GH1").addAlias("NHV2_NLOAD");
-        assertThrows(PowsyblException.class, () -> network.merge(otherNetwork));
+        assertThrows(PowsyblException.class, () -> Network.create(network, otherNetwork));
     }
 
     @Test
@@ -173,6 +173,6 @@ public abstract class AbstractAliasesTest {
         Network otherNetwork = FourSubstationsNodeBreakerFactory.create();
         network.getTwoWindingsTransformer("NHV2_NLOAD").addAlias("Alias");
         otherNetwork.getGenerator("GH1").addAlias("Alias");
-        assertThrows(PowsyblException.class, () -> network.merge(otherNetwork));
+        assertThrows(PowsyblException.class, () -> Network.create(network, otherNetwork));
     }
 }

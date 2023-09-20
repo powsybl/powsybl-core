@@ -62,7 +62,6 @@ public final class SteadyStateHypothesisExport {
             writeConverters(network, cimNamespace, writer, context);
             // FIXME open status of retained switches in bus-branch models
             writeSwitches(network, cimNamespace, writer, context);
-            // TODO writeControlAreas
             writeTerminals(network, cimNamespace, writer, context);
             writeControlAreas(network, cimNamespace, writer, context);
 
@@ -777,6 +776,9 @@ public final class SteadyStateHypothesisExport {
         CgmesExportUtil.writeStartAbout("ControlArea", areaId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ControlArea.netInterchange");
         writer.writeCharacters(CgmesExportUtil.format(area.getNetInterchange()));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
+        writer.writeCharacters(CgmesExportUtil.format(area.getPTolerance()));
         writer.writeEndElement();
         writer.writeEndElement();
     }
