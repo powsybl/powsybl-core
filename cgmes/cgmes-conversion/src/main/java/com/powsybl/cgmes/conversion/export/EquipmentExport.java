@@ -1125,7 +1125,7 @@ public final class EquipmentExport {
         for (Terminal terminal : cgmesControlArea.getTerminals()) {
             Connectable<?> c = terminal.getConnectable();
             if (c instanceof DanglingLine dl) {
-                if (CgmesExportUtil.isBoundary(network, dl)) {
+                if (network.isBoundaryElement(dl)) {
                     TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId,
                             context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY),
                             cimNamespace, writer, context);
@@ -1146,7 +1146,7 @@ public final class EquipmentExport {
 
     private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context, Network network) {
         DanglingLine dl = boundary.getDanglingLine();
-        if (CgmesExportUtil.isBoundary(network, dl)) {
+        if (network.isBoundaryElement(dl)) {
             return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
         } else {
             // This means the boundary corresponds to a TieLine.
@@ -1203,7 +1203,7 @@ public final class EquipmentExport {
         // When we change the export and write the two dangling lines as separate equipment,
         // then we should always return 1 and forget about this special case
         Connectable<?> c = t.getConnectable();
-        if (c instanceof DanglingLine dl && !CgmesExportUtil.isBoundary(network, dl)) {
+        if (c instanceof DanglingLine dl && !network.isBoundaryElement(dl)) {
             equipmentId = context.getNamingStrategy().getCgmesId(dl.getTieLine().orElseThrow(IllegalStateException::new));
         }
         writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t),
