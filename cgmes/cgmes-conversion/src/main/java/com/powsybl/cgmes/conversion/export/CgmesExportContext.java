@@ -468,7 +468,14 @@ public class CgmesExportContext {
         if (c instanceof DanglingLine) {
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
             if (terminalId == null) {
-                terminalId = CgmesExportUtil.getUniqueId();
+                // Legacy: in previous versions, dangling line terminals were recorded in a different alias
+                // read it, remove it and store in the standard alias for equipment terminal (Terminal1)
+                terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL).orElse(null);
+                if (terminalId != null) {
+                    c.removeAlias(terminalId);
+                } else {
+                    terminalId = CgmesExportUtil.getUniqueId();
+                }
                 c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
             }
             String boundaryId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY).orElse(null);
