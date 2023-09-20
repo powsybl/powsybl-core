@@ -234,7 +234,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     }
 
     private void createTopology(int side, Network network, VoltageLevel voltageLevel, int connectableNode, int forkNode, Connectable<?> connectable, NamingStrategy namingStrategy, Reporter reporter) {
-        String baseId = connectable.getId() + (side == 0 ? "" : side);
+        String baseId = NamingStrategy.getSwitchBaseId();
         String bbsId = getBusOrBusbarSectionId(side);
         BusbarSection bbs = network.getBusbarSection(bbsId);
         int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();

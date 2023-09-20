@@ -6,13 +6,16 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Optional;
 
 /**
  * Default naming strategy used if no other naming strategy is specified.
  * @author Nicolas Rol <nicolas.rol@rte-france.com>
  */
-public class DefaultNamingStrategy implements NamingStrategy {
+public class RteNamingStrategy implements NamingStrategy {
 
     private static final String SEPARATOR = "_";
     private static final String DISCONNECTOR_NAMEBASE = "DISCONNECTOR";
@@ -167,6 +170,27 @@ public class DefaultNamingStrategy implements NamingStrategy {
 
     @Override
     public final String getSwitchBaseId(Connectable<?> connectable, int side, String voltageId) {
-        return connectable.getId() + (side == 0 ? "" : side);
+        if (connectable instanceof TwoWindingsTransformer twoWindingsTransformer) {
+            String voltageLevelId = twoWindingsTransformer.getTerminal(side == 1 ? Branch.Side.ONE : Branch.Side.TWO).getVoltageLevel().getId();
+            Optional<Substation> optionalSubstation = twoWindingsTransformer.getSubstation();
+            return String.format(
+                "%s_%s\t%sAT%s\t",
+                voltageLevelId,
+                optionalSubstation.isPresent() ? optionalSubstation.get().getId() : "",
+                voltageId,
+                StringUtils.substringAfter(twoWindingsTransformer.getId(), String.format("TWT %sY", voltageLevelId))
+            );
+        } else if (connectable instanceof Line line) {
+            VoltageLevel voltageLevel = line.getTerminal(side == 1 ? Branch.Side.ONE : Branch.Side.TWO).getVoltageLevel();
+            Optional<Substation> optionalSubstation = voltageLevel.getSubstation();
+            return String.format(
+                "%s_%s\t%sAT%s\t",
+                voltageLevel.getId(),
+                optionalSubstation.isPresent() ? optionalSubstation.get().getId() : "",
+                voltageId,
+                StringUtils.substringAfter(line.getId(), String.format("TWT %sY", voltageLevel.getId()))
+            );
+        }
+        return "";
     }
 }

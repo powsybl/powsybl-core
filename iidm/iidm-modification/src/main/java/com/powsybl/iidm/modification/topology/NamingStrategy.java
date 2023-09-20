@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.iidm.network.Connectable;
+
 /**
  * The naming strategy aims at clarifying and facilitating the naming of the different network elements created via the
  * different {@link com.powsybl.iidm.modification.NetworkModification} classes. Based on the name of the network element
@@ -76,4 +78,6 @@ public interface NamingStrategy {
     String getBusId(String prefixId, int idNum);
 
     String getFeederId(String prefixId, String voltageLevelId);
+
+    String getSwitchBaseId(Connectable<?> connectable, int side, String voltageId);
 }
