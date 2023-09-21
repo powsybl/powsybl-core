@@ -331,10 +331,6 @@ public final class CgmesExportUtil {
                 .collect(Collectors.toList());
     }
 
-    public static boolean isBoundary(Network network, DanglingLine danglingLine) {
-        return network.getBoundaryElements().stream().map(Identifiable::getId).toList().contains(danglingLine.getId());
-    }
-
     public static boolean isEquivalentShuntWithZeroSectionCount(Connectable<?> c) {
         if (c instanceof ShuntCompensator shuntCompensator) {
             return "true".equals(c.getProperty(Conversion.PROPERTY_IS_EQUIVALENT_SHUNT))

@@ -32,7 +32,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private double b = 0.0;
 
-    private String ucteXnodeCode;
+    private String pairingKey;
 
     private GenerationAdderImpl generationAdder;
 
@@ -91,8 +91,8 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
-    public DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode) {
-        this.ucteXnodeCode = ucteXnodeCode;
+    public DanglingLineAdder setPairingKey(String pairingKey) {
+        this.pairingKey = pairingKey;
         return this;
     }
 
@@ -128,8 +128,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
             generation = generationAdder.build();
         }
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetworkRef(), id, getName(), isFictitious(),
-                p0, q0, r, x, g, b, ucteXnodeCode, generation);
+        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, generation);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         network.getIndex().checkAndAdd(danglingLine);

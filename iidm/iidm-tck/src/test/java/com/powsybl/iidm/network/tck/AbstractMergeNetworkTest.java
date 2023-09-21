@@ -490,7 +490,7 @@ public abstract class AbstractMergeNetworkTest {
                 .setX(2.0)
                 .setG(4.0)
                 .setB(5.0)
-                .setUcteXnodeCode(code)
+                .setPairingKey(code)
                 .add();
         Terminal t = dl.getTerminal();
         t.setP(1.);
