@@ -9,8 +9,12 @@ package com.powsybl.dynamicsimulation.groovy;
 
 import com.powsybl.dynamicsimulation.DynamicModel;
 
+import java.util.List;
+
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public interface DynamicModelGroovyExtension extends GroovyExtension<DynamicModel> {
+
+    List<String> getModelNames();
 }
