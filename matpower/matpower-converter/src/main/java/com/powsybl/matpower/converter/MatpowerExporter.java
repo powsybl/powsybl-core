@@ -728,7 +728,7 @@ public class MatpowerExporter implements Exporter {
         createVSCs(network, model, context);
 
         if (!context.generatorIdsConvertedToLoad.isEmpty()) {
-            LOGGER.warn("{} generators have been converted to a load: {}", context.generatorIdsConvertedToLoad.size(), context.generatorIdsConvertedToLoad);
+            LOGGER.debug("{} generators have been converted to a load: {}", context.generatorIdsConvertedToLoad.size(), context.generatorIdsConvertedToLoad);
         }
 
         try (OutputStream os = dataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
