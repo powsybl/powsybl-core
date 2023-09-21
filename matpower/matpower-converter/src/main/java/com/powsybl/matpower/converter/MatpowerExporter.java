@@ -106,6 +106,8 @@ public class MatpowerExporter implements Exporter {
         int num = 1;
 
         final Map<String, Integer> mBusesNumbersByIds = new HashMap<>();
+
+        final List<String> generatorIdsConvertedToLoad = new ArrayList<>();
     }
 
     private static boolean isExported(Bus bus) {
@@ -238,11 +240,6 @@ public class MatpowerExporter implements Exporter {
     private static Optional<LoadingLimits.TemporaryLimit> previousLimit(Collection<LoadingLimits.TemporaryLimit> limits, LoadingLimits.TemporaryLimit limit) {
         return limits.stream().filter(l -> l.getAcceptableDuration() > limit.getAcceptableDuration())
                 .min(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
-    }
-
-    private static Optional<LoadingLimits.TemporaryLimit> nextLimit(Collection<LoadingLimits.TemporaryLimit> limits, LoadingLimits.TemporaryLimit limit) {
-        return limits.stream().filter(l -> l.getAcceptableDuration() < limit.getAcceptableDuration())
-                .max(Comparator.comparing(LoadingLimits.TemporaryLimit::getAcceptableDuration));
     }
 
     private static double toApparentPower(double current, VoltageLevel vl) {
@@ -645,6 +642,7 @@ public class MatpowerExporter implements Exporter {
             // convert to load
             mBus.setRealPowerDemand(mBus.getRealPowerDemand() - targetP);
             mBus.setReactivePowerDemand(mBus.getReactivePowerDemand() - targetQ);
+            context.generatorIdsConvertedToLoad.add(id);
         } else {
             MGen mGen = new MGen();
             mGen.setNumber(busNum);
@@ -728,6 +726,10 @@ public class MatpowerExporter implements Exporter {
         createGenerators(network, model, context);
         createStaticVarCompensators(network, model, context);
         createVSCs(network, model, context);
+
+        if (!context.generatorIdsConvertedToLoad.isEmpty()) {
+            LOGGER.warn("{} generators have been converted to a load: {}", context.generatorIdsConvertedToLoad.size(), context.generatorIdsConvertedToLoad);
+        }
 
         try (OutputStream os = dataSource.newOutputStream(null, MatpowerConstants.EXT, false)) {
             MatpowerWriter.write(model, os, withBusNames);
