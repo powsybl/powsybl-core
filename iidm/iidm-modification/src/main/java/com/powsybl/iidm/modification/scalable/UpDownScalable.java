@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
@@ -66,7 +65,7 @@ class UpDownScalable extends AbstractScalable {
     }
 
     @Override
-    public double getSteadyStatePower(Network network, ScalingConvention scalingConvention) {
-        throw new PowsyblException("getCurrentPower should not be used on UpDownScalable, only on other types of Scalable");
+    public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
+        return asked > 0 ? upScalable.getSteadyStatePower(network, asked, scalingConvention) : downScalable.getSteadyStatePower(network, asked, scalingConvention);
     }
 }

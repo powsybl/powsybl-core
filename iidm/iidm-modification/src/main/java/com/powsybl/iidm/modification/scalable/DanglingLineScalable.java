@@ -166,7 +166,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
     }
 
     @Override
-    public double getSteadyStatePower(Network network, ScalingConvention scalingConvention) {
+    public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
         DanglingLine line = network.getDanglingLine(id);
         if (line == null) {
             LOGGER.warn("DanglingLine {} not found", id);
