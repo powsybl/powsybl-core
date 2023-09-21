@@ -70,8 +70,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public String getUcteXnodeCode() {
-        return Optional.ofNullable(danglingLine1.getUcteXnodeCode()).orElseGet(() -> danglingLine2.getUcteXnodeCode());
+    public String getPairingKey() {
+        return Optional.ofNullable(danglingLine1.getPairingKey()).orElseGet(() -> danglingLine2.getPairingKey());
     }
 
     @Override

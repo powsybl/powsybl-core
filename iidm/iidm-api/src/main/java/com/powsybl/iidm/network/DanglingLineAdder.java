@@ -41,7 +41,7 @@ public interface DanglingLineAdder extends InjectionAdder<DanglingLine, Dangling
 
     DanglingLineAdder setB(double b);
 
-    DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode);
+    DanglingLineAdder setPairingKey(String pairingKey);
 
     default GenerationAdder newGeneration() {
         throw new UnsupportedOperationException();
