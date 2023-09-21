@@ -258,7 +258,7 @@ public class ProportionalScalable extends AbstractCompoundScalable {
         Objects.requireNonNull(parameters);
 
         // Compute the current power value
-        double currentGlobalPower = getSteadyStatePower(n, parameters.getScalingConvention());
+        double currentGlobalPower = getSteadyStatePower(n, asked, parameters.getScalingConvention());
 
         // Variation asked
         double variationAsked = Scalable.getVariationAsked(parameters, asked, currentGlobalPower);
@@ -308,8 +308,8 @@ public class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     @Override
-    public double getSteadyStatePower(Network network, ScalingConvention scalingConvention) {
-        return scalablePercentageList.stream().mapToDouble(scalablePercentage -> scalablePercentage.getScalable().getSteadyStatePower(network, scalingConvention)).sum();
+    public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
+        return scalablePercentageList.stream().mapToDouble(scalablePercentage -> scalablePercentage.getScalable().getSteadyStatePower(network, asked, scalingConvention)).sum();
     }
 
 }
