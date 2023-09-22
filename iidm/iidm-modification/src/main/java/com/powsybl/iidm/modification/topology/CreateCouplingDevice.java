@@ -114,10 +114,12 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             int bbs1Node = bbs1.getTerminal().getNodeBreakerView().getNode();
             int bbs2Node = bbs2.getTerminal().getNodeBreakerView().getNode();
 
+            // Breaker
             createNBBreaker(breakerNode1, breakerNode2, namingStrategy.getBreakerId(switchPrefixId), voltageLevel1.getNodeBreakerView(), false);
             createNBDisconnector(bbs1Node, breakerNode1, namingStrategy.getDisconnectorId(switchPrefixId, bbs1Node), voltageLevel1.getNodeBreakerView(), false);
             createNBDisconnector(bbs2Node, breakerNode2, namingStrategy.getDisconnectorId(switchPrefixId, bbs2Node), voltageLevel1.getNodeBreakerView(), false);
 
+            // Disconnectors
             BusbarSectionPosition position1 = bbs1.getExtension(BusbarSectionPosition.class);
             BusbarSectionPosition position2 = bbs2.getExtension(BusbarSectionPosition.class);
             if (position1 != null) {

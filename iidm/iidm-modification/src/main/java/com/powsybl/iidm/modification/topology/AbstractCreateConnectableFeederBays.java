@@ -234,23 +234,27 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     }
 
     private void createTopology(int side, Network network, VoltageLevel voltageLevel, int connectableNode, int forkNode, Connectable<?> connectable, NamingStrategy namingStrategy, Reporter reporter) {
-        String baseId = NamingStrategy.getSwitchBaseId();
+        // Information gathering
+        String baseId = namingStrategy.getSwitchBaseId(connectable, side);
         String bbsId = getBusOrBusbarSectionId(side);
         BusbarSection bbs = network.getBusbarSection(bbsId);
-        int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
-        createNodeBreakerSwitches(connectableNode, forkNode, bbsNode, namingStrategy, baseId, voltageLevel.getNodeBreakerView());
         BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
+
+        // Topology creation
         int parallelBbsNumber = 0;
         if (position == null) {
+            // Only one bar exists so only one disconnector is needed
+            int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
+            createNodeBreakerSwitches(connectableNode, forkNode, bbsNode, namingStrategy, baseId, voltageLevel.getNodeBreakerView());
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs);
         } else {
+            // There are at least two parallel bars so multiple disconnectors are needed
             List<BusbarSection> bbsList = voltageLevel.getNodeBreakerView().getBusbarSectionStream()
                     .filter(b -> b.getExtension(BusbarSectionPosition.class) != null)
-                    .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex())
-                    .filter(b -> !b.getId().equals(bbsId)).collect(Collectors.toList());
-            parallelBbsNumber = bbsList.size();
-            createTopologyFromBusbarSectionList(voltageLevel, forkNode, namingStrategy, baseId, bbsList);
+                    .filter(b -> b.getExtension(BusbarSectionPosition.class).getSectionIndex() == position.getSectionIndex()).collect(Collectors.toList());
+            parallelBbsNumber = bbsList.size() - 1;
+            createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, bbsList, bbs);
         }
         LOGGER.info("New feeder bay associated to {} of type {} was created and connected to voltage level {} on busbar section {} with a closed disconnector " +
                 "and on {} parallel busbar sections with an open disconnector.", connectable.getId(), connectable.getType(), voltageLevel.getId(), bbsId, parallelBbsNumber);

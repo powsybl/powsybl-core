@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.*;
 
 /**
  * The naming strategy aims at clarifying and facilitating the naming of the different network elements created via the
@@ -34,6 +34,8 @@ public interface NamingStrategy {
     String getDisconnectorId(String prefixId, int idNum);
 
     String getDisconnectorId(String prefixId, int id1Num, int id2Num);
+
+    String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num);
 
     String getBreakerIdPrefix(String prefixId);
 
@@ -79,5 +81,17 @@ public interface NamingStrategy {
 
     String getFeederId(String prefixId, String voltageLevelId);
 
-    String getSwitchBaseId(Connectable<?> connectable, int side, String voltageId);
+    String getSwitchBaseId(Connectable<?> connectable, int side);
+
+    String getVoltageLevelId(Substation substation, String prefix, String suffix);
+
+    String getBbsId(int number);
+
+    String getBbsId(int number, String letter);
+
+    String getBbsId(int firstNumber, int secondNumber);
+
+    String getBbsId(int firstNumber, String letter, int secondNumber);
+
+    String getGeneratorId(Substation substation, EnergySource energySource, String prefix, String suffix, int code);
 }

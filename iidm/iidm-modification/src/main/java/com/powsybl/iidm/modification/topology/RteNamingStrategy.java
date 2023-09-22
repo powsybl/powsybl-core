@@ -6,18 +6,21 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Optional;
 
 /**
- * Default naming strategy used if no other naming strategy is specified.
+ * RTE naming strategy
+ * TODO: move this class to powsybl-rte
  * @author Nicolas Rol <nicolas.rol@rte-france.com>
  */
 public class RteNamingStrategy implements NamingStrategy {
 
-    private static final String SEPARATOR = "_";
+    private static final String SEPARATOR = ".";
     private static final String DISCONNECTOR_NAMEBASE = "DISCONNECTOR";
     private static final String BREAKER_NAMEBASE = "BREAKER";
     private static final String SWITCH_NAMEBASE = "SW";
@@ -56,6 +59,16 @@ public class RteNamingStrategy implements NamingStrategy {
     @Override
     public final String getDisconnectorId(String prefixId, int id1Num, int id2Num) {
         return getDisconnectorIdPrefix(prefixId) + SEPARATOR + DISCONNECTOR_NAMEBASE + SEPARATOR + getDisconnectorIdSuffix(id1Num, id2Num);
+    }
+
+    @Override
+    public String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num) {
+        // In this case, multiple busbar are parallel
+        BusbarSectionPosition position = bbs.getExtension(BusbarSectionPosition.class);
+        if (position == null) {
+            throw new PowsyblException("Multiple busbar are needed");
+        }
+        return getDisconnectorIdPrefix(prefixId) + SEPARATOR + DISCONNECTOR_NAMEBASE + SEPARATOR + getDisconnectorIdSuffix(id1Num, position.getBusbarIndex());
     }
 
     @Override
@@ -169,28 +182,95 @@ public class RteNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public final String getSwitchBaseId(Connectable<?> connectable, int side, String voltageId) {
+    public final String getSwitchBaseId(Connectable<?> connectable, int side) {
         if (connectable instanceof TwoWindingsTransformer twoWindingsTransformer) {
-            String voltageLevelId = twoWindingsTransformer.getTerminal(side == 1 ? Branch.Side.ONE : Branch.Side.TWO).getVoltageLevel().getId();
-            Optional<Substation> optionalSubstation = twoWindingsTransformer.getSubstation();
-            return String.format(
-                "%s_%s\t%sAT%s\t",
-                voltageLevelId,
-                optionalSubstation.isPresent() ? optionalSubstation.get().getId() : "",
-                voltageId,
-                StringUtils.substringAfter(twoWindingsTransformer.getId(), String.format("TWT %sY", voltageLevelId))
-            );
+            return getSwitchBaseIdOnTwoWindingsTransformer(twoWindingsTransformer, side);
         } else if (connectable instanceof Line line) {
-            VoltageLevel voltageLevel = line.getTerminal(side == 1 ? Branch.Side.ONE : Branch.Side.TWO).getVoltageLevel();
-            Optional<Substation> optionalSubstation = voltageLevel.getSubstation();
-            return String.format(
-                "%s_%s\t%sAT%s\t",
-                voltageLevel.getId(),
-                optionalSubstation.isPresent() ? optionalSubstation.get().getId() : "",
-                voltageId,
-                StringUtils.substringAfter(line.getId(), String.format("TWT %sY", voltageLevel.getId()))
-            );
+            return getSwitchBaseIdOnLine(line, side);
+        } else {
+            // TODO: implement the other cases
+            throw new PowsyblException("To be implemented");
         }
-        return "";
+    }
+
+    public final String getSwitchBaseIdOnTwoWindingsTransformer(TwoWindingsTransformer twoWindingsTransformer, int side) {
+        if (side == 0) {
+            throw new PowsyblException("Side should not be equal to 0 for a TwoWindingsTransformer");
+        }
+        String voltageLevelId = twoWindingsTransformer.getTerminal(side == 1 ? Branch.Side.ONE : Branch.Side.TWO).getVoltageLevel().getId();
+        Optional<Substation> optionalSubstation = twoWindingsTransformer.getSubstation();
+        String voltageId = voltageLevelId.substring(voltageLevelId.length() - 1);
+        return String.format(
+            "%s_%s\t%sAT%s\t",
+            voltageLevelId,
+            optionalSubstation.isPresent() ? optionalSubstation.get().getId() : "",
+            voltageId,
+            StringUtils.substringAfter(twoWindingsTransformer.getId(), String.format("TWT %sY", voltageLevelId))
+        );
+    }
+
+    public final String getSwitchBaseIdOnLine(Line line, int side) {
+        if (side == 0) {
+            throw new PowsyblException("Side should not be equal to 0 for a Line");
+        }
+        // Ids on local side
+        VoltageLevel voltageLevel = line.getTerminal(side == 1 ? Branch.Side.ONE : Branch.Side.TWO).getVoltageLevel();
+        Optional<Substation> optionalSubstation = voltageLevel.getSubstation();
+
+        // Ids on opposite side
+        VoltageLevel voltageLevelOpposite = line.getTerminal(side == 2 ? Branch.Side.ONE : Branch.Side.TWO).getVoltageLevel();
+        Optional<Substation> optionalSubstationOpposite = voltageLevelOpposite.getSubstation();
+
+        // Line information
+        String lineIntel = StringUtils.startsWith(line.getId(), voltageLevel.getId()) ?
+            StringUtils.substringBefore(StringUtils.substringAfter(line.getId(), voltageLevel.getId()), voltageLevelOpposite.getId()) :
+            StringUtils.substringBefore(StringUtils.substringAfter(line.getId(), voltageLevelOpposite.getId()), voltageLevel.getId());
+
+        return String.format(
+            "%s_%s\t%s%s.%s\t",
+            voltageLevel.getId(),
+            optionalSubstation.isPresent() ? optionalSubstation.get().getId() : "",
+            voltageLevel.getId().substring(voltageLevel.getId().length() - 1),
+            optionalSubstationOpposite.isPresent() ? optionalSubstationOpposite.get().getId() : "",
+            lineIntel.substring(lineIntel.length() - 1)
+        );
+    }
+
+    @Override
+    public final String getVoltageLevelId(Substation substation, String prefix, String suffix) {
+        return substation.getId() + "P" + suffix;
+    }
+
+    @Override
+    public String getBbsId(int number) {
+        return String.valueOf(number);
+    }
+
+    @Override
+    public String getBbsId(int number, String letter) {
+        return number + letter;
+    }
+
+    @Override
+    public String getBbsId(int firstNumber, int secondNumber) {
+        return firstNumber + SEPARATOR + secondNumber;
+    }
+
+    @Override
+    public String getBbsId(int firstNumber, String letter, int secondNumber) {
+        return firstNumber + letter + secondNumber;
+    }
+
+    @Override
+    public final String getGeneratorId(Substation substation, EnergySource energySource, String prefix, String suffix, int code) {
+        String energyCode = switch (energySource) {
+            case NUCLEAR -> "N";
+            case THERMAL -> "T";
+            case HYDRO -> "H";
+            case WIND -> "E";
+            case SOLAR -> "V";
+            case OTHER -> "X";
+        };
+        return substation.getId() + energyCode + "G" + code;
     }
 }

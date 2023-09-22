@@ -6,7 +6,10 @@
  */
 package com.powsybl.iidm.modification.topology;
 
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.EnergySource;
+import com.powsybl.iidm.network.Substation;
 
 /**
  * Default naming strategy used if no other naming strategy is specified.
@@ -52,6 +55,11 @@ public class DefaultNamingStrategy implements NamingStrategy {
 
     @Override
     public final String getDisconnectorId(String prefixId, int id1Num, int id2Num) {
+        return getDisconnectorIdPrefix(prefixId) + SEPARATOR + DISCONNECTOR_NAMEBASE + SEPARATOR + getDisconnectorIdSuffix(id1Num, id2Num);
+    }
+
+    @Override
+    public String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num) {
         return getDisconnectorIdPrefix(prefixId) + SEPARATOR + DISCONNECTOR_NAMEBASE + SEPARATOR + getDisconnectorIdSuffix(id1Num, id2Num);
     }
 
@@ -166,7 +174,45 @@ public class DefaultNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public final String getSwitchBaseId(Connectable<?> connectable, int side, String voltageId) {
+    public final String getSwitchBaseId(Connectable<?> connectable, int side) {
         return connectable.getId() + (side == 0 ? "" : side);
+    }
+
+    @Override
+    public final String getVoltageLevelId(Substation substation, String prefix, String suffix) {
+        return prefix + SEPARATOR + suffix;
+    }
+
+    @Override
+    public String getBbsId(int number) {
+        return null;
+    }
+
+    @Override
+    public String getBbsId(int number, String letter) {
+        return null;
+    }
+
+    @Override
+    public String getBbsId(int firstNumber, int secondNumber) {
+        return null;
+    }
+
+    @Override
+    public String getBbsId(int firstNumber, String letter, int secondNumber) {
+        return null;
+    }
+
+    @Override
+    public final String getGeneratorId(Substation substation, EnergySource energySource, String prefix, String suffix, int code) {
+        String energyCode = switch (energySource) {
+            case NUCLEAR -> "N";
+            case THERMAL -> "T";
+            case HYDRO -> "H";
+            case WIND -> "E";
+            case SOLAR -> "V";
+            case OTHER -> "X";
+        };
+        return substation.getId() + energyCode + "G" + code;
     }
 }
