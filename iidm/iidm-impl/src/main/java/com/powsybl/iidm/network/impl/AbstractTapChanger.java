@@ -26,7 +26,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final Integer relativeNeutralPosition;
 
-    protected final List<S> steps;
+    protected List<S> steps;
 
     private final String type;
 
@@ -150,6 +150,31 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             return null;
         }
         return getStep(position);
+    }
+
+    public void insertStep(S step, int tapPosition) {
+        step.validate(parent);
+        steps.add(tapPosition, step);
+    }
+
+    public void removeSteps() {
+        steps.removeAll(steps);
+    }
+
+    public void replaceSteps(List<S> steps) {
+        steps.forEach(step -> step.validate(parent));
+        if (steps == null || steps.isEmpty()) {
+            throw new ValidationException(parent, "a phase tap changer shall have at least one step");
+        }
+        //Ok or not ?
+        if (getTapPosition() < lowTapPosition
+                || getTapPosition() > getHighTapPosition()) {
+            throw new ValidationException(parent, "incorrect tap position "
+                    + tapPosition + " [" + lowTapPosition + ", "
+                    + getHighTapPosition() + "]");
+        }
+        this.steps.removeAll(this.steps);
+        this.steps = steps;
     }
 
     public boolean isRegulating() {

@@ -94,25 +94,26 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
         @Override
         public PhaseTapChangerAdder endStep() {
-            if (Double.isNaN(alpha)) {
-                throw new ValidationException(parent, "step alpha is not set");
-            }
-            if (Double.isNaN(rho)) {
-                throw new ValidationException(parent, "step rho is not set");
-            }
-            if (Double.isNaN(r)) {
-                throw new ValidationException(parent, "step r is not set");
-            }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(parent, "step x is not set");
-            }
-            if (Double.isNaN(g)) {
-                throw new ValidationException(parent, "step g is not set");
-            }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(parent, "step b is not set");
-            }
+//            if (Double.isNaN(alpha)) {
+//                throw new ValidationException(parent, "step alpha is not set");
+//            }
+//            if (Double.isNaN(rho)) {
+//                throw new ValidationException(parent, "step rho is not set");
+//            }
+//            if (Double.isNaN(r)) {
+//                throw new ValidationException(parent, "step r is not set");
+//            }
+//            if (Double.isNaN(x)) {
+//                throw new ValidationException(parent, "step x is not set");
+//            }
+//            if (Double.isNaN(g)) {
+//                throw new ValidationException(parent, "step g is not set");
+//            }
+//            if (Double.isNaN(b)) {
+//                throw new ValidationException(parent, "step b is not set");
+//            }
             PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
+            step.validate(parent);
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;
         }

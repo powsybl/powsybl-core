@@ -86,22 +86,23 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
         @Override
         public RatioTapChangerAdder endStep() {
-            if (Double.isNaN(rho)) {
-                throw new ValidationException(parent, "step rho is not set");
-            }
-            if (Double.isNaN(r)) {
-                throw new ValidationException(parent, "step r is not set");
-            }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(parent, "step x is not set");
-            }
-            if (Double.isNaN(g)) {
-                throw new ValidationException(parent, "step g is not set");
-            }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(parent, "step b is not set");
-            }
+//            if (Double.isNaN(rho)) {
+//                throw new ValidationException(parent, "step rho is not set");
+//            }
+//            if (Double.isNaN(r)) {
+//                throw new ValidationException(parent, "step r is not set");
+//            }
+//            if (Double.isNaN(x)) {
+//                throw new ValidationException(parent, "step x is not set");
+//            }
+//            if (Double.isNaN(g)) {
+//                throw new ValidationException(parent, "step g is not set");
+//            }
+//            if (Double.isNaN(b)) {
+//                throw new ValidationException(parent, "step b is not set");
+//            }
             RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
+            step.validate(parent);
             steps.add(step);
             return RatioTapChangerAdderImpl.this;
         }

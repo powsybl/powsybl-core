@@ -17,5 +17,4 @@ class RatioTapChangerStepImpl extends TapChangerStepImpl<RatioTapChangerStepImpl
     RatioTapChangerStepImpl(int position, double rho, double r, double x, double g, double b) {
         super(position, rho, r, x, g, b);
     }
-
 }
