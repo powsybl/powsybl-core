@@ -333,7 +333,7 @@ public interface LimitViolationDetector {
                     limit,
                     limitReduction,
                     value,
-                    side));
+                    side.getId()));
         }
     }
 
@@ -351,7 +351,7 @@ public interface LimitViolationDetector {
                     overload.getPreviousLimit(),
                     limitReduction,
                     value,
-                    side));
+                    side.getId()));
         }
     }
 }

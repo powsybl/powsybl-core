@@ -64,7 +64,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                     assertEquals(600, l.getAcceptableDuration());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
@@ -107,7 +107,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                     assertEquals(60, l.getAcceptableDuration());
                 });
     }
@@ -121,7 +121,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1250, l.getValue(), 0d);
-                    assertSame(Branch.Side.ONE, l.getSide());
+                    assertSame(Branch.Side.ONE, Branch.Side.valueOf(l.getSideId()));
                     assertEquals(60, l.getAcceptableDuration());
                 });
     }
@@ -136,7 +136,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                     assertEquals(600, l.getAcceptableDuration());
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
@@ -179,7 +179,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                     assertEquals(60, l.getAcceptableDuration());
                 });
     }
@@ -193,7 +193,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1250, l.getValue(), 0d);
-                    assertSame(Branch.Side.ONE, l.getSide());
+                    assertSame(Branch.Side.ONE, Branch.Side.valueOf(l.getSideId()));
                     assertEquals(60, l.getAcceptableDuration());
                 });
     }
@@ -210,7 +210,7 @@ class DefaultLimitViolationDetectorTest {
                     assertEquals(LimitViolationType.HIGH_VOLTAGE, v.getLimitType());
                     assertEquals(500, v.getLimit(), 0d);
                     assertEquals(520, v.getValue(), 0d);
-                    assertNull(v.getSide());
+                    assertNull(v.getSideId());
                     assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
                 });
     }
@@ -227,7 +227,7 @@ class DefaultLimitViolationDetectorTest {
                     assertEquals(LimitViolationType.LOW_VOLTAGE, v.getLimitType());
                     assertEquals(400, v.getLimit(), 0d);
                     assertEquals(380, v.getValue(), 0d);
-                    assertNull(v.getSide());
+                    assertNull(v.getSideId());
                     assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
                 });
     }
@@ -243,7 +243,7 @@ class DefaultLimitViolationDetectorTest {
                 assertEquals(LimitViolationType.HIGH_VOLTAGE_ANGLE, v.getLimitType());
                 assertEquals(0.25, v.getLimit(), 0d);
                 assertEquals(0.30, v.getValue(), 0d);
-                assertEquals(null, v.getSide());
+                assertEquals(null, v.getSideId());
                 assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
             });
     }
@@ -259,7 +259,7 @@ class DefaultLimitViolationDetectorTest {
                 assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, v.getLimitType());
                 assertEquals(0.20, v.getLimit(), 0d);
                 assertEquals(-0.30, v.getValue(), 0d);
-                assertEquals(null, v.getSide());
+                assertEquals(null, v.getSideId());
                 assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
             });
     }
@@ -275,7 +275,7 @@ class DefaultLimitViolationDetectorTest {
                 assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, v.getLimitType());
                 assertEquals(-0.20, v.getLimit(), 0d);
                 assertEquals(-0.40, v.getValue(), 0d);
-                assertNull(v.getSide());
+                assertNull(v.getSideId());
                 assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
             });
     }
@@ -291,7 +291,7 @@ class DefaultLimitViolationDetectorTest {
                     assertEquals(LimitViolationType.HIGH_VOLTAGE_ANGLE, v.getLimitType());
                     assertEquals(0.35, v.getLimit(), 0d);
                     assertEquals(0.40, v.getValue(), 0d);
-                    assertNull(v.getSide());
+                    assertNull(v.getSideId());
                     assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
                 });
     }
@@ -306,7 +306,7 @@ class DefaultLimitViolationDetectorTest {
                   .allSatisfy(l -> {
                       assertEquals(1100, l.getLimit(), 0d);
                       assertEquals(1101, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getSide());
+                      assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                       assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
@@ -321,7 +321,7 @@ class DefaultLimitViolationDetectorTest {
                   .allSatisfy(l -> {
                       assertEquals(1100, l.getLimit(), 0d);
                       assertEquals(1101, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getSide());
+                      assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                       assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                       assertEquals(1.0f, l.getLimitReduction());
                   });
@@ -337,7 +337,7 @@ class DefaultLimitViolationDetectorTest {
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getSide());
+                      assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                       assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
@@ -353,7 +353,7 @@ class DefaultLimitViolationDetectorTest {
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getSide());
+                      assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                       assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
     }
@@ -370,7 +370,7 @@ class DefaultLimitViolationDetectorTest {
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getSide());
+                      assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                   });
     }
 
@@ -386,7 +386,7 @@ class DefaultLimitViolationDetectorTest {
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.TWO, l.getSide());
+                      assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                   });
     }
 
@@ -411,7 +411,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
@@ -426,7 +426,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1100, l.getLimit(), 0d);
                     assertEquals(1101, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                     assertEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                     assertEquals(1.0f, l.getLimitReduction());
                 });
@@ -442,7 +442,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                     assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
@@ -458,7 +458,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                     assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                 });
     }
@@ -475,7 +475,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                 });
     }
 
@@ -491,7 +491,7 @@ class DefaultLimitViolationDetectorTest {
                 .allSatisfy(l -> {
                     assertEquals(1200, l.getLimit(), 0d);
                     assertEquals(1201, l.getValue(), 0d);
-                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertSame(Branch.Side.TWO, Branch.Side.valueOf(l.getSideId()));
                 });
     }
 

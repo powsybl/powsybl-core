@@ -27,7 +27,7 @@ public class LimitViolationComparator implements Comparator<LimitViolation> {
                 if (LimitViolationType.CURRENT == violation1.getLimitType()
                     || LimitViolationType.ACTIVE_POWER == violation1.getLimitType()
                     || LimitViolationType.APPARENT_POWER == violation1.getLimitType()) {
-                    return violation1.getSide().compareTo(violation2.getSide());
+                    return violation1.getSideId().compareTo(violation2.getSideId());
                 }
                 return 0;
             }

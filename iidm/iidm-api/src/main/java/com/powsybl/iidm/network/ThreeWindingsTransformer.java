@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -114,9 +115,29 @@ import java.util.stream.Stream;
 public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTransformer> {
 
     enum Side {
-        ONE,
-        TWO,
-        THREE
+        ONE(1),
+        TWO(2),
+        THREE(3);
+
+        private final int id;
+
+        Side(int id) {
+            this.id = id;
+        }
+
+        public static Side valueOf(Integer sideId) {
+            return switch (Objects.requireNonNull(sideId)) {
+                case 1 -> Side.ONE;
+                case 2 -> Side.TWO;
+                case 3 -> Side.THREE;
+                default -> throw new PowsyblException("ThreeWindingsTransformer have three sides, " +
+                        "sideId should be 1, 2 or 3, here it is: " + sideId);
+            };
+        }
+
+        public final int getId() {
+            return id;
+        }
     }
 
     /**

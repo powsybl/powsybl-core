@@ -91,6 +91,6 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
         LimitViolation violation1 = postContingencyResult.getLimitViolationsResult().getLimitViolations().get(1);
         assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, violation1.getLimitType());
         assertEquals("VoltageAngleLimit_NHV1_NHV2_1", violation1.getSubjectId());
-        assertEquals(null, violation1.getSide());
+        assertEquals(null, violation1.getSideId());
     }
 }

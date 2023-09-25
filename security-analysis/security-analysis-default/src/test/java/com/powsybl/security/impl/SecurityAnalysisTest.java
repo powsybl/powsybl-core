@@ -156,7 +156,7 @@ class SecurityAnalysisTest {
         LimitViolation violation1 = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(1);
         assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, violation1.getLimitType());
         assertEquals("VoltageAngleLimit_NHV1_NHV2_1", violation1.getSubjectId());
-        assertEquals(null, violation1.getSide());
+        assertEquals(null, violation1.getSideId());
 
         assertEquals(1, interceptorMock.getOnPostContingencyResultCount());
         assertEquals(1, interceptorMock.getOnPreContingencyResultCount());

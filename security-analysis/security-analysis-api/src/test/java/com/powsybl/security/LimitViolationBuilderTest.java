@@ -49,7 +49,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.CURRENT, violation.getLimitType());
-        assertEquals(Branch.Side.ONE, violation.getSide());
+        assertEquals(Branch.Side.ONE, Branch.Side.valueOf(violation.getSideId()));
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -63,7 +63,7 @@ class LimitViolationBuilderTest {
                 .side2()
                 .duration(60)
                 .build();
-        assertEquals(Branch.Side.TWO, violation2.getSide());
+        assertEquals(Branch.Side.TWO, Branch.Side.valueOf(violation2.getSideId()));
         assertEquals("name", violation2.getSubjectName());
         assertEquals("limitName", violation2.getLimitName());
         assertEquals(0.9f, violation2.getLimitReduction(), 0);
@@ -80,7 +80,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.LOW_VOLTAGE, violation.getLimitType());
-        assertNull(violation.getSide());
+        assertNull(violation.getSideId());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -97,7 +97,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.HIGH_VOLTAGE, violation.getLimitType());
-        assertNull(violation.getSide());
+        assertNull(violation.getSideId());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -114,7 +114,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.LOW_VOLTAGE_ANGLE, violation.getLimitType());
-        assertEquals(null, violation.getSide());
+        assertEquals(null, violation.getSideId());
         assertNull(violation.getLimitName());
         assertEquals(0.25, violation.getLimit(), 0);
         assertEquals(0.30, violation.getValue(), 0);
@@ -128,7 +128,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation2 = builder2.build();
         assertEquals("id", violation2.getSubjectId());
         assertSame(LimitViolationType.HIGH_VOLTAGE_ANGLE, violation2.getLimitType());
-        assertEquals(null, violation2.getSide());
+        assertEquals(null, violation2.getSideId());
         assertNull(violation2.getLimitName());
         assertEquals(0.50, violation2.getLimit(), 0);
         assertEquals(0.60, violation2.getValue(), 0);
@@ -145,7 +145,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT, violation.getLimitType());
-        assertNull(violation.getSide());
+        assertNull(violation.getSideId());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -162,7 +162,7 @@ class LimitViolationBuilderTest {
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, violation.getLimitType());
-        assertNull(violation.getSide());
+        assertNull(violation.getSideId());
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -176,12 +176,12 @@ class LimitViolationBuilderTest {
                                                        .limit(1500)
                                                        .value(2000)
                                                        .duration(20, TimeUnit.MINUTES)
-                                                       .side(Branch.Side.ONE);
+                                                       .side(Branch.Side.ONE.getId());
 
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.ACTIVE_POWER, violation.getLimitType());
-        assertSame(Branch.Side.ONE, violation.getSide());
+        assertSame(Branch.Side.ONE, Branch.Side.valueOf(violation.getSideId()));
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);
@@ -195,12 +195,12 @@ class LimitViolationBuilderTest {
                                                        .limit(1500)
                                                        .value(2000)
                                                        .duration(20, TimeUnit.MINUTES)
-                                                       .side(Branch.Side.TWO);
+                                                       .side(Branch.Side.TWO.getId());
 
         LimitViolation violation = builder.build();
         assertEquals("id", violation.getSubjectId());
         assertSame(LimitViolationType.APPARENT_POWER, violation.getLimitType());
-        assertSame(Branch.Side.TWO, violation.getSide());
+        assertSame(Branch.Side.TWO, Branch.Side.valueOf(violation.getSideId()));
         assertNull(violation.getLimitName());
         assertEquals(1500, violation.getLimit(), 0);
         assertEquals(2000, violation.getValue(), 0);

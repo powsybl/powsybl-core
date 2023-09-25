@@ -8,7 +8,6 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.iidm.network.*;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -37,7 +36,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     private final double value;
 
-    private final Branch.Side side;
+    private final Integer sideId;
 
     /**
      * Create a new LimitViolation.
@@ -52,10 +51,10 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limit              The value of the limit which has been violated.
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
-     * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch equipments.
+     * @param sideId             The sideId of the equipment where the violation occurred. May be {@code null} for non-branch, non-3wt equipments.
      */
     public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
-                          double limit, float limitReduction, double value, @Nullable Branch.Side side) {
+                          double limit, float limitReduction, double value, @Nullable Integer sideId) {
         this.subjectId = Objects.requireNonNull(subjectId);
         this.subjectName = subjectName;
         this.limitType = Objects.requireNonNull(limitType);
@@ -64,7 +63,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
         this.limit = limit;
         this.limitReduction = limitReduction;
         this.value = value;
-        this.side = checkSide(limitType, side);
+        this.sideId = checkSideId(limitType, sideId);
     }
 
     /**
@@ -79,11 +78,11 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limit              The value of the limit which has been violated.
      * @param limitReduction     The limit reduction factor used for violation detection.
      * @param value              The actual value of the physical value which triggered the detection of a violation.
-     * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch equipments.
+     * @param sideId               The sideId of the equipment where the violation occurred. May be {@code null} for non-branch, non 3wt equipments.
      */
     public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
-                          double limit, float limitReduction, double value, Branch.Side side) {
-        this(subjectId, null, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
+                          double limit, float limitReduction, double value, Integer sideId) {
+        this(subjectId, null, limitType, limitName, acceptableDuration, limit, limitReduction, value, sideId);
     }
 
     /**
@@ -195,22 +194,35 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
-     * The side of the equipment where the violation occurred. Will be {@code null} for equipments
-     * other than branches.
+     * The sideId of the equipment where the violation occurred. Will be {@code null} for equipments
+     * other than branches or three windings transformers.
      *
-     * @return the side of the equipment where the violation occurred. Will be {@code null} for equipments
-     * other than branches.
+     * @return the sideId of the equipment where the violation occurred. Will be {@code null} for equipments
+     * other than branches or three windings transformers.
      */
     @Nullable
-    public Branch.Side getSide() {
-        return side;
+    public Integer getSideId() {
+        return sideId;
     }
 
-    private static Branch.Side checkSide(LimitViolationType limitType, Branch.Side side) {
+    @Nullable
+    public String getSideIdAsString() {
+        if (sideId == null) {
+            return null;
+        }
+        return switch (sideId) {
+            case 1 -> "ONE";
+            case 2 -> "TWO";
+            case 3 -> "THREE";
+            default -> throw new UnsupportedOperationException("TODO");
+        };
+    }
+
+    private static Integer checkSideId(LimitViolationType limitType, Integer sideId) {
         if (limitType == LimitViolationType.ACTIVE_POWER
             || limitType == LimitViolationType.APPARENT_POWER
             || limitType == LimitViolationType.CURRENT) {
-            return Objects.requireNonNull(side);
+            return Objects.requireNonNull(sideId);
         } else {
             return null;
         }
@@ -220,6 +232,6 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
         return "Subject id: " + this.subjectId + ", Subject name: " + this.subjectName + ", limitType: " +
                 this.limitType + ", limit: " + this.limit + ", limitName: " + this.limitName +
                 ", acceptableDuration: " + this.acceptableDuration + ", limitReduction: " + this.limitReduction +
-                ", value: " + this.value + ", side: " + this.side;
+                ", value: " + this.value + ", sideId: " + this.sideId;
     }
 }

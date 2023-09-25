@@ -6,8 +6,11 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -101,8 +104,27 @@ import java.util.Optional;
 public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     enum Side {
-        ONE,
-        TWO
+        ONE(1),
+        TWO(2);
+
+        private final int id;
+
+        Side(int id) {
+            this.id = id;
+        }
+
+        public static Side valueOf(Integer sideId) {
+            return switch (Objects.requireNonNull(sideId)) {
+                case 1 -> Side.ONE;
+                case 2 -> Side.TWO;
+                default -> throw new PowsyblException("Branch have two sides, " +
+                        "sideId should be 1 or 2, here it is: " + sideId);
+            };
+        }
+
+        public final int getId() {
+            return id;
+        }
     }
 
     /**

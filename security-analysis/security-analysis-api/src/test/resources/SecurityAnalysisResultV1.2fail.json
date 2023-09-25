@@ -15,7 +15,7 @@
         "limit" : 100.0,
         "limitReduction" : 0.95,
         "value" : 110.0,
-        "side" : "ONE",
+        "sideId" : 1,
         "extensions" : {
           "ActivePower" : {
             "value" : 220.0
@@ -89,7 +89,7 @@
         "limit" : 100.0,
         "limitReduction" : 1.0,
         "value" : 110.0,
-        "side" : "TWO",
+        "sideId" : 2,
         "extensions" : {
           "ActivePower" : {
             "preContingencyValue" : 220.0,
@@ -124,7 +124,7 @@
         "limit" : 100.0,
         "limitReduction" : 1.0,
         "value" : 110.0,
-        "side" : "ONE"
+        "sideId" : 1
       }, {
         "subjectId" : "NHV1_NHV2_2",
         "limitType" : "APPARENT_POWER",
@@ -133,7 +133,7 @@
         "limit" : 100.0,
         "limitReduction" : 1.0,
         "value" : 110.0,
-        "side" : "TWO"
+        "sideId" : 2
       } ],
       "actionsTaken" : [ "action1", "action2" ]
     },
