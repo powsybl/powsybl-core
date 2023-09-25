@@ -8,7 +8,6 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.iidm.network.*;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -37,7 +36,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     private final double value;
 
-    private final Branch.Side side;
+    private final String side;
 
     /**
      * Create a new LimitViolation.
@@ -55,7 +54,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch equipments.
      */
     public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
-                          double limit, float limitReduction, double value, @Nullable Branch.Side side) {
+                          double limit, float limitReduction, double value, @Nullable String side) {
         this.subjectId = Objects.requireNonNull(subjectId);
         this.subjectName = subjectName;
         this.limitType = Objects.requireNonNull(limitType);
@@ -82,7 +81,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch equipments.
      */
     public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
-                          double limit, float limitReduction, double value, Branch.Side side) {
+                          double limit, float limitReduction, double value, String side) {
         this(subjectId, null, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
     }
 
@@ -202,11 +201,11 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * other than branches.
      */
     @Nullable
-    public Branch.Side getSide() {
+    public String getSide() {
         return side;
     }
 
-    private static Branch.Side checkSide(LimitViolationType limitType, Branch.Side side) {
+    private static String checkSide(LimitViolationType limitType, String side) {
         if (limitType == LimitViolationType.ACTIVE_POWER
             || limitType == LimitViolationType.APPARENT_POWER
             || limitType == LimitViolationType.CURRENT) {

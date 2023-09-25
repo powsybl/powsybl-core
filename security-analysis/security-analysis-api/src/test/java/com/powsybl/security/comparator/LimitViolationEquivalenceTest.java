@@ -25,30 +25,30 @@ class LimitViolationEquivalenceTest {
     void equivalent() {
         LimitViolationEquivalence violationEquivalence = new LimitViolationEquivalence(0.1);
 
-        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE.name());
 
-        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
+        LimitViolation violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE.name());
         assertTrue(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.09, Branch.Side.ONE);
+        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.09, Branch.Side.ONE.name());
         assertTrue(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1101.0, Branch.Side.ONE);
+        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1101.0, Branch.Side.ONE.name());
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.TWO);
+        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.TWO.name());
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
+        violation2 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE.name());
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
+        violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE.name());
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
+        violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE.name());
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
 
-        violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.TWO);
+        violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.TWO.name());
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
     }
 

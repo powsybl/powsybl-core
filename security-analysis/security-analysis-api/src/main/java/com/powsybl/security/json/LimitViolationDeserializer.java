@@ -14,7 +14,6 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.*;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 
@@ -44,7 +43,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         double limit = Double.NaN;
         float limitReduction = Float.NaN;
         double value = Double.NaN;
-        Branch.Side side = null;
+        String side = null;
 
         List<Extension<LimitViolation>> extensions = Collections.emptyList();
 
@@ -89,7 +88,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
                 case "side":
                     parser.nextToken();
-                    side = JsonUtil.readValue(deserializationContext, parser, Branch.Side.class);
+                    side = JsonUtil.readValue(deserializationContext, parser, String.class);
                     break;
 
                 case "extensions":

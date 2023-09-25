@@ -46,7 +46,7 @@ class LimitViolationDetectorTest {
         if (branch == line1) {
             consumer.accept(LimitViolations.current()
                     .subject(branch.getId())
-                    .side(side)
+                    .side(side.name())
                     .duration(1200)
                     .value(1500)
                     .limit(1200)
@@ -57,7 +57,7 @@ class LimitViolationDetectorTest {
             consumer.accept(LimitViolations.current()
                     .subject(branch.getId())
                     .duration(1200)
-                    .side(side)
+                    .side(side.name())
                     .value(1500)
                     .limit(1200)
                     .build());
@@ -68,7 +68,7 @@ class LimitViolationDetectorTest {
             consumer.accept(LimitViolations.current()
                     .subject(branch.getId())
                     .duration(1200)
-                    .side(side)
+                    .side(side.name())
                     .value(1500)
                     .limit(1200)
                     .build());
@@ -105,7 +105,7 @@ class LimitViolationDetectorTest {
         if (voltageAngleLimit == voltageAngleLimit0) {
             consumer.accept(LimitViolations.highVoltageAngle()
                 .subject(voltageAngleLimit.getTerminalFrom().getConnectable().getId())
-                .side(Branch.Side.ONE)
+                .side(Branch.Side.ONE.name())
                 .value(0.30)
                 .limit(0.25)
                 .build());
@@ -113,7 +113,7 @@ class LimitViolationDetectorTest {
         if (contingency == contingency1 && voltageAngleLimit == voltageAngleLimit1) {
             consumer.accept(LimitViolations.lowVoltageAngle()
                 .subject(voltageAngleLimit.getTerminalFrom().getConnectable().getId())
-                .side(Branch.Side.ONE)
+                .side(Branch.Side.ONE.name())
                 .value(-0.22)
                 .limit(0.20)
                 .build());

@@ -6,8 +6,6 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.Branch;
-
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Objects.requireNonNull;
@@ -27,7 +25,7 @@ public class LimitViolationBuilder {
     private Integer duration;
     private float reduction = 1.0f;
     private Double value;
-    private Branch.Side side;
+    private String side;
 
     public LimitViolationBuilder type(LimitViolationType type) {
         this.type = requireNonNull(type);
@@ -74,17 +72,17 @@ public class LimitViolationBuilder {
         return this;
     }
 
-    public LimitViolationBuilder side(Branch.Side side) {
+    public LimitViolationBuilder side(String side) {
         this.side = requireNonNull(side);
         return this;
     }
 
     public LimitViolationBuilder side1() {
-        return side(Branch.Side.ONE);
+        return side("ONE");
     }
 
     public LimitViolationBuilder side2() {
-        return side(Branch.Side.TWO);
+        return side("TWO");
     }
 
     public LimitViolationBuilder current() {

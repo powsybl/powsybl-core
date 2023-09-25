@@ -162,15 +162,6 @@ public final class JsonUtil {
         }
     }
 
-    public static void writeOptionalEnumField(JsonGenerator jsonGenerator, String fieldName, Enum<?> value) throws IOException {
-        Objects.requireNonNull(jsonGenerator);
-        Objects.requireNonNull(fieldName);
-
-        if (value != null) {
-            jsonGenerator.writeStringField(fieldName, value.name());
-        }
-    }
-
     public static void writeOptionalBooleanField(JsonGenerator jsonGenerator, String fieldName, boolean value, boolean defaultValue) throws IOException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);

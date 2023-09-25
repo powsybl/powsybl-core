@@ -18,7 +18,6 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 
@@ -95,7 +94,7 @@ public class SecurityAnalysisResultComparisonWriter implements AutoCloseable {
             formatter = contingency == null ? formatter.writeEmptyCell() : formatter.writeCell(contingency);
             formatter.writeEmptyCells(2);
             formatter.writeCell(getEquipment(violation1, violation2));
-            formatter = getEnd(violation1, violation2) == null ? formatter.writeEmptyCell() : formatter.writeCell(getEnd(violation1, violation2).name());
+            formatter = getEnd(violation1, violation2) == null ? formatter.writeEmptyCell() : formatter.writeCell(getEnd(violation1, violation2));
             formatter.writeCell(getViolationType(violation1, violation2).name());
             writeViolation(violation1);
             writeViolation(violation2);
@@ -111,7 +110,7 @@ public class SecurityAnalysisResultComparisonWriter implements AutoCloseable {
         return violation1 == null ? violation2.getSubjectId() : violation1.getSubjectId();
     }
 
-    private Branch.Side getEnd(LimitViolation violation1, LimitViolation violation2) {
+    private String getEnd(LimitViolation violation1, LimitViolation violation2) {
         return violation1 == null ? violation2.getSide() : violation1.getSide();
     }
 

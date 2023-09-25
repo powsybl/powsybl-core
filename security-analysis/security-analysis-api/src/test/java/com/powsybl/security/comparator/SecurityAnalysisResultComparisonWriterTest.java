@@ -41,8 +41,8 @@ class SecurityAnalysisResultComparisonWriterTest {
     @BeforeEach
     void setUp() {
         vlViolation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
-        lineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.0, Branch.Side.ONE);
-        similarLineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.09, Branch.Side.ONE);
+        lineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.0, Branch.Side.ONE.name());
+        similarLineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.09, Branch.Side.ONE.name());
         actions = Arrays.asList("action1", "action2");
         writer = new StringWriter();
         comparisonWriter = new SecurityAnalysisResultComparisonWriter(writer);
