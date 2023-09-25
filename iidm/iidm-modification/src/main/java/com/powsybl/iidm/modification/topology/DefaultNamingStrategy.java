@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.modification.topology;
 
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.*;
 
 /**
  * Default naming strategy used if no other naming strategy is specified.
@@ -176,6 +173,11 @@ public class DefaultNamingStrategy implements NamingStrategy {
     @Override
     public final String getSwitchBaseId(Connectable<?> connectable, int side) {
         return connectable.getId() + (side == 0 ? "" : side);
+    }
+
+    @Override
+    public String getSwitchBaseId(VoltageLevel voltageLevel, BusbarSection bbs1, BusbarSection bbs2) {
+        return voltageLevel.getId();
     }
 
     @Override

@@ -83,6 +83,8 @@ public interface NamingStrategy {
 
     String getSwitchBaseId(Connectable<?> connectable, int side);
 
+    String getSwitchBaseId(VoltageLevel voltageLevel, BusbarSection bbs1, BusbarSection bbs2);
+
     String getVoltageLevelId(Substation substation, String prefix, String suffix);
 
     String getBbsId(int number);

@@ -404,12 +404,20 @@ public final class TopologyModificationUtils {
     }
 
     /**
-     * Creates open disconnectors between the fork node and every busbar section of the list in a voltage level
+     * Creates a breaker  and disconnectors (one closed on the specified busbarsection, the others open) between the connectable and every busbar section of the list in a voltage level
      */
     static void createNodeBreakerSwitchesTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int connectableNode, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
         // Closed breaker
         createNBBreaker(connectableNode, forkNode, namingStrategy.getBreakerId(baseId), voltageLevel.getNodeBreakerView(), false);
 
+        // Disconnectors - only the one on the chosen busbarsection is closed
+        createDisconnectorTopologyFromBusbarSectionList(voltageLevel, forkNode, namingStrategy, baseId, bbsList, bbs);
+    }
+
+    /**
+     * Creates disconnectors (one closed on the specified busbarsection, the others open) between the fork node and every busbar section of the list in a voltage level
+     */
+    static void createDisconnectorTopologyFromBusbarSectionList(VoltageLevel voltageLevel, int forkNode, NamingStrategy namingStrategy, String baseId, List<BusbarSection> bbsList, BusbarSection bbs) {
         // Disconnectors - only the one on the chosen busbarsection is closed
         bbsList.forEach(b -> {
             int bbsNode = b.getTerminal().getNodeBreakerView().getNode();
