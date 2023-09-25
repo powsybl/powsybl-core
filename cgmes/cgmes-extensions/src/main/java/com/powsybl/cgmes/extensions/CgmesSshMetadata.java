@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
@@ -18,6 +19,10 @@ import java.util.List;
 public interface CgmesSshMetadata extends Extension<Network> {
 
     String NAME = "cgmesSshMetadata";
+
+    default String getId() {
+        throw new PowsyblException("Unsupported method");
+    }
 
     String getDescription();
 

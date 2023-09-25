@@ -63,4 +63,9 @@ class UpDownScalable extends AbstractScalable {
     public double scale(Network n, double asked, ScalingParameters parameters) {
         return asked > 0 ? upScalable.scale(n, asked, parameters) : downScalable.scale(n, asked, parameters);
     }
+
+    @Override
+    public double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention) {
+        return asked > 0 ? upScalable.getSteadyStatePower(network, asked, scalingConvention) : downScalable.getSteadyStatePower(network, asked, scalingConvention);
+    }
 }

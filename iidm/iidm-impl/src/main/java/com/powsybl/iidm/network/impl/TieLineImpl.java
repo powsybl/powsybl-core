@@ -32,6 +32,16 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
+    public Network getParentNetwork() {
+        Network subnetwork1 = danglingLine1.getParentNetwork();
+        Network subnetwork2 = danglingLine2.getParentNetwork();
+        if (subnetwork1 == subnetwork2) {
+            return subnetwork1;
+        }
+        return networkRef.get();
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Tie Line";
     }
@@ -60,8 +70,8 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public String getUcteXnodeCode() {
-        return Optional.ofNullable(danglingLine1.getUcteXnodeCode()).orElseGet(() -> danglingLine2.getUcteXnodeCode());
+    public String getPairingKey() {
+        return Optional.ofNullable(danglingLine1.getPairingKey()).orElseGet(() -> danglingLine2.getPairingKey());
     }
 
     @Override

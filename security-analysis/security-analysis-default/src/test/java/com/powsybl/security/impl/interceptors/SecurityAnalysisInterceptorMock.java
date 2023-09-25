@@ -83,9 +83,14 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
     private static void assertPostContingencyResult(PostContingencyResult postContingencyResult) {
         assertNotNull(postContingencyResult);
         assertSame(PostContingencyComputationStatus.CONVERGED, postContingencyResult.getStatus());
-        assertEquals(1, postContingencyResult.getLimitViolationsResult().getLimitViolations().size());
+        assertEquals(2, postContingencyResult.getLimitViolationsResult().getLimitViolations().size());
         LimitViolation violation = postContingencyResult.getLimitViolationsResult().getLimitViolations().get(0);
         assertEquals(LimitViolationType.CURRENT, violation.getLimitType());
         assertEquals("NHV1_NHV2_1", violation.getSubjectId());
+
+        LimitViolation violation1 = postContingencyResult.getLimitViolationsResult().getLimitViolations().get(1);
+        assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, violation1.getLimitType());
+        assertEquals("VoltageAngleLimit_NHV1_NHV2_1", violation1.getSubjectId());
+        assertEquals(null, violation1.getSide());
     }
 }
