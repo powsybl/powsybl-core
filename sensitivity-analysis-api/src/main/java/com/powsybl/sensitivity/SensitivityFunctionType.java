@@ -25,16 +25,7 @@ import java.util.OptionalInt;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum SensitivityFunctionType {
-    /**
-     * in MW
-     * @deprecated Use {@link #BRANCH_ACTIVE_POWER_1} instead.
-     */
-    @Deprecated BRANCH_ACTIVE_POWER,
-    /**
-     * in A
-     * @deprecated Use {@link #BRANCH_CURRENT_1} instead.
-     */
-    @Deprecated BRANCH_CURRENT,
+
     /** in MW */
     BRANCH_ACTIVE_POWER_1(1),
     /** in A */

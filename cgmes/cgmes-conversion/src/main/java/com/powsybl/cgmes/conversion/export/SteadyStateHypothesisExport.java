@@ -62,7 +62,6 @@ public final class SteadyStateHypothesisExport {
             writeConverters(network, cimNamespace, writer, context);
             // FIXME open status of retained switches in bus-branch models
             writeSwitches(network, cimNamespace, writer, context);
-            // TODO writeControlAreas
             writeTerminals(network, cimNamespace, writer, context);
             writeControlAreas(network, cimNamespace, writer, context);
 
@@ -499,26 +498,15 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeSwitch(Switch sw, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         try {
-            CgmesExportUtil.writeStartAbout(switchClassname(sw.getKind()), context.getNamingStrategy().getCgmesId(sw), cimNamespace, writer, context);
+            String switchType = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType");
+            String className = switchType != null ? switchType : CgmesExportUtil.switchClassname(sw.getKind());
+            CgmesExportUtil.writeStartAbout(className, context.getNamingStrategy().getCgmesId(sw), cimNamespace, writer, context);
             writer.writeStartElement(cimNamespace, "Switch.open");
             writer.writeCharacters(Boolean.toString(sw.isOpen()));
             writer.writeEndElement();
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
-        }
-    }
-
-    private static String switchClassname(SwitchKind kind) {
-        switch (kind) {
-            case BREAKER:
-                return "Breaker";
-            case DISCONNECTOR:
-                return "Disconnector";
-            case LOAD_BREAK_SWITCH:
-                return "LoadBreakSwitch";
-            default:
-                throw new IllegalStateException("Unexpected switch king " + kind);
         }
     }
 
@@ -776,6 +764,9 @@ public final class SteadyStateHypothesisExport {
         CgmesExportUtil.writeStartAbout("ControlArea", areaId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ControlArea.netInterchange");
         writer.writeCharacters(CgmesExportUtil.format(area.getNetInterchange()));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
+        writer.writeCharacters(CgmesExportUtil.format(area.getPTolerance()));
         writer.writeEndElement();
         writer.writeEndElement();
     }

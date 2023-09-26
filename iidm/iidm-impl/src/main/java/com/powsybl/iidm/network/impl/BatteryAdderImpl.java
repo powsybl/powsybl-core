@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
 
@@ -84,6 +85,15 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         return this;
     }
 
+    @Override
+    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
+        return getNetworkRef();
+    }
+
+    private Ref<NetworkImpl> getNetworkRef() {
+        return voltageLevel.getNetworkRef();
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -98,7 +108,7 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
 
-        BatteryImpl battery = new BatteryImpl(network.getRef(), id, getName(), isFictitious(), targetP, targetQ, minP, maxP);
+        BatteryImpl battery = new BatteryImpl(getNetworkRef(), id, getName(), isFictitious(), targetP, targetQ, minP, maxP);
 
         battery.addTerminal(terminal);
         voltageLevel.attach(terminal, false);

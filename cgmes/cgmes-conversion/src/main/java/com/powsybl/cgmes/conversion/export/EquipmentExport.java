@@ -179,7 +179,8 @@ public final class EquipmentExport {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 VoltageLevel vl = sw.getVoltageLevel();
-                SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), sw.getKind(), context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), sw.isRetained(), cimNamespace, writer, context);
+                String switchType = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType"); // may be null
+                SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), switchType, sw.getKind(), context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), sw.isRetained(), cimNamespace, writer, context);
             }
         }
     }
@@ -860,7 +861,7 @@ public final class EquipmentExport {
                 // If no information about original boundary has been preserved in the IIDM model,
                 // we create a new ConnectivityNode in a fictitious Substation and Voltage Level
                 LOG.info("Dangling line {}{} is not connected to a connectivity node in boundaries files: a fictitious substation and voltage level are created",
-                        danglingLine.getId(), danglingLine.getUcteXnodeCode() != null ? " linked to X-node " + danglingLine.getUcteXnodeCode() : "");
+                        danglingLine.getId(), danglingLine.getPairingKey() != null ? " linked to X-node " + danglingLine.getPairingKey() : "");
                 connectivityNodeId = CgmesExportUtil.getUniqueId();
                 String connectivityNodeContainerId = createFictitiousContainerFor(danglingLine, baseVoltageId, cimNamespace, writer, context);
                 ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", connectivityNodeContainerId, cimNamespace, writer, context);
@@ -870,7 +871,7 @@ public final class EquipmentExport {
             if (danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY) == null) {
                 // Also create a container if we will have to create a Topological Node for the boundary
                 LOG.info("Dangling line {}{} is not connected to a topology node in boundaries files: a fictitious substation and voltage level are created",
-                        danglingLine.getId(), danglingLine.getUcteXnodeCode() != null ? " linked to X-node " + danglingLine.getUcteXnodeCode() : "");
+                        danglingLine.getId(), danglingLine.getPairingKey() != null ? " linked to X-node " + danglingLine.getPairingKey() : "");
                 createFictitiousContainerFor(danglingLine, baseVoltageId, cimNamespace, writer, context);
             }
         }
@@ -1080,18 +1081,20 @@ public final class EquipmentExport {
     private static void writeControlAreas(String energyAreaId, Network network, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
         for (CgmesControlArea cgmesControlArea : cgmesControlAreas.getCgmesControlAreas()) {
-            writeControlArea(cgmesControlArea, energyAreaId, cimNamespace, euNamespace, writer, context);
+            writeControlArea(cgmesControlArea, energyAreaId, cimNamespace, euNamespace, writer, context, network);
         }
     }
 
-    private static void writeControlArea(CgmesControlArea cgmesControlArea, String energyAreaId, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeControlArea(CgmesControlArea cgmesControlArea, String energyAreaId, String cimNamespace, String euNamespace,
+                                         XMLStreamWriter writer, CgmesExportContext context, Network network) throws XMLStreamException {
         // Original control area identifiers may not respect mRID rules, so we pass it through naming strategy
         // to obtain always valid mRID identifiers
         String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(cgmesControlArea.getId());
         ControlAreaEq.write(controlAreaCgmesId, cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), energyAreaId, cimNamespace, euNamespace, writer, context);
         for (Terminal terminal : cgmesControlArea.getTerminals()) {
-            if (terminal.getConnectable() instanceof DanglingLine dl) {
-                if (!dl.isPaired()) {
+            Connectable<?> c = terminal.getConnectable();
+            if (c instanceof DanglingLine dl) {
+                if (network.isBoundaryElement(dl)) {
                     TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId,
                             context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY),
                             cimNamespace, writer, context);
@@ -1103,16 +1106,16 @@ public final class EquipmentExport {
             }
         }
         for (Boundary boundary : cgmesControlArea.getBoundaries()) {
-            String terminalId = getTieFlowBoundaryTerminal(boundary, context);
+            String terminalId = getTieFlowBoundaryTerminal(boundary, context, network);
             if (terminalId != null) {
                 TieFlowEq.write(CgmesExportUtil.getUniqueId(), controlAreaCgmesId, terminalId, cimNamespace, writer, context);
             }
         }
     }
 
-    private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context) {
+    private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context, Network network) {
         DanglingLine dl = boundary.getDanglingLine();
-        if (!dl.isPaired()) {
+        if (network.isBoundaryElement(dl)) {
             return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
         } else {
             // This means the boundary corresponds to a TieLine.
@@ -1140,7 +1143,7 @@ public final class EquipmentExport {
         for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
             if (context.isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    writeTerminal(t, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context);
+                    writeTerminal(t, mapTerminal2Id, mapNodeKey2NodeId, cimNamespace, writer, context, network);
                 }
             }
         }
@@ -1161,9 +1164,10 @@ public final class EquipmentExport {
     }
 
     private static void writeTerminal(Terminal t, Map<Terminal, String> mapTerminal2Id, Map<String, String> mapNodeKey2NodeId,
-                                      String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+                                      String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Network network) {
         String equipmentId = context.getNamingStrategy().getCgmesId(t.getConnectable());
-        writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t), CgmesExportUtil.getTerminalSequenceNumber(t), cimNamespace, writer, context);
+        writeTerminal(t, mapTerminal2Id, CgmesExportUtil.getTerminalId(t, context), equipmentId, connectivityNodeId(mapNodeKey2NodeId, t),
+                CgmesExportUtil.getTerminalSequenceNumber(t, CgmesExportUtil.getBoundaryDanglingLines(network)), cimNamespace, writer, context);
     }
 
     private static void writeTerminal(Terminal terminal, Map<Terminal, String> mapTerminal2Id, String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {

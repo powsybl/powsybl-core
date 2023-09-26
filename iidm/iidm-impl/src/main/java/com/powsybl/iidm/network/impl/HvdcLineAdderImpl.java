@@ -7,10 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.HvdcLineAdder;
-import com.powsybl.iidm.network.ValidationLevel;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
@@ -21,7 +18,8 @@ import java.util.Objects;
  */
 public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderImpl> implements HvdcLineAdder {
 
-    private final Ref<NetworkImpl> networkRef;
+    private final NetworkImpl network;
+    private final String subnetwork;
 
     private double r = Double.NaN;
 
@@ -37,13 +35,14 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
     private String converterStationId2;
 
-    public HvdcLineAdderImpl(Ref<NetworkImpl> networkRef) {
-        this.networkRef = Objects.requireNonNull(networkRef);
+    public HvdcLineAdderImpl(NetworkImpl network, String subnetwork) {
+        this.network = Objects.requireNonNull(network);
+        this.subnetwork = subnetwork;
     }
 
     @Override
     protected NetworkImpl getNetwork() {
-        return networkRef.get();
+        return network;
     }
 
     @Override
@@ -95,7 +94,6 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
 
     @Override
     public HvdcLine add() {
-        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
         ValidationUtil.checkR(this, r);
@@ -111,6 +109,13 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         if (converterStation2 == null) {
             throw new PowsyblException("Side 2 converter station " + converterStationId2 + " not found");
         }
+        VoltageLevelExt vl1 = converterStation1.getTerminal().getVoltageLevel();
+        VoltageLevelExt vl2 = converterStation2.getTerminal().getVoltageLevel();
+        if (subnetwork != null && (!subnetwork.equals(vl1.getSubnetworkId()) || !subnetwork.equals(vl2.getSubnetworkId()))) {
+            throw new ValidationException(this, "The converter stations are not in the subnetwork '" +
+                    subnetwork + "'. Create this Hvdc line from the parent network '" + getNetwork().getId() + "'");
+        }
+        Ref<NetworkImpl> networkRef = computeNetworkRef(network, vl1, vl2);
         HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, isFictitious(), r, nominalV, maxP, convertersMode, activePowerSetpoint,
                                                  converterStation1, converterStation2, networkRef);
         network.getIndex().checkAndAdd(hvdcLine);

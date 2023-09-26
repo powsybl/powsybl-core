@@ -273,8 +273,7 @@ public final class StateVariablesExport {
             String cgmesTerminalId = context.getNamingStrategy().getCgmesIdFromAlias(c, aliasTypeForTerminalId);
             writePowerFlow(cgmesTerminalId, p, q, cimNamespace, writer, context);
         } else {
-            // TODO(LUMA) Review for IOP, EMF. We previously returned silently if no terminal was found
-            throw new PowsyblException("Exporting CGMES SvPowerFlow. Missing alias for " + c.getType() + " " + c.getId() + ": " + aliasTypeForTerminalId);
+            LOG.error("Exporting CGMES SvPowerFlow. Missing alias for {} {}: {}", c.getType(), c.getId(), aliasTypeForTerminalId);
         }
     }
 

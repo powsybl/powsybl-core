@@ -83,11 +83,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
-    public String findUcteXnodeCode(String boundaryNode) {
-        return findUcteXnodeCode(context, boundaryNode);
+    public String findPairingKey(String boundaryNode) {
+        return findPairingKey(context, boundaryNode);
     }
 
-    public static String findUcteXnodeCode(Context context, String boundaryNode) {
+    public static String findPairingKey(Context context, String boundaryNode) {
         return context.boundary().nameAtBoundary(boundaryNode);
     }
 
@@ -232,7 +232,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                         .setX(x)
                         .setG(gch)
                         .setB(bch)
-                        .setUcteXnodeCode(findUcteXnodeCode(boundaryNode)))
+                        .setPairingKey(findPairingKey(boundaryNode)))
                 .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
         identify(dlAdder);
         connect(dlAdder, modelSide);

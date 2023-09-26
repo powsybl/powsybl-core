@@ -300,7 +300,7 @@ public class UcteImporter implements Importer {
                 .setB(getSusceptance(ucteLine))
                 .setP0(p0)
                 .setQ0(q0)
-                .setUcteXnodeCode(xnode.getCode().toString())
+                .setPairingKey(xnode.getCode().toString())
                 .setFictitious(isFictitious(ucteLine))
                 .newGeneration()
                 .setTargetP(-targetP)
@@ -683,7 +683,7 @@ public class UcteImporter implements Importer {
                 .setB(0)
                 .setP0(p0)
                 .setQ0(q0)
-                .setUcteXnodeCode(ucteXnode.getCode().toString())
+                .setPairingKey(ucteXnode.getCode().toString())
                 .newGeneration()
                 .setTargetP(-targetP)
                 .setTargetQ(-targetQ)
@@ -831,9 +831,9 @@ public class UcteImporter implements Importer {
         return bus != null ? bus.getId() : null;
     }
 
-    private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Map<String, List<DanglingLine>> danglingLinesByXnodeCode) {
-        String otherXnodeCode = dl1.getUcteXnodeCode();
-        List<DanglingLine> matchingDanglingLines = danglingLinesByXnodeCode.get(otherXnodeCode)
+    private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Map<String, List<DanglingLine>> danglingLinesByPairingKey) {
+        String otherPairingKey = dl1.getPairingKey();
+        List<DanglingLine> matchingDanglingLines = danglingLinesByPairingKey.get(otherPairingKey)
                 .stream().filter(dl -> dl != dl1)
                 .toList();
         if (matchingDanglingLines.isEmpty()) {
@@ -853,7 +853,7 @@ public class UcteImporter implements Importer {
             if (connectedMatchingDanglingLines.size() == 1) {
                 return connectedMatchingDanglingLines.get(0);
             } else {
-                throw new UcteException("More that 2 connected dangling lines have the same X-node " + dl1.getUcteXnodeCode());
+                throw new UcteException("More that 2 connected dangling lines have the same pairing key " + dl1.getPairingKey());
             }
         }
     }
@@ -887,7 +887,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void addGeographicalNameProperty(UcteNetwork ucteNetwork, Map<String, String> properties, DanglingLine dl1, DanglingLine dl2) {
-        Optional<UcteNodeCode> optUcteNodeCode = UcteNodeCode.parseUcteNodeCode(dl1.getUcteXnodeCode());
+        Optional<UcteNodeCode> optUcteNodeCode = UcteNodeCode.parseUcteNodeCode(dl1.getPairingKey());
 
         if (optUcteNodeCode.isPresent()) {
             UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode.get());
@@ -974,16 +974,16 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private void mergeXnodeDanglingLines(UcteNetwork ucteNetwork, Network network) {
-        Map<String, List<DanglingLine>> danglingLinesByXnodeCode = new HashMap<>();
+    private void mergeDanglingLines(UcteNetwork ucteNetwork, Network network) {
+        Map<String, List<DanglingLine>> danglingLinesByPairingKey = new HashMap<>();
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
-            danglingLinesByXnodeCode.computeIfAbsent(dl.getUcteXnodeCode(), code -> new ArrayList<>()).add(dl);
+            danglingLinesByPairingKey.computeIfAbsent(dl.getPairingKey(), code -> new ArrayList<>()).add(dl);
         }
 
         Set<DanglingLine> danglingLinesToProcess = Sets.newHashSet(network.getDanglingLines(DanglingLineFilter.ALL));
         while (!danglingLinesToProcess.isEmpty()) {
             DanglingLine dlToProcess = danglingLinesToProcess.iterator().next();
-            DanglingLine dlMatchingDlToProcess = getMatchingDanglingLine(dlToProcess, danglingLinesByXnodeCode);
+            DanglingLine dlMatchingDlToProcess = getMatchingDanglingLine(dlToProcess, danglingLinesByPairingKey);
 
             if (dlMatchingDlToProcess != null) {
                 // lexical sort to always end up with same merge line id
@@ -1055,7 +1055,7 @@ public class UcteImporter implements Importer {
                 createLines(ucteNetwork, network);
                 createTransformers(ucteNetwork, network, ucteFileName, combinePhaseAngleRegulation);
 
-                mergeXnodeDanglingLines(ucteNetwork, network);
+                mergeDanglingLines(ucteNetwork, network);
 
                 stopwatch.stop();
 

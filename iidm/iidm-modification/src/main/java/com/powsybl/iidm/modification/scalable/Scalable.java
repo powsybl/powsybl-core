@@ -6,13 +6,14 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -189,32 +190,46 @@ public interface Scalable {
         return Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
     }
 
-    static ProportionalScalable proportional(List<Float> percentages, List<Scalable> scalables) {
+    static ProportionalScalable proportional(List<? extends Injection> injections, ProportionalScalable.DistributionMode distributionMode) {
+        return new ProportionalScalable(injections, distributionMode);
+    }
+
+    static ProportionalScalable proportional(List<Double> percentages, List<Scalable> scalables) {
         return new ProportionalScalable(percentages, scalables);
     }
 
-    static ProportionalScalable proportional(float percentage, Scalable scalable) {
+    static ProportionalScalable proportional(double percentage, Scalable scalable) {
         return new ProportionalScalable(Collections.singletonList(percentage), Collections.singletonList(scalable));
     }
 
-    static ProportionalScalable proportional(float percentage1, Scalable scalable1, float percentage2, Scalable scalable2) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2),
                                         Arrays.asList(scalable1, scalable2));
     }
 
-    static ProportionalScalable proportional(float percentage1, Scalable scalable1, float percentage2, Scalable scalable2, float percentage3, Scalable scalable3) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3),
                                         Arrays.asList(scalable1, scalable2, scalable3));
     }
 
-    static ProportionalScalable proportional(float percentage1, Scalable scalable1, float percentage2, Scalable scalable2, float percentage3, Scalable scalable3, float percentage4, Scalable scalable4) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3, double percentage4, Scalable scalable4) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3, percentage4),
                                         Arrays.asList(scalable1, scalable2, scalable3, scalable4));
     }
 
-    static ProportionalScalable proportional(float percentage1, Scalable scalable1, float percentage2, Scalable scalable2, float percentage3, Scalable scalable3, float percentage4, Scalable scalable4, float percentage5, Scalable scalable5) {
+    static ProportionalScalable proportional(double percentage1, Scalable scalable1, double percentage2, Scalable scalable2, double percentage3, Scalable scalable3, double percentage4, Scalable scalable4, double percentage5, Scalable scalable5) {
         return new ProportionalScalable(Arrays.asList(percentage1, percentage2, percentage3, percentage4, percentage5),
                                         Arrays.asList(scalable1, scalable2, scalable3, scalable4, scalable5));
+    }
+
+    static StackScalable stack(Injection<?>... injections) {
+        List<Scalable> injectionScalables = Arrays.stream(injections).map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(injectionScalables);
+    }
+
+    static StackScalable stack(List<? extends Injection<?>> injections) {
+        List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(injectionScalables);
     }
 
     static StackScalable stack(Scalable... scalables) {
@@ -229,4 +244,23 @@ public interface Scalable {
     static UpDownScalable upDown(Scalable upScalable, Scalable downScalable) {
         return new UpDownScalable(upScalable, downScalable);
     }
+
+    /**
+     * Returns the value that has to be added to the network, depending on the type of variation chosen in the parameters
+     * @param scalingParameters Scaling parameters including a variation type (DELTA_P or TARGET_P) and a variation value
+     * @param currentGlobalPower current global power
+     * @return the variation value if the type is DELTA_P, else the difference between the variation value and the current global value sum
+     */
+    static double getVariationAsked(ScalingParameters scalingParameters, double askedValue, double currentGlobalPower) {
+        return scalingParameters.getScalingType() == DELTA_P
+            ? askedValue
+            : askedValue - currentGlobalPower;
+    }
+
+    /**
+     * Returns the current power value for the injections corresponding to this Scalable
+     * @param network Network in which the injections are defined
+     * @return the current power value
+     */
+    double getSteadyStatePower(Network network, double asked, ScalingConvention scalingConvention);
 }

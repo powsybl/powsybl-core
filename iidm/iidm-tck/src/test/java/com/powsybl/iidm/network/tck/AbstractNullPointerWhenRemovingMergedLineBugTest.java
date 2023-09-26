@@ -41,7 +41,7 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
                 .setX(1)
                 .setG(0)
                 .setB(0)
-                .setUcteXnodeCode("XNODE")
+                .setPairingKey("XNODE")
                 .add();
         Network n2 = Network.create("n2", "test");
         Substation s2 = n2.newSubstation()
@@ -66,18 +66,18 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
                 .setX(1)
                 .setG(0)
                 .setB(0)
-                .setUcteXnodeCode("XNODE")
+                .setPairingKey("XNODE")
                 .add();
         assertEquals(0, n1.getLineCount());
         assertEquals(1, n1.getDanglingLineCount());
         assertEquals(0, n2.getLineCount());
         assertEquals(1, n2.getDanglingLineCount());
-        n1.merge(n2);
-        assertEquals(1, n1.getTieLineCount());
-        assertEquals(2, n1.getDanglingLineCount());
-        n1.getTieLine("dl1 + dl2").remove();
-        assertEquals(2, n1.getDanglingLineCount());
-        for (Bus b : n1.getBusBreakerView().getBuses()) {
+        Network merged = Network.create(n1, n2);
+        assertEquals(1, merged.getTieLineCount());
+        assertEquals(2, merged.getDanglingLineCount());
+        merged.getTieLine("dl1 + dl2").remove();
+        assertEquals(2, merged.getDanglingLineCount());
+        for (Bus b : merged.getBusBreakerView().getBuses()) {
             // throws an exception if bug already present
             b.isInMainConnectedComponent();
         }

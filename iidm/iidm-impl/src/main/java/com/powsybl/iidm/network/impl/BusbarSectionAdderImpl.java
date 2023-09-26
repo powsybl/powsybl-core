@@ -46,8 +46,8 @@ class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdde
         if (node == null) {
             throw new ValidationException(this, "node is not set");
         }
-        TerminalExt terminal = new NodeTerminal(getNetwork().getRef(), node);
-        BusbarSectionImpl section = new BusbarSectionImpl(getNetwork().getRef(), id, getName(), isFictitious());
+        TerminalExt terminal = new NodeTerminal(voltageLevel.getNetworkRef(), node);
+        BusbarSectionImpl section = new BusbarSectionImpl(voltageLevel.getNetworkRef(), id, getName(), isFictitious());
         section.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(section);

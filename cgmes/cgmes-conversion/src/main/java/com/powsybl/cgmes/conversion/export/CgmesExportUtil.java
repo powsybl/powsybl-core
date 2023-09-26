@@ -26,10 +26,9 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
@@ -132,6 +131,10 @@ public final class CgmesExportUtil {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
         }
+        if (modelDescription.getSupersedes() != null) {
+            writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.SUPERSEDES);
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, modelDescription.getSupersedes());
+        }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters(modelDescription.getProfile());
         writer.writeEndElement();
@@ -209,19 +212,20 @@ public final class CgmesExportUtil {
         return CgmesNames.ENERGY_CONSUMER;
     }
 
-    /**
-     * @deprecated Use {@link #getTerminalSequenceNumber(Terminal)} instead
-     */
-    @Deprecated(since = "4.9.0", forRemoval = true)
-    public static int getTerminalSide(Terminal t, Connectable<?> c) {
-        // There is no need to provide the connectable explicitly, it must always be the one associated with the terminal
-        if (c != t.getConnectable()) {
-            throw new PowsyblException("Wrong connectable in getTerminalSide : " + c.getId());
+    public static String switchClassname(SwitchKind kind) {
+        switch (kind) {
+            case BREAKER:
+                return "Breaker";
+            case DISCONNECTOR:
+                return "Disconnector";
+            case LOAD_BREAK_SWITCH:
+                return "LoadBreakSwitch";
         }
-        return getTerminalSequenceNumber(t);
+        LOG.warn("It is not possible to determine the type of switch from kind {}", kind);
+        return "Switch";
     }
 
-    public static int getTerminalSequenceNumber(Terminal t) {
+    public static int getTerminalSequenceNumber(Terminal t, List<DanglingLine> boundaryDanglingLines) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
             return 1;
@@ -306,10 +310,17 @@ public final class CgmesExportUtil {
         if (c instanceof DanglingLine) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
         } else {
-            int sequenceNumber = getTerminalSequenceNumber(t);
+            int sequenceNumber = getTerminalSequenceNumber(t, Collections.emptyList()); // never a dangling line here
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
         }
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
+    }
+
+    public static List<DanglingLine> getBoundaryDanglingLines(Network network) {
+        return network.getBoundaryElements().stream()
+                .filter(DanglingLine.class::isInstance)
+                .map(DanglingLine.class::cast)
+                .collect(Collectors.toList());
     }
 
     public static boolean isEquivalentShuntWithZeroSectionCount(Connectable<?> c) {

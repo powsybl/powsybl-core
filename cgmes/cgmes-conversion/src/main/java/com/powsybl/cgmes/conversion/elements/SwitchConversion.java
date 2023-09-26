@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,11 +80,16 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             boolean retained = p.asBoolean("retained", false);
             adder.setRetained(retained);
             s = adder.add();
+            if (!kindHasDirectMapToIiidm()) {
+                addTypeAsProperty(s);
+            }
         } else {
             VoltageLevel.BusBreakerView.SwitchAdder adder = voltageLevel().getBusBreakerView().newSwitch();
             identify(adder);
             connect(adder, open);
             s = adder.add();
+            // Always preserve the original type, because all switches at bus/breaker view will be of kind "breaker"
+            addTypeAsProperty(s);
         }
         addAliasesAndProperties(s);
         return s;
@@ -108,6 +114,15 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             return SwitchKind.LOAD_BREAK_SWITCH;
         }
         return SwitchKind.BREAKER;
+    }
+
+    private boolean kindHasDirectMapToIiidm() {
+        String type = p.getLocal("type").toLowerCase();
+        return type.contains("breaker") || type.contains("disconnector") || type.contains("loadbreak");
+    }
+
+    private void addTypeAsProperty(Switch s) {
+        s.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType", p.getLocal("type"));
     }
 
     private void warnDanglingLineCreated() {

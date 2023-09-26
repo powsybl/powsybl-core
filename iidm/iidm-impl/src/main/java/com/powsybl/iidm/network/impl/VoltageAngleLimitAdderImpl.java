@@ -16,9 +16,10 @@ import com.powsybl.iidm.network.impl.util.Ref;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
+class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder, Validable {
 
     private final Ref<NetworkImpl> networkRef;
+    private final String subnetworkId;
     private String id;
     private Terminal from;
     private Terminal to;
@@ -27,7 +28,12 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
     private double highLimit = Double.NaN;
 
     VoltageAngleLimitAdderImpl(Ref<NetworkImpl> networkRef) {
+        this(networkRef, null);
+    }
+
+    VoltageAngleLimitAdderImpl(Ref<NetworkImpl> networkRef, String subnetworkId) {
         this.networkRef = networkRef;
+        this.subnetworkId = subnetworkId;
     }
 
     @Override
@@ -65,6 +71,10 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
         if (id == null) {
             throw new IllegalStateException("Voltage angle limit id is mandatory.");
         }
+        if (subnetworkId != null && checkTerminalsInSubnetwork(subnetworkId)) {
+            throw new ValidationException(this, "The involved voltage levels are not in the subnetwork '" +
+                    subnetworkId + "'. Create this VoltageAngleLimit from the parent network '" + networkRef.get().getId() + "'");
+        }
         if (networkRef.get().getVoltageAngleLimitsIndex().containsKey(id)) {
             throw new PowsyblException("The network " + networkRef.get().getId()
                     + " already contains a voltage angle limit with the id '" + id + "'");
@@ -76,5 +86,15 @@ class VoltageAngleLimitAdderImpl implements VoltageAngleLimitAdder {
         VoltageAngleLimit voltageAngleLimit = new VoltageAngleLimitImpl(id, from, to, lowLimit, highLimit);
         networkRef.get().getVoltageAngleLimitsIndex().put(id, voltageAngleLimit);
         return voltageAngleLimit;
+    }
+
+    private boolean checkTerminalsInSubnetwork(String subnetworkId) {
+        return !subnetworkId.equals(from.getVoltageLevel().getParentNetwork().getId())
+                || !subnetworkId.equals(to.getVoltageLevel().getParentNetwork().getId());
+    }
+
+    @Override
+    public String getMessageHeader() {
+        return "VoltageAngleLimit '" + id + "': ";
     }
 }

@@ -6,18 +6,17 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,13 +31,13 @@ class MergeTest {
         Network n2 = createNetworkWithDanglingLine("2");
 
         logVoltageLevel("Network 1 first voltage level", n1.getVoltageLevels().iterator().next());
-        n1.merge(n2);
+        Network merge = Network.create(n1, n2);
         // If we try to get connected components directly on the merged network,
         // A Null Pointer Exception happens in AbstractConnectable.notifyUpdate:
         // There is a CalculatedBus that has a terminal that refers to the removed DanglingLine
         // DanglingLine object has VoltageLevel == null,
         // NPE comes from trying to getNetwork() using VoltageLevel to notify a change in connected components
-        checkConnectedComponents(n1);
+        checkConnectedComponents(merge);
     }
 
     @Test
@@ -47,8 +46,8 @@ class MergeTest {
         Network n2 = createNetworkWithDanglingLine("2");
 
         // The test passes if we do not log voltage level (exportTopology)
-        n1.merge(n2);
-        checkConnectedComponents(n1);
+        Network merge = Network.create(n1, n2);
+        checkConnectedComponents(merge);
     }
 
     @Test
@@ -59,7 +58,7 @@ class MergeTest {
         logVoltageLevel("Network 1 first voltage level", n1.getVoltageLevels().iterator().next());
         // The test also passes if we "force" the connected component calculation before merge
         checkConnectedComponents(n1);
-        n1.merge(n2);
+        Network merge = Network.create(n1, n2);
         checkConnectedComponents(n1);
     }
 
@@ -87,8 +86,8 @@ class MergeTest {
                 .setB(0.001)
                 .setP0(10)
                 .setQ0(1)
-                // Same UCTE XnodeCode for dangling lines
-                .setUcteXnodeCode("X")
+                // Same pairing key for dangling lines
+                .setPairingKey("X")
                 .add();
         vl.getNodeBreakerView().newBreaker()
                 .setId(id("voltageLevel1BreakerDLb", nid))
@@ -105,12 +104,46 @@ class MergeTest {
         Network network1 = createNodeBreakerWithVoltageAngleLimit("1");
         Network network2 = createNodeBreakerWithVoltageAngleLimit("2");
 
-        List<VoltageAngleLimit> voltageAngleLimit = new ArrayList<>();
-        voltageAngleLimit.addAll(network1.getVoltageAngleLimitsStream().toList());
-        voltageAngleLimit.addAll(network2.getVoltageAngleLimitsStream().toList());
+        List<VoltageAngleLimit> val1 = network1.getVoltageAngleLimitsStream().toList();
+        List<VoltageAngleLimit> val2 = network2.getVoltageAngleLimitsStream().toList();
+        List<VoltageAngleLimit> valMerge = new ArrayList<>();
+        valMerge.addAll(val1);
+        valMerge.addAll(val2);
 
-        network1.merge(network2);
-        assertTrue(voltageAngleLimitsAreEqual(voltageAngleLimit, network1.getVoltageAngleLimitsStream().toList()));
+        Network merge = Network.create(network1, network2);
+        assertTrue(voltageAngleLimitsAreEqual(valMerge, merge.getVoltageAngleLimitsStream().toList()));
+
+        network1 = merge.getSubnetwork(network1.getId()).detach();
+        assertTrue(voltageAngleLimitsAreEqual(val1, network1.getVoltageAngleLimitsStream().toList()));
+        assertEquals(1, merge.getVoltageAngleLimitsStream().count());
+
+        network2 = merge.getSubnetwork(network2.getId()).detach();
+        assertTrue(voltageAngleLimitsAreEqual(val2, network2.getVoltageAngleLimitsStream().toList()));
+        assertEquals(0, merge.getVoltageAngleLimitsStream().count());
+    }
+
+    @Test
+    void failMergeWithVoltageAngleLimits() {
+        Network network1 = createNodeBreakerWithVoltageAngleLimit("1", "duplicate");
+        Network network2 = createNodeBreakerWithVoltageAngleLimit("2", "duplicate");
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.create(network1, network2));
+        assertEquals("The following voltage angle limit(s) exist(s) in both networks: [duplicate]", e.getMessage());
+    }
+
+    @Test
+    void failDetachWithVoltageAngleLimits() {
+        Network network1 = createNodeBreakerWithVoltageAngleLimit("1");
+        Network network2 = createNodeBreakerWithVoltageAngleLimit("2");
+        Network merge = Network.create(network1, network2);
+        merge.newVoltageAngleLimit()
+                .setId("valMerge")
+                .from(merge.getLine(id("Line-2-2", "1")).getTerminal1())
+                .to(merge.getLine(id("Line-2-2", "2")).getTerminal1())
+                .setHighLimit(0.25)
+                .add();
+        Network subnetwork1 = merge.getSubnetwork(network1.getId());
+        PowsyblException e = assertThrows(PowsyblException.class, subnetwork1::detach);
+        assertEquals("VoltageAngleLimits prevent the subnetwork to be detached: valMerge", e.getMessage());
     }
 
     @Test
@@ -131,7 +164,7 @@ class MergeTest {
                 .setHighLimit(0.25)
                 .add();
 
-        PowsyblException e = assertThrows(PowsyblException.class, () -> network1.merge(network2));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.create(network1, network2));
         assertEquals("The following voltage angle limit(s) exist(s) in both networks: [LimitCollision]", e.getMessage());
     }
 
@@ -154,11 +187,15 @@ class MergeTest {
             && Terminal.getConnectableSide(val.getTerminalTo()).equals(Terminal.getConnectableSide(actual.getTerminalTo()))).count() == 1;
     }
 
-    private static Network createNodeBreakerWithVoltageAngleLimit(String nid) {
-        return createNodeBreakerWithVoltageAngleLimit(NetworkFactory.findDefault(), nid);
+    private static Network createNodeBreakerWithVoltageAngleLimit(String nid, String valId) {
+        return createNodeBreakerWithVoltageAngleLimit(NetworkFactory.findDefault(), nid, valId);
     }
 
-    private static Network createNodeBreakerWithVoltageAngleLimit(NetworkFactory networkFactory, String nid) {
+    private static Network createNodeBreakerWithVoltageAngleLimit(String nid) {
+        return createNodeBreakerWithVoltageAngleLimit(nid, id("VoltageAngleLimit_Line-2-2_Dl-3", nid));
+    }
+
+    private static Network createNodeBreakerWithVoltageAngleLimit(NetworkFactory networkFactory, String nid, String valId) {
 
         Network network = networkFactory.createNetwork(id("nodeBreakerWithVoltageAngleLimit", nid), "test");
         double vn = 225.0;
@@ -198,13 +235,13 @@ class MergeTest {
         createInternalConnection(s2vl1, 0, 3);
         createLoad(s2vl1, id("S2VL1-Load", nid), 45.0, 9.0, 1);
 
-        createDanglingLine(network, id("S2VL1", nid), id("Dl-3", nid), 70.0, 10.0, "ucteNode", 3);
+        createDanglingLine(network, id("S2VL1", nid), id("Dl-3", nid), 70.0, 10.0, "pairingKey", 3);
 
         // Line between both substations
         createLine(network, id("S1VL1", nid), id("S2VL1", nid), id("Line-2-2", nid), 2, 2);
 
         network.newVoltageAngleLimit()
-            .setId(id("VoltageAngleLimit_Line-2-2_Dl-3", nid))
+            .setId(valId)
             .from(network.getLine(id("Line-2-2", nid)).getTerminal1())
             .to(network.getDanglingLine(id("Dl-3", nid)).getTerminal())
             .setHighLimit(0.25)
@@ -274,7 +311,7 @@ class MergeTest {
             .add();
     }
 
-    private static void createDanglingLine(Network network, String vlId, String id, double p0, double q0, String ucteCode, int node) {
+    private static void createDanglingLine(Network network, String vlId, String id, double p0, double q0, String pairingKey, int node) {
         network.getVoltageLevel(vlId).newDanglingLine()
             .setId(id)
             .setR(0.01)
@@ -283,7 +320,7 @@ class MergeTest {
             .setB(0.0)
             .setP0(p0)
             .setQ0(q0)
-            .setUcteXnodeCode(ucteCode)
+            .setPairingKey(pairingKey)
             .setNode(node)
             .setEnsureIdUnicity(false)
             .add();
