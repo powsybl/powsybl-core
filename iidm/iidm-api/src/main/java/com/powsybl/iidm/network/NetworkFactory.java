@@ -31,7 +31,7 @@ public interface NetworkFactory {
      * @param networks the networks to merge
      * @return the merged network
      */
-    Network createNetwork(String id, Network... networks);
+    Network merge(String id, Network... networks);
 
     /**
      * Create a network as the result of the merge of the given networks.
@@ -39,7 +39,7 @@ public interface NetworkFactory {
      * @param networks the networks to merge
      * @return the merged network
      */
-    Network createNetwork(Network... networks);
+    Network merge(Network... networks);
 
     /**
      * Find a {@code NetworkFactory} instance base on its name.

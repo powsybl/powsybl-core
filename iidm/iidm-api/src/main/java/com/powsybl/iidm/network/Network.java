@@ -512,8 +512,8 @@ public interface Network extends Container<Network> {
      *
      * @return the merged network with subnetworks inside.
      */
-    static Network create(Network... networks) {
-        return NetworkFactory.findDefault().createNetwork(networks);
+    static Network merge(Network... networks) {
+        return NetworkFactory.findDefault().merge(networks);
     }
 
     /**
@@ -523,8 +523,8 @@ public interface Network extends Container<Network> {
      * @param id id of the network to create
      * @return the merged network with subnetworks inside.
      */
-    static Network create(String id, Network... networks) {
-        return NetworkFactory.findDefault().createNetwork(id, networks);
+    static Network merge(String id, Network... networks) {
+        return NetworkFactory.findDefault().merge(id, networks);
     }
 
     /**

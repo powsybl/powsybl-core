@@ -72,7 +72,7 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
         assertEquals(1, n1.getDanglingLineCount());
         assertEquals(0, n2.getLineCount());
         assertEquals(1, n2.getDanglingLineCount());
-        Network merged = Network.create(n1, n2);
+        Network merged = Network.merge(n1, n2);
         assertEquals(1, merged.getTieLineCount());
         assertEquals(2, merged.getDanglingLineCount());
         merged.getTieLine("dl1 + dl2").remove();
