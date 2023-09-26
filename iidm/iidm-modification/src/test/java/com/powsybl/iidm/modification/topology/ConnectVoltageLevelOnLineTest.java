@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.test.AbstractConverterTest;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -31,11 +32,12 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     @Test
     void attachVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
+        ReporterModel reporter = new ReporterModel("reportAttachVoltageLevelOnLineNbTest", "Testing reporter for Attaching voltage level on line - Node breaker");
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
                 .build();
-        modification.apply(network);
+        modification.apply(network, new DefaultNamingStrategy(), false, reporter);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-line-split-vl.xml");
     }
@@ -43,11 +45,12 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     @Test
     void connectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
+        ReporterModel reporter = new ReporterModel("reportConnectVoltageLevelOnLineNbBbTest", "Testing reporter for connecting voltage level on line - Node breaker");
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification.apply(network);
+        modification.apply(network, new DefaultNamingStrategy(), reporter);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-split-nb-vl.xml");
     }
@@ -55,11 +58,12 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
     @Test
     void connectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
+        ReporterModel reporter = new ReporterModel("reportConnectVoltageLevelOnLineBbTest", "Testing reporter for connecting voltage level on line - Bus breaker");
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("bus")
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification.apply(network);
+        modification.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), reporter);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-line-split-bb-vl.xml");
     }
@@ -107,7 +111,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withLine2Name("FICT2LName")
                 .withLine(network.getLine("CJ"))
                 .build();
-        modification.apply(network);
+        modification.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault());
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-line-split-vl-complete.xml");
     }
@@ -119,7 +123,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
                 .build();
-        modification.apply(network);
+        modification.apply(network, LocalComputationManager.getDefault());
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/fictitious-line-split-vl.xml");
     }
@@ -160,12 +164,12 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification1.apply(network);
+        modification1.apply(network, new DefaultNamingStrategy());
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("LOAD")
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification2.apply(network);
+        modification2.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault());
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead,
                 "/eurostag-tutorial-example1.xml");
     }
@@ -177,7 +181,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractConverterTest {
         new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
-                .build().apply(network, true, reporter);
+                .build().apply(network, new DefaultNamingStrategy(), true, reporter);
         testReporter(reporter, "/reporter/connect-voltage-level-on-line-NB-report.txt");
     }
 }

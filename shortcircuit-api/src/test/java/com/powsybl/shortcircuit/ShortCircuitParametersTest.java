@@ -211,11 +211,11 @@ class ShortCircuitParametersTest extends AbstractConverterTest {
         List<VoltageRange> voltageRanges = parameters.getVoltageRanges();
         assertEquals(3, voltageRanges.size());
         assertEquals(1, voltageRanges.get(0).getRangeCoefficient());
-        assertEquals(Range.between(380., 420.), voltageRanges.get(0).getRange());
+        assertEquals(Range.of(380., 420.), voltageRanges.get(0).getRange());
         assertEquals(1.2, voltageRanges.get(1).getRangeCoefficient());
-        assertEquals(Range.between(215., 235.), voltageRanges.get(1).getRange());
+        assertEquals(Range.of(215., 235.), voltageRanges.get(1).getRange());
         assertEquals(1.05, voltageRanges.get(2).getRangeCoefficient());
-        assertEquals(Range.between(80., 100.), voltageRanges.get(2).getRange());
+        assertEquals(Range.of(80., 100.), voltageRanges.get(2).getRange());
     }
 
     @Test

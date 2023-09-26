@@ -187,22 +187,22 @@ public class DefaultNamingStrategy implements NamingStrategy {
 
     @Override
     public String getBbsId(int number) {
-        return null;
+        return String.valueOf(number);
     }
 
     @Override
     public String getBbsId(int number, String letter) {
-        return null;
+        return number + letter;
     }
 
     @Override
     public String getBbsId(int firstNumber, int secondNumber) {
-        return null;
+        return firstNumber + String.valueOf(secondNumber);
     }
 
     @Override
     public String getBbsId(int firstNumber, String letter, int secondNumber) {
-        return null;
+        return firstNumber + letter + secondNumber;
     }
 
     @Override

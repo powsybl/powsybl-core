@@ -23,7 +23,7 @@ public class VoltageRange {
     private final double rangeCoefficient;
 
     public VoltageRange(double lowVoltage, double highVoltage, double rangeCoefficient) {
-        this.range = Range.between(lowVoltage, highVoltage);
+        this.range = Range.of(lowVoltage, highVoltage);
         this.rangeCoefficient = checkCoefficient(rangeCoefficient);
     }
 
