@@ -44,7 +44,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
 
     @Override
     public UcteNodeCode getUcteNodeCode(DanglingLine danglingLine) {
-        return getUcteNodeCode(danglingLine.getUcteXnodeCode());
+        return getUcteNodeCode(danglingLine.getPairingKey());
     }
 
     @Override

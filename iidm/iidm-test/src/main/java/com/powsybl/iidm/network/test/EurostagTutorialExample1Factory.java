@@ -211,7 +211,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(1E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV1")
-                .setUcteXnodeCode("XNODE1")
+                .setPairingKey("XNODE1")
                 .add();
         DanglingLine xnode1nhv2 = network.getVoltageLevel("VLHV2").newDanglingLine()
                 .setId(DANGLING_LINE_XNODE1_2)
@@ -222,7 +222,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(2E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV2")
-                .setUcteXnodeCode("XNODE1")
+                .setPairingKey("XNODE1")
                 .add();
         network.newTieLine()
                 .setId("NHV1_NHV2_1")
@@ -238,7 +238,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(1E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV1")
-                .setUcteXnodeCode("XNODE2")
+                .setPairingKey("XNODE2")
                 .add();
         DanglingLine xnode2nhv2 = network.getVoltageLevel("VLHV2").newDanglingLine()
                 .setId(DANGLING_LINE_XNODE2_2)
@@ -249,7 +249,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(2E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV2")
-                .setUcteXnodeCode("XNODE2")
+                .setPairingKey("XNODE2")
                 .add();
         network.newTieLine()
                 .setId("NHV1_NHV2_2")

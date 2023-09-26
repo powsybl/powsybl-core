@@ -257,7 +257,7 @@ class SVTest {
             .setB(0.0)
             .setP0(p0)
             .setQ0(q0)
-            .setUcteXnodeCode(ucteCode)
+            .setPairingKey(ucteCode)
             .setNode(node)
             .setEnsureIdUnicity(false)
             .add();

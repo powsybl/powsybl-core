@@ -120,6 +120,7 @@ public class CgmesExportContext {
 
         private String description;
         private int version = 1;
+        private String supersedes;
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
         private Set<String> ids = new HashSet<>();
@@ -134,6 +135,10 @@ public class CgmesExportContext {
 
         public String getDescription() {
             return description;
+        }
+
+        public String getSupersedes() {
+            return supersedes;
         }
 
         public ModelDescription setDescription(String description) {
@@ -208,6 +213,10 @@ public class CgmesExportContext {
         public Set<String> getIds() {
             return Collections.unmodifiableSet(ids);
         }
+
+        public void setSupersedes(String id) {
+            this.supersedes = id;
+        }
     }
 
     public CgmesExportContext() {
@@ -246,6 +255,7 @@ public class CgmesExportContext {
         if (sshMetadata != null) {
             sshModelDescription.setDescription(sshMetadata.getDescription());
             sshModelDescription.setVersion(sshMetadata.getSshVersion() + 1);
+            sshModelDescription.setSupersedes(sshMetadata.getId());
             sshModelDescription.addDependencies(sshMetadata.getDependencies());
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
@@ -362,7 +372,7 @@ public class CgmesExportContext {
         for (Connectable<?> c : network.getConnectables()) {
             if (isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    addIidmMappingsTerminal(t, c);
+                    addIidmMappingsTerminal(t, c, network);
                 }
             }
         }
@@ -454,11 +464,18 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
+    private static void addIidmMappingsTerminal(Terminal t, Connectable<?> c, Network network) {
         if (c instanceof DanglingLine) {
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
             if (terminalId == null) {
-                terminalId = CgmesExportUtil.getUniqueId();
+                // Legacy: in previous versions, dangling line terminals were recorded in a different alias
+                // read it, remove it and store in the standard alias for equipment terminal (Terminal1)
+                terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL).orElse(null);
+                if (terminalId != null) {
+                    c.removeAlias(terminalId);
+                } else {
+                    terminalId = CgmesExportUtil.getUniqueId();
+                }
                 c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1);
             }
             String boundaryId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY).orElse(null);
@@ -467,7 +484,7 @@ public class CgmesExportContext {
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
         } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
+            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t, CgmesExportUtil.getBoundaryDanglingLines(network));
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
                 c.addAlias(CgmesExportUtil.getUniqueId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber);
@@ -579,8 +596,8 @@ public class CgmesExportContext {
         }
     }
 
-    private static void addIidmMappingsEquivalentInjection(Network network) {
-        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+    private void addIidmMappingsEquivalentInjection(Network network) {
+        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
             String alias;
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             if (alias == null) {
@@ -607,7 +624,7 @@ public class CgmesExportContext {
                     .setEnergyIdentificationCodeEic("Network--1")
                     .add();
             CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
-            for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
+            for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
                 cgmesControlArea.add(danglingLine.getTerminal());
             }
         }
