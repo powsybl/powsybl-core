@@ -81,8 +81,14 @@ public interface NamingStrategy {
 
     String getFeederId(String prefixId, String voltageLevelId);
 
+    /**
+     * Used when building a feeder bay
+     */
     String getSwitchBaseId(Connectable<?> connectable, int side);
 
+    /**
+     * Used in coupling device building
+     */
     String getSwitchBaseId(VoltageLevel voltageLevel, BusbarSection bbs1, BusbarSection bbs2);
 
     String getVoltageLevelId(Substation substation, String prefix, String suffix);

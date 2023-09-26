@@ -176,7 +176,7 @@ public class DefaultNamingStrategy implements NamingStrategy {
     }
 
     @Override
-    public String getSwitchBaseId(VoltageLevel voltageLevel, BusbarSection bbs1, BusbarSection bbs2) {
+    public final String getSwitchBaseId(VoltageLevel voltageLevel, BusbarSection bbs1, BusbarSection bbs2) {
         return voltageLevel.getId();
     }
 
