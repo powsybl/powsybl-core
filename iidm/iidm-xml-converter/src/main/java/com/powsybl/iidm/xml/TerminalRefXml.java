@@ -77,11 +77,7 @@ public final class TerminalRefXml {
         if (identifiable == null) {
             throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
         }
-        if (identifiable instanceof Connectable) {
-            return Terminal.getTerminal((Connectable<?>) identifiable, side);
-        } else {
-            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
-        }
+        return Terminal.getTerminal(identifiable, side);
     }
 
     private TerminalRefXml() {
