@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.modification.scalable;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -122,7 +121,7 @@ class UpDownScalableTest {
         Scalable upScalable = Scalable.proportional(100, Scalable.onGenerator("g2"));
         Scalable downScalable = Scalable.onLoad("l1");
 
-        double initialValueDown = - testNetwork.getLoad("l1").getP0();
+        double initialValueDown = -testNetwork.getLoad("l1").getP0();
         Scalable upDownScalable = Scalable.upDown(upScalable, downScalable, -Double.MAX_VALUE, initialValueDown + 35);
 
         ScalingParameters parameters = new ScalingParameters();
@@ -138,7 +137,7 @@ class UpDownScalableTest {
         Scalable upScalable = Scalable.proportional(100, Scalable.onGenerator("g2"));
         Scalable downScalable = Scalable.onLoad("l1");
 
-        double initialValueDown = - testNetwork.getLoad("l1").getP0();
+        double initialValueDown = -testNetwork.getLoad("l1").getP0();
         Scalable upDownScalable = Scalable.upDown(upScalable, downScalable, initialValueDown - 35, Double.MAX_VALUE);
 
         ScalingParameters parameters = new ScalingParameters();
