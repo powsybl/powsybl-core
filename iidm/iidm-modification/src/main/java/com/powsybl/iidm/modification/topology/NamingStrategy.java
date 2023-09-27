@@ -23,37 +23,37 @@ public interface NamingStrategy {
 
     String getName();
 
-    String getDisconnectorIdPrefix(String prefixId);
+//    String getDisconnectorIdPrefix(String prefixId);
+//
+//    String getDisconnectorIdSuffix(int idNum);
 
-    String getDisconnectorIdSuffix(int idNum);
+//    String getDisconnectorIdSuffix(int id1Num, int id2Num);
 
-    String getDisconnectorIdSuffix(int id1Num, int id2Num);
-
-    String getDisconnectorId(String prefixId);
-
-    String getDisconnectorId(String prefixId, int idNum);
+//    String getDisconnectorId(String prefixId);
+//
+//    String getDisconnectorId(String prefixId, int idNum);
 
     String getDisconnectorId(String prefixId, int id1Num, int id2Num);
 
     String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num);
 
-    String getBreakerIdPrefix(String prefixId);
-
-    String getBreakerIdSuffix(int idNum);
-
-    String getBreakerIdSuffix(int id1Num, int id2Num);
+//    String getBreakerIdPrefix(String prefixId);
+//
+//    String getBreakerIdSuffix(int idNum);
+//
+//    String getBreakerIdSuffix(int id1Num, int id2Num);
 
     String getBreakerId(String prefixId);
 
-    String getBreakerId(String prefixId, int idNum);
+//    String getBreakerId(String prefixId, int idNum);
 
     String getBreakerId(String prefixId, int id1Num, int id2Num);
 
-    String getSwitchIdPrefix(String prefixId);
+//    String getSwitchIdPrefix(String prefixId);
 
-    String getSwitchIdSuffix(int idNum);
+//    String getSwitchIdSuffix(int idNum);
 
-    String getSwitchIdSuffix(int id1Num, int id2Num);
+//    String getSwitchIdSuffix(int id1Num, int id2Num);
 
     String getSwitchId(String prefixId);
 
@@ -61,15 +61,15 @@ public interface NamingStrategy {
 
     String getSwitchId(String prefixId, int id1Num, int id2Num);
 
-    String getBusbarIdPrefix(String prefixId);
-
-    String getBusbarIdSuffix(int idNum);
-
-    String getBusbarIdSuffix(int id1Num, int id2Num);
-
-    String getBusbarId(String prefixId);
-
-    String getBusbarId(String prefixId, int idNum);
+//    String getBusbarIdPrefix(String prefixId);
+//
+//    String getBusbarIdSuffix(int idNum);
+//
+//    String getBusbarIdSuffix(int id1Num, int id2Num);
+//
+//    String getBusbarId(String prefixId);
+//
+//    String getBusbarId(String prefixId, int idNum);
 
     String getBusbarId(String prefixId, int id1Num, int id2Num);
 
@@ -79,7 +79,7 @@ public interface NamingStrategy {
 
     String getBusId(String prefixId, int idNum);
 
-    String getFeederId(String prefixId, String voltageLevelId);
+//    String getFeederId(String prefixId, String voltageLevelId);
 
     /**
      * Used when building a feeder bay
@@ -91,15 +91,15 @@ public interface NamingStrategy {
      */
     String getSwitchBaseId(VoltageLevel voltageLevel, BusbarSection bbs1, BusbarSection bbs2);
 
-    String getVoltageLevelId(Substation substation, String prefix, String suffix);
-
-    String getBbsId(int number);
-
-    String getBbsId(int number, String letter);
-
-    String getBbsId(int firstNumber, int secondNumber);
-
-    String getBbsId(int firstNumber, String letter, int secondNumber);
-
-    String getGeneratorId(Substation substation, EnergySource energySource, String prefix, String suffix, int code);
+//    String getVoltageLevelId(Substation substation, String prefix, String suffix);
+//
+//    String getBbsId(int number);
+//
+//    String getBbsId(int number, String letter);
+//
+//    String getBbsId(int firstNumber, int secondNumber);
+//
+//    String getBbsId(int firstNumber, String letter, int secondNumber);
+//
+//    String getGeneratorId(Substation substation, EnergySource energySource, String prefix, String suffix, int code);
 }
