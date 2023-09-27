@@ -69,9 +69,11 @@ class UpDownScalable extends AbstractScalable {
 
     @Override
     public double scale(Network n, double asked, ScalingParameters parameters) {
+        double minWithConvention = parameters.getScalingConvention() == ScalingConvention.GENERATOR ? minValue : -maxValue;
+        double maxWithConvention = parameters.getScalingConvention() == ScalingConvention.GENERATOR ? maxValue : -minValue;
         double boundedAsked = asked > 0 ?
-            Math.min(asked, maxValue - getSteadyStatePower(n, asked, parameters.getScalingConvention())) :
-            Math.max(asked, minValue - getSteadyStatePower(n, asked, parameters.getScalingConvention()));
+            Math.min(asked, maxWithConvention - getSteadyStatePower(n, asked, parameters.getScalingConvention())) :
+            Math.max(asked, minWithConvention - getSteadyStatePower(n, asked, parameters.getScalingConvention()));
         return asked > 0 ? upScalable.scale(n, boundedAsked, parameters) : downScalable.scale(n, boundedAsked, parameters);
     }
 

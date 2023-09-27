@@ -52,7 +52,7 @@ class StackScalable extends AbstractCompoundScalable {
         double currentGlobalPower = getSteadyStatePower(n, asked, parameters.getScalingConvention());
 
         // Variation asked
-        double variationAsked = Math.max(minValue, Math.min(Scalable.getVariationAsked(parameters, asked, currentGlobalPower), maxValue));
+        double variationAsked = Scalable.getVariationAsked(parameters, asked, currentGlobalPower);
 
         double boundedVariation = getBoundedVariation(variationAsked, currentGlobalPower, parameters.getScalingConvention());
 
