@@ -194,8 +194,16 @@ public interface Scalable {
         return new ProportionalScalable(injections, distributionMode);
     }
 
+    static ProportionalScalable proportional(List<? extends Injection> injections, ProportionalScalable.DistributionMode distributionMode, double minValue, double maxValue) {
+        return new ProportionalScalable(injections, distributionMode, minValue, maxValue);
+    }
+
     static ProportionalScalable proportional(List<Double> percentages, List<Scalable> scalables) {
         return new ProportionalScalable(percentages, scalables);
+    }
+
+    static ProportionalScalable proportional(List<Double> percentages, List<Scalable> scalables, double minValue, double maxValue) {
+        return new ProportionalScalable(percentages, scalables, minValue, maxValue);
     }
 
     static ProportionalScalable proportional(double percentage, Scalable scalable) {
@@ -227,13 +235,27 @@ public interface Scalable {
         return new StackScalable(injectionScalables);
     }
 
+    static StackScalable stack(double minValue, double maxValue, Injection<?>... injections) {
+        List<Scalable> injectionScalables = Arrays.stream(injections).map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(injectionScalables, minValue, maxValue);
+    }
+
     static StackScalable stack(List<? extends Injection<?>> injections) {
         List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
         return new StackScalable(injectionScalables);
     }
 
+    static StackScalable stack(List<? extends Injection<?>> injections, double minValue, double maxValue) {
+        List<Scalable> injectionScalables = injections.stream().map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(injectionScalables, minValue, maxValue);
+    }
+
     static StackScalable stack(Scalable... scalables) {
         return new StackScalable(scalables);
+    }
+
+    static StackScalable stack(double minValue, double maxValue, Scalable... scalables) {
+        return new StackScalable(minValue, maxValue, scalables);
     }
 
     static StackScalable stack(String... ids) {
@@ -241,8 +263,17 @@ public interface Scalable {
         return new StackScalable(identifierScalables);
     }
 
+    static StackScalable stack(double minValue, double maxValue, String... ids) {
+        List<Scalable> identifierScalables = Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
+        return new StackScalable(identifierScalables, minValue, maxValue);
+    }
+
     static UpDownScalable upDown(Scalable upScalable, Scalable downScalable) {
         return new UpDownScalable(upScalable, downScalable);
+    }
+
+    static UpDownScalable upDown(Scalable upScalable, Scalable downScalable, double minValue, double maxValue) {
+        return new UpDownScalable(upScalable, downScalable, minValue, maxValue);
     }
 
     /**

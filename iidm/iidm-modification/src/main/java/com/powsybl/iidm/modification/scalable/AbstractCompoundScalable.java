@@ -17,6 +17,8 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractCompoundScalable extends AbstractScalable {
+    protected double minValue = -Double.MAX_VALUE;
+    protected double maxValue = Double.MAX_VALUE;
 
     abstract Collection<Scalable> getScalables();
 
@@ -52,7 +54,7 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         for (Scalable scalable : getScalables()) {
             value += scalable.maximumValue(n, powerConvention);
         }
-        return value;
+        return (powerConvention == ScalingConvention.GENERATOR) ? Math.min(maxValue, value) : Math.min(-minValue, value);
     }
 
     @Override
@@ -68,7 +70,7 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         for (Scalable scalable : getScalables()) {
             value += scalable.minimumValue(n, powerConvention);
         }
-        return value;
+        return (powerConvention == ScalingConvention.GENERATOR) ? Math.max(minValue, value) : Math.max(-maxValue, value);
     }
 
     @Override
@@ -76,5 +78,11 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         for (Scalable scalable : getScalables()) {
             scalable.filterInjections(n, injections, notFoundInjections);
         }
+    }
+
+    protected double getBoundedVariation(double variationAsked, double currentGlobalPower, ScalingConvention scalingConvention) {
+        double minWithConvention = scalingConvention == ScalingConvention.GENERATOR ? minValue : -maxValue;
+        double maxWithConvention = scalingConvention == ScalingConvention.GENERATOR ? maxValue : -minValue;
+        return Math.min(maxWithConvention - currentGlobalPower, Math.max(minWithConvention - currentGlobalPower, variationAsked));
     }
 }
