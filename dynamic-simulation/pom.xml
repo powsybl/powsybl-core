@@ -25,5 +25,6 @@
         <module>dynamic-simulation-api</module>
         <module>dynamic-simulation-dsl</module>
         <module>dynamic-simulation-tool</module>
+        <module>dynamic-simulation-models-list</module>
     </modules>
 </project>
