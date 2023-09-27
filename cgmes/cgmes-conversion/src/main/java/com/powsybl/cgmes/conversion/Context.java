@@ -46,7 +46,7 @@ public class Context {
         // create buses directly from topological nodes,
         // the configuration says if we are performing the conversion
         // based on existing node-breaker info
-        nodeBreaker = cgmes.isNodeBreaker() && config.useNodeBreaker();
+        nodeBreaker = cgmes.isNodeBreaker() && !config.importNodeBreakerAsBusBreaker();
 
         namingStrategy = config.getNamingStrategy();
         cgmesBoundary = new CgmesBoundary(cgmes);
