@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.dynamicsimulation.modelslist;
+package com.powsybl.dynamicsimulation.tool;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.dynamicsimulation.DynamicSimulation;
