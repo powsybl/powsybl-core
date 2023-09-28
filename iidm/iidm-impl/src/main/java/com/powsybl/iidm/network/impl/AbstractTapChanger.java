@@ -158,7 +158,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public void removeSteps() {
-        steps.removeAll(steps);
+        steps.clear();
     }
 
     public void replaceSteps(List<S> steps) {
