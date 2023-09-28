@@ -25,7 +25,6 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Laurent Issertial <laurent.issertial at rte-france.com>
@@ -97,14 +96,14 @@ public class ListDynamicSimulationModelsTool implements Tool {
         return GroovyExtension.find(DynamicModelGroovyExtension.class, providerName)
                 .stream()
                 .flatMap(ex -> ex.getModelNames().stream())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<String> createEventModelNamesList(String providerName) {
         return GroovyExtension.find(EventModelGroovyExtension.class, providerName)
                 .stream()
                 .flatMap(ex -> ex.getModelNames().stream())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private void printModelsList(String title, List<String> models, Writer writer) throws IOException {
