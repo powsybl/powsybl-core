@@ -162,10 +162,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public void replaceSteps(List<S> steps) {
-        steps.forEach(step -> step.validate(parent));
         if (steps == null || steps.isEmpty()) {
             throw new ValidationException(parent, "a phase tap changer shall have at least one step");
         }
+        steps.forEach(step -> step.validate(parent));
         //Ok or not ?
         if (getTapPosition() < lowTapPosition
                 || getTapPosition() > getHighTapPosition()) {
