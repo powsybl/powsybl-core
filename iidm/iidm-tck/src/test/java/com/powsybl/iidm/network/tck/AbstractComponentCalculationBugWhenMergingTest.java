@@ -75,7 +75,7 @@ public abstract class AbstractComponentCalculationBugWhenMergingTest {
             b.getConnectedComponent();
         }
         assertEquals(0, n1.getTieLineCount());
-        Network merged = Network.create(n1, n2);
+        Network merged = Network.merge(n1, n2);
         for (Bus b : merged.getBusView().getBuses()) {
             assertDoesNotThrow(b::getConnectedComponent);
             assertEquals(0, b.getConnectedComponent().getNum());

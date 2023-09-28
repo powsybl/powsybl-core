@@ -36,12 +36,12 @@ public class NetworkFactoryMock implements NetworkFactory {
     }
 
     @Override
-    public Network createNetwork(String id, Network... networks) {
+    public Network merge(String id, Network... networks) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
     @Override
-    public Network createNetwork(Network... networks) {
+    public Network merge(Network... networks) {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 }
