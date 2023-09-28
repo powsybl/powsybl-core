@@ -71,7 +71,7 @@ class UcteExporterTest extends AbstractConverterTest {
         Network networkBE = loadNetworkFromResourceFile("/beTestGridForMerging.uct");
         testExporter(networkBE, "/beTestGridForMerging.uct");
 
-        Network merge = Network.create(networkBE, networkFR);
+        Network merge = Network.merge(networkBE, networkFR);
         testExporter(merge, "/uxTestGridForMerging.uct");
     }
 
@@ -83,7 +83,7 @@ class UcteExporterTest extends AbstractConverterTest {
         Network networkBE = loadNetworkFromResourceFile("/beForMergeProperties.uct");
         testExporter(networkBE, "/beForMergeProperties.uct");
 
-        Network mergedNetwork = Network.create(networkBE, networkFR);
+        Network mergedNetwork = Network.merge(networkBE, networkFR);
         testExporter(mergedNetwork, "/uxForMergeProperties.uct");
     }
 
