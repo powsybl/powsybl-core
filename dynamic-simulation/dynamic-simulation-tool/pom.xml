@@ -18,7 +18,7 @@
 
     <artifactId>powsybl-dynamic-simulation-tool</artifactId>
     <name>Dynamic Simulation Tool</name>
-    <description>A tool to run dynamic simulation computations</description>
+    <description>Tools to run dynamic simulation computations</description>
 
     <build>
         <plugins>
