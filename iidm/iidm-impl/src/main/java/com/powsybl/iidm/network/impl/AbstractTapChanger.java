@@ -173,7 +173,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
                     + tapPosition + " [" + lowTapPosition + ", "
                     + getHighTapPosition() + "]");
         }
-        this.steps.removeAll(this.steps);
+        removeSteps();
         this.steps = steps;
     }
 
