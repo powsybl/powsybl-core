@@ -49,4 +49,9 @@ class DummyEventModelGroovyExtension implements EventModelGroovyExtension {
             consumer.accept(new DummyEventModel(eventModelSpec.id, eventModelSpec.startTime))
         }
     }
+
+    @Override
+    List<String> getModelNames() {
+        List.of(DummyEventModel.class.simpleName)
+    }
 }
