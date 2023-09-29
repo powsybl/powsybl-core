@@ -339,6 +339,10 @@ public final class CgmesExportUtil {
         return false;
     }
 
+    public static <I extends ReactiveLimitsHolder & Injection<I>> ReactiveCapabilityCurve obtainCurve(I i) {
+        return i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE) ? i.getReactiveLimits(ReactiveCapabilityCurve.class) : null;
+    }
+
     public static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve) {
         double min = curve != null ? curve.getMinP() : minP;
         double max = curve != null ? curve.getMaxP() : maxP;

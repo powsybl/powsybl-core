@@ -361,7 +361,7 @@ public final class EquipmentExport {
         double defaultRatedS = computeDefaultRatedS(i, minP, maxP);
 
         String reactiveLimitsId = writeReactiveCapabilityCurve(i, cimNamespace, writer, context);
-        String kind = obtainSynchronousMachineKind(i, minP, maxP, obtainCurve(i));
+        String kind = obtainSynchronousMachineKind(i, minP, maxP, CgmesExportUtil.obtainCurve(i));
 
         SynchronousMachineEq.write(context.getNamingStrategy().getCgmesId(i), i.getNameOrId(),
                 context.getNamingStrategy().getCgmesId(i.getTerminal().getVoltageLevel()),
@@ -398,10 +398,6 @@ public final class EquipmentExport {
         double minQ = Double.min(curve.getMinQ(curve.getMinP()), curve.getMinQ(curve.getMaxP()));
         double maxQ = Double.max(curve.getMaxQ(curve.getMinP()), curve.getMaxQ(curve.getMaxP()));
         return maxQ > minQ;
-    }
-
-    private static <I extends ReactiveLimitsHolder & Injection<I>> ReactiveCapabilityCurve obtainCurve(I i) {
-        return i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE) ? i.getReactiveLimits(ReactiveCapabilityCurve.class) : null;
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> double obtainMinQ(I i) {

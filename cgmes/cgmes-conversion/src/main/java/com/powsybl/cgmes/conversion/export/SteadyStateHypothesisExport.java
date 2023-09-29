@@ -262,10 +262,11 @@ public final class SteadyStateHypothesisExport {
                     writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
                             -g.getTargetP(), -g.getTargetQ(), isInSlackBus(g) ? 1 : 0,
                             cimNamespace, writer, context);
+                    addRegulatingControlView(g, regulatingControlViews, context);
                     break;
                 case SYNCHRONOUS_MACHINE:
                     writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
-                            -g.getTargetP(), -g.getTargetQ(), isInSlackBus(g) ? 1 : 0, mode(g.getTargetP()),
+                            -g.getTargetP(), -g.getTargetQ(), isInSlackBus(g) ? 1 : 0, obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
@@ -314,12 +315,20 @@ public final class SteadyStateHypothesisExport {
     private static void writeBatteries(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Battery b : network.getBatteries()) {
             writeSynchronousMachine(context.getNamingStrategy().getCgmesId(b), false,
-                    -b.getTargetP(), -b.getTargetQ(), isInSlackBus(b) ? 1 : 0, mode(b.getTargetP()),
+                    -b.getTargetP(), -b.getTargetQ(), isInSlackBus(b) ? 1 : 0, obtainOperatingMode(b, b.getMinP(), b.getMaxP(), b.getTargetP()),
                     cimNamespace, writer, context);
         }
     }
 
-    private static String mode(double targetP) {
+    private static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
+        String operatingMode = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
+        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, CgmesExportUtil.obtainCurve(i));
+        String calculatedOperatingMode = obtainOperatingMode(targetP);
+
+        return operatingMode != null && calculatedKind.contains(operatingMode) ? operatingMode : calculatedOperatingMode;
+    }
+
+    private static String obtainOperatingMode(double targetP) {
         if (targetP < 0) {
             return "motor";
         } else if (targetP > 0) {

@@ -93,6 +93,10 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (type != null) {
             generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));
         }
+        String operatingMode = p.getLocal("operatingMode");
+        if (operatingMode != null) {
+            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
+        }
     }
 
     private static EnergySource fromGeneratingUnitType(String gut) {
