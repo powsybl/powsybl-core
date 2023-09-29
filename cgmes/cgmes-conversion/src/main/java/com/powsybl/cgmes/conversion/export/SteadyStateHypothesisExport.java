@@ -54,7 +54,8 @@ public final class SteadyStateHypothesisExport {
             writeEnergyConsumers(network, cimNamespace, writer, context);
             writeEquivalentInjections(network, cimNamespace, writer, context);
             writeTapChangers(network, cimNamespace, regulatingControlViews, writer, context);
-            writeSynchronousMachines(network, cimNamespace, regulatingControlViews, writer, context);
+            writeGenerators(network, cimNamespace, regulatingControlViews, writer, context);
+            writeBatteries(network, cimNamespace, regulatingControlViews, writer, context);
             writeShuntCompensators(network, cimNamespace, regulatingControlViews, writer, context);
             writeStaticVarCompensators(network, cimNamespace, regulatingControlViews, writer, context);
             writeRegulatingControls(regulatingControlViews, cimNamespace, writer, context);
@@ -246,67 +247,85 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeSynchronousMachines(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
+    private static void writeGenerators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                  XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Generator g : network.getGenerators()) {
-            boolean controlEnabled = g.isVoltageRegulatorOn();
+            String cgmesEquipment = g.getProperty(Conversion.PROPERTY_CGMES_EQUIPMENT, "SynchronousMachine");
 
-            CgmesExportUtil.writeStartAbout("SynchronousMachine", context.getNamingStrategy().getCgmesId(g), cimNamespace, writer, context);
-            writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
-            writer.writeCharacters(Boolean.toString(controlEnabled));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.p");
-            writer.writeCharacters(CgmesExportUtil.format(-g.getTargetP()));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.q");
-            writer.writeCharacters(CgmesExportUtil.format(-g.getTargetQ()));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
-            // reference priority is used for angle reference selection (slack)
-            writer.writeCharacters(isInSlackBus(g) ? "1" : "0");
-            writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(g.getTargetP(), g.getMinP(), g.getReactiveLimits()));
-            writer.writeEndElement();
-
-            addRegulatingControlView(g, regulatingControlViews, context);
-        }
-        for (Battery b : network.getBatteries()) {
-            CgmesExportUtil.writeStartAbout("SynchronousMachine", context.getNamingStrategy().getCgmesId(b), cimNamespace, writer, context);
-            writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
-            writer.writeCharacters("false"); // TODO handle battery regulation
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.p");
-            writer.writeCharacters(CgmesExportUtil.format(-b.getTargetP()));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "RotatingMachine.q");
-            writer.writeCharacters(CgmesExportUtil.format(-b.getTargetQ()));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
-            // reference priority is used for angle reference selection (slack)
-            writer.writeCharacters(isInSlackBus(b) ? "1" : "0");
-            writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(b.getTargetP(), b.getMinP(), b.getReactiveLimits()));
-            writer.writeEndElement();
+            switch (cgmesEquipment) {
+                case "EquivalentInjection":
+                    writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getTargetQ(),
+                            g.isVoltageRegulatorOn(), g.getTargetV(), cimNamespace, writer, context);
+                    break;
+                case "ExternalNetworkInjection":
+                    writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
+                            -g.getTargetP(), -g.getTargetQ(), isInSlackBus(g) ? 1 : 0,
+                            cimNamespace, writer, context);
+                    break;
+                case "SynchronousMachine":
+                    writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
+                            -g.getTargetP(), -g.getTargetQ(), isInSlackBus(g) ? 1 : 0, mode(g.getTargetP()),
+                            cimNamespace, writer, context);
+                    addRegulatingControlView(g, regulatingControlViews, context);
+                    break;
+                default:
+                    throw new PowsyblException("Unexpected cgmes equipment " + cgmesEquipment);
+            }
         }
     }
 
-    private static String mode(double targetP, double minP, ReactiveLimits reactiveLimits) {
+    private static void writeExternalNetworkInjection(String id, boolean controlEnabled, double p, double q, int referencePriority, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout("ExternalNetworkInjection", id, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
+        writer.writeCharacters(Boolean.toString(controlEnabled));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ExternalNetworkInjection.p");
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ExternalNetworkInjection.q");
+        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ExternalNetworkInjection.referencePriority");
+        writer.writeCharacters(String.valueOf(referencePriority)); // reference priority is used for angle reference selection (slack)
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static void writeSynchronousMachine(String id, boolean controlEnabled, double p, double q, int referencePriority, String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout("SynchronousMachine", id, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
+        writer.writeCharacters(Boolean.toString(controlEnabled));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "RotatingMachine.p");
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "RotatingMachine.q");
+        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
+        writer.writeCharacters(String.valueOf(referencePriority));
+        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode);
+        writer.writeEndElement();
+    }
+
+    private static void writeBatteries(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
+                                                 XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (Battery b : network.getBatteries()) {
+            writeSynchronousMachine(context.getNamingStrategy().getCgmesId(b), false,
+                    -b.getTargetP(), -b.getTargetQ(), isInSlackBus(b) ? 1 : 0, mode(b.getTargetP()),
+                    cimNamespace, writer, context);
+        }
+    }
+
+    private static String mode(double targetP) {
         if (targetP < 0) {
             return "motor";
         } else if (targetP > 0) {
             return "generator";
-        } else { // targetP == 0, mode can be motor or generator: we look at constructor reactive capability curve to decide the mode
-            return isMotor(minP, reactiveLimits) ? "motor" : "generator";
-        }
-    }
-
-    private static boolean isMotor(double minP, ReactiveLimits l) {
-        if (l instanceof ReactiveCapabilityCurve curve) {
-            return curve.getMinP() < 0;
         } else {
-            return minP < 0;
+            return "condenser";
         }
     }
 

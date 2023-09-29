@@ -92,6 +92,15 @@ class EquipmentExportTest extends AbstractConverterTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniNodeBreaker().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportNodeBreaker(expected, dataSource);
+        // Avoid negative zeros during the comparison
+        expected.getGenerators().forEach(generator -> {
+            generator.setTargetP(generator.getTargetP() + 0.0);
+            generator.setTargetQ(generator.getTargetQ() + 0.0);
+        });
+        actual.getGenerators().forEach(generator -> {
+            generator.setTargetP(generator.getTargetP() + 0.0);
+            generator.setTargetQ(generator.getTargetQ() + 0.0);
+        });
         compareNetworksEQdata(expected, actual);
     }
 
@@ -100,6 +109,15 @@ class EquipmentExportTest extends AbstractConverterTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniBusBranch().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), null);
         Network actual = exportImportBusBranchNoBoundaries(expected, dataSource);
+        // Avoid negative zeros during the comparison
+        expected.getGenerators().forEach(generator -> {
+            generator.setTargetP(generator.getTargetP() + 0.0);
+            generator.setTargetQ(generator.getTargetQ() + 0.0);
+        });
+        actual.getGenerators().forEach(generator -> {
+            generator.setTargetP(generator.getTargetP() + 0.0);
+            generator.setTargetQ(generator.getTargetQ() + 0.0);
+        });
         compareNetworksEQdata(expected, actual);
     }
 

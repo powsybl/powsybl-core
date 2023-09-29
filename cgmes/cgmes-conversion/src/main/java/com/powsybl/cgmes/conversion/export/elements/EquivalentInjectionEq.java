@@ -22,9 +22,11 @@ public final class EquivalentInjectionEq {
     private static final String EQ_EQUIVALENTINJECTION_MAXP = "EquivalentInjection.maxP";
     private static final String EQ_EQUIVALENTINJECTION_MINQ = "EquivalentInjection.minQ";
     private static final String EQ_EQUIVALENTINJECTION_MAXQ = "EquivalentInjection.maxQ";
+    private static final String EQ_EQUIVALENTINJECTION_REACTIVE_CAPABILITY_CURVE = "EquivalentInjection.ReactiveCapabilityCurve";
 
     public static void write(String id, String name, boolean regulationCapability, double minP, double maxP, double minQ, double maxQ,
-                             String baseVoltageId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                             String reactiveCapabilityCurveId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer,
+                             CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("EquivalentInjection", id, name, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_REGULATIONCAPABILITY);
         writer.writeCharacters(CgmesExportUtil.format(regulationCapability));
@@ -41,6 +43,9 @@ public final class EquivalentInjectionEq {
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MAXQ);
         writer.writeCharacters(CgmesExportUtil.format(maxQ));
         writer.writeEndElement();
+        if (reactiveCapabilityCurveId != null) {
+            CgmesExportUtil.writeReference(EQ_EQUIVALENTINJECTION_REACTIVE_CAPABILITY_CURVE, reactiveCapabilityCurveId, cimNamespace, writer, context);
+        }
         CgmesExportUtil.writeReference("ConductingEquipment.BaseVoltage", baseVoltageId, cimNamespace, writer, context);
         writer.writeEndElement();
     }

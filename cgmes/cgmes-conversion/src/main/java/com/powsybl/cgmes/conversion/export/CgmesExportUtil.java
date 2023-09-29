@@ -338,4 +338,25 @@ public final class CgmesExportUtil {
         }
         return false;
     }
+
+    public static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve) {
+        double min = curve != null ? curve.getMinP() : minP;
+        double max = curve != null ? curve.getMaxP() : maxP;
+
+        String kind;
+        if (min > 0) {
+            kind = "generator";
+        } else if (max < 0) {
+            kind = "motor";
+        } else if (min == 0 && max == 0) {
+            kind = "condenser";
+        } else if (min == 0) {
+            kind = "generatorOrCondenser";
+        } else if (max == 0) {
+            kind = "motorOrCondenser";
+        } else {
+            kind = "generatorOrCondenserOrMotor";
+        }
+        return kind;
+    }
 }

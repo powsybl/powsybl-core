@@ -11,9 +11,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -85,6 +83,16 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+
+        addSpecificProperties(g, p);
+    }
+
+    private static void addSpecificProperties(Generator generator, PropertyBag p) {
+        generator.setProperty(Conversion.PROPERTY_CGMES_EQUIPMENT, "SynchronousMachine");
+        String type = p.getLocal("type");
+        if (type != null) {
+            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));
+        }
     }
 
     private static EnergySource fromGeneratingUnitType(String gut) {

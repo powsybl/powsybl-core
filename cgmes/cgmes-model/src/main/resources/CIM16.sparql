@@ -816,6 +816,7 @@ WHERE {
     ?SynchronousMachine
         a cim:SynchronousMachine ;
         cim:IdentifiedObject.name ?name ;
+        cim:SynchronousMachine.type ?type ;
         cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
@@ -916,6 +917,7 @@ WHERE {
         cim:ExternalNetworkInjection.minP ?minP ;
         cim:ExternalNetworkInjection.maxP ?maxP .
     ?Terminal cim:Terminal.ConductingEquipment ?ExternalNetworkInjection
+    OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.governorSCD ?governorSCD }
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.minQ ?minQ }
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.maxQ ?maxQ }
     OPTIONAL { ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }

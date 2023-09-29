@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
@@ -50,6 +51,15 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         convertReactiveLimits(g);
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+
+        addSpecificProperties(g, p);
     }
 
+    private static void addSpecificProperties(Generator generator, PropertyBag p) {
+        generator.setProperty(Conversion.PROPERTY_CGMES_EQUIPMENT, "ExternalNetworkInjection");
+        double governorSCD = p.asDouble("governorSCD");
+        if (!Double.isNaN(governorSCD)) {
+            generator.setProperty(Conversion.PROPERTY_CGMES_GOVERNOR_SCD, String.valueOf(governorSCD));
+        }
+    }
 }
