@@ -124,8 +124,6 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         // busbar sections exist: voltage level is NODE_BREAKER
         int breakerNode1 = voltageLevel1.getNodeBreakerView().getMaximumNodeIndex() + 1;
         int breakerNode2 = breakerNode1 + 1;
-//        int bbs1Node = bbs1.getTerminal().getNodeBreakerView().getNode();
-//        int bbs2Node = bbs2.getTerminal().getNodeBreakerView().getNode();
         int nbOpenDisconnectors = 0;
 
         // Breaker
@@ -147,11 +145,10 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             }
 
             // Disconnectors on side 1
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, namingStrategy, switchPrefixId, bbsList1, bbs1);
+            createDisconnectorTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, namingStrategy, switchPrefixId, bbsList1, bbs1, checkAndFilterOtherBbs, 1);
             nbOpenDisconnectors += bbsList1.size() - 1;
         } else {
             createDisconnectorTopologyFromBusbarSectionList(voltageLevel1, breakerNode1, namingStrategy, switchPrefixId, bbs1);
-//            createNBDisconnector(breakerNode1, bbs1Node, namingStrategy.getDisconnectorId(bbs1, switchPrefixId, breakerNode1, bbs1Node), voltageLevel1.getNodeBreakerView(), false);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs1.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs1);
         }
@@ -167,11 +164,10 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             }
 
             // Disconnectors on side 2
-            createDisconnectorTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, namingStrategy, switchPrefixId, bbsList2, bbs2);
+            createDisconnectorTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, namingStrategy, switchPrefixId, bbsList2, bbs2, checkAndFilterOtherBbs, 2);
             nbOpenDisconnectors += bbsList2.size() - 1;
         } else {
             createDisconnectorTopologyFromBusbarSectionList(voltageLevel2, breakerNode2, namingStrategy, switchPrefixId, bbs2);
-//            createNBDisconnector(breakerNode2, bbs2Node, namingStrategy.getDisconnectorId(bbs2, switchPrefixId, breakerNode2, bbs2Node), voltageLevel2.getNodeBreakerView(), false);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs2.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs2);
         }

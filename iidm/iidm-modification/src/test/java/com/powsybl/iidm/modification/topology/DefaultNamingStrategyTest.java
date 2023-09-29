@@ -41,7 +41,7 @@ class DefaultNamingStrategyTest {
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
         Network network = createNbNetwork();
 
-        assertEquals("test_DISCONNECTOR_5_6", namingStrategy.getDisconnectorId(network.getBusbarSection("D"), "test", 5, 6));
+        assertEquals("test_DISCONNECTOR_5_6", namingStrategy.getDisconnectorId(network.getBusbarSection("D"), "test", 5, 6, false, 0));
     }
 
     @Test
@@ -95,14 +95,6 @@ class DefaultNamingStrategyTest {
         assertEquals("test_5_6", namingStrategy.getBusbarId("test", 5, 6));
     }
 
-//    @Test
-//    void testFeeder() {
-//        NamingStrategy namingStrategy = new DefaultNamingStrategy();
-//
-//        // Full Id
-//        assertEquals("prefix_voltageLevelId", namingStrategy.getFeederId("prefix", "voltageLevelId"));
-//    }
-
     @Test
     void testSwitchBaseId() {
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
@@ -115,37 +107,4 @@ class DefaultNamingStrategyTest {
         // On VoltageLevel abs BusbarSections
         assertEquals("C", namingStrategy.getSwitchBaseId(network.getVoltageLevel("C"), network.getBusbarSection("D"), network.getBusbarSection("O")));
     }
-
-//    @Test
-//    void testVoltageLevel() {
-//        NamingStrategy namingStrategy = new DefaultNamingStrategy();
-//
-//        // Full Id
-//        assertEquals("prefix_suffix", namingStrategy.getVoltageLevelId(null, "prefix", "suffix"));
-//    }
-//
-//    @Test
-//    void testBbs() {
-//        NamingStrategy namingStrategy = new DefaultNamingStrategy();
-//
-//        // Full Id
-//        assertEquals("1", namingStrategy.getBbsId(1));
-//        assertEquals("1A", namingStrategy.getBbsId(1, "A"));
-//        assertEquals("12", namingStrategy.getBbsId(1, 2));
-//        assertEquals("1A2", namingStrategy.getBbsId(1, "A", 2));
-//    }
-//
-//    @Test
-//    void testGenerator() {
-//        NamingStrategy namingStrategy = new DefaultNamingStrategy();
-//        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
-//
-//        // Full Id
-//        assertEquals("substHG7", namingStrategy.getGeneratorId(network.getSubstation("subst"), EnergySource.HYDRO, "prefix", "suffix", 7));
-//        assertEquals("substNG7", namingStrategy.getGeneratorId(network.getSubstation("subst"), EnergySource.NUCLEAR, "prefix", "suffix", 7));
-//        assertEquals("substVG7", namingStrategy.getGeneratorId(network.getSubstation("subst"), EnergySource.SOLAR, "prefix", "suffix", 7));
-//        assertEquals("substTG7", namingStrategy.getGeneratorId(network.getSubstation("subst"), EnergySource.THERMAL, "prefix", "suffix", 7));
-//        assertEquals("substEG7", namingStrategy.getGeneratorId(network.getSubstation("subst"), EnergySource.WIND, "prefix", "suffix", 7));
-//        assertEquals("substXG7", namingStrategy.getGeneratorId(network.getSubstation("subst"), EnergySource.OTHER, "prefix", "suffix", 7));
-//    }
 }

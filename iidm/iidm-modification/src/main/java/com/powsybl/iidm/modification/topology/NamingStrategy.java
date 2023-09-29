@@ -8,6 +8,8 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.List;
+
 /**
  * The naming strategy aims at clarifying and facilitating the naming of the different network elements created via the
  * different {@link com.powsybl.iidm.modification.NetworkModification} classes. Based on the name of the network element
@@ -23,37 +25,19 @@ public interface NamingStrategy {
 
     String getName();
 
-//    String getDisconnectorIdPrefix(String prefixId);
-//
-//    String getDisconnectorIdSuffix(int idNum);
+    String getSectioningPrefix(String prefixId, BusbarSection bbs, int busBarNum, int section1Num, int section2Num);
 
-//    String getDisconnectorIdSuffix(int id1Num, int id2Num);
-
-//    String getDisconnectorId(String prefixId);
-//
-//    String getDisconnectorId(String prefixId, int idNum);
+    String getChunkPrefix(String prefixId, List<SwitchKind> switchKindList, int busBarNum, int section1Num, int section2Num);
 
     String getDisconnectorId(String prefixId, int id1Num, int id2Num);
 
-    String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num);
+    String getDisconnectorId(BusbarSection bbs, String prefixId, int id1Num, int id2Num, boolean specifySide, int side);
 
-//    String getBreakerIdPrefix(String prefixId);
-//
-//    String getBreakerIdSuffix(int idNum);
-//
-//    String getBreakerIdSuffix(int id1Num, int id2Num);
+    String getDisconnectorBetweenChunksId(BusbarSection bbs1, String prefixId, int id1Num, int id2Num);
 
     String getBreakerId(String prefixId);
 
-//    String getBreakerId(String prefixId, int idNum);
-
     String getBreakerId(String prefixId, int id1Num, int id2Num);
-
-//    String getSwitchIdPrefix(String prefixId);
-
-//    String getSwitchIdSuffix(int idNum);
-
-//    String getSwitchIdSuffix(int id1Num, int id2Num);
 
     String getSwitchId(String prefixId);
 
@@ -61,25 +45,15 @@ public interface NamingStrategy {
 
     String getSwitchId(String prefixId, int id1Num, int id2Num);
 
-//    String getBusbarIdPrefix(String prefixId);
-//
-//    String getBusbarIdSuffix(int idNum);
-//
-//    String getBusbarIdSuffix(int id1Num, int id2Num);
-//
-//    String getBusbarId(String prefixId);
-//
-//    String getBusbarId(String prefixId, int idNum);
-
     String getBusbarId(String prefixId, int id1Num, int id2Num);
+
+    String getBusbarId(String prefixId, List<SwitchKind> switchKindList, int id1Num, int id2Num);
 
     String getBusId(String prefixId);
 
     String getBusId(String prefixId, String suffixId);
 
     String getBusId(String prefixId, int idNum);
-
-//    String getFeederId(String prefixId, String voltageLevelId);
 
     /**
      * Used when building a feeder bay
@@ -90,16 +64,4 @@ public interface NamingStrategy {
      * Used in coupling device building
      */
     String getSwitchBaseId(VoltageLevel voltageLevel, BusbarSection bbs1, BusbarSection bbs2);
-
-//    String getVoltageLevelId(Substation substation, String prefix, String suffix);
-//
-//    String getBbsId(int number);
-//
-//    String getBbsId(int number, String letter);
-//
-//    String getBbsId(int firstNumber, int secondNumber);
-//
-//    String getBbsId(int firstNumber, String letter, int secondNumber);
-//
-//    String getGeneratorId(Substation substation, EnergySource energySource, String prefix, String suffix, int code);
 }
