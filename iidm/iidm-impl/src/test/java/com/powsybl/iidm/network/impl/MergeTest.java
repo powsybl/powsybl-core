@@ -31,7 +31,7 @@ class MergeTest {
         Network n2 = createNetworkWithDanglingLine("2");
 
         logVoltageLevel("Network 1 first voltage level", n1.getVoltageLevels().iterator().next());
-        Network merge = Network.create(n1, n2);
+        Network merge = Network.merge(n1, n2);
         // If we try to get connected components directly on the merged network,
         // A Null Pointer Exception happens in AbstractConnectable.notifyUpdate:
         // There is a CalculatedBus that has a terminal that refers to the removed DanglingLine
@@ -46,7 +46,7 @@ class MergeTest {
         Network n2 = createNetworkWithDanglingLine("2");
 
         // The test passes if we do not log voltage level (exportTopology)
-        Network merge = Network.create(n1, n2);
+        Network merge = Network.merge(n1, n2);
         checkConnectedComponents(merge);
     }
 
@@ -58,7 +58,7 @@ class MergeTest {
         logVoltageLevel("Network 1 first voltage level", n1.getVoltageLevels().iterator().next());
         // The test also passes if we "force" the connected component calculation before merge
         checkConnectedComponents(n1);
-        Network merge = Network.create(n1, n2);
+        Network merge = Network.merge(n1, n2);
         checkConnectedComponents(n1);
     }
 
@@ -110,7 +110,7 @@ class MergeTest {
         valMerge.addAll(val1);
         valMerge.addAll(val2);
 
-        Network merge = Network.create(network1, network2);
+        Network merge = Network.merge(network1, network2);
         assertTrue(voltageAngleLimitsAreEqual(valMerge, merge.getVoltageAngleLimitsStream().toList()));
 
         network1 = merge.getSubnetwork(network1.getId()).detach();
@@ -126,7 +126,7 @@ class MergeTest {
     void failMergeWithVoltageAngleLimits() {
         Network network1 = createNodeBreakerWithVoltageAngleLimit("1", "duplicate");
         Network network2 = createNodeBreakerWithVoltageAngleLimit("2", "duplicate");
-        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.create(network1, network2));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(network1, network2));
         assertEquals("The following voltage angle limit(s) exist(s) in both networks: [duplicate]", e.getMessage());
     }
 
@@ -134,7 +134,7 @@ class MergeTest {
     void failDetachWithVoltageAngleLimits() {
         Network network1 = createNodeBreakerWithVoltageAngleLimit("1");
         Network network2 = createNodeBreakerWithVoltageAngleLimit("2");
-        Network merge = Network.create(network1, network2);
+        Network merge = Network.merge(network1, network2);
         merge.newVoltageAngleLimit()
                 .setId("valMerge")
                 .from(merge.getLine(id("Line-2-2", "1")).getTerminal1())
@@ -164,7 +164,7 @@ class MergeTest {
                 .setHighLimit(0.25)
                 .add();
 
-        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.create(network1, network2));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(network1, network2));
         assertEquals("The following voltage angle limit(s) exist(s) in both networks: [LimitCollision]", e.getMessage());
     }
 

@@ -24,15 +24,15 @@ public class NetworkFactoryImpl implements NetworkFactory {
     }
 
     @Override
-    public Network createNetwork(String id, Network... networks) {
-        return NetworkImpl.create(id, id, networks);
+    public Network merge(String id, Network... networks) {
+        return NetworkImpl.merge(id, id, networks);
     }
 
     @Override
-    public Network createNetwork(Network... networks) {
+    public Network merge(Network... networks) {
         String id = Arrays.stream(Objects.requireNonNull(networks))
                 .map(Network::getId)
                 .collect(Collectors.joining("+"));
-        return createNetwork(id, networks);
+        return merge(id, networks);
     }
 }

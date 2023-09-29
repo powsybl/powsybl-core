@@ -166,7 +166,7 @@ class NetworkXmlTest extends AbstractXmlConverterTest {
         n1.setCaseDate(DateTime.parse("2013-01-15T18:41:00+01:00"));
         n2.setCaseDate(DateTime.parse("2013-01-15T18:42:00+01:00"));
 
-        Network merged = Network.create("Merged", n1, n2);
+        Network merged = Network.merge("Merged", n1, n2);
         merged.setCaseDate(DateTime.parse("2013-01-15T18:40:00+01:00"));
         // add an extension at root network level
         NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_0");

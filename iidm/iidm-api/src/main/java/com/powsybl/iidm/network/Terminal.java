@@ -239,23 +239,23 @@ public interface Terminal {
         };
     }
 
-    static Terminal getTerminal(Connectable<?> connectable, ThreeSides side) {
-        if (connectable instanceof Injection<?> injection) {
+    static Terminal getTerminal(Identifiable<?> identifiable, ThreeSides side) {
+        if (identifiable instanceof Injection<?> injection) {
             return injection.getTerminal();
-        } else if (connectable instanceof Branch<?> branch) {
+        } else if (identifiable instanceof Branch<?> branch) {
             return switch (side) {
                 case ONE -> branch.getTerminal1();
                 case TWO -> branch.getTerminal2();
                 case THREE -> throw new IllegalStateException("Unexpected Branch side: " + side.name());
             };
-        } else if (connectable instanceof ThreeWindingsTransformer transformer) {
+        } else if (identifiable instanceof ThreeWindingsTransformer transformer) {
             return switch (side) {
                 case ONE -> transformer.getLeg1().getTerminal();
                 case TWO -> transformer.getLeg2().getTerminal();
                 case THREE -> transformer.getLeg3().getTerminal();
             };
         } else {
-            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + connectable.getClass());
+            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }
     }
 }

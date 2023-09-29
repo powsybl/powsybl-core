@@ -729,8 +729,13 @@ public class Conversion {
             return this;
         }
 
-        public boolean useNodeBreaker() {
-            return true;
+        public boolean importNodeBreakerAsBusBreaker() {
+            return importNodeBreakerAsBusBreaker;
+        }
+
+        public Config setImportNodeBreakerAsBusBreaker(boolean importNodeBreakerAsBusBreaker) {
+            this.importNodeBreakerAsBusBreaker = importNodeBreakerAsBusBreaker;
+            return this;
         }
 
         public double lowImpedanceLineR() {
@@ -925,6 +930,7 @@ public class Conversion {
 
         private boolean ensureIdAliasUnicity = false;
         private boolean importControlAreas = true;
+        private boolean importNodeBreakerAsBusBreaker = false;
 
         private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
@@ -936,7 +942,6 @@ public class Conversion {
         private Xfmr3RatioPhaseInterpretationAlternative xfmr3RatioPhase = Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3ShuntInterpretationAlternative xfmr3Shunt = Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE;
         private Xfmr3StructuralRatioInterpretationAlternative xfmr3StructuralRatio = Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE;
-
     }
 
     private final CgmesModel cgmes;
