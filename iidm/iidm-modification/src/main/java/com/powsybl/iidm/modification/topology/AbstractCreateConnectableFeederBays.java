@@ -246,9 +246,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         int parallelBbsNumber = 0;
         if (position == null) {
             // Only one bar exists so only one disconnector is needed
-//            int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
             createNodeBreakerSwitchesTopologyFromBusbarSectionList(voltageLevel, connectableNode, forkNode, namingStrategy, baseId, bbs);
-//            createNodeBreakerSwitches(connectableNode, forkNode, bbsNode, namingStrategy, baseId, voltageLevel.getNodeBreakerView());
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
             noBusbarSectionPositionExtensionReport(reporter, bbs);
         } else {

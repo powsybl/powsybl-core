@@ -279,12 +279,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
             // Topology creation
             if (position == null) {
                 // Only one bar exists so only one disconnector is needed
-//                int bbsNode = bbs.getTerminal().getNodeBreakerView().getNode();
                 createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, newLine1Id, bbs);
                 createNodeBreakerSwitchesTopologyFromBusbarSectionList(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, namingStrategy, newLine2Id, bbs);
-
-//                createNodeBreakerSwitches(firstAvailableNode, firstAvailableNode + 1, bbsNode, namingStrategy, newLine1Id, 1, tappedVoltageLevel.getNodeBreakerView());
-//                createNodeBreakerSwitches(firstAvailableNode + 3, firstAvailableNode + 2, bbsNode, namingStrategy, newLine2Id, 1, tappedVoltageLevel.getNodeBreakerView());
                 LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created for each line.", bbs.getId());
                 noBusbarSectionPositionExtensionReport(reporter, bbs);
             } else {
