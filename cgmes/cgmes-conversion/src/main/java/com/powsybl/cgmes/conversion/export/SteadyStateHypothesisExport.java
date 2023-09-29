@@ -56,7 +56,7 @@ public final class SteadyStateHypothesisExport {
             writeEquivalentInjections(network, cimNamespace, writer, context);
             writeTapChangers(network, cimNamespace, regulatingControlViews, writer, context);
             writeGenerators(network, cimNamespace, regulatingControlViews, writer, context);
-            writeBatteries(network, cimNamespace, regulatingControlViews, writer, context);
+            writeBatteries(network, cimNamespace, writer, context);
             writeShuntCompensators(network, cimNamespace, regulatingControlViews, writer, context);
             writeStaticVarCompensators(network, cimNamespace, regulatingControlViews, writer, context);
             writeRegulatingControls(regulatingControlViews, cimNamespace, writer, context);
@@ -263,7 +263,7 @@ public final class SteadyStateHypothesisExport {
                             -g.getTargetP(), -g.getTargetQ(), isInSlackBus(g) ? 1 : 0,
                             cimNamespace, writer, context);
                     break;
-                case "SynchronousMachine":
+                case SYNCHRONOUS_MACHINE:
                     writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
                             -g.getTargetP(), -g.getTargetQ(), isInSlackBus(g) ? 1 : 0, mode(g.getTargetP()),
                             cimNamespace, writer, context);
@@ -311,8 +311,7 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
     }
 
-    private static void writeBatteries(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
-                                                 XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeBatteries(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Battery b : network.getBatteries()) {
             writeSynchronousMachine(context.getNamingStrategy().getCgmesId(b), false,
                     -b.getTargetP(), -b.getTargetQ(), isInSlackBus(b) ? 1 : 0, mode(b.getTargetP()),
