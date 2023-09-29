@@ -36,6 +36,7 @@ public final class SteadyStateHypothesisExport {
     private static final Logger LOG = LoggerFactory.getLogger(SteadyStateHypothesisExport.class);
     private static final String REGULATING_CONTROL_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl";
     private static final String GENERATING_UNIT_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit";
+    private static final String SYNCHRONOUS_MACHINE = "SynchronousMachine";
 
     private SteadyStateHypothesisExport() {
     }
@@ -250,9 +251,9 @@ public final class SteadyStateHypothesisExport {
     private static void writeGenerators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                  XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Generator g : network.getGenerators()) {
-            String cgmesEquipment = g.getProperty(Conversion.PROPERTY_CGMES_EQUIPMENT, "SynchronousMachine");
+            String cgmesOriginalClass = g.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, SYNCHRONOUS_MACHINE);
 
-            switch (cgmesEquipment) {
+            switch (cgmesOriginalClass) {
                 case "EquivalentInjection":
                     writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getTargetQ(),
                             g.isVoltageRegulatorOn(), g.getTargetV(), cimNamespace, writer, context);
@@ -269,7 +270,7 @@ public final class SteadyStateHypothesisExport {
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
                 default:
-                    throw new PowsyblException("Unexpected cgmes equipment " + cgmesEquipment);
+                    throw new PowsyblException("Unexpected cgmes equipment " + cgmesOriginalClass);
             }
         }
     }
@@ -292,7 +293,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeSynchronousMachine(String id, boolean controlEnabled, double p, double q, int referencePriority, String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartAbout("SynchronousMachine", id, cimNamespace, writer, context);
+        CgmesExportUtil.writeStartAbout(SYNCHRONOUS_MACHINE, id, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
         writer.writeCharacters(Boolean.toString(controlEnabled));
         writer.writeEndElement();

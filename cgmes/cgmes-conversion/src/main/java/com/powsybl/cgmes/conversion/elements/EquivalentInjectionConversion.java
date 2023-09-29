@@ -20,9 +20,10 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerConversion {
 
     private static final String REGULATION_TARGET = "regulationTarget";
+    private static final String EQUIVALENT_INJECTION = "EquivalentInjection";
 
     public EquivalentInjectionConversion(PropertyBag ei, Context context) {
-        super("EquivalentInjection", ei, context);
+        super(EQUIVALENT_INJECTION, ei, context);
     }
 
     @Override
@@ -84,7 +85,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         // the original ACLineSegment or Switch terminals
         // We want to keep track add this equivalent injection terminal
         // under a separate, specific, alias type
-        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection", this.id);
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + EQUIVALENT_INJECTION, this.id);
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId());
         if (cgmesTerminal != null) {
             dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal", cgmesTerminal.id());
@@ -112,11 +113,11 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
 
-        addSpecificProperties(g, p);
+        addSpecificProperties(g);
     }
 
-    private static void addSpecificProperties(Generator generator, PropertyBag p) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_EQUIPMENT, "EquivalentInjection");
+    private static void addSpecificProperties(Generator generator) {
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, EQUIVALENT_INJECTION);
     }
 
     static class Regulation {

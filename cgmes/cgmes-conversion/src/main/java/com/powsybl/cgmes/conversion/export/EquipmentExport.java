@@ -305,9 +305,9 @@ public final class EquipmentExport {
         // We have to write each generating unit only once
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
-            String cgmesEquipment = generator.getProperty(Conversion.PROPERTY_CGMES_EQUIPMENT, "SynchronousMachine");
+            String cgmesOriginalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "SynchronousMachine");
 
-            switch (cgmesEquipment) {
+            switch (cgmesOriginalClass) {
                 case "EquivalentInjection":
                     String reactiveCapabilityCurveId = writeReactiveCapabilityCurve(generator, cimNamespace, writer, context);
                     EquivalentInjectionEq.write(context.getNamingStrategy().getCgmesId(generator), generator.getNameOrId(),
@@ -329,7 +329,7 @@ public final class EquipmentExport {
                             regulatingControlId, writer, context, generatingUnitsWritten);
                     break;
                 default:
-                    throw new PowsyblException("Unexpected cgmes equipment " + cgmesEquipment);
+                    throw new PowsyblException("Unexpected cgmes equipment " + cgmesOriginalClass);
             }
         }
     }

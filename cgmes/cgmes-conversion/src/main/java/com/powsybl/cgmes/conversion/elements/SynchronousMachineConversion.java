@@ -88,7 +88,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     }
 
     private static void addSpecificProperties(Generator generator, PropertyBag p) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_EQUIPMENT, "SynchronousMachine");
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "SynchronousMachine");
         String type = p.getLocal("type");
         if (type != null) {
             generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));

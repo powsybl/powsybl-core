@@ -56,7 +56,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
     }
 
     private static void addSpecificProperties(Generator generator, PropertyBag p) {
-        generator.setProperty(Conversion.PROPERTY_CGMES_EQUIPMENT, "ExternalNetworkInjection");
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "ExternalNetworkInjection");
         double governorSCD = p.asDouble("governorSCD");
         if (!Double.isNaN(governorSCD)) {
             generator.setProperty(Conversion.PROPERTY_CGMES_GOVERNOR_SCD, String.valueOf(governorSCD));
